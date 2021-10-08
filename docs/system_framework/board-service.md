@@ -8,7 +8,7 @@ board-service 使用 java 开发，基于 spring-boot 框架，使用 maven 进�
 
 board-service 的各种功能依赖 WeFe 中其他的服务，但就 board-service 本身的运行而言，只依赖 mysql 数据库，所以在启动前需要先准备好 mysql 服务。
 
-这里只描述如何编译并启动 board-service 服务，完整的 WeFe 系统部署过程详见 [WeFe 部署文档](/docker/README.md)。
+这里只描述如何编译并启动 board-service 服务，完整的 WeFe 系统部署过程详见 [WeFe 部署文档](/install/install)。
 
 **初始化数据库（建表）**
 
