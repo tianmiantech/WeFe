@@ -125,7 +125,8 @@ public class BaseGatewayService extends AbstractService {
             try {
                 checkPermission(e);
             } catch (StatusCodeWithException ex) {
-                return ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, ex.getMessage());
+                result = ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, ex.getMessage());
+                return result;
             }
             result = ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, e.getMessage());
 
