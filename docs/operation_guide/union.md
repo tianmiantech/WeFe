@@ -4,7 +4,7 @@
 
 联邦相关业务是由 union 服务支撑，所以在技术角度来讲联邦即 union 服务，
 union 由去中心化的区块链作为底层存储，更多 union 相关信息，
-请查看 [系统架构](/system_framework/system_framework) 相关章节。
+请查看 [系统架构](/system_framework/global) 相关章节。
 
 
 ## 联邦成员

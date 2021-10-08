@@ -2,7 +2,6 @@
 
 - [**WeFe**](/)
 - [**联邦学习**](federated_learning/federated_learning.md)
-- [**联邦学习 vs 传统机器学习**](vs/vs.md)
 - [**安装指南**](install/install.md)
 - [**使用教程**](operation_guide/operation_guide.md)
   - [初始化系统](operation_guide/init_system.md)
@@ -11,20 +10,19 @@
   - [联邦](operation_guide/union.md)
   - [建立合作](operation_guide/project.md)
   - [建模](operation_guide/modeling.md)
-- [**系统架构**](system_framework/system_framework.md)
+- **系统架构**
+  - [**总览**](system_framework/global.md)
   - [**union**](system_framework/union.md)
   - [**board-website**](system_framework/board-website.md)
   - [**board-service**](system_framework/board-service.md)
   - [**flow**](system_framework/flow.md)
   - [**kernel**](system_framework/kernel.md)
   - [**gateway**](system_framework/gateway.md)
-  - [**storage**](system_framework/storage.md)
   - [**board_mysql**](system_framework/board_mysql.md)
   - [**serving**](system_framework/serving.md)
   - [**fusion**](system_framework/fusion.md)
 - [**计算引擎**](calculation_engine/calculation_engine.md)
   - [Spark](calculation_engine/spark.md)
   - [函数计算](calculation_engine/fc.md)
-- [贡献代码]("代码规范、提交流程")
-- [常见问题与解答]
-- [Release Note]
+- [**贡献代码**](committer/committer.md)
+- [**Release Note**](release/release.md)

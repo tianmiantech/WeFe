@@ -12,9 +12,9 @@ gateway 是各成员间进行通信的唯一出入口服务。
 
 # 架构图
 
-![image-20210923001512879](../images/GatewaySystemStructure.jpeg)
+<img src="../_media/system_framework/GatewaySystemStructure.jpeg" style="max-height:700px;border:solid 1px #ccc" />
 
-## 项目的打包与启动
+# 项目的打包与启动
 **环境依赖**
 
 本项目的打包与启动环境依赖于

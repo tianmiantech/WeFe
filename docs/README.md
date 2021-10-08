@@ -15,7 +15,7 @@
 
 ```
 
-WeFe ( WeLab Federated Learning ) 是 `Welab 汇立集团`创新研究中心发起的开源项目，为联邦学习生态系统提供了一套好用的可靠的安全计算框架。
+WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕科技](https://www.tianmiantech.com)发起的开源项目，为联邦学习生态系统提供了一套好用的可靠的安全计算框架。
 
 
 

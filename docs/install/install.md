@@ -111,10 +111,7 @@ brew install --cask --appdir=/Applications docker
 
 ## 下载 WeFe 镜像
 
-您可以在多个地方下载到 WeFe 系统的 docker 镜像。
-
-// todo：补充下载地址
-
+请前往 [Release Note](release/release) 查看镜像版本列表，并获取下载链接。
 
 ## 编辑 wefe.cfg
 
@@ -131,14 +128,6 @@ EXTRANET_IP=0.0.0.0
 <br>
 
 **可选的配置项：**
-
-计算引擎选择
-```shell
-# 计算引擎，SPARK or FC
-CALCULATION_ENGINE=SPARK
-```
-
-若采用SPARK计算引擎，可选配置如下
 ```shell
 # 若服务器内存 ≥ 32G，可酌情优化为如下配置，否则保持默认配置即可
 SPARK_DRIVER_MEMORY=15g
@@ -148,8 +137,6 @@ SPARK_EXECUTOR_MEMORY=2g
 SPARK_EXECUTOR_CORES=1
 SPARK_NUM_SLICES=32
 ```
-
-若采用FC计算引擎，请参考 [**函数计算开通指南**](/install/install_fc) 开通并配置。
 
 ## 启动 WeFe
 ```shell
@@ -162,7 +149,7 @@ sh wefe-service.sh stop
 
 ## 访问 WeFe
 
-board-website 是 WeFe 系统的可视化操作界面，访问 `http://[主机 IP]/board-website` 即可进入 登录/注册 界面。
+board-website 是 WeFe 系统的可视化操作界面，访问 `http://IP:PORT/board-website` 即可进入 登录/注册 界面。
 
 第一个在 board 中注册的用户为 WeFe 的超级管理员，超级管理员登录后需要对 WeFe 系统进行初始化，初始化成功后您即登记成为联邦中的一员。
 
