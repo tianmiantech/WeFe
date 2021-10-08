@@ -1,0 +1,20 @@
+{
+  "HorzLabelEncoderTransferVariable": {
+    "local_labels": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "label_mapping": {
+      "src": "arbiter",
+      "dst": [
+        "provider",
+        "promoter"
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+data_promoter: "data/vehicle_scale_horz_promoter.csv"
+data_provider: "data/vehicle_scale_horz_provider.csv"
+#data_test: "data/vehicle_scale_horz_test.csv"
+idx: "id"
+label_name: "y"
+data_promoter_train: "vehicle_scale_horz_promoter"
+data_promoter_val: "vehicle_scale_horz_promoter"
+data_provider_train: "vehicle_scale_horz_provider"
+data_provider_val: "vehicle_scale_horz_provider"
+eval_type: "multi"
+task_type: "classification"
+loss_func: "cross_entropy"
+tree_depth: 5
+tree_num: 50
+learning_rate: 0.3

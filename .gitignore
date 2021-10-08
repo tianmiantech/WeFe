@@ -1,0 +1,48 @@
+# 排除 ide 文件
+.idea/
+*.iml
+out
+gen
+
+*.project
+.settings/
+.classpath
+.vscode/
+
+
+# 排除编译输出
+*.class
+target/
+
+# 排除日志
+log/
+logs/
+*.log
+*.log.*
+
+# 排除 Microsoft Office 临时文件
+~$*.*
+
+# py相关排除
+*.py[cod]
+
+# db排除
+data/__META__/
+data/IN_MEMORY/
+data/LMDB/
+data/sqlite/
+data/export/
+
+# 排除job数据
+jobs/
+
+# 排除build
+build/
+
+# 排除mac本地文件
+*.DS_Store
+
+venv/
+/docker/
+**/assembly/
+/assembly/

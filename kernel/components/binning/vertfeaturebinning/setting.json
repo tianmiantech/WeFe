@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/FeatureBinningParam",
+  "role": {
+    "promoter": {
+      "program": "vert_binning_promoter.py/VertFeatureBinningPromoter"
+    },
+    "provider": {
+      "program": "vert_binning_provider.py/VertFeatureBinningProvider"
+    }
+  }
+}

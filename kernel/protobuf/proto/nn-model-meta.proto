@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package com.welab.wefe.core.mlmodel.buffer;
+option java_outer_classname = "NNModelMetaProto";
+
+message EarlyStop {
+  string early_stop = 1;
+  double eps = 2;
+}
+
+message Optimizer {
+  string optimizer = 1;
+  string args = 2;
+}
+
+message HorzNNParam {
+  bool secure_aggregate = 1;
+  int32 aggregate_every_n_epoch = 2;
+  string config_type = 3;
+  repeated string nn_define = 4;
+  int32 batch_size = 5;
+  int32 max_iter = 6;
+  EarlyStop early_stop = 7;
+  repeated string metrics = 8;
+  Optimizer optimizer = 9;
+  string loss = 10;
+  bool encode_label = 11;
+}
+
+message NNModelMeta {
+  int32 aggregate_iter = 1;
+  HorzNNParam params = 100;
+}

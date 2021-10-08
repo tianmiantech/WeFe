@@ -1,0 +1,11 @@
+POST {{baseUrl}}/account/update
+Content-Type: application/json
+token: {{token}}
+
+{
+  "id": "6ac57a3898714273a2bb38f6ba959c78",
+  "nickName": "updateNick1",
+  "email": "afd@12.com"
+}
+
+###

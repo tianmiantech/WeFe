@@ -1,0 +1,12 @@
+>
+
+### 保存成员信息
+
+POST {{baseUrl}}/member_save
+Content-Type: application/json
+
+{
+  "memberId":"test",
+  "baseUrl":"www.baidu.com",
+  "publicKey":"test_key"
+}

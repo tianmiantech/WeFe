@@ -1,0 +1,40 @@
+{
+  "CommonTransferVariable": {
+    "promoter2provider_complete_status": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "promoter2arbiter_complete_status": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider2promoter_complete_status": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "arbiter2promoter_complete_status": {
+      "src": "arbiter",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider2provider_complete_status": {
+      "src": "provider",
+      "dst": [
+        "provider"
+      ]
+    },
+    "promoter2promoter_complete_status": {
+      "src": "promoter",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

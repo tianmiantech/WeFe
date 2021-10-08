@@ -1,0 +1,162 @@
+POST {{baseUrl}}/project/flow/update/graph
+Content-Type: application/json
+token: {{token}}
+
+{
+  "flow_id": "aad09525-7cfa-449c-951e-da3f22c0e23f",
+  "graph": {
+    "nodes": [
+      {
+        "id": "1608695294703624",
+        "x": 203,
+        "y": 84,
+        "singleEdge": true,
+        "anchorPoints": [
+          [
+            0.5,
+            0
+          ],
+          [
+            0.5,
+            1
+          ]
+        ],
+        "label": "载入数据集",
+        "data": {
+          "isStart": true,
+          "isEnd": false,
+          "anchorPoints": [
+            [
+              0.5,
+              0
+            ],
+            [
+              0.5,
+              1
+            ]
+          ],
+          "errorLog": true,
+          "jsonParams": false,
+          "input": {},
+          "componentType": "DataIO"
+        },
+        "type": "rect-node",
+        "style": {
+          "nodeState:default": {
+            "lineWidth": 1,
+            "fill": "#ecf3ff",
+            "stroke": "#d9e8ff"
+          },
+          "nodeState:selected": {
+            "lineWidth": 2,
+            "stroke": "#1890ff"
+          },
+          "fill": "#ecf3ff",
+          "stroke": "#d9e8ff"
+        },
+        "labelCfg": {
+          "fill": "#4483FF"
+        }
+      },
+      {
+        "id": "16086952998588207",
+        "x": 203,
+        "y": 164,
+        "singleEdge": true,
+        "anchorPoints": [
+          [
+            0.5,
+            0
+          ],
+          [
+            0.5,
+            1
+          ]
+        ],
+        "label": "横向LR",
+        "data": {
+          "isStart": false,
+          "isEnd": false,
+          "anchorPoints": [
+            [
+              0.5,
+              0
+            ],
+            [
+              0.5,
+              1
+            ]
+          ],
+          "errorLog": true,
+          "jsonParams": false,
+          "input": {},
+          "componentType": "HorzLR"
+        },
+        "type": "rect-node",
+        "style": {
+          "nodeState:default": {
+            "lineWidth": 1,
+            "fill": "#ecf3ff",
+            "stroke": "#d9e8ff"
+          },
+          "nodeState:selected": {
+            "lineWidth": 2,
+            "stroke": "#1890ff"
+          },
+          "fill": "#ecf3ff",
+          "stroke": "#d9e8ff"
+        },
+        "labelCfg": {
+          "fill": "#4483FF"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "1608695294703624",
+        "target": "16086952998588207",
+        "sourceAnchor": 1,
+        "targetAnchor": 0,
+        "label": "",
+        "type": "cubic-edge",
+        "style": {
+          "edgeState:default": {
+            "stroke": "#aab7c3",
+            "endArrow": {
+              "path": "M 0,0 L 8,4 L 7,0 L 8,-4 Z",
+              "fill": "#aab7c3",
+              "stroke": "#aab7c3"
+            }
+          },
+          "edgeState:selected": {
+            "stroke": "#1890FF"
+          },
+          "edgeState:hover": {
+            "stroke": "#1890FF"
+          },
+          "endArrow": true
+        },
+        "id": "edge1",
+        "startPoint": {
+          "x": 203,
+          "y": 104.5,
+          "index": 1
+        },
+        "endPoint": {
+          "x": 203,
+          "y": 143.5,
+          "index": 0
+        },
+        "curveOffset": [
+          -20,
+          20
+        ],
+        "curvePosition": [
+          0.5,
+          0.5
+        ]
+      }
+    ],
+    "combos": []
+  }
+}

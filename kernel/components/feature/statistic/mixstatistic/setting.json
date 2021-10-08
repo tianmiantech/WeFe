@@ -1,0 +1,14 @@
+{
+  "param_class": "param.py/MixStatisticParam",
+  "role": {
+    "promoter": {
+      "program": "mix_statistic_promoter.py/MixStatisticPromoter"
+    },
+    "provider": {
+      "program": "mix_statistic_provider.py/MixStatisticProvider"
+    },
+    "arbiter": {
+      "program": "mix_statistic_arbiter.py/MixStatisticArbiter"
+    }
+  }
+}

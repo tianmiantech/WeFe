@@ -1,0 +1,21 @@
+POST {{baseUrl}}/flow/job/detail
+Content-Type: application/json
+
+{
+  "jobId": "2e8874e5cd5547088688add0039c60d6",
+  "flowId": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "member_role": "promoter"
+}
+
+
+
+###
+
+POST {{baseUrl}}/flow/job/detail
+Content-Type: application/json
+
+{
+  "jobId": "2e8874e5cd5547088688add0039c60d6",
+  "flowId": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "needResult": true
+}

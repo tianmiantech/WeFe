@@ -1,0 +1,3 @@
+#!/bin/bash
+#python server.py
+gunicorn -w  2  --threads 1  -b 0.0.0.0:9000 --keep-alive 600 -t 600 server:app

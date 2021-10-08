@@ -1,0 +1,34 @@
+{
+  "DhKeyIntersectTransferVariable": {
+    "dh_pubkey": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "intersect_provider_ids_process": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "promoter_key": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "intersect_promoter_ids_process": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "intersect_ids": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

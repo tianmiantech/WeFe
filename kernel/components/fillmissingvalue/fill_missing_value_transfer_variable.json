@@ -1,0 +1,10 @@
+{
+  "FillMissingValueTransferVariable": {
+    "fill_missing_value_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

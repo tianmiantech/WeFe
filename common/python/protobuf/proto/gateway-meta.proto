@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "basic-meta.proto";
+//import "storage-basic.proto";
+package com.welab.wefe.gateway.api.meta.basic;
+option java_outer_classname = "GatewayMetaProto";
+
+
+message Job {
+  string jobId = 1; // Id
+  string jobName = 2; // 名称
+}
+
+message Task {
+  string taskId = 1; // 任务ID
+  string taskName = 2; // 任务名称
+  Job job = 3;
+}
+
+
+message Member {
+  string memberId = 1; // 成员ID
+  string memberName = 2; // 成功名称
+  com.welab.wefe.gateway.api.meta.basic.Endpoint endpoint = 3; // 目地址
+}
+
+enum TransferStatus {
+  NOT_PROCESSED = 0;
+  INITIALIZING = 1;
+  PROCESSING = 2;
+  COMPLETE = 3;
+  ERROR = 4;
+  CANCELLED = 5;
+}
+
+// 传输内容；如果Action为object.actions.db指定类型的，则objectData的json结构必须有namespace（库名）和name（表名）这两个字段
+message Content {
+  string objectData = 1;// 小数据类型的Action；如配置文件里的object.actions.memory和object.actions.db指定类型的数据载体
+  bytes objectByteData = 3;// 小数据类型的用二进制数据载体
+  repeated ConfigData configDatas = 2;// Action为config.actions指定类型的数据载体
+}
+
+// 用于传送大数据（dsource类型的action）的载体
+message ConfigData{
+  bytes key = 1;
+  bytes value = 2;
+}
+
+// 网关收发的元数据
+message TransferMeta {
+  Job job = 1; // 作业信息 客户端传（可空）
+  Member src = 2; // 发送方 gateway（非空）
+  Member dst = 3; // 接收方gateway（非空）
+  string action = 4; // 动作 客户端传（非空）
+  Content content = 5; // 内容 客户传（非空）
+  TransferStatus transferStatus = 6; // 传输状态 gateway
+  string sessionId = 7; // 唯一标识ID，客户端传
+  int64 receiveDate = 8; // 接收到数据的时间 gateway
+  int64 expireDate = 9; // 数据过期时间 gateway
+  int32 sequenceNo = 10; // 序号 gateway
+  bool sequenceIsEnd = 11; // 是否结束 gateway
+  bytes taggedVariableName = 12;
+  string tag = 13;
+  string channel = 14;
+  string processor = 15; // 处理器
+}

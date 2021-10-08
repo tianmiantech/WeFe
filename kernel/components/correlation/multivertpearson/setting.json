@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/PearsonParam",
+  "role": {
+    "promoter": {
+      "program": "multi_vert_pearson_promoter.py/MultiVertPearsonPromoter"
+    },
+    "provider": {
+      "program": "multi_vert_pearson_provider.py/MultiVertPearsonProvider"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "intersect_method": "dh",
+  "random_bit": 1024,
+  "sync_intersect_ids": true
+}

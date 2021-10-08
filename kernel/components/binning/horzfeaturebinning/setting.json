@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/HorzFeatureBinningParam",
+  "role": {
+    "arbiter": {
+      "program": "horz_binning.py/HorzBinningArbiter"
+    },
+    "provider|promoter": {
+      "program": "horz_binning.py/HorzBinningClient"
+    }
+  }
+}

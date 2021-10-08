@@ -1,0 +1,18 @@
+data_promoter: "data/breast_horz_promoter.csv"
+data_provider: "data/breast_horz_provider.csv"
+promoter_data_table: "breast_horz_promoter"
+provider_data_table: "breast_horz_provider"
+epoch: 150
+lr: 0.05
+batch_size: 32
+optimizer: Adam
+encode_label: true
+layers:
+  - name: Dense
+    params: { units: 5, input_shape: [ 18 ], activation: relu }
+  - name: Dense
+    params: { units: 4, activation: softmax }
+dataset: vehicle
+loss: categorical_crossentropy
+is_multy: true
+metrics: [ "accuracy" ]

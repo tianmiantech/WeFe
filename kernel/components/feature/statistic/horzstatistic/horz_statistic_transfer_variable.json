@@ -1,0 +1,16 @@
+{
+  "HorzStatisticTransferVariable": {
+    "provider_statistic_infos": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "statistic_results": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

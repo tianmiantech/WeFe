@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/member/list
+Content-Type: application/json
+
+{
+  "projectId": "cc5c169e573e4e75a1aeff3833e17171"
+}

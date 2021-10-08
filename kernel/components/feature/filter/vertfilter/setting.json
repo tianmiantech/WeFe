@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/VertSampleFilterParam",
+  "role": {
+    "promoter|provider": {
+      "program": "vert_filter.py/VertSampleFilter"
+    }
+  }
+}

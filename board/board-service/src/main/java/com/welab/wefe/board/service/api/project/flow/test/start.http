@@ -1,0 +1,9 @@
+POST {{baseUrl}}/flow/start
+Content-Type: application/json
+
+{
+  "flow_id": "34bb11fb249c4181a62c9b0743a7cd9f",
+  "use_cache": false
+}
+
+###

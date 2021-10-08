@@ -1,0 +1,7 @@
+POST {{baseUrl}}/project/flow/job/preview
+Content-Type: application/json
+
+{
+  "flow_id": "b0f3ce028c1d44c9a9a1a3e3a74fa71a",
+  "use_cache": true
+}

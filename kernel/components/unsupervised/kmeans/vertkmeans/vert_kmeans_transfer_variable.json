@@ -1,0 +1,40 @@
+{
+  "VertKmeansTransferVariable": {
+    "init_center": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_dist": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "cluster_result": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_center_dist": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_tol": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "converged_result": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

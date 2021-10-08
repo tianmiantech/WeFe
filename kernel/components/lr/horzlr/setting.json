@@ -1,0 +1,14 @@
+{
+  "param_class": "../param.py/HorzLogisticParam",
+  "role": {
+    "promoter": {
+      "program": "horz_lr_client.py/HorzLRClient"
+    },
+    "provider": {
+      "program": "horz_lr_client.py/HorzLRClient"
+    },
+    "arbiter": {
+      "program": "horz_lr_arbiter.py/HorzLRArbiter"
+    }
+  }
+}

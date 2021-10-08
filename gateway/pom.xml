@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.welab.wefe</groupId>
+        <artifactId>wefe</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>gateway</artifactId>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+    <description>网关</description>
+
+
+    <properties>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-all</artifactId>
+            <version>1.32.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-data-mysql</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-lang</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-data-storage</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aliyun.openservices</groupId>
+            <artifactId>tablestore</artifactId>
+            <version>5.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <finalName>wefe-gateway</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.welab.wefe.gateway.GatewayServer</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <!--
+
+                       <extensions>
+                           <extension>
+                               <groupId>kr.motd.maven</groupId>
+                               <artifactId>os-maven-plugin</artifactId>
+                               <version>1.6.2</version>
+                           </extension>
+                       </extensions>
+                       <plugins>
+                           <plugin>
+                               <groupId>org.xolstice.maven.plugins</groupId>
+                               <artifactId>protobuf-maven-plugin</artifactId>
+                               <version>0.6.1</version>
+                               <configuration>
+                                   <protocArtifact>com.google.protobuf:protoc:3.11.0:exe:${os.detected.classifier}</protocArtifact>
+                                   <pluginId>grpc-java</pluginId>
+                                   <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.29.0:exe:${os.detected.classifier}</pluginArtifact>
+                               </configuration>
+                               <executions>
+                                   <execution>
+                                       <goals>
+                                           <goal>compile</goal>
+                                           <goal>compile-custom</goal>
+                                       </goals>
+                                   </execution>
+                               </executions>
+                           </plugin>
+                       </plugins>
+                       -->
+    </build>
+
+</project>

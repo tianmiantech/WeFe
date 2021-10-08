@@ -1,0 +1,46 @@
+
+RUNTIME custom
+RUN fun-install apt install gcc
+RUN fun-install apt install g++
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install six==1.15.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install cachetools==4.1.1
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install numba==0.50.1
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install numpy==1.19.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install pycryptodome==3.4.7
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install pycryptodomex==3.9.8
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install Deprecated==1.2.10
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install scipy==1.5.1
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install psutil==5.7.2
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install peewee==3.13.3
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install requests==2.24.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install protobuf==3.12.2
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install PyMySQL==0.10.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install sklearn
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install grpcio==1.29.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install grpcio-tools==1.29.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install clickhouse-driver==0.1.4
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install tornado
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install tablestore==5.1.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install aliyun-python-sdk-core
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install flask
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install gunicorn
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install aliyun-python-sdk-sts==3.0.2
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install werkzeug
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install aliyun-fc2
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install aiohttp==3.7.3
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install oss2==2.14.0
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install pandas==1.1.5
+RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install netifaces==0.11.0
+
+
+
+
+
+
+
+
+
+
+
+
+

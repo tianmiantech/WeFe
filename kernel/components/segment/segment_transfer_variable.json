@@ -1,0 +1,22 @@
+{
+  "SegmentTransferVariable": {
+    "segment_ids": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "promoter_key": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_key": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

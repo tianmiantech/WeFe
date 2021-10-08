@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+cd board/board-website
+npx --no-install commitlint -H '!!!请检查提交格式是否符合要求 feat|fix|build: your message     官方文档 https://github.com/conventional-changelog/commitlint/#what-is-commitlint' --edit $1 -g commitlint.config.js

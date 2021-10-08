@@ -1,0 +1,9 @@
+
+### 预览数据集中的数据
+POST {{baseUrl}}/storage/data_set/preview
+Content-Type: application/json
+
+{
+  "id": "7d1286926e6a6ece8598fb039dddd600"
+}
+

@@ -1,0 +1,13 @@
+data_promoter: "data/breast_horz_promoter.csv"
+data_provider: "data/breast_horz_provider.csv"
+#data_test: "data/breast_horz_test.csv"
+promoter_data_table: "breast_horz_promoter"
+provider_data_table: "breast_horz_provider"
+idx: "id"
+label_name: "y"
+penalty: "L2"
+max_iter: 30
+alpha: 0.01
+batch_size: 320
+learning_rate: 0.15
+optimizer: "rmsprop"

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option java_outer_classname = "FeatureCalculationParamProto";
+
+
+message FeatureValue {
+  map<string, double> feature_values = 1;
+}
+
+message LeftCols {
+  repeated string original_cols = 1;
+  map<string, bool> left_cols = 2;
+}
+
+message FeatureCalculationFilterParam{
+  map<string, double> feature_values = 1;
+  repeated FeatureValue provider_feature_values = 2;
+  LeftCols left_cols = 3;
+  repeated LeftCols provider_left_cols = 4;
+  string filter_name = 5;
+}
+
+message FeatureCalculationParam{
+  repeated FeatureCalculationFilterParam results = 1;
+  LeftCols final_left_cols = 2;
+  repeated string col_names = 3;
+  repeated providerColNames provider_col_names = 4;
+  repeated string header = 5;
+  string role = 6;
+  int64 member_id = 7;
+}
+
+
+message FeatureCalculationResultsParam{
+  repeated FeatureCalculationResultParam calculate_results = 1;
+}
+
+message FeatureCalculationResultParam{
+  string role = 1;
+  string member_id = 2;
+  repeated FeatureCalculationValueResultParam results = 3;
+}
+message FeatureCalculationValueResultParam{
+  string filter_name = 1;
+  repeated string cols = 2;
+  repeated double values = 3;
+}
+
+message providerColNames{
+  repeated string col_names = 1;
+  string member_id = 2;
+}

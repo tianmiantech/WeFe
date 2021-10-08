@@ -1,0 +1,9 @@
+{
+  "param_class": "param.py/EvaluateParam",
+  "need_deploy": false,
+  "role": {
+    "promoter|provider": {
+      "program": "evaluation.py/Evaluation"
+    }
+  }
+}

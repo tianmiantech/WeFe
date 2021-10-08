@@ -1,0 +1,42 @@
+version: "3"
+services:
+
+  wefe_middleware_service_clickhouse:
+    image: yandex/clickhouse-server:20.6.5.8
+    restart: always
+    ports:
+      - 8122:8123 # clickhouse_port
+      - 9900:9000 # clickhouse_tcp_port
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - "/data/wefe/docker-compose/clickhouse:/var/lib/clickhouse" # clickhouse_data
+      - "./mount/clickhouse/config.xml:/etc/clickhouse-server/config.xml"
+      - "./mount/clickhouse/users.xml:/etc/clickhouse-server/users.xml"
+      - "./mount/clickhouse/clickhouse_init_db.sh:/docker-entrypoint-initdb.d/init-db.sh"
+  wefe_middleware_service_mysql:
+    image: mysql:5.7.24
+    environment:
+      MYSQL_ROOT_PASSWORD: "wefe2020"
+      MYSQL_USER: "wefe"
+      MYSQL_PASSWORD: "wefe2020"
+      MYSQL_DATABASE: "wefe_board"
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--default-time-zone=+8:00'
+    ]
+    ports:
+      - 4406:3306 # mysql_port
+    restart: always
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - '/data/wefe/docker-compose/mysql:/var/lib/mysql' # mysql_data
+      - './mount/sql/wefe_board.sql:/docker-entrypoint-initdb.d/wefe_board.sql'
+
+networks:
+  network:
+    driver: bridge

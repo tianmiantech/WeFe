@@ -1,0 +1,28 @@
+POST {{baseUrl}}/flow/job/query
+Content-Type: application/json
+
+{
+  "flow_id": "015d34e5192e4831a4d6ea321a3584a5",
+  "job_id": "10d421d323974914ad5a934f1c159a21"
+}
+
+
+###
+
+POST {{baseUrl}}/flow/job/query
+Content-Type: application/json
+
+{
+  "flow_id": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "name": "凯子"
+}
+
+###
+
+POST {{baseUrl}}/flow/job/query
+Content-Type: application/json
+
+{
+  "flow_id": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "status": "success"
+}

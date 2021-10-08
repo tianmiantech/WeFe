@@ -1,0 +1,8 @@
+POST {{baseUrl}}/project/data/info
+Content-Type: application/json
+
+{
+  "project_id": "bc82138206024e3e977909e56cb417ee"
+}
+
+###

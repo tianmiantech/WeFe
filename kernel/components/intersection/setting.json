@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/IntersectParam",
+  "role": {
+    "promoter": {
+      "program": "intersect_model.py/IntersectPromoter"
+    },
+    "provider": {
+      "program": "intersect_model.py/IntersectProvider"
+    }
+  }
+}

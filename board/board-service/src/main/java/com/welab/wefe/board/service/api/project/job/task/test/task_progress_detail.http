@@ -1,0 +1,9 @@
+POST {{baseUrl}}/task/progress/detail
+Content-Type: application/json
+
+{
+  "task_id": "232d57369945464cbd4aa054dc8608a0_promoter_DataIO_16185344762495381",
+  "member_role": "promoter"
+}
+
+###

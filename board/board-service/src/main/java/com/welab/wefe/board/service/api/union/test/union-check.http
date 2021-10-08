@@ -1,0 +1,7 @@
+### 检查union访问状态
+POST {{baseUrl}}/union/online/check
+Content-Type: application/json
+
+{}
+
+###

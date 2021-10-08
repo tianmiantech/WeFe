@@ -1,0 +1,13 @@
+POST {{baseUrl}}/project/flow/node/detail
+Content-Type: application/json
+
+{
+  "flow_id": "a9632fcc436f4400bba1726532475f7b",
+  "nodeId": "1608695123123294703624"
+}
+
+
+
+###
+
+GET {{baseUrl}}/project/flow/node/detail?nodeId=16088884188236603&flow_id=a9632fcc436f4400bba1726532475f7b

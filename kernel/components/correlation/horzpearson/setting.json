@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/HorzPearsonParam",
+  "role": {
+    "promoter|provider": {
+      "program": "horz_pearson_client.py/HorzPearsonClient"
+    },
+    "arbiter": {
+      "program": "horz_pearson_arbiter.py/HorzPearsonArbiter"
+    }
+  }
+}

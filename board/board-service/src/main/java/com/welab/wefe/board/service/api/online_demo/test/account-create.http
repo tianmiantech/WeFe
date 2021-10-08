@@ -1,0 +1,48 @@
+
+### 正常注册
+POST {{baseUrl}}/account/online_demo/create
+Content-Type: application/json
+
+{
+  "phone_number": "13100000001",
+  "nickname": "小甜甜",
+  "password": "password",
+  "email": "email@email.com"
+}
+
+
+### 手机号冲突
+POST {{baseUrl}}/account/online_demo/create
+Content-Type: application/json
+
+{
+  "phone_number": "13100000000",
+  "nickname": "小甜甜",
+  "password": "password",
+  "email": "email@com.cn"
+}
+
+
+
+### 手机号错误
+POST {{baseUrl}}/account/online_demo/create
+Content-Type: application/json
+
+{
+  "phone_number": "1310000",
+  "nickname": "小甜甜",
+  "password": "password",
+  "email": "email@email.email"
+}
+
+
+### 邮箱错误
+POST {{baseUrl}}/account/online_demo/create
+Content-Type: application/json
+
+{
+  "phone_number": "13100000000",
+  "nickname": "小甜甜",
+  "password": "password",
+  "email": "email@email.email"
+}

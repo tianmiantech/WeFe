@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/OotParam",
+  "role": {
+    "promoter|provider": {
+      "program": "oot.py/Oot"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "VertPCATransferVariable": {
+    "provider_cov_infos": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "promoter_features": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "pca_result": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

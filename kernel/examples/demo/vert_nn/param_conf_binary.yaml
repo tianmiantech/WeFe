@@ -1,0 +1,17 @@
+data_promoter: "data/breast_vert_promoter.csv"
+data_provider: "data/breast_vert_provider.csv"
+promoter_data_table: "breast_vert_promoter"
+provider_data_table: "breast_vert_provider"
+idx: "id"
+label_name: "y"
+loss: "binary_crossentropy"
+learning_rate: 0.15
+tol: 0.01
+batch_size: 320
+metrics: ["AUC"]
+epochs: 10
+bottom_layer_units: 2
+interactive_layer_units: 2
+top_layer_units: 1
+top_act: "sigmoid"
+opt: "SGD"

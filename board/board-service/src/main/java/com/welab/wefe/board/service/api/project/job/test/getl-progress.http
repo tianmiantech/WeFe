@@ -1,0 +1,6 @@
+POST {{baseUrl}}/flow/job/get_progress
+Content-Type: application/json
+
+{
+  "jobId": "ae2bc9747e4c430281d80868bff15a17"
+}

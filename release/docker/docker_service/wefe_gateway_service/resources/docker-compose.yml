@@ -1,0 +1,21 @@
+version: "3"
+services:
+
+  wefe_gateway_service:
+    image: wefe_gateway_service:v.2.1 # wefe_version
+    ports:
+      - 50051:50051 # gateway_port
+    restart: always
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - "/data/wefe/docker-compose/logs/wefe-gateway:/data/logs/wefe-gateway" # gateway_logs
+      - "./mount/start.sh:/opt/gateway/start.sh"
+      - "./mount/config.properties:/opt/gateway/config.properties"
+      - "./mount/application.properties:/opt/gateway/application.properties"
+      - "./mount/gateway.jar:/opt/gateway/gateway.jar"
+
+networks:
+  network:
+    driver: bridge

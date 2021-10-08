@@ -1,0 +1,141 @@
+{
+  "MixDecisionTreeTransferVariable": {
+    "best_split_points": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "node_sample_num": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "cur_layer_node_num": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "encrypted_grad_and_hess": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "tree_node_queue": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "node_positions": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_local_histograms": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "encrypted_splitinfo_provider": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "federated_best_splitinfo_provider": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "final_splitinfo_provider": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "dispatch_node_provider": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "dispatch_node_provider_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "tree": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_data": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_data_by_provider": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "predict_finish_tag": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_cur_to_split_node_num": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_leafs": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "sync_flag": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "cipher_compressor_para": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

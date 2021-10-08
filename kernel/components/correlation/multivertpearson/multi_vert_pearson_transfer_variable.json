@@ -1,0 +1,22 @@
+{
+  "MultiVertPearsonTransferVariable": {
+    "provider_corr_infos": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_corr_provider": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "promoter_features": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

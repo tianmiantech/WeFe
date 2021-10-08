@@ -1,0 +1,16 @@
+data:
+  promoter:
+    - "data/breast_vert_promoter.csv"
+    - "data/breast_vert_promoter.csv"
+  provider:
+    - "data/breast_vert_provider.csv"
+    - "data/breast_vert_provider.csv"
+table:
+  promoter:
+    - "breast_vert_promoter1"
+    - "breast_vert_promoter2"
+  provider:
+    - "breast_vert_provider1"
+    - "breast_vert_provider2"
+idx: "id"
+label_name: "y"

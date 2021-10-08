@@ -1,0 +1,147 @@
+POST {{baseUrl}}/flow/job/task/select
+Content-Type: application/json
+
+{
+  "job_id": "89e2733bb05e4463a8eb9cb4b322449d",
+  "flow_id": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "flow_node_id": "16106025400141554",
+  "select_type": "cv_iv",
+  "cv": 0.1,
+  "iv": 0.02,
+  "members": [
+    {
+      "member_role": "promoter",
+      "member_id": "269330b21e1342b48124303e55c75ce0",
+      "features": [
+        {
+          "name": "x8"
+
+        },
+        {
+          "name": "x9"
+
+        },
+        {
+          "name": "x0"
+          
+        },
+        {
+          "name": "x1"
+          
+        },
+        {
+          "name": "x2"
+          
+        },
+        {
+          "name": "x3"
+          
+        },
+        {
+          "name": "x4"
+          
+        },
+        {
+          "name": "x5"
+          
+        },
+        {
+          "name": "x6"
+          
+        },
+        {
+          "name": "x7"
+          
+        }
+      ]
+    },
+    {
+      "member_role": "provider",
+      "member_id": "682d087e965a4c5d8a2807a772a571c1",
+      "features": [
+        {
+          "name": "x8"
+          
+        },
+        {
+          "name": "x19"
+          
+        },
+        {
+          "name": "x9"
+          
+        },
+        {
+          "name": "x10"
+          
+        },
+        {
+          "name": "x0"
+          
+        },
+        {
+          "name": "x12"
+          
+        },
+        {
+          "name": "x1"
+          
+        },
+        {
+          "name": "x11"
+          
+        },
+        {
+          "name": "x2"
+          
+        },
+        {
+          "name": "x14"
+          
+        },
+        {
+          "name": "x3"
+          
+        },
+        {
+          "name": "x13"
+          
+        },
+        {
+          "name": "x16"
+          
+        },
+        {
+          "name": "x4"
+          
+        },
+        {
+          "name": "x5"
+          
+        },
+        {
+          "name": "x15"
+          
+        },
+        {
+          "name": "x6"
+          
+        },
+        {
+          "name": "x18"
+          
+        },
+        {
+          "name": "x7"
+          
+        },
+        {
+          "name": "x17"
+          
+        }
+      ]
+    }
+  ]
+}
+
+###

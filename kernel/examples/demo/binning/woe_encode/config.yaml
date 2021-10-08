@@ -1,0 +1,6 @@
+data_promoter: "data/breast_horz_promoter.csv"
+data_provider: "data/breast_horz_provider.csv"
+promoter_data_table: "breast_horz_promoter"
+provider_data_table: "breast_horz_provider"
+idx: "id"
+label_name: "y"

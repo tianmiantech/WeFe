@@ -1,0 +1,2378 @@
+{
+ "HorzBinningTransferVariable": {
+  "local_static_values": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "global_static_values": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "query_array": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "is_converge": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  }
+ },
+ "MixBinningTransferVariable": {
+  "local_static_values": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "global_static_values": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "query_array": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "is_converge": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "data_count": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "total_count": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "min_max": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "all_min_max": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "missing_count": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "total_missing_count": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "local_ranks": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "global_ranks": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "encrypted_bin_sum": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "bin_sum": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "merge_bin_sum": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "encrypted_label": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "paillier_pubkey": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "bucket_idx": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_bin_results": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_bin_bucket_info": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_binning_results": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "VertFeatureBinningTransferVariable": {
+  "encrypted_bin_sum": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "encrypted_label": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "paillier_pubkey": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "bucket_idx": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_bin_results": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_binning_results": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "ready_to_get_data": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "HorzDecisionTreeTransferVariable": {
+  "best_split_points": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "node_sample_num": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "cur_layer_node_num": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  }
+ },
+ "HorzSecureBoostingTransferVariable": {
+  "tree_dim": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "feature_number": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "loss_status": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "stop_flag": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "local_labels": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "label_mapping": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "valid_features": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "MixDecisionTreeTransferVariable": {
+  "best_split_points": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "node_sample_num": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "cur_layer_node_num": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "encrypted_grad_and_hess": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "tree_node_queue": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "node_positions": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_local_histograms": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "encrypted_splitinfo_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "federated_best_splitinfo_provider": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "final_splitinfo_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "dispatch_node_provider": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "dispatch_node_provider_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "tree": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data_by_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "predict_finish_tag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_cur_to_split_node_num": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_leafs": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "sync_flag": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "cipher_compressor_para": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "MixSecureBoostingTransferVariable": {
+  "provider_feature_number": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "feature_number": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_split_points": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "optim_split_points": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "loss_status": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "stop_flag": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "local_labels": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "label_mapping": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "valid_features": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "tree_dim": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  },
+  "predict_start_round": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter_predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_predict_data": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "VertDecisionTreeTransferVariable": {
+  "encrypted_grad_and_hess": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "tree_node_queue": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "node_positions": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "encrypted_splitinfo_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "federated_best_splitinfo_provider": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "final_splitinfo_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "dispatch_node_provider": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "dispatch_node_provider_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "tree": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data_by_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "predict_finish_tag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_cur_to_split_node_num": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_leafs": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "sync_flag": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "cipher_compressor_para": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertSecureBoostingTransferVariable": {
+  "tree_dim": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_start_round": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter_predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_predict_data": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "MultiVertPearsonTransferVariable": {
+  "provider_corr_infos": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_corr_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "promoter_features": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertPearsonTransferVariable": {
+  "provider_corr_infos": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "promoter_features": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertNNTransferVariable": {
+  "batch_data_index": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_info": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "decrypted_promoter_fowrad": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "decrypted_promoter_weight_gradient": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "encrypted_acc_noise": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "encrypted_promoter_forward": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "encrypted_promoter_weight_gradient": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "encrypted_provider_forward": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_backward": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "is_converge": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "selective_info": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "drop_out_table": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "interactive_layer_output_unit": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "HorzStatisticTransferVariable": {
+  "provider_statistic_infos": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "statistic_results": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "MixStatisticTransferVariable": {
+  "provider_statistic_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_statistic_magnitude": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_merge_statistic_magnitude": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertFeatureCalculationTransferVariable": {
+  "provider_calculate_cols": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "result_left_cols": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_calculate_results": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "FeatureStatisticTransferVariable": {
+  "feature_statistic_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "percentage_list": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "FillMissingValueTransferVariable": {
+  "fill_missing_value_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "DhIntersectTransferVariable": {
+  "dh_mod": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "intersect_provider_ids_process": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "intersect_promoter_ids_process": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "intersect_promoter_ids": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "intersect_ids": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "DhKeyIntersectTransferVariable": {
+  "dh_pubkey": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "intersect_provider_ids_process": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "promoter_key": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "intersect_promoter_ids_process": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "intersect_ids": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "HorzLRTransferVariable": {
+  "aggregated_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_ciphertext_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_ciphertext_promoter": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_ciphertext_provider": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "promoter_loss": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_model": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_party_weight": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_uuid": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_loss": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_model": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_party_weight": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_uuid": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "is_converge": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "paillier_pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_result": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_wx": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "re_encrypt_times": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "re_encrypted_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "to_encrypt_model": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "use_encrypt": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "uuid_conflict_flag": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "MixLRTransferVariable": {
+  "paillier_pubkey": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_data_index": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  },
+  "provider_weight": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_forward_dict": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "fore_gradient": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_loss_regular": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "converge_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_info": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_gradient_r": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_en_gradient_r": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_model_weights_r": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_optimizer_model_weights": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_prob": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "aggregated_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_ciphertext_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_ciphertext_promoter": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_ciphertext_provider": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "promoter_loss": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_model": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_party_weight": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_uuid": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_loss": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_model": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_party_weight": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_uuid": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "is_converge": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "predict_result": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_wx": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "re_encrypt_times": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "re_encrypted_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "to_encrypt_model": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "use_encrypt": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "uuid_conflict_flag": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "OneVsRestTransferVariable": {
+  "provider_classes": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "aggregate_classes": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  }
+ },
+ "VertLRTransferVariable": {
+  "paillier_pubkey": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_data_index": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_weight": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_forward_dict": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "fore_gradient": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_loss_regular": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "converge_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_info": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_gradient_r": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_en_gradient_r": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_prob": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "VertPCATransferVariable": {
+  "provider_cov_infos": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "promoter_features": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "pca_result": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "SegmentTransferVariable": {
+  "segment_ids": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter_key": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_key": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "VertKmeansTransferVariable": {
+  "init_center": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_dist": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "cluster_result": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_center_dist": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_tol": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "converged_result": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "AggregatorTransVar": {
+  "ModelScatterTransVar.client_model": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "ModelBroadcasterTransVar.server_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "CommonTransferVariable": {
+  "promoter2provider_complete_status": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter2arbiter_complete_status": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider2promoter_complete_status": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "arbiter2promoter_complete_status": {
+   "src": "arbiter",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider2provider_complete_status": {
+   "src": "provider",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter2promoter_complete_status": {
+   "src": "promoter",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "CrossValidationTransferVariable": {
+  "train_sid": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "test_sid": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "DHTransVar": {
+  "p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "HasConvergedTransVar": {
+  "has_converged": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "HorzTransferVariable": {
+  "promoter_uuid": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_uuid": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "uuid_conflict_flag": {
+   "src": "arbiter",
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_pubkey": {
+   "src": "arbiter",
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "dh_ciphertext_provider": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_ciphertext_promoter": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "dh_ciphertext_bc": {
+   "src": "arbiter",
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "promoter_party_weight": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "provider_party_weight": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "use_encrypt": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "paillier_pubkey": {
+   "src": "arbiter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "re_encrypt_times": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "model_to_re_encrypt": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "model_re_encrypted": {
+   "src": "arbiter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "is_converge": {
+   "src": "arbiter",
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "provider_loss": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_loss": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "aggregated_model": {
+   "src": "arbiter",
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "provider_model": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "promoter_model": {
+   "src": "promoter",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "to_encrypt_model": {
+   "src": "provider",
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "re_encrypted_model": {
+   "src": "arbiter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "LegacyAggregatorTransVar": {
+  "LossScatterTransVar.loss": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "HasConvergedTransVar.has_converged": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "ModelScatterTransVar.client_model": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "ModelBroadcasterTransVar.server_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "LossScatterTransVar": {
+  "loss": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  }
+ },
+ "PaillierCipherTransVar": {
+  "use_encrypt": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "pailler_pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "re_encrypt_times": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "model_to_re_encrypt": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "model_re_encrypted": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "RandomPaddingCipherTransVar": {
+  "UUIDTransVar.uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "DHTransVar.p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "DHTransVar.p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "DHTransVar.pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "SecretShareTransferVariable": {
+  "multiply_triplets_cross": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "multiply_triplets_encrypted": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "rescontruct": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "share": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "SecureAddExampleTransferVariable": {
+  "promoter_share": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_share": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "provider_sum": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "SecureAggregatorTransVar": {
+  "AggregatorTransVar.ModelScatterTransVar.client_model": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "AggregatorTransVar.ModelBroadcasterTransVar.server_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "SecureMeanAggregatorTransVar": {
+  "AggregatorTransVar.ModelScatterTransVar.client_model": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "AggregatorTransVar.ModelBroadcasterTransVar.server_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "SecureSumAggregatorTransVar": {
+  "AggregatorTransVar.ModelScatterTransVar.client_model": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "AggregatorTransVar.ModelBroadcasterTransVar.server_model": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "arbiter"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "StepwiseTransferVariable": {
+  "promoter_data_info": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "arbiter",
+    "provider"
+   ]
+  },
+  "provider_data_info": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "arbiter",
+    "promoter"
+   ]
+  },
+  "step_best": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "provider",
+    "promoter"
+   ]
+  }
+ },
+ "UUIDTransVar": {
+  "uuid": {
+   "src": [
+    "arbiter"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  }
+ },
+ "ValidationStrategyVariable": {
+  "validation_status": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  }
+ }
+}

@@ -1,0 +1,59 @@
+@import "./_variable.scss";
+@import "./_element-ui.scss";
+@import "./_reset.scss";
+@import "./_main.scss";
+
+#app {
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease-in;
+}
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.plr{position: relative;}
+.pla{position: absolute;}
+.float-left{float: left;}
+.float-right{float: right;}
+
+.el-container{flex-basis:0;}
+.base-container {
+    overflow-x: hidden;
+    position: relative;
+    padding-top: 50px;
+}
+
+.base-wrapper{
+    padding: 20px;
+    min-height: 500px;
+    &>.fade-enter-active,
+    &>.fade-leave-active {
+        position: absolute;
+        left: 41px;
+        right: 41px;
+    }
+}
+
+.customed-scrollbar {
+    overflow-x: hidden;
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,0.1);
+    }
+    ::-webkit-scrollbar-track {
+        border-radius: 0;
+        background: rgba(0,0,0,0.05);
+    }
+    ::-webkit-scrollbar-corner{ background: rgba(0,0,0,0.1); }
+}

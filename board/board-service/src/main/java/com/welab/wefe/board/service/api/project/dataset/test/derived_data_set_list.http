@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/derived_data_set/query
+Content-Type: application/json
+
+{
+  "projectId": "f6920e302e724da78f488883dfde5bd5"
+}

@@ -1,0 +1,103 @@
+{
+    "name": "wefe-serving-website",
+    "version": "1.0.0",
+    "welab": {
+        "contextPath": "/serving-website"
+    },
+    "context": "serving-website",
+    "description": "wefe 联邦学习serving服务",
+    "scripts": {
+        "fix": "node_modules/eslint/bin/eslint.js --ext .js,.ts,.vue --fix --cache --fix-type suggestion,layout,problem .",
+        "dev": "webpack-dev-server --config webpack/webpack.dev.js",
+        "dll": "webpack -p --progress --config webpack/webpack.dll.js",
+        "build": "node webpack/build.js"
+    },
+    "husky": {
+        "hooks": {}
+    },
+    "lint-staged": {
+        "src/**/*.{vue,ts,js}": [
+            "prettier --write",
+            "npx lint-staged -c .lintstagedrc.js"
+        ]
+    },
+    "keywords": [
+        "vue",
+        "vuex"
+    ],
+    "author": "claude.wu",
+    "license": "ISC",
+    "dependencies": {
+        "@antv/g6": "^4.3.3",
+        "axios": "0.19.2",
+        "base64-url": "^2.3.3",
+        "echarts": "^4.9.0",
+        "element-ui": "^2.13.2",
+        "js-cookie": "^2.2.1",
+        "js-md5": "^0.7.3",
+        "v-charts": "^1.19.0",
+        "vue": "^2.6.11",
+        "vue-json-views": "^1.3.0",
+        "vue-router": "^3.1.6",
+        "vue-simple-uploader": "^0.7.4",
+        "vuex": "^3.4.0",
+        "welabx-g6": "^0.4.1"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-transform-runtime": "^7.9.6",
+        "@vue/babel-preset-app": "^3.12.1",
+        "autoprefixer": "^9.7.6",
+        "babel-eslint": "^10.1.0",
+        "babel-loader": "^8.1.0",
+        "babel-plugin-component": "^1.1.1",
+        "cache-loader": "^4.1.0",
+        "chalk": "^4.0.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "cross-env": "^7.0.2",
+        "css-loader": "^3.5.3",
+        "dart-sass": "^1.25.0",
+        "dotenv-extended": "^2.8.0",
+        "eslint": "^7.0.0",
+        "eslint-friendly-formatter": "^4.0.1",
+        "eslint-loader": "^4.0.2",
+        "eslint-plugin-html": "^6.0.2",
+        "eslint-plugin-vue": "^6.2.2",
+        "file-loader": "^6.0.0",
+        "friendly-errors-webpack-plugin": "^1.7.0",
+        "hard-source-webpack-plugin": "^0.13.1",
+        "html-webpack-plugin": "^4.3.0",
+        "html-webpack-tags-plugin": "^2.0.17",
+        "husky": "^4.2.5",
+        "lint-staged": "^10.2.11",
+        "mime": "^2.4.5",
+        "mini-css-extract-plugin": "^0.9.0",
+        "optimize-css-assets-webpack-plugin": "^5.0.3",
+        "ora": "^4.0.4",
+        "postcss-loader": "^3.0.0",
+        "sass-loader": "^8.0.2",
+        "sass-resources-loader": "^2.0.3",
+        "shelljs": "^0.8.4",
+        "style-loader": "^1.2.1",
+        "terser-webpack-plugin": "^3.0.1",
+        "url-loader": "^4.1.0",
+        "vue-loader": "^15.9.2",
+        "vue-template-compiler": "^2.6.11",
+        "webpack": "^4.43.0",
+        "webpack-bundle-analyzer": "^3.7.0",
+        "webpack-cli": "^3.3.11",
+        "webpack-dashboard": "^3.2.0",
+        "webpack-dev-server": "^3.11.0",
+        "webpack-manifest-plugin": "^2.2.0",
+        "webpack-merge": "^4.2.2"
+    },
+    "engines": {
+        "node": ">= 8.0.0",
+        "npm": ">= 3.0.0"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 20 versions",
+        "not ie <= 8"
+    ]
+}

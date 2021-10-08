@@ -1,0 +1,12 @@
+###
+POST {{baseUrl}}/project/add/audit
+Content-Type: application/json
+
+
+{
+  "audit_comment": "",
+  "audit_result": "agree",
+  "project_id": "796b3ebb5aed4f5e9b9b7051c67a7c7a"
+}
+
+###

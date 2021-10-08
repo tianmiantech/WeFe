@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+
+message FeatureCalculationMeta {
+  repeated string filter_methods = 1;
+  repeated string cols = 3;
+  UniqueValueMeta unique_meta = 4;
+  IVValueCalculationMeta iv_value_meta = 5;
+  IVPercentileCalculationMeta iv_percentile_meta = 6;
+  VarianceOfCoeCalculationMeta variance_coe_meta = 7;
+  OutlierColsCalculationMeta outlier_meta = 8;
+  ManuallyFilterMeta manually_meta = 9;
+  bool need_run = 10;
+}
+
+message UniqueValueMeta {
+  double eps = 1;
+}
+
+message IVValueCalculationMeta{
+  double value_threshold = 1;
+  bool local_only = 2;
+}
+
+message IVPercentileCalculationMeta{
+  double percentile_threshold = 1;
+  bool local_only = 2;
+}
+
+message VarianceOfCoeCalculationMeta {
+  double value_threshold = 1;
+}
+
+message OutlierColsCalculationMeta {
+  double percentile = 1;
+  double upper_threshold = 2;
+}
+
+message ManuallyFilterMeta {
+  repeated string filter_out_names = 1;
+}

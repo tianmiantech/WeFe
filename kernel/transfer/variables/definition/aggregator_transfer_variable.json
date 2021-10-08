@@ -1,0 +1,22 @@
+{
+  "AggregatorTransVar": {
+    "ModelScatterTransVar.client_model": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "ModelBroadcasterTransVar.server_model": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/LocalBaselineParam",
+  "role": {
+    "promoter|provider": {
+      "program": "local_baseline.py/LocalBaseline"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package com.welab.wefe.gateway.api.meta.storage;
+option java_outer_classname = "StorageMetaProto";
+
+enum StorageType {
+  LMDB = 0;
+  CLICK_HOUSE = 1;
+}
+
+message StorageLocator {
+  StorageType type = 1;
+  string namespace = 2;
+  string name = 3;
+  int32 fragment = 4;
+}

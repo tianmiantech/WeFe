@@ -1,0 +1,9 @@
+POST {{baseUrl}}/tianmiantech/page_url
+Content-Type: application/json
+
+{
+  "page": "testApply",
+  "params": {
+    "mobile": "13168730657"
+  }
+}

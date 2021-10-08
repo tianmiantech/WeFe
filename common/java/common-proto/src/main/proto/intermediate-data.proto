@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com.welab.wefe.common.proto;
+
+message IntermediateDataItem {
+    bytes key = 1;
+    bytes value = 2;
+}
+
+message IntermediateData{
+    repeated IntermediateDataItem intermediateData = 1;
+}

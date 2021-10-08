@@ -1,0 +1,50 @@
+>
+
+### 同步模型
+
+POST {{baseUrl}}/model_save
+Content-Type: application/json
+
+{
+  "modelId":"202006040951549039544_hetero_lr_0",
+  "algorithm":"LogisticRegression",
+  "flType":"vertical",
+  "modelParam":{
+    "iters":1,
+    "weight":{
+      "x0":0.8826716033463725,
+      "x1":0.8707860429531787,
+      "x2":0.003546763155908711,
+      "x3":0.616637104607468,
+      "x4":0.2958930928786438,
+      "x5":0.3551545824045957,
+      "x6":0.9448810909992469,
+      "x7":0.2026986892796379,
+      "x8":0.5766130870455439,
+      "x9":0.8077549137046575
+    },
+    "intercept":0.09969915261040749,
+    "header":[
+      "x0",
+      "x1",
+      "x2",
+      "x3",
+      "x4",
+      "x5",
+      "x6",
+      "x7",
+      "x8",
+      "x9"
+    ]
+  },
+  "memberParams":[
+    {
+      "memberId":"hunter01",
+      "role":"promoterPredict"
+    },
+    {
+      "memberId":"hunter02",
+      "role":"provider"
+    }
+  ]
+}

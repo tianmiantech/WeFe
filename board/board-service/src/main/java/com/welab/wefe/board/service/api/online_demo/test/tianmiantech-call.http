@@ -1,0 +1,9 @@
+POST {{baseUrl}}/tianmiantech/call_api
+Content-Type: application/json
+
+{
+  "api": "realNameState",
+  "params": {
+    "mobile": "131682730657"
+  }
+}

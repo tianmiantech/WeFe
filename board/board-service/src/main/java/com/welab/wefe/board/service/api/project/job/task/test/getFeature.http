@@ -1,0 +1,10 @@
+POST {{baseUrl}}/flow/job/task/feature
+Content-Type: application/json
+
+{
+  "job_id": "a6e1f7a9dfd349688ccde5f707b4db86",
+  "flow_id": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "flow_node_id": "16124192335523646"
+}
+
+###

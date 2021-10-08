@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/HorzStatisticParam",
+  "role": {
+    "promoter|provider": {
+      "program": "horz_statistic_client.py/HorzStatisticClient"
+    },
+    "arbiter": {
+      "program": "horz_statistic_arbiter.py/HorzStatisticArbiter"
+    }
+  }
+}

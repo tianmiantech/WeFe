@@ -1,0 +1,8 @@
+POST {{baseUrl}}/project/flow/get_progress
+Content-Type: application/json
+
+{
+  "flowIdList":[
+    "81576f08c5fc48cca66f0f7c7834e7be"
+  ]
+}

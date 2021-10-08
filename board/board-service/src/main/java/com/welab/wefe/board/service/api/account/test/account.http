@@ -1,0 +1,82 @@
+
+### 登录
+POST {{baseUrl}}/account/login
+Content-Type: application/json
+
+{
+  "phone_number": "13100000001",
+  "password": "password"
+}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+client.global.set("token", response.body.data.token);
+
+%}
+
+
+
+### 修改密码
+POST {{baseUrl}}/account/update_password
+Content-Type: application/json
+token: {{token}}
+
+{
+  "old_password": "password",
+  "new_password": "password1"
+}
+
+
+
+### 修改密码后再次登录
+POST {{baseUrl}}/account/login
+Content-Type: application/json
+
+{
+  "phone_number": "13100000001",
+  "password": "password1"
+}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+client.global.set("token", response.body.data.token);
+
+%}
+
+
+### 再把密码改回去
+POST {{baseUrl}}/account/update_password
+Content-Type: application/json
+token: {{token}}
+
+{
+  "old_password": "password1",
+  "new_password": "password"
+}
+
+
+### 分页查询
+POST {{baseUrl}}/account/query
+Content-Type: application/json
+
+{
+  "page_index": 0,
+  "page_size": 2
+}
+
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}

@@ -1,0 +1,6 @@
+POST {{baseUrl}}/account/online_demo/exist
+Content-Type: application/json
+
+{
+  "phone_number": "13168730657"
+}

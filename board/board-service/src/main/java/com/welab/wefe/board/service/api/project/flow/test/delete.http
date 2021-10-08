@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/flow/delete
+Content-Type: application/json
+
+{
+  "flow_id": "81c59ad426504586bf8eabfcfdf28bc1"
+}

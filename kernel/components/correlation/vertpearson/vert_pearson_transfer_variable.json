@@ -1,0 +1,16 @@
+{
+  "VertPearsonTransferVariable": {
+    "provider_corr_infos": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "promoter_features": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

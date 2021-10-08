@@ -1,0 +1,10 @@
+POST {{baseUrl}}/project/flow/copy
+Content-Type: application/json
+
+{
+  "targetProejctId": "c206ece46b1246e49109c172f06d4c0d",
+  "sourceFlowId": "12e1b0d5862d45c8a8c8c88e7ce0b8f3",
+  "flowRename": "新流程-9:51:28"
+}
+
+###

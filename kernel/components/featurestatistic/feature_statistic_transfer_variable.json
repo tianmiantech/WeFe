@@ -1,0 +1,16 @@
+{
+  "FeatureStatisticTransferVariable": {
+    "feature_statistic_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "percentage_list": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

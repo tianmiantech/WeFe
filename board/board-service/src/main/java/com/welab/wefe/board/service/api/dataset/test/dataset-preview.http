@@ -1,0 +1,10 @@
+
+### 预览数据集文件
+POST {{baseUrl}}/data_set/preview
+Content-Type: application/json
+token: {{token}}
+
+{
+  "filename": "/Users/zane.luo/data/f03ec02a-ef5e-4fb5-8873-08fbc8ebabe7-horz_lr_provider.csv",
+  "data_set_add_method" : "LocalFile"
+}
