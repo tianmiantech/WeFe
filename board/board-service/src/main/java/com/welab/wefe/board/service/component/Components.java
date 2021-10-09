@@ -68,6 +68,10 @@ public class Components {
     private MixStatisticComponent mixStatisticComponent;
     @Autowired
     private OotComponent ootComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
+    @Autowired
+    private VertNNComponent vertNNComponent;
 
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
@@ -118,6 +122,10 @@ public class Components {
                 return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case HorzNN:
+                return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
+            case VertNN:
+                return Launcher.CONTEXT.getBean(Components.class).vertNNComponent;
             default:
                 return null;
         }
