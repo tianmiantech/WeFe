@@ -14,6 +14,33 @@
         --docsifytabs-tab-highlight-color: purple;
       }
 
+      .advertisement {
+          position: fixed;
+          right: 20px;
+          top: 150px;
+          width: 110px;
+          box-shadow: -1px 0 2px 0px #c5ebda;
+          padding: 10px;
+          z-index: 99;
+          background-color: #fff;
+          text-align: center;
+      }
+
+    .advertisement p,
+    h4 {
+      margin: 0;
+      padding: 0;
+    }
+
+    .advertisement .Tencent_code h4 {
+      font-size: 15px;
+      color: #25a46a;
+      margin-bottom: 10px;
+    }
+
+
+
+
 
     </style>
 </head>
@@ -23,6 +50,15 @@
     <a target="_blank" href="https://tianmiantech.com/federal">在线 Demo</a>
 </nav>
 <div id="app">🏃‍🏃‍🏃‍💨 加载中...</div>
+<div class="aside_container">
+    <div class="advertisement">
+        <div class="Tencent_code">
+            <h4>加入交流群</h4>
+            <p style="font-size: 12px;">这里有许多你的小伙伴哦~</p>
+            <img src="_media/wechat_small.png"/>
+        </div>
+    </div>
+</div>
 <script>
     window.$docsify = {
       name: 'WeFe 联邦学习',
@@ -51,6 +87,11 @@
         crossChapterText: true,
       }
     }
+
+
+
+
+
 
 
 
