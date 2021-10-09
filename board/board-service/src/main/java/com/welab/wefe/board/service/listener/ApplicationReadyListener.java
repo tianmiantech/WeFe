@@ -57,14 +57,6 @@ public class ApplicationReadyListener implements ApplicationListener<Application
                     true
             );
 
-            // Internet IP
-            String internetIP = HostUtil.getOuterNetIpAddress();
-            globalConfigService.appendIpToWhiteList(
-                    internetIP,
-                    "board 外网IP地址，由 board 自主上报。",
-                    false
-            );
-
             LOG.info("上报IP地址完成.");
             // Notify the gateway to update the IP whitelist cache
             gatewayService.refreshIpWhiteListCache();
