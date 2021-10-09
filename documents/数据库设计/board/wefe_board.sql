@@ -357,7 +357,7 @@ CREATE TABLE `operator_log`
     `updated_time`   datetime(6) COMMENT '更新时间',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
 
 
 -- ----------------------------
