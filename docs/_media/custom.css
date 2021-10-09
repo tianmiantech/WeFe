@@ -6,7 +6,10 @@
     font-family:'Lobster', cursive;
 }
 
-
 nav a{
     font-weight: bold;
+}
+code{
+    max-height: 700px;
+    overflow-y: scroll;
 }

@@ -945,6 +945,6 @@ global max_allowed_packet = 1024*1024*32;
 图片较大，请点击进行放大，或右键保存到本地后查看。
 
 
-<a target="_blank" href="../_media/mysql/wefe_board.jpg"><img src="../_media/mysql/wefe_board.jpg" style="max-height:700px;border:1px solid #333" /></a>
+<a target="_blank" href="../_media/mysql/wefe_board.jpg"><img src="../_media/mysql/wefe_board.jpg" style="max-height:700px;border:1px solid #ccc" /></a>
 <!-- tabs:end -->
 
