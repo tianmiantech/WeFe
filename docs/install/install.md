@@ -118,7 +118,7 @@ brew install --cask --appdir=/Applications docker
 解压下载的镜像后，在根目录找到 `wefe.cfg` 并对其进行编辑。
 
 **必须修改的配置项：**
-```shell
+```ini
 # 本机内网 IP
 INTRANET_IP=0.0.0.0
 # 本机外网 IP
@@ -128,7 +128,7 @@ EXTRANET_IP=0.0.0.0
 <br>
 
 **可选的配置项：**
-```shell
+```ini
 # 若服务器内存 ≥ 32G，可酌情优化为如下配置，否则保持默认配置即可
 SPARK_DRIVER_MEMORY=15g
 SPARK_DRIVER_MAXRESULTSIZE=2g
