@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "member/check_route_connect", name = "Check route connect of member gateway", desc = "Check route connect of member gateway", login = false)
+@Api(path = "member/check_route_connect", name = "Check route connect of member gateway", desc = "Check route connect of member gateway")
 public class CheckMemberRouteConnectApi extends AbstractNoneOutputApi<CheckMemberRouteConnectApi.Input> {
     @Autowired
     private GatewayService gatewayService;

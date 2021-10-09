@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 The WeFe Authors. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,7 @@ import com.welab.wefe.gateway.interceptor.AntiTamperClientInterceptor;
 import com.welab.wefe.gateway.interceptor.SignVerifyClientInterceptor;
 import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyClientInterceptor;
 import io.grpc.*;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +144,7 @@ public class GrpcUtil {
      * Push message to remote end
      */
     public static BasicMetaProto.ReturnStatus pushToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        GatewayMetaProto.Member member = transferMeta.getDst();
+        GatewayMetaProto.Member dstMember = transferMeta.getDst();
         ManagedChannel originalChannel = null;
         BasicMetaProto.ReturnStatus returnStatus = null;
         long startTime = System.currentTimeMillis();
@@ -156,13 +157,12 @@ public class GrpcUtil {
             for (int i = 1; i <= failTryCount; i++) {
                 try {
                     // Binding generated signature, system time, tamper proof interceptor
-                    originalChannel = GrpcUtil.getManagedChannel(member.getEndpoint());
+                    originalChannel = GrpcUtil.getManagedChannel(dstMember.getEndpoint());
                     channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor(), new AntiTamperClientInterceptor());
                     clientStub = NetworkDataTransferProxyServiceGrpc.newBlockingStub(channel);
                     return clientStub.push(transferMeta);
                 } catch (StatusRuntimeException e) {
                     LOG.error("Message push failed, message info: " + GrpcUtil.toJsonString(transferMeta) + ",exception：", e);
-                    GatewayMetaProto.Member dstMember = transferMeta.getDst();
                     String dstName = dstMember.getMemberName();
                     String endpoint = dstMember.getEndpoint().getIp() + ":" + dstMember.getEndpoint().getPort();
                     // At present, there is no IP whitelist restriction between gateways, so only check the signature and connectivity exceptions
@@ -173,16 +173,16 @@ public class GrpcUtil {
                     }
                     if (GrpcUtil.checkIsConnectionDisableExp(e)) {
                         //The connection is unavailable. The address may have been updated. You need to refresh the destination address and try again
-                        MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(member.getMemberId());
+                        MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
                         if (null != dstMemberEntity) {
                             // Close the original channel
                             if (null != originalChannel) {
                                 originalChannel.shutdownNow().awaitTermination(1, TimeUnit.SECONDS);
                             }
                             // Reset destination member IP and port
-                            member = member.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstMemberEntity.getIp()).setPort(dstMemberEntity.getPort()).build()).build();
+                            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstMemberEntity.getIp()).setPort(dstMemberEntity.getPort()).build()).build();
                         } else {
-                            LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + member.getMemberId());
+                            LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + dstMember.getMemberId());
                         }
 
                         // Record the last error message
@@ -220,4 +220,20 @@ public class GrpcUtil {
         return returnStatus;
     }
 
+    /**
+     * Check whether the gateway address format is valid
+     */
+    public static boolean checkGatewayUriValid(String gatewayUri) {
+        String urlSeparator = ":";
+        int urlSeparatorLength = 2;
+        if (StringUtil.isEmpty(gatewayUri) || !gatewayUri.contains(urlSeparator) || gatewayUri.split(urlSeparator).length != urlSeparatorLength) {
+            return false;
+        }
+
+        String port = gatewayUri.split(urlSeparator)[1];
+        if (!NumberUtils.isDigits(port)) {
+            return false;
+        }
+        return true;
+    }
 }
