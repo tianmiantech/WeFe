@@ -30,14 +30,14 @@ JDK 1.8、Maven、MySQL
 
 **项目打包**
 
-```
+```shell
 # 基于 Maven，请保证服务器上 Maven 环境正常
 mvn clean install -Dmaven.test.skip=true -am -pl fusion/fusion-service 
 ```
 
 **项目运行**
 
-```
+```shell
 # 初始化数据库
 mysql -uroot -p < fusion-init.sql
 
@@ -69,7 +69,7 @@ npm run build -- dev
 
 **Nginx 配置**
 
-```conf
+```js
 // Nginx 参考配置
 server {
 

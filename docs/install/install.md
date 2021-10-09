@@ -76,7 +76,7 @@ docker-compose -version
 Docker 的持久化目录需要占用较大的磁盘空间，推荐将其持久化目录修改为较大的挂载盘目录( > 100G)。
 
 修改 Docker 配置文件 /etc/docker/daemon.json，若文件不存在则手动创建此文件。
-```shell
+```json
 {
   # 配置 Docker 持久化目录
   "graph": "/data/wefe/docker-compose",
