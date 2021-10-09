@@ -5,3 +5,8 @@
 .section.cover h1 .anchor span{
     font-family:'Lobster', cursive;
 }
+
+
+nav a{
+    font-weight: bold;
+}
