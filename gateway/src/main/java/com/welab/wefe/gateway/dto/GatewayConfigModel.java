@@ -28,4 +28,8 @@ public class GatewayConfigModel {
      * Off network IP white list
      */
     public String ipWhiteList = "*";
+    /**
+     * Gateway intranet address
+     */
+    public String intranetBaseUri;
 }

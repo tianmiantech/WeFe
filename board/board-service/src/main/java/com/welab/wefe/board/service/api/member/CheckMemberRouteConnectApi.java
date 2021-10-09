@@ -30,20 +30,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "member/check_route_connect", name = "Check route connect of member gateway", desc = "Check route connect of member gateway")
+@Api(path = "member/check_route_connect", name = "Check route connect of member gateway", desc = "Check route connect of member gateway", login = false)
 public class CheckMemberRouteConnectApi extends AbstractNoneOutputApi<CheckMemberRouteConnectApi.Input> {
     @Autowired
     private GatewayService gatewayService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        gatewayService.checkMemberRouteConnect(input.memberGatewayUri);
+        gatewayService.pingGatewayAlive(input.memberGatewayUri);
         return success();
     }
 
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway connectivity")
+        @Check(name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway alive")
         private String memberGatewayUri;
 
         public String getMemberGatewayUri() {

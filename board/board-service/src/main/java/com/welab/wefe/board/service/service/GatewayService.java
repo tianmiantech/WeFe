@@ -325,5 +325,23 @@ public class GatewayService extends BaseGatewayService {
 
     }
 
+    /**
+     * Check the alive of the gateway
+     *
+     * @param gatewayUri Gateway IP: prot address. If the value is not empty, it means to directly test its own gateway alive
+     */
+    public void pingGatewayAlive(String gatewayUri) throws StatusCodeWithException {
+
+        if (StringUtil.isEmpty(gatewayUri)) {
+            gatewayUri = globalConfigService.getGatewayConfig().intranetBaseUri;
+        }
+
+        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.not_null, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
+        if (!result.success()) {
+            throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
+        }
+
+    }
+
 
 }
