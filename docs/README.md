@@ -57,7 +57,7 @@ WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上
 LICENSE 由 [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) 提供
 
 ```text
-Copyright 2021 The WeFe Authors. All Rights Reserved.
+Copyright 2021 Tianmian Tech. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

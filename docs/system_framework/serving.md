@@ -40,7 +40,7 @@ mvn clean install -Dmaven.test.skip=true -am -pl serving/serving-service
 
 导入 sdk
 
-```maven
+```xml
  <dependencies>
     <dependency>
          <groupId>com.welab.wefe</groupId>

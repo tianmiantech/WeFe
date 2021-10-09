@@ -17,11 +17,15 @@
     </style>
 </head>
 <body>
+<nav>
+    <a target="_blank" href="https://tianmiantech.com/">天冕科技</a>
+    <a target="_blank" href="https://tianmiantech.com/federal">在线 Demo</a>
+</nav>
 <div id="app"></div>
 <script>
     window.$docsify = {
-      name: '',
-      repo: '',
+      name: 'WeFe 联邦学习',
+      repo: 'https://github.com/tianmiantech/WeFe',
       loadSidebar: true,
       coverpage: true,
       subMaxLevel: 2,
@@ -31,6 +35,12 @@
         theme      : 'classic',
         tabComments: true,
         tabHeadings: true
+      },
+      search: {
+        paths: 'auto',
+        placeholder: '搜索',
+        noData: '找不到结果',
+        depth: 5
       }
     }
 
@@ -41,6 +51,12 @@
 <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 <!-- docsify-tabs (latest v1.x.x) -->
 <!-- doc:https://jhildenbiddle.github.io/docsify-tabs/#/-->
-<script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-bash.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-json.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-ini.min.js"></script>
+
 </body>
 </html>
