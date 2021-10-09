@@ -78,12 +78,6 @@ public class MemberChatService extends AbstractService {
     MessageQueueRepository messageQueueRepository;
 
     @Autowired
-    NoticeRepository noticeRepository;
-
-    @Autowired
-    NoticeUnreadMessageRepository noticeUnreadMessageRepository;
-
-    @Autowired
     private ChatLastAccountService chatLastAccountService;
 
     @Autowired

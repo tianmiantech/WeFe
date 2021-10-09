@@ -874,35 +874,6 @@ CREATE TABLE `member_chat`
     KEY                 `index_created_time` (`created_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息明细表';
 
--- ----------------------------
--- Table structure for notice
--- ----------------------------
-DROP TABLE IF EXISTS `notice`;
-CREATE TABLE `notice`
-(
-    `id`           varchar(255) NOT NULL COMMENT '全局唯一标识',
-    `created_time` datetime     DEFAULT NULL COMMENT '创建时间',
-    `updated_time` datetime     DEFAULT NULL COMMENT '更新时间',
-    `name`         varchar(255) DEFAULT NULL COMMENT '通知名称',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知表';
-
--- ----------------------------
--- Table structure for notice_unread_message
--- ----------------------------
-DROP TABLE IF EXISTS `notice_unread_message`;
-CREATE TABLE `notice_unread_message`
-(
-    `id`           varchar(255) NOT NULL COMMENT '全局唯一标识',
-    `created_time` datetime     DEFAULT NULL COMMENT '创建时间',
-    `updated_time` datetime     DEFAULT NULL COMMENT '更新时间',
-    `account_id`   varchar(255) DEFAULT NULL COMMENT '账号id',
-    `message_id`   varchar(255) DEFAULT NULL COMMENT '消息id',
-    `notice_id`    varchar(255) DEFAULT NULL COMMENT '通知id',
-    `unread_num`   int(11) DEFAULT NULL COMMENT '未读消息数量',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='未读通知信息表';
-
 
 CREATE TABLE `model_oot_record`
 (
