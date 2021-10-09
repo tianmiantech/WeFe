@@ -170,7 +170,7 @@ public class ProjectMemberService {
         // and the historical data set status is unavailable. At this time,
         // the review status of the member’s data set needs to be updated.
         List<ProjectDataSetMySqlModel> dataSets = projectDataSetService.findDataSetList(input.getProjectId(),
-                item.getMemberId());
+                item.getMemberId(), item.getMemberRole());
         AuditStatus finalAuditStatus = auditStatus;
         dataSets.forEach(dataSet -> projectDataSetService.update(dataSet, x -> {
             x.setAuditStatus(finalAuditStatus);
@@ -232,7 +232,7 @@ public class ProjectMemberService {
         // and the historical data set status is unavailable. At this time,
         // the review status of the member’s data set needs to be updated.
         List<ProjectDataSetMySqlModel> dataSets = projectDataSetService.findDataSetList(input.getProjectId(),
-                item.getMemberId());
+                item.getMemberId(), item.getMemberRole());
         AuditStatus finalAuditStatus = auditStatus;
         dataSets.forEach(dataSet -> projectDataSetService.update(dataSet, x -> {
             x.setAuditStatus(finalAuditStatus);

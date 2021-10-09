@@ -234,7 +234,8 @@ public class ProjectService extends AbstractService {
                     continue;
                 }
             }
-            List<ProjectDataSetMySqlModel> projectMemberDataSets = projectDataSetService.findDataSetList(input.getProjectId(), projectMember.getMemberId());
+            List<ProjectDataSetMySqlModel> projectMemberDataSets = projectDataSetService
+                    .findDataSetList(input.getProjectId(), projectMember.getMemberId(), projectMember.getMemberRole());
             projectDataSets.addAll(projectMemberDataSets);
         }
 
