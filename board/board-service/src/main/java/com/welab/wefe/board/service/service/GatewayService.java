@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 The WeFe Authors. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -323,6 +323,23 @@ public class GatewayService extends BaseGatewayService {
             throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
         }
 
+    }
+
+    /**
+     * Check the alive of the gateway
+     *
+     * @param gatewayUri Gateway IP: prot address. If the value is not empty, it means to directly test its own gateway alive
+     */
+    public void pingGatewayAlive(String gatewayUri) throws StatusCodeWithException {
+
+        if (StringUtil.isEmpty(gatewayUri)) {
+            gatewayUri = globalConfigService.getGatewayConfig().intranetBaseUri;
+        }
+
+        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.not_null, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
+        if (!result.success()) {
+            throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
+        }
     }
 
 
