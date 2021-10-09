@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,6 +37,7 @@ import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +110,8 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
             // Integrate the features of the same binning strategy in the same member
             Map<String, List<String>> featureBinningMap = new HashMap<>();
+
+            Map<String, List<Float>> featurePoints = new HashMap<>();
             for (Feature feature : features) {
 
                 if (featureBinningMap.containsKey(feature.method.name() + "," + feature.count)) {
@@ -118,16 +121,34 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                     featureList.add(feature.name);
                     featureBinningMap.put(feature.method.name() + "," + feature.count, featureList);
                 }
+
+                if (feature.method == BinningMethod.custom) {
+                    String points = feature.getPoints();
+                    if (StringUtils.isNotBlank(points)) {
+                        String[] pointArr = points.split(",");
+                        List<Float> pointList = new LinkedList<>();
+                        for (String p : pointArr) {
+                            pointList.add(Float.parseFloat(p));
+                        }
+                        featurePoints.put(feature.name, pointList);
+                    }
+                }
+
             }
 
             // Build the array of modes required by the kernel
             for (Map.Entry<String, List<String>> entry : featureBinningMap.entrySet()) {
                 String[] strArr = entry.getKey().split(",");
 
-                JObject memberObj = JObject.create()
-                        .append("role", member.memberRole)
-                        .append("member_id", member.memberId)
-                        .append("bin_feature_names", entry.getValue());
+                JObject memberObj = JObject.create().append("role", member.memberRole)
+                        .append("member_id", member.memberId).append("bin_feature_names", entry.getValue());
+                if (BinningMethod.custom.name().equals(strArr[0])) {
+                    Map<String, List<Float>> featurePointsTmp = new HashMap<>();
+                    for (String s : entry.getValue()) {
+                        featurePointsTmp.put(s, featurePoints.get(s));
+                    }
+                    memberObj.append("feature_split_points", featurePointsTmp);
+                }
 
                 if (modesObj.size() < 1) {
                     // Build the first mode node
@@ -287,7 +308,9 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         /**
          * Bangla
          */
-        optimal
+        optimal,
+
+        custom
     }
 
     public static class Params extends AbstractCheckModel {
@@ -356,6 +379,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         private BinningMethod method;
         @Check(require = true)
         private int count;
+        private String points;
 
         //region getter/setter
 
@@ -381,6 +405,14 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
         public void setCount(int count) {
             this.count = count;
+        }
+
+        public String getPoints() {
+            return points;
+        }
+
+        public void setPoints(String points) {
+            this.points = points;
         }
 
 

@@ -42,6 +42,11 @@ public enum ComponentType {
     Segment("数据切割", null, "将数据集切割成训练集和测试集两部分"),
     VertPearson("皮尔逊相关系数", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "描述两个特征的相关性"),
     FeatureStandardized("特征标准化", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "对特征进行标准化"),
+    VertFilter("数据行过滤", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "数据行过滤（纵向）"),
+    FeatureTransform("特征转换", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "特征转换"),
+    HorzOneHot("热编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向热编码"),
+    VertOneHot("热编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向热编码"),
+    VertPCA("两方纵向PCA", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "降维，提取数据主要特征"),
 
     HorzLR("横向逻辑回归", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向逻辑回归建模"),
     VertLR("纵向逻辑回归", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向逻辑回归建模"),
