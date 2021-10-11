@@ -14,6 +14,8 @@ board-service 的各种功能依赖 WeFe 中其他的服务，但就 board-servi
 
 执行 `wefe_board.sql` 中的 sql 脚本。
 
+[点此查看数据库字典](/system_framework/board_mysql)
+
 **编译 / 打包**
 
 基于 maven 进行打包（部署机器上需要有 maven 环境）。
