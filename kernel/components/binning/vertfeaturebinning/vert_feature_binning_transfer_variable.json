@@ -1,0 +1,60 @@
+{
+  "VertFeatureBinningTransferVariable": {
+    "encrypted_bin_sum": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "encrypted_label": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "paillier_pubkey": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "bucket_idx": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_bin_results": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_binning_results": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "ready_to_get_data": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

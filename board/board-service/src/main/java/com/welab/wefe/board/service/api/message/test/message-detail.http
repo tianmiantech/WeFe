@@ -1,0 +1,8 @@
+
+### 获取消息详情
+POST {{baseUrl}}/message/detail
+Content-Type: application/json
+
+{
+  "id": "30e5a85323c34bba8d8f6fb66358e6c2"
+}

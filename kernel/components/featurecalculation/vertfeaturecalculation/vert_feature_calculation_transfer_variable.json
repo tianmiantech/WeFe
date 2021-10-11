@@ -1,0 +1,28 @@
+{
+  "VertFeatureCalculationTransferVariable": {
+    "provider_calculate_cols": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "result_left_cols": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_calculate_results": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

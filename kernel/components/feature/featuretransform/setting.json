@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/FeatureTransformParam",
+  "role": {
+    "promoter|provider": {
+      "program": "feature_transform.py/FeatureTransform"
+    }
+  }
+}

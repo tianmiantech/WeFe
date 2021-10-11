@@ -1,0 +1,28 @@
+{
+  "SecureAddExampleTransferVariable": {
+    "promoter_share": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_share": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_sum": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

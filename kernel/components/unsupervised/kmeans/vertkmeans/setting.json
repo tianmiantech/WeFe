@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/VertKMeansParam",
+  "role": {
+    "promoter": {
+      "program": "vert_kmeans_promoter.py/VertKmeansPromoter"
+    },
+    "provider": {
+      "program": "vert_kmeans_provider.py/VertKmeansProvider"
+    }
+  }
+}

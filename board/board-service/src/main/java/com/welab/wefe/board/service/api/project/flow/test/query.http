@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/flow/query
+Content-Type: application/json
+
+{
+  "projectId": "a71cb40266d84d8aa2c1dda6576b71b0"
+}

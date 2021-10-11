@@ -1,0 +1,9 @@
+POST {{baseUrl}}/project/flow/update/base_info
+Content-Type: application/json
+
+{
+  "federatedLearningType": "vertical",
+  "flowId": "6bbbfda08ce446989626e22ba7abd6cc",
+  "name": "你好骚啊",
+  "desc": "hello world"
+}

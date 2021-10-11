@@ -1,0 +1,26 @@
+{
+  "MixStatisticTransferVariable": {
+    "provider_statistic_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_statistic_magnitude": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_merge_statistic_magnitude": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

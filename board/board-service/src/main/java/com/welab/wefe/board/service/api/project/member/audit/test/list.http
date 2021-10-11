@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/member/add/audit/list
+Content-Type: application/json
+
+{
+  "projectId": "860a5add81a745109933cd1ff9a9ca4c"
+}

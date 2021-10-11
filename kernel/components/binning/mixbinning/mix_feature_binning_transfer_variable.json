@@ -1,0 +1,175 @@
+{
+  "MixBinningTransferVariable": {
+    "local_static_values": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "global_static_values": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "query_array": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "is_converge": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "data_count": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "total_count": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "min_max": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "all_min_max": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "missing_count": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "total_missing_count": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "local_ranks": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "global_ranks": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "encrypted_bin_sum": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "bin_sum": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "merge_bin_sum": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "encrypted_label": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "paillier_pubkey": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "bucket_idx": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_bin_results": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_bin_bucket_info": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_binning_results": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

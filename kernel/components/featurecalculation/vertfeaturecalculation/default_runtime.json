@@ -1,0 +1,35 @@
+{
+  "select_col_indexes": -1,
+  "select_names": [
+  ],
+  "filter_methods": [
+    "iv_value_thres",
+    "coefficient_of_variation_value_thres"
+  ],
+  "unique_param": {
+    "eps": 0.00000000000000000001
+  },
+  "iv_value_param": {
+    "value_threshold": 0.00000000000000000001,
+    "provider_thresholds": null,
+    "local_only": false
+  },
+  "iv_percentile_param": {
+    "percentile_threshold": 0.00000000000000000001,
+    "local_only": false
+  },
+  "variance_coe_param": {
+    "value_threshold": 0.00000000000000000001
+  },
+  "outlier_param": {
+    "percentile": 0.00000000000000000001,
+    "upper_threshold": 2
+  },
+  "manually_param": {
+    "filter_out_indexes": [
+    ],
+    "filter_out_names": [
+    ]
+  },
+  "need_run": true
+}

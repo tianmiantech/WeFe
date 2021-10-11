@@ -1,0 +1,30 @@
+
+syntax = "proto3";
+
+package com.welab.wefe.core.mlmodel.buffer;
+option java_outer_classname = "LRModelParamProto";
+
+message LRModelParam {
+    int32 iters = 1;
+    repeated double loss_history = 2;
+    bool is_converged = 3;
+    map<string, double> weight = 4;
+    double intercept = 5;
+    repeated string header = 6;
+    OneVsRestResult one_vs_rest_result = 7;
+    bool need_one_vs_rest = 8;
+}
+
+message SingleModel {
+    int32 iters = 1;
+    repeated double loss_history = 2;
+    bool is_converged = 3;
+    map<string, double> weight = 4;
+    double intercept = 5;
+    repeated string header = 6;
+}
+
+message OneVsRestResult {
+    repeated SingleModel completed_models = 1;
+    repeated string one_vs_rest_classes = 2;
+}

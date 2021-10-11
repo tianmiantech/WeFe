@@ -1,0 +1,46 @@
+{
+  "VertSecureBoostingTransferVariable": {
+    "tree_dim": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "stop_flag": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "begin_iter": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_start_round": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_stop_flag": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "promoter_predict_data": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_predict_data": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

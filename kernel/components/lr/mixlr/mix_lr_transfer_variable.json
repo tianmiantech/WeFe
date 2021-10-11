@@ -1,0 +1,262 @@
+{
+  "MixLRTransferVariable": {
+    "paillier_pubkey": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "batch_data_index": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "begin_iter": {
+      "src": "promoter",
+      "dst": [
+        "provider",
+        "arbiter"
+      ]
+    },
+    "provider_weight": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_forward_dict": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "fore_gradient": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_loss_regular": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "converge_flag": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "batch_info": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_gradient_r": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_en_gradient_r": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_model_weights_r": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "provider_optimizer_model_weights": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_prob": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "aggregated_model": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "dh_ciphertext_bc": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "dh_ciphertext_promoter": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "dh_ciphertext_provider": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "dh_pubkey": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "promoter_loss": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "promoter_model": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "promoter_party_weight": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "promoter_uuid": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_loss": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_model": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_party_weight": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_uuid": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "is_converge": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "predict_result": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_wx": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "re_encrypt_times": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "re_encrypted_model": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "to_encrypt_model": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "use_encrypt": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "uuid_conflict_flag": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    }
+  }
+}

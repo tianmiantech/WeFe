@@ -1,0 +1,15 @@
+POST {{baseUrl}}/project/data_set/audit
+Content-Type: application/json
+
+{
+  "caller_member_role": "provider",
+  "data": {
+    "method": "POST",
+    "project_id": "32065c74a125478581b9cd8fa980055a",
+    "data_set_id": "f2088c1f8cf04530872b5490b65064e5",
+    "status": "agree"
+  },
+  "caller_member_name": "弟依偎零四",
+  "api": "project/data_set/audit",
+  "caller_member_id": "682d087e965a4c5d8a2807a772a571c1"
+}

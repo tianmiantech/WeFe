@@ -1,0 +1,76 @@
+{
+  "HorzNNDefaultTransVar": {
+    "SecureAggregatorTransVar.AggregatorTransVar.ModelScatterTransVar.client_model": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "SecureAggregatorTransVar.AggregatorTransVar.ModelBroadcasterTransVar.server_model": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "LossScatterTransVar.loss": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "HasConvergedTransVar.has_converged": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    }
+  }
+}

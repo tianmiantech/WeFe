@@ -1,0 +1,13 @@
+{
+  "ValidationStrategyVariable": {
+    "validation_status": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider",
+        "arbiter"
+      ]
+    }
+  }
+}

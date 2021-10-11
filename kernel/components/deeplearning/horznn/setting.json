@@ -1,0 +1,14 @@
+{
+  "param_class": "horz_nn_param.py/HorzNNParam",
+  "role": {
+    "promoter": {
+      "program": "enter_point.py/HorzNNDefaultClient"
+    },
+    "provider": {
+      "program": "enter_point.py/HorzNNDefaultClient"
+    },
+    "arbiter": {
+      "program": "enter_point.py/HorzNNDefaultServer"
+    }
+  }
+}

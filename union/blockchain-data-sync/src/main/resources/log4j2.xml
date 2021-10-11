@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Properties>
+        <Property name="logPath">./log</Property>
+    </Properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1}(%F:%L) - %m%n" />
+        </Console>
+
+        <RollingFile name="front" fileName="${logPath}/blockchain-data-sync.log"
+                     filePattern="${logPath}/blockchain-data-sync.log.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1}(%L) - %m%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="200 MB" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${logPath}/" >
+                    <IfFileName glob="blockchain-data-sync.log.*.log.gz" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="error" fileName="${logPath}/blockchain-data-sync-error.log"
+                     filePattern="${logPath}/blockchain-data-sync-error.log.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1}(%L) - %m%n" />
+            <Filters>
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="200 MB" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${logPath}/" >
+                    <IfFileName glob="blockchain-data-sync-error.log.*.log.gz" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="web3sdk" fileName="${logPath}/web3sdk.log"
+                     filePattern="${logPath}/web3sdk.log.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1}(%L) - %m%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="200 MB" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${logPath}/" >
+                    <IfFileName glob="web3sdk.log.*.log.gz" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <Async name="asyncFront" bufferSize="512">
+            <AppenderRef ref="front" />
+        </Async>
+
+        <Async name="asyncError" bufferSize="512">
+            <AppenderRef ref="error" />
+        </Async>
+
+        <Async name="asyncWeb3sdk" bufferSize="512">
+            <AppenderRef ref="web3sdk" />
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.fisco.bcos" level="info" additivity="false">
+            <AppenderRef ref="asyncWeb3sdk" />
+        </Logger>
+
+        <Root level="info">
+            <AppenderRef ref="asyncFront" />
+            <AppenderRef ref="asyncError" />
+            <AppenderRef ref="console" />
+<!--            <AppenderRef ref="asyncWeb3sdk" />-->
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,44 @@
+{
+  "task_type": "classification",
+  "learning_rate": 0.1,
+  "num_trees": 2,
+  "subsample_feature_rate": 1,
+  "n_iter_no_change": false,
+  "tol": 0.0001,
+  "bin_num": 50,
+  "sparse_optimization": true,
+  "complete_secure": true,
+  "run_goss": true,
+  "top_rate": 0.2,
+  "other_rate": 0.1,
+  "cipher_compress_error": 7,
+  "new_ver": true,
+  "work_mode": "layered",
+  "tree_num_per_member": 1,
+  "promoter_depth": 2,
+  "provider_depth": 3,
+  "tree_param": {
+    "criterion_method": "xgboost",
+    "criterion_params": [
+      0.1
+    ],
+    "max_depth": 5,
+    "min_sample_split": 2,
+    "min_leaf_node": 1,
+    "min_impurity_split": 0.001,
+    "max_split_nodes": 1024
+  },
+  "objective_param": {
+    "objective": "cross_entropy",
+    "params": [
+      1.5
+    ]
+  },
+  "encrypt_param": {
+    "method": "iterativeAffine"
+  },
+  "predict_param": {
+    "with_proba": true,
+    "threshold": 0.5
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/OneHotEncoderParam",
+  "role": {
+    "promoter|provider": {
+      "program": "vert_onehot.py/VertOneHotEncoder"
+    }
+  }
+}

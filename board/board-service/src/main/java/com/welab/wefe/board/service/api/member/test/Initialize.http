@@ -1,0 +1,40 @@
+
+### 登录
+POST {{baseUrl}}/account/login
+Content-Type: application/json
+
+{
+  "phone_number": "13100000001",
+  "password": "password"
+}
+
+> {%
+
+client.global.set("token", response.body.data.token);
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}
+
+
+### 初始化系统
+POST {{baseUrl}}/system/initialize
+Content-Type: application/json
+token: {{token}}
+
+{
+  "memberName": "星环科技",
+  "memberEmail": "galaxy@galaxy.com",
+  "memberMobile": "400-88888888",
+  "memberAllowPublicDataSet": true
+}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}

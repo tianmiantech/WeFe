@@ -1,0 +1,11 @@
+{
+  "param_class": "../param.py/FeatureCalculationParam",
+  "role": {
+    "promoter": {
+      "program": "feature_calculation_promoter.py/VertFeatureCalculationPromoter"
+    },
+    "provider": {
+      "program": "feature_calculation_provider.py/VertFeatureCalculationProvider"
+    }
+  }
+}

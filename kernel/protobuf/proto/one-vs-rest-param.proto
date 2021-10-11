@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package com.welab.wefe.core.mlmodel.buffer;
+option java_outer_classname = "OneVsRestParamProto";
+
+message OneVsRestParam{
+  repeated string classes = 1;
+  repeated ClassifierModel classifier_models = 2;
+}
+
+message ClassifierModel{
+  string name = 3;
+  string namespace = 4;
+}

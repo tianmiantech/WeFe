@@ -1,0 +1,8 @@
+POST {{baseUrl}}/project/flow/add
+Content-Type: application/json
+
+{
+  "projectId": "52b15ed34297467290ea1a17e679f1ef",
+  "name": "namename",
+  "desc": "描述描述"
+}

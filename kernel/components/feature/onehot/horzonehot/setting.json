@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/HorzOneHotParam",
+  "role": {
+    "promoter|provider": {
+      "program": "horz_onehot.py/HorzOneHotEncoder"
+    }
+  }
+}

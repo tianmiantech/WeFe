@@ -1,0 +1,16 @@
+{
+  "CrossValidationTransferVariable": {
+    "train_sid": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "test_sid": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

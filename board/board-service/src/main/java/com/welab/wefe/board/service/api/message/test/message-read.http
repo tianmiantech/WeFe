@@ -1,0 +1,8 @@
+
+### 将消息标记为已读
+POST {{baseUrl}}/message/read
+Content-Type: application/json
+
+{
+  "id": "30e5a85323c34bba8d8f6fb66358e6c2"
+}

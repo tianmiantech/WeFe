@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "basic-meta.proto";
+import "gateway-meta.proto";
+package com.welab.wefe.gateway.api.service.proto;
+
+option java_outer_classname = "TransferServiceProto";
+
+service TransferService {
+    rpc send(com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (com.welab.wefe.gateway.api.meta.basic.ReturnStatus);
+    rpc recv(com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (com.welab.wefe.gateway.api.meta.basic.TransferMeta);
+
+    rpc checkStatusNow (com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (com.welab.wefe.gateway.api.meta.basic.TransferMeta);   // check the transfer status, return immediately
+}
+
+
+service NetworkDataTransferProxyService {
+    rpc push(com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (com.welab.wefe.gateway.api.meta.basic.ReturnStatus);
+
+    rpc pushData(stream com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (stream com.welab.wefe.gateway.api.meta.basic.TransferMeta);
+}

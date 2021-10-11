@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/Params",
+  "role": {
+    "promoter|provider": {
+      "program": "feature_selection.py.py/FeatureSelection"
+    }
+  }
+}

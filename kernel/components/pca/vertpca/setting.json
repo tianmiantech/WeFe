@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/VertPCAParam",
+  "role": {
+    "promoter|provider": {
+      "program": "vert_pca.py/VertPCA"
+    }
+  }
+}

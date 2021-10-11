@@ -1,0 +1,82 @@
+edition: 1.0.0
+name: wefe-fc
+access: s-config
+vars:
+  region: 'cn-shenzhen'
+  wefe-fc:
+    name: wefe-fc
+    description: function index
+    role: acs:ram::145***590:role/wefe-fc-role
+    internetAccess: true
+    vpcConfig:
+      vpcId: vpc-wz9x2vv0i1sk4d9t2ra02
+      vswitchIds: vsw-wz94re9ev2qlrcseobwfg
+      securityGroupId: sg-wz92tp0qnjlhnqhrw298
+    nasConfig: Auto
+services:
+  fc-wefe-fc-index:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.wefe-fc}
+      function:
+        name: index
+        handler: index.handler
+        timeout: 600
+        memorySize: 3072
+        runtime: custom
+        instanceType: e1
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/python
+          LD_LIBRARY_PATH: >-
+            /mnt/auto/root/usr/bin:/mnt/auto/root/usr/local/lib:/mnt/auto/root/usr/lib:/mnt/auto/root/usr/lib/x86_64-linux-gnu:/mnt/auto/root/usr/lib64:/mnt/auto/root/lib:/mnt/auto/root/lib/x86_64-linux-gnu:/mnt/auto/root/python/lib/python2.7/site-packages:/mnt/auto/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/pythonCode
+          PATH: /mnt/auto/python/bin
+          OTS_ENV: 1
+          IN_FC_ENV: 1
+        instanceConcurrency: 2
+        codeUri: ./
+  fc-wefe-fc-hpIndex:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.wefe-fc}
+      function:
+        name: hpIndex
+        handler: index.handler
+        timeout: 600
+        memorySize: 16384
+        runtime: custom
+        instanceType: c1
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/python
+          LD_LIBRARY_PATH: >-
+            /mnt/auto/root/usr/bin:/mnt/auto/root/usr/local/lib:/mnt/auto/root/usr/lib:/mnt/auto/root/usr/lib/x86_64-linux-gnu:/mnt/auto/root/usr/lib64:/mnt/auto/root/lib:/mnt/auto/root/lib/x86_64-linux-gnu:/mnt/auto/root/python/lib/python2.7/site-packages:/mnt/auto/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/pythonCode
+          PATH: /mnt/auto/python/bin
+          OTS_ENV: 1
+          IN_FC_ENV: 1
+        instanceConcurrency: 2
+        codeUri: ./
+  fc-wefe-fc-shpIndex:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service: ${vars.wefe-fc}
+      function:
+        name: shpIndex
+        handler: index.handler
+        timeout: 600
+        memorySize: 32768
+        runtime: custom
+        instanceType: c1
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/python
+          LD_LIBRARY_PATH: >-
+            /mnt/auto/root/usr/bin:/mnt/auto/root/usr/local/lib:/mnt/auto/root/usr/lib:/mnt/auto/root/usr/lib/x86_64-linux-gnu:/mnt/auto/root/usr/lib64:/mnt/auto/root/lib:/mnt/auto/root/lib/x86_64-linux-gnu:/mnt/auto/root/python/lib/python2.7/site-packages:/mnt/auto/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/pythonCode
+          PATH: /mnt/auto/python/bin
+          OTS_ENV: 1
+          IN_FC_ENV: 1
+        instanceConcurrency: 2
+        codeUri: ./

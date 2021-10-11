@@ -1,0 +1,6 @@
+POST {{baseUrl}}/job/log/download
+Content-Type: application/json
+
+{
+  "jobId": "2e8874e5cd5547088688add0039c60d6"
+}

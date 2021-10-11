@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/WoeEncodeParam",
+  "role": {
+    "promoter|provider": {
+      "program": "woe_encode.py/WoeEncode"
+    }
+  }
+}

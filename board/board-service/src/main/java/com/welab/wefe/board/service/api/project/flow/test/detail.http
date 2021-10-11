@@ -1,0 +1,6 @@
+POST {{baseUrl}}/project/flow/detail
+Content-Type: application/json
+
+{
+  "flow_id": "bcc5968348984883bf8fb5944b3facfe"
+}

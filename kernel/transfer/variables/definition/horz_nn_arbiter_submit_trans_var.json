@@ -1,0 +1,68 @@
+{
+  "HorzNNArbiterSubmitTransVar": {
+    "SecureAggregatorTransVar.AggregatorTransVar.ModelScatterTransVar.client_model": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "SecureAggregatorTransVar.AggregatorTransVar.ModelBroadcasterTransVar.server_model": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.UUIDTransVar.uuid": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.p_power_r": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.p_power_r_bc": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "SecureAggregatorTransVar.RandomPaddingCipherTransVar.DHTransVar.pubkey": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "LossScatterTransVar.loss": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "HasConvergedTransVar.has_converged": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

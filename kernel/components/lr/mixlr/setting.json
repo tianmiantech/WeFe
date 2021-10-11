@@ -1,0 +1,14 @@
+{
+  "param_class": "../param.py/MixLogisticParam",
+  "role": {
+    "promoter": {
+      "program": "mix_lr_promoter.py/MixLRPromoter"
+    },
+    "provider": {
+      "program": "mix_lr_provider.py/MixLRProvider"
+    },
+    "arbiter": {
+      "program": "mix_lr_arbiter.py/MixLRArbiter"
+    }
+  }
+}

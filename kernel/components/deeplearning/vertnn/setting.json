@@ -1,0 +1,11 @@
+{
+  "param_class": "vert_nn_param.py/VertNNParam",
+  "role": {
+    "promoter": {
+      "program": "vert_nn_promoter.py/VertNNPromoter"
+    },
+    "provider": {
+      "program": "vert_nn_provider.py/VertNNProvider"
+    }
+  }
+}

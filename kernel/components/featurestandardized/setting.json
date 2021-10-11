@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/FeatureStandardizedParam",
+  "role": {
+    "promoter|provider": {
+      "program": "standardized.py/FeatureStandardized"
+    }
+  }
+}

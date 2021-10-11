@@ -1,0 +1,32 @@
+
+### 查询全部 member
+POST {{baseUrl}}/union/member/query
+Content-Type: application/json
+
+{}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}
+
+
+
+### 按名字查
+POST {{baseUrl}}/union/member/query
+Content-Type: application/json
+
+{
+  "name": "腾讯"
+}
+
+### 按id查
+POST {{baseUrl}}/union/member/query
+Content-Type: application/json
+
+{
+  "id": "601e3c3f150a4bfd9e9d6f2be9563b26"
+}

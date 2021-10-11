@@ -1,0 +1,5 @@
+
+### 获取 member 信息
+GET {{baseUrl}}/member/detail
+Content-Type: application/json
+token: {{token}}

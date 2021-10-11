@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.welab.wefe.core.mlmodel.buffer;
+option java_outer_classname = "FeatureBinningParamProto";
+
+
+//message SplitPointList {
+//    repeated double split_points = 1;
+//}
+
+message IVParam {
+  repeated double woe_array = 1;
+  repeated double iv_array = 2;
+  repeated int64 event_count_array = 3;
+  repeated int64 non_event_count_array = 4;
+  repeated double event_rate_array = 5;
+  repeated double non_event_rate_array = 6;
+  //    map<string, SplitPointList> split_points = 7;
+  repeated double split_points = 7;
+  double iv = 8;
+  bool is_woe_monotonic = 9;
+  int64 bin_nums = 10;
+  repeated string bin_anonymous = 11;
+  int64 params_bin_nums = 12;
+  string params_method = 13;
+  repeated int64 count_array = 14;
+  repeated double count_rate_array = 15;
+
+}
+
+message FeatureBinningResult {
+  map<string, IVParam> binning_result = 1;
+  string role = 2;
+  string member_id = 3;
+}
+
+
+message FeatureBinningParam {
+  FeatureBinningResult binning_result = 1;
+  repeated FeatureBinningResult provider_results = 2;
+  repeated string header = 3;
+}

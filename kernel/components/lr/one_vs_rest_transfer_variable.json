@@ -1,0 +1,17 @@
+{
+  "OneVsRestTransferVariable": {
+    "provider_classes": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "aggregate_classes": {
+      "src": "promoter",
+      "dst": [
+        "provider",
+        "arbiter"
+      ]
+    }
+  }
+}

@@ -1,0 +1,95 @@
+>
+
+###逻辑回归横向
+
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+{
+    "modelId":"test-local",
+    "memberId":"hunter01",
+"seqNo":"test-local01",
+"predictParams":{
+    "userId":"2",
+    "modelInput":{
+        "x0":1.1325649666857949, "x1":0.5935294862522471, "x2":0.34146321257352386,"x3":-0.06747490186161989, "x4":0.9668284958851656, "x5":0.21915050353390325
+    }
+}
+}
+
+###逻辑回归纵向预测
+
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+
+{
+  "modelId":"test-vert",
+  "memberId":"hunter01",
+  "seqNo":"test-vert01",
+  "predictParams":{
+    "userId":"3",
+    "modelInput":{
+      "x0":1.1325649666857949, "x1":0.6505443277030261, "x2":0.34146321257352386
+    }
+  }
+}
+
+
+###xgboost横向预测
+
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+
+{
+  "modelId":"xgboost-horz",
+  "memberId":"hunter01",
+  "seqNo":"1",
+  "predictParams":{
+    "userId":"1",
+    "modelInput":{
+      "x0": 9,
+      "x1": 1,
+      "x2": 5,
+      "x3": 10,
+      "x4": 2,
+      "x5": 1,
+      "x6": 7,
+      "x7": 3,
+      "x8": 9,
+      "x9": 2,
+      "x11": 9,
+      "x12": 1,
+      "x13": 5,
+      "x14": 10,
+      "x15": 2,
+      "x16": 1,
+      "x17": 7,
+      "x18": 3,
+      "x19": 9,
+      "x20": 2,
+      "x21": 1,
+      "x22": 5
+    }
+  }
+}
+
+
+###xgboost纵向预测
+
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+
+{
+  "modelId":"xgboost-vert",
+  "memberId":"hunter01",
+  "seqNo":"xgboost-vert01",
+  "predictParams":{
+    "userId":"3",
+    "modelInput":{
+      "x0":1.1325649666857949, "x1":0.6505443277030261, "x2":0.34146321257352386
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "HorzSecureBoostingTransferVariable": {
+    "tree_dim": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "feature_number": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "loss_status": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "stop_flag": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "local_labels": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "label_mapping": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "valid_features": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    }
+  }
+}

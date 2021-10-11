@@ -1,0 +1,15 @@
+.markdown-section h1{
+    margin-top:50px;
+}
+
+.section.cover h1 .anchor span{
+    font-family:'Lobster', cursive;
+}
+
+nav a{
+    font-weight: bold;
+}
+code{
+    max-height: 700px;
+    overflow-y: scroll;
+}

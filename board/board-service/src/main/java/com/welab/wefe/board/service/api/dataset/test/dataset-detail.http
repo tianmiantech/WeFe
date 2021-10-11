@@ -1,0 +1,18 @@
+
+### 查询单个数据集
+POST {{baseUrl}}/data_set/detail
+Content-Type: application/json
+
+{
+  "id": "75c2b7d8e53f4400859a8fa72a099fdf"
+}
+
+
+
+### 查询已删除的数据集
+POST {{baseUrl}}/data_set/detail
+Content-Type: application/json
+
+{
+  "id": "a80a0056505c498d9a9be56aa06f7324"
+}

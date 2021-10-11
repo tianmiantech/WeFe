@@ -1,0 +1,6 @@
+POST {{baseUrl}}/gateway/get_job_progress
+Content-Type: application/json
+
+{
+  "jobId": "bcdeb5ebdbe24ec4bc6052de6678581d"
+}

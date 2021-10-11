@@ -1,0 +1,22 @@
+### 查全部
+POST {{baseUrl}}/component/list
+Content-Type: application/json
+
+{}
+
+### 查横向
+POST {{baseUrl}}/component/list
+Content-Type: application/json
+
+{
+  "federatedLearningType": "horizontal"
+}
+
+
+### 查纵向
+POST {{baseUrl}}/component/list
+Content-Type: application/json
+
+{
+  "federatedLearningType": "vertical"
+}

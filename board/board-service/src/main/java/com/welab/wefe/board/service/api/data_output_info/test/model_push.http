@@ -1,0 +1,12 @@
+
+###
+
+POST {{baseUrl}}/data_output_info/model_push
+Content-Type: application/json
+token:4c1d7dcf-89ee-44e4-8649-91f1055062b5
+
+{
+  "id":"a475edb2c3e34b33896e07da468bdf5e"
+}
+
+###

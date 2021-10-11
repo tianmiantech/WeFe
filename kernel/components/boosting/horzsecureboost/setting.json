@@ -1,0 +1,14 @@
+{
+  "param_class": "../param.py/BoostingTreeParam",
+  "role": {
+    "promoter": {
+      "program": "horz_secureboosting_client.py/HorzSecureBoostingClient"
+    },
+    "provider": {
+      "program": "horz_secureboosting_client.py/HorzSecureBoostingClient"
+    },
+    "arbiter": {
+      "program": "horz_secureboosting_arbiter.py/HorzSecureBoostingArbiter"
+    }
+  }
+}

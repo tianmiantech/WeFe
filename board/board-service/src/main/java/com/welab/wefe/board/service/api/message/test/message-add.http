@@ -1,0 +1,47 @@
+### 添加消息
+POST {{baseUrl}}/message/add
+Content-Type: application/json
+
+{
+  "producer": "gateway",
+  "level": "error",
+  "title": "任务异常中断",
+  "content": "Job（77683fcde5f64a4e97e7d18ef9926acd）发生异常： “gateway connec to member timeout”"
+}
+
+
+### 添加消息
+POST {{baseUrl}}/message/add
+Content-Type: application/json
+
+{
+  "producer": "flow",
+  "level": "success",
+  "title": "任务执行成功",
+  "content": "Job（77683fcde5f64a4e97e7d18ef9926acd）执行成功"
+}
+
+
+### 添加消息
+POST {{baseUrl}}/message/add
+Content-Type: application/json
+
+{
+  "producer": "flow",
+  "level": "warning",
+  "title": "收到来自 腾讯科技 创建的任务",
+  "content": "Job Id: 77683fcde5f64a4e97e7d18ef9926acd"
+}
+
+
+### 添加消息
+POST {{baseUrl}}/message/add
+Content-Type: application/json
+
+{
+  "producer": "board",
+  "level": "info",
+  "title": "来自 星环科技 的任务已启动",
+  "content": "Job Id: 77683fcde5f64a4e97e7d18ef9926acd"
+}
+

@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/SegmentParam",
+  "role": {
+    "promoter": {
+      "program": "segment_promoter.py/SegmentPromoter"
+    },
+    "provider": {
+      "program": "segment_provider.py/SegmentProvider"
+    }
+  }
+}

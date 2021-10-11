@@ -1,0 +1,39 @@
+{
+  "HorzBinningTransferVariable": {
+    "local_static_values": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "global_static_values": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "query_array": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "is_converge": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    }
+  }
+}

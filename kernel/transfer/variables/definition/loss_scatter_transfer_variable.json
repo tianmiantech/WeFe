@@ -1,0 +1,13 @@
+{
+  "LossScatterTransVar": {
+    "loss": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    }
+  }
+}

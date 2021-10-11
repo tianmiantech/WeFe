@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/VertFeatureScaleParam",
+  "role": {
+    "promoter|provider": {
+      "program": "vert_scale.py/VertFeatureScale"
+    }
+  }
+}

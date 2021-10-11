@@ -1,0 +1,64 @@
+/* base color
+-------------------------- */
+
+$--color-primary                   : #438bff;
+$color-light                       : #909399;
+$color-primary-darken              : #978755;
+
+$--color-info                      : #28c2d7;
+$--color-success                   : #35c895;
+$--color-warning                   : #FFB403;
+$--color-danger                    : #f85564;
+$--color-error                     : #f85564;
+
+/* layout navigate
+-------------------------- */
+$nav-background                    : #2C3143;
+$nav-background-active             : #5088fc;
+$nav-text-color                    : #a6aaae;
+$nav-active-color                  : #fff;
+$header-background                 : #fff;
+$layout-main-background            : #F5F7FA;
+$sub-menu-list_bg                  : #464e6c;
+
+/* link
+-------------------------- */
+$color-link-base                   : #4c84ff;
+$color-link-base-hover             : #0050ff;
+
+/* text color
+-------------------------- */
+$color-text-base                   : #303133;
+$color-text-light                  : #666;
+$color-text-placeholder            : #999;
+$color-text-disabled               : #D8D8D8;
+$color-text-selected               : #FF8A00;
+
+/* background-color
+-------------------------- */
+$background-color-base             : #fff;
+$background-color-selected         : #F2F2F2;
+$background-color-hover            : #F7F7F7;
+$background-color-light            : #FBFBFB;
+
+/* border
+-------------------------- */
+$border-radius                     : 4px;
+$border-color-base                 : #e5e9f2;
+$border-color-light                : #D8D8D8;
+$border-base-style                 : 1px solid $border-color-base;
+
+/* Font
+-------------------------- */
+$font-size-small                   : 12px;
+$font-size-large                   : 14px;
+$font-size-larger                  : 16px;
+$font-size-largest                 : 18px;
+$font-weight-medium                : 500;
+$font-family                       : Avenir,Helvetica,Arial,Helvetica,PingFang SC,Microsoft YaHei,SimSun,sans-serif;
+$font-line-height                  : 1;
+
+/* Animation
+-------------------------- */
+$animation-transition-time          : 300ms;
+$animation-transition-timing        : ease-in-out;

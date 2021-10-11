@@ -1,0 +1,40 @@
+{
+  "RandomPaddingCipherTransVar": {
+    "UUIDTransVar.uuid": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "DHTransVar.p_power_r": {
+      "src": [
+        "promoter",
+        "provider"
+      ],
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "DHTransVar.p_power_r_bc": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "DHTransVar.pubkey": {
+      "src": [
+        "arbiter"
+      ],
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    }
+  }
+}

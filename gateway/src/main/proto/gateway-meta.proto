@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "basic-meta.proto";
+import "storage-basic.proto";
+package com.welab.wefe.gateway.api.meta.basic;
+option java_outer_classname = "GatewayMetaProto";
+
+
+message Job {
+    string jobId = 1; // Id
+    string jobName = 2; // name
+}
+
+message Task {
+    string taskId = 1; // task ID
+    string taskName = 2; // task name
+    Job job = 3;
+}
+
+
+message Member {
+    string memberId = 1; // Member ID
+    string memberName = 2; // Member name
+    com.welab.wefe.gateway.api.meta.basic.Endpoint endpoint = 3; // Destination address
+}
+
+enum TransferStatus {
+    NOT_PROCESSED = 0;
+    INITIALIZING = 1;
+    PROCESSING = 2;
+    COMPLETE = 3;
+    ERROR = 4;
+    CANCELLED = 5;
+}
+
+// Transmission content
+message Content {
+    string objectData = 1; // Small data type carrier
+    bytes objectByteData = 3; // Binary data carrier of small data type
+    repeated ConfigData configDatas = 2; // Big data type carrier
+}
+
+message ConfigData {
+    bytes key = 1;
+    bytes value = 2;
+}
+
+// Metadata message structure sent and received by gateway
+message TransferMeta {
+    Job job = 1; // Job information, currently empty
+    Member src = 2; // Sender
+    Member dst = 3; // Receiver
+    string action = 4; // action: Old version field
+    Content content = 5; // Content body
+    TransferStatus transferStatus = 6; // Transmission status
+    string sessionId = 7; // transaction ID
+    int64 receiveDate = 8; // Time data received
+    int64 expireDate = 9; // Data expiration time
+    int32 sequenceNo = 10; // Slice serial number when sending big data
+    bool sequenceIsEnd = 11; // Is it the serial number of the last slice
+    bytes taggedVariableName = 12;
+    string tag = 13;
+    string channel = 14;
+    string processor = 15; // The processor field of the new version is used to replace the action field of the old version
+}

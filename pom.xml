@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.10.RELEASE</version>
+    </parent>
+
+    <groupId>com.welab.wefe</groupId>
+    <artifactId>wefe</artifactId>
+    <version>1.0.0</version>
+
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+<!--        <spring.version>5.0.4.RELEASE</spring.version>-->
+        <spring.mybatis.version>2.1.2</spring.mybatis.version>
+        <guava.version>27.0.1-jre</guava.version>
+        <slf4j.version>1.7.15</slf4j.version>
+        <fastjson.version>1.2.68</fastjson.version>
+
+        <apache.commons.collections.version>4.4</apache.commons.collections.version>
+        <apache.commons.lang3.version>3.10</apache.commons.lang3.version>
+        <apache.httpcomponents.version>4.5.12</apache.httpcomponents.version>
+        <apache.poi.version>4.1.2</apache.poi.version>
+
+        <mysql.connector.version>8.0.16</mysql.connector.version>
+        <mapstruct.version>1.3.1.Final</mapstruct.version>
+
+    </properties>
+
+    <modules>
+        <module>board</module>
+        <module>common</module>
+        <module>union</module>
+        <module>gateway</module>
+        <module>serving</module>
+        <module>fusion</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <jar.scope>compile</jar.scope>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <jar.scope>provided</jar.scope>
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+    </dependencyManagement>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${apache.commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${apache.commons.collections.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <!-- Maven 自带的中央仓库使用的Id为central 如果其他的仓库声明也是用该Id 就会覆盖中央仓库的配置 -->
+            <id>mvnrepository</id>
+            <name>mvnrepository</name>
+            <url>http://www.mvnrepository.com/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring.io</id>
+            <name>spring repo</name>
+            <url>http://repo.spring.io/libs-release-remote</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+</project>

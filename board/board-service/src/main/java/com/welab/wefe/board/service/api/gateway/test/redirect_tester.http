@@ -1,0 +1,10 @@
+POST {{baseUrl}}/gateway/test/redirect
+Content-Type: application/json
+
+{
+  "api": "com.welab.wefe.board.service.api.project.job.GetLocalMemberJobProgressApi",
+  "memberRole": "promoter",
+  "data": {
+    "job_id": "bcdeb5ebdbe24ec4bc6052de6678581d"
+  }
+}

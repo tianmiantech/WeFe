@@ -1,0 +1,13 @@
+POST {{baseUrl}}/project/data_set/add
+Content-Type: application/json
+
+{
+  "project_id": "67c5871c671b4dd2830edbc094ac1949",
+  "dataSetList": [
+    {
+      "member_role": "provider",
+      "member_id": "682d087e965a4c5d8a2807a772a571c1",
+      "data_set_id": "bc7a824f64da488ab4e849504f3cd270"
+    }
+  ]
+}

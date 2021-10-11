@@ -1,0 +1,8 @@
+POST {{baseUrl}}/project/member/remove
+Content-Type: application/json
+
+{
+  "project_id": "675de29f56344fc9b757973f55bb7980",
+  "member_id": "682d087e965a4c5d8a2807a772a571c1",
+  "member_role": "provider"
+}

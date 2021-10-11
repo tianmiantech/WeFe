@@ -1,0 +1,67 @@
+POST {{baseUrl}}/project/flow/node/update
+Content-Type: application/json
+
+
+{
+  "nodeId": "16100034352598215",
+  "componentType": "Intersection",
+  "flow_id": "6b25864fa5c84be0af83ddf4a12e78bb",
+  "params": {
+    "intersect_method": "dh",
+    "save_dataset": true
+  }
+}
+
+
+
+### 自动创建
+
+GET {{baseUrl}}/project/flow/node/update?nodeId=16088878120465932&componentType=FeatureStatistic&flow_id=a9632fcc436f4400bba1726532475f7b
+
+
+### debug
+
+POST {{baseUrl}}/project/flow/node/update
+Content-Type: application/json
+
+
+{
+  "nodeId": "16088893089992860",
+  "componentType": "FeatureStatistic",
+  "flow_id": "a9632fcc436f4400bba1726532475f7b",
+  "params": {
+    "featureMethods": [
+      {
+        "name": "Max",
+        "value": ""
+      },
+      {
+        "name": "Min",
+        "value": ""
+      },
+      {
+        "name": "Percentile",
+        "value": 50
+      }
+    ],
+    "members": [
+      {
+        "memberId": "682d087e965a4c5d8a2807a772a571c1",
+        "features": [
+          "x4",
+          "x5",
+          "x6",
+          "x7"
+        ]
+      },
+      {
+        "memberId": "269330b21e1342b48124303e55c75ce0",
+        "features": [
+          "id",
+          "y",
+          "x1"
+        ]
+      }
+    ]
+  }
+}

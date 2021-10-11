@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/UploadParam",
+  "role": {
+    "local": {
+      "program": "upload.py/Upload"
+    }
+  }
+}

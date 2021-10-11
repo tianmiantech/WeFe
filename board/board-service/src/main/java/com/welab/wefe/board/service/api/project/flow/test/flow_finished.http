@@ -1,0 +1,10 @@
+POST {{baseUrl}}/project/flow/finished
+Content-Type: application/json
+token: {{token}}
+
+{
+  "jobId": "2145bd19e9454f32a162634c7499326b   ",
+  "jobStatus": "success"
+}
+
+###

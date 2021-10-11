@@ -1,0 +1,11 @@
+{
+  "param_class": "param.py/FeatureStatisticParam",
+  "role": {
+    "promoter": {
+      "program": "feature_statistic.py/FeatureStatisticPromoter"
+    },
+    "provider": {
+      "program": "feature_statistic.py/FeatureStatisticProvider"
+    }
+  }
+}

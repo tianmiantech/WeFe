@@ -1,0 +1,14 @@
+data_promoter: "data/vehicle_scale_vert_promoter.csv"
+data_provider: "data/vehicle_scale_vert_provider.csv"
+promoter_data_table: "vehicle_scale_vert_promoter"
+provider_data_table: "vehicle_scale_vert_provider"
+idx: "id"
+label_name: "y"
+penalty: "L2"
+max_iter: 10
+alpha: 0.001
+learning_rate: 0.15
+optimizer: "rmsprop"
+batch_size: -1
+early_stop: "diff"
+init_method: "zeros"

@@ -1,0 +1,6 @@
+POST {{baseUrl}}/flow/job/stop
+Content-Type: application/json
+
+{
+  "jobId": "50ffb03622f24aab8c66306417ffa559"
+}

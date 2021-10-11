@@ -1,0 +1,43 @@
+###
+POST {{baseUrl}}/project/add
+Content-Type: application/json
+
+
+{
+  "name": "重构项目",
+  "desc": "重构项目",
+  "dataSetList": [
+    {
+      "member_id": "269330b21e1342b48124303e55c75ce0",
+      "data_set_keys": ",bbb,",
+      "data_set_name": "kkk-b",
+      "member_name": "弟依偎零三",
+      "member_role": "promoter",
+      "data_set_id": "a4b9810d7cb34f6997381482e48c17a2",
+      "contains_y": true
+    },
+    {
+      "member_id": "682d087e965a4c5d8a2807a772a571c1",
+      "data_set_keys": ",test,",
+      "data_set_name": "wingo-noy",
+      "data_set_column_num": "20",
+      "member_name": "弟依偎零四",
+      "member_role": "provider",
+      "data_set_rows": "568",
+      "data_set_id": "d9ea082b855141378ed257111a1a07e4",
+      "contains_y": false
+    }
+  ],
+  "memberList": [
+    {
+      "member_id": "269330b21e1342b48124303e55c75ce0",
+      "member_role": "promoter",
+      "member_name": "弟依偎零三"
+    },
+    {
+      "member_id": "682d087e965a4c5d8a2807a772a571c1",
+      "member_role": "provider",
+      "member_name": "弟依偎零四"
+    }
+  ]
+}

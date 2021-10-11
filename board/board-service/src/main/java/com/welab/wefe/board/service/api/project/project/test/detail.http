@@ -1,0 +1,7 @@
+###
+POST {{baseUrl}}/project/detail
+Content-Type: application/json
+
+{
+  "projectId": "fd1d4a0df470442bb7ffea1c81846385"
+}

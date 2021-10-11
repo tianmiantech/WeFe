@@ -1,0 +1,10 @@
+
+POST {{baseUrl}}/account/enable
+Content-Type: application/json
+
+{
+  "id":"9514861dd5a24ad8bf2f6f77a412867b",
+  "enable":false
+}
+
+###

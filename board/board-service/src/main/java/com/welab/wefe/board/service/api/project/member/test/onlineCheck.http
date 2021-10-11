@@ -1,0 +1,8 @@
+POST {{baseUrl}}/project/member/online_check
+Content-Type: application/json
+
+{
+  "projectId": "e151cbc676f344c6ba257d46f9992c9c"
+}
+
+###

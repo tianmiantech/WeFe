@@ -1,0 +1,16 @@
+POST {{baseUrl}}/member/service_status_check
+Content-Type: application/json
+
+{
+  "member_id": "23bd0dc471514fd0b268fc2d0799cb2c"
+}
+
+
+
+### 查别人
+POST {{baseUrl}}/member/service_status_check
+Content-Type: application/json
+
+{
+  "member_id": "601e3c3f150a4bfd9e9d6f2be9563b26"
+}

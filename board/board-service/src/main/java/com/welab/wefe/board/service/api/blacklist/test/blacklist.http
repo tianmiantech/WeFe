@@ -1,0 +1,27 @@
+### 查询全部数据集
+POST {{baseUrl}}/blacklist/list
+Content-Type: application/json
+token:9a90763c-1313-41c8-b2a2-b93d0dd66d93
+
+{}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}
+
+###
+
+POST {{baseUrl}}/blacklist/add
+Content-Type: application/json
+token:4c1d7dcf-89ee-44e4-8649-91f1055062b5
+
+{
+  "memberIds":["123"],
+  "remark":"test"
+}
+
+###

@@ -1,0 +1,141 @@
+{
+  "HorzTransferVariable": {
+    "promoter_uuid": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_uuid": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "uuid_conflict_flag": {
+      "src": "arbiter",
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "dh_pubkey": {
+      "src": "arbiter",
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "dh_ciphertext_provider": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "dh_ciphertext_promoter": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "dh_ciphertext_bc": {
+      "src": "arbiter",
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "promoter_party_weight": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "provider_party_weight": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "use_encrypt": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "paillier_pubkey": {
+      "src": "arbiter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "re_encrypt_times": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "model_to_re_encrypt": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "model_re_encrypted": {
+      "src": "arbiter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "is_converge": {
+      "src": "arbiter",
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "provider_loss": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "promoter_loss": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "aggregated_model": {
+      "src": "arbiter",
+      "dst": [
+        "promoter",
+        "provider"
+      ]
+    },
+    "provider_model": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "promoter_model": {
+      "src": "promoter",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "to_encrypt_model": {
+      "src": "provider",
+      "dst": [
+        "arbiter"
+      ]
+    },
+    "re_encrypted_model": {
+      "src": "arbiter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/DataIOParam",
+  "role": {
+    "promoter|provider": {
+      "program": "data_io.py/DataIO"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+### 生成指定大小的数据集供测试使用
+POST {{baseUrl}}/test/create_data_set
+Content-Type: application/json
+
+{
+  "features": 30,
+  "rows": 1000000,
+  "has_y": true,
+  "id_type": "auto_increment"
+}
+
+
+###
+
+POST {{baseUrl}}/test/create_data_set
+Content-Type: application/json
+
+{
+  "features": 1,
+  "rows": 100,
+  "has_y": false,
+  "id_type": "cnid"
+}
+
+###
+
+
+POST {{baseUrl}}/test/create_data_set
+Content-Type: application/json
+
+{
+  "features": 0,
+  "rows": 100,
+  "has_y": true,
+  "id_type": "phone_number"
+}
+
+###
+POST {{baseUrl}}/test/create_data_set
+Content-Type: application/json
+
+{
+  "features": 5000,
+  "rows": 300000,
+  "has_y": true,
+  "id_type": "auto_increment"
+}

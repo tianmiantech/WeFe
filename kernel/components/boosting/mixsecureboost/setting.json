@@ -1,0 +1,14 @@
+{
+  "param_class": "../param.py/MixSecureBoostParam",
+  "role": {
+    "promoter": {
+      "program": "mix_secureboosting_promoter.py/MixSecureBoostingPromoter"
+    },
+    "provider": {
+      "program": "mix_secureboosting_provider.py/MixSecureBoostingProvider"
+    },
+    "arbiter": {
+      "program": "mix_secureboosting_arbiter.py/MixSecureBoostingArbiter"
+    }
+  }
+}
