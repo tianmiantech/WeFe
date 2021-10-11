@@ -48,12 +48,12 @@ find ./common/ -name '*.py' |xargs tar czf ./common-python.tgz
 tar zxf common-python.tgz -C $WORKSPACE/python_project
 cp -r $WORKSPACE/flow $WORKSPACE/python_project
 cp -r $WORKSPACE/kernel $WORKSPACE/python_project
-# 配置文件 包依赖检查文件 启动脚本文件
+#
 cp $SHELL_DIR/tool/config.properties $WORKSPACE/python_project
 cp $SHELL_DIR/tool/requirements.txt $WORKSPACE/python_project
 cp -f $SHELL_DIR/tool/service.sh $WORKSPACE/python_project/flow/service.sh
 # 函数计算环境
-cp -r $WORKSPACE/common/python/calculation/fc $WORKSPACE/python_project
+cp -r $WORKSPACE/common/python/calculation/fc $WORKSPACE/python_project/common/python/calculation/
 
 echo '###### PYTHON FINISHED ######'
 echo '###### JAVA ######'

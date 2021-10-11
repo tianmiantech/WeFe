@@ -23,5 +23,7 @@
 - [**计算引擎**](calculation_engine/calculation_engine.md)
   - [Spark](calculation_engine/spark.md)
   - [函数计算](calculation_engine/fc.md)
+- [**硬件加速**](hardware_acceleration/hardware_acceleration.md)
+  - [GPU](hardware_acceleration/gpu.md)
 - [**贡献代码**](committer/committer.md)
 - [**Release Note**](release/release.md)
