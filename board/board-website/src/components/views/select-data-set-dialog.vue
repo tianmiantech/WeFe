@@ -112,10 +112,13 @@
                     const ref = this.$refs['raw'];
 
                     this.search = {
-                        id:          '',
-                        name:        '',
-                        source_type: 'Raw',
+                        id:   '',
+                        name: '',
                     };
+
+                    if(this.containsY) {
+                        this.search.source_type = 'Raw';
+                    }
 
                     ref.list = [];
                     ref.pagination.page_index = 1;
@@ -160,7 +163,7 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=true&member_id=${this.memberId}` : '/data_set/query';
+                        url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
                     } else {
                         // search from union
                         url = `/union/data_set/query?member_id=${this.memberId}`;

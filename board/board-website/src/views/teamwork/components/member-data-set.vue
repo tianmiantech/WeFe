@@ -376,9 +376,9 @@
 
     <SelectDatasetDialog
         ref="SelectDatasetDialogRef"
+        :contains-y="''"
         :data-sets="vData.dataSets.list"
         :data-add-btn="vData.dataSets.role === 'promoter'"
-        :contains-y="`${vData.dataSets.role === 'promoter' ? true : ''}`"
         @selectDataSet="methods.selectDataSet"
         @batchDataSet="methods.batchDataSet"
     />
