@@ -90,6 +90,7 @@ class JobApplyResult(Model):
     def to_json(self):
         return self.__dict__['__data__']
 
+
 # GlobalSetting
 class GlobalSetting(object):
     """
