@@ -52,6 +52,9 @@ public enum ComponentType {
     MixLR("混合逻辑回归", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合逻辑回归建模"),
     MixSecureBoost("混合XGBoost", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合XGBoost 建模"),
 
+    HorzNN("横向深度学习", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向 深度学习 建模"),
+    VertNN("纵向深度学习", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向 深度学习 建模"),
+
     HorzLRValidationDataSetLoader("载入验证数据集·横向LR", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "加载一个验证数据集用于模型评估"),
     VertLRValidationDataSetLoader("载入验证数据集·纵向LR", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "加载一个验证数据集用于模型评估"),
     HorzXGBoostValidationDataSetLoader("载入验证数据集·横向XGBoost", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "加载一个验证数据集用于模型评估"),
@@ -60,7 +63,7 @@ public enum ComponentType {
     Evaluation("评估模型", null, "对建模结果进行效果评估"),
     Oot("打分验证", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "用新的数据集对模型进行打分验证");
 
-    private static List<ComponentType> MODELING_TYPES = Arrays.asList(HorzLR, VertLR, HorzSecureBoost, VertSecureBoost, MixLR, MixSecureBoost);
+    private static List<ComponentType> MODELING_TYPES = Arrays.asList(HorzLR, VertLR, HorzSecureBoost, VertSecureBoost, MixLR, MixSecureBoost, HorzNN, VertNN);
 
 
     /**

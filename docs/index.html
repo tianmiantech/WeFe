@@ -14,6 +14,34 @@
         --docsifytabs-tab-highlight-color: purple;
       }
 
+      .advertisement {
+          position: fixed;
+          right: 20px;
+          top: 150px;
+          width: 110px;
+          box-shadow: -1px 0 2px 0px #c5ebda;
+          padding: 10px;
+          z-index: 99;
+          background-color: #fff;
+          text-align: center;
+      }
+
+    .advertisement p,
+    h4 {
+      margin: 0;
+      padding: 0;
+    }
+
+    .advertisement .Tencent_code h4 {
+      font-size: 15px;
+      color: #25a46a;
+      margin-bottom: 10px;
+    }
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -21,7 +49,16 @@
     <a target="_blank" href="https://tianmiantech.com/">天冕科技</a>
     <a target="_blank" href="https://tianmiantech.com/federal">在线 Demo</a>
 </nav>
-<div id="app"></div>
+<div id="app">🏃‍🏃‍🏃‍💨 加载中...</div>
+<div class="aside_container">
+    <div class="advertisement">
+        <div class="Tencent_code">
+            <h4>加入交流群</h4>
+            <p style="font-size: 12px;">这里有许多你的小伙伴哦~</p>
+            <img src="_media/wechat_small.png"/>
+        </div>
+    </div>
+</div>
 <script>
     window.$docsify = {
       name: 'WeFe 联邦学习',
@@ -29,6 +66,7 @@
       loadSidebar: true,
       coverpage: true,
       subMaxLevel: 2,
+      auto2top: true,
       tabs: {
         persist    : true,
         sync       : true,
@@ -41,8 +79,20 @@
         placeholder: '搜索',
         noData: '找不到结果',
         depth: 5
+      },
+      pagination: {
+        previousText: '上一章节',
+        nextText: '下一章节',
+        crossChapter: true,
+        crossChapterText: true,
       }
     }
+
+
+
+
+
+
 
 
 
@@ -52,11 +102,19 @@
 <!-- docsify-tabs (latest v1.x.x) -->
 <!-- doc:https://jhildenbiddle.github.io/docsify-tabs/#/-->
 <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+<!-- 图片缩放 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+<!-- 搜索功能 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+<!-- 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-bash.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-json.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-ini.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-sql.min.js"></script>
+<!--章节翻页-->
+<script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+<!--回到顶部-->
+<script src="//unpkg.com/docsify-scroll-to-top/dist/docsify-scroll-to-top.min.js"></script>
 
 </body>
 </html>
