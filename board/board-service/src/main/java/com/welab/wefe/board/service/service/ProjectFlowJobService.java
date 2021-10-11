@@ -154,7 +154,7 @@ public class ProjectFlowJobService extends AbstractService {
 
             // check
             if (jobMember.getJobRole() == JobMemberRole.promoter) {
-                checkBeforeStartFlow(graph, project);
+//                checkBeforeStartFlow(graph, project);
             }
             // create task
             createJobTasks(graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
@@ -814,11 +814,11 @@ public class ProjectFlowJobService extends AbstractService {
                 member.memberRole = item.getMemberRole();
                 member.dataSetId = item.getDataSetId();
 
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
-                if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
-                    member.dataSetFeatures = dataSetInfo.getFeatureCount();
-                }
+//                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
+//                if (dataSetInfo != null) {
+//                    member.dataSetRows = dataSetInfo.getRowCount();
+//                    member.dataSetFeatures = dataSetInfo.getFeatureCount();
+//                }
 
                 dataSet.members.add(member);
 

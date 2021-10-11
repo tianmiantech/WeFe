@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.component.base;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
@@ -139,7 +140,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
-            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
+//            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
             if (parentNode != null) {
@@ -161,7 +162,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam.getJSONObject("params"));
-            taskConfig.setInput(getInputs(graph, node));
+            taskConfig.setInput(generateInput(graph, node, count));
             taskConfig.setOutput(getOutputs(graph, node));
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
@@ -178,6 +179,27 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         return subTasks;
     }
 
+    private Map<String, Object> generateInput(FlowGraph graph, FlowGraphNode node, int count) throws FlowNodeException{
+        Map<String, Object> inputs = getInputs(graph, node);
+        try {
+            
+            JSONObject json = JSON.parseObject(JSON.toJSONString(inputs));
+            JSONObject data = json.getJSONObject("data");
+            List<String> normal = data.getObject("normal", TypeReference.LIST_STRING);
+            List<String> newNormal = new ArrayList<>();
+            for (String s : normal) {
+                newNormal.add(s + "_" + count);
+            }
+            if (!newNormal.isEmpty()) {
+                data.put("normal", newNormal);
+                json.put("data", data);
+                inputs = json.getInnerMap();
+            }
+        } catch (Exception e) {
+            LOG.warn("parse inputs error, json = " + JSON.toJSONString(inputs), e);
+        }
+        return inputs;
+    }
     private int getCount(List<TaskMySqlModel> preTasks, int parentDeep, int currentCount) {
         if (parentDeep < 0 || preTasks == null || preTasks.isEmpty()) {
             return currentCount;
