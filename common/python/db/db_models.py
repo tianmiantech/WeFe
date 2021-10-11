@@ -75,6 +75,21 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
+class JobApplyResult(Model):
+    id = CharField(primary_key=True)
+    created_by = CharField(null=True)
+    created_time = DateTimeField()
+    updated_by = CharField(null=True)
+    updated_time = DateTimeField()
+    job_id = CharField()
+    task_id = CharField()
+
+    class Meta:
+        database = DB
+
+    def to_json(self):
+        return self.__dict__['__data__']
+
 # GlobalSetting
 class GlobalSetting(object):
     """
