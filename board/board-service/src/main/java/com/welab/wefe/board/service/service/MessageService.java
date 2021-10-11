@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.message.QueryApi;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.database.repository.MessageRepository;
-import com.welab.wefe.board.service.database.repository.NoticeUnreadMessageRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.MessageOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
@@ -36,9 +35,6 @@ public class MessageService extends AbstractService {
 
     @Autowired
     MessageRepository repo;
-
-    @Autowired
-    NoticeUnreadMessageRepository noticeUnreadMessageRepo;
 
     public PagingOutput<MessageOutputModel> query(QueryApi.Input input) {
 

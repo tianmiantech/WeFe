@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.entity.MemberEntity;
+import com.welab.wefe.gateway.service.GlobalConfigService;
 import com.welab.wefe.gateway.service.MessageService;
 import com.welab.wefe.gateway.util.ActionProcessorMappingUtil;
 import com.welab.wefe.gateway.util.GrpcUtil;
@@ -43,6 +44,9 @@ public abstract class AbstractSendTransferMetaService {
 
     @Autowired
     private MessageService mMessageService;
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * Forward metadata message
@@ -151,13 +155,13 @@ public abstract class AbstractSendTransferMetaService {
         if (null == dstMemberEntity) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员id[" + dstMember.getMemberId() + "]不存在，请确认成员信息是否已同步到Union.", transferMeta.getSessionId());
         }
-
-        if (StringUtil.isEmpty(dstMemberEntity.getIp())) {
-            if (memberCache.getSelfMember().getId().equals(dstMemberEntity.getId())) {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关公网地址.", transferMeta.getSessionId());
-            } else {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
+        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
+            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
+            if (!GrpcUtil.checkGatewayUriValid(intranetBaseUri)) {
+                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 IP:PORT", transferMeta.getSessionId());
             }
+        } else if (StringUtil.isEmpty(dstMemberEntity.getIp())) {
+            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
         }
 
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
@@ -170,7 +174,14 @@ public abstract class AbstractSendTransferMetaService {
     protected GatewayMetaProto.TransferMeta setMemberInfo(GatewayMetaProto.TransferMeta transferMeta) {
         MemberCache memberCache = MemberCache.getInstance();
         GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        MemberEntity cacheMember = memberCache.get(dstMember.getMemberId());
+        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
+        String dstIp = dstMemberEntity.getIp();
+        int dstPort = dstMemberEntity.getPort();
+        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
+            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
+            dstIp = intranetBaseUri.split(":")[0];
+            dstPort = Integer.parseInt(intranetBaseUri.split(":")[1]);
+        }
 
         GatewayMetaProto.Member srcMember = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(memberCache.getSelfMember().getId())
@@ -180,8 +191,8 @@ public abstract class AbstractSendTransferMetaService {
         GatewayMetaProto.TransferMeta.Builder builder = transferMeta.toBuilder();
         builder.setSrc(srcMember)
                 .getDstBuilder()
-                .setMemberName(cacheMember.getName())
-                .setEndpoint(EndpointBuilder.create(cacheMember.getIp(), cacheMember.getPort()));
+                .setMemberName(dstMemberEntity.getName())
+                .setEndpoint(EndpointBuilder.create(dstIp, dstPort));
 
         return builder.build();
 

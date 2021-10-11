@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,13 +37,13 @@ public class CheckMemberRouteConnectApi extends AbstractNoneOutputApi<CheckMembe
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        gatewayService.checkMemberRouteConnect(input.memberGatewayUri);
+        gatewayService.pingGatewayAlive(input.memberGatewayUri);
         return success();
     }
 
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway connectivity")
+        @Check(name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway alive")
         private String memberGatewayUri;
 
         public String getMemberGatewayUri() {
