@@ -18,7 +18,6 @@
   - [flow](system_framework/flow.md)
   - [kernel](system_framework/kernel.md)
   - [gateway](system_framework/gateway.md)
-  - [board_mysql](system_framework/board_mysql.md)
   - [serving](system_framework/serving.md)
   - [fusion](system_framework/fusion.md)
 - [**计算引擎**](calculation_engine/calculation_engine.md)
