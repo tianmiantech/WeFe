@@ -44,7 +44,7 @@ echo 'GO Build FINISHED'
 cd $WORKSPACE
 rm -rf $WORKSPACE/python_project
 mkdir $WORKSPACE/python_project
-find ./common/ -name '*.py' |xargs tar czf ./common-python.tgz
+find ./common/ -name 'python' |xargs tar czf ./common-python.tgz
 tar zxf common-python.tgz -C $WORKSPACE/python_project
 cp -r $WORKSPACE/flow $WORKSPACE/python_project
 cp -r $WORKSPACE/kernel $WORKSPACE/python_project
