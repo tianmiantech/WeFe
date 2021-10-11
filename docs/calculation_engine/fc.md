@@ -14,7 +14,7 @@
 
 > 温馨提示：下面需要配置的参数如：FC_ACCESS_KEY_ID、FC_ACCESS_KEY_SECRET 即为前面创建的API账户的 AccessKey ID 与 AccessKey
 
-```
+```ini
 ##### 函数计算的相关配置  #####
 
 # 阿里云账号UID

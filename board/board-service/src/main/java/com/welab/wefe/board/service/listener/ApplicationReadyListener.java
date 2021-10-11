@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,14 +55,6 @@ public class ApplicationReadyListener implements ApplicationListener<Application
                     localIP,
                     "board 内网IP地址，由 board 自主上报。",
                     true
-            );
-
-            // Internet IP
-            String internetIP = HostUtil.getOuterNetIpAddress();
-            globalConfigService.appendIpToWhiteList(
-                    internetIP,
-                    "board 外网IP地址，由 board 自主上报。",
-                    false
             );
 
             LOG.info("上报IP地址完成.");

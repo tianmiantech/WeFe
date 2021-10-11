@@ -1,6 +1,4 @@
 /*
- Navicat Premium Data Transfer
-
  Source Server         : wefe_board-fat
  Source Server Type    : MySQL
  Source Server Version : 50720
@@ -915,7 +913,7 @@ CREATE TABLE `global_config`
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique_group_name`(`group`,`name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='全局设置 全局设置，这个表永远有且只有一条数据。';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='全局设置';
 
 
 SET

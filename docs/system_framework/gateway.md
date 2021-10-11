@@ -33,7 +33,7 @@ mvn clean install -Dmaven.test.skip=true -am -pl gateway
 
 gateway 的启动依赖 jar 包同级目录下的配置文件  `application.properties` 。
 
-```bash
+```ini
 # 日志相关配置项
 logging.level.root=INFO
 logging.file=/data/logs/wefe-gateway/wefe-gateway.log
@@ -43,7 +43,7 @@ logging.pattern.console=%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SS
 logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] [%X{requestId}] ${PID:- } [%15.15t] %-40.40logger{39}[%F:%L] : %m%n
 ```
 
-```bash
+```ini
 # gRPC服务端口口
 rpc.server.port=50051
 # 待转发的元数据消息保存目录
