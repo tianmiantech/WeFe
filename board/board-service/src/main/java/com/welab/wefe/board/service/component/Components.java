@@ -68,6 +68,10 @@ public class Components {
     private MixStatisticComponent mixStatisticComponent;
     @Autowired
     private OotComponent ootComponent;
+    @Autowired
+    private HorzFeatureBinningComponent horzFeatureBinningComponent;
+    @Autowired
+    private HorzStatisticComponent horzStatisticComponent;
 
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
