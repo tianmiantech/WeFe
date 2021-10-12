@@ -97,4 +97,8 @@ Apache 2.0
 
 添加后滴滴小助手，小助手会拉你进 WeFe 技术交流群哦~；
 
+欢迎关注天冕科技公众号
+<div align=left>
+  <img src="./images/TianmianOfficialAccount.jpg" style="zoom:50%;" />
+</div>
 快来寻找志同道合的伙伴吧！
