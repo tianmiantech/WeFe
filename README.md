@@ -17,6 +17,8 @@ WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕](https:
 
 # 项目特点
 
+`Documentation：` https://tianmiantech.github.io/WeFe/
+
 混合联邦，纵向联邦学习与横向联邦学习结合的行业解决方案；
 
 使用联盟链作为联邦中心存证共享方案；
