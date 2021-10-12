@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -108,7 +108,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // If the jobid is not empty, it means an OOT process (a process containing only two components of [start] and [OOT]).
         // This jobid means the jobid of the old process
         if (isOotMode(params)) {
-            if (preTasks.size() > 1) {
+            if (graph.allNodes.size() > 1) {
                 throw new FlowNodeException(node, "只允许只有[打分验证]组件。");
             }
             // Find the dataio task from the task list
