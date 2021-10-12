@@ -15,7 +15,7 @@
     如果您即将进行的是纵向联邦学习，请务必由数据集有 label（y值） 的一方作为发起方创建项目。
 
 
-<img src="../_media/operation_guide/project_add.png" style="max-height:700px;border:1px solid #ccc" />
+<img src="_media/operation_guide/project_add.png" style="max-height:700px;border:1px solid #ccc" />
 
 ## 审核项目
 
@@ -23,7 +23,7 @@
 
 这时需要我方对是否参与该项目进行审核，在同意参与该项目后，才成为项目的正式成员，只有正式成员能参与该项目中的联邦学习建模。
 
-<img src="../_media/operation_guide/project_audit.png" style="max-height:700px;border:1px solid #ccc" />
+<img src="_media/operation_guide/project_audit.png" style="max-height:700px;border:1px solid #ccc" />
 
 
 ## 审核数据集
@@ -32,7 +32,7 @@
 
 被申请的数据集需要对应的成员审核，只有数据集的拥有者同意后，数据集才能在项目中被使用。
 
-<img src="../_media/operation_guide/project_data_set_audit.png" style="max-height:700px;" />
+<img src="_media/operation_guide/project_data_set_audit.png" style="max-height:700px;" />
 
 
 ## 审核成员
@@ -41,4 +41,4 @@
 
 另外一种是项目创建成功之后再添加的，这种情况除了被添加成员自己同意之外，还需要项目中所有其他正式成员的同意。
 
-<img src="../_media/operation_guide/project_member_audit.png" style="max-height:700px;" />
+<img src="_media/operation_guide/project_member_audit.png" style="max-height:700px;" />

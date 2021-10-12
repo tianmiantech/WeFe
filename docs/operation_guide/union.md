@@ -11,7 +11,7 @@ union 由去中心化的区块链作为底层存储，更多 union 相关信息�
 
 WeFe 系统初始化后会在联邦中登记，这时在联邦成员列表中可以看到自己出现在成员列表中。
 
-<img src="../_media/operation_guide/union_member_list.png" style="max-height:700px;" />
+<img src="_media/operation_guide/union_member_list.png" style="max-height:700px;" />
 
 这种可见性是自愿选择的，您可以在 [全局设置][member 信息] 中选择 `在联邦中隐身`，隐身后其他成员无法在联邦中查看到您的任何信息。
 
@@ -21,4 +21,4 @@ WeFe 系统初始化后会在联邦中登记，这时在联邦成员列表中可
 
 数据集是否展示在您的联邦数据集列表中，取决于数据集的可见性，数据集的可见性相关信息请查看 [数据集](/operation_guide/data_set) 章节。
 
-<img src="../_media/operation_guide/union_data_set_list.png" style="max-height:700px;border:solid 1px #ccc" />
+<img src="_media/operation_guide/union_data_set_list.png" style="max-height:700px;border:solid 1px #ccc" />
