@@ -14,7 +14,7 @@ board 中有且只有一个超级管理员，超级管理员默认为第一个�
 
 在 [用户管理] [用户列表] 中找点击 `超级管理员转移` 按钮，并指定被转移的用户即可。
 
-<img src="../_media/operation_guide/super_admin_change.png" style="max-height:700px;border:solid 1px #ccc" />
+<img src="_media/operation_guide/super_admin_change.png" style="max-height:700px;border:solid 1px #ccc" />
 
 ## 管理员
 
@@ -22,7 +22,7 @@ board 中有且只有一个超级管理员，超级管理员默认为第一个�
 
 管理员由超级管理员指定，同样可以被超级管理员由管理员改为普通用户。
 
-<img src="../_media/operation_guide/set_admin.png" style="max-height:700px;border:solid 1px #ccc" />
+<img src="_media/operation_guide/set_admin.png" style="max-height:700px;border:solid 1px #ccc" />
 
 ## 重置密码
 
