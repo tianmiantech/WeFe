@@ -16,12 +16,34 @@
 
 package com.welab.wefe.board.service.component.base;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.base.io.*;
+import com.welab.wefe.board.service.component.base.io.DataTypeGroup;
+import com.welab.wefe.board.service.component.base.io.InputGroup;
+import com.welab.wefe.board.service.component.base.io.InputMatcher;
+import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
+import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -44,18 +66,6 @@ import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -140,9 +150,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
+            // special
             node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
+            // special
             if (parentNode != null) {
                 parentNode
                         .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
@@ -175,6 +187,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskRepository.save(task);
             subTasks.add(task);
             count++;
+            
+            // rollback
             node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()));
             if (parentNode != null) {
                 parentNode.setTaskName(
