@@ -15,6 +15,8 @@
 
 WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕](https://www.tianmiantech.com)科技发起的开源项目，为联邦学习生态系统提供了一套好用的可靠的安全计算框架。
 
+`Documentation：` https://tianmiantech.github.io/WeFe/
+
 # 项目特点
 
 混合联邦，纵向联邦学习与横向联邦学习结合的行业解决方案；
@@ -31,7 +33,7 @@ WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕](https:
 
 WeFe 目前支持的联邦学习算法：横向联邦、纵向联邦、混合联邦、深度学习。
 
-算法细节请参考 Kernel 模块文档 [kernel/README.md](./kernel)`。
+算法细节请参考 Kernel 模块文档 [kernel/README.md](./kernel)。
 
 # 安装使用
 
