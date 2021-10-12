@@ -34,7 +34,7 @@ WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕科技](
 
 WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上体验环境。
 
-前往体验：https://tianmiantech.com/federal
+前往体验：https://tianmiantech.com/federal?from=opensource
 
 
 
