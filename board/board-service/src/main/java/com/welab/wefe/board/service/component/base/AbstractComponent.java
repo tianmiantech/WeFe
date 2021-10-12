@@ -125,11 +125,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         List<TaskMySqlModel> subTasks = new ArrayList<>();
         int count = 1;
 
-//        FlowGraphNode parentNode = null;
-//        List<FlowGraphNode> parentNodes = node.getParents();
-//        if (!CollectionUtils.isEmpty(parentNodes)) {
-//            parentNode = parentNodes.get(0);
-//        }
+        FlowGraphNode parentNode = null;
+        List<FlowGraphNode> parentNodes = node.getParents();
+        if (!CollectionUtils.isEmpty(parentNodes)) {
+            parentNode = parentNodes.get(0);
+        }
         int randomCipherSeed = new Random().nextInt(100) + 1;
 
         for (KernelTask kernelTask : kernelTasks) {
@@ -140,14 +140,14 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
-//            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
+            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
-//            if (parentNode != null) {
-//                parentNode
-//                        .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
-//                                + "_" + count);
-//            }
+            if (parentNode != null) {
+                parentNode
+                        .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
+                                + "_" + count);
+            }
 
             TaskConfig taskConfig = new TaskConfig();
 
@@ -187,8 +187,13 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             JSONObject data = json.getJSONObject("data");
             List<String> normal = data.getObject("normal", TypeReference.LIST_STRING);
             List<String> newNormal = new ArrayList<>();
+            String end = "_" + count;
             for (String s : normal) {
-                newNormal.add(s + "_" + count);
+                if (s.endsWith(end)) {
+                    newNormal.add(s);
+                } else {
+                    newNormal.add(s + end);
+                }
             }
             if (!newNormal.isEmpty()) {
                 data.put("normal", newNormal);
