@@ -40,10 +40,14 @@ WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上
 
 # 加入交流群
 
-扫码添加小助手微信，由小助手拉你进交流群。
+扫码添加小助手微信，由小助手拉你进交流群，这里有许多你的小伙伴哦~
 
 <img src="_media/wechat.jpg" style="max-width:300px">
 
+# 关注公众号
+扫码关注官方微信公众号，涨知识，学技巧，了解项目最新动态。
+
+<img src="_media/TianmianOfficialAccount.jpeg" style="max-width:300px">
 
 # 建议与反馈
 
