@@ -175,6 +175,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskRepository.save(task);
             subTasks.add(task);
             count++;
+            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()));
+            if (parentNode != null) {
+                parentNode.setTaskName(
+                        FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId()));
+            }
         }
         return subTasks;
     }
