@@ -111,10 +111,10 @@ start(){
             ;;
         '')
             cd $PWD
+            sh wefe_service.sh start middleware
             sh wefe_service.sh start board
             sh wefe_service.sh start gateway
             sh wefe_service.sh start python
-            sh wefe_service.sh start middleware
             ;;
         *)
             echo "Please Input a Legal Service"
