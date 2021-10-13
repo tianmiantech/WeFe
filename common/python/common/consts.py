@@ -77,6 +77,10 @@ ENV_CONF_KEY_CK_HOST = "CK_HOST"
 ENV_CONF_KEY_CK_PORT = "CK_PORT"
 ENV_CONF_KEY_CONFIG = "config"
 
+# Network Config
+ENV_CONF_KEY_INTRANET_IP = "INTRANET_IP"
+ENV_CONF_KEY_EXTRANET_IP = "EXTRANET_IP"
+
 
 class TransferAction(object):
     """

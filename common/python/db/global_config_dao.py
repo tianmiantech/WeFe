@@ -166,3 +166,18 @@ class GlobalConfigDao:
                 result[item.name] = item.value
 
             return result
+
+    @staticmethod
+    def fill_intranet_base_uri(config_dict):
+        """
+        :param config_dict: {service.var_name : intranet_base_uri}
+        :return:
+        """
+        with DB.connection_context():
+            items = GlobalConfigModel.select().where(
+                GlobalConfigModel.name == "intranet_base_uri"
+            )
+        for item in items:
+            if item['value'] is None:
+                pass
+
