@@ -6,7 +6,9 @@ WeFe Member 模块提供了基于 Docker 容器的快速启动方式，需要依
 
 Docker 运行操作需要 root 用户权限。
 
-部署包下载：`Git 下载地址`
+部署包下载:
+> `OSS 下载地址`: [https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/welab_wefe_v.2.2.tar]()
+
 
 ## 主机环境
 
@@ -156,6 +158,8 @@ http://[ip:port]/board-service
 # Flow 内网地址
 http://[ip:port]
 ```
+
+在全局设置 → 成员信息 → 填写网关外网地址（Gateway Uri）。
 
 检查首页的消息面板，各服务的服务状态是否正常，消息面板是否有异常信息。
 

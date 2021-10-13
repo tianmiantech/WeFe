@@ -47,7 +47,7 @@ class JobGuard(threading.Thread):
                 time.sleep(5)
                 continue
 
-            if not GatewayService.alive():
+            if not GatewayService.alive()[0]:
                 for job in job_list:
                     JobStopAction(job.job_id, job.my_role) \
                         .do(JobStatus.ERROR_ON_RUNNING, "检测到 Gateway 服务状态异常，任务停止运行")
