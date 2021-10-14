@@ -33,6 +33,6 @@ torchvision
 coverage==4.5.2
 pandas==1.1.5
 pytorch-lightning
-
+sortedcontainers==2.2.2
 # 用于获取网络接口相关信息 https://pypi.org/project/netifaces/
 netifaces==0.11.0
