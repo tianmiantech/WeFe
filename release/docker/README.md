@@ -7,7 +7,7 @@ WeFe Member 模块提供了基于 Docker 容器的快速启动方式，需要依
 Docker 运行操作需要 root 用户权限。
 
 部署包下载:
-> `OSS 下载地址`: [https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/welab_wefe_v.2.2.tar]()
+> `OSS 下载地址`: `https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/welab_wefe_v.2.2.tar`
 
 
 ## 主机环境
