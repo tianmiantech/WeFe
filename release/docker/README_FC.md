@@ -235,6 +235,7 @@ AliyunSTSAssumeRoleAccess
 AliyunLogFullAccess
 AliyunFCFullAccess
 AliyunNASFullAccess
+AliyunVPCFullAccess
 ```
 
 注：系统权限添加一次只能5个，剩下的请再次添加进去，如下：
