@@ -33,7 +33,7 @@ public enum ComponentType {
     //    HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
     MixStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合统计组件的各项指标"),
     FillMissingValue("缺失值填充", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "填充缺失值"),
-
+    MixBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
     Binning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行分箱，并进行 woe 编码。"),
     //    HorzFeatureBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行横向分箱，并进行 woe 编码。"),
     FeatureCalculation("计算特征价值", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "计算特征的 CV/IV，需要在分箱之后。"),

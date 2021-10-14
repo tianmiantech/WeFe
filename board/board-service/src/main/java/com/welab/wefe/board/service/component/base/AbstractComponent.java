@@ -444,7 +444,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .findFirst().orElse(null);
                 if (promoter != null) {
@@ -461,7 +462,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -484,7 +486,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 KernelTask task = new KernelTask();
                 task.setMembers(members);
                 kernelTasks.add(task);
-            } else if (node.getComponentType() == ComponentType.MixStatistic) {
+            } else if (node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -505,7 +508,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             for (Member promoter : promoters) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost
-                        || node.getComponentType() == ComponentType.MixStatistic) {
+                        || node.getComponentType() == ComponentType.MixStatistic
+                        || node.getComponentType() == ComponentType.MixBinning) {
                     KernelTask task = new KernelTask();
                     task.setMembers(allMembers);
                     task.setMixPromoterMemberId(promoter.getMemberId());
