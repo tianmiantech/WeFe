@@ -108,7 +108,7 @@ fc_deploy(){
     echo "vpc_id is not null"
     sed -i '11,14s/^#*//' s.yaml
     sed -i "s|vpcId: .*|vpcId: ${vpc_id}|g" s.yaml
-    sed -i "s|vswitchIds: .*|vswitchIds: ${v_switch_ids}|g" s.yaml
+    sed -i "s|vswitchIds: .*|vswitchIds: [\"${v_switch_ids}\"]|g" s.yaml
     sed -i "s|securityGroupId: .*|securityGroupId: ${security_group_id}|g" s.yaml
   fi
 
