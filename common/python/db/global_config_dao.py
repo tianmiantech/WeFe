@@ -178,7 +178,7 @@ class GlobalConfigDao:
                 GlobalConfigModel.name == "intranet_base_uri"
             )
         for item in items:
-            if item.value is None:
+            if item.value is None or len(item.value) == 0:
                 if config_dict[item.group] is not None and \
                         len(config_dict[item.group]) != 0:
                     item.value = config_dict[item.group]
