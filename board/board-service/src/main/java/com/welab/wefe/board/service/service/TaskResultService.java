@@ -339,12 +339,12 @@ public class TaskResultService extends AbstractService {
         // If the current node is a feature screening node,
         // it is necessary to determine whether the previous component has feature calculation (the result has cv/iv)/feature statistics (the result has a missing rate)
         if (node.getComponentType() == ComponentType.FeatureSelection) {
-            FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.FeatureStatistic);
-            if (featureStatisticNode == null) {
-                featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.MixStatistic);
-            }
+            FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node,
+                    x -> x.getComponentType() == ComponentType.MixStatistic
+                            || x.getComponentType() == ComponentType.FeatureStatistic);
             out.setHasFeatureStatistic(false);
             out.setHasFeatureCalculation(false);
+            out.setHasFeatureBinning(false);
             if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {
                 ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
                 TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
@@ -366,6 +366,22 @@ public class TaskResultService extends AbstractService {
                     TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
                     if (featureCalculationResult != null) {
                         out.setHasFeatureCalculation(true);
+                    }
+                }
+            }
+            
+            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
+                    x -> x.getComponentType() == ComponentType.MixBinning
+                            || x.getComponentType() == ComponentType.Binning);
+            if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
+                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+                TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
+                        featureBinningNode.getNodeId(), project.getMyRole().name());
+                if (featureBinningTask != null) {
+                    TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
+                            featureBinningTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
+                    if (featureBinningResult != null) {
+                        out.setHasFeatureBinning(true);
                     }
                 }
             }
