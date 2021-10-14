@@ -6,12 +6,12 @@ vars:
   wefe-fc:
     name: wefe-fc
     description: function index
-    role: acs:ram::145***590:role/wefe-fc-role
+    role: acs:ram::1458598865203590:role/wefe-fc-role
     internetAccess: true
-    vpcConfig:
-      vpcId: vpc-wz9x2vv0i1sk4d9t2ra02
-      vswitchIds: ["vsw-wz94re9ev2qlrcseobwfg"]
-      securityGroupId: sg-wz92tp0qnjlhnqhrw298
+#    vpcConfig:
+#      vpcId: vpc-wz9x2vv0i1sk4d9t2ra02
+#      vswitchIds: ["vsw-wz94re9ev2qlrcseobwfg"]
+#      securityGroupId: sg-wz92tp0qnjlhnqhrw298
     nasConfig: Auto
 services:
   fc-wefe-fc-index:
