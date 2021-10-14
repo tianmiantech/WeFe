@@ -1,4 +1,4 @@
-FROM nginx:1.14.2
+FROM nginx:1.19.2
 
 WORKDIR /opt/website
 
