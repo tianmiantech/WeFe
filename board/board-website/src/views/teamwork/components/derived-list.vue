@@ -46,7 +46,7 @@
             <el-table-column type="index" />
             <el-table-column
                 label="数据集名称"
-                min-width="150px"
+                min-width="150"
             >
                 <template v-slot="scope">
                     <router-link :to="{ name: 'data-view', query: { id: scope.row.data_set_id } }">
@@ -61,7 +61,7 @@
             </el-table-column>
             <el-table-column
                 label="数据集来源"
-                width="100px"
+                width="100"
             >
                 <template v-slot="scope">
                     {{ derived.typeObj[scope.row.source_type] }}
@@ -70,6 +70,7 @@
             <el-table-column
                 label="成员列表"
                 prop="name"
+                min-width="130"
             >
                 <template v-slot="scope">
                     <template
@@ -88,7 +89,7 @@
             </el-table-column>
             <el-table-column
                 label="数据量"
-                width="100px"
+                width="100"
             >
                 <template v-slot="scope">
                     特征：{{ scope.row.feature_count }}
@@ -98,7 +99,7 @@
             </el-table-column>
             <el-table-column
                 label="使用次数"
-                width="80px"
+                width="80"
             >
                 <template v-slot="scope">
                     {{ scope.row.usage_count_in_job }}
@@ -113,7 +114,7 @@
             </el-table-column>
             <el-table-column
                 label="操作"
-                width="80px"
+                width="80"
             >
                 <template v-slot="scope">
                     <el-button @click="removeDataSet(scope.row)">
@@ -148,7 +149,7 @@
                     sourceJobId:  '',
                     sourceFlowId: '',
                     types:        [{
-                        label: '数据对齐',
+                        label: '样本对齐',
                         value: 'Intersection',
                     }, {
                         label: '分箱',
@@ -161,7 +162,7 @@
                         value: 'FillMissingValue',
                     }],
                     typeObj: {
-                        Intersection:     '数据对齐',
+                        Intersection:     '样本对齐',
                         FeatureSelection: '特征筛选',
                         Binning:          '分箱',
                         FillMissingValue: '缺失值填充',

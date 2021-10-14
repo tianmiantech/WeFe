@@ -177,6 +177,7 @@
                                     v-model="form.databaseName"
                                     filterable
                                     clearable
+                                    @change="dataBaseNameChanged"
                                 >
                                     <el-option
                                         v-for="item in dataSource.dataSourceList"
@@ -785,6 +786,14 @@
                 }
             },
 
+            dataBaseNameChanged(val) {
+                const item = this.dataSource.dataSourceList.find(x => x.name === val);
+
+                if(item) {
+                    this.form.dataSourceId = item.id;
+                }
+            },
+
             dataCommentChange(row) {
                 this.metadata_list[row.$index].comment = row.comment;
             },
@@ -804,7 +813,7 @@
                 if(this.form.data_set_add_method === 'Database') {
                     params.sql = this.form.sql;
                     this.dataSource.dataSourceList.find(item => {
-                        if (item.name === this.form.databaseName) {
+                        if (item.id === this.form.dataSourceId) {
                             params.dataSourceId = item.id;
                         }
                     });
