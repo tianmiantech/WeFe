@@ -148,7 +148,7 @@
                     sourceJobId:  '',
                     sourceFlowId: '',
                     types:        [{
-                        label: '数据对齐',
+                        label: '样本对齐',
                         value: 'Intersection',
                     }, {
                         label: '分箱',
@@ -161,7 +161,7 @@
                         value: 'FillMissingValue',
                     }],
                     typeObj: {
-                        Intersection:     '数据对齐',
+                        Intersection:     '样本对齐',
                         FeatureSelection: '特征筛选',
                         Binning:          '分箱',
                         FillMissingValue: '缺失值填充',
