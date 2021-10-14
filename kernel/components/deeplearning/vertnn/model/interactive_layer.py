@@ -36,7 +36,7 @@ import pickle
 import numpy as np
 
 from common.python.utils import log_utils
-from kernel.components.deeplearning.vertnn.backend.tf_keras.interactive.dense_model import HostDenseModel
+from kernel.components.deeplearning.vertnn.backend.tf_keras.interactive.dense_model import ProviderDenseModel
 from kernel.components.deeplearning.vertnn.backend.tf_keras.interactive.dense_model import PromoterDenseModel
 from kernel.components.deeplearning.vertnn.backend.tf_keras.interactive.drop_out import DropOut
 from kernel.protobuf.generated.vert_nn_model_param_pb2 import InteractiveLayerParam
@@ -96,7 +96,7 @@ class InterActivePromoterDenseLayer(object):
         self.partitions = partition
 
     def __build_model(self, restore_stage=False):
-        self.provider_model = HostDenseModel()
+        self.provider_model = ProviderDenseModel()
         self.provider_model.build(self.provider_input_shape, self.layer_config, self.model_builder, restore_stage)
         self.provider_model.set_learning_rate(self.learning_rate)
 
@@ -349,7 +349,7 @@ class InterActivePromoterDenseLayer(object):
         self.provider_model.restore_model(interactive_layer_param.interactive_provider_saved_model_bytes)
 
 
-class InteractiveHostDenseLayer(object):
+class InteractiveProviderDenseLayer(object):
     def __init__(self, params):
         self.acc_noise = None
         self.learning_rate = params.interactive_layer_lr

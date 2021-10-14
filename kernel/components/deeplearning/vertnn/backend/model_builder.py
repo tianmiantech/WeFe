@@ -26,8 +26,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kernel.components.deeplearning.vertnn.backend.vert_nn_model import VertNNKerasHostModel
 from kernel.components.deeplearning.vertnn.backend.vert_nn_model import VertNNKerasPromoterModel
+from kernel.components.deeplearning.vertnn.backend.vert_nn_model import VertNNKerasProviderModel
 
 
 def model_builder(role="promoter", vert_nn_param=None, backend="keras"):
@@ -37,4 +37,4 @@ def model_builder(role="promoter", vert_nn_param=None, backend="keras"):
     if role == "promoter":
         return VertNNKerasPromoterModel(vert_nn_param)
     elif role == "host":
-        return VertNNKerasHostModel(vert_nn_param)
+        return VertNNKerasProviderModel(vert_nn_param)

@@ -99,6 +99,8 @@ class VertNNBase(ModelBase):
         else:
             self.batch_generator.register_batch_generator(self.transfer_variable)
 
+        self.tracker.init_task_progress(vert_nn_param.epochs)
+
     def reset_flowid(self):
         new_flowid = ".".join([self.flowid, "evaluate"])
         self.set_flowid(new_flowid)
