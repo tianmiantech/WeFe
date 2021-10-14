@@ -16,6 +16,12 @@
 
 package com.welab.wefe.board.service.component.feature;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
@@ -30,15 +36,9 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.Params> {
@@ -58,10 +58,10 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
         members.forEach(member -> {
             if (CacheObjects.getMemberId().equals(member.getMemberId())
                     && graph.getJob().getMyRole() == member.getMemberRole()) {
-                List<Params.MemberInfoModel.Feature> features = member.getFeatures();
+                List<String> features = member.getFeatures();
 
                 features.forEach(feature -> {
-                    transformColNames.add(feature.getName());
+                    transformColNames.add(feature);
                 });
             }
         });
@@ -110,27 +110,15 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 
         public static class MemberInfoModel extends MemberModel {
             @Check(name = "特征列", require = true)
-            private List<Feature> features = new ArrayList<>();
+            private List<String> features = new ArrayList<>();
 
-            public List<Feature> getFeatures() {
+            public List<String> getFeatures() {
                 return features;
             }
-            public void setFeatures(List<Feature> features) {
+
+            public void setFeatures(List<String> features) {
                 this.features = features;
             }
-            public static class Feature extends AbstractCheckModel {
-                @Check(name = "特征名")
-                private String name;
-
-                public String getName() {
-                    return name;
-                }
-
-                public void setName(String name) {
-                    this.name = name;
-                }
-            }
-
         }
     }
 }

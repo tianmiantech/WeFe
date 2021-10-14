@@ -60,8 +60,8 @@ public class VertPCAComponent extends AbstractComponent<VertPCAComponent.Params>
         params.getMembers().forEach(member -> {
             if (CacheObjects.getMemberId().equals(member.getMemberId())
                     && graph.getJob().getMyRole() == member.getMemberRole()) {
-                List<Params.MemberInfoModel.Feature> features = member.getFeatures();
-                features.forEach(x -> featureList.add(x.getName()));
+                List<String> features = member.getFeatures();
+                features.forEach(x -> featureList.add(x));
             }
         });
         resultObj.append("column_names", featureList).append("cross_parties", params.getCrossParties());
@@ -117,27 +117,14 @@ public class VertPCAComponent extends AbstractComponent<VertPCAComponent.Params>
 
         public static class MemberInfoModel extends MemberModel {
             @Check(name = "特征列", require = true)
-            private List<Feature> features = new ArrayList<>();
+            private List<String> features = new ArrayList<>();
 
-            public List<Feature> getFeatures() {
+            public List<String> getFeatures() {
                 return features;
             }
 
-            public void setFeatures(List<Feature> features) {
+            public void setFeatures(List<String> features) {
                 this.features = features;
-            }
-
-            public static class Feature extends AbstractCheckModel {
-                @Check(name = "特征名")
-                private String name;
-
-                public String getName() {
-                    return name;
-                }
-
-                public void setName(String name) {
-                    this.name = name;
-                }
             }
 
         }
