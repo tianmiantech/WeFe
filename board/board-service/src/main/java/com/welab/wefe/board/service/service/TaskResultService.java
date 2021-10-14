@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -173,7 +174,9 @@ public class TaskResultService extends AbstractService {
 
         // Find the task result of FeatureCalculation
         TaskResultMySqlModel featureCalculationTaskResult = findByTaskIdAndType(featureCalculationTask.getTaskId(), TaskResultType.model_result.name());
-
+        if (flowGraph.getFederatedLearningType() == FederatedLearningType.mix) {
+            
+        }
         if (featureCalculationTaskResult == null) {
             return JObject.create();
         }
@@ -337,7 +340,9 @@ public class TaskResultService extends AbstractService {
         // it is necessary to determine whether the previous component has feature calculation (the result has cv/iv)/feature statistics (the result has a missing rate)
         if (node.getComponentType() == ComponentType.FeatureSelection) {
             FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.FeatureStatistic);
-
+            if (featureStatisticNode == null) {
+                featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.MixStatistic);
+            }
             out.setHasFeatureStatistic(false);
             out.setHasFeatureCalculation(false);
             if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {

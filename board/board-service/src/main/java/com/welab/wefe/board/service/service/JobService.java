@@ -153,7 +153,7 @@ public class JobService extends AbstractService {
 
 
         // Set all child nodes of the node without cache to be available without cache
-        while (true) {
+        while (graph.getLastJob().getMyRole() != JobMemberRole.arbiter) {
             List<FlowGraphNode> before = graph
                     .getAllJobSteps()
                     .stream()
