@@ -12,7 +12,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
 const CONTEXT_ENV = argvs[1] || context || '';
 
-const dateFormat = (timestamp, format = 'yyyy-MM-dd hh:mm:ss') => {
+/* const dateFormat = (timestamp, format = 'yyyy-MM-dd hh:mm:ss') => {
 
     if (!timestamp) {
         return '';
@@ -43,7 +43,8 @@ const dateFormat = (timestamp, format = 'yyyy-MM-dd hh:mm:ss') => {
         return t1.length > 1 ? `0${value}`.substr(-2) : value;
     });
 };
-const buildDate = dateFormat(+new Date());
+const buildDate = dateFormat(+new Date()); */
+const buildDate = '2.2.0';
 
 module.exports = {
     assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
