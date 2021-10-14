@@ -29,8 +29,7 @@ nas_upload(){
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
       s build --use-docker --debug
     else
-      echo "remote nas has no python, root environment, now upload to nas ..."
-#      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/root nas:///mnt/auto/root --debug
+      echo "remote nas has no python environment, now upload to nas ..."
       s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/python nas:///mnt/auto/python --debug
     fi
 
