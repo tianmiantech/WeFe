@@ -30,7 +30,7 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python, root environment, now upload to nas ..."
-      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/root nas:///mnt/auto/root --debug
+#      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/root nas:///mnt/auto/root --debug
       s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/python nas:///mnt/auto/python --debug
     fi
 
