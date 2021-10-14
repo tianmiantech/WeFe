@@ -15,18 +15,18 @@
                         :jobDetail="jobDetail"
                     />
                     <el-form v-if="vData.hasResult">
-                        <h4 class="mb10 pb5">训练结果:</h4>
-                        <el-row class="mb20">
-                            <el-col :span="12">
+                        <h4>训练结果:</h4>
+                        <el-row class="mb10">
+                            <el-col :span="8">
                                 auc：{{ vData.train.auc }}
                             </el-col>
                             <el-col :span="12">
                                 ks：{{ vData.train.ks }}
                             </el-col>
                         </el-row>
-                        <h4 class="mb10 pb5">验证结果:</h4>
-                        <el-row class="mb20">
-                            <el-col :span="12">
+                        <h4>验证结果:</h4>
+                        <el-row>
+                            <el-col :span="8">
                                 auc：{{ vData.validate.auc }}
                             </el-col>
                             <el-col :span="12">

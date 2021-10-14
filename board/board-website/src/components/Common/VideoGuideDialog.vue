@@ -133,7 +133,7 @@
             // hide forever
             const hiddenForever = () => {
                 vData.show = false;
-                window.localStorage.setItem(`${window.api.prefixPath}hidden_video_guide_forever`, 'true');
+                window.localStorage.setItem(`${window.api.prefixPath}_hidden_video_guide_forever`, 'true');
             };
             const preStep = () => {
                 vData.active--;
@@ -146,7 +146,7 @@
 
             onBeforeMount(() => {
                 if(route.name === 'index') {
-                    vData.show = !window.localStorage.getItem(`${window.api.prefixPath}hidden_video_guide_forever`);
+                    vData.show = !window.localStorage.getItem(`${window.api.prefixPath}_hidden_video_guide_forever`);
                 }
 
                 $bus.$on('show-guide-video', () => {
