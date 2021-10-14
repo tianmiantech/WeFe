@@ -23,13 +23,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!--发短信相关依赖-->
-        <!---由于服务提供方支持的是2.8.4的dubbo，而官网的springboot方式只支持取2.6.0，所以此处用的dubbo只能是xml形式的-->
-        <dependency>
-            <groupId>com.welab</groupId>
-            <artifactId>message-sms-api</artifactId>
-            <version>1.4.56-RELEASE</version>
-        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
