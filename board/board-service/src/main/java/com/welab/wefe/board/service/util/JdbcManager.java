@@ -55,8 +55,8 @@ public class JdbcManager {
                     url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
                     break;
                 case Impala:
-                    Class.forName("com.cloudera.impala.jdbc41.Driver");
-                    url = String.format("jdbc:impala://%s:%d/%s", host, port, dbName);
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 case Cassandra:
                 case PgSql:
