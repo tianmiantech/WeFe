@@ -11,6 +11,11 @@ export PWD=$(pwd)
 edit_wefe_config(){
 
     # ************
+    # 加速方案相关配置
+    # ************
+    sed -i "/wefe.job.acceleration/s/=.*/=$ACCELERATION/g" ./config.properties
+
+    # ************
     # 中间件相关配置
     # ************
 
@@ -66,7 +71,6 @@ edit_wefe_config(){
     sed -i "/fc.vpc_id/s/=.*/=$FC_VPC_ID/g" ./config.properties
     sed -i "/fc.v_switch_ids/s/=.*/=$FC_V_SWITCH_IDS/g" ./config.properties
     sed -i "/fc.security_group_id/s/=.*/=$FC_SECURITY_GROUP_ID/g" ./config.properties
-    sed -i "/fc.end_point/s/=https://*.cn-shenzhen.fc.aliyuncs.com/=$FC_ACCESS_KEY_SECRET/g" ./config.properties
     sed -i "s|fc.end_point=https://.*.cn-shenzhen.fc.aliyuncs.com|fc.end_point=https://$FC_ACCOUNT_ID.cn-shenzhen.fc.aliyuncs.com|g" ./config.properties
 
 }
@@ -107,10 +111,10 @@ start(){
             ;;
         '')
             cd $PWD
+            sh wefe_service.sh start middleware
             sh wefe_service.sh start board
             sh wefe_service.sh start gateway
             sh wefe_service.sh start python
-            sh wefe_service.sh start middleware
             ;;
         *)
             echo "Please Input a Legal Service"
