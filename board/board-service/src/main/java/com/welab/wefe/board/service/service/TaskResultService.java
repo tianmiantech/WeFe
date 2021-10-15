@@ -161,6 +161,7 @@ public class TaskResultService extends AbstractService {
         
         JObject result = JObject.create();
         List<MemberModel> selectMembers = new ArrayList<>();
+        // mix flow
         if (flowGraph.getFederatedLearningType() == FederatedLearningType.mix) {
             FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixStatistic);
             if (featureStatisticNode == null) {
@@ -172,7 +173,7 @@ public class TaskResultService extends AbstractService {
                 throw new FlowNodeException(node, "请添加特征分箱组件。");
             }
             
-            // Find the task corresponding to the FeatureCalculation node
+            // Find the task corresponding to the FeatureStatistic node
             ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
             TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
             if (featureStatisticTask == null) {
@@ -192,7 +193,7 @@ public class TaskResultService extends AbstractService {
             if (featureBinningTask == null) {
                 throw new FlowNodeException(node, "找不到对应的特征分箱任务。");
             }
-            // Find the task result of FeatureStatistic
+            // Find the task result of FeatureBinning
             TaskResultMySqlModel featureBinningTaskResult = findByTaskIdAndType(featureBinningTask.getTaskId(), TaskResultType.model_binning.name());
 
             if (featureBinningTaskResult == null) {
@@ -234,8 +235,9 @@ public class TaskResultService extends AbstractService {
                 }
 
                 // Get the feature column of the current member
-                List<MemberModel> currentMembers = input.getMembers().stream().filter(
-                        x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                List<MemberModel> currentMembers = input.getMembers().stream()
+                        .filter(x -> (x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.provider)
+                                || (x.getMemberRole() == JobMemberRole.promoter))
                         .collect(Collectors.toList());
 
                 for (MemberModel model : currentMembers) {
