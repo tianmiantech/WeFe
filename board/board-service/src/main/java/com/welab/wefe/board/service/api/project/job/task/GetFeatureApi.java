@@ -84,8 +84,6 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
         private boolean hasFeatureStatistic;
 
         private boolean hasFeatureCalculation;
-        
-        private boolean hasFeatureBinning;
 
         List<MemberFeatureInfoModel> members;
 
@@ -111,14 +109,6 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
 
         public void setMembers(List<MemberFeatureInfoModel> members) {
             this.members = members;
-        }
-
-        public boolean isHasFeatureBinning() {
-            return hasFeatureBinning;
-        }
-
-        public void setHasFeatureBinning(boolean hasFeatureBinning) {
-            this.hasFeatureBinning = hasFeatureBinning;
         }
     }
 }

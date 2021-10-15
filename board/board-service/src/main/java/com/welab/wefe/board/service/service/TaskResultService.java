@@ -452,7 +452,6 @@ public class TaskResultService extends AbstractService {
                             || x.getComponentType() == ComponentType.FeatureStatistic);
             out.setHasFeatureStatistic(false);
             out.setHasFeatureCalculation(false);
-            out.setHasFeatureBinning(false);
             if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {
                 ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
                 TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
@@ -489,7 +488,7 @@ public class TaskResultService extends AbstractService {
                     TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
                             featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
                     if (featureBinningResult != null) {
-                        out.setHasFeatureBinning(true);
+                        out.setHasFeatureCalculation(true && out.isHasFeatureStatistic());
                     }
                 }
             }
