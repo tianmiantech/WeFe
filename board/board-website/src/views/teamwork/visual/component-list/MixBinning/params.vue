@@ -138,13 +138,9 @@
                 }],
                 methodList: [
                     { value: 'quantile', label: '等频' },
-                    { value: 'bucket', label: '等宽' },
-                    { value: 'optimal', label: '卡方' },
                 ],
                 methodObj: {
                     'quantile': '等频',
-                    'bucket':   '等宽',
-                    'optimal':  '卡方',
                 },
                 columnListType:   'quantile',
                 selectListIndex:  0,
