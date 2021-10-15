@@ -73,7 +73,6 @@ public class DataSetAddService extends AbstractService {
             throw new StatusCodeWithException("This dataset name already exists, please change it to another dataset name", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-
         DataSetMySqlModel model = new DataSetMySqlModel();
 
         model.setUpdatedBy(CurrentAccount.id());
