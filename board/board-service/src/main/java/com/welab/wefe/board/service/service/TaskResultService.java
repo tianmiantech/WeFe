@@ -235,10 +235,13 @@ public class TaskResultService extends AbstractService {
                 }
 
                 // Get the feature column of the current member
-                List<MemberModel> currentMembers = input.getMembers().stream()
-                        .filter(x -> (x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.provider)
-                                || (x.getMemberRole() == JobMemberRole.promoter))
+                List<MemberModel> currentMembers = input.getMembers().stream().filter(
+                        x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
                         .collect(Collectors.toList());
+                if (JobMemberRole.promoter.name().equalsIgnoreCase(role)) {
+                    currentMembers = input.getMembers().stream()
+                            .filter(x -> x.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
+                }
 
                 for (MemberModel model : currentMembers) {
                     if (cvMap.get(model.getName()) != null) {
