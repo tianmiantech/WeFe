@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,8 +55,8 @@ public class JdbcManager {
                     url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
                     break;
                 case Impala:
-                    Class.forName("com.cloudera.impala.jdbc41.Driver");
-                    url = String.format("jdbc:impala://%s:%d/%s", host, port, dbName);
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 case Cassandra:
                 case PgSql:
@@ -68,7 +68,7 @@ public class JdbcManager {
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             log.error("数据库连接失败", e);
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+            throw new StatusCodeWithException("数据库连接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
         }
 
         return conn;

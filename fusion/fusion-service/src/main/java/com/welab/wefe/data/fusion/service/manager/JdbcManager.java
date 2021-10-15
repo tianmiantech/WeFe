@@ -69,7 +69,7 @@ public class JdbcManager {
                     url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
                     break;
                 case Impala:
-                    url = String.format("jdbc:impala://%s:%d/%s", host, port, dbName);
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 default:
                     throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
@@ -110,7 +110,7 @@ public class JdbcManager {
 
                     break;
                 case Impala:
-                    Class.forName("com.cloudera.impala.jdbc41.Driver");
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
                     break;
                 default:
                     throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
