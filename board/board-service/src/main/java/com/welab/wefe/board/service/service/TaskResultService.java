@@ -160,6 +160,7 @@ public class TaskResultService extends AbstractService {
     private JObject selectByCvIv(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
         
         JObject result = JObject.create();
+        List<MemberModel> selectMembers = new ArrayList<>();
         if (flowGraph.getFederatedLearningType() == FederatedLearningType.mix) {
             FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixStatistic);
             if (featureStatisticNode == null) {
@@ -186,7 +187,6 @@ public class TaskResultService extends AbstractService {
             }
 
             JObject statisticResult = JObject.create(featureStatisticTaskResult.getResult());
-            // TODO
             
             TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(), featureBinningNode.getNodeId(), project.getMyRole().name());
             if (featureBinningTask == null) {
@@ -198,52 +198,58 @@ public class TaskResultService extends AbstractService {
             if (featureBinningTaskResult == null) {
                 return JObject.create();
             }
-
-            JObject binningResult = JObject.create(featureBinningTaskResult.getResult());
-            // TODO
             
+            List<JObject> featureBinningResults = parseBinningResult(featureBinningTaskResult);
             List<JObject> statisticResultMembers = statisticResult.getJSONList("members");
-            
-            List<JObject> binningResultMembers = binningResult.getJSONList("members");
-            
-            List<MemberModel> selectMembers = new ArrayList<>();
-
             for (JObject memberObj : statisticResultMembers) {
-                Map<String, Double> missingValueMap = new HashMap<>();
-
+                Map<String, Double> cvMap = new HashMap<>();
+                Map<String, Double> ivMap = new HashMap<>();
+                
                 String memberId = memberObj.getString("member_id");
                 String role = memberObj.getString("role");
-
+                
+                JObject featureBinningResult = featureBinningResults.stream()
+                        .filter(s -> role.equalsIgnoreCase(s.getString("role"))
+                                && memberId.equalsIgnoreCase(s.getString("memberId")))
+                        .findFirst().orElse(null);
+                if (featureBinningResult != null) {
+                    featureBinningResult = featureBinningResult.getJObject("binningResult");
+                }
                 JObject feature_statistic = memberObj.getJObject("feature_statistic");
-
                 Set<String> featuresKey = feature_statistic.keySet();
-
-                // Calculate the missing rate from the statistical data of the feature and store it in the map, key: "x1" value: 0.01
                 for (String feature : featuresKey) {
                     JObject statisticData = feature_statistic.getJObject(feature);
-
-                    double not_null_count = statisticData.getDouble("not_null_count");
-                    double missing_count = statisticData.getDouble("missing_count");
-                    double missingValue = missing_count / (missing_count + not_null_count);
-                    BigDecimal bg = new BigDecimal(missingValue);
-
-                    missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
+                    double cv = statisticData.getDouble("cv");
+                    BigDecimal bg = new BigDecimal(cv);
+                    cvMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
                 }
-
-                // Get the feature column of the current member
-                List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                        .collect(Collectors.toList());
-
-                // Assign values to features with missing values
-                for (MemberModel model : currentMembers) {
-                    if (missingValueMap.get(model.getName()) != null) {
-                        model.setMissRate(missingValueMap.get(model.getName()));
+                if (featureBinningResult != null) {
+                    featuresKey = featureBinningResult.keySet();
+                    for (String feature : featuresKey) {
+                        JObject binningData = featureBinningResult.getJObject(feature);
+                        double iv = binningData.getDouble("iv");
+                        BigDecimal bgiv = new BigDecimal(iv);
+                        ivMap.put(feature, bgiv.setScale(4, RoundingMode.HALF_UP).doubleValue());
                     }
                 }
 
-                // Perform missingValue filtering
+                // Get the feature column of the current member
+                List<MemberModel> currentMembers = input.getMembers().stream().filter(
+                        x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+
                 for (MemberModel model : currentMembers) {
-                    if (model.getMissRate() >= input.getMissRate()) {
+                    if (cvMap.get(model.getName()) != null) {
+                        model.setCv(cvMap.get(model.getName()));
+                    }
+                    if (ivMap.get(model.getName()) != null) {
+                        model.setIv(ivMap.get(model.getName()));
+                    }
+                }
+
+                // Perform cv filtering
+                for (MemberModel model : currentMembers) {
+                    if (model.getIv() >= input.getIv() && model.getCv() >= input.getCv()) {
                         selectMembers.add(model);
                     }
                 }
@@ -272,67 +278,64 @@ public class TaskResultService extends AbstractService {
             }
             
             result = JObject.create(featureCalculationTaskResult.getResult());
-        }
-        
+            List<JObject> calculateResults = result.getJSONList("model_param.calculateResults");
 
-        List<JObject> calculateResults = result.getJSONList("model_param.calculateResults");
+            for (JObject obj : calculateResults) {
+                String role = obj.getString("role");
+                String memberId = obj.getString("memberId");
 
-        List<MemberModel> selectMembers = new ArrayList<>();
+                List<JObject> results = obj.getJSONList("results");
 
-        for (JObject obj : calculateResults) {
-            String role = obj.getString("role");
-            String memberId = obj.getString("memberId");
+                JSONArray ivValue = new JSONArray();
+                JSONArray ivCols = new JSONArray();
+                JSONArray cvValue = new JSONArray();
+                JSONArray cvCols = new JSONArray();
+                Map<String, Double> cvMap = new HashMap<>();
+                Map<String, Double> ivMap = new HashMap<>();
 
-            List<JObject> results = obj.getJSONList("results");
+                // Store the cv/iv value in the map in the form of key: "x1" value: 0.123
+                for (JObject resultObj : results) {
 
-            JSONArray ivValue = new JSONArray();
-            JSONArray ivCols = new JSONArray();
-            JSONArray cvValue = new JSONArray();
-            JSONArray cvCols = new JSONArray();
-            Map<String, Double> cvMap = new HashMap<>();
-            Map<String, Double> ivMap = new HashMap<>();
+                    if ("iv_value_thres".equals(resultObj.getString("filterName"))) {
+                        ivValue = resultObj.getJSONArray("values");
+                        ivCols = resultObj.getJSONArray("cols");
+                    }
+                    if ("coefficient_of_variation_value_thres".equals(resultObj.getString("filterName"))) {
+                        cvValue = resultObj.getJSONArray("values");
+                        cvCols = resultObj.getJSONArray("cols");
+                    }
 
-            // Store the cv/iv value in the map in the form of key: "x1" value: 0.123
-            for (JObject resultObj : results) {
+                    for (int i = 0; i < ivCols.size(); i++) {
+                        ivMap.put(ivCols.getString(i), ivValue.getDoubleValue(i));
+                    }
 
-                if ("iv_value_thres".equals(resultObj.getString("filterName"))) {
-                    ivValue = resultObj.getJSONArray("values");
-                    ivCols = resultObj.getJSONArray("cols");
+                    for (int i = 0; i < cvCols.size(); i++) {
+                        cvMap.put(cvCols.getString(i), cvValue.getDoubleValue(i));
+                    }
                 }
-                if ("coefficient_of_variation_value_thres".equals(resultObj.getString("filterName"))) {
-                    cvValue = resultObj.getJSONArray("values");
-                    cvCols = resultObj.getJSONArray("cols");
+
+                // Get the feature column of the current member
+                List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+
+                // Assign cv/iv values to features
+                for (MemberModel model : currentMembers) {
+                    if (cvMap.get(model.getName()) != null) {
+                        model.setCv(cvMap.get(model.getName()));
+                    }
+                    if (ivMap.get(model.getName()) != null) {
+                        model.setIv(ivMap.get(model.getName()));
+                    }
                 }
 
-                for (int i = 0; i < ivCols.size(); i++) {
-                    ivMap.put(ivCols.getString(i), ivValue.getDoubleValue(i));
-                }
-
-                for (int i = 0; i < cvCols.size(); i++) {
-                    cvMap.put(cvCols.getString(i), cvValue.getDoubleValue(i));
-                }
-            }
-
-            // Get the feature column of the current member
-            List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                    .collect(Collectors.toList());
-
-            // Assign cv/iv values to features
-            for (MemberModel model : currentMembers) {
-                if (cvMap.get(model.getName()) != null) {
-                    model.setCv(cvMap.get(model.getName()));
-                }
-                if (ivMap.get(model.getName()) != null) {
-                    model.setIv(ivMap.get(model.getName()));
-                }
-            }
-
-            // Filter
-            for (MemberModel model : currentMembers) {
-                if (model.getIv() >= input.getIv() && model.getCv() >= input.getCv()) {
-                    selectMembers.add(model);
+                // Filter
+                for (MemberModel model : currentMembers) {
+                    if (model.getIv() >= input.getIv() && model.getCv() >= input.getCv()) {
+                        selectMembers.add(model);
+                    }
                 }
             }
+
         }
 
         return JObject
@@ -341,6 +344,16 @@ public class TaskResultService extends AbstractService {
                 .append("featureNum", selectMembers.size());
     }
 
+    private List<JObject> parseBinningResult(TaskResultMySqlModel featureBinningTaskResult) {
+        JObject binningResult = JObject.create(featureBinningTaskResult.getResult());
+        JObject promoterBinningResult = binningResult.getJObject("model_param").getJObject("binningResult");
+        List<JObject> providerBinningResults = binningResult.getJSONList("model_param.providerResults");
+        List<JObject> binningResults = new ArrayList<>();
+        binningResults.add(promoterBinningResult);
+        binningResults.addAll(providerBinningResults);
+        return binningResults;
+    }
+    
     /**
      * filter the features by missing rate
      */
