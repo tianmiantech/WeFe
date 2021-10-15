@@ -158,30 +158,123 @@ public class TaskResultService extends AbstractService {
      * filter the features by cv/iv
      */
     private JObject selectByCvIv(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
-        // Find the FeatureCalculation node in the parent node
-        FlowGraphNode featureCalculationNode = flowGraph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
-
-        if (featureCalculationNode == null) {
-            throw new FlowNodeException(node, "请添加特征计算组件。");
-        }
-
-        // Find the task corresponding to the FeatureCalculation node
-        ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-        TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
-        if (featureCalculationTask == null) {
-            throw new FlowNodeException(node, "找不到对应的特征计算任务。");
-        }
-
-        // Find the task result of FeatureCalculation
-        TaskResultMySqlModel featureCalculationTaskResult = findByTaskIdAndType(featureCalculationTask.getTaskId(), TaskResultType.model_result.name());
+        
+        JObject result = JObject.create();
         if (flowGraph.getFederatedLearningType() == FederatedLearningType.mix) {
+            FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixStatistic);
+            if (featureStatisticNode == null) {
+                throw new FlowNodeException(node, "请添加特征统计组件。");
+            }
+
+            FlowGraphNode featureBinningNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixBinning);
+            if (featureBinningNode == null) {
+                throw new FlowNodeException(node, "请添加特征分箱组件。");
+            }
+            
+            // Find the task corresponding to the FeatureCalculation node
+            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+            TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
+            if (featureStatisticTask == null) {
+                throw new FlowNodeException(node, "找不到对应的特征统计任务。");
+            }
+            
+            // Find the task result of FeatureStatistic
+            TaskResultMySqlModel featureStatisticTaskResult = findByTaskIdAndType(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name());
+
+            if (featureStatisticTaskResult == null) {
+                return JObject.create();
+            }
+
+            JObject statisticResult = JObject.create(featureStatisticTaskResult.getResult());
+            // TODO
+            
+            TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(), featureBinningNode.getNodeId(), project.getMyRole().name());
+            if (featureBinningTask == null) {
+                throw new FlowNodeException(node, "找不到对应的特征分箱任务。");
+            }
+            // Find the task result of FeatureStatistic
+            TaskResultMySqlModel featureBinningTaskResult = findByTaskIdAndType(featureBinningTask.getTaskId(), TaskResultType.model_binning.name());
+
+            if (featureBinningTaskResult == null) {
+                return JObject.create();
+            }
+
+            JObject binningResult = JObject.create(featureBinningTaskResult.getResult());
+            // TODO
+            
+            List<JObject> statisticResultMembers = statisticResult.getJSONList("members");
+            
+            List<JObject> binningResultMembers = binningResult.getJSONList("members");
+            
+            List<MemberModel> selectMembers = new ArrayList<>();
+
+            for (JObject memberObj : statisticResultMembers) {
+                Map<String, Double> missingValueMap = new HashMap<>();
+
+                String memberId = memberObj.getString("member_id");
+                String role = memberObj.getString("role");
+
+                JObject feature_statistic = memberObj.getJObject("feature_statistic");
+
+                Set<String> featuresKey = feature_statistic.keySet();
+
+                // Calculate the missing rate from the statistical data of the feature and store it in the map, key: "x1" value: 0.01
+                for (String feature : featuresKey) {
+                    JObject statisticData = feature_statistic.getJObject(feature);
+
+                    double not_null_count = statisticData.getDouble("not_null_count");
+                    double missing_count = statisticData.getDouble("missing_count");
+                    double missingValue = missing_count / (missing_count + not_null_count);
+                    BigDecimal bg = new BigDecimal(missingValue);
+
+                    missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
+                }
+
+                // Get the feature column of the current member
+                List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+
+                // Assign values to features with missing values
+                for (MemberModel model : currentMembers) {
+                    if (missingValueMap.get(model.getName()) != null) {
+                        model.setMissRate(missingValueMap.get(model.getName()));
+                    }
+                }
+
+                // Perform missingValue filtering
+                for (MemberModel model : currentMembers) {
+                    if (model.getMissRate() >= input.getMissRate()) {
+                        selectMembers.add(model);
+                    }
+                }
+            }
             
         }
-        if (featureCalculationTaskResult == null) {
-            return JObject.create();
-        }
+        else {
+            // Find the FeatureCalculation node in the parent node
+            FlowGraphNode featureCalculationNode = flowGraph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
 
-        JObject result = JObject.create(featureCalculationTaskResult.getResult());
+            if (featureCalculationNode == null) {
+                throw new FlowNodeException(node, "请添加特征计算组件。");
+            }
+
+            // Find the task corresponding to the FeatureCalculation node
+            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+            TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
+            if (featureCalculationTask == null) {
+                throw new FlowNodeException(node, "找不到对应的特征计算任务。");
+            }
+
+            // Find the task result of FeatureCalculation
+            TaskResultMySqlModel featureCalculationTaskResult = findByTaskIdAndType(featureCalculationTask.getTaskId(), TaskResultType.model_result.name());
+            if (featureCalculationTaskResult == null) {
+                return JObject.create();
+            }
+            
+            result = JObject.create(featureCalculationTaskResult.getResult());
+        }
+        
+
         List<JObject> calculateResults = result.getJSONList("model_param.calculateResults");
 
         List<MemberModel> selectMembers = new ArrayList<>();
@@ -253,7 +346,9 @@ public class TaskResultService extends AbstractService {
      */
     private JObject selectByMissRate(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
         // Find the FeatureStatistic node in the parent node
-        FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node, ComponentType.FeatureStatistic);
+        FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node,
+                x -> x.getComponentType() == ComponentType.FeatureStatistic
+                        || x.getComponentType() == ComponentType.MixStatistic);
 
         if (featureStatisticNode == null) {
             throw new FlowNodeException(node, "请添加特征统计组件。");
@@ -379,7 +474,7 @@ public class TaskResultService extends AbstractService {
                         featureBinningNode.getNodeId(), project.getMyRole().name());
                 if (featureBinningTask != null) {
                     TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
-                            featureBinningTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
+                            featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
                     if (featureBinningResult != null) {
                         out.setHasFeatureBinning(true);
                     }
