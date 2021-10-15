@@ -189,7 +189,7 @@
                                 />
                             </el-select>
                         </i>
-
+                        <br>
                         <i
                             class="id"
                             style="margin-left : 5px"
@@ -565,6 +565,7 @@ export default {
             }
 
             this.saveLoading = true;
+            this.getDataSetStatus();
             const { code, data } = await this.$http.post({
                 url:     '/filter/add',
                 timeout: 1000 * 60 * 24 * 30,
@@ -584,33 +585,34 @@ export default {
             this.loading = false;
         },
 
-
         async getDataSetStatus(data_set_id) {
-            const { code, data } = await this.$http.post({
-                url:  '/filter/get_state',
-                data: { data_set_id },
-            });
+            this.$refs['progressRef'].showDialog();
+            if (data_set_id) {
+                const { code, data } = await this.$http.post({
+                    url:  '/filter/get_state',
+                    data: { bloom_filter_id: data_set_id },
+                });
 
-            if (code === 0) {
-                const percentage = Math.round(data.process_count / data.row_count * 100);
+                if (code === 0) {
+                    const percentage = Math.round(data.process_count / data.row_count * 100);
 
-                this.processData = {
-                    percentage,
-                };
-                this.$refs['progressRef'].showDialog();
-                if (percentage < 100) {
-                    clearTimeout(this.timer);
-                    this.timer = setTimeout(_ => {
-                        this.getDataSetStatus(data_set_id);
-                    }, 1000);
-                } else {
-                    this.$router.push({
-                        name: 'filter-list',
-                    });
+                    this.processData = {
+                        percentage,
+                    };
+                    if (percentage < 100) {
+                        clearTimeout(this.timer);
+                        this.timer = setTimeout(_ => {
+                            this.getDataSetStatus(data_set_id);
+                        }, 1000);
+                    } else {
+                        this.$router.push({
+                            name: 'filter-list',
+                        });
+                    }
                 }
-            }
-            if (code === 10019) {
-                clearTimeout(this.timer);
+                if (code === 10019) {
+                    clearTimeout(this.timer);
+                }
             }
         },
 
