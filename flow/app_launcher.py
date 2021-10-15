@@ -22,7 +22,6 @@ from common.python.db.db_models import DB, Job
 from common.python.utils.log_utils import LoggerFactory, schedule_logger
 from flow.cycle_actions.flow_action_queue.flow_action_queue_consumer import FlowActionQueueConsumer
 from flow.cycle_actions.guard.job_guard import JobGuard
-from flow.service.config.global_config_init_service import GlobalSettingInit
 from flow.service.gateway.gateway_service import GatewayService
 from flow.service.job_scheduler.clear_job_middle_data_scheduler import ClearJobMiddleDataScheduler
 from flow.service.job_scheduler.job_stop_action import JobStopAction
@@ -39,18 +38,6 @@ class AppLauncher:
     @staticmethod
     def start_app():
         AppLauncher.logger.info("AppLauncher start ")
-
-        # Init Config
-        AppLauncher.logger.info("GlobalSetting Init")
-        init_config = GlobalSettingInit()
-        start = time.time()
-        while not init_config.is_ready_to_boot():
-            time.sleep(3)
-            end = time.time()
-            if (end - start) >= 60:
-                AppLauncher.logger.info("The Member ID in Empty, Wait to Init")
-                start = end
-        AppLauncher.logger.info("GlobalSetting Init Success")\
 
         # Update gateway IP whitelist
         AppLauncher.logger.info("repost ip to white list")

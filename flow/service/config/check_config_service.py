@@ -21,7 +21,7 @@ ENV_FLOW_PORT = get_env_config(consts.ENV_CONF_KEY_FLOW_PORT) or 'port'
 ENV_NGINX_PORT = get_env_config(consts.ENV_CONF_KEY_NGINX_PORT) or 'port'
 
 
-class GlobalSettingInit:
+class CheckConfig:
     """
     Initialize the relevant configuration based on the environment variables
     """
@@ -39,7 +39,3 @@ class GlobalSettingInit:
             return False
         else:
             return True
-
-
-if __name__ == '__main__':
-    print(GlobalSettingInit().is_ready_to_boot())
