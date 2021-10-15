@@ -27,8 +27,9 @@ Vue.prototype.$http = http;
 // 添加 eventbus
 Vue.prototype.$bus = new Vue();
 
-const tail = process.env.NODE_ENV === 'production' ? `-${process.env.CONTEXT_ENV.substr(process.env.CONTEXT_ENV.length - 2)}` : '';
-const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`API_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${process.env.API_Prefix}${tail}`;
+const context = process.env.CONTEXT_ENV.replace(/\//g, '');
+const tail = process.env.NODE_ENV === 'production' && context ? `-${process.env.CONTEXT_ENV.substr(process.env.CONTEXT_ENV.length - 2)}` : '';
+const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`API_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${tail}`;
 
 // 挂载全局 api 变量
 window.api = {
@@ -57,4 +58,3 @@ const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
 if (!isMac) {
     document.body.classList.add('customed-scrollbar');
 }
-
