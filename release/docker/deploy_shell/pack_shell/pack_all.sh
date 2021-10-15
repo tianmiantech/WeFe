@@ -48,8 +48,10 @@ find ./common/ -name 'python' |xargs tar czf ./common-python.tgz
 tar zxf common-python.tgz -C $WORKSPACE/python_project
 cp -r $WORKSPACE/flow $WORKSPACE/python_project
 cp -r $WORKSPACE/kernel $WORKSPACE/python_project
-#
+
+rm -f $WORKSPACE/python_project/config.properties
 cp $SHELL_DIR/tool/config.properties $WORKSPACE/python_project
+rm -f $WORKSPACE/python_project/requirements.txt
 cp $SHELL_DIR/tool/requirements.txt $WORKSPACE/python_project
 rm -f $WORKSPACE/python_project/flow/service.sh
 cp -f $SHELL_DIR/tool/service.sh $WORKSPACE/python_project/flow/service.sh
