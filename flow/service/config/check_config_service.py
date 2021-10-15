@@ -35,7 +35,7 @@ class CheckConfig:
         """
         member_info = GlobalConfigDao.getMemberInfo()
         gateway_config = GlobalConfigDao.getGatewayConfig()
-        if (member_info.member_id is None) or (gateway_config.intranet_base_uri is None):
-            return False
-        else:
+        if hasattr(member_info, 'member_id') or hasattr(gateway_config, 'intranet_base_uri'):
             return True
+        else:
+            return False
