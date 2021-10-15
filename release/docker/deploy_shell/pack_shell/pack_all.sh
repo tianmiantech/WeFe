@@ -51,6 +51,7 @@ cp -r $WORKSPACE/kernel $WORKSPACE/python_project
 #
 cp $SHELL_DIR/tool/config.properties $WORKSPACE/python_project
 cp $SHELL_DIR/tool/requirements.txt $WORKSPACE/python_project
+rm -f $WORKSPACE/python_project/flow/service.sh
 cp -f $SHELL_DIR/tool/service.sh $WORKSPACE/python_project/flow/service.sh
 # 函数计算环境
 cp -r $WORKSPACE/common/python/calculation/fc $WORKSPACE/python_project/common/python/calculation/
