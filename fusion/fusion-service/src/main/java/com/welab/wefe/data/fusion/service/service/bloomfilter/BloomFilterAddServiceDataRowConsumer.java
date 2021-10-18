@@ -292,9 +292,9 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id",model.getId(),BloomFilterMySqlModel.class);
         int count = bloomFilterMySqlModel.getProcessCount();
         if (processCount > count) {
-            LOG.info("this.processCount=====>"+String.valueOf(this.processCount));
-            LOG.info("rows=====>"+String.valueOf(rows));
-            LOG.info("ThreadCount=====>"+String.valueOf(actionThreadCount()));
+//            LOG.info("this.processCount=====>"+String.valueOf(this.processCount));
+//            LOG.info("rows=====>"+String.valueOf(rows));
+//            LOG.info("ThreadCount=====>"+String.valueOf(actionThreadCount()));
 
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
