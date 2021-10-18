@@ -35,6 +35,6 @@ cd $SERVICE_WORK_DIR
 
 sudo tar -cf welab_wefe_${WEFE_VERSION}.tar *
 
-cp welab_wefe_${WEFE_VERSION}.tar data/jenkins_docker_deploy
+cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
 
 echo 'The Final Package Build Success'
