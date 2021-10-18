@@ -49,12 +49,7 @@
                             class="parters-item"
                         >
                             <i
-                                v-if="member.member_role === 'promoter'"
-                                class="el-icon-star-off parters-icon parters-icon-promoter"
-                            />
-                            <i
-                                v-else
-                                class="el-icon-star-off parters-icon"
+                                :class="['parters-icon', item.member_id === member.member_id ? 'el-icon-star-on' : 'el-icon-star-off', {'parters-icon-promoter': member.member_role === 'promoter'}]"
                             />
                             {{ member.member_name }}
                         </p>
@@ -202,7 +197,7 @@
         }
     }
     .li{
-        flex: auto;
+        flex: 1;
         margin-left: 20px;
         min-height: 220px;
         min-width: 350px;

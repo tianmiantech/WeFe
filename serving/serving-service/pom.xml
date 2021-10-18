@@ -69,23 +69,6 @@
             <artifactId>hive-jdbc</artifactId>
             <version>1.2.1</version>
         </dependency>
-        <!-- impala -->
-        <dependency>
-            <groupId>com.cloudera</groupId>
-            <artifactId>ImpalaJDBC41</artifactId>
-            <version>2.6.4.1005</version>
-        </dependency>
-        <!-- cassandra -->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.data</groupId>-->
-            <!--<artifactId>spring-data-cassandra</artifactId>-->
-            <!--<version>3.0.1.RELEASE</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.datastax.cassandra</groupId>-->
-            <!--<artifactId>cassandra-driver-core</artifactId>-->
-            <!--<version>3.4.0</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.guava</groupId>
