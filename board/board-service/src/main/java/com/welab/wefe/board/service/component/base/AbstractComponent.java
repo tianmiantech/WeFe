@@ -84,7 +84,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             ComponentType.HorzSecureBoost,
             ComponentType.VertSecureBoost,
             ComponentType.MixLR,
-            ComponentType.MixSecureBoost
+            ComponentType.MixSecureBoost,
+            ComponentType.HorzNN,
+            ComponentType.VertNN
     );
 
 
