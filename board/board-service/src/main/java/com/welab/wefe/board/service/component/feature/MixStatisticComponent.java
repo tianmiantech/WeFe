@@ -63,8 +63,7 @@ public class MixStatisticComponent extends AbstractComponent<MixStatisticCompone
         JSONObject taskParam = new JSONObject();
         List<MemberFeatureInfoModel> members = params.members;
         for (MemberFeatureInfoModel member : members) {
-            if (CacheObjects.getMemberId().equals(member.getMemberId())
-                    && graph.getJobMemberIsMe().getJobRole() == member.getMemberRole()) {
+            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
                 List<String> features = member.features;
                 taskParam.put("params", JObject.create("col_names", features));
             }
