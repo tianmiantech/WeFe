@@ -87,7 +87,7 @@
                                         />
                                     </el-select>
 
-                                    <router-link :to="{name: 'data-set-list'}">
+                                    <router-link :to="{name: 'data-source-view'}">
                                         <el-button type="primary">
                                             新增数据源
                                         </el-button>
@@ -194,7 +194,7 @@
                         class="save-btn mt20"
                         type="primary"
                         size="large"
-                        :disabled="!isuploadok || !row_list.length"
+                        :disabled="(!isuploadok || !row_list.length) && form.dataResourceSource==='UploadFile'"
                         :loading="addLoading"
                         @click="add"
                     >
@@ -470,8 +470,11 @@ export default {
             } else if (this.form.name.length<4) {
                 this.$message.error('数据集名称不能少于4个字！');
                 return;
-            } else if (!this.row_list.length) {
+            } else if (!this.row_list.length && this.form.dataResourceSource==='UploadFile') {
                 this.$message.error('请选择字段！');
+                return;
+            } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
+                this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
             }
 
@@ -493,7 +496,7 @@ export default {
             this.form.data_source_id = this.data_source_id;
 
             this.addLoading = true;
-            this.getDataSetStatus();
+            if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
 
             const { code, data } = await this.$http.post({
                 url:     '/data_set/add',
@@ -524,12 +527,12 @@ export default {
                 });
 
                 if (code === 0) {
-                    const percentage = Math.round(data.process_count / data.row_count * 100);
+                    const percentage = data.row_count === 0 ? 0 : Math.round(data.process_count / data.row_count * 100);
 
                     this.processData = {
                         percentage,
                     };
-                    if (percentage < 100) {
+                    if (data.progress === 'Running') {
                         clearTimeout(this.timer);
                         this.timer = setTimeout(_ => {
                             this.getDataSetStatus(data_set_id);
