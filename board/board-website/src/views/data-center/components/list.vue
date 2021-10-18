@@ -18,7 +18,7 @@
             </div>
         </template>
 
-        <el-table-column label="名称 / Id" width="160">
+        <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
                 <router-link :to="{ name: 'data-view', query: { id: scope.row.id }}">
                     {{ scope.row.name }}
@@ -95,7 +95,7 @@
         <el-table-column
             label="上传者"
             prop="creator_nickname"
-            width="160"
+            min-width="160"
         >
             <template v-slot="scope">
                 {{ scope.row.creator_nickname }}
@@ -105,9 +105,9 @@
         </el-table-column>
         <el-table-column
             label="操作"
-            width="160"
             fixed="right"
             align="center"
+            min-width="160"
         >
             <template v-slot="scope">
                 <router-link

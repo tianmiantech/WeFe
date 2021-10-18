@@ -57,7 +57,7 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
 
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
-            throw new FlowNodeException(node, "请在前面添加数据对齐组件。");
+            throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
     }
 

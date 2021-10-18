@@ -28,7 +28,7 @@ import java.util.List;
 public enum ComponentType {
 
     DataIO("选择数据集", null, "加载用于联邦建模的数据集"),
-    Intersection("数据对齐", null, "将多个数据集使用 id 碰撞获取交集"),
+    Intersection("样本对齐", null, "将多个数据集使用 id 碰撞获取交集"),
     FeatureStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "统计组件的各项指标"),
     HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
     MixStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合统计组件的各项指标"),

@@ -31,14 +31,15 @@ MEMBER_ID = GlobalSetting.get_member_id()
 MEMBER_NAME = GlobalSetting.get_member_name()
 
 gateway_intranet = GlobalConfigDao.getGatewayConfig().intranet_base_uri.split(":")
-GATEWAY_HOST = gateway_intranet[0]
-GATEWAY_PORT = gateway_intranet[1]
+GATEWAY_INTRANET_HOST = gateway_intranet[0]
+GATEWAY_INTRANET_PORT = gateway_intranet[1]
 
 ONE_DAY_IN_SECONDS = 60 * 60 * 24
 MAX_CONCURRENT_JOB_RUN = 10
 JOB_DEFAULT_TIMEOUT = 7 * 24 * 60 * 60
-JOB_GRPC = gateway_service_pb2_grpc.TransferServiceStub(grpc.insecure_channel(target=f"{GATEWAY_HOST}:{GATEWAY_PORT}",
-                                                                              options=[
-                                                                                  ('grpc.max_send_message_length', -1),
-                                                                                  ('grpc.max_receive_message_length',
-                                                                                   -1)]))
+JOB_GRPC = gateway_service_pb2_grpc.TransferServiceStub(grpc.insecure_channel(
+    target=f"{GATEWAY_INTRANET_HOST}:{GATEWAY_INTRANET_PORT}",
+    options=[
+        ('grpc.max_send_message_length', -1),
+        ('grpc.max_receive_message_length', -1)]
+))

@@ -10,7 +10,7 @@
 2. 服务器本地文件：将数据集文件放置在 board-service 服务所在的服务器，并在界面中指定文件路径，确保 board-service 对该文件具有读权限。
 3. 数据库：通过 sql 查询语句从数据库中查询出数来创建数据集。
 
-<img src="../_media/operation_guide/data_ser_add.png" style="max-height:700px;" />
+<img src="_media/operation_guide/data_ser_add.png" style="max-height:700px;" />
 
 ## 数据集的可见性
 

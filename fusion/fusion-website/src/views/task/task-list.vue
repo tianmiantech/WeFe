@@ -138,7 +138,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -147,7 +147,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -180,7 +180,6 @@
                 </template>
             </el-table-column>
         </el-table>
-
 
         <div
             v-if="pagination.total"

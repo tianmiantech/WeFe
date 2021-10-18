@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -247,8 +247,8 @@ public class ServiceCheckService {
             JObject board = result.getJObject(MemberService.board.name());
             JObject gateway = result.getJObject(MemberService.gateway.name());
 
-            output = buildResult(board, output);
-            output = buildResult(gateway, output);
+            output = buildResult(MemberService.board.name(), board, output);
+            output = buildResult(MemberService.gateway.name(), gateway, output);
 
         } catch (Exception e) {
             output.setSuccess(false);
@@ -258,11 +258,11 @@ public class ServiceCheckService {
         return output;
     }
 
-    private MemberServiceStatusOutput buildResult(JObject obj, MemberServiceStatusOutput output) {
+    private MemberServiceStatusOutput buildResult(String checkpoint, JObject obj, MemberServiceStatusOutput output) {
 
         if (obj == null) {
             output.setSuccess(false);
-            output.setMessage("flow无响应。");
+            output.setMessage("flow 服务不可用，检查点 " + checkpoint + " 检查失败。");
         } else if (obj.getInteger("code") != null && obj.getInteger("code") == 0) {
             output.setSuccess(true);
             output.setMessage(obj.getString("message"));
