@@ -776,6 +776,8 @@ class Tracking(object):
         -------
 
         """
+        if self.oot:
+            return
         with DB.connection_context():
             model = TaskProgress.get_or_none(
                 TaskProgress.task_id == self.task_id,
@@ -836,6 +838,8 @@ class Tracking(object):
         -------
 
         """
+        if self.oot:
+            return
         if work_amount >= 0:
             with DB.connection_context():
                 model = TaskProgress.select().where(
@@ -861,6 +865,8 @@ class Tracking(object):
         -------
 
         """
+        if self.oot:
+            return
         work_amount = 0
         with DB.connection_context():
             model = TaskProgress.select().where(

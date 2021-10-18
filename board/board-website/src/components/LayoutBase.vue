@@ -119,7 +119,7 @@
             };
             // open chat room
             const startChart = () => {
-                if (window.localStorage.getItem(`${window.api.prefixPath}chat`) === 'connect') {
+                if (window.localStorage.getItem(`${window.api.prefixPath}_chat`) === 'connect') {
                     nextTick(async () => {
                         chatui.value.show();
                         restartWs();

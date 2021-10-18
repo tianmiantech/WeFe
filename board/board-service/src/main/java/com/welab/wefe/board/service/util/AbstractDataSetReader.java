@@ -69,6 +69,12 @@ public abstract class AbstractDataSetReader implements Closeable {
             throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
+        // trim column name
+        list = list
+                .stream()
+                .map(x -> x.trim())
+                .collect(Collectors.toList());
+
         if (list.stream().distinct().count() != list.size()) {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
         }
