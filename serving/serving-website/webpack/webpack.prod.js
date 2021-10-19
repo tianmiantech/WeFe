@@ -13,8 +13,8 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const webpackConfig = require('./webpack.common');
 const { context } = require('../package.json');
 
-const DEPLOY_ENV = original.length > 3 ? original[3] : 'prod';
-const CONTEXT_ENV = original.length > 4 ? original[5] : context;
+const DEPLOY_ENV = original.length > 3 ? original[3].split('=')[0] : 'prod';
+const CONTEXT_ENV = original.length > 3 ? original[3].split('=')[1] : context;
 
 module.exports = merge(webpackConfig, {
     mode:    'production',

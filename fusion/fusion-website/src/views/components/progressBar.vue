@@ -1,8 +1,8 @@
 <template>
     <el-dialog
-        title="正在上传..."
+        title="正在存储数据集..."
         :visible.sync="progressDialog"
-        width="20%"
+        width="30%"
         :close-on-click-modal="false"
         :show-close="false"
         class="uploading-dialog"
@@ -49,7 +49,10 @@ export default {
 <style lang="scss">
 .uploading-dialog {
     .el-dialog__header {
-        background: #e6e6e6;
+        background: #f5f7fa;
+    }
+    .el-dialog__title {
+        font-size: 14px;
     }
     .el-dialog__body {
         text-align: center;

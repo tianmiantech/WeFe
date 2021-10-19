@@ -29,6 +29,6 @@ public class ImpalaTemplate extends AbstractDruidTemplate {
 
     @Override
     protected String driver() {
-        return "com.cloudera.impala.jdbc41.Driver";
+        return "org.apache.hive.jdbc.HiveDriver";
     }
 }

@@ -493,6 +493,7 @@ export default {
             this.form.data_source_id = this.data_source_id;
 
             this.addLoading = true;
+            this.getDataSetStatus();
 
             const { code, data } = await this.$http.post({
                 url:     '/data_set/add',
@@ -514,33 +515,34 @@ export default {
             this.loading = false;
         },
 
+        async getDataSetStatus(data_set_id = '') {
+            this.$refs['progressRef'].showDialog();
+            if (data_set_id) {
+                const { code, data } = await this.$http.post({
+                    url:  '/data_set/get_state',
+                    data: { data_set_id },
+                });
 
-        async getDataSetStatus(data_set_id) {
-            const { code, data } = await this.$http.post({
-                url:  '/data_set/get_state',
-                data: { data_set_id },
-            });
+                if (code === 0) {
+                    const percentage = Math.round(data.process_count / data.row_count * 100);
 
-            if (code === 0) {
-                const percentage = Math.round(data.process_count / data.row_count * 100);
-
-                this.processData = {
-                    percentage,
-                };
-                this.$refs['progressRef'].showDialog();
-                if (percentage < 100) {
-                    clearTimeout(this.timer);
-                    this.timer = setTimeout(_ => {
-                        this.getDataSetStatus(data_set_id);
-                    }, 1000);
-                } else {
-                    this.$router.push({
-                        name: 'data-set-list',
-                    });
+                    this.processData = {
+                        percentage,
+                    };
+                    if (percentage < 100) {
+                        clearTimeout(this.timer);
+                        this.timer = setTimeout(_ => {
+                            this.getDataSetStatus(data_set_id);
+                        }, 1000);
+                    } else {
+                        this.$router.push({
+                            name: 'data-set-list',
+                        });
+                    }
                 }
-            }
-            if (code === 10019) {
-                clearTimeout(this.timer);
+                if (code === 10019) {
+                    clearTimeout(this.timer);
+                }
             }
         },
 

@@ -20,7 +20,7 @@ const packageJson = require('../package.json');
 const resolve = dir => path.resolve(__dirname, dir);
 const devMode = process.env.NODE_ENV !== 'production';
 const { original } = JSON.parse(process.env.npm_config_argv);
-const context = devMode ? '/' : `${original[5] ? `/${original[5]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
+const context = devMode ? '/' : `${original[3] ? `/${original[3].split('=')[1]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
 const dllLib = `../dist${context}lib/vendor-manifest.json`;
 const dllExists = existsSync(resolve(dllLib));
 
