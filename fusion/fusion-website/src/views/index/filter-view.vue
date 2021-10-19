@@ -86,7 +86,7 @@
                                         />
                                     </el-select>
 
-                                    <router-link :to="{name: 'data-set-list'}">
+                                    <router-link :to="{name: 'data-source-view'}">
                                         <el-button type="primary">
                                             新增数据源
                                         </el-button>
