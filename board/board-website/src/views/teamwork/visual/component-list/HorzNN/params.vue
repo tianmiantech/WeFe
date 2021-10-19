@@ -152,8 +152,8 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        'units':      10,
-                        'activation': 'relu',
+                        'units':      1,
+                        'activation': 'sigmoid',
                     },
                 },
             ],
@@ -246,8 +246,8 @@
                     vData.form.nn_define.layers.push({
                         class_name: 'Dense',
                         config:     {
-                            'units':      10,
-                            'activation': 'relu',
+                            'units':      1,
+                            'activation': 'sigmoid',
                         },
                     });
                 },
