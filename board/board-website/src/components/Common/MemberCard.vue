@@ -3,6 +3,7 @@
         :class="['member-card', { readonly: !edit }]"
         :style="{ width: size[0], height: size[1] }"
     >
+        <i class="iconfont icon-certification" title="企业认证"></i>
         <MemberAvatar
             :uploader="uploader"
             :member-name="vData.member.member_name"
@@ -115,6 +116,13 @@
             }
         }
         :deep(.el-input__inner){color: #fff;}
+    }
+    .icon-certification{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 20px;
+        color: $--color-warning;
     }
     .member-avatar{margin-top: 30px;}
     .member-content{

@@ -35,6 +35,12 @@
                 >
                     搜索
                 </el-button>
+                <el-button
+                    type="primary"
+                    @click="modelCompare"
+                >
+                    模型对比
+                </el-button>
             </el-form-item>
         </el-form>
 
@@ -376,6 +382,19 @@
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
+            },
+
+            modelCompare() {
+                const { href } = this.$router.resolve({
+                    name:  'modeling-list',
+                    query: {
+                        project_id: this.project_id,
+                        isPromoter: this.form.isPromoter,
+                    },
+                });
+
+                console.log(href);
+                window.open(href, '_blank');
             },
         },
     };
