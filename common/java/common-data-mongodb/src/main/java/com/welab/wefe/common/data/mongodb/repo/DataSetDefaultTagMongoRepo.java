@@ -17,7 +17,7 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;

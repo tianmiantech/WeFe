@@ -16,7 +16,7 @@
 
 package com.welab.wefe.union.service.cache;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.util.StringUtil;
 
 import java.util.ArrayList;

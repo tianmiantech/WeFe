@@ -30,4 +30,6 @@ public class MongodbTable {
         public static final String BLOCK_SYNC_DETAIL_INFO = "BlockSyncDetailInfo";
         public static final String BLOCK_SYNC_CONTRACT_HEIGHT = "BlockSyncContractHeight";
     }
+
+    public static final String USER = "user";
 }

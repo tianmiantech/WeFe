@@ -1,7 +1,7 @@
 package com.welab.wefe.manager.service.service;
 
-import com.welab.wefe.manager.service.entity.User;
-import com.welab.wefe.manager.service.repository.UserRepository;
+import com.welab.wefe.common.data.mongodb.entity.manager.User;
+import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     @Autowired
-    private UserRepository mRepository;
+    private UserMongoRepo userMongoRepo;
 
     public User find(String account, String password) {
-        return mRepository.findByAccountAndPassword(account, password);
+        return userMongoRepo.find(account, password);
     }
 }

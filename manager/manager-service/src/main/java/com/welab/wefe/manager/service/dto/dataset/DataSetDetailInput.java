@@ -1,13 +1,15 @@
 package com.welab.wefe.manager.service.dto.dataset;
 
-import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.manager.service.dto.base.BaseInput;
 
 /**
- * @Author Jervis
- * @Date 2020-06-10
- **/
-public class DataSetDetailInput extends AbstractApiInput {
-
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/10/19
+ */
+public class DataSetDetailInput extends BaseInput {
+    @Check(require = true)
     private String id;
 
     public String getId() {
@@ -17,5 +19,4 @@ public class DataSetDetailInput extends AbstractApiInput {
     public void setId(String id) {
         this.id = id;
     }
-
 }

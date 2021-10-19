@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -165,11 +165,12 @@ public class MemberMongoReop extends AbstractMongoRepo {
         return list;
     }
 
-    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
+    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact, String status) {
         String paramHidden = null == hidden ? null : String.valueOf(hidden ? 1 : 0);
         String paramFreezed = null == freezed ? null : String.valueOf(freezed ? 1 : 0);
         String paramLostContact = null == lostContact ? null : String.valueOf(lostContact ? 1 : 0);
         Query query = new QueryBuilder()
+                .append("status", status)
                 .append("memberId", memberId)
                 .like("name", name)
                 .append("hidden", paramHidden)
@@ -181,6 +182,10 @@ public class MemberMongoReop extends AbstractMongoRepo {
         List<Member> list = mongoTemplate.find(query, Member.class);
         long total = mongoTemplate.count(query, Member.class);
         return new PageOutput<>(pageIndex, total, query.getLimit(), list);
+    }
+
+    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
+        return query(pageIndex, pageSize, memberId, name, hidden, freezed, lostContact, null);
     }
 
 }

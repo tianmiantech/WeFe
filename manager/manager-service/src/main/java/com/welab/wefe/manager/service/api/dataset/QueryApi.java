@@ -1,139 +1,63 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.manager.service.api.dataset;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.PageableApiOutput;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
-import com.welab.wefe.manager.service.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.manager.service.entity.QueryDataSet;
-import com.welab.wefe.manager.service.service.DatasetContractService;
-import com.welab.wefe.manager.service.service.DatasetService;
-import org.springframework.beans.BeanUtils;
+import com.welab.wefe.manager.service.dto.dataset.ApiDataSetQueryInput;
+import com.welab.wefe.manager.service.dto.dataset.ApiDataSetQueryOutput;
+import com.welab.wefe.manager.service.mapper.DataSetMapper;
+import com.welab.wefe.manager.service.service.DataSetContractService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * @Author Jervis
- * @Date 2020-05-22
- **/
-@Api(path = "data_set/query", name = "查询数据集")
-public class QueryApi extends AbstractApi<QueryApi.Input, PageableApiOutput<DataSetQueryOutput>> {
+ * @author yuxin.zhang
+ */
+@Api(path = "data_set/query", name = "data_set_query")
+public class QueryApi extends AbstractApi<ApiDataSetQueryInput, PageOutput<ApiDataSetQueryOutput>> {
     @Autowired
-    protected DatasetService mDatasetService;
+    protected DataSetMongoReop dataSetMongoReop;
     @Autowired
-    protected DatasetContractService mDatasetContractService;
+    protected DataSetContractService mDatasetContractService;
+    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
 
     @Override
-    protected ApiResult<PageableApiOutput<DataSetQueryOutput>> handle(Input input) throws StatusCodeWithException {
-        Page<QueryDataSet> page = mDatasetService.findListMgr(input.getPageIndex(),
-                input.getPageSize(),
-                input.getName(),
-                input.getMemberName(),
-                input.getContainsY(),
-                input.getTag(),
-                input.getId(),
-                input.getMemberId());
-        PageableApiOutput<DataSetQueryOutput> output = getOutput(page);
-        return success(output);
-    }
+    protected ApiResult<PageOutput<ApiDataSetQueryOutput>> handle(ApiDataSetQueryInput input) {
+        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.find(mDataSetMapper.transferInput(input));
 
-    protected PageableApiOutput<DataSetQueryOutput> getOutput(Page<QueryDataSet> page) {
-        PageableApiOutput<DataSetQueryOutput> output = new PageableApiOutput<>(page);
-        List<DataSetQueryOutput> list = new ArrayList<>();
-        page.getContent().forEach(
-                x -> {
-                    DataSetQueryOutput outPut = new DataSetQueryOutput();
-                    try {
-                        BeanUtils.copyProperties(x, outPut);
-                        list.add(outPut);
-                    } catch (Exception e) {
-                    }
-                }
-        );
+        List<ApiDataSetQueryOutput> list = pageOutput.getList().stream()
+                .map(mDataSetMapper::transferOutput)
+                .collect(Collectors.toList());
 
-        output.setList(list);
-        return output;
-    }
-
-
-    public static class Input extends BaseInput {
-        private String id;
-        private String memberId;
-        private String memberName;
-        private String name;
-        private Boolean containsY;
-        private String tag;
-        private int pageIndex;
-        private int pageSize;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getMemberName() {
-            return memberName;
-        }
-
-        public void setMemberName(String memberName) {
-            this.memberName = memberName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        public int getPageIndex() {
-            return pageIndex;
-        }
-
-        public void setPageIndex(int pageIndex) {
-            this.pageIndex = pageIndex;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-        }
+        return success(new PageOutput<>(
+                pageOutput.getPageIndex(),
+                pageOutput.getTotal(),
+                pageOutput.getPageSize(),
+                pageOutput.getTotalPage(),
+                list
+        ));
     }
 
 }

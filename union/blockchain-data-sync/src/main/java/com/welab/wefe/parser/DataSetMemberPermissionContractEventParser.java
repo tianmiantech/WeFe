@@ -18,7 +18,8 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetMemberPermissionExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMemberPermissionMongoRepo;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
@@ -33,11 +34,11 @@ import java.util.Map;
  */
 public class DataSetMemberPermissionContractEventParser extends AbstractParser {
     protected DataSetMemberPermissionMongoRepo dataSetMemberPermissionMongoRepo = App.CONTEXT.getBean(DataSetMemberPermissionMongoRepo.class);
-    protected DataSetMemberPermission.ExtJSON extJSON;
+    protected DataSetMemberPermissionExtJSON extJSON;
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetMemberPermission.ExtJSON.class) : new DataSetMemberPermission.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetMemberPermissionExtJSON.class) : new DataSetMemberPermissionExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.DataSetMemberPermission.INSERT_EVENT:
             case EventConstant.DataSetMemberPermission.UPDATE_EVENT:

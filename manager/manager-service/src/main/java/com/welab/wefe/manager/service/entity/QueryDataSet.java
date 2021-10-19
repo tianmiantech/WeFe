@@ -1,45 +1,42 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.manager.service.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-
 /**
- * 联邦成员同步的数据集(包含成员name)
- *
- * @Date 2020-05-22
+ * @author yuxin.zhang
  **/
-@Entity(name = "query_data_set")
 public class QueryDataSet extends AbstractUniqueIDEntity {
     private String name;
-    @Column(name = "member_id")
     private String memberId;
-    @Column(name = "contains_y")
     private int containsY;
-    @Column(name = "row_count")
     private Long rowCount;
-    @Column(name = "column_count")
     private Integer columnCount;
-    @Column(name = "column_name_list")
     private String columnNameList;
-    @Column(name = "feature_count")
     private Integer featureCount;
-    @Column(name = "feature_name_list")
     private String featureNameList;
-    @Column(name = "public_level")
     private String publicLevel;
-    @Column(name = "public_member_list")
     private String publicMemberList;
-    @Column(name = "usage_count_in_job")
     private int usageCountInJob;
-    @Column(name = "usage_count_in_flow")
     private int usageCountInFlow;
-    @Column(name = "usage_count_in_project")
     private int usageCountInProject;
     private String description;
     private String tags;
-    @Column(name = "member_name")
     private String memberName;
 
     public String getName() {

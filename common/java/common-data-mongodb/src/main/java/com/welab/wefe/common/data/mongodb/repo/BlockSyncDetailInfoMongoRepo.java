@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncDetailInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncDetailInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;

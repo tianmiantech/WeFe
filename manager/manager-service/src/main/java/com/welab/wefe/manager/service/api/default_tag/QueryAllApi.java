@@ -1,129 +1,60 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.manager.service.api.default_tag;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.PageableApiOutput;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
-import com.welab.wefe.manager.service.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.manager.service.entity.DataSetDefaultTag;
-import com.welab.wefe.manager.service.entity.QueryDataSet;
-import com.welab.wefe.manager.service.service.DataSetDefaultTagService;
-import org.springframework.beans.BeanUtils;
+import com.welab.wefe.manager.service.dto.tag.ApiDataSetDefaultTagOutput;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * 查询数据集默认标签
+ * Query the default tag of the dataset
+ *
+ * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "查询数据集默认标签")
+@Api(path = "default_tag/query", name = "default_tag_query")
 public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
+
     @Autowired
-    protected DataSetDefaultTagService dataSetDefaultTagService;
+    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
 
     @Override
-    protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException {
-        List<DataSetDefaultTag> list = dataSetDefaultTagService.findAll();
+    protected ApiResult<JObject> handle(Input input) {
+        List<ApiDataSetDefaultTagOutput> list = dataSetDefaultTagMongoRepo.findAll()
+                .stream().map(x -> {
+                    ApiDataSetDefaultTagOutput apiDataSetDefaultTagOutput = new ApiDataSetDefaultTagOutput();
+                    apiDataSetDefaultTagOutput.setId(x.getTagId());
+                    apiDataSetDefaultTagOutput.setTagName(x.getTagName());
+                    apiDataSetDefaultTagOutput.setExtJson(x.getExtJson());
+                    return apiDataSetDefaultTagOutput;
+                }).collect(Collectors.toList());
+
         return success(JObject.create("list", JObject.toJSON(list)));
-    }
-
-    protected PageableApiOutput<DataSetQueryOutput> getOutput(Page<QueryDataSet> page) {
-        PageableApiOutput<DataSetQueryOutput> output = new PageableApiOutput<>(page);
-        List<DataSetQueryOutput> list = new ArrayList<>();
-        page.getContent().forEach(
-                x -> {
-                    DataSetQueryOutput outPut = new DataSetQueryOutput();
-                    try {
-                        BeanUtils.copyProperties(x, outPut);
-                        list.add(outPut);
-                    } catch (Exception e) {
-                    }
-                }
-        );
-
-        output.setList(list);
-        return output;
     }
 
 
     public static class Input extends BaseInput {
-        private String id;
-        private String memberId;
-        private String memberName;
-        private String name;
-        private Boolean containsY;
-        private String tag;
-        private int pageIndex;
-        private int pageSize;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getMemberName() {
-            return memberName;
-        }
-
-        public void setMemberName(String memberName) {
-            this.memberName = memberName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        public int getPageIndex() {
-            return pageIndex;
-        }
-
-        public void setPageIndex(int pageIndex) {
-            this.pageIndex = pageIndex;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-        }
     }
 
 }

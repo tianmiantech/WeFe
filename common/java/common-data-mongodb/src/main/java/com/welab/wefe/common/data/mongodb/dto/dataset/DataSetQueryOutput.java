@@ -16,6 +16,9 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataset;
 
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+
 /**
  * @author yuxin.zhang
  **/
@@ -39,6 +42,9 @@ public class DataSetQueryOutput {
     private String tags;
     protected String createdTime;
     protected String updatedTime;
+
+    private DataSetExtJSON extJson;
+
 
     public String getDataSetId() {
         return dataSetId;
@@ -190,5 +196,13 @@ public class DataSetQueryOutput {
 
     public void setUpdatedTime(String updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public DataSetExtJSON getExtJson() {
+        return extJson;
+    }
+
+    public void setExtJson(DataSetExtJSON extJson) {
+        this.extJson = extJson;
     }
 }

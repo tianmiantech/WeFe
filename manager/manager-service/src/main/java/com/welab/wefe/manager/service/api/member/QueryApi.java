@@ -1,134 +1,76 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.manager.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.PageableApiOutput;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
-import com.welab.wefe.manager.service.dto.member.MemberQueryOutput;
-import com.welab.wefe.manager.service.entity.Member;
-import com.welab.wefe.manager.service.mapper.MemberMapper;
-import com.welab.wefe.manager.service.service.MemberService;
+import com.welab.wefe.manager.service.dto.member.MemberQueryInput;
+import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
+import com.welab.wefe.union.service.mapper.MemberMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @Author Jervis
- * @Date 2020-05-22
+ * @author yuxin.zhang
  **/
-@Api(path = "member/query", name = "查询成员")
-public class QueryApi extends AbstractApi<QueryApi.Input, PageableApiOutput<MemberQueryOutput>> {
+@Api(path = "member/query", name = "member_query")
+public class QueryApi extends AbstractApi<MemberQueryInput, PageOutput<MemberQueryOutput>> {
     @Autowired
-    protected MemberService mMemberService;
+    protected MemberMongoReop memberMongoReop;
 
     protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
 
     @Override
-    protected ApiResult<PageableApiOutput<MemberQueryOutput>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<PageOutput<MemberQueryOutput>> handle(MemberQueryInput input) throws StatusCodeWithException {
         try {
-            Page<Member> page = mMemberService.query(
+            PageOutput<Member> page = memberMongoReop.query(
                     input.getPageIndex(),
                     input.getPageSize(),
                     input.getId(),
                     input.getName(),
-                    input.isHidden(),
-                    input.isFreezed(),
-                    input.isLostContact()
+                    input.getHidden(),
+                    input.getFreezed(),
+                    input.getLostContact(),
+                    input.getStatus()
             );
 
-            PageableApiOutput<MemberQueryOutput> output = new PageableApiOutput<>(page);
-
-            List<MemberQueryOutput> list = page.getContent().stream()
+            List<MemberQueryOutput> list = page.getList().stream()
                     .map(mMapper::transfer)
                     .collect(Collectors.toList());
 
-            output.setList(list);
-
-            return success(output);
+            return success(new PageOutput<>(
+                    page.getPageIndex(),
+                    page.getTotal(),
+                    page.getPageSize(),
+                    page.getTotalPage(),
+                    list
+            ));
         } catch (Exception e) {
-            LOG.error("分页查询成员信息失败:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "分页查询成员信息失败");
+            LOG.error("Failed to query member information in pagination:", e);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
         }
-
     }
-
-    public static class Input extends BaseInput {
-        private String id;
-        private String name;
-
-        private boolean lostContact;
-        private boolean hidden;
-        private boolean freezed;
-
-        private int pageIndex;
-        private int pageSize;
-
-        //region getter/setter
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getPageIndex() {
-            return pageIndex;
-        }
-
-        public void setPageIndex(int pageIndex) {
-            this.pageIndex = pageIndex;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-        }
-
-        public boolean isLostContact() {
-            return lostContact;
-        }
-
-        public void setLostContact(boolean lostContact) {
-            this.lostContact = lostContact;
-        }
-
-        public boolean isHidden() {
-            return hidden;
-        }
-
-        public void setHidden(boolean hidden) {
-            this.hidden = hidden;
-        }
-
-        public boolean isFreezed() {
-            return freezed;
-        }
-
-        public void setFreezed(boolean freezed) {
-            this.freezed = freezed;
-        }
-
-
-        //endregion
-    }
-
 }

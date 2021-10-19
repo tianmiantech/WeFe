@@ -17,6 +17,7 @@ contract DataSetMemberPermissionContract{
     event insertEvent(int256 ret_code,string id, string data_set_id, string member_id, string created_time, string updated_time, int log_time,string ext_json);
     event updateEvent(int256 ret_code,string id, string data_set_id, string member_id, string created_time, string updated_time,int log_time,string ext_json);
     event deleteByDataSetIdEvent(int256 ret_code,string data_set_id);
+    event updateExtJsonEvent(int256 ret_code,string id, string ext_json);
 
     constructor() public {
         // 创建表
@@ -138,7 +139,7 @@ contract DataSetMemberPermissionContract{
         Entries entries = table.select(FIX_ID, condition);
         if (0 == uint256(entries.size())) {
             // 记录不存在
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
 
         return (0, wrapReturnMemberInfo(entries));
@@ -151,7 +152,7 @@ contract DataSetMemberPermissionContract{
         Entries entries = table.select(FIX_ID, condition);
         if (0 == uint256(entries.size())) {
             // 记录不存在
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
 
         return (0, wrapReturnMemberInfo(entries));
@@ -166,7 +167,7 @@ contract DataSetMemberPermissionContract{
         Entries entries = table.select(FIX_ID, table.newCondition());
         if (0 == uint256(entries.size())) {
             // 查询为空
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
         return (0, wrapReturnMemberInfo(entries));
     }
@@ -185,9 +186,31 @@ contract DataSetMemberPermissionContract{
         Entries entries = table.select(FIX_ID, condition);
         if (0 == uint256(entries.size())) {
             // 查询为空
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
         return (0, wrapReturnMemberInfo(entries));
+    }
+
+    function updateExtJson(string id,string ext_json) public returns (int256) {
+        Table table = tableFactory.openTable(TABLE_NAME);
+
+        Condition condition = table.newCondition();
+        condition.EQ("id", id);
+
+        Entry entry = table.newEntry();
+        entry.set("ext_json", ext_json);
+
+        int count = table.update(FIX_ID, entry, condition);
+
+        int256 ret_code = 0;
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
+
+        emit updateExtJsonEvent(ret_code,id,ext_json);
+        return ret_code;
     }
 
 

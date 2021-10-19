@@ -16,8 +16,8 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.User;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;

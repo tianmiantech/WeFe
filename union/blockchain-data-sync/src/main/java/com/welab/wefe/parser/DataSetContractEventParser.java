@@ -18,7 +18,8 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -32,11 +33,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DataSetContractEventParser extends AbstractParser {
     protected DataSetMongoReop dataSetMongoReop = App.CONTEXT.getBean(DataSetMongoReop.class);
-    protected DataSet.ExtJSON extJSON;
+    protected DataSetExtJSON extJSON;
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSet.ExtJSON.class) : new DataSet.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetExtJSON.class) : new DataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.DataSet.INSERT_EVENT:
             case EventConstant.DataSet.UPDATE_EVENT:

@@ -2,7 +2,8 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -14,11 +15,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DataSetDefaultTagContractEventParser extends AbstractParser {
     protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo = App.CONTEXT.getBean(DataSetDefaultTagMongoRepo.class);
-    protected DataSetDefaultTag.ExtJSON extJSON;
+    protected DataSetDefaultTagExtJSON extJSON;
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetDefaultTag.ExtJSON.class) : new DataSetDefaultTag.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetDefaultTagExtJSON.class) : new DataSetDefaultTagExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.DataSetDefaultTag.INSERT_EVENT:
                 parseInsertEvent();

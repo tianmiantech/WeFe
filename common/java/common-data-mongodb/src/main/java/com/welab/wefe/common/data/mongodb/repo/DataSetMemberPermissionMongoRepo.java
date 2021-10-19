@@ -17,7 +17,7 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.springframework.data.mongodb.core.query.Query;

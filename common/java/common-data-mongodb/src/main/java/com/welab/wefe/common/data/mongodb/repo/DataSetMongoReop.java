@@ -22,8 +22,8 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetTagsQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -76,6 +76,53 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
         return mongoTemplate.findOne(query, DataSet.class);
+    }
+
+    /**
+     * Query the data set visible to the current member
+     */
+    public PageOutput<DataSetQueryOutput> find(DataSetQueryInput dataSetQueryInput) {
+        LookupOperation lookupToLots = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+        Boolean enable = dataSetQueryInput.getExtJson().getEnable();
+
+        Criteria dataSetCriteria = new QueryBuilder()
+                .like("name", dataSetQueryInput.getName())
+                .like("tags", dataSetQueryInput.getTag())
+                .append("member_id", dataSetQueryInput.getMemberId())
+                .append("data_set_id", dataSetQueryInput.getDataSetId())
+                .append("contains_y", null == dataSetQueryInput.getContainsY() ? null : String.valueOf(dataSetQueryInput.getContainsY() ? 1 : 0))
+                .append("ext_json.enable",null == enable ? null : String.valueOf(enable ? 1 : 0))
+                .getCriteria();
+
+
+        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
+
+        Criteria memberCriteria = new QueryBuilder()
+                .like("name", dataSetQueryInput.getMemberName())
+                .getCriteria();
+
+        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+        UnwindOperation unwind = Aggregation.unwind("member");
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
+        int total = mongoTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
+
+        SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
+        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+
+        List<DataSetQueryOutput> result = mongoTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
+
+        return new PageOutput<>(dataSetQueryInput.getPageIndex(), (long) total, dataSetQueryInput.getPageSize(), result);
     }
 
 

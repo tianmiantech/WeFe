@@ -1,7 +1,7 @@
 package com.welab.wefe.manager.service.mapper;
 
+import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.manager.service.dto.account.LoginOutput;
-import com.welab.wefe.manager.service.entity.User;
 import org.mapstruct.Mapper;
 
 /**

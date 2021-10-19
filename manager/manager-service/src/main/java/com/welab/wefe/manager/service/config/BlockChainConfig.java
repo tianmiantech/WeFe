@@ -17,6 +17,7 @@ package com.welab.wefe.manager.service.config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.manager.service.contract.DataSetContract;
+import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
 import com.welab.wefe.manager.service.contract.DataSetMemberPermissionContract;
 import com.welab.wefe.manager.service.contract.MemberContract;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,7 +25,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsService;
@@ -35,7 +35,6 @@ import org.fisco.bcos.sdk.model.NodeVersion.ClientVersion;
 import org.fisco.bcos.sdk.network.MsgHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +65,7 @@ public class BlockChainConfig {
     private String memberContractName;
     private String dataSetContractName;
     private String dataSetMemberPermissionContractName;
+    private String dataSetDefaultTagContractName;
 
 
     // add channel disconnect
@@ -170,7 +170,7 @@ public class BlockChainConfig {
      * 获取新最版的Member（成员）合约
      */
     @Bean
-    public MemberContract getLatestVersionMemberContract(CnsService cnsService,Client client,CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+    public MemberContract getLatestVersionMemberContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, memberContractName);
         return MemberContract.load(address, client, cryptoKeyPair);
     }
@@ -179,7 +179,7 @@ public class BlockChainConfig {
      * 获取新最版的DataSet（数据集）合约
      */
     @Bean
-    public DataSetContract getLatestVersionDataSetContract(CnsService cnsService,Client client,CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+    public DataSetContract getLatestVersionDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, dataSetContractName);
         return DataSetContract.load(address, client, cryptoKeyPair);
     }
@@ -188,9 +188,18 @@ public class BlockChainConfig {
      * 获取最新版的DataSetMemberPermission（数据集权限）合约
      */
     @Bean
-    public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract(CnsService cnsService,Client client,CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+    public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, dataSetMemberPermissionContractName);
         return DataSetMemberPermissionContract.load(address, client, cryptoKeyPair);
+    }
+
+    /**
+     * 获取最新版的DataSetDefaultTagContract（数据集权限）合约
+     */
+    @Bean
+    public DataSetDefaultTagContract getLatestVersionDataSetDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, dataSetDefaultTagContractName);
+        return DataSetDefaultTagContract.load(address, client, cryptoKeyPair);
     }
 
 
@@ -304,5 +313,13 @@ public class BlockChainConfig {
 
     public void setChannelPort(String channelPort) {
         this.channelPort = channelPort;
+    }
+
+    public String getDataSetDefaultTagContractName() {
+        return dataSetDefaultTagContractName;
+    }
+
+    public void setDataSetDefaultTagContractName(String dataSetDefaultTagContractName) {
+        this.dataSetDefaultTagContractName = dataSetDefaultTagContractName;
     }
 }

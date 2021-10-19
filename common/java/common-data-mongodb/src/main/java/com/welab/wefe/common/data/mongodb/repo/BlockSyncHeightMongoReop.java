@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncHeight;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
