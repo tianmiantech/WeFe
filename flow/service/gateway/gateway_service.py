@@ -23,7 +23,7 @@ from common.python.protobuf.pyproto.gateway_meta_pb2 import TransferMeta
 from common.python.utils import network_utils
 from common.python.utils.core_utils import get_commit_id
 from common.python.utils.log_utils import LoggerFactory
-from flow.settings import MEMBER_ID, JOB_GRPC, GATEWAY_INTRANET_HOST, GATEWAY_INTRANET_PORT
+from flow.settings import JOB_GRPC, GATEWAY_INTRANET_HOST, GATEWAY_INTRANET_PORT, MemberInfo
 from flow.web.utils.const import *
 
 
@@ -70,7 +70,7 @@ class GatewayService:
         """
         Send messages to self gateway service
         """
-        return GatewayService.send(MEMBER_ID, processor)
+        return GatewayService.send(MemberInfo.MEMBER_ID, processor)
 
     @staticmethod
     def send(dst_member_id, processor, data="") -> dict:
