@@ -1,7 +1,7 @@
 RUNTIME custom
 
 RUN apt-get update -y && apt-get install libgmp-dev libmpfr-dev libmpc-dev -y
-RUN fun-install pip install gmpy2==2.0.8  -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN fun-install pip install gmpy2==2.0.8
 RUN fun-install pip install six==1.15.0
 RUN fun-install pip install cachetools==4.1.1
 RUN fun-install pip install numba==0.50.1
