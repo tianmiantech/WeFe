@@ -567,5 +567,6 @@ if int(work_mode) == 0:
             table_objs.append(obj)
     sqlite_utils.create_table(table_objs, DB)
 
+
 if __name__ == '__main__':
     pass

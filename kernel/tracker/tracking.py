@@ -15,7 +15,6 @@
 # limitations under the License.
 
 
-#
 import datetime
 import json
 import os
@@ -30,13 +29,21 @@ from common.python.calculation.fc.fc_storage import FCStorage
 from common.python.common.consts import NAMESPACE, TaskResultDataType, \
     ProjectStatus, ModelType, TaskStatus
 from common.python.common.enums import FlowQueueActionType
+from common.python.db.data_set_dao import DataSetDao
 from common.python.db.db_models import *
-from common.python.db.db_models import DB, TaskProgress
+from common.python.db.job_member_dao import JobMemberDao
+from common.python.db.project_dao import ProjectDao
+from common.python.db.project_data_set_dao import ProjectDataSetDao
 from common.python.db.task_dao import TaskDao
+from common.python.db.task_progress_dao import TaskProgressDao
+from common.python.db.flow_action_queue_dao import FlowActionQueueDao
+from common.python.db.task_result_dao import TaskResultDao
+from common.python.db.current_best_model_dao import CurrentBestModelDao
+from common.python.db.provider_model_param_dao import ProviderModelParamsDao
+from common.python.db.job_dao import JobDao
 from common.python.protobuf.pyproto import default_empty_fill_pb2
 from common.python.utils import file_utils
 from common.python.utils.core_utils import current_datetime, timestamp_to_date, get_commit_id, md5, get_delta_seconds
-from kernel.settings import stat_logger
 from kernel.tracker import model_manager
 from kernel.tracker import model_utils
 from kernel.utils.decorator_utils import update_task_status_env
@@ -138,13 +145,13 @@ class Tracking(object):
                 }
 
                 # save data asynchronously
-                flowActionQueue = FlowActionQueue()
-                flowActionQueue.id = get_commit_id()
-                flowActionQueue.producer = 'kernel'
-                flowActionQueue.action = FlowQueueActionType.SAVE_OUTPUT_DATA
-                flowActionQueue.params = json.dumps(params)
-                flowActionQueue.channel = ''
-                flowActionQueue.save(force_insert=True)
+                flow_action_queue = FlowActionQueue()
+                flow_action_queue.id = get_commit_id()
+                flow_action_queue.producer = 'kernel'
+                flow_action_queue.action = FlowQueueActionType.SAVE_OUTPUT_DATA
+                flow_action_queue.params = json.dumps(params)
+                flow_action_queue.channel = ''
+                FlowActionQueueDao.save(flow_action_queue,force_insert=True)
 
             if not async_save:
                 # save data synchronously
@@ -264,56 +271,50 @@ class Tracking(object):
         -------
 
         """
-        with DB.connection_context():
-            models = TaskResult.select().where(
-                TaskResult.job_id == self.job_id,
-                TaskResult.task_id == self.task_id,
-                TaskResult.role == self.role,
-                TaskResult.type == result_type
-            )
+        model = TaskResultDao.get(
+            TaskResult.job_id == self.job_id,
+            TaskResult.task_id == self.task_id,
+            TaskResult.role == self.role,
+            TaskResult.type == result_type
+        )
 
-            tasks = Task.select().where(
-                Task.job_id == self.job_id,
-                Task.task_id == self.task_id,
-            )
+        task = TaskDao.get(
+            Task.job_id == self.job_id,
+            Task.task_id == self.task_id
+        )
 
-            # Compatible with local test without task information
-            if len(tasks) != 0:
-                task = tasks[0]
-            else:
-                task = Task()
-                task.flow_id = "local_test_flow_id"
-                task.flow_node_id = "local_test_flow_node_id"
+        # Compatible with local test without task information
+        if not task:
+            task = Task()
+            task.flow_id = "local_test_flow_id"
+            task.flow_node_id = "local_test_flow_node_id"
 
-            is_insert = True
-            if models:
-                model = models[0]
-                is_insert = False
-            else:
-                model = TaskResult()
-                model.created_time = datetime.datetime.now()
+        is_insert = True
+        if model:
+            is_insert = False
+        else:
+            model = TaskResult()
+            model.id = get_commit_id()
+            model.created_time = datetime.datetime.now()
 
-            model.job_id = self.job_id
-            model.name = component_name or self.component_name
-            model.task_id = self.task_id
-            model.role = self.role
-            model.type = result_type
-            model.updated_time = datetime.datetime.now()
-            model.result = json.dumps(task_result)
-            model.component_type = self.component_name.rsplit('_')[0]
-            model.flow_id = task.flow_id
-            model.flow_node_id = task.flow_node_id
-            model.project_id = task.project_id
+        model.job_id = self.job_id
+        model.name = component_name or self.component_name
+        model.task_id = self.task_id
+        model.role = self.role
+        model.type = result_type
+        model.updated_time = datetime.datetime.now()
+        model.result = json.dumps(task_result)
+        model.component_type = self.component_name.rsplit('_')[0]
+        model.flow_id = task.flow_id
+        model.flow_node_id = task.flow_node_id
+        model.project_id = task.project_id
 
-            if self.is_serving_model and model.type.split("_")[0] == "model":
-                model.serving_model = 1
+        if self.is_serving_model and model.type.split("_")[0] == "model":
+            model.serving_model = 1
 
-            if is_insert:
-                model.id = get_commit_id()
-                model.save(force_insert=True)
-            else:
-                model.save()
-            return model
+        TaskResultDao.save(model, force_insert=is_insert)
+
+        return model
 
     def get_task_result(self, result_type, task_id=None):
         """
@@ -328,19 +329,14 @@ class Tracking(object):
         -------
 
         """
-        with DB.connection_context():
+        where_condition = [TaskResult.job_id == self.job_id,
+                           TaskResult.name == self.component_name,
+                           TaskResult.role == self.role,
+                           TaskResult.type == result_type]
+        if task_id:
+            where_condition.append(TaskResult.task_id == task_id)
 
-            where_condition = [TaskResult.job_id == self.job_id, TaskResult.name == self.component_name,
-                               TaskResult.role == self.role, TaskResult.type == result_type]
-            if task_id:
-                where_condition.append(TaskResult.task_id == task_id)
-
-            models = TaskResult.select().where(*tuple(where_condition))
-
-            if models:
-                return models[0]
-            else:
-                return None
+        return TaskResultDao.get(*tuple(where_condition))
 
     def save_training_best_model(self, model_buffers):
         # save to task_result
@@ -350,169 +346,157 @@ class Tracking(object):
         self.save_task_result(model_json_obj, self._get_task_result_type(TaskResultDataType.TRAINING_MODEL, "default"))
 
     def save_cur_best_model(self, model_buffers, iteration):
-        with DB.connection_context():
-            models = CurrentBestModel.select().where(CurrentBestModel.job_id == self.job_id,
-                                                     CurrentBestModel.component_name == self.component_name,
-                                                     CurrentBestModel.role == self.role,
-                                                     CurrentBestModel.member_id == self.member_id)
+        model = CurrentBestModelDao.get(
+            CurrentBestModel.job_id == self.job_id,
+            CurrentBestModel.component_name == self.component_name,
+            CurrentBestModel.role == self.role,
+            CurrentBestModel.member_id == self.member_id
+        )
 
-            is_insert = True
-            if models:
-                model = models[0]
-                is_insert = False
-            else:
-                model = CurrentBestModel()
-                model.created_time = current_datetime()
+        is_insert = True
+        if model:
+            is_insert = False
+        else:
+            model = CurrentBestModel()
+            model.id = get_commit_id()
+            model.created_time = current_datetime()
 
-            model.job_id = self.job_id
-            model.component_name = self.component_name
-            model.task_id = self.task_id
-            model.role = self.role
-            model.member_id = self.member_id
-            model.updated_time = current_datetime()
-            model.iteration = iteration
+        model.job_id = self.job_id
+        model.component_name = self.component_name
+        model.task_id = self.task_id
+        model.role = self.role
+        model.member_id = self.member_id
+        model.updated_time = current_datetime()
+        model.iteration = iteration
 
-            for buffer_name, buffer_object in model_buffers.items():
-                jsonobj = MessageToJson(buffer_object, including_default_value_fields=True)
-                if not jsonobj:
-                    fill_message = default_empty_fill_pb2.DefaultEmptyFillMessage()
-                    fill_message.flag = 'set'
-                    jsonobj = MessageToJson(fill_message, including_default_value_fields=True)
-                if 'meta' in buffer_name.lower():
-                    model.model_meta = jsonobj
-                if 'param' in buffer_name.lower():
-                    model.model_param = jsonobj
-
-            if is_insert:
-                model.id = get_commit_id()
-                model.save(force_insert=True)
-            else:
-                model.save()
-
-            return model
-
-    def save_provider_model_params(self, model_buffers, provider_member_id):
-        with DB.connection_context():
-            models = ProviderModelParams.select().where(ProviderModelParams.job_id == self.job_id,
-                                                        ProviderModelParams.component_name == self.component_name,
-                                                        ProviderModelParams.role == self.role,
-                                                        ProviderModelParams.member_id == self.member_id)
-
-            is_insert = True
-            if models:
-                model = models[0]
-                is_insert = False
-            else:
-                model = ProviderModelParams()
-                model.created_time = datetime.datetime.now()
-
-            model.job_id = self.job_id
-            model.component_name = self.component_name
-            model.task_id = self.task_id
-            model.role = self.role
-            model.member_id = self.member_id
-            model.updated_time = datetime.datetime.now()
-            model.provider_member_id = provider_member_id
-            # model.updated_by = ""
-            # model.created_by = ""
-
-            jsonobj = MessageToJson(model_buffers, including_default_value_fields=True)
-            if not jsonobj:
+        for buffer_name, buffer_object in model_buffers.items():
+            json_obj = MessageToJson(buffer_object, including_default_value_fields=True)
+            if not json_obj:
                 fill_message = default_empty_fill_pb2.DefaultEmptyFillMessage()
                 fill_message.flag = 'set'
-                jsonobj = MessageToJson(fill_message, including_default_value_fields=True)
-            model.provider_model_param = jsonobj
+                json_obj = MessageToJson(fill_message, including_default_value_fields=True)
+            if 'meta' in buffer_name.lower():
+                model.model_meta = json_obj
+            if 'param' in buffer_name.lower():
+                model.model_param = json_obj
 
-            if is_insert:
-                model.id = get_commit_id()
-                model.save(force_insert=True)
-            else:
-                model.save()
-            return model
+        CurrentBestModelDao.save(model, force_insert=is_insert)
+
+        return model
+
+    def save_provider_model_params(self, model_buffers, provider_member_id):
+        model = ProviderModelParamsDao.get(
+            ProviderModelParams.job_id == self.job_id,
+            ProviderModelParams.component_name == self.component_name,
+            ProviderModelParams.role == self.role,
+            ProviderModelParams.member_id == self.member_id
+        )
+
+        is_insert = True
+        if model:
+            is_insert = False
+        else:
+            model = ProviderModelParams()
+            model.id = get_commit_id()
+            model.created_time = datetime.datetime.now()
+
+        model.job_id = self.job_id
+        model.component_name = self.component_name
+        model.task_id = self.task_id
+        model.role = self.role
+        model.member_id = self.member_id
+        model.updated_time = datetime.datetime.now()
+        model.provider_member_id = provider_member_id
+        # model.updated_by = ""
+        # model.created_by = ""
+
+        json_obj = MessageToJson(model_buffers, including_default_value_fields=True)
+        if not json_obj:
+            fill_message = default_empty_fill_pb2.DefaultEmptyFillMessage()
+            fill_message.flag = 'set'
+            json_obj = MessageToJson(fill_message, including_default_value_fields=True)
+        model.provider_model_param = json_obj
+
+        ProviderModelParamsDao.save(model, force_insert=is_insert)
+
+        return model
 
     def get_output_model(self, model_name=ModelType.BINNING_MODEL):
-        with DB.connection_context():
-            models = TaskResult.select().where(TaskResult.task_id == self.task_id,
-                                               TaskResult.role == self.role,
-                                               TaskResult.type == self._get_task_result_type(TaskResultDataType.MODEL,
-                                                                                             model_name))
+        model = TaskResultDao.get(
+            TaskResult.task_id == self.task_id,
+            TaskResult.role == self.role,
+            TaskResult.type == self._get_task_result_type(TaskResultDataType.MODEL, model_name)
+        )
 
-            if models:
-                model = json.loads(models[0].result)
-                return {"Model_Meta": model["model_meta"], "Model_Param": model["model_param"]}
-            else:
-                return None
-
-    def get_training_best_model(self):
-        with DB.connection_context():
-            models = TaskResult.select().where(TaskResult.task_id == self.task_id,
-                                               TaskResult.role == self.role,
-                                               TaskResult.type == self._get_task_result_type(
-                                                   TaskResultDataType.TRAINING_MODEL, "default"))
-
-            if models:
-                model = json.loads(models[0].result)
-                return {"Model_Meta": model["model_meta"], "Model_Param": model["model_param"]}
-            else:
-                return None
-
-    def get_statics_result(self, type='data_feature_statistic'):
-        with DB.connection_context():
-            results = TaskResult.select().where(TaskResult.job_id == self.job_id,
-                                                TaskResult.role == self.role,
-                                                TaskResult.type == type
-                                                ).order_by(TaskResult.created_time.desc()).limit(1)
-            if results:
-                max = {}
-                min = {}
-                mean = {}
-                median = {}
-                missing_count = {}
-                std_variance = {}
-                count = 0
-                mode = {}
-                result = json.loads(results[0].result)
-                LOGGER.info("mysql result:{}".format(result))
-                members = result['members']
-                feature_statistic = None
-                for member in members:
-                    if member['role'] == self.role:
-                        feature_statistic = member['feature_statistic']
-                if feature_statistic:
-                    for feature, value in feature_statistic.items():
-                        max[feature] = value['max']
-                        min[feature] = value['min']
-                        mean[feature] = value['mean']
-                        if '50' in value['percentile']:
-                            median[feature] = value['percentile']['50']
-                        missing_count[feature] = value['missing_count']
-                        std_variance[feature] = value['std_variance']
-                        count = value['count']
-                        mode[feature] = value.get('mode')
-                    statics = {"max": max, "min": min, "mean": mean, "median": median, "missing_count": missing_count,
-                               "std_variance": std_variance, "std": std_variance, 'count': count, "mode": mode}
-                    return statics
-
+        if model:
+            model = json.loads(model.result)
+            return {"Model_Meta": model["model_meta"], "Model_Param": model["model_param"]}
+        else:
             return None
 
+    def get_training_best_model(self):
+
+        model = TaskResultDao.get(
+            TaskResult.task_id == self.task_id,
+            TaskResult.role == self.role,
+            TaskResult.type == self._get_task_result_type(TaskResultDataType.TRAINING_MODEL, "default")
+        )
+
+        if model:
+            model = json.loads(model.result)
+            return {"Model_Meta": model["model_meta"], "Model_Param": model["model_param"]}
+        else:
+            return None
+
+    def get_statics_result(self, type='data_feature_statistic'):
+        model = TaskResultDao.get_last_statics_result(self.job_id, self.role, type)
+        if model:
+            max = {}
+            min = {}
+            mean = {}
+            median = {}
+            missing_count = {}
+            std_variance = {}
+            count = 0
+            mode = {}
+            result = json.loads(model.result)
+            LOGGER.info("mysql result:{}".format(result))
+            members = result['members']
+            feature_statistic = None
+            for member in members:
+                if member['role'] == self.role:
+                    feature_statistic = member['feature_statistic']
+            if feature_statistic:
+                for feature, value in feature_statistic.items():
+                    max[feature] = value['max']
+                    min[feature] = value['min']
+                    mean[feature] = value['mean']
+                    if '50' in value['percentile']:
+                        median[feature] = value['percentile']['50']
+                    missing_count[feature] = value['missing_count']
+                    std_variance[feature] = value['std_variance']
+                    count = value['count']
+                    mode[feature] = value.get('mode')
+                statics = {"max": max, "min": min, "mean": mean, "median": median, "missing_count": missing_count,
+                           "std_variance": std_variance, "std": std_variance, 'count': count, "mode": mode}
+                return statics
+
+        return None
+
     def get_binning_result(self):
-        with DB.connection_context():
-            results = TaskResult.select().where(TaskResult.job_id == self.job_id,
-                                                TaskResult.role == self.role,
-                                                TaskResult.type == 'model_train'
-                                                ).order_by(TaskResult.created_time.desc()).limit(1)
-            if results:
-                result = json.loads(results[0].result)
-                LOGGER.debug("mysql result:{}".format(result))
-                binning_result = result.get('model_param').get('binningResult').get('binningResult')
-                binning_results = {}
-                for feature, value in binning_result.items():
-                    binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints')}
-                model_meta = result.get('model_meta')
-                model_param = {'header': model_meta.get('cols')}
-                transformCols = model_meta.get('transformParam').get('transformCols')
-                model_param['transform_bin_indexes'] = [int(x) for x in transformCols]
-                return model_param, binning_results
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_train')
+        if model:
+            result = json.loads(model.result)
+            LOGGER.debug("mysql result:{}".format(result))
+            binning_result = result.get('model_param').get('binningResult').get('binningResult')
+            binning_results = {}
+            for feature, value in binning_result.items():
+                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints')}
+            model_meta = result.get('model_meta')
+            model_param = {'header': model_meta.get('cols')}
+            transform_cols = model_meta.get('transformParam').get('transformCols')
+            model_param['transform_bin_indexes'] = [int(x) for x in transform_cols]
+            return model_param, binning_results
         return None, None
 
     def saveSingleMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
@@ -594,98 +578,82 @@ class Tracking(object):
         self.save_task_result(result, result_type, component_name)
 
     def save_dataset(self, data_input, header_list):
-        with DB.connection_context():
+        # Determine whether the task exists
+        task = TaskDao.find_one_by_task_id(self.task_id)
+        if not task:
+            return
 
-            # Determine whether the task exists
-            tasks = Task.select().where(Task.task_id == self.task_id)
-            if tasks.exists() is False:
-                return
-            task = tasks[0]
+        # Determine whether the job exists
+        job = JobDao.find_one_by_job_id(self.job_id, self.role)
+        if not job:
+            return
 
-            # Determine whether the job exists
-            jobs = Job.select().where(self.job_id == Job.job_id, Job.my_role == self.role)
-            if jobs.exists() is False:
-                return
-            job = jobs[0]
+        # Determine whether the project exists
+        project = ProjectDao.get(self.project_id == Project.project_id, Project.my_role == self.role)
+        if not project:
+            return
 
-            # Determine whether the project exists
-            projects = Project.select().where(self.project_id == Project.project_id, Project.my_role == self.role)
-            if projects.exists() is False:
-                return
+        job_member = JobMemberDao.get(
+            JobMember.job_id == self.job_id,
+            JobMember.member_id == self.member_id,
+            JobMember.job_role == self.role
+        )
+        if not job_member:
+            return
 
-            job_members = JobMember.select().where(JobMember.job_id == self.job_id,
-                                                   JobMember.member_id == self.member_id,
-                                                   JobMember.job_role == self.role)
-            if job_members.exists() is False:
-                return
+        data_set_old = DataSetDao.get(
+            DataSet.id == job_member.data_set_id
+        )
+        if not data_set_old:
+            return
 
-            job_member = job_members[0]
+        data_set = DataSet()
+        # data_set_id = get_commit_id()
+        unit_id = generate_unit_id(self.task_id)
+        data_set.id = md5(unit_id)
+        data_set.created_time = current_datetime()
+        data_set.updated_time = current_datetime()
+        data_set.name = job.name + self.show_name
+        data_set.source_type = self.module_name
+        data_set.source_job_id = job.job_id
+        data_set.name = data_set.name + '_' + timestamp_to_date(format_string='%Y%m%d%H%M%S')
+        data_set.storage_type = data_set_old.storage_type
 
-            data_sets = DataSet.select().where(DataSet.id == job_member.data_set_id)
-            if data_sets.exists() is False:
-                return
+        data_set.public_member_list = data_set_old.public_member_list
+        data_set.tags = data_set_old.tags
+        data_set.description = data_set_old.description
+        data_set.source_flow_id = data_set_old.source_flow_id
+        data_set.source_task_id = self.task_id
+        data_set.y_name_list = data_set.y_name_list
+        data_set.usage_count_in_job = 0
+        data_set.usage_count_in_flow = 0
+        data_set.usage_count_in_project = 0
 
-            data_set_old = data_sets[0]
-            data_set = DataSet()
-            # data_set_id = get_commit_id()
-            unit_id = generate_unit_id(self.task_id)
-            data_set.id = md5(unit_id)
-            data_set.created_time = current_datetime()
-            data_set.updated_time = current_datetime()
-            data_set.name = job.name + self.show_name
-            data_set.source_type = self.module_name
-            data_set.source_job_id = job.job_id
-            data_set.name = data_set.name + '_' + timestamp_to_date(format_string='%Y%m%d%H%M%S')
-            data_set.storage_type = data_set_old.storage_type
+        data_set.namespace = data_input['table_namespace']
+        data_set.table_name = data_input['table_name']
+        data_set.row_count = data_input['table_create_count']
 
-            data_set.public_member_list = data_set_old.public_member_list
-            data_set.tags = data_set_old.tags
-            data_set.description = data_set_old.description
-            data_set.source_flow_id = data_set_old.source_flow_id
-            data_set.source_task_id = self.task_id
-            data_set.y_name_list = data_set.y_name_list
-            data_set.usage_count_in_job = 0
-            data_set.usage_count_in_flow = 0
-            data_set.usage_count_in_project = 0
+        data_set.feature_name_list = ",".join(header_list)
+        data_set.y_name_list = data_set_old.y_name_list
+        data_set.primary_key_column = data_set_old.primary_key_column
+        # column = feature + primary_key + y
+        if data_set.y_name_list is None:
+            data_set.column_name_list = ",".join(header_list) + "," + data_set.primary_key_column
+        else:
+            data_set.column_name_list = ",".join(
+                header_list) + "," + data_set.y_name_list + "," + data_set.primary_key_column
+        if len(header_list) == 0:
+            data_set.column_name_list = data_set.column_name_list[1:]
+        data_set.contains_y = data_set_old.contains_y
+        data_set.column_count = len(data_set.column_name_list.split(","))
+        data_set.feature_count = len(data_set.feature_name_list.split(","))
 
-            data_set.namespace = data_input['table_namespace']
-            data_set.table_name = data_input['table_name']
-            data_set.row_count = data_input['table_create_count']
+        DataSetDao.save(data_set, force_insert=True)
 
-            data_set.feature_name_list = ",".join(header_list)
-            data_set.y_name_list = data_set_old.y_name_list
-            data_set.primary_key_column = data_set_old.primary_key_column
-            # column = feature + primary_key + y
-            if data_set.y_name_list is None:
-                data_set.column_name_list = ",".join(header_list) + "," + data_set.primary_key_column
-            else:
-                data_set.column_name_list = ",".join(
-                    header_list) + "," + data_set.y_name_list + "," + data_set.primary_key_column
-            if len(header_list) == 0:
-                data_set.column_name_list = data_set.column_name_list[1:]
-            data_set.contains_y = data_set_old.contains_y
-            data_set.column_count = len(data_set.column_name_list.split(","))
-            data_set.feature_count = len(data_set.feature_name_list.split(","))
+        self.save_project_data_set(data_set.id, self.job_id, self.task_id, self.component_name)
+        self.save_data_set_column(job_member.data_set_id, data_set.id, header_list)
 
-            data_set.save(force_insert=True)
-
-            self.save_project_data_set(data_set.id, self.job_id, self.task_id, self.component_name)
-            self.save_data_set_column(job_member.data_set_id, data_set.id, header_list)
-
-            return data_set
-
-    def bulk_save_model_data(self, model, data_source):
-        with DB.connection_context():
-            try:
-                batch_size = 50
-                for i in range(0, len(data_source), batch_size):
-                    with DB.atomic():
-                        model.insert_many(data_source[i:i + batch_size]).execute()
-
-                return len(data_source)
-            except Exception as e:
-                stat_logger.exception(e)
-                return 0
+        return data_set
 
     @staticmethod
     def generate_task_id(job_id, role, component_name):
@@ -716,7 +684,7 @@ class Tracking(object):
         project_data_set.source_type = component_name.split("_")[0]
         project_data_set.source_job_id = job_id
 
-        project_data_set.save(force_insert=True)
+        ProjectDataSetDao.save(project_data_set, force_insert=True)
 
         return project_data_set
 
@@ -778,52 +746,49 @@ class Tracking(object):
         """
         if self.oot:
             return
-        with DB.connection_context():
-            model = TaskProgress.get_or_none(
-                TaskProgress.task_id == self.task_id,
-                TaskProgress.role == self.role
+
+        is_insert = True
+        model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
+
+        if model:
+            is_insert = False
+            # reset
+            model.progress = 0
+            model.really_work_amount = None
+            model.created_time = datetime.datetime.now()
+            model.updated_time = None
+            model.expect_end_time = None
+            model.spend = None
+
+        else:
+            model = TaskProgress()
+            model.id = get_commit_id()
+            model.progress = 0
+            model.created_time = datetime.datetime.now()
+
+            # get task info
+            task_info = TaskDao.get(
+                Task.task_id == self.task_id,
+                Task.role == self.role
             )
 
-            is_insert = True
-
-            if model:
-                is_insert = False
-                # reset
-                model.progress = 0
-                model.really_work_amount = None
-                model.created_time = datetime.datetime.now()
-                model.updated_time = None
-                model.expect_end_time = None
-                model.spend = None
-
+            if task_info:
+                model.flow_id = task_info.flow_id
+                model.flow_node_id = task_info.flow_node_id
             else:
-                model = TaskProgress()
-                model.id = get_commit_id()
-                model.progress = 0
-                model.created_time = datetime.datetime.now()
+                model.flow_id = 0
+                model.flow_node_id = 0
 
-                # get task info
-                task_info = Task.get_or_none(
-                    Task.task_id == self.task_id,
-                    Task.role == self.role
-                )
-                if task_info:
-                    model.flow_id = task_info.flow_id
-                    model.flow_node_id = task_info.flow_node_id
-                else:
-                    model.flow_id = 0
-                    model.flow_node_id = 0
+        model.project_id = self.project_id
 
-            model.project_id = self.project_id
+        model.job_id = self.job_id
+        model.role = self.role
+        model.task_id = self.task_id
+        model.task_type = self.component_name.split('_')[0]
+        model.expect_work_amount = work_amount
+        self._calc_progress(model)
 
-            model.job_id = self.job_id
-            model.role = self.role
-            model.task_id = self.task_id
-            model.task_type = self.component_name.split('_')[0]
-            model.expect_work_amount = work_amount
-            self._calc_progress(model)
-
-            model.save(force_insert=is_insert)
+        TaskProgressDao.save(model, force_insert=is_insert)
 
     def set_task_progress(self, work_amount: int):
         """
@@ -840,17 +805,14 @@ class Tracking(object):
         """
         if self.oot:
             return
-        if work_amount >= 0:
-            with DB.connection_context():
-                model = TaskProgress.select().where(
-                    TaskProgress.task_id == self.task_id,
-                    TaskProgress.role == self.role
-                ).get()
 
+        if work_amount >= 0:
+            model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
+            if model:
                 model.progress = work_amount
                 model.updated_time = datetime.datetime.now()
                 self._calc_progress(model)
-                model.save()
+                TaskProgressDao.save(model)
 
     def add_task_progress(self, step: int = 1):
         """
@@ -867,20 +829,17 @@ class Tracking(object):
         """
         if self.oot:
             return
-        work_amount = 0
-        with DB.connection_context():
-            model = TaskProgress.select().where(
-                TaskProgress.task_id == self.task_id,
-                TaskProgress.role == self.role
-            ).get()
-            if model.progress is not None:
-                work_amount = model.progress + step
-            else:
-                work_amount = step
 
-            # Reserve one amount for use when the finish call
-            if work_amount > model.expect_work_amount - 1:
-                work_amount = model.expect_work_amount - 1
+        model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
+
+        if model.progress is not None:
+            work_amount = model.progress + step
+        else:
+            work_amount = step
+
+        # Reserve one amount for use when the finish call
+        if work_amount > model.expect_work_amount - 1:
+            work_amount = model.expect_work_amount - 1
 
         self.set_task_progress(work_amount)
 
@@ -892,23 +851,19 @@ class Tracking(object):
         -------
 
         """
-        with DB.connection_context():
-            model = TaskProgress.get_or_none(
-                TaskProgress.task_id == self.task_id,
-                TaskProgress.role == self.role
-            )
-            if model:
+        model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
 
-                model.progress = model.progress + 1
-                model.really_work_amount = model.progress
+        if model:
+            model.progress = model.progress + 1
+            model.really_work_amount = model.progress
 
-                if model.really_work_amount > model.expect_work_amount:
-                    model.really_work_amount = model.expect_work_amount
+            if model.really_work_amount > model.expect_work_amount:
+                model.really_work_amount = model.expect_work_amount
 
-                model.updated_time = datetime.datetime.now()
-                self._calc_progress(model)
-                model.pid_success = 1
-                model.save()
+            model.updated_time = datetime.datetime.now()
+            self._calc_progress(model)
+            model.pid_success = 1
+            TaskProgressDao.save(model)
 
     @update_task_status_env()
     def set_task_success(self):
