@@ -27,3 +27,4 @@ aiohttp==3.7.3
 oss2==2.14.0
 pandas==1.1.5
 netifaces==0.11.0
+gmpy2==2.0.8
