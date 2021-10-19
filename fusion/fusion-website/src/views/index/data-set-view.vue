@@ -288,7 +288,9 @@ export default {
             isuploadok:       false,
             addLoading:       false,
             timer:            null,
-            processData:      {},
+            processData:      {
+                text: '正在存储数据集...',
+            },
         };
     },
     async created() {

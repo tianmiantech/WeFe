@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        title="正在存储数据集..."
+        :title="title"
         :visible.sync="progressDialog"
         width="30%"
         :close-on-click-modal="false"
@@ -25,7 +25,13 @@ export default {
     data() {
         return {
             progressDialog: false,
+            title:          '正在存储...',
         };
+    },
+    watch: {
+        progressDialog(val) {
+            this.title = this.processData.text;
+        },
     },
     methods: {
         colorsMethods(percentage) {

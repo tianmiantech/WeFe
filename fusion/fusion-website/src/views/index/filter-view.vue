@@ -16,6 +16,9 @@
                         <el-input
                             v-model="form.name"
                             size="large"
+                            maxlength="30"
+                            minlength="4"
+                            show-word-limit
                         />
                     </el-form-item>
                 </el-col>
@@ -373,7 +376,9 @@ export default {
             isuploadok:  false,
             saveLoading: false,
             timer:       null,
-            processData: {},
+            processData: {
+                text: '正在存储过滤器...',
+            },
         };
     },
     async created() {
@@ -534,6 +539,9 @@ export default {
         async add() {
             if (!this.form.name) {
                 this.$message.error('请输入过滤器名称！');
+                return;
+            } else if (this.form.name.length < 4) {
+                this.$message.error('数据集名称长度不能少于4，不能大于30');
                 return;
             }
 
