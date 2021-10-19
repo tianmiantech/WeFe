@@ -24,7 +24,6 @@ import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 
 import java.io.File;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
@@ -65,10 +64,9 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
         this.dataSetId = model.getId();
         this.file = file;
         this.rows = headers;
-        DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
-        dataSetRepository.updateById(model.getId(), "createdTime", new Date(), DataSetMySqlModel.class);
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
+            DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
+            dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
             saveDataRows(model, rows);
         });
     }
@@ -77,10 +75,10 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
         this.dataSetId = model.getId();
         this.rowCountFromDB = rowCountFromDB;
         this.rows = headers;
-        DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
-        dataSetRepository.updateById(model.getId(), "createdTime", new Date(), DataSetMySqlModel.class);
+
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
+            DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
+            dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
             saveDataRows(model, rows);
         });
     }
