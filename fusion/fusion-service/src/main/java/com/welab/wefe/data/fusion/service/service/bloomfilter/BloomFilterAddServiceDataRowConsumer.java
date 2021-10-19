@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,6 +41,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
@@ -177,7 +178,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
      */
     private long rowCount = 0;
 
-    public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, boolean deduplication, File file, int rowCount,int processCount, List<String> headers, String src) {
+    public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, boolean deduplication, File file, int rowCount, int processCount, List<String> headers, String src) {
         this.process = Progress.Ready;
         this.model = model;
         this.dataSetId = model.getId();
@@ -201,6 +202,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.processCount = processCount;
         this.checkCount = 0;
         this.CheckData.clear();
+        bloomFilterRepository.updateById(model.getId(), "createdTime", new Date(), BloomFilterMySqlModel.class);
 
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
             this.process = Progress.Running;
@@ -238,6 +240,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.processCount = processCount;
         this.checkCount = 0;
         this.CheckData.clear();
+        bloomFilterRepository.updateById(model.getId(), "createdTime", new Date(), BloomFilterMySqlModel.class);
 
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
             this.process = Progress.Running;
@@ -289,7 +292,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
         this.processCount = this.processCount + rows.size();
 
-        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id",model.getId(),BloomFilterMySqlModel.class);
+        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(), BloomFilterMySqlModel.class);
         int count = bloomFilterMySqlModel.getProcessCount();
         if (processCount > count) {
 //            LOG.info("this.processCount=====>"+String.valueOf(this.processCount));
@@ -303,6 +306,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
             bloomFilterRepository.updateById(model.getId(), "e", getE().toString(), BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "src", src, BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "rowCount", this.rowCount, BloomFilterMySqlModel.class);
+            bloomFilterRepository.updateById(model.getId(), "updatedTime", new Date(), BloomFilterMySqlModel.class);
 
             FileOutputStream outputStream = new FileOutputStream(this.src);
             this.bf.writeTo(outputStream);
