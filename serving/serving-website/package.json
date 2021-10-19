@@ -29,7 +29,7 @@
     "license": "ISC",
     "dependencies": {
         "@antv/g6": "^4.3.3",
-        "axios": "0.19.2",
+        "axios": "0.21.2",
         "base64-url": "^2.3.3",
         "echarts": "^4.9.0",
         "element-ui": "^2.13.2",
