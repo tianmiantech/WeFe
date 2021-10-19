@@ -51,7 +51,7 @@ nas_upload(){
 
   cd common/python/calculation/fc/function/wefe-fc
   s nas upload ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ --debug
-  s nas upload -r -n ../../../../../../build/ /mnt/auto/fat/pythonCode --debug
+  s nas upload -r -n ../../../../../../build/ /mnt/auto/$nas_env/pythonCode --debug
 
   rm -rf ../../../../../../build
 
