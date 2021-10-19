@@ -50,7 +50,7 @@ public class GetBloomFilterStateService extends AbstractService {
         DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
 
         dataSetRepository.updateById(model.getId(), "processCount", processCount, DataSetMySqlModel.class);
-        if (processCount < rowsCount){
+        if (processCount == 0 || rowsCount == 0 || processCount < rowsCount){
 
             dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
             output.setProgress(Progress.Running);
