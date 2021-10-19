@@ -882,7 +882,7 @@ class Tracking(object):
             running_task.finish_time = datetime.datetime.now()
             running_task.spend = get_delta_seconds(
                 running_task.finish_time, running_task.start_time)
-            running_task.save()
+            TaskDao.save(running_task)
 
 
 if __name__ == '__main__':
