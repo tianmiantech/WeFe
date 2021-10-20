@@ -415,6 +415,7 @@ export default {
 
         getDataSourceId(id){
             this.form.data_source_id = id;
+            this.data_source_id = id;
         },
 
         async previewDataSource(id) {
@@ -572,7 +573,7 @@ export default {
             this.loading = true;
             this.form.metadata_list = this.metadata_list;
             this.form.rows = this.dataResource.rows;
-            // this.form.data_source_id = this.data_source_id;
+            this.form.data_source_id = this.data_source_id;
             this.form.fieldInfoList = this.fieldInfoList;
 
             if (!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) {
