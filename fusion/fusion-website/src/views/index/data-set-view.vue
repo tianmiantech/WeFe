@@ -398,6 +398,7 @@ export default {
                     filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
                     sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 
