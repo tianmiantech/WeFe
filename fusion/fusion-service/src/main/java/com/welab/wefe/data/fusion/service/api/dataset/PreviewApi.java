@@ -83,9 +83,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
             if (isStoraged) {
                 String tbName = "data_fusion_" + dataSetMySqlModel.getId();
-                String sql = "Select * from " + tbName;
+//                String sql = "Select * from " + tbName;
                 try {
-                    output = readFromDB(sql);
+                    output = readFromDB(input.sql);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -332,6 +332,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private DataResourceSource dataResourceSource;
 
+        private String sql;
+
         public String getId() {
             return id;
         }
@@ -354,6 +356,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setDataResourceSource(DataResourceSource dataResourceSource) {
             this.dataResourceSource = dataResourceSource;
+        }
+
+        public String getSql() {
+            return sql;
+        }
+
+        public void setSql(String sql) {
+            this.sql = sql;
         }
     }
 
