@@ -509,7 +509,7 @@ export default {
             this.loading = true;
             this.form.metadata_list = this.metadata_list;
             this.form.rows = this.row_list;
-            this.form.data_source_id = this.data_source_id;
+            // this.form.data_source_id = this.data_source_id;
 
             this.addLoading = true;
             this.getDataSetStatus();
