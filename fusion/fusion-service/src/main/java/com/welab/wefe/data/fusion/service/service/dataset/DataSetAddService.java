@@ -96,9 +96,9 @@ public class DataSetAddService extends AbstractService {
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             model.setDataSourceId(input.getDataSourceId());
             DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
+            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
 
-            rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), sql, input.isDeduplication());
+            rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
             model.setStatement(input.getSql());
         } else {
             file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
