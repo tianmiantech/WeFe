@@ -16,6 +16,9 @@
                         <el-input
                             v-model="form.name"
                             size="large"
+                            maxlength="30"
+                            minlength="4"
+                            show-word-limit
                         />
                     </el-form-item>
                 </el-col>
@@ -83,7 +86,7 @@
                                         />
                                     </el-select>
 
-                                    <router-link :to="{name: 'data-set-list'}">
+                                    <router-link :to="{name: 'data-source-view'}">
                                         <el-button type="primary">
                                             新增数据源
                                         </el-button>
@@ -261,7 +264,7 @@
                         class="save-btn mt20"
                         type="primary"
                         size="large"
-                        :disabled="!isuploadok"
+                        :disabled="!isuploadok && form.dataResourceSource==='UploadFile'"
                         :loading="saveLoading"
                         @click="add"
                     >
@@ -373,7 +376,9 @@ export default {
             isuploadok:  false,
             saveLoading: false,
             timer:       null,
-            processData: {},
+            processData: {
+                text: '正在存储过滤器...',
+            },
         };
     },
     async created() {
@@ -535,6 +540,9 @@ export default {
             if (!this.form.name) {
                 this.$message.error('请输入过滤器名称！');
                 return;
+            } else if (this.form.name.length < 4) {
+                this.$message.error('数据集名称长度不能少于4，不能大于30');
+                return;
             }
 
             const ids = [];
@@ -559,13 +567,17 @@ export default {
             this.form.data_source_id = this.data_source_id;
             this.form.fieldInfoList = this.fieldInfoList;
 
-            if (!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) {
+            if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource ==='UploadFile' || this.form.dataResourceSource ==='LocalFile')) {
                 this.$message.error('请添加主键！');
+                return;
+            }
+            if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
+                this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
             }
 
             this.saveLoading = true;
-            this.getDataSetStatus();
+            if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
             const { code, data } = await this.$http.post({
                 url:     '/filter/add',
                 timeout: 1000 * 60 * 24 * 30,
@@ -594,12 +606,12 @@ export default {
                 });
 
                 if (code === 0) {
-                    const percentage = Math.round(data.process_count / data.row_count * 100);
+                    const percentage = data.row_count === 0 ? 0 : Math.round(data.process_count / data.row_count * 100);
 
                     this.processData = {
                         percentage,
                     };
-                    if (percentage < 100) {
+                    if (data.progress === 'Running') {
                         clearTimeout(this.timer);
                         this.timer = setTimeout(_ => {
                             this.getDataSetStatus(data_set_id);
