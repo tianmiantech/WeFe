@@ -31,6 +31,6 @@ public class LrHorzPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Pr
 
     @Override
     protected PredictModel handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        return compute(predictParams);
+        return sigmod(compute(predictParams));
     }
 }
