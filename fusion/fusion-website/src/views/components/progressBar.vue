@@ -48,6 +48,9 @@ export default {
         showDialog() {
             this.progressDialog = true;
         },
+        hideDialog() {
+            this.progressDialog = false;
+        },
     },
 };
 </script>

@@ -478,6 +478,9 @@ export default {
             } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
                 this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
+            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
+                this.$message.error('请选择字段信息！');
+                return;
             }
 
             const ids = [];
@@ -516,6 +519,7 @@ export default {
 
             } else {
                 this.addLoading = false;
+                this.$refs['progressRef'].hideDialog();
             }
             this.loading = false;
         },
@@ -738,11 +742,11 @@ export default {
     }
 </style>
 <style lang="scss">
-.preview-table {
-    .el-table__header-wrapper {
-        .el-checkbox{
-            display: none;
-        }
-    }
-}
+// .preview-table {
+//     .el-table__header-wrapper {
+//         .el-checkbox{
+//             display: none;
+//         }
+//     }
+// }
 </style>

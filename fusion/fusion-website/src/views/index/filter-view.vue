@@ -567,7 +567,7 @@ export default {
             this.form.data_source_id = this.data_source_id;
             this.form.fieldInfoList = this.fieldInfoList;
 
-            if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && this.form.dataResourceSource ==='UploadFile') {
+            if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource ==='UploadFile' || this.form.dataResourceSource ==='LocalFile')) {
                 this.$message.error('请添加主键！');
                 return;
             }
