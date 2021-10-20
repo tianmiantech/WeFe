@@ -60,7 +60,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.50.Final</version>
+            <version>4.1.29.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -86,12 +86,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -114,7 +108,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>30.0-jre</version>
+            <version>29.0-jre</version>
         </dependency>
 
         <dependency>
@@ -131,7 +125,7 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
-            <version>2.3.4</version>
+            <version>1.2.1</version>
         </dependency>
         <!-- impala -->
         <!-- <dependency>
