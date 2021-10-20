@@ -76,6 +76,10 @@ public class BloomFilterAddService extends AbstractService {
     FieldInfoService fieldInfoService;
 
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+        if (input.getRows().size() > 5 ) {
+            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         BloomFilterMySqlModel model = bloomFilterRepository.findOne("id", input.getId(), BloomFilterMySqlModel.class);
         if (model == null) {
             model = new BloomFilterMySqlModel();

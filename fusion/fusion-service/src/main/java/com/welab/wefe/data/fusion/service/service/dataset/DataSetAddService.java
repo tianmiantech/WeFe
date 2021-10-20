@@ -68,6 +68,9 @@ public class DataSetAddService extends AbstractService {
     private String filterDir;
 
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws StatusCodeWithException, IOException {
+        if (input.getRows().size() > 5 ) {
+            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+        }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
             throw new StatusCodeWithException("This dataset name already exists, please change it to another dataset name", StatusCode.PARAMETER_VALUE_INVALID);
