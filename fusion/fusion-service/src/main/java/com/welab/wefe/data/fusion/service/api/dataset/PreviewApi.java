@@ -102,9 +102,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         } else if (dataResourceSource.equals(DataResourceSource.Sql)) {
 
             DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
-            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
+//            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
             // Test whether SQL can be queried normally
-            output = readFromSoruceDB(input.id, sql);
+            output = readFromSoruceDB(input.id, input.sql);
         }
 
         return success(output);
