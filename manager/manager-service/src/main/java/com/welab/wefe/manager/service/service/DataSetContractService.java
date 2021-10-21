@@ -51,8 +51,9 @@ public class DataSetContractService extends AbstractContractService {
             JObject extJson = JObject.create(dataSetMongoReop.findDataSetId(input.getId()).getExtJson());
             Field[] fields = input.getExtJson().getClass().getDeclaredFields();
             for (int i = 0; i < fields.length; i++) {
-                if (null != fields[i].get(input)) {
-                    extJson.put(fields[i].getName(), fields[i].get(input));
+                fields[i].setAccessible(true);
+                if (null != fields[i].get(input.getExtJson())) {
+                    extJson.put(fields[i].getName(), fields[i].get(input.getExtJson()));
                 }
             }
             TransactionReceipt transactionReceipt = dataSetContract.updateExtJson(input.getId(),
