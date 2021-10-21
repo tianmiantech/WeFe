@@ -42,7 +42,6 @@ public interface DataSetMapper {
             @Mapping(source = "dataSetId", target = "id"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-            @Mapping(target = "status", expression = "java(entity.getStatus() == 0 ? false : true)", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
     ApiDataSetQueryOutput transferDetail(DataSet entity);
 
@@ -63,7 +62,6 @@ public interface DataSetMapper {
             @Mapping(source = "dataSetId", target = "id"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-            @Mapping(target = "status", expression = "java(entity.getStatus() == 0 ? false : true)", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
     ApiDataSetQueryOutput transferOutput(DataSetQueryOutput entity);
 

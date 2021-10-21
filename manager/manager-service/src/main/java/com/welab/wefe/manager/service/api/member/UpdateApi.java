@@ -51,7 +51,8 @@ public class UpdateApi extends AbstractApi<MemberUpdateInput, MemberOutput> {
 
             if (input.getFreezed() != null) {
                 member.setFreezed(String.valueOf(input.getFreezed() ? 1 : 0));
-                member.setHidden(String.valueOf(input.getHidden() ? 1 : 0));
+            }
+            if (input.getLostContact() != null) {
                 member.setLostContact(String.valueOf(input.getLostContact() ? 1 : 0));
             }
 

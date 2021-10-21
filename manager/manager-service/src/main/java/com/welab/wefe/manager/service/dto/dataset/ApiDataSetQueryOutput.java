@@ -40,7 +40,7 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
     private Integer usageCountInProject;
     private String description;
     private String tags;
-    private boolean status;
+    private int status;
     private DataSetExtJSON extJson;
 
 
@@ -192,12 +192,11 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
         this.extJson = extJson;
     }
 
-
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }

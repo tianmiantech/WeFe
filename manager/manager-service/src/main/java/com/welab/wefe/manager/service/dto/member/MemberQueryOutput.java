@@ -22,6 +22,7 @@ public class MemberQueryOutput  extends AbstractTimedApiOutput {
     private String logo;
     private long logTime;
     private long lastActivityTime;
+    private int status;
     private MemberExtJSON extJson;
 
     public String getId() {
@@ -135,5 +136,13 @@ public class MemberQueryOutput  extends AbstractTimedApiOutput {
 
     public void setExtJson(MemberExtJSON extJson) {
         this.extJson = extJson;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

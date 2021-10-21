@@ -11,7 +11,6 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
 public class MemberUpdateInput extends BaseInput {
     @Check(require = true)
     private String id;
-    private Boolean hidden;
     private Boolean freezed;
     private Boolean lostContact;
 
@@ -24,13 +23,6 @@ public class MemberUpdateInput extends BaseInput {
         this.id = id;
     }
 
-    public Boolean getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(Boolean hidden) {
-        this.hidden = hidden;
-    }
 
     public Boolean getFreezed() {
         return freezed;
