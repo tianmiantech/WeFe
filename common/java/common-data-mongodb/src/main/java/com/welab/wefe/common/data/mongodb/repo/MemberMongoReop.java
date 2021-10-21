@@ -171,7 +171,7 @@ public class MemberMongoReop extends AbstractMongoRepo {
         String paramFreezed = null == freezed ? null : String.valueOf(freezed ? 1 : 0);
         String paramLostContact = null == lostContact ? null : String.valueOf(lostContact ? 1 : 0);
         Query query = new QueryBuilder()
-                .append("status", status ? 1 : 0)
+                .append("status", status != null ? (status ? 1 : 0) : null)
                 .append("memberId", memberId)
                 .like("name", name)
                 .append("hidden", paramHidden)

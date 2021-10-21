@@ -6,25 +6,24 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.member.MemberOutput;
-import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagDeleteInput;
+import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
 import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/delete", name = "default_tag_delete", login = false)
-public class DeleteApi extends AbstractApi<DatSetDefaultTagDeleteInput, MemberOutput> {
+@Api(path = "default_tag/update", name = "default_tag_update", login = false)
+public class UpdateApi extends AbstractApi<DataSetDefaultTagUpdateInput, MemberOutput> {
 
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
 
     @Override
-    protected ApiResult<MemberOutput> handle(DatSetDefaultTagDeleteInput input) throws StatusCodeWithException {
-        LOG.info("DeleteApi handle..");
+    protected ApiResult<MemberOutput> handle(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+        LOG.info("UpdateApi handle..");
         try {
-
-            datSetDefaultTagContractService.deleteByTagId(input.getTagId());
+            datSetDefaultTagContractService.updateByTagId(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

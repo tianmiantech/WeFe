@@ -7,6 +7,7 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
+import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -68,6 +69,20 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
         } catch (Exception e) {
             LOG.error("add member error: ", e);
             throw new StatusCodeWithException("add member error: ", StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+
+    public void updateByTagId(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+        try {
+            dataSetDefaultTagContract.update(
+                    input.getTagId(),
+                    input.getTagName(),
+                    JObject.toJSONString(input.getExtJson()),
+                    StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis()))
+            );
+        } catch (Exception e) {
+            throw new StatusCodeWithException("deleteByDataSetId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 

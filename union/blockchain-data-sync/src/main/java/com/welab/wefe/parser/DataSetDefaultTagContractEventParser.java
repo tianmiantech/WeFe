@@ -53,8 +53,10 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
     private void parseUpdateEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         String tagName = eventBO.getEntity().get("tag_name").toString();
-        dataSetDefaultTagMongoRepo.update(tagId,tagName);
+        String updatedTime = eventBO.getEntity().get("updated_time").toString();
+        dataSetDefaultTagMongoRepo.update(tagId, tagName, extJSON, updatedTime);
     }
+
     private void parseDeleteByTagIdEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         dataSetDefaultTagMongoRepo.deleteByTagId(tagId);
@@ -62,7 +64,7 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
 
     private void parseUpdateExtJson() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
-        dataSetDefaultTagMongoRepo.updateExtJSONById(tagId,extJSON);
+        dataSetDefaultTagMongoRepo.updateExtJSONById(tagId, extJSON);
     }
 
 }
