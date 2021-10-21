@@ -27,12 +27,14 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -43,7 +45,6 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                         Params params) throws FlowNodeException {
-
     }
 
     @Override
