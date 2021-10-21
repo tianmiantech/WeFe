@@ -24,6 +24,9 @@ import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetTagsQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -88,8 +91,10 @@ public class DataSetMongoReop extends AbstractMongoRepo {
                 foreignField("member_id").
                 as("member");
 
-        Boolean enable = dataSetQueryInput.getExtJson().getEnable();
-
+        Boolean enable = null;
+        if(dataSetQueryInput.getExtJson() != null){
+            enable = dataSetQueryInput.getExtJson().getEnable();
+        }
         Criteria dataSetCriteria = new QueryBuilder()
                 .like("name", dataSetQueryInput.getName())
                 .like("tags", dataSetQueryInput.getTag())
@@ -210,5 +215,15 @@ public class DataSetMongoReop extends AbstractMongoRepo {
             dataSet.setId(dbDataSet.getId());
         }
         mongoTemplate.save(dataSet);
+    }
+
+    public boolean updateExtJSONById(String dataSetId, DataSetExtJSON extJSON) {
+        if (StringUtils.isEmpty(dataSetId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
+        Update update = new UpdateBuilder().append("extJson", extJSON).build();
+        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, DataSet.class);
+        return updateResult.wasAcknowledged();
     }
 }

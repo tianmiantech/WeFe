@@ -22,6 +22,8 @@ package com.welab.wefe.constant;
 public class EventConstant {
     public static final String RUN_SUCCESS_CODE = "0";
 
+
+    public static final String UPDATE_EXTJSON_EVENT = "updateExtJsonEvent";
     public static final class DataSet {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";

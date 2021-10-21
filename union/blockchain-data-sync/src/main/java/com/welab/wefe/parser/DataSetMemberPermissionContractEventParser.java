@@ -47,6 +47,9 @@ public class DataSetMemberPermissionContractEventParser extends AbstractParser {
             case EventConstant.DataSetMemberPermission.DELETE_BY_DATASETID_EVENT:
                 parseDeleteByDataSetIdEvent();
                 break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
+                break;
             default:
                 throw new BusinessException("contract name:" + eventBO.getContractName() + ",event name valid:" + eventBO.getEventName());
         }
@@ -70,5 +73,10 @@ public class DataSetMemberPermissionContractEventParser extends AbstractParser {
     private void parseDeleteByDataSetIdEvent() {
         String dataSetId = eventBO.getEntity().get("data_set_id").toString();
         dataSetMemberPermissionMongoRepo.deleteByDataSetId(dataSetId);
+    }
+
+    private void parseUpdateExtJson() {
+        String dataSetId = eventBO.getEntity().get("data_set_id").toString();
+        dataSetMemberPermissionMongoRepo.updateExtJSONById(dataSetId,extJSON);
     }
 }

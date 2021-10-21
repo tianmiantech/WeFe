@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+import com.welab.wefe.common.data.mongodb.repo.AbstractMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -35,6 +36,7 @@ public class DataSetContractEventParser extends AbstractParser {
     protected DataSetMongoReop dataSetMongoReop = App.CONTEXT.getBean(DataSetMongoReop.class);
     protected DataSetExtJSON extJSON;
 
+
     @Override
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetExtJSON.class) : new DataSetExtJSON();
@@ -45,6 +47,9 @@ public class DataSetContractEventParser extends AbstractParser {
                 break;
             case EventConstant.DataSet.DELETE_BY_DATASETID_EVENT:
                 parseDeleteByDataSetIdEvent();
+                break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -81,6 +86,12 @@ public class DataSetContractEventParser extends AbstractParser {
     private void parseDeleteByDataSetIdEvent() {
         String id = eventBO.getEntity().get("id").toString();
         dataSetMongoReop.deleteByDataSetId(id);
+    }
+
+
+    private void parseUpdateExtJson() {
+        String id = eventBO.getEntity().get("id").toString();
+        dataSetMongoReop.updateExtJSONById(id,extJSON);
     }
 
 }

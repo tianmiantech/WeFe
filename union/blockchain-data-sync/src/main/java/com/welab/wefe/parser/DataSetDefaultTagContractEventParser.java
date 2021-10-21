@@ -30,6 +30,9 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
             case EventConstant.DataSetDefaultTag.DELETE_BY_TAGID_EVENT:
                 parseDeleteByTagIdEvent();
                 break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
+                break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
         }
@@ -55,6 +58,11 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
     private void parseDeleteByTagIdEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         dataSetDefaultTagMongoRepo.deleteByTagId(tagId);
+    }
+
+    private void parseUpdateExtJson() {
+        String tagId = eventBO.getEntity().get("tag_id").toString();
+        dataSetDefaultTagMongoRepo.updateExtJSONById(tagId,extJSON);
     }
 
 }

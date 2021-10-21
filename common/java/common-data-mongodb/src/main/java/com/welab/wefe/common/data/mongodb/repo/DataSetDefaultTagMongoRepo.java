@@ -18,6 +18,9 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetMemberPermissionExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +56,16 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update udpate = new UpdateBuilder().append("tagName", tagName).build();
         UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, DataSetDefaultTag.class);
+        return updateResult.wasAcknowledged();
+    }
+
+    public boolean updateExtJSONById(String tagId, DataSetDefaultTagExtJSON extJSON) {
+        if (StringUtils.isEmpty(tagId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("tagId", tagId).build();
+        Update update = new UpdateBuilder().append("extJson", extJSON).build();
+        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, DataSetDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 }

@@ -19,6 +19,7 @@ package com.welab.wefe.common.data.mongodb.repo;
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -186,6 +187,17 @@ public class MemberMongoReop extends AbstractMongoRepo {
 
     public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
         return query(pageIndex, pageSize, memberId, name, hidden, freezed, lostContact, null);
+    }
+
+
+    public boolean updateExtJSONById(String memberId, MemberExtJSON extJSON) {
+        if (StringUtils.isEmpty(memberId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("memberId", memberId).build();
+        Update update = new UpdateBuilder().append("extJson", extJSON).build();
+        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, Member.class);
+        return updateResult.wasAcknowledged();
     }
 
 }

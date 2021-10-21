@@ -19,6 +19,7 @@ package com.welab.wefe.parser;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.bo.data.EventBO;
+import com.welab.wefe.common.data.mongodb.repo.AbstractMongoRepo;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
 import org.slf4j.Logger;
