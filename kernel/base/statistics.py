@@ -327,7 +327,6 @@ class MultivariateStatistical(object):
     def _to_instance(self, features, with_label):
         if with_label:
             return Instance(inst_id=None, features=np.array(features[1:]), label=features[0])
-            return Instance(inst_id=None, features=np.array(features[1:]), label=features[0])
         else:
             return Instance(inst_id=None, features=np.array(features), label=None)
 
