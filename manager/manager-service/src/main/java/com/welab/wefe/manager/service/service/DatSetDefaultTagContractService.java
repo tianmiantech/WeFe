@@ -72,6 +72,15 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
     }
 
 
+    public void deleteByTagId(String tagId) throws StatusCodeWithException {
+        try {
+            dataSetDefaultTagContract.deleteByTagId(tagId);
+        } catch (Exception e) {
+            throw new StatusCodeWithException("deleteByDataSetId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+
     private List<String> generateParams(DataSetDefaultTag dataSetDefaultTag, boolean isContainPublicKey) {
         List<String> list = new ArrayList<>();
         list.add(dataSetDefaultTag.getTagId());
