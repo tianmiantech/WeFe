@@ -136,7 +136,7 @@
         max_iter:      10,
         batch_size:    320,
         learning_rate: 0.1,
-        decay:         1,
+        decay:         0.1,
         optimizer:     'Adam',
         loss:          'binary_crossentropy',
         nn_define:     {

@@ -263,7 +263,7 @@
         interactive_layer_lr: 0.15,
         batch_size:           320,
         learning_rate:        0.15,
-        decay:                0,
+        decay:                0.1,
         optimizer:            'SGD',
         loss:                 'binary_crossentropy',
         bottom_nn_define:     {
