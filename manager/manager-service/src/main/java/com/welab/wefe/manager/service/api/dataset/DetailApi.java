@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/detail", name = "data_set_detail")
+@Api(path = "data_set/detail", name = "data_set_detail",login = false)
 public class DetailApi extends AbstractApi<DataSetDetailInput, ApiDataSetQueryOutput> {
 
     @Autowired

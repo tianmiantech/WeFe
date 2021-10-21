@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Jervis
  * @date 2020-05-22
  **/
-@Api(path = "default_tag/add", name = "default_tag_add")
+@Api(path = "default_tag/add", name = "default_tag_add",login = false)
 public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, MemberOutput> {
 
     @Autowired
@@ -26,7 +26,6 @@ public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, MemberOutput> 
         LOG.info("AddApi handle..");
         try {
             DataSetDefaultTag dataSetDefaultTag = new DataSetDefaultTag();
-            dataSetDefaultTag.setTagId(input.getTagId());
             dataSetDefaultTag.setTagName(input.getTagName());
             dataSetDefaultTag.setExtJson(input.getExtJson());
             datSetDefaultTagContractService.add(dataSetDefaultTag);

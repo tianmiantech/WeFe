@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/update", name = "member_update", rsaVerify = true, login = false)
+@Api(path = "member/update", name = "member_update", login = false)
 public class UpdateApi extends AbstractApi<MemberUpdateInput, MemberOutput> {
 
 

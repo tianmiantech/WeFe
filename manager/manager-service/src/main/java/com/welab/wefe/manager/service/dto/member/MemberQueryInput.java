@@ -14,8 +14,7 @@ public class MemberQueryInput extends PageInput {
     private Boolean lostContact;
     private Boolean hidden;
     private Boolean freezed;
-    private String status;
-
+    private Boolean status;
 
     public String getId() {
         return id;
@@ -57,12 +56,11 @@ public class MemberQueryInput extends PageInput {
         this.freezed = freezed;
     }
 
-
-    public String getStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 }

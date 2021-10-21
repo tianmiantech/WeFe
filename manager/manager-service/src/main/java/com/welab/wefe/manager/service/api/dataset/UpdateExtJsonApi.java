@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/update_ext_json", name = "update_ext_json")
+@Api(path = "data_set/update_ext_json", name = "update_ext_json",login = false)
 public class UpdateExtJsonApi extends AbstractApi<DataSetExtJsonUpdateInput, DataSetExtJsonUpdateOutput> {
     @Autowired
     protected DataSetContractService mDataSetContractService;

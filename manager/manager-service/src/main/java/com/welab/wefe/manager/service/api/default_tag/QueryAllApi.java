@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "default_tag_query")
+@Api(path = "default_tag/query", name = "default_tag_query",login = false)
 public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
 
     @Autowired

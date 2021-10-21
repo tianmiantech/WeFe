@@ -11,18 +11,8 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
  */
 public class DatSetDefaultTagAddInput extends BaseInput {
     @Check(require = true)
-    private String tagId;
-    @Check(require = true)
     private String tagName;
     private DataSetDefaultTagExtJSON extJson;
-
-    public String getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
-    }
 
     public String getTagName() {
         return tagName;

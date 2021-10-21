@@ -165,7 +165,7 @@ public class MemberMongoReop extends AbstractMongoRepo {
         return list;
     }
 
-    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact, String status) {
+    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact, Boolean status) {
         String paramHidden = null == hidden ? null : String.valueOf(hidden ? 1 : 0);
         String paramFreezed = null == freezed ? null : String.valueOf(freezed ? 1 : 0);
         String paramLostContact = null == lostContact ? null : String.valueOf(lostContact ? 1 : 0);

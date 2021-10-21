@@ -25,8 +25,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.member.MemberQueryInput;
-import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
-import com.welab.wefe.union.service.mapper.MemberMapper;
+import com.welab.wefe.manager.service.dto.member.MemberQueryOutput;
+import com.welab.wefe.manager.service.mapper.MemberMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/query", name = "member_query")
+@Api(path = "member/query", name = "member_query", login = false)
 public class QueryApi extends AbstractApi<MemberQueryInput, PageOutput<MemberQueryOutput>> {
     @Autowired
     protected MemberMongoReop memberMongoReop;

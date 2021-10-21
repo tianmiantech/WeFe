@@ -7,7 +7,6 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
-import com.welab.wefe.union.service.service.AbstractContractService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -33,6 +32,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
     private DataSetDefaultTagContract dataSetDefaultTagContract;
     @Autowired
     private CryptoSuite cryptoSuite;
+
     /**
      * add member
      */
