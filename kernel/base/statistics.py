@@ -327,6 +327,7 @@ class MultivariateStatistical(object):
     def _to_instance(self, features, with_label):
         if with_label:
             return Instance(inst_id=None, features=np.array(features[1:]), label=features[0])
+            return Instance(inst_id=None, features=np.array(features[1:]), label=features[0])
         else:
             return Instance(inst_id=None, features=np.array(features), label=None)
 
@@ -728,27 +729,21 @@ class MultivariateStatistical(object):
         -------
 
         """
-        temp_modes = {}
+        col_dict = {}
+        # init col_dict
+        for col_name, col_index in cols_dict.items():
+            col_dict[col_name] = {}
         for data_instance in self.data_instances.collect():
             features = data_instance[1].features
             for col_name, col_index in cols_dict.items():
-                if col_name not in temp_modes:
-                    temp_modes[col_name] = (0, 0)
+                if features[col_index] not in col_dict[col_name].keys():
+                    col_dict[col_name][features[col_index]] = 1
                 else:
-                    major = temp_modes[col_name][0]
-                    count = temp_modes[col_name][1]
-                    n = features[col_index]
-                    if count == 0:
-                        major = n
-                    if n == major:
-                        count = count + 1
-                    else:
-                        count = count - 1
-                    temp_modes[col_name] = (major, count)
+                    col_dict[col_name][features[col_index]] += 1
 
         mode = {}
-        for col_name in temp_modes.keys():
-            mode[col_name] = temp_modes[col_name][0]
+        for col_name in col_dict.keys():
+            mode[col_name] = max(col_dict[col_name], key=col_dict[col_name].get)
 
         return mode
 
