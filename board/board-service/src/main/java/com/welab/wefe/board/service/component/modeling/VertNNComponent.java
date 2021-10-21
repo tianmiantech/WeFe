@@ -61,8 +61,8 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
         vertNNParam.append("epochs", params.epochs).append("interactive_layer_lr", params.interactiveLayerLr)
                 .append("batch_size", params.batchSize).append("early_stop", "diff");
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("decay", params.decay)
-                .append("momentum", 0).append("nesterov", false).append("optimizer", params.optimizer);
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("momentum", 0)
+                .append("nesterov", false).append("optimizer", params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");
         vertNNParam.append("optimizer", optimizer).append("loss", params.loss).append("metrics", metrics);
@@ -128,9 +128,6 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
 
         @Check(name = "学习率", require = true)
         private float learningRate;
-
-        @Check(name = "学习率衰减值", require = true)
-        private float decay;
 
         @Check(name = "优化器", require = true)
         private String optimizer;
@@ -213,14 +210,6 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
 
         public void setLearningRate(float learningRate) {
             this.learningRate = learningRate;
-        }
-
-        public float getDecay() {
-            return decay;
-        }
-
-        public void setDecay(float decay) {
-            this.decay = decay;
         }
 
         public String getOptimizer() {
