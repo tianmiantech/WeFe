@@ -124,7 +124,7 @@ contract DataSetDefaultTagContract{
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
-        condition.EQ("id", tag_id);
+        condition.EQ("tag_id", tag_id);
 
         Entry entry = table.newEntry();
         entry.set("ext_json", ext_json);
