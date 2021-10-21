@@ -108,7 +108,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         @Check(name = "学习率", require = true)
         private float learningRate;
         @Check(name = "学习率衰减值", require = true)
-        private int decay;
+        private float decay;
         @Check(name = "优化器", require = true)
         private String optimizer;
         @Check(name = "损失函数", require = true)
@@ -140,11 +140,11 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
             this.learningRate = learningRate;
         }
 
-        public int getDecay() {
+        public float getDecay() {
             return decay;
         }
 
-        public void setDecay(int decay) {
+        public void setDecay(float decay) {
             this.decay = decay;
         }
 

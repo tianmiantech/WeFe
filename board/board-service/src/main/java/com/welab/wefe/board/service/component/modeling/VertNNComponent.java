@@ -124,7 +124,7 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
         private float learningRate;
 
         @Check(name = "学习率衰减值", require = true)
-        private int decay;
+        private float decay;
 
         @Check(name = "优化器", require = true)
         private String optimizer;
@@ -209,11 +209,11 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
             this.learningRate = learningRate;
         }
 
-        public int getDecay() {
+        public float getDecay() {
             return decay;
         }
 
-        public void setDecay(int decay) {
+        public void setDecay(float decay) {
             this.decay = decay;
         }
 
