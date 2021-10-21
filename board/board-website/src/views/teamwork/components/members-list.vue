@@ -253,9 +253,9 @@
         />
         <SelectDatasetDialog
             ref="SelectDatasetDialog"
+            :contains-y="''"
             :data-sets="dataSets.list"
             :data-add-btn="dataSets.role === 'promoter'"
-            :contains-y="`${dataSets.role === 'promoter' ? true : ''}`"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
         />
@@ -421,8 +421,8 @@
                 const ref = this.$refs['SelectDatasetDialog'];
 
                 ref.show = true;
-                this.dataSets.index = memberIndex;
                 this.dataSets.role = role;
+                this.dataSets.index = memberIndex;
                 this.dataSets.oldListLength = $data_set.length;
                 this.dataSets.list = $data_set.map(row => {
                     return {

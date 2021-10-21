@@ -9,9 +9,9 @@ vars:
     role: acs:ram::145***590:role/wefe-fc-role
     internetAccess: true
     vpcConfig:
-      vpcId: vpc-wz9x2vv0i1sk4d9t2ra02
-      vswitchIds: vsw-wz94re9ev2qlrcseobwfg
-      securityGroupId: sg-wz92tp0qnjlhnqhrw298
+      vpcId: vpc-wz9****ytzsqd66su8
+      vswitchIds: ["vsw-wz9a***qencd9juh0"]
+      securityGroupId: sg-wz***rmmzeoua4s
     nasConfig: Auto
 services:
   fc-wefe-fc-index:

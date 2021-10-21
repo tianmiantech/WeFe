@@ -66,7 +66,7 @@ export default {
         ...defaultCfg,
         autoSave: false,
     },
-    /* 数据对齐 */
+    /* 样本对齐 */
     Intersection: {
         ...defaultCfg,
     },

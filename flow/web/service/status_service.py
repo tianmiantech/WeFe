@@ -54,8 +54,10 @@ class GatewayStatusService:
 
     @staticmethod
     def flow_gateway_status_json():
-        if GatewayStatusService.flow_gateway_status() is True:
+        if GatewayStatusService.flow_gateway_status()[0] is True:
             return get_success_json()
+        else:
+            return GatewayStatusService.flow_gateway_status()[1]
 
 
 def get_success_json():

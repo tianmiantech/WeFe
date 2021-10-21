@@ -87,7 +87,7 @@
                                         />
                                     </el-select>
 
-                                    <router-link :to="{name: 'data-set-list'}">
+                                    <router-link :to="{name: 'data-source-view'}">
                                         <el-button type="primary">
                                             新增数据源
                                         </el-button>
@@ -194,7 +194,7 @@
                         class="save-btn mt20"
                         type="primary"
                         size="large"
-                        :disabled="!isuploadok || !row_list.length"
+                        :disabled="(!isuploadok || !row_list.length) && form.dataResourceSource==='UploadFile'"
                         :loading="addLoading"
                         @click="add"
                     >
@@ -288,7 +288,9 @@ export default {
             isuploadok:       false,
             addLoading:       false,
             timer:            null,
-            processData:      {},
+            processData:      {
+                text: '正在存储数据集...',
+            },
         };
     },
     async created() {
@@ -470,8 +472,14 @@ export default {
             } else if (this.form.name.length<4) {
                 this.$message.error('数据集名称不能少于4个字！');
                 return;
-            } else if (!this.row_list.length) {
+            } else if (!this.row_list.length && this.form.dataResourceSource==='UploadFile') {
                 this.$message.error('请选择字段！');
+                return;
+            } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
+                this.$message.error('请填写文件在服务器上的绝对路径！');
+                return;
+            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
+                this.$message.error('请选择字段信息！');
                 return;
             }
 
@@ -493,6 +501,7 @@ export default {
             this.form.data_source_id = this.data_source_id;
 
             this.addLoading = true;
+            if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
 
             const { code, data } = await this.$http.post({
                 url:     '/data_set/add',
@@ -510,37 +519,39 @@ export default {
 
             } else {
                 this.addLoading = false;
+                this.$refs['progressRef'].hideDialog();
             }
             this.loading = false;
         },
 
+        async getDataSetStatus(data_set_id = '') {
+            this.$refs['progressRef'].showDialog();
+            if (data_set_id) {
+                const { code, data } = await this.$http.post({
+                    url:  '/data_set/get_state',
+                    data: { data_set_id },
+                });
 
-        async getDataSetStatus(data_set_id) {
-            const { code, data } = await this.$http.post({
-                url:  '/data_set/get_state',
-                data: { data_set_id },
-            });
+                if (code === 0) {
+                    const percentage = data.row_count === 0 ? 0 : Math.round(data.process_count / data.row_count * 100);
 
-            if (code === 0) {
-                const percentage = Math.round(data.process_count / data.row_count * 100);
-
-                this.processData = {
-                    percentage,
-                };
-                this.$refs['progressRef'].showDialog();
-                if (percentage < 100) {
-                    clearTimeout(this.timer);
-                    this.timer = setTimeout(_ => {
-                        this.getDataSetStatus(data_set_id);
-                    }, 1000);
-                } else {
-                    this.$router.push({
-                        name: 'data-set-list',
-                    });
+                    this.processData = {
+                        percentage,
+                    };
+                    if (data.progress === 'Running') {
+                        clearTimeout(this.timer);
+                        this.timer = setTimeout(_ => {
+                            this.getDataSetStatus(data_set_id);
+                        }, 1000);
+                    } else {
+                        this.$router.push({
+                            name: 'data-set-list',
+                        });
+                    }
                 }
-            }
-            if (code === 10019) {
-                clearTimeout(this.timer);
+                if (code === 10019) {
+                    clearTimeout(this.timer);
+                }
             }
         },
 
@@ -731,11 +742,11 @@ export default {
     }
 </style>
 <style lang="scss">
-.preview-table {
-    .el-table__header-wrapper {
-        .el-checkbox{
-            display: none;
-        }
-    }
-}
+// .preview-table {
+//     .el-table__header-wrapper {
+//         .el-checkbox{
+//             display: none;
+//         }
+//     }
+// }
 </style>
