@@ -1,7 +1,7 @@
 version: "3"
 services:
   # python 服务
-  wefe_python_service_slave:
+  wefe_python_service_slave: # slave_name
     image: wefe_python_service:v.2.1 # wefe_version
     tty: true
     # ports:

@@ -4,6 +4,25 @@
 # 导入配置
 source ../wefe.cfg
 
+# ******************
+# 定义函数：docker-compose配置初始化
+# *****************
+
+spark_cluster_config(){
+    # $1：identity_type
+    echo "当前type:$1"
+    case $1 in
+      master)
+        cp -f conf/docker-compose-master.yml.template docker-compose.yml
+        ;;
+      slave)
+        cp -f conf/docker-compose-slave.yml.template docker-compose.yml
+        ;;
+      esac
+}
+
+spark_cluster_config $1
+
 # 修改服务启动配置
 sed -i "/wefe_version/s/python_service:.*#/python_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
 sed -i "/flow_logs/s@-.*:@- $DATA_PATH/logs/flow:@g" ./resources/docker-compose.yml
