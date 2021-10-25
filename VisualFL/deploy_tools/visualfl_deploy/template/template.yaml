@@ -1,0 +1,106 @@
+# cluster deploy config demo
+# deploy machine: machine1, machine2, machine3
+# coordinator: name=coordinator1, port=10000, at machine3
+# clusters:
+#    - cluster1, name=cluster1, port=10001, workers: worker1, worker2 at machine1
+#    - cluster2, name=cluster2, port=10001, workers: worker1, worker2 at machine2
+# masters: 2
+#    - master1, use cluster `cluster1`, connect to coordinator `coordinator1` at machine1
+#    - master2, use cluster `cluster2`, connect to coordinator `coordinator1` at machine1
+  # deploy structure:
+#                                    +---------------------------------+
+#                                    |                                 |
+#                                    |    +------------------------+   |
+#                                    |    |       coordinator1     |   |
+#                                    |    +----------^-------------+   |
+#                                    |               |       machine3  |
+#                                    +---------------------------------+
+#                                                    |
+#                                                    |
+#+---------------------------------------------+     | +----------------------------------------------+
+#|                                             |     | |                                              |
+#|                         +-------------+-----------+------+-------------+                           |
+#|                         |             |     |       |    |             |                           |
+#|                         |     master1 |     |       |    |     master2 |                           |
+#|                         +-------------+     |       |    +-------------+                           |
+#|  +---------------------------------------+  |       |  +----------------------------------------+  |
+#|  |                                       |  |       |  |                                        |  |
+#|  | +-------------+  +-------------+      |  |       |  |  +-------------+ +-------------+       |  |
+#|  | | worker1     |  | worker2     |      |  |       |  |  | worker1     | | worker2     |       |  |
+#|  | +-------------+  +-------------+      |  |       |  |  +-------------+ +-------------+       |  |
+#|  |                               cluster1|  |       |  |                              cluster2  |  |
+#|  +---------------------------------------+  |       |  +----------------------------------------+  |
+#|                                             |       |                                              |
+#|                                 machine1    |       |                                   machine2   |
+#+---------------------------------------------+       +----------------------------------------------+
+
+
+
+machines:
+  - name: machine1
+    ip:
+    ssh_string:  # [user@]ip:port
+    base_dir: /data/projects
+    python_for_venv_create: python3 # use to create venv
+
+  - name: machine2
+    ip:
+    ssh_string:
+    base_dir: /data/projects/visualfl
+    python_for_venv_create: python3
+
+  - name: machine3
+    ip:
+    ssh_string:
+    base_dir: /data/projects/visualfl
+    python_for_venv_create: python3
+
+# coordinator start/stop only if machine provided
+coordinator:
+  name: coordinator1
+  machine: machine3
+  port: 10000
+
+
+clusters:
+  - name: cluster1
+    manager:
+      machine: machine1
+      port: 10001
+    workers:
+      - name: worker1
+        machine: machine1
+        ports: 12000-12999
+        max_tasks: 10
+      - name: worker2
+        machine: machine2
+        ports: 13000-13999
+        max_tasks: 10
+
+  - name: cluster2
+      manager:
+        machine: machine2
+        port: 10001
+      workers:
+        - name: worker1
+          machine: machine1
+          ports: 12000-12999
+          max_tasks: 10
+        - name: worker2
+          machine: machine2
+          ports: 13000-13999
+          max_tasks: 10
+
+masters:
+  - name: master1
+    machine: machine1
+    submit_port: 10002
+    coordinator: coordinator1
+    cluster: cluster1
+
+  - name: master2
+    machine: machine2
+    submit_port: 10002
+    coordinator: coordinator1
+    cluster: cluster2
+
