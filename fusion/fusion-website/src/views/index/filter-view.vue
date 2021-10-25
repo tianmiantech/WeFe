@@ -153,6 +153,7 @@
 
 
             <el-row
+                v-if="form.dataResourceSource === 'UploadFile'"
                 :gutter="120"
                 class="m20"
             >
@@ -381,8 +382,20 @@ export default {
             },
         };
     },
+    watch: {
+        'form.dataResourceSource': {
+            handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    this.metadata_pagination.list = [];
+                    this.file_upload_options.files = [];
+                    this.fieldInfoList = [];
+                    this.keyRes = '';
+                }
+            },
+            deep: true,
+        },
+    },
     async created() {
-
         this.getUploaders();
     },
 
