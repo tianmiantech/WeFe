@@ -10,10 +10,12 @@ else
   exit 0
 fi
 
-# ******************
-# 定义函数：远程拷贝python service
-# *****************
 
+INPUT_ACTION=$1
+
+# ******************
+# 函数：拷贝python service到远程机器
+# *****************
 cp_python_service(){
     # $1：ip
     # $2: to path
@@ -23,7 +25,9 @@ cp_python_service(){
     scp -r wefe_python_service root@$1:$2/
 }
 
-
+# ******************
+# 函数：停止python service
+# *****************
 stop_python_service(){
     # 参数:
     # $1: ip
@@ -33,6 +37,9 @@ stop_python_service(){
     sleep 1
 }
 
+# ******************
+# 函数：启动python service
+# *****************
 start_python_service(){
     # 参数:
     # $1: ip
@@ -43,43 +50,145 @@ start_python_service(){
     sleep 1
 }
 
+# ******************
+# 函数：拷贝python service到所有的远程机器
+# *****************
+cp_python_service_all(){
+
+    # 创建远程master目录
+    master_path=$SPARK_CLUSTER_DATA_PATH/master
+    ssh root@$SPARK_MASTER "mkdir -p $master_path"
+
+    # 拷贝python service 到master
+    cp_python_service $SPARK_MASTER $master_path
+
+    # 拷贝到每个slave
+    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    index=0
+    for slave_ip in ${slaves[@]}
+    do
+       echo $slave_ip
+       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+
+       # 远程创建slave目录
+       ssh root@$SPARK_MASTER "mkdir -p $slave_path"
+       echo $slave_path
+
+       # 远程拷贝
+       cp_python_service $slave_ip $slave_path
+
+       index=$[index + 1]
+    done
+
+}
+
+# ******************
+# 函数：启动python service
+# *****************
+start_python_service_all(){
+
+    # master目录
+    master_path=$SPARK_CLUSTER_DATA_PATH/master
+
+    # start master
+    start_python_service $SPARK_MASTER $master_path master
+    sleep 3
+
+    # 拷贝到每个slave
+    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    index=0
+    for slave_ip in ${slaves[@]}
+    do
+       echo $slave_ip
+       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+
+       # 远程启动slave
+       start_python_service $slave_ip $slave_path slave
+
+       index=$[index + 1]
+    done
+
+}
 
 
-# ****************************
-# 同步镜像，采用ssh命令远程执行
-# ***************************
+# ******************
+# 函数：停止python service
+# *****************
+stop_python_service_all(){
 
-# 创建远程master目录
-master_path=$SPARK_CLUSTER_DATA_PATH/master
-ssh root@$SPARK_MASTER "mkdir -p $master_path"
-# 拷贝python service 到master
-cp_python_service $SPARK_MASTER $master_path
+    # master目录
+    master_path=$SPARK_CLUSTER_DATA_PATH/master
 
-# 启动master
-start_python_service $SPARK_MASTER $master_path master
+    # start master
+    stop_python_service $SPARK_MASTER $master_path
+    sleep 3
 
-sleep 3
+    # 拷贝到每个slave
+    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    index=0
+    for slave_ip in ${slaves[@]}
+    do
+       echo $slave_ip
+       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
 
-# 拷贝到每个slave
-slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
-index=0
-for slave_ip in ${slaves[@]}
-do
-   echo $slave_ip
-   slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+       # 远程启动slave
+       stop_python_service $slave_ip $slave_path
 
-   # 远程创建slave目录
-   ssh root@$SPARK_MASTER "mkdir -p $slave_path"
-   echo $slave_path
+       index=$[index + 1]
+    done
 
-   # 远程拷贝
-   cp_python_service $slave_ip $slave_path
+}
 
-   # 远程启动slave
-   start_python_service $slave_ip $slave_path slave
 
-   index=$[index + 1]
-done
+case $INPUT_ACTION in
+    start)
+        start_python_service_all
+        ;;
+    stop)
+        stop_python_service_all
+        ;;
+    *)
+        echo "Please Input a Legal Action"
+        echo "eg. {start | stop | restart | help}"
+        exit -1
+esac
+
+#
+## ****************************
+## 同步镜像，采用ssh命令远程执行
+## ***************************
+#
+## 创建远程master目录
+#master_path=$SPARK_CLUSTER_DATA_PATH/master
+#ssh root@$SPARK_MASTER "mkdir -p $master_path"
+## 拷贝python service 到master
+#cp_python_service $SPARK_MASTER $master_path
+#
+## 启动master
+#start_python_service $SPARK_MASTER $master_path master
+#
+#sleep 3
+#
+## 拷贝到每个slave
+#slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+#index=0
+#for slave_ip in ${slaves[@]}
+#do
+#   echo $slave_ip
+#   slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+#
+#   # 远程创建slave目录
+#   ssh root@$SPARK_MASTER "mkdir -p $slave_path"
+#   echo $slave_path
+#
+#   # 远程拷贝
+#   cp_python_service $slave_ip $slave_path
+#
+#   # 远程启动slave
+#   start_python_service $slave_ip $slave_path slave
+#
+#   index=$[index + 1]
+#done
 
 # 同步配置
 # 启动master
