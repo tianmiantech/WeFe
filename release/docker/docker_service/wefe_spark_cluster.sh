@@ -88,6 +88,9 @@ cp_python_service_all(){
 # *****************
 start_python_service_all(){
 
+    # 拷贝镜像到集群机器
+    cp_python_service_all
+
     # master目录
     master_path=$SPARK_CLUSTER_DATA_PATH/master
 
