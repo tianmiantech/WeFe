@@ -24,7 +24,7 @@ services:
       - -c
       - |
             sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-master.sh
-            sh /opt/welab/wefe/common/python/calculation/fc/function/wefe-fc/fc_deploy.sh &
+            # sh /opt/welab/wefe/common/python/calculation/fc/function/wefe-fc/fc_deploy.sh &
             sh /opt/welab/wefe/flow/service.sh start
             tail -f /dev/null
 

@@ -45,8 +45,9 @@ start_python_service(){
     # $1: ip
     # S2: path
     # s3: identity: master/slave
+    # s4: identity_name:
     echo "准备启动远程容器$1, 目前:$2, 身份:$3"
-    ssh root@$1 "cd $2 && cd wefe_python_service && sh wefe_python_service_start.sh $3"
+    ssh root@$1 "cd $2 && cd wefe_python_service && sh wefe_python_service_start.sh $3 $4"
     sleep 1
 }
 
@@ -91,7 +92,7 @@ start_python_service_all(){
     master_path=$SPARK_CLUSTER_DATA_PATH/master
 
     # start master
-    start_python_service $SPARK_MASTER $master_path master
+    start_python_service $SPARK_MASTER $master_path master master
     sleep 3
 
     # 拷贝到每个slave
@@ -101,9 +102,10 @@ start_python_service_all(){
     do
        echo $slave_ip
        slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+       slave_name="/slave_"$index
 
        # 远程启动slave
-       start_python_service $slave_ip $slave_path slave
+       start_python_service $slave_ip $slave_path slave $slave_name
 
        index=$[index + 1]
     done
