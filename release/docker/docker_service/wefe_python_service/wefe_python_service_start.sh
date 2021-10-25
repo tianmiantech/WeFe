@@ -13,10 +13,10 @@ spark_cluster_config(){
     echo "当前type:$1"
     case $1 in
       master)
-        cp -f conf/docker-compose-master.yml.template docker-compose.yml
+        cp -f resources/conf/docker-compose-master.yml.template docker-compose.yml
         ;;
       slave)
-        cp -f conf/docker-compose-slave.yml.template docker-compose.yml
+        cp -f resources/conf/docker-compose-slave.yml.template docker-compose.yml
         ;;
       esac
 }
