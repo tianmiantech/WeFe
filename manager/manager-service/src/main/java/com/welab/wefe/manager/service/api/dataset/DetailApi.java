@@ -16,8 +16,11 @@
 
 package com.welab.wefe.manager.service.api.dataset;
 
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -28,10 +31,12 @@ import com.welab.wefe.manager.service.service.DataSetContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/detail", name = "data_set_detail",login = false)
+@Api(path = "data_set/detail", name = "data_set_detail", login = false)
 public class DetailApi extends AbstractApi<DataSetDetailInput, ApiDataSetQueryOutput> {
 
     @Autowired
@@ -42,17 +47,19 @@ public class DetailApi extends AbstractApi<DataSetDetailInput, ApiDataSetQueryOu
     protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiDataSetQueryOutput> handle(DataSetDetailInput input) {
-        DataSet dataSet = dataSetMongoReop.findDataSetId(input.getId());
-        return success(getOutput(dataSet));
+    protected ApiResult<ApiDataSetQueryOutput> handle(DataSetDetailInput input) throws StatusCodeWithException {
+        DataSetQueryInput dataSetQueryInput = new DataSetQueryInput();
+        dataSetQueryInput.setDataSetId(input.getId());
+        List<DataSetQueryOutput> list = dataSetMongoReop.find(dataSetQueryInput).getList();
+        if (list == null || list.isEmpty()) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+        return success(getOutput(list.get(0)));
     }
 
-    protected ApiDataSetQueryOutput getOutput(DataSet dataSet) {
-        if (dataSet == null) {
-            return null;
-        }
+    protected ApiDataSetQueryOutput getOutput(DataSetQueryOutput dataSetQueryOutput) {
 
-        ApiDataSetQueryOutput detail = mDataSetMapper.transferDetail(dataSet);
+        ApiDataSetQueryOutput detail = mDataSetMapper.transferOutput(dataSetQueryOutput);
         return detail;
     }
 
