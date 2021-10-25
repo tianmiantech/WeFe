@@ -5,7 +5,7 @@
         <el-form
             ref="form"
             :model="vData.form"
-            :disabled="vData.disabled"
+            :disabled="disabled"
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="VertNN参数设置" name="1">
