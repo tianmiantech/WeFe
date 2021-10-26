@@ -46,7 +46,7 @@ start_python_service(){
     # S2: path
     # s3: identity: master/slave
     # s4: identity_name:
-    echo "准备启动远程容器$1, 目前:$2, 身份:$3"
+    echo "准备启动远程容器$1, 目前:$2, 身份:$3, identity_name:$4"
     ssh root@$1 "cd $2 && cd wefe_python_service && sh wefe_python_service_start.sh $3 $4"
     sleep 1
 }

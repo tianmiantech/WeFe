@@ -24,6 +24,7 @@ spark_cluster_config(){
 }
 
 spark_cluster_config $identity_type
+echo "identity_name:"$identity_name
 
 # 修改服务启动配置
 sed -i "/wefe_version/s/python_service:.*#/python_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
