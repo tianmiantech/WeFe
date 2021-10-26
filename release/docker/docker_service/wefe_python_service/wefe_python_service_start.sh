@@ -15,10 +15,10 @@ spark_cluster_config(){
     echo "当前type:$identity_type"
     case $identity_type in
       master)
-        cp -f resources/conf/docker-compose-master.yml.template docker-compose.yml
+        cp -f resources/conf/docker-compose-master.yml.template resources/docker-compose.yml
         ;;
       slave)
-        cp -f resources/conf/docker-compose-slave.yml.template docker-compose.yml
+        cp -f resources/conf/docker-compose-slave.yml.template resources/docker-compose.yml
         ;;
       esac
 }
@@ -35,6 +35,7 @@ sed -i "/flow_port/s/-.*:/- $PYTHON_SERVICE_PORT:/g" ./resources/docker-compose.
 # TODO:修改 spark 相关配置
 sed -i "/spark_master/s/master:7077/$SPARK_MASTER:7077/g" ./resources/docker-compose.yml
 sed -i "/slave_name/s/wefe_python_service_slave/wefe_python_service_$identity_name/g" ./resources/docker-compose.yml
+
 
 # 加载本地离线镜像包
 echo "开始加载 flow 离线镜像"
