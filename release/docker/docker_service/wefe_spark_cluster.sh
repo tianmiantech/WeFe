@@ -105,7 +105,7 @@ start_python_service_all(){
     do
        echo $slave_ip
        slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
-       slave_name="/slave_"$index
+       slave_name="slave_"$index
 
        # 远程启动slave
        start_python_service $slave_ip $slave_path slave $slave_name
