@@ -306,6 +306,20 @@ export default {
             },
         };
     },
+    watch: {
+        'form.dataResourceSource': {
+            handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    this.metadata_pagination.list = [];
+                    this.form.metadata_list = [];
+                    this.metadata_list = [];
+                    this.row_list = [];
+                    this.file_upload_options.files = [];
+                }
+            },
+            deep: true,
+        },
+    },
     async created() {
 
         await this.getUploaders();
@@ -498,9 +512,9 @@ export default {
             } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
                 this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
-            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
-                this.$message.error('请选择字段信息！');
-                return;
+            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) { 
+                this.$message.error('请选择字段信息！'); 
+                return; 
             }
 
             const ids = [];
