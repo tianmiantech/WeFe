@@ -80,9 +80,9 @@
                                         <el-option
                                             v-for="(data, index) in data_source_list"
                                             :key="index"
-                                            :label="data.database_name"
+                                            :label="data.name"
                                             :value="data.id"
-                                            @click.native="previewDataSource(data.id)"
+                                            @click.native="getDataSourceId(data.id)"
                                         />
                                     </el-select>
 
@@ -91,6 +91,17 @@
                                             新增数据源
                                         </el-button>
                                     </router-link>
+
+                                    <el-form-item label="查询语句">
+                                        <el-input
+                                            type="textarea"
+                                            v-model="form.sql"
+                                            placeholder="select * from table where hello = 'world'"
+                                        />
+                                        <el-button class="mt10" @click="previewDataSet">
+                                            查询测试
+                                        </el-button>
+                                    </el-form-item>
                                 </el-form-item>
                             </div>
                         </el-form-item>
@@ -420,6 +431,11 @@ export default {
             this.metadata_list[row.$index].comment = row.comment;
         },
 
+        getDataSourceId(id){
+            this.form.data_source_id = id;
+            this.data_source_id = id;
+        },
+
         async previewDataSource(id) {
             this.loading = true;
             this.data_preview_finished = false;
@@ -474,6 +490,8 @@ export default {
                 params: {
                     filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
+                    sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 
