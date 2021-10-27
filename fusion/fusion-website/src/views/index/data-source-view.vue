@@ -22,13 +22,13 @@
 
             <el-form-item
                 label="数据库类型:"
-                prop="databaseType"
+                prop="database_type"
                 :rules="[
                     { required: true, message: '数据库类型必填!' }
                 ]"
             >
                 <el-select
-                    v-model="form.databaseType"
+                    v-model="form.database_type"
                     size="medium"
                     clearable
                 >
@@ -61,24 +61,24 @@
                 />
             </el-form-item>
             <el-form-item
-                prop="databaseName"
+                prop="database_name"
                 label="目标数据库名"
                 :rules="[{ required: true, message: '数据库名必填！' }]"
             >
                 <el-input
-                    v-model="form.databaseName"
+                    v-model="form.database_name"
                     size="medium"
                 />
             </el-form-item>
             <el-form-item
                 label="数据库用户名"
-                prop="userName"
+                prop="user_name"
                 :rules="[
                     { required: true, message: '用户名必填！' }
                 ]"
             >
                 <el-input
-                    v-model="form.userName"
+                    v-model="form.user_name"
                     size="medium"
                 />
             </el-form-item>
@@ -102,7 +102,6 @@
                 >
                     测试连接
                 </el-button>
-                </el-col>
             </div>
             <el-button
                 class="save-btn mt20"
@@ -121,18 +120,9 @@
     export default {
         data() {
             return {
-                loading: false,
+                loading:          false,
                 // model
-                form:    {
-                    publicLevel:  'Public',
-                    name:         '',
-                    host:         '',
-                    port:         '',
-                    databaseName: '',
-                    userName:     '',
-                    password:     '',
-                    databaseType: '',
-                },
+                form:             {},
                 DatabaseTypeList: [{
                     name:  'MySql',
                     value: 'MySql',
@@ -170,14 +160,14 @@
                         const resData = data.list[0];
 
                         this.form = resData;
-                        this.form.databaseType = resData.database_type;
-                        this.form.databaseName = resData.database_name;
-                        this.form.userName = resData.user_name;
+                        // this.form.databaseType = resData.database_type;
+                        // this.form.databaseName = resData.database_name;
+                        // this.form.userName = resData.user_name;
                     }
                 }
             },
             async add(id = '') {
-                if (!this.form.name || !this.form.databaseType || !this.form.host || !this.form.port || !this.form.userName || !this.form.password || !this.form.databaseName) {
+                if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
                     this.$message.error('请将必填项填写完整！');
                     return;
                 } else if (this.form.name.length < 4) {
@@ -200,7 +190,7 @@
                 this.saveLoading = false;
             },
             async testConnection() {
-                if (!this.form.name || !this.form.databaseType || !this.form.host || !this.form.port || !this.form.userName || !this.form.password || !this.form.databaseName) {
+                if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
                     this.$message.error('请将必填项填写完整！');
                     return;
                 } else if (this.form.name.length < 4) {
