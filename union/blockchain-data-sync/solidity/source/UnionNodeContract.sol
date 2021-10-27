@@ -92,11 +92,11 @@ contract UnionNodeContract{
 
 
 
-    function update(string union_node_id,string[] update_params) public returns (int) {
+    function update(string union_node_id,string[] params) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(union_node_id)) {
             ret_code = -1;
-            emit updateEvent(ret_code,union_node_id,update_params);
+            emit updateEvent(ret_code,union_node_id,params);
             return ret_code;
         }
 
@@ -120,7 +120,7 @@ contract UnionNodeContract{
             ret_code = -2;
         }
 
-        emit updateEvent(ret_code,union_node_id,update_params);
+        emit updateEvent(ret_code,union_node_id,params);
         return count;
     }
 

@@ -6,26 +6,25 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.union.UnionNodeAddInput;
-import com.welab.wefe.manager.service.mapper.UnionNodeMapper;
+import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
+import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
 import com.welab.wefe.manager.service.service.UnionNodeContractService;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
- **/
-@Api(path = "union/node/add", name = "union_node_add",login = false)
-public class AddApi extends AbstractApi<UnionNodeAddInput, AbstractApiOutput> {
+ */
+@Api(path = "union/node/enable", name = "union_node_enable", login = false)
+public class EnableApi extends AbstractApi<UnionNodeEnableInput, AbstractApiOutput> {
 
     @Autowired
     private UnionNodeContractService unionNodeContractService;
-    protected UnionNodeMapper unionNodeMapper = Mappers.getMapper(UnionNodeMapper.class);
+
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UnionNodeAddInput input) throws StatusCodeWithException {
-        LOG.info("AddApi handle..");
+    protected ApiResult<AbstractApiOutput> handle(UnionNodeEnableInput input) throws StatusCodeWithException {
+        LOG.info("union node enable handle..");
         try {
-            unionNodeContractService.add(unionNodeMapper.transferAddInput(input));
+            unionNodeContractService.enable(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

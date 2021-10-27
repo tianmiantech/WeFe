@@ -67,7 +67,7 @@ public class DataSetContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
         }
     }
 }

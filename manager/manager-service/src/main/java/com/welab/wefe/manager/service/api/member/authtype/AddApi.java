@@ -7,7 +7,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.base.AddOuput;
 import com.welab.wefe.manager.service.dto.member.MemberAuthTypeAddInput;
 import com.welab.wefe.manager.service.service.MemberAuthTypeContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/authtype/add", name = "member_authtype_add",login = false)
+@Api(path = "member/authtype/add", name = "member_authtype_add", login = false)
 public class AddApi extends AbstractApi<MemberAuthTypeAddInput, AbstractApiOutput> {
 
     @Autowired

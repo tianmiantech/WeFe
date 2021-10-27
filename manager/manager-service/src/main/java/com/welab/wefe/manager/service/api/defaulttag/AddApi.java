@@ -7,8 +7,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.base.AddOuput;
-import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagAddInput;
 import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Jervis
  * @date 2020-05-22
  **/
-@Api(path = "default_tag/add", name = "default_tag_add",login = false)
+@Api(path = "default_tag/add", name = "default_tag_add", login = false)
 public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOutput> {
 
     @Autowired

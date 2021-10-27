@@ -58,4 +58,11 @@ public class EventConstant {
         public static final String UPDATE_EVENT = "UPDATEEVENT";
         public static final String DELETE_BY_TYPEID_EVENT = "DELETEBYTYPEIDEVENT";
     }
+
+    public static final class UnionNode {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String UPDATE_ENABLE_EVENT = "UPDATEENABLEEVENT";
+        public static final String DELETE_BY_UNIONNODEID_EVENT = "DELETEBYUNIONNODEIDEVENT";
+    }
 }

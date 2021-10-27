@@ -4,26 +4,27 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
-import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
+import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
+import com.welab.wefe.manager.service.service.UnionNodeContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
 @Api(path = "union/node/update", name = "union_node_update", login = false)
-public class UpdateApi extends AbstractApi<DataSetDefaultTagUpdateInput, MemberOutput> {
+public class UpdateApi extends AbstractApi<UnionNodeUpdateInput, AbstractApiOutput> {
 
     @Autowired
-    private DatSetDefaultTagContractService datSetDefaultTagContractService;
+    private UnionNodeContractService unionNodeContractService;
 
     @Override
-    protected ApiResult<MemberOutput> handle(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(UnionNodeUpdateInput input) throws StatusCodeWithException {
         LOG.info("UpdateApi handle..");
         try {
-            datSetDefaultTagContractService.updateByTagId(input);
+            unionNodeContractService.update(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
