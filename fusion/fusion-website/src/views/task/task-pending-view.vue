@@ -534,6 +534,8 @@
                    partner_list:       '',
                    is_trace:           false,
                    trace_column:       '',
+                   bloom_filter_list:[],
+                   data_set_list:[]
                 },
 
 
@@ -598,11 +600,14 @@
                 if (code === 0) {
                     this.task = data;
 
+                    console.log(this.task);
                     if(this.task.psi_actuator_role==='client'){
                        this.bloom_filter_display = true;
+                       this.dataSetList.push(this.task.data_set_list[0]);
                     }
                     if(this.task.psi_actuator_role==='server'){
                        this.data_set_display = true;
+                       this.bloomFilterList.push(this.task.bloom_filter_list[0]);
                     }
                 }
             },

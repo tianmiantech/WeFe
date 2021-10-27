@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.dto.base.PagingInput;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -55,8 +56,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         }
     }
 
-    public static class Output extends AbstractApiOutput {
-        private String id;
+    public static class Output extends AbstractOutputModel {
 
         private String name;
 
@@ -71,14 +71,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         private String userName;
 
         private String password;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
 
         public String getName() {
             return name;

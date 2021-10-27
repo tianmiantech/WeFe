@@ -1,8 +1,8 @@
 <template>
     <el-dialog
-        title="正在上传..."
+        :title="title"
         :visible.sync="progressDialog"
-        width="20%"
+        width="30%"
         :close-on-click-modal="false"
         :show-close="false"
         class="uploading-dialog"
@@ -25,7 +25,13 @@ export default {
     data() {
         return {
             progressDialog: false,
+            title:          '正在存储...',
         };
+    },
+    watch: {
+        progressDialog(val) {
+            this.title = this.processData.text;
+        },
     },
     methods: {
         colorsMethods(percentage) {
@@ -42,6 +48,9 @@ export default {
         showDialog() {
             this.progressDialog = true;
         },
+        hideDialog() {
+            this.progressDialog = false;
+        },
     },
 };
 </script>
@@ -49,7 +58,10 @@ export default {
 <style lang="scss">
 .uploading-dialog {
     .el-dialog__header {
-        background: #e6e6e6;
+        background: #f5f7fa;
+    }
+    .el-dialog__title {
+        font-size: 14px;
     }
     .el-dialog__body {
         text-align: center;
