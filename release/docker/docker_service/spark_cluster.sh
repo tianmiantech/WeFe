@@ -21,10 +21,10 @@ _cp_python_service(){
     to_host=$1
     to_path=$2
 
-    echo "准备拷贝数据到$to_host的$to_path目录"
+    echo "准备拷贝数据到$to_host的$to_path目录，请耐心等待..."
     scp wefe.cfg root@$to_host:$to_path
     scp config.properties root@$to_host:$to_path
-    scp -r wefe_python_service root@$to_host:$to_path/
+    scp -r wefe_python_service root@$to_host:$to_path/ >/dev/null 2>&1
 }
 
 # ******************
