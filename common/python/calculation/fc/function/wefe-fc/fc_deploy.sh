@@ -59,11 +59,7 @@ nas_upload(){
 
 
 fc_deploy(){
-  # function dir
-  if [ ! ${wefe_code_path} ]; then
-    echo "wefe_code_path is null"
-    wefe_code_path=/opt/welab/wefe
-  fi
+
 
   fc_dir=${wefe_code_path}/common/python/calculation/fc/function/wefe-fc
   cd $fc_dir
@@ -126,7 +122,14 @@ fc_deploy(){
 
 
 if_fc(){
-  backend=$(grep -v "^#" ../../../../../../config.properties | grep "wefe.job.backend=*")
+
+  # function dir
+  if [ ! ${wefe_code_path} ]; then
+    echo "wefe_code_path is null"
+    wefe_code_path=/opt/welab/wefe
+  fi
+
+  backend=$(grep -v "^#" ${wefe_code_path}/config.properties | grep "wefe.job.backend=*")
   backend=${backend##*=}
 
   if [ "$backend" == "FC" -o "$backend" == "fc" ]; then
