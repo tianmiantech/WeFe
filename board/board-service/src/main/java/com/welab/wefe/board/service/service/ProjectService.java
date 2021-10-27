@@ -234,7 +234,8 @@ public class ProjectService extends AbstractService {
                     continue;
                 }
             }
-            List<ProjectDataSetMySqlModel> projectMemberDataSets = projectDataSetService.findDataSetList(input.getProjectId(), projectMember.getMemberId());
+            List<ProjectDataSetMySqlModel> projectMemberDataSets = projectDataSetService
+                    .findDataSetList(input.getProjectId(), projectMember.getMemberId(), projectMember.getMemberRole());
             projectDataSets.addAll(projectMemberDataSets);
         }
 
@@ -1117,8 +1118,12 @@ public class ProjectService extends AbstractService {
                         ProjectDataSetMySqlModel model = projectDataSetService.findOne(x.getProjectId(), x.getDataSetId(), x.getMemberRole());
                         if (model != null) {
                             Map<String, Object> params = new HashMap<>();
-                            params.put("auditStatus", model.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : model.getAuditStatus());
-                            params.put("auditComment", model.getMemberId().equals(CacheObjects.getMemberId()) ? "" : model.getAuditComment());
+                            params.put("auditStatus",
+                                    model.getMemberId().equals(CacheObjects.getMemberId())
+                                            && model.getMemberRole() == myRole ? AuditStatus.auditing
+                                                    : model.getAuditStatus());
+                            params.put("auditComment", model.getMemberId().equals(CacheObjects.getMemberId()) ? ""
+                                    : model.getAuditComment());
                             projectDataSetRepo.updateById(model.getId(), params, ProjectDataSetMySqlModel.class);
                         } else {
                             x.setAuditStatus(AuditStatus.auditing);

@@ -10,9 +10,7 @@
     ⚠️ 注意
     此文档中的表结构可能与最新版本有差异，请以代码仓库中的 `wefe_board.sql` 文件为准。
 
-<!-- tabs:start -->
-
-#### **DDL**
+## DDL
 
 ```sql
 /*
@@ -941,10 +939,35 @@ global max_allowed_packet = 1024*1024*32;
 
 ```
 
-#### **ER 图**
+## ER 图
 图片较大，请点击进行放大，或右键保存到本地后查看。
 
 
-<a target="_blank" href="_media/mysql/wefe_board.jpg"><img src="_media/mysql/wefe_board.jpg" style="max-height:700px;border:1px solid #ccc" /></a>
-<!-- tabs:end -->
+#### 数据集
+<img src="_media/mysql/wefe_board-data_set.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 建模任务
+<img src="_media/mysql/wefe_board-job.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 合作项目
+<img src="_media/mysql/wefe_board-project.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 账号操作
+<img src="_media/mysql/wefe_board-account.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 在线聊天
+<img src="_media/mysql/wefe_board-chat.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### flow 服务指令
+<img src="_media/mysql/wefe_board-flow.png" style="max-height:700px;border:1px solid #ccc" />
 

@@ -82,9 +82,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             }
 
         } else if (DataResourceSource.Sql.equals(dataResourceSource)) {
-            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
-            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
-            output = readFromSourceDB(input.id, sql);
+//            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
+//            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
+            output = readFromSourceDB(input.id, input.sql);
 
         } else if (dataResourceSource.equals(DataResourceSource.UploadFile) || dataResourceSource.equals(DataResourceSource.LocalFile)) {
             File file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
@@ -354,6 +354,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private DataResourceSource dataResourceSource;
 
+        private String sql;
+
 
         public String getId() {
             return id;
@@ -377,6 +379,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setDataResourceSource(DataResourceSource dataResourceSource) {
             this.dataResourceSource = dataResourceSource;
+        }
+
+        public String getSql() {
+            return sql;
+        }
+
+        public void setSql(String sql) {
+            this.sql = sql;
         }
     }
 

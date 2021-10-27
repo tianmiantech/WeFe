@@ -301,13 +301,14 @@ public class ProjectDataSetService extends AbstractService {
     /**
      * Query ProjectDataSet based on the combination of conditions
      */
-    public List<ProjectDataSetMySqlModel> findDataSetList(String projectId, String memberId) {
+    public List<ProjectDataSetMySqlModel> findDataSetList(String projectId, String memberId, JobMemberRole memberRole) {
 
         return projectDataSetRepo.findAll(
                 Where
                         .create()
                         .equal("projectId", projectId)
                         .equal("memberId", memberId)
+                        .equal("memberRole", memberRole)
                         .build(ProjectDataSetMySqlModel.class)
         );
     }
