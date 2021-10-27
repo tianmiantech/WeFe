@@ -27,11 +27,10 @@ nas_upload(){
     root_dir=".s/build/artifacts/wefe-fc/index/.s/python"
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
-      s build --use-docker
+      s build --use-docker --debug
     else
-      echo "remote nas has no python, root environment, now upload to nas ..."
-      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/root nas:///mnt/auto/root --debug
-      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/python nas:///mnt/auto/python --debug
+      echo "remote nas has no python environment, now upload to nas ..."
+      s nas upload -r -n /data/environment/.s/python nas:///mnt/auto/python --debug
     fi
 
   fi
@@ -52,7 +51,7 @@ nas_upload(){
 
   cd common/python/calculation/fc/function/wefe-fc
   s nas upload ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ --debug
-  s nas upload -r -n ../../../../../../build nas:///mnt/auto/$nas_env/pythonCode --debug
+  s nas upload -r -n ../../../../../../build/ /mnt/auto/$nas_env/pythonCode --debug
 
   rm -rf ../../../../../../build
 
@@ -108,7 +107,7 @@ fc_deploy(){
     echo "vpc_id is not null"
     sed -i '11,14s/^#*//' s.yaml
     sed -i "s|vpcId: .*|vpcId: ${vpc_id}|g" s.yaml
-    sed -i "s|vswitchIds: .*|vswitchIds: ${v_switch_ids}|g" s.yaml
+    sed -i "s|vswitchIds: .*|vswitchIds: [\"${v_switch_ids}\"]|g" s.yaml
     sed -i "s|securityGroupId: .*|securityGroupId: ${security_group_id}|g" s.yaml
   fi
 
@@ -130,11 +129,13 @@ if_fc(){
   backend=$(grep -v "^#" ../../../../../../config.properties | grep "wefe.job.backend=*")
   backend=${backend##*=}
 
-  if [ "$backend" == "FC" ]; then
+  if [ "$backend" == "FC" -o "$backend" == "fc" ]; then
+    echo "use Function Computing, now deploy Functions ... "
     fc_deploy
   fi
 }
 
+if_fc
 
 
 

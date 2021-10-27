@@ -229,7 +229,7 @@
             };
             // chat connection
             const getConnect = () => {
-                const key = `${window.api.prefixPath}chat`;
+                const key = `${window.api.prefixPath}_chat`;
                 const inited = window.localStorage.getItem(key);
 
                 if(inited !== 'connect') {

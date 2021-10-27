@@ -61,3 +61,10 @@ $--font-path: '../fonts';
 }
 .el-dialog__title{font-size: 16px;}
 .el-overlay-dialog{overflow:auto;}
+.el-tabs__nav-wrap.is-top{
+    .el-tabs__nav-scroll{height:auto;}
+    .el-tabs__nav-next,
+    .el-tabs__nav-prev{
+        padding-top: 16px;
+    }
+}

@@ -126,6 +126,7 @@
         reactive,
         nextTick,
         getCurrentInstance,
+        watch,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
 
@@ -164,6 +165,7 @@
                 selectListIndex:  0,
                 featureSelectTab: [],
                 col_names:        [],
+                formMembers:      [],
             });
 
             let methods = {
@@ -220,22 +222,15 @@
                             const { params } = data || {};
 
                             if (params) {
-                                const { col_names } = params;
+                                const { members } = params;
 
-                                if (col_names && col_names.length) {
-                                    vData.selectList = col_names;
-                                }
+                                members.forEach(member => {
+                                    const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
 
-                                if (vData.data_set_list.length) {
-                                    vData.data_set_list.forEach(member => {
-                                        const item = vData.data_set_list.find(row => row.member_id === member.member_id);
-
-                                        if(item) {
-                                            // item.features.push(...member.features);
-                                            item.features.push(...col_names);
-                                        }
-                                    });
-                                }
+                                    if(item) {
+                                        item.features.push(...member.features);
+                                    }
+                                });
                             }
                             vData.inited = true;
                         }
@@ -336,7 +331,7 @@
 
                 checkboxChange($event, item) {
                     if(props.disabled) return;
-                    item.checked = !item.checked;
+                    // item.checked = !item.checked;
 
                     const index = vData.checkedColumnsArr.findIndex(x => x === item);
 
@@ -367,9 +362,16 @@
                     const feature = [];
 
                     list.forEach(item => {
-                        feature.push(item.features);
+                        if (item.member_role === 'promoter') {
+                            feature.push(item.features);
+                        }
                     });
-                    vData.col_names = methods.getTheSame(feature);
+                    list.forEach(item => {
+                        if (item.member_role === 'promoter') {
+                            item.features = methods.getTheSame(feature);
+                        }
+                    });
+                    vData.formMembers = list;
                 },
 
                 getTheSame(arr) {
@@ -384,7 +386,8 @@
                     methods.getCheckedFeature(vData.data_set_list);
                     return {
                         params: {
-                            col_names: vData.col_names,
+                            // col_names: vData.col_names,
+                            members: vData.formMembers,
                         },
                     };
                 },
@@ -400,6 +403,15 @@
 
             vData = $data;
             methods = $methods;
+
+            watch(
+                () => vData.showColumnList, 
+                (newVal) => {
+                    if (!newVal) {
+                        vData.checkedColumnsArr = [];
+                    }
+                },
+            );
 
             return {
                 vData,

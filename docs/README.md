@@ -24,6 +24,7 @@ WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕科技](
 - 完善的联邦生态，能在线寻找合作方和意向数据集。
 - 用户友好的交互页面，符合传统建模习惯的使用方式。
 - 函数计算 & Spark 多计算引擎支持
+- 开创混合联邦建模方式，纵向联邦学习与横向联邦学习结合的行业解决方案。
 - 支持 GPU 加速
 - 区块链记账
 - Docker 一键部署
@@ -34,16 +35,20 @@ WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕科技](
 
 WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上体验环境。
 
-前往体验：https://tianmiantech.com/federal
+前往体验：https://tianmiantech.com/federal?from=opensource
 
 
 
 # 加入交流群
 
-扫码添加小助手微信，由小助手拉你进交流群。
+扫码添加小助手微信，由小助手拉你进交流群，这里有许多你的小伙伴哦~
 
 <img src="_media/wechat.jpg" style="max-width:300px">
 
+# 关注公众号
+扫码关注官方微信公众号，涨知识，学技巧，了解项目最新动态。
+
+<img src="_media/TianmianOfficialAccount.jpeg" style="max-width:300px">
 
 # 建议与反馈
 

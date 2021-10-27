@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -154,7 +154,7 @@ public class ProjectFlowJobService extends AbstractService {
 
             // check
             if (jobMember.getJobRole() == JobMemberRole.promoter) {
-                checkBeforeStartFlow(graph, project);
+                checkBeforeStartFlow(graph, project, isOotMode);
             }
             // create task
             createJobTasks(graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
@@ -197,7 +197,7 @@ public class ProjectFlowJobService extends AbstractService {
     /**
      * Check the effectiveness of the task before starting the task.
      */
-    private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project) throws StatusCodeWithException {
+    private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project, boolean isOotMode) throws StatusCodeWithException {
         if (CollectionUtils.isEmpty(graph.getStartNodes())) {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -205,6 +205,12 @@ public class ProjectFlowJobService extends AbstractService {
         if (graph.getStartNodes().stream().noneMatch(x -> (x.getComponentType() == ComponentType.DataIO
                 || x.getComponentType() == ComponentType.Oot))) {
             throw new StatusCodeWithException("起始节点必须包含 " + ComponentType.DataIO.getLabel() + "，否则无法执行流程。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        if (isOotMode) {
+            if (graph.allNodes.size() > 1 || graph.allNodes.get(0).getComponentType() != ComponentType.Oot) {
+                throw new StatusCodeWithException("只允许只有[" + ComponentType.Oot.getLabel() + "]组件", StatusCode.PARAMETER_VALUE_INVALID);
+            }
         }
 
         // Check whether the services of each member are available

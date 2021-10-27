@@ -95,15 +95,16 @@ public class DataSetMongoReop extends AbstractMongoRepo {
             dataSetIds = dataSetMemberPermissionList.stream().map(DataSetMemberPermission::getDataSetId).collect(Collectors.toList());
         }
 
+        Boolean containsY = dataSetQueryInput.getContainsY();
+
         Criteria dataSetCriteria = new QueryBuilder()
                 .notRemoved()
                 .like("name", dataSetQueryInput.getName())
                 .like("tags", dataSetQueryInput.getTag())
                 .append("member_id", dataSetQueryInput.getMemberId())
                 .append("data_set_id", dataSetQueryInput.getDataSetId())
-                .append("contains_y", dataSetQueryInput.getContainsY())
+                .append("contains_y", null == containsY ? null : String.valueOf(containsY ? 1 : 0))
                 .getCriteria();
-
 
         Criteria or = new Criteria();
         or.orOperator(

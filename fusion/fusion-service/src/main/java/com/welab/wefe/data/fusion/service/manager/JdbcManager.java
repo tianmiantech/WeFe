@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ public class JdbcManager {
                     url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
                     break;
                 case Impala:
-                    url = String.format("jdbc:impala://%s:%d/%s", host, port, dbName);
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 default:
                     throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
@@ -110,7 +110,7 @@ public class JdbcManager {
 
                     break;
                 case Impala:
-                    Class.forName("com.cloudera.impala.jdbc41.Driver");
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
                     break;
                 default:
                     throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
@@ -356,7 +356,8 @@ public class JdbcManager {
         long totalCount = 0;
 
         try {
-            ps = conn.prepareStatement("select count(*) from (" + sql + ") t");
+            String s = sql.replace("*", "count(*)");
+            ps = conn.prepareStatement(s);
             rs = ps.executeQuery();
             while (rs.next()) {
                 totalCount = rs.getLong(1);
@@ -432,7 +433,7 @@ public class JdbcManager {
                 log.error(e);
             }
         }
-        if (ps != null){
+        if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {

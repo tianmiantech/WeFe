@@ -4,7 +4,7 @@
     "welab": {
         "contextPath": "/serving-website"
     },
-    "context": "serving-website",
+    "context": "",
     "description": "wefe 联邦学习serving服务",
     "scripts": {
         "fix": "node_modules/eslint/bin/eslint.js --ext .js,.ts,.vue --fix --cache --fix-type suggestion,layout,problem .",

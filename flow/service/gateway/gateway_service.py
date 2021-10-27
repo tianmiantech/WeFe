@@ -23,7 +23,7 @@ from common.python.protobuf.pyproto.gateway_meta_pb2 import TransferMeta
 from common.python.utils import network_utils
 from common.python.utils.core_utils import get_commit_id
 from common.python.utils.log_utils import LoggerFactory
-from flow.settings import MEMBER_ID, JOB_GRPC
+from flow.settings import JOB_GRPC, GATEWAY_INTRANET_HOST, GATEWAY_INTRANET_PORT, MemberInfo
 from flow.web.utils.const import *
 
 
@@ -58,19 +58,19 @@ class GatewayService:
             GatewayService.logger.exception("上报IP地址异常:%s", e)
 
     @staticmethod
-    def alive() -> bool:
+    def alive() -> (bool, object):
         """
         Check the connectivity to the gateway
         """
         result = GatewayService.send_to_myself(GatewayTransferProcess.GATEWAY_ALIVE_PROCESS)
-        return result[JsonField.CODE] == 0
+        return result[JsonField.CODE] == 0, result
 
     @staticmethod
     def send_to_myself(processor) -> dict:
         """
         Send messages to self gateway service
         """
-        return GatewayService.send(MEMBER_ID, processor)
+        return GatewayService.send(MemberInfo.MEMBER_ID, processor)
 
     @staticmethod
     def send(dst_member_id, processor, data="") -> dict:
@@ -93,7 +93,7 @@ class GatewayService:
         The response from gateway service
         """
 
-        if (not GatewayConfig.HOST) or (not GatewayConfig.PORT):
+        if (not GATEWAY_INTRANET_HOST) or (not GATEWAY_INTRANET_PORT):
             return {
                 JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,
                 JsonField.MESSAGE: ServiceStatusMessage.ADDRESS_IS_EMPTY
@@ -114,23 +114,22 @@ class GatewayService:
             )
             JOB_GRPC.send(transfer_meta)
         except grpc.RpcError as error:
-            # Catch exceptions based on custom protocol
-            print(error.code())
             if str(error.code()) == GrpcStatusMessage.UNAVAILABLE:
-                return {
+                result = {
                     JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,
                     JsonField.MESSAGE: ServiceStatusMessage.REMOTE_SERVICE_ERROR_MESSAGE
                 }
             elif str(error.code()) == GrpcStatusMessage.PERMISSION_DENIED:
-                return {
+                result = {
                     JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,
                     JsonField.MESSAGE: ServiceStatusMessage.WHITELIST_NOT_ADDED
                 }
             else:
-                return {
+                result = {
                     JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,
                     JsonField.MESSAGE: str(error)
                 }
+            return result
         finally:
             GatewayService.logger.debug("[REMOTE] send result:%s", result["message"])
 
