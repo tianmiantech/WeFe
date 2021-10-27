@@ -18,9 +18,11 @@ package com.welab.wefe.data.fusion.service.service.dataset;
 
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.service.DataStorageService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +74,8 @@ public class DataSetStorageHelper {
      */
     public static void saveDataSetRows(DataSetMySqlModel model, List<Map<String, Object>> rows) {
         System.out.println(rows);
+        DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
+        dataSetRepository.updateById(model.getId(), "updatedTime", new Date(), DataSetMySqlModel.class);
         dataStorageService.saveDataRows(createRawDataSetTableName(model.getId()), rows);
     }
 

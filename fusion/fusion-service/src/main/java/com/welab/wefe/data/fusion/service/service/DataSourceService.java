@@ -69,6 +69,8 @@ public class DataSourceService extends AbstractService {
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
         model.setCreatedBy(CurrentAccount.id());
         model.setUpdatedBy(CurrentAccount.id());
+        model.setCreatedTime(new Date());
+        model.setUpdatedTime(new Date());
         dataSourceRepo.save(model);
 
         AddApi.DataSourceAddOutput output = new AddApi.DataSourceAddOutput();

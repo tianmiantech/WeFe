@@ -2,7 +2,7 @@
     <el-form
         ref="form"
         :model="vData.form"
-        :disabled="vData.disabled"
+        :disabled="disabled"
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -136,7 +136,7 @@
         max_iter:      10,
         batch_size:    320,
         learning_rate: 0.1,
-        decay:         1,
+        decay:         0.1,
         optimizer:     'Adam',
         loss:          'binary_crossentropy',
         nn_define:     {
@@ -152,8 +152,8 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        'units':      10,
-                        'activation': 'relu',
+                        'units':      1,
+                        'activation': 'sigmoid',
                     },
                 },
             ],
@@ -246,8 +246,8 @@
                     vData.form.nn_define.layers.push({
                         class_name: 'Dense',
                         config:     {
-                            'units':      10,
-                            'activation': 'relu',
+                            'units':      1,
+                            'activation': 'sigmoid',
                         },
                     });
                 },

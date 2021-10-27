@@ -8,14 +8,14 @@
             inline
         >
             <el-form-item
-                label="数据集ID:"
+                label="过滤器ID:"
                 label-width="80px"
             >
                 <el-input v-model="search.id" />
             </el-form-item>
 
             <el-form-item
-                label="数据集:"
+                label="过滤器:"
                 label-width="100px"
             >
                 <el-input v-model="search.name" />
@@ -49,15 +49,15 @@
                 width="45px"
             />
             <el-table-column
-                label="数据集"
+                label="过滤器名称/ID"
                 min-width="154px"
             >
                 <template slot-scope="scope">
-                    <router-link :to="{name: 'filter-data-detail', query: {id: scope.row.id, name: scope.row.name }}">
-                        {{ scope.row.id }}
-                    </router-link>
+                    {{ scope.row.id }}
                     <br>
-                    {{ scope.row.name }}
+                    <router-link :to="{name: 'filter-data-detail', query: {id: scope.row.id, name: scope.row.name }}">
+                        {{ scope.row.name }}
+                    </router-link>
                 </template>
             </el-table-column>
 
