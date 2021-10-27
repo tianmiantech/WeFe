@@ -16,10 +16,7 @@ package com.welab.wefe.manager.service.config;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.manager.service.contract.DataSetContract;
-import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
-import com.welab.wefe.manager.service.contract.DataSetMemberPermissionContract;
-import com.welab.wefe.manager.service.contract.MemberContract;
+import com.welab.wefe.manager.service.contract.*;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -66,6 +63,8 @@ public class BlockChainConfig {
     private String dataSetContractName;
     private String dataSetMemberPermissionContractName;
     private String dataSetDefaultTagContractName;
+    private String memberAuthTypeContractName;
+    private String unionNodeContractName;
 
 
     // add channel disconnect
@@ -204,6 +203,25 @@ public class BlockChainConfig {
 
 
     /**
+     * MemberAuthTypeContract（成员实名认证类型）合约
+     */
+    @Bean
+    public MemberAuthTypeContract getLatestVersionMemberAuthTypeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, memberAuthTypeContractName);
+        return MemberAuthTypeContract.load(address, client, cryptoKeyPair);
+    }
+
+    /**
+     * UnionNodeContract（union节点信息）合约
+     */
+    @Bean
+    public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
+        return UnionNodeContract.load(address, client, cryptoKeyPair);
+    }
+
+
+    /**
      * 根据名称获取最新版的union业务的合约地址
      *
      * @param cnsService   合约的CNS服务接口
@@ -321,5 +339,22 @@ public class BlockChainConfig {
 
     public void setDataSetDefaultTagContractName(String dataSetDefaultTagContractName) {
         this.dataSetDefaultTagContractName = dataSetDefaultTagContractName;
+    }
+
+
+    public String getMemberAuthTypeContractName() {
+        return memberAuthTypeContractName;
+    }
+
+    public void setMemberAuthTypeContractName(String memberAuthTypeContractName) {
+        this.memberAuthTypeContractName = memberAuthTypeContractName;
+    }
+
+    public String getUnionNodeContractName() {
+        return unionNodeContractName;
+    }
+
+    public void setUnionNodeContractName(String unionNodeContractName) {
+        this.unionNodeContractName = unionNodeContractName;
     }
 }

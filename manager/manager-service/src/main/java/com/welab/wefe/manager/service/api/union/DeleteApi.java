@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.api.default_tag;
+package com.welab.wefe.manager.service.api.union;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/delete", name = "default_tag_delete", login = false)
+@Api(path = "union/node/delete", name = "union_node_delete", login = false)
 public class DeleteApi extends AbstractApi<DatSetDefaultTagDeleteInput, MemberOutput> {
 
     @Autowired

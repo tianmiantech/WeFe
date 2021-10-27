@@ -19,22 +19,22 @@ package com.welab.wefe.manager.service.api.dataset;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.dataset.DataSetExtJsonUpdateInput;
-import com.welab.wefe.manager.service.dto.dataset.DataSetExtJsonUpdateOutput;
+import com.welab.wefe.manager.service.dto.dataset.DataSetUpdateExtJsonInput;
 import com.welab.wefe.manager.service.service.DataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/update_ext_json", name = "update_ext_json",login = false)
-public class UpdateExtJsonApi extends AbstractApi<DataSetExtJsonUpdateInput, DataSetExtJsonUpdateOutput> {
+@Api(path = "data_set/update_ext_json", name = "update_ext_json", login = false)
+public class UpdateExtJsonApi extends AbstractApi<DataSetUpdateExtJsonInput, AbstractApiOutput> {
     @Autowired
     protected DataSetContractService mDataSetContractService;
 
     @Override
-    protected ApiResult<DataSetExtJsonUpdateOutput> handle(DataSetExtJsonUpdateInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(DataSetUpdateExtJsonInput input) throws StatusCodeWithException {
         mDataSetContractService.updateExtJson(input);
         return success();
     }

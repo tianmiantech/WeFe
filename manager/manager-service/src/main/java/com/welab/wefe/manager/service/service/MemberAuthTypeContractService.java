@@ -1,12 +1,15 @@
 package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
+import com.welab.wefe.manager.service.contract.MemberAuthTypeContract;
+import com.welab.wefe.manager.service.dto.member.MemberAuthTypeAddInput;
+import com.welab.wefe.manager.service.dto.member.MemberAuthTypeUpdateInput;
 import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -25,80 +28,79 @@ import java.util.List;
  * @author yuxin.zhang
  **/
 @Service
-public class DatSetDefaultTagContractService extends AbstractContractService {
-    private static final Logger LOG = LoggerFactory.getLogger(DatSetDefaultTagContractService.class);
+public class MemberAuthTypeContractService extends AbstractContractService {
+    private static final Logger LOG = LoggerFactory.getLogger(MemberAuthTypeContractService.class);
 
     @Autowired
-    private DataSetDefaultTagContract dataSetDefaultTagContract;
+    private MemberAuthTypeContract memberAuthTypeContract;
     @Autowired
     private CryptoSuite cryptoSuite;
 
     /**
-     * add dataSetDefaultTag
+     * add member auth type
      */
-    public void add(DataSetDefaultTag dataSetDefaultTag) throws StatusCodeWithException {
+    public void add(MemberAuthType memberAuthType) throws StatusCodeWithException {
         try {
             // send transaction
-            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.insert(
-                    generateParams(dataSetDefaultTag),
-                    JObject.toJSONString(dataSetDefaultTag.getExtJson())
+            TransactionReceipt transactionReceipt = memberAuthTypeContract.insert(
+                    generateParams(memberAuthType),
+                    JObject.toJSONString(memberAuthType.getExtJson())
             );
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_INSERT, transactionReceipt);
+                    .decodeReceiptWithValues(MemberAuthTypeContract.ABI, MemberAuthTypeContract.FUNC_INSERT, transactionReceipt);
 
 
-            LOG.info("DatSetDefaultTag contract insert transaction, tagId id: {},  receipt response: {}", dataSetDefaultTag.getTagId(), JObject.toJSON(transactionResponse).toString());
+            LOG.info("MemberAuthType contract insert transaction, type id: {},  receipt response: {}", memberAuthType.getTypeId(), JObject.toJSON(transactionResponse).toString());
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
                 throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
             }
             if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("DatSetDefaultTag already exists", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException("MemberAuthType already exists", StatusCode.SYSTEM_BUSY);
             }
             if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("DatSetDefaultTag information failed", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException("MemberAuthType information failed", StatusCode.SYSTEM_BUSY);
             }
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOG.error("add dataSetDefaultTag error: ", e);
-            throw new StatusCodeWithException("add dataSetDefaultTag error: ", StatusCode.SYSTEM_ERROR);
+            LOG.error("add MemberAuthType error: ", e);
+            throw new StatusCodeWithException("add MemberAuthType error: ", StatusCode.SYSTEM_ERROR);
         }
     }
 
 
-    public void updateByTagId(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+    public void updateByTypeId(MemberAuthTypeUpdateInput input) throws StatusCodeWithException {
         try {
-            dataSetDefaultTagContract.update(
-                    input.getTagId(),
-                    input.getTagName(),
-                    JObject.toJSONString(input.getExtJson()),
+            memberAuthTypeContract.update(
+                    input.getTypeId(),
+                    input.getTypeName(),
                     StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis()))
             );
         } catch (Exception e) {
-            throw new StatusCodeWithException("updateByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("updateByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
 
-    public void deleteByTagId(String tagId) throws StatusCodeWithException {
+    public void deleteByTypeId(String typeId) throws StatusCodeWithException {
         try {
-            dataSetDefaultTagContract.deleteByTagId(tagId);
+            memberAuthTypeContract.deleteByTypeId(typeId);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("deleteByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
 
-    private List<String> generateParams(DataSetDefaultTag dataSetDefaultTag) {
+    private List<String> generateParams(MemberAuthType memberAuthType) {
         List<String> list = new ArrayList<>();
-        list.add(dataSetDefaultTag.getTagId());
-        list.add(dataSetDefaultTag.getTagName());
+        list.add(memberAuthType.getTypeId());
+        list.add(memberAuthType.getTypeName());
 
         list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
         list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));

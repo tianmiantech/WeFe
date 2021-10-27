@@ -19,6 +19,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
@@ -26,36 +27,34 @@ import java.util.UUID;
 /**
  * @author yuxin.zhang
  **/
-@Document(collection = MongodbTable.Union.DATA_SET_DEFAULT_TAG)
-public class DataSetDefaultTag extends AbstractBlockChainBusinessModel {
-    private String tagId = UUID.randomUUID().toString().replaceAll("-", "");
-    private String tagName;
-    private DataSetDefaultTagExtJSON extJson;
+@Document(collection = MongodbTable.Union.MEMBER_AUTH_TYPE)
+public class MemberAuthType extends AbstractBlockChainBusinessModel {
+    private String typeId = UUID.randomUUID().toString().replaceAll("-", "");
+    private String typeName;
+    private MemberAuthTypeExtJSON extJson;
 
 
-    public String getTagName() {
-        return tagName;
+    public String getTypeId() {
+        return typeId;
     }
 
-    public void setTagName(String tagName) {
-        this.tagName = tagName;
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
     }
 
-    public String getTagId() {
-        return tagId;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
-
-    public DataSetDefaultTagExtJSON getExtJson() {
+    public MemberAuthTypeExtJSON getExtJson() {
         return extJson;
     }
 
-    public void setExtJson(DataSetDefaultTagExtJSON extJson) {
+    public void setExtJson(MemberAuthTypeExtJSON extJson) {
         this.extJson = extJson;
     }
-
 }

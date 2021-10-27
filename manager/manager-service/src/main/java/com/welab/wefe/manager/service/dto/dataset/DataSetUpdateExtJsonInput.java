@@ -9,7 +9,7 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class DataSetExtJsonUpdateInput extends BaseInput {
+public class DataSetUpdateExtJsonInput extends BaseInput {
     @Check(require = true)
     private String id;
     private DataSetExtJSON extJson;

@@ -1,11 +1,13 @@
-package com.welab.wefe.manager.service.api.default_tag;
+package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.manager.service.dto.base.AddOuput;
 import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagAddInput;
 import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
@@ -16,13 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2020-05-22
  **/
 @Api(path = "default_tag/add", name = "default_tag_add",login = false)
-public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, MemberOutput> {
+public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOutput> {
 
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
 
     @Override
-    protected ApiResult<MemberOutput> handle(DatSetDefaultTagAddInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(DatSetDefaultTagAddInput input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
         try {
             DataSetDefaultTag dataSetDefaultTag = new DataSetDefaultTag();

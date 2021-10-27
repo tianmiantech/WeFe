@@ -26,6 +26,7 @@ public class MongodbTable {
         public static final String DATASET_MEMBER_PERMISSION = "DataSetMemberPermission";
         public static final String MEMBER = "Member";
         public static final String DATA_SET_DEFAULT_TAG = "DataSetDefaultTag";
+        public static final String MEMBER_AUTH_TYPE = "MemberAuthType";
         public static final String BLOCK_SYNC_HEIGHT = "BlockSyncHeight";
         public static final String BLOCK_SYNC_DETAIL_INFO = "BlockSyncDetailInfo";
         public static final String BLOCK_SYNC_CONTRACT_HEIGHT = "BlockSyncContractHeight";

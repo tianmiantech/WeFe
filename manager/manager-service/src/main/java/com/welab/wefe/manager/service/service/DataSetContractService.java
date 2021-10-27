@@ -21,7 +21,7 @@ import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.manager.service.contract.DataSetContract;
-import com.welab.wefe.manager.service.dto.dataset.DataSetExtJsonUpdateInput;
+import com.welab.wefe.manager.service.dto.dataset.DataSetUpdateExtJsonInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -46,7 +46,7 @@ public class DataSetContractService extends AbstractContractService {
     @Autowired
     private CryptoSuite cryptoSuite;
 
-    public void updateExtJson(DataSetExtJsonUpdateInput input) throws StatusCodeWithException {
+    public void updateExtJson(DataSetUpdateExtJsonInput input) throws StatusCodeWithException {
         try {
             JObject extJson = JObject.create(dataSetMongoReop.findDataSetId(input.getId()).getExtJson());
             Field[] fields = input.getExtJson().getClass().getDeclaredFields();

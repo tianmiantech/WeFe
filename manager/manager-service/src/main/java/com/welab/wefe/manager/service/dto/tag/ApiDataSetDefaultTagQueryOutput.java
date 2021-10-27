@@ -7,9 +7,10 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJ
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class ApiDataSetDefaultTagOutput {
+public class ApiDataSetDefaultTagQueryOutput {
     private String id;
     private String tagName;
+    private int status;
     private DataSetDefaultTagExtJSON extJson;
 
 
@@ -36,5 +37,13 @@ public class ApiDataSetDefaultTagOutput {
 
     public void setExtJson(DataSetDefaultTagExtJSON extJson) {
         this.extJson = extJson;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
