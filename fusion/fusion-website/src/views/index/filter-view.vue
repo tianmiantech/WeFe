@@ -80,9 +80,9 @@
                                         <el-option
                                             v-for="(data, index) in data_source_list"
                                             :key="index"
-                                            :label="data.database_name"
+                                            :label="data.name"
                                             :value="data.id"
-                                            @click.native="previewDataSource(data.id)"
+                                            @click.native="getDataSourceId(data.id)"
                                         />
                                     </el-select>
 
@@ -91,6 +91,17 @@
                                             新增数据源
                                         </el-button>
                                     </router-link>
+
+                                    <el-form-item label="查询语句">
+                                        <el-input
+                                            type="textarea"
+                                            v-model="form.sql"
+                                            placeholder="select * from table where hello = 'world'"
+                                        />
+                                        <el-button class="mt10" @click="previewDataSet">
+                                            查询测试
+                                        </el-button>
+                                    </el-form-item>
                                 </el-form-item>
                             </div>
                         </el-form-item>
@@ -153,6 +164,7 @@
 
 
             <el-row
+                v-if="form.dataResourceSource === 'UploadFile'"
                 :gutter="120"
                 class="m20"
             >
@@ -381,8 +393,20 @@ export default {
             },
         };
     },
+    watch: {
+        'form.dataResourceSource': {
+            handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    this.metadata_pagination.list = [];
+                    this.file_upload_options.files = [];
+                    this.fieldInfoList = [];
+                    this.keyRes = '';
+                }
+            },
+            deep: true,
+        },
+    },
     async created() {
-
         this.getUploaders();
     },
 
@@ -405,6 +429,11 @@ export default {
         },
         dataCommentChange(row) {
             this.metadata_list[row.$index].comment = row.comment;
+        },
+
+        getDataSourceId(id){
+            this.form.data_source_id = id;
+            this.data_source_id = id;
         },
 
         async previewDataSource(id) {
@@ -461,6 +490,8 @@ export default {
                 params: {
                     filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
+                    sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 

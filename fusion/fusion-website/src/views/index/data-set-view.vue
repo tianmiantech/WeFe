@@ -81,9 +81,9 @@
                                         <el-option
                                             v-for="(data, index) in data_source_list"
                                             :key="index"
-                                            :label="data.database_name"
+                                            :label="data.name"
                                             :value="data.id"
-                                            @click.native="previewDataSource(data.id)"
+                                            @click.native="getDataSourceId(data.id)"
                                         />
                                     </el-select>
 
@@ -92,6 +92,17 @@
                                             新增数据源
                                         </el-button>
                                     </router-link>
+
+                                    <el-form-item label="查询语句">
+                                        <el-input
+                                            type="textarea"
+                                            v-model="form.sql"
+                                            placeholder="select * from table where hello = 'world'"
+                                        />
+                                        <el-button class="mt10" @click="previewDataSet">
+                                            查询测试
+                                        </el-button>
+                                    </el-form-item>
                                 </el-form-item>
                             </div>
                         </el-form-item>
@@ -264,6 +275,8 @@ export default {
                 metadata_list:      [],
                 deduplication:      false,
                 row_list:           [],
+                data_source_id:     '',
+                sql:                '',
             },
             metadata_pagination: {
                 list:       [],
@@ -292,6 +305,20 @@ export default {
                 text: '正在存储数据集...',
             },
         };
+    },
+    watch: {
+        'form.dataResourceSource': {
+            handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    this.metadata_pagination.list = [];
+                    this.form.metadata_list = [];
+                    this.metadata_list = [];
+                    this.row_list = [];
+                    this.file_upload_options.files = [];
+                }
+            },
+            deep: true,
+        },
     },
     async created() {
 
@@ -326,6 +353,11 @@ export default {
         },
         dataCommentChange(row) {
             this.metadata_list[row.$index].comment = row.comment;
+        },
+
+        getDataSourceId(id){
+            this.form.data_source_id = id;
+            this.data_source_id = id;
         },
 
         async previewDataSource(id) {
@@ -382,6 +414,8 @@ export default {
                 params: {
                     filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
+                    sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 
@@ -478,9 +512,9 @@ export default {
             } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
                 this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
-            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
-                this.$message.error('请选择字段信息！');
-                return;
+            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) { 
+                this.$message.error('请选择字段信息！'); 
+                return; 
             }
 
             const ids = [];

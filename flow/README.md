@@ -10,6 +10,17 @@ flow 的任务消费依赖于 board 写入任务，共用业务数据库。
 
 参考 board-service 模块修改数据库配置。
 
+**服务相关环境变量声明**
+
+```env
+# 非容器环境启动需要手动在机器运行环境中声明以下变量
+FLOW_PORT=
+NGINX_PORT=
+GATEWAY_PORT=
+
+INTRANET_IP=
+```
+
 **交互启动**
 
 ```

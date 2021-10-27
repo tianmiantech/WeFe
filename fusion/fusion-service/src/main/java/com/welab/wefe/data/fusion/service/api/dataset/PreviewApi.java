@@ -83,9 +83,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
             if (isStoraged) {
                 String tbName = "data_fusion_" + dataSetMySqlModel.getId();
-                String sql = "Select * from " + tbName;
+//                String sql = "Select * from " + tbName;
                 try {
-                    output = readFromDB(sql);
+                    output = readFromDB(input.sql);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -101,10 +101,10 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             }
         } else if (dataResourceSource.equals(DataResourceSource.Sql)) {
 
-            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
-            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
+//            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
+//            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
             // Test whether SQL can be queried normally
-            output = readFromSoruceDB(input.id, sql);
+            output = readFromSoruceDB(input.id, input.sql);
         }
 
         return success(output);
@@ -332,6 +332,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private DataResourceSource dataResourceSource;
 
+        private String sql;
+
         public String getId() {
             return id;
         }
@@ -354,6 +356,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setDataResourceSource(DataResourceSource dataResourceSource) {
             this.dataResourceSource = dataResourceSource;
+        }
+
+        public String getSql() {
+            return sql;
+        }
+
+        public void setSql(String sql) {
+            this.sql = sql;
         }
     }
 

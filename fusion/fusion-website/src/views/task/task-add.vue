@@ -53,7 +53,9 @@
                                         @change="task.data_resource_id='',
                                                  task.data_resource_name='',
                                                  task.row_count='',
-                                                 fieldInfoList=[]"
+                                                 fieldInfoList=[],
+                                                 dataSetList=[],
+                                                 bloomFilterList=[]"
                                     >
                                         数据集
                                     </el-radio>
@@ -63,7 +65,9 @@
                                         @change="task.data_resource_id='',
                                                  task.data_resource_name='',
                                                  task.row_count='',
-                                                 fieldInfoList=[]"
+                                                 fieldInfoList=[],
+                                                 dataSetList=[],
+                                                 bloomFilterList=[]"
                                     >
                                         布隆过滤器
                                     </el-radio>
@@ -668,6 +672,9 @@
             },
 
             selectBloomFilter(item) {
+                this.dataSetList = [];
+                this.bloomFilterList=[item];
+
                 this.task.data_resource_id=item.id;
                 this.task.data_resource_type=item.type;
                 this.task.data_resource_name = item.name;
