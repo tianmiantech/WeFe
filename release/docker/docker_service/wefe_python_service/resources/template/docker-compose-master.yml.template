@@ -1,11 +1,15 @@
 version: "3"
 services:
   # python 服务
-  wefe_python_service_slave: # slave_name
+  wefe_python_service_master:
     image: wefe_python_service:v.2.1 # wefe_version
     tty: true
-    # ports:
-    #   - 8888:5000 # flow_port
+    hostname: master
+    ports:
+      - 8888:5000 # flow_port
+      - 4040-4049:4040-4049
+      - 7077:7077 # spark_submit_port
+      - 8080:8080 # spark_master_ui_port
     privileged: true
     networks:
       - network
@@ -19,8 +23,9 @@ services:
       - sh
       - -c
       - |
-            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-slave.sh spark://master:7077 # spark_master
-            sh /opt/welab/wefe/common/python/calculation/fc/function/wefe-fc/fc_deploy.sh &
+            cd /data/environment/spark-3.0.1-bin-hadoop2.7/conf && cp spark-defaults.conf.template spark-defaults.conf
+            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-master.sh
+            sh /opt/welab/wefe/flow/service.sh start
             tail -f /dev/null
 
     deploy:

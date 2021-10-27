@@ -15,10 +15,13 @@ spark_cluster_config(){
     echo "当前type:$identity_type"
     case $identity_type in
       master)
-        cp -f resources/conf/docker-compose-master.yml.template resources/docker-compose.yml
+        cp -f resources/template/docker-compose-master.yml.template resources/docker-compose.yml
         ;;
       slave)
-        cp -f resources/conf/docker-compose-slave.yml.template resources/docker-compose.yml
+        cp -f resources/template/docker-compose-slave.yml.template resources/docker-compose.yml
+        ;;
+      *)
+        echo '非集群模式'
         ;;
       esac
 }
@@ -33,7 +36,10 @@ sed -i "/flow_logs/s@-.*:@- $DATA_PATH/logs/flow:@g" ./resources/docker-compose.
 # 修改 flow 端口
 sed -i "/flow_port/s/-.*:/- $PYTHON_SERVICE_PORT:/g" ./resources/docker-compose.yml
 
-# TODO:修改 spark 相关配置
+# 修改 spark 相关配置-master
+sed -i "/spark_submit_port/s/7077:7077/$SPARK_SUBMIT_PORT:7077/g" ./resources/docker-compose.yml
+sed -i "/spark_master_ui_port/s/8080:8080/$SPARK_MASTER_UI_PORT:8080/g" ./resources/docker-compose.yml
+# 修改 spark 相关配置-slave
 sed -i "/spark_master/s/master:7077/$SPARK_MASTER:7077/g" ./resources/docker-compose.yml
 sed -i "/slave_name/s/wefe_python_service_slave/wefe_python_service_$identity_name/g" ./resources/docker-compose.yml
 
