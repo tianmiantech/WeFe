@@ -36,7 +36,8 @@ _stop_python_service(){
     to_path=$2
 
     echo "准备关闭远程容器$to_host, 目录:$to_path"
-    ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_stop.sh"
+    # ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_stop.sh"
+    ssh root@$to_host "docker stop $(docker ps -a | grep $WEFE_ENV | grep python | awk '{print $1}' | xargs)"
     sleep 1
 }
 
@@ -90,7 +91,7 @@ cp_python_service_all(){
 # ******************
 # 函数：启动集群python service
 # *****************
-start_python_service_all(){
+start_cluster_python_service_all(){
 
     # 拷贝镜像到集群机器
     cp_python_service_all
@@ -123,7 +124,7 @@ start_python_service_all(){
 # ******************
 # 函数：停止集群python service
 # *****************
-stop_python_service_all(){
+stop_cluster_python_service_all(){
 
     # master目录
     master_path=$SPARK_CLUSTER_DATA_PATH/master
@@ -149,15 +150,15 @@ stop_python_service_all(){
 }
 
 
-case $INPUT_ACTION in
-    start)
-        start_python_service_all
-        ;;
-    stop)
-        stop_python_service_all
-        ;;
-    *)
-        echo "Please Input a Legal Action"
-        echo "eg. {start | stop | restart | help}"
-        exit -1
-esac
+#case $INPUT_ACTION in
+#    start)
+#        start_python_service_all
+#        ;;
+#    stop)
+#        stop_python_service_all
+#        ;;
+#    *)
+#        echo "Please Input a Legal Action"
+#        echo "eg. {start | stop | restart | help}"
+#        exit -1
+#esac

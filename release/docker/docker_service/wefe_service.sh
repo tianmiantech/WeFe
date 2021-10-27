@@ -5,6 +5,7 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
+source ./spark_cluster.sh
 
 export PWD=$(pwd)
 
@@ -88,6 +89,24 @@ init(){
     send_wefe_config
 }
 
+_run_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]
+    then
+      # 集群方式启动
+      start_cluster_python_service_all
+    else
+      # 单机启动
+      cd $PWD/wefe_python_service
+      sh wefe_python_service_start.sh
+    fi
+}
+
+_stop_cluster_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]; then
+      stop_cluster_python_service_all
+    fi
+}
+
 start(){
     init
     case $INPUT_SERVICE in
@@ -102,8 +121,7 @@ start(){
             sh wefe_gateway_service_start.sh
             ;;
         python)
-            cd $PWD/wefe_python_service
-            sh wefe_python_service_start.sh
+            _run_python_service
             ;;
         middleware)
             cd $PWD/wefe_middleware_service
@@ -129,10 +147,14 @@ stop(){
         board | gateway | python | middleware)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker stop $CONTAINER
+            if [ $INPUT_SERVICE = "python" ]; then
+              _stop_cluster_python_service
+            fi
             ;;
         '')
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep wefe | awk '{print $1}' | xargs)
             docker stop $CONTAINER
+            _stop_cluster_python_service
             ;;
         *)
             echo "Please Input a Legal Service"
