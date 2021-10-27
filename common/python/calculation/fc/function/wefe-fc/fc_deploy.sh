@@ -30,7 +30,7 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/python nas:///mnt/auto/python --debug
+      s nas upload -r -n /data/environment/.s/python nas:///mnt/auto/python --debug
     fi
 
   fi
@@ -129,7 +129,8 @@ if_fc(){
   backend=$(grep -v "^#" ../../../../../../config.properties | grep "wefe.job.backend=*")
   backend=${backend##*=}
 
-  if [ "$backend" == "FC" ]; then
+  if [ "$backend" == "FC" -o "$backend" == "fc" ]; then
+    echo "use Function Computing, now deploy Functions ... "
     fc_deploy
   fi
 }
