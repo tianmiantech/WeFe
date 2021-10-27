@@ -27,8 +27,11 @@ stat_logger = log_utils.get_logger("wefe_flow_stat")
 detect_logger = log_utils.get_logger("wefe_flow_detect")
 access_logger = log_utils.get_logger("wefe_flow_access")
 
-MEMBER_ID = GlobalSetting.get_member_id()
-MEMBER_NAME = GlobalSetting.get_member_name()
+
+class MemberInfo:
+    MEMBER_ID = GlobalSetting.get_member_id()
+    MEMBER_NAME = GlobalSetting.get_member_name()
+
 
 gateway_intranet = GlobalConfigDao.getGatewayConfig().intranet_base_uri.split(":")
 GATEWAY_INTRANET_HOST = gateway_intranet[0]

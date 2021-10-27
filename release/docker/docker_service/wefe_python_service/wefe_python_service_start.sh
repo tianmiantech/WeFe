@@ -4,6 +4,12 @@
 # 导入配置
 source ../wefe.cfg
 
+# 填充环境变量
+sed -i "/FLOW_PORT/s/=.*/=$PYTHON_SERVICE_PORT/g" ./resources/variables.env
+sed -i "/NGINX_PORT/s/=.*/=$NGINX_PORT/g" ./resources/variables.env
+sed -i "/GATEWAY_PORT/s/=.*/=$GATEWAY_SERVICE_PORT/g" ./resources/variables.env
+sed -i "/INTRANET_IP/s/=.*/=$INTRANET_IP/g" ./resources/variables.env
+
 # 修改服务启动配置
 sed -i "/wefe_version/s/python_service:.*#/python_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
 sed -i "/flow_logs/s@-.*:@- $DATA_PATH/logs/flow:@g" ./resources/docker-compose.yml

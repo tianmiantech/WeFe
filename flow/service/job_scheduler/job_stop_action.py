@@ -27,7 +27,7 @@ from common.python.utils.log_utils import schedule_logger
 from flow.alert_service.job_error_mail_warn_scheduler import JobErrorMailWarnScheduler
 from flow.service.board.board_service import BoardService
 from flow.service.job_scheduler.job_service import JobService
-from flow.settings import MEMBER_ID
+from flow.settings import MemberInfo
 
 
 class JobStopAction:
@@ -134,7 +134,7 @@ class JobStopAction:
     def log_job_info(self, message, exception=None):
         running_job = self.job.job_id + '_' + self.job.my_role
         logger = schedule_logger(running_job)
-        message = '{} {} on kill job {} |{}'.format(self.job.my_role, MEMBER_ID, self.job.job_id, message)
+        message = '{} {} on kill job {} |{}'.format(self.job.my_role, MemberInfo.MEMBER_ID, self.job.job_id, message)
         if exception:
             logger.exception(message, exception)
         else:

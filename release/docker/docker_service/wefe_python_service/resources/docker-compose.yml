@@ -4,6 +4,8 @@ services:
   wefe_python_service:
     image: wefe_python_service:v.2.1 # wefe_version
     tty: true
+    env_file:
+      - variables.env
     ports:
       - 8888:5000 # flow_port
     privileged: true
