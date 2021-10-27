@@ -518,7 +518,7 @@
                             return $message.error('请先等待他人同意授权加入合作!');
                         }
                     }
-                    const result = flag ? $prompt('确定同意协作方使用数据集进行流程训练吗', '提示', {
+                    const result = flag ? $confirm('确定同意协作方使用数据集进行流程训练吗', '提示', {
                         type:        'warning',
                         customClass: 'audit_dialog',
                     }) : $prompt('拒绝协作方在此项目中使用此数据集:\n 原因:', '提示', {
@@ -530,7 +530,7 @@
                     });
 
                     result.then(async ({ action, value }) => {
-                        if(action === 'confirm') {
+                        if(flag || action === 'confirm') {
                             const { code } = await $http.post({
                                 url:  '/project/data_set/audit',
                                 data: {

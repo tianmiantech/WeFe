@@ -78,6 +78,7 @@ export default (function () {
 
                         this[key] = val;
                     }
+                    this.getListApi = this.vData.getListApi;
                 }
                 if (!this.getListApi) return;
 
