@@ -16,13 +16,17 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
+import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author aaron.li
  **/
 @Repository
 public class AuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
-
-
+    public List<AuthAgreementTemplate> findAll() {
+        return mongoTemplate.findAll(AuthAgreementTemplate.class);
+    }
 }
