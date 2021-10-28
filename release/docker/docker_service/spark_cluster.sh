@@ -77,7 +77,7 @@ cp_python_service_all(){
        slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
 
        # 远程创建slave目录
-       ssh root@$SPARK_MASTER "mkdir -p $slave_path"
+       ssh root@$slave_ip "mkdir -p $slave_path"
        echo $slave_path
 
        # 远程拷贝
