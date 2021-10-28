@@ -12,7 +12,6 @@ import java.util.UUID;
  * @date: 2021/10/19
  */
 public class UnionNodeAddInput extends BaseInput {
-    private String sign;
     @Check(require = true)
     private String unionBaseUrl;
     @Check(require = true)
@@ -22,13 +21,6 @@ public class UnionNodeAddInput extends BaseInput {
 
 
 
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
-    }
 
     public String getUnionBaseUrl() {
         return unionBaseUrl;
@@ -61,4 +53,7 @@ public class UnionNodeAddInput extends BaseInput {
     public void setExtJson(UnionNodeExtJSON extJson) {
         this.extJson = extJson;
     }
+
+
+
 }

@@ -1,6 +1,5 @@
 package com.welab.wefe.manager.service.dto.union;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
 
@@ -15,7 +14,6 @@ public class UnionNodeUpdateInput extends BaseInput {
     @Check(require = true)
     private String unionBaseUrl;
     private String organizationName;
-    private DataSetDefaultTagExtJSON extJson;
 
     public String getUnionNodeId() {
         return unionNodeId;
@@ -41,11 +39,4 @@ public class UnionNodeUpdateInput extends BaseInput {
         this.organizationName = organizationName;
     }
 
-    public DataSetDefaultTagExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(DataSetDefaultTagExtJSON extJson) {
-        this.extJson = extJson;
-    }
 }

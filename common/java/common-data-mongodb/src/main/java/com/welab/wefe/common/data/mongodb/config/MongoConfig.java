@@ -18,6 +18,9 @@ package com.welab.wefe.common.data.mongodb.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +64,13 @@ public class MongoConfig {
     @Bean
     public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory) {
         return new MongoTemplate(mongoDbFactory, getConverter(mongoDbFactory));
+    }
+
+    @Bean
+    public GridFSBucket getGridFSBucket(MongoClient mongoClient){
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+        GridFSBucket bucket = GridFSBuckets.create(database);
+        return bucket;
     }
 
     private MappingMongoConverter getConverter(MongoDbFactory mongoDbFactory) {

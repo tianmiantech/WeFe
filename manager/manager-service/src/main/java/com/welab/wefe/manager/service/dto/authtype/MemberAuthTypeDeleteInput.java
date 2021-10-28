@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.dto.member;
+package com.welab.wefe.manager.service.dto.authtype;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.manager.service.dto.base.BaseInput;

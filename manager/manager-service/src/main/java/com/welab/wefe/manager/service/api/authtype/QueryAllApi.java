@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.member.authtype;
+package com.welab.wefe.manager.service.api.authtype;
 
-import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.data.mongodb.repo.MemberAuthTypeMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
-import com.welab.wefe.manager.service.dto.member.MemberAuthQueryOutput;
-import com.welab.wefe.manager.service.dto.tag.ApiDataSetDefaultTagQueryOutput;
+import com.welab.wefe.manager.service.dto.authtype.MemberAuthQueryOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

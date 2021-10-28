@@ -13,8 +13,8 @@ contract UnionNodeContract{
 
 
     event insertEvent(int256 ret_code,string[] params,string ext_json);
-    event updateEvent(int256 ret_code,string union_node_id,string[] update_params);
-    event updateEnableEvent(int256 ret_code,string union_node_id,string enable,string update_params);
+    event updateEvent(int256 ret_code,string union_node_id,string[] params);
+    event updateEnableEvent(int256 ret_code,string union_node_id,string enable,string updated_time);
     event deleteByUnionNodeIdEvent(int256 ret_code,string union_node_id);
     event updateExtJsonEvent(int256 ret_code,string union_node_id, string ext_json);
 
@@ -106,10 +106,10 @@ contract UnionNodeContract{
         condition.EQ("union_node_id", union_node_id);
 
         Entry entry = table.newEntry();
-        entry.set("sign", update_params[0]);
-        entry.set("union_base_url", update_params[1]);
-        entry.set("organization_name", update_params[2]);
-        entry.set("updated_time", update_params[3]);
+        entry.set("sign", params[0]);
+        entry.set("union_base_url", params[1]);
+        entry.set("organization_name", params[2]);
+        entry.set("updated_time", params[3]);
 
 
         int count = table.update(FIX_ID, entry, condition);

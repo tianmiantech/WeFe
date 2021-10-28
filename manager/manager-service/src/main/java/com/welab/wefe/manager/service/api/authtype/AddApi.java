@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.api.member.authtype;
+package com.welab.wefe.manager.service.api.authtype;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
@@ -7,7 +7,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberAuthTypeAddInput;
+import com.welab.wefe.manager.service.dto.authtype.MemberAuthTypeAddInput;
 import com.welab.wefe.manager.service.service.MemberAuthTypeContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
