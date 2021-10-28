@@ -199,7 +199,24 @@ public class JobService extends AbstractService {
                 .stream()
                 .filter(x -> x.getParamsVersion() >= lastJobCreateTime)
                 .forEach(x -> x.setHasCacheResult(false));
-
+        
+        List<FlowGraphNode> nodes = graph.getAllJobSteps();
+        Collections.sort(nodes, new Comparator<FlowGraphNode>() {
+            @Override
+            public int compare(FlowGraphNode o1, FlowGraphNode o2) {
+                return o1.getDeep() - o2.getDeep();
+            }
+        });
+        boolean clearCacheResultAfter = false;
+        for (FlowGraphNode node : nodes) {
+            if (node.getParamsVersion() >= lastJobCreateTime) {
+                node.setHasCacheResult(false);
+                clearCacheResultAfter = true;
+            }
+            if (clearCacheResultAfter) {
+                node.setHasCacheResult(false);
+            }
+        }
 
         // Check whether the cache of the task corresponding to the node is available.
         // If the task status is incorrect, the cache is not available.
