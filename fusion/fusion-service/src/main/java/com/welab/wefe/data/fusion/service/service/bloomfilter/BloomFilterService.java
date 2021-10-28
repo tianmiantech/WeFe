@@ -20,7 +20,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.DeleteApi;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import org.springframework.beans.factory.annotation.Autowired;

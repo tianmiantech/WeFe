@@ -26,7 +26,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
