@@ -5,6 +5,7 @@
     >
         <div
             v-for="(member, index) in vData.member_list"
+            v-show="disabled ? member.$data_set_list.length : true"
             :key="member.id"
             class="li"
         >
@@ -49,7 +50,7 @@
                 <el-form
                     v-for="row in member.$data_set_list"
                     :key="row.id"
-                    label-width="100px"
+                    label-width="110px"
                 >
                     <el-form-item label="数据集名称：">
                         {{ row.name }}
