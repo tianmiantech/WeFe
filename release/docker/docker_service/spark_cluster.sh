@@ -37,7 +37,8 @@ _stop_python_service(){
 
     echo "准备关闭远程容器$to_host, 目录:$to_path"
     # ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_stop.sh"
-    ssh root@$to_host "docker stop $(docker ps -a | grep $WEFE_ENV | grep python | awk '{print $1}' | xargs)"
+    to_stop=$(ssh root@$to_host "docker ps -a | grep $WEFE_ENV | grep python " | awk '{print $1}' | xargs)
+    ssh root@$to_host "docker stop $to_stop"
     sleep 1
 }
 
