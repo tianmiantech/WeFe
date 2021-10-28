@@ -356,7 +356,8 @@ public class JdbcManager {
         long totalCount = 0;
 
         try {
-            ps = conn.prepareStatement("select count(*) from (" + sql + ") t");
+            String s = sql.replace("*", "count(*)");
+            ps = conn.prepareStatement(s);
             rs = ps.executeQuery();
             while (rs.next()) {
                 totalCount = rs.getLong(1);
@@ -432,7 +433,7 @@ public class JdbcManager {
                 log.error(e);
             }
         }
-        if (ps != null){
+        if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {

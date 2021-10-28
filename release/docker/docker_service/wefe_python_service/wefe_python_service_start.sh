@@ -11,7 +11,6 @@ identity_name=$2
 # 定义函数：docker-compose配置初始化
 # *****************
 spark_cluster_config(){
-    # $1：identity_type
     echo "当前type:$identity_type"
     case $identity_type in
       master)
@@ -26,8 +25,14 @@ spark_cluster_config(){
       esac
 }
 
+# 集群环境的docker-compose配置
 spark_cluster_config $identity_type
-echo "identity_name:"$identity_name
+
+# 填充环境变量
+sed -i "/FLOW_PORT/s/=.*/=$PYTHON_SERVICE_PORT/g" ./resources/variables.env
+sed -i "/NGINX_PORT/s/=.*/=$NGINX_PORT/g" ./resources/variables.env
+sed -i "/GATEWAY_PORT/s/=.*/=$GATEWAY_SERVICE_PORT/g" ./resources/variables.env
+sed -i "/INTRANET_IP/s/=.*/=$INTRANET_IP/g" ./resources/variables.env
 
 # 修改服务启动配置
 sed -i "/wefe_version/s/python_service:.*#/python_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml

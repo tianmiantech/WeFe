@@ -4,6 +4,8 @@ services:
   wefe_python_service_master:
     image: wefe_python_service:v.2.1 # wefe_version
     tty: true
+    env_file:
+      - variables.env
     hostname: master
     ports:
       - 8888:5000 # flow_port

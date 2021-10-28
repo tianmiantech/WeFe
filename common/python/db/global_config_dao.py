@@ -166,3 +166,20 @@ class GlobalConfigDao:
                 result[item.name] = item.value
 
             return result
+
+    @staticmethod
+    def fill_intranet_base_uri(config_dict):
+        """
+        :param config_dict: {service.group : intranet_base_uri}
+        :return:
+        """
+        with DB.connection_context():
+            items = GlobalConfigModel.select().where(
+                GlobalConfigModel.name == "intranet_base_uri"
+            )
+        for item in items:
+            if item.value is None or len(item.value) == 0:
+                if config_dict[item.group] is not None and \
+                        len(config_dict[item.group]) != 0:
+                    item.value = config_dict[item.group]
+                    item.save()

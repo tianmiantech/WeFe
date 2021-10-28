@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,8 @@ import java.util.Map;
 @Service
 public class DataStorageService extends AbstractService {
 
-    private final String DB_NAME = "wefe_data_fusion";
+    @Value("${db.mysql.database}")
+    private String DB_NAME;
 
 
     @Autowired

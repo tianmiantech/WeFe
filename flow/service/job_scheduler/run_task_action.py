@@ -28,9 +28,11 @@ from common.python.utils import conf_utils
 from common.python.utils.core_utils import current_datetime
 from common.python.utils.log_utils import LoggerFactory, schedule_logger
 from flow.service.job_scheduler.job_service import JobService
-from flow.settings import MEMBER_ID
+from flow.settings import MemberInfo
 from flow.utils import job_utils
 from kernel.task_executor import TaskExecutor
+
+MEMBER_ID = MemberInfo.MEMBER_ID
 
 
 class RunTaskAction:

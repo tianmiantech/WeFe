@@ -218,22 +218,6 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}notfound`,
-        name: 'notfound',
-        meta: {
-            requiresAuth: false,
-        },
-        component: () => import('@views/error/404.vue'),
-    },
-    {
-        path: `${prefixPath}forbidden`,
-        name: 'forbidden',
-        meta: {
-            requiresAuth: false,
-        },
-        component: () => import('@views/error/403.vue'),
-    },
-    {
         path:     '*',
         redirect: {
             path:  `${prefixPath}`,
