@@ -21,6 +21,7 @@ psutil==5.7.2
 tablestore==5.1.0
 aliyun-python-sdk-core
 aliyun-python-sdk-fnf
+aliyun-python-sdk-cms
 aliyun-fc2
 aliyun-python-sdk-sts==3.0.2
 flask~=1.1.2
