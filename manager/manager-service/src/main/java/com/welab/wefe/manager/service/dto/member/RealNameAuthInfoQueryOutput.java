@@ -11,20 +11,13 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class RealNameAuthInfoQueryOutput extends AbstractApiOutput {
-    private String memberId;
+
     private boolean realNameAuth;
     private String principalName;
     private String authType;
     private String description;
     private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
 
-    public String getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
-    }
 
     public boolean isRealNameAuth() {
         return realNameAuth;

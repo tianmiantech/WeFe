@@ -47,7 +47,6 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
                 throw new StatusCodeWithException("Invalid member_id: " + input.getId(), StatusCode.INVALID_MEMBER);
             }
             RealNameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealNameAuthInfoQueryOutput();
-            realNameAuthInfoQueryOutput.setMemberId(member.getMemberId());
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
