@@ -22,8 +22,8 @@ import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.member.MemberUpdateInput;
 import com.welab.wefe.manager.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "member/update", name = "member_update", login = false)
-public class UpdateApi extends AbstractApi<MemberUpdateInput, MemberOutput> {
+public class UpdateApi extends AbstractApi<MemberUpdateInput, AbstractApiOutput> {
 
 
     @Autowired
@@ -42,7 +42,7 @@ public class UpdateApi extends AbstractApi<MemberUpdateInput, MemberOutput> {
     private MemberMongoReop memberMongoReop;
 
     @Override
-    protected ApiResult<MemberOutput> handle(MemberUpdateInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(MemberUpdateInput input) throws StatusCodeWithException {
         try {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {

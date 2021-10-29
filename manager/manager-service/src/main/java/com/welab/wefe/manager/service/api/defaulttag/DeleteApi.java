@@ -4,8 +4,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagDeleteInput;
 import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  */
 @Api(path = "default_tag/delete", name = "default_tag_delete", login = false)
-public class DeleteApi extends AbstractApi<DatSetDefaultTagDeleteInput, MemberOutput> {
+public class DeleteApi extends AbstractApi<DatSetDefaultTagDeleteInput, AbstractApiOutput> {
 
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
 
     @Override
-    protected ApiResult<MemberOutput> handle(DatSetDefaultTagDeleteInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(DatSetDefaultTagDeleteInput input) throws StatusCodeWithException {
         LOG.info("DeleteApi handle..");
         try {
 

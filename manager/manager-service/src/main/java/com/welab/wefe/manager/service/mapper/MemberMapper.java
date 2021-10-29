@@ -40,4 +40,5 @@ public interface MemberMapper {
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
     MemberQueryOutput transfer(Member member);
+
 }

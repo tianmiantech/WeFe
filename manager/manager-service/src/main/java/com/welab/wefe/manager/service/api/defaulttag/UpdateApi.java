@@ -6,7 +6,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberOutput;
 import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
 import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
