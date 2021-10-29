@@ -18,11 +18,15 @@ package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.manager.service.contract.DataSetContract;
 import com.welab.wefe.manager.service.contract.MemberContract;
+import com.welab.wefe.manager.service.dto.dataset.DataSetUpdateExtJsonInput;
+import com.welab.wefe.manager.service.dto.member.MemberExtJsonInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -32,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +50,8 @@ public class MemberContractService extends AbstractContractService {
 
     @Autowired
     private MemberContract memberContract;
+    @Autowired
+    private MemberMongoReop memberMongoReop;
 
     @Autowired
     private CryptoSuite cryptoSuite;
@@ -80,6 +87,31 @@ public class MemberContractService extends AbstractContractService {
         } catch (Exception e) {
             LOG.error("upsert member failed：", e);
             throw new StatusCodeWithException("upsert member failed", StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+    public void updateExtJson(MemberExtJsonInput input) throws StatusCodeWithException {
+        try {
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.getId()).getExtJson());
+            Field[] fields = input.getExtJson().getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                if (null != fields[i].get(input.getExtJson())) {
+                    extJson.put(fields[i].getName(), fields[i].get(input.getExtJson()));
+                }
+            }
+            TransactionReceipt transactionReceipt = memberContract.updateExtJson(input.getId(),
+                    extJson.toString());
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataSetContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
         }
     }
 

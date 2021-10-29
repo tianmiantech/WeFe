@@ -2,15 +2,18 @@ package com.welab.wefe.manager.service.api.agreement;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.agreement.UploadAuthAgreementTemplateInput;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
@@ -32,13 +35,18 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<UploadAuthAgreem
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(UploadAuthAgreementTemplateInput input) throws StatusCodeWithException, IOException {
-        String fileId = gridFSBucket.uploadFromStream(input.getFilename(), input.getFirstFile().getInputStream()).toString();
+        GridFSUploadOptions options = new GridFSUploadOptions();
+        Document metadata = new Document();
+        metadata.append("fileType", input.getFileType());
+        metadata.append("sign", Md5.of(input.getFirstFile().getInputStream()));
+        options.metadata(metadata);
+
+        String fileId = gridFSBucket.uploadFromStream(input.getFilename(), input.getFirstFile().getInputStream(),options).toString();
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id",fileId).build());
         AuthAgreementTemplate authAgreementTemplate = new AuthAgreementTemplate();
         authAgreementTemplate.setAuthAgreementFileId(fileId);
-        authAgreementTemplate.setAuthAgreementFileMd5(gridFSFile.getMD5());
+        authAgreementTemplate.setAuthAgreementFileMd5(gridFSFile.getMetadata().getString("sign"));
         authAgreementTemplate.setFileName(input.getFilename());
-        authAgreementTemplate.setVersion(input.getVersion());
         authAgreementTemplateMongoRepo.save(authAgreementTemplate);
         return success();
     }

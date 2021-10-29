@@ -150,10 +150,9 @@ public class MemberMongoReop extends AbstractMongoRepo {
         if (StringUtils.isEmpty(memberId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("memberId", memberId).build();
+        Query query = new QueryBuilder().append("memberId", memberId).notRemoved().build();
         return mongoTemplate.findOne(query, Member.class);
     }
-
 
     public List<Member> find(String memberId) {
         List<Member> list = new ArrayList<>();
@@ -161,7 +160,7 @@ public class MemberMongoReop extends AbstractMongoRepo {
             Member member = findMemberId(memberId);
             list.add(member);
         } else {
-            list = mongoTemplate.findAll(Member.class);
+            list = mongoTemplate.find(new QueryBuilder().notRemoved().build(), Member.class);
         }
         return list;
     }
@@ -186,7 +185,7 @@ public class MemberMongoReop extends AbstractMongoRepo {
     }
 
     public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
-        return query(pageIndex, pageSize, memberId, name, hidden, freezed, lostContact, null);
+        return query(pageIndex, pageSize, memberId, name, hidden, freezed, lostContact, false);
     }
 
 

@@ -14,33 +14,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.agreement;
+package com.welab.wefe.manager.service.api.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
-import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
+import com.welab.wefe.manager.service.dto.member.MemberExtJsonInput;
+import com.welab.wefe.manager.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
 /**
- *
  * @author yuxin.zhang
  */
-@Api(path = "auth/agreement/template/query", name = "auth/agreement/template/query", login = false)
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
-
+@Api(path = "member/update_ext_json", name = "member_update_ext_json", login = false)
+public class UpdateExtJsonApi extends AbstractApi<MemberExtJsonInput, AbstractApiOutput> {
     @Autowired
-    private AuthAgreementTemplateMongoRepo authAgreementTemplateMongoRepo;
+    protected MemberContractService memberContractService;
 
     @Override
-    protected ApiResult<JObject> handle(BaseInput input) {
-        List<AuthAgreementTemplate> list = authAgreementTemplateMongoRepo.findAll();
-        return success(JObject.create("list", JObject.toJSON(list)));
+    protected ApiResult<AbstractApiOutput> handle(MemberExtJsonInput input) throws StatusCodeWithException {
+        memberContractService.updateExtJson(input);
+        return success();
     }
 
 }

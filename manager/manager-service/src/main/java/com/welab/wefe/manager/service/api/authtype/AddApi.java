@@ -25,7 +25,7 @@ public class AddApi extends AbstractApi<MemberAuthTypeAddInput, AbstractApiOutpu
         LOG.info("AddApi handle..");
         try {
             MemberAuthType memberAuthType = new MemberAuthType();
-            memberAuthType.setTypeId(input.getTypeName());
+            memberAuthType.setTypeName(input.getTypeName());
             memberAuthType.setExtJson(input.getExtJson());
             memberAuthTypeContractService.add(memberAuthType);
         } catch (StatusCodeWithException e) {

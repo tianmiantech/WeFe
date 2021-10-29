@@ -12,7 +12,7 @@ public class UploadAuthAgreementTemplateInput extends AbstractWithFilesApiInput 
     @Check(require = true)
     private String filename;
     @Check(require = true)
-    private Double version;
+    private String fileType;
 
     public String getFilename() {
         return filename;
@@ -22,11 +22,11 @@ public class UploadAuthAgreementTemplateInput extends AbstractWithFilesApiInput 
         this.filename = filename;
     }
 
-    public Double getVersion() {
-        return version;
+    public String getFileType() {
+        return fileType;
     }
 
-    public void setVersion(Double version) {
-        this.version = version;
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }

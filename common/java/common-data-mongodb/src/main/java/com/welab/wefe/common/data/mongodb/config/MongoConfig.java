@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 /**
  * @author yuxin.zhang
@@ -64,6 +65,11 @@ public class MongoConfig {
     @Bean
     public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory) {
         return new MongoTemplate(mongoDbFactory, getConverter(mongoDbFactory));
+    }
+
+    @Bean
+    public GridFsTemplate gridFsTemplate(MongoDbFactory mongoDbFactory) {
+        return new GridFsTemplate(mongoDbFactory, getConverter(mongoDbFactory));
     }
 
     @Bean

@@ -31,7 +31,6 @@ public class AuthAgreementTemplate extends AbstractNormalMongoModel {
     private String authAgreementFileId;
     private String authAgreementFileMd5;
     private String fileName;
-    private Double version;
 
 
     public String getFileName() {
@@ -58,11 +57,4 @@ public class AuthAgreementTemplate extends AbstractNormalMongoModel {
         this.authAgreementFileMd5 = authAgreementFileMd5;
     }
 
-    public Double getVersion() {
-        return version;
-    }
-
-    public void setVersion(Double version) {
-        this.version = version;
-    }
 }

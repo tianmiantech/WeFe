@@ -96,6 +96,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
     private List<String> generateParams(MemberAuthType memberAuthType) {
         List<String> list = new ArrayList<>();
+        System.out.println(memberAuthType.getTypeId());
         list.add(memberAuthType.getTypeId());
         list.add(memberAuthType.getTypeName());
 
