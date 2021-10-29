@@ -94,11 +94,14 @@
 
                                     <el-form-item label="查询语句">
                                         <el-input
-                                            type="textarea"
                                             v-model="form.sql"
+                                            type="textarea"
                                             placeholder="select * from table where hello = 'world'"
                                         />
-                                        <el-button class="mt10" @click="previewDataSet">
+                                        <el-button
+                                            class="mt10"
+                                            @click="previewDataSet"
+                                        >
                                             查询测试
                                         </el-button>
                                     </el-form-item>
