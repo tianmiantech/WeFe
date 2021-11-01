@@ -17,28 +17,28 @@
                 </div>
                 <div
                     class="pointer"
-                    @click="jumpToTask('')"
+                    @click="jumpToTask('promoter', 'my_role')"
                 >
                     <p class="count">{{ taskOverInfo.promoter_count }}</p>
                     <p class="text">我发起的</p>
                 </div>
                 <div
                     class="pointer"
-                    @click="jumpToTask('')"
+                    @click="jumpToTask('provider', 'my_role')"
                 >
                     <p class="count">{{ taskOverInfo.provider_count }}</p>
                     <p class="text">我协同的</p>
                 </div>
                 <div
                     class="pointer"
-                    @click="jumpToTask('')"
+                    @click="jumpToTask('Pending', 'status')"
                 >
                     <p class="count">{{ taskOverInfo.pending_count }}</p>
                     <p class="text">待审核</p>
                 </div>
                 <div
                     class="pointer"
-                    @click="jumpToTask('')"
+                    @click="jumpToTask('Running', 'status')"
                 >
                     <p class="count">{{ taskOverInfo.running_count }}</p>
                     <p class="text">运行中</p>
@@ -52,9 +52,9 @@
                     class="box-header"
                 >
                     <span>数据样本</span>
-                    <router-link to="data-set-list">
+                    <!-- <router-link to="data-set-list">
                         去添加
-                    </router-link>
+                    </router-link> -->
                 </div>
                 <div class="box-content">
                     <div
@@ -138,6 +138,15 @@ export default {
                 name: routeName,
             });
         },
+        jumpToTask(value, type) {
+            this.$router.replace({
+                name:  'task-list',
+                query: {
+                    type,
+                    value,
+                },
+            });
+        },
     },
 };
 </script>
@@ -207,7 +216,7 @@ export default {
         }
     }
     .box-card3 {
-        height: 300px;
+        height: 220px;
         .el-card__body {
             height: 100%;
             padding-bottom: 70px;
