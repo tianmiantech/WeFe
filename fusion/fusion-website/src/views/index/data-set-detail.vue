@@ -27,24 +27,52 @@
             </el-row>
         </div>
         <div class="bottom_side">
-            <el-divider />
-            <h4>数据预览</h4>
-            <el-table
-                :data="previewData"
-                border="1"
-            >
-                <el-table-column
-                    prop="name"
-                    label="名称"
-                />
-                <el-table-column
-                    label="数据类型"
-                >
-                    <template slot-scope="scope">
-                        {{ scope.row.data_type }}
-                    </template>
-                </el-table-column>
-            </el-table>
+            <el-tabs type="border-card">
+                <el-tab-pane label="数据信息">
+                    <el-table
+                        :data="previewDataInfo"
+                        :border="true"
+                    >
+                        <el-table-column
+                            prop="name"
+                            label="特征名称"
+                        />
+                        <el-table-column
+                            label="数据类型"
+                        >
+                            <template slot-scope="scope">
+                                {{ scope.row.data_type }}
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+                <el-tab-pane label="数据预览">
+                    <div
+                        v-loading="loading"
+                        style="min-height: 200px;"
+                    >
+                        <c-grid
+                            v-if="!loading"
+                            :theme="gridTheme"
+                            :data="table_data.rows"
+                            :frozen-col-count="1"
+                            font="12px sans-serif"
+                            :style="{height:`${gridHeight}px`}"
+                        >
+                            <c-grid-column
+                                v-for="(item, index) in table_data.header"
+                                :key="index"
+                                :field="item"
+                                min-width="100"
+                                :width="item === table_data.header[0] ? 120 : 'auto'"
+                                :column-style="{textOverflow: 'ellipsis'}"
+                            >
+                                {{ item }}
+                            </c-grid-column>
+                        </c-grid>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
         </div>
     </el-card>
 </template>
@@ -53,10 +81,19 @@
 export default {
     data() {
         return {
-            currentItem: {},
-            loading:     false,
-            dataInfo:    {},
-            previewData: [],
+            currentItem:     {},
+            loading:         false,
+            dataInfo:        {},
+            previewDataInfo: [],
+            table_data:      {
+                header: [],
+                rows:   [],
+            },
+            gridTheme: {
+                color:       '#6C757D',
+                borderColor: '#EBEEF5',
+            },
+            gridHeight: 0,
         };
     },
     created() {
@@ -84,15 +121,29 @@ export default {
             this.loading = false;
         },
         async getDataSetPreview() {
-            console.log(this.currentItem);
             const { code, data } = await this.$http.get({
                 url:    '/data_set/preview',
                 params: { id: this.currentItem.id },
             });
 
             if (code === 0) {
-                console.log(data);
+                if (data && data.header) {
+                    this.previewDataInfo = data.metadata_list;
+
+                    let { length } = data.raw_data_list;
+
+                    const rows = data.raw_data_list;
+
+                    if(length >= 15) length = 15;
+                    
+                    this.resize(length);
+                    this.table_data.rows = rows;
+                    this.table_data.header = data.header;
+                }
             }
+        },
+        resize(length) {
+            this.gridHeight = 41 * (length + 1) + 1;
         },
     },
 };
@@ -126,8 +177,13 @@ export default {
     }
 }
 .bottom_side {
-    .el-table {
-        margin-top: 10px;
-    }
+    margin-top: 20px;
+}
+</style>
+<style lang="scss" scoped>
+ .c-grid {
+    border: 1px solid #EBEEF5;
+    position: relative;
+    z-index: 1;
 }
 </style>
