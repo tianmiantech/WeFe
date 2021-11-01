@@ -68,6 +68,8 @@
 
 - `API`用户属于主账号下的子账号(RAM 账号), 该账号用于项目中实际接口调用时相关权限的设置，后续的配置全部围绕该账号进行
 
+> 退出主账号，登录`admin`账号，创建`API`账号
+
 ![](../../images/fc/create_api_ram.png)
 
 注：保存`AccessKey ID`、`AccessKey Secret`，后续配置需要用到
