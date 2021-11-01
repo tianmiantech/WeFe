@@ -9,8 +9,7 @@ job_config:
   proposal_wait_time: 5
   worker_num: 2
   local_worker_num: 2
-  local_trainerid_start: 0
-  local_trainerid_end: 2
+  local_trainer_indexs: [0,1]
   max_iter: 10
   inner_step: 10
   device: cpu

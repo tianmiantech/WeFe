@@ -19,23 +19,21 @@ class PaddleFLJob(Job):
     job_type = JOB_TYPE
 
     @classmethod
-    def load(cls, job_id, role, member_id, config, algorithm_config) -> "PaddleFLJob":
+    def load(cls, job_id, role, member_id, config, algorithm_config,callback_url=None) -> "PaddleFLJob":
         job =  PaddleFLJob(job_id=job_id,role=role,member_id=member_id)
-        job._init_fl_job(config,algorithm_config)
+        job._init_fl_job(config,algorithm_config,callback_url)
         return job
 
-    def __init__(self,job_id,role,member_id,callback_url=None):
+    def __init__(self,job_id,role,member_id):
         super().__init__(job_id=job_id)
         self._role = role
         self._member_id = member_id
-        self._callback_url = callback_url
 
-    def _init_fl_job(self,config, algorithm_config):
+    def _init_fl_job(self,config, algorithm_config,callback_url=None):
         self._proposal_wait_time = config["proposal_wait_time"]
         self._worker_num = config["worker_num"]
         self._local_worker_num = config["local_worker_num"]
-        self._local_trainerid_start = config["local_trainerid_start"]
-        self._local_trainerid_end = config["local_trainerid_end"]
+        self._local_trainer_indexs = config["local_trainer_indexs"]
         self._program = config["program"]
         self._trainer_entrypoint = f"visualfl.algorithm.{self._program}.fl_trainer"
         self._config_string = json.dumps(config)
@@ -43,6 +41,7 @@ class PaddleFLJob(Job):
         self._server_endpoint = config["server_endpoint"]
         self._aggregator_endpoint = config["aggregator_endpoint"]
         self._aggregator_assignee = config["aggregator_assignee"]
+        self._callback_url = callback_url
 
     @property
     def resource_required(self):
@@ -94,8 +93,8 @@ class PaddleFLJob(Job):
 
     def generate_trainer_tasks(self) -> List[job_pb2.Task]:
         tasks = []
-        for i in range(self._local_trainerid_start, self._local_trainerid_end):
-            tasks.append(self._generate_trainer_task_pb(i))
+        for i ,v in enumerate(self._local_trainer_indexs):
+            tasks.append(self._generate_trainer_task_pb(v))
         return tasks
 
     def generate_aggregator_tasks(self) -> List[job_pb2.Task]:

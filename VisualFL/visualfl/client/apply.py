@@ -33,6 +33,7 @@ def post(endpoint, path, json_data):
     loop.run_until_complete(post_co())
 
 
+
 @cli.command()
 @click.option(
     "--config",
@@ -44,8 +45,7 @@ def post(endpoint, path, json_data):
     type=str,
     required=True,
 )
-def submit(endpoint, config):
-
+def apply(endpoint, config):
     base = Path(config)
     with base.open("r") as f:
         config_json = yaml.load(f, yaml.Loader)
@@ -53,6 +53,7 @@ def submit(endpoint, config):
     job_type = config_json.get("job_type")
     role = config_json.get("role")
     member_id = config_json.get("member_id")
+    callback_url = config_json.get("callback_url")
     job_config = config_json.get("job_config")
     algorithm_config_path = base.parent.joinpath(
         config_json.get("algorithm_config")
@@ -63,7 +64,7 @@ def submit(endpoint, config):
     extensions.get_job_schema_validator(job_type).validate(job_config)
     post(
         endpoint,
-        "submit",
+        "apply",
         dict(
             job_id=job_id,
             job_type=job_type,
@@ -71,9 +72,9 @@ def submit(endpoint, config):
             member_id=member_id,
             job_config=job_config,
             algorithm_config=algorithm_config_string,
+            callback_url=callback_url
         ),
     )
-
 
 
 if __name__ == "__main__":

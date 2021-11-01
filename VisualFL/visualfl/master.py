@@ -235,18 +235,28 @@ class RESTService(Logger):
             role = data["role"]
             member_id = data["member_id"]
             callback_url = data["callback_url"]
+            job_config = data["job_config"]
+            algorithm_config = data["algorithm_config"]
         except KeyError:
             return web.json_response(
                 data=dict(exception=traceback.format_exc()), status=400
             )
 
-            # noinspection PyBroadException
         try:
+            # loader = extensions.get_job_class(job_type)
+            # # validator = extensions.get_job_schema_validator(job_type)
+            # if loader is None:
+            #     raise VisualFLExtensionException(f"job type {job_type} not supported")
+            # job = loader(job_id=job_id,role=role,member_id=member_id,callback_url=callback_url)
+
             loader = extensions.get_job_class(job_type)
-            # validator = extensions.get_job_schema_validator(job_type)
+            validator = extensions.get_job_schema_validator(job_type)
             if loader is None:
                 raise VisualFLExtensionException(f"job type {job_type} not supported")
-            job = loader(job_id=job_id,role=role,member_id=member_id,callback_url=callback_url)
+            validator.validate(job_config)
+            job = loader.load(
+                job_id=job_id, role=role, member_id=member_id, config=job_config, algorithm_config=algorithm_config,callback_url=callback_url
+            )
 
         except Exception:
             # self.logger.exception("[submit]catch exception")
@@ -348,6 +358,7 @@ class Master(Logger):
         cluster_address: str,
         rest_port: int,
         rest_host: str = None,
+        standalone: bool = False
     ):
         """
           init master
@@ -364,20 +375,14 @@ class Master(Logger):
         self._cluster = ClusterManagerConnect(
             shared_status=self.shared_status, address=cluster_address
         )
+        self.standalone = standalone
 
 
     async def _apply_job_handler(self):
         """
         handle submitted jobs.
         """
-
         async def _co_handler(job: Job):
-
-            # todo: generalize this process
-            # stick to paddle fl job now
-            # require endpoints before compile start since I don't find a proper way to modify
-            # service endpoints after job config generated.
-            # really need help hear!
 
             try:
                 if job.resource_required is not None:
@@ -390,25 +395,23 @@ class Master(Logger):
                         )  # todo: maybe wait some times and retry?
                     job.set_required_resource(response)
 
-                    import requests
-                    json_data = {"job_id":job.job_id,
-                                 "server_endpoint":job._server_endpoint,
-                                 "aggregator_endpoint":job._aggregator_endpoint,
-                                 "aggregator_assignee":job._aggregator_assignee
-                                 }
-                    print(json_data)
-                    rsp = requests.post(job._callback_url,json=json_data)
-                    print(rsp.status_code)
-                    # from aiohttp import ClientSession
-                    # async def post_co(url,json_data):
-                    #     async with ClientSession as session:
-                    #         async with session.post(
-                    #                 url, json=json_data
-                    #         ) as resp:
-                    #             print(resp.status)
-                    #             print(json.dumps(await resp.json(), indent=2))
-                    #             resp.raise_for_status()
-                    # post_co(job._callback_url,json=json_data)
+                    await job.compile()
+
+                    self.shared_status.job_status[job.job_id] = _JobStatus.RUNNING
+                    for task in job.generate_aggregator_tasks():
+                        self.debug(
+                            f"send local task: {task.task_id} with task type: {task.task_type} to cluster"
+                        )
+                        await self.shared_status.cluster_task_queue.put(task)
+
+                        json_data = {"job_id": job.job_id,
+                                     "server_endpoint": job._server_endpoint,
+                                     "aggregator_endpoint": job._aggregator_endpoint,
+                                     "aggregator_assignee": job._aggregator_assignee
+                                     }
+                        self.debug(f"json data: {json_data}")
+                        import requests
+                        requests.post(job._callback_url, json=json_data)
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
@@ -422,7 +425,6 @@ class Master(Logger):
         """
         handle submitted jobs.
         """
-
         async def _co_handler(job: Job):
 
             # todo: generalize this process
@@ -430,38 +432,36 @@ class Master(Logger):
 
             try:
 
-                # compile job
-                await job.compile()
+                if self.standalone:
+                    if job.resource_required is not None:
+                        response = await self._cluster.task_resource_require(
+                            job.resource_required
+                        )
+                        if response.status != cluster_pb2.TaskResourceRequire.SUCCESS:
+                            raise Exception(
+                                "job failed due to no enough resource"
+                            )  # todo: maybe wait some times and retry?
+                        job.set_required_resource(response)
 
-                # start aggregate tasks
-                if job._role == "promoter":
+                    # compile job
+                    await job.compile()
+
                     self.shared_status.job_status[job.job_id] = _JobStatus.RUNNING
                     for task in job.generate_aggregator_tasks():
                         self.debug(
                             f"send local task: {task.task_id} with task type: {task.task_type} to cluster"
                         )
                         await self.shared_status.cluster_task_queue.put(task)
-                    #TODO server启动成功，更新task状态
 
                     await asyncio.sleep(5)
+                else:
+                    await job.compile()
 
                 for task in job.generate_trainer_tasks():
                     self.debug(
                         f"send local task: {task.task_id} with task type: {task.task_type} to cluster"
                     )
                     await self.shared_status.cluster_task_queue.put(task)
-
-                # send proposal to coordinator
-                # self.shared_status.job_status[job.job_id] = _JobStatus.PROPOSAL
-                # proposal_response = await self._coordinator.make_proposal(
-                #     job.generate_proposal_request()
-                # )
-                # if proposal_response.status != coordinator_pb2.Proposal.SUCCESS:
-                #     self.debug(
-                #         f"proposal of job: {job.job_id} failed: {proposal_response.status}"
-                #     )
-                #     self.shared_status.job_status[job.job_id] = _JobStatus.FAILED
-                #     return
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
@@ -495,19 +495,6 @@ class Master(Logger):
 
         # start rest site
         await self._rest_site.start_rest_site()
-
-        # connect to coordinator
-        # await self._coordinator.start_coordinator_channel()
-        #
-        # while True:
-        #     try:
-        #         await asyncio.wait_for(self._coordinator.coordinator_channel_ready(), 5)
-        #     except asyncio.TimeoutError:
-        #         self.warning(f"coordinator channel not ready, retry in 5 seconds")
-        #     else:
-        #         self.info(f"coordinator channel ready!")
-        #         break
-        # asyncio.create_task(self._coordinator.subscribe())
 
 
         #get job from apply_queue and require source

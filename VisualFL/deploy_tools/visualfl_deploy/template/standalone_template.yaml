@@ -66,11 +66,7 @@ masters:
     submit_port: 10002
     coordinator: coordinator1
     cluster: cluster1
+    standalone: True
 
-  - name: master2
-    machine: machine1
-    submit_port: 10003
-    coordinator: coordinator1
-    cluster: cluster1
 
 

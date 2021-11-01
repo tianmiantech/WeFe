@@ -91,7 +91,7 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
     def _check_finish_status(self):
         if len(self._candidate) == 0:
             logging.debug(f"all worker done, {self._current_step}/{self._max_iter}")
-            if self._max_iter == self._current_step:
+            if self._max_iter == self._current_step + 1:
                 self._stop_event.set()
                 return
 
@@ -112,33 +112,38 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
     async def WorkerJoin(self, request, context):
         logging.debug(f"worker joining: {request.name}")
-        if request.name not in self._inited_workers:
-            return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
-        await self._ready.wait()
 
-        if request.step < self._current_step:
-            return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+        self._current_step = request.step
 
-        if request.step == self._current_step:
-            if request.name not in self._candidate:
-                return scheduler_pb2.WorkerJoin.REP(
-                    status=scheduler_pb2.WorkerJoin.NOT_SELECTED
-                )
-            return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
+        return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
 
-        if request.step == self._current_step + 1:
-            if self._max_iter == self._current_step:
-                return scheduler_pb2.WorkerJoin.REP(
-                    status=scheduler_pb2.WorkerJoin.REJECT
-                )
-            await self._wait_next.wait()
-            if request.name not in self._candidate:
-                return scheduler_pb2.WorkerJoin.REP(
-                    status=scheduler_pb2.WorkerJoin.NOT_SELECTED
-                )
-            return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
-
-        return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+        # if request.name not in self._inited_workers:
+        #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+        # await self._ready.wait()
+        #
+        # if request.step < self._current_step:
+        #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+        #
+        # if request.step == self._current_step:
+        #     if request.name not in self._candidate:
+        #         return scheduler_pb2.WorkerJoin.REP(
+        #             status=scheduler_pb2.WorkerJoin.NOT_SELECTED
+        #         )
+        #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
+        #
+        # if request.step == self._current_step + 1:
+        #     if self._max_iter == self._current_step:
+        #         return scheduler_pb2.WorkerJoin.REP(
+        #             status=scheduler_pb2.WorkerJoin.REJECT
+        #         )
+        #     await self._wait_next.wait()
+        #     if request.name not in self._candidate:
+        #         return scheduler_pb2.WorkerJoin.REP(
+        #             status=scheduler_pb2.WorkerJoin.NOT_SELECTED
+        #         )
+        #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
+        #
+        # return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
 
     async def WorkerFinish(self, request, context):
         if request.name not in self._candidate:

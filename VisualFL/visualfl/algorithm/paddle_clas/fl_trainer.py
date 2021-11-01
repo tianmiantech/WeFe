@@ -125,6 +125,11 @@ def fl_trainer(
     max_iter = config_json["max_iter"]
     device = config_json.get("device", "cpu")
     use_vdl = config_json.get("use_vdl", False)
+    resume_checkpoint = config_json.get("resume_checkpoint", None)
+    need_eval = config_json.get("need_eval", False)
+    model_dir = "model"
+    checkpoint_dir = "checkpoint"
+    output_eval = "eval"
 
     with open(algorithm_config) as f:
         algorithm_config_dict = yaml.load(f)
@@ -155,8 +160,15 @@ def fl_trainer(
     feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
     logging.debug(f"data loader ready")
 
-    epoch_id = -1
+
+    epoch_id = 0
     step = 0
+    # global_step = 0
+    resume_checkpoint = f"/Users/tracy.zhang/Wefe/VisualFL/logs/jobs/job_0003/trainer_{trainer_id}/checkpoint/3"
+    if resume_checkpoint:
+        checkpoint.load_checkpoint(trainer.exe, trainer._main_program,resume_checkpoint)
+        epoch_id = checkpoint.global_step()
+        logging.debug(f"checkpoint epoch {epoch_id}")
 
     reader = paddle.dataset.mnist.reader_creator(
         image_filename=os.path.join(
@@ -179,11 +191,9 @@ def fl_trainer(
 
     if use_vdl:
         from visualdl import LogWriter
-
         vdl_writer = LogWriter("vdl_log")
 
     while epoch_id < max_iter:
-        epoch_id += 1
         if not trainer.scheduler_agent.join(epoch_id):
             logging.debug(f"not join, waiting next round")
             continue
@@ -203,11 +213,12 @@ def fl_trainer(
 
         # save model
         logging.debug(f"saving model at {epoch_id}-th epoch")
-        trainer.save_model(f"model/{epoch_id}")
+        trainer.save_model(os.path.join(model_dir,str(epoch_id)))
 
         # info scheduler
         trainer.scheduler_agent.finish()
-        checkpoint.save(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
+        checkpoint.save(trainer.exe, trainer._main_program, os.path.join(checkpoint_dir,str(epoch_id)))
+        epoch_id += 1
 
     logging.debug(f"reach max iter, finish training")
 

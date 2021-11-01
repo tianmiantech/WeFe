@@ -40,7 +40,7 @@ machines:
   - name: machine1
     ip:
     ssh_string:  # [user@]ip:port
-    base_dir: /data/projects
+    base_dir: /data
     python_for_venv_create: python3 # use to create venv
 
   - name: machine2
@@ -95,12 +95,10 @@ masters:
   - name: master1
     machine: machine1
     submit_port: 10002
-    coordinator: coordinator1
     cluster: cluster1
 
   - name: master2
     machine: machine2
     submit_port: 10002
-    coordinator: coordinator1
     cluster: cluster2
 

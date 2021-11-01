@@ -11,10 +11,10 @@ import click
 @click.option(
     "--cluster-address", type=str, required=True, help="cluster manager address"
 )
-# @click.option(
-#     "--coordinator-address", type=str, required=True, help="coordinator address"
-# )
-def start_master(member_id, submitter_port, cluster_address):
+@click.option(
+    "--standalone", type=bool, required=False, help="is standalone template"
+)
+def start_master(member_id, submitter_port, cluster_address,standalone=False):
     """
     start master
     """
@@ -28,6 +28,7 @@ def start_master(member_id, submitter_port, cluster_address):
         member_id=member_id,
         cluster_address=cluster_address,
         rest_port=submitter_port,
+        standalone=standalone
     )
     try:
         loop.run_until_complete(master.start())

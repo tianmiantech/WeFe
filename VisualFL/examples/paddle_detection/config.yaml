@@ -1,5 +1,5 @@
-job_id: job_0003
-task_id: task_0001
+job_id: job_0004
+task_id: task_0002
 job_type: paddle_fl
 role: promoter
 member_id: master1
@@ -9,13 +9,12 @@ job_config:
   proposal_wait_time: 5
   worker_num: 2
   local_worker_num: 2
-  local_trainerid_start: 0
-  local_trainerid_end: 2
+  local_trainer_indexs: [0,1]
   max_iter: 10
   inner_step: 10
-  device: cuda
+  device: cpu
   use_vdl: true
-  server_endpoint: 127.0.0.1:12000
-  aggregator_endpoint: 127.0.0.1:12001
+  server_endpoint: 127.0.0.1:12002
+  aggregator_endpoint: 127.0.0.1:12003
   aggregator_assignee: worker2
 algorithm_config: ./yolov3_mobilenet_v1_fruit.yml

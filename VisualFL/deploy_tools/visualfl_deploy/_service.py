@@ -10,12 +10,10 @@ from visualfl_deploy import __BASE_NAME__
 app = typer.Typer(help="services [start|stop] tools")
 all_app = typer.Typer(help="[start|stop] all services")
 
-coordinator_app = typer.Typer(help="[start|stop] coordinator service")
 cluster_manager_app = typer.Typer(help="[start|stop] cluster manager service")
 cluster_worker_app = typer.Typer(help="[start|stop] cluster worker service")
 master_app = typer.Typer(help="[start|stop] master service")
 app.add_typer(all_app, name="all")
-app.add_typer(coordinator_app, name="coordinator")
 app.add_typer(cluster_manager_app, name="cluster-manager")
 app.add_typer(cluster_worker_app, name="cluster-worker")
 app.add_typer(master_app, name="master")
@@ -31,24 +29,6 @@ def start_all(
     machines_map = {}
     for machine_config in config_dict["machines"]:
         machines_map[machine_config["name"]] = machine_config
-
-    # start coordinator
-    # coordinator_config = config_dict["coordinator"]
-    # if coordinator_config.get("machine"):
-    #     typer.echo(f"staring coordinator {coordinator_config['name']}")
-    #     coordinator_machine = machines_map[coordinator_config["machine"]]
-    #     status = start_coordinator(
-    #         coordinator_machine["base_dir"],
-    #         coordinator_config["port"],
-    #     )
-    #     coordinator_address = (
-    #         f"{coordinator_machine['ip']}:{coordinator_config['port']}"
-    #     )
-    #     typer.echo(
-    #         f"start coordinator {coordinator_config['name']} done, success: {status}\n"
-    #     )
-    # else:
-    #     coordinator_address = f"{coordinator_config['ip']}:{coordinator_config['port']}"
 
     # start cluster
     cluster_address_map = {}
@@ -98,6 +78,7 @@ def start_all(
             submit_port=master_config["submit_port"],
             member_id=master_config["name"],
             cluster_manager_address=cluster_address_map[master_config["cluster"]],
+            standalone=master_config["standalone"]
         )
         typer.echo(f"start master {master_config['name']} done, success: {status}\n")
 
@@ -114,15 +95,6 @@ def stop_all(
     machines_map = {}
     for machine_config in config_dict["machines"]:
         machines_map[machine_config["name"]] = machine_config
-
-    # stop coordinator
-    # coordinator_config = config_dict["coordinator"]
-    # if coordinator_config.get("machine"):
-    #     coordinator_machine = machines_map[coordinator_config["machine"]]
-    #     stop_coordinator(
-    #         machine_base_dir=coordinator_machine["base_dir"],
-    #         coordinator_port=coordinator_config["port"],
-    #     )
 
     # stop cluster
     for cluster_config in config_dict.get("clusters", []):
@@ -153,49 +125,6 @@ def stop_all(
         )
 
     typer.echo("stop all")
-
-
-@coordinator_app.command(name="start", help="start coordinator")
-def start_coordinator(
-    machine_base_dir: str = typer.Argument(..., help="deployed base name"),
-    coordinator_port: int = typer.Argument(
-        ..., help="port number for coordinator to serve"
-    ),
-):
-        try:
-            subprocess.run(f"cd {machine_base_dir}", shell=True)
-            subprocess.run(
-                f"PYTHON_EXECUTABLE={os.path.join(machine_base_dir, 'venv/bin/python')} "
-                f"{__BASE_NAME__}/script/coordinator.sh start {coordinator_port}",
-                shell=True,check=True)
-        except Exception:
-            typer.echo(f"failed: can't start coordinator")
-            return False
-        else:
-            typer.echo(
-                f"{machine_base_dir} started coordinator: port={coordinator_port}"
-            )
-            return True
-
-
-@coordinator_app.command(name="stop", help="stop coordinator")
-def stop_coordinator(
-    machine_base_dir: str = typer.Argument(..., help="deployed base name"),
-    coordinator_port: int = typer.Argument(
-        ..., help="port number for coordinator to serve"
-    ),
-):
-        try:
-            subprocess.run(f"cd {machine_base_dir};"
-                f"PYTHON_EXECUTABLE={os.path.join(machine_base_dir, 'venv/bin/python')} "
-                f"{__BASE_NAME__}/script/coordinator.sh stop {coordinator_port}",
-                shell=True,check=True)
-        except Exception:
-            typer.echo(f"failed: can't stop coordinator")
-        else:
-            typer.echo(
-                f"success: {machine_base_dir} stop coordinator: port={coordinator_port}"
-            )
 
 
 @cluster_manager_app.command(name="start", help="start cluster manager")
@@ -293,12 +222,13 @@ def start_master(
     submit_port: int = typer.Argument(..., help="submit port"),
     member_id: str = typer.Argument(..., help="member id"),
     cluster_manager_address: str = typer.Argument(..., help="cluster manager address"),
+    standalone: bool = typer.Argument(..., help="is standalone template"),
 ):
     try:
         subprocess.run(f"cd {machine_base_dir};"
             f"PYTHON_EXECUTABLE={os.path.join(machine_base_dir, 'venv/bin/python')} "
             f"{__BASE_NAME__}/script/master.sh start "
-            f"{submit_port} {member_id} {cluster_manager_address}",
+            f"{submit_port} {member_id} {cluster_manager_address} {standalone}",
             shell=True,check=True)
     except Exception:
         typer.echo(f"failed: can't start master at port {submit_port}")
