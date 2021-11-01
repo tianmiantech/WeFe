@@ -105,7 +105,7 @@ public class MemberContractService extends AbstractContractService {
 
             // Get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+                    .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
 
             transactionIsSuccess(transactionResponse);
 
