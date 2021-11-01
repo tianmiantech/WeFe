@@ -7,15 +7,19 @@
     - [3. NAS（文件存储）](#3-nas文件存储)
     - [4. LOG（日志服务）可选，用于函数计算执行日志的关联](#4-log日志服务可选用于函数计算执行日志的关联)
   - [二、相关配置（按需配置）](#二相关配置按需配置)
-    - [1. OSS 服务配置](#1-oss-服务配置)
-      - [1.1、创建 bucket](#11创建-bucket)
-      - [1.2、OSS 服务相关RAM权限配置](#12oss-服务相关ram权限配置)
-    - [2. LOG 服务配置](#2-log-服务配置)
-      - [2.1、创建 Project](#21创建-project)
-      - [2.2、创建 Logstore](#22创建-logstore)
+    - [1. 函数部署相关用户创建](#1-函数部署相关用户创建)
+      - [1.1、admin 用户创建](#11admin-用户创建)
+      - [1.2 API 用户创建](#12-api-用户创建)
+    - [2. OSS 服务配置](#2-oss-服务配置)
+      - [2.1、创建 bucket](#21创建-bucket)
+      - [2.2、OSS 服务相关RAM权限配置](#22oss-服务相关ram权限配置)
     - [3. FC 函数计算服务配置](#3-fc-函数计算服务配置)
       - [3.1、函数部署相关权限配置](#31函数部署相关权限配置)
-    - [4、项目参数配置](#4项目参数配置)
+    - [4. LOG 服务配置](#4-log-服务配置)
+      - [4.1、创建 Project](#41创建-project)
+      - [4.2、创建 Logstore](#42创建-logstore)
+    - [5、项目参数配置](#5项目参数配置)
+    - [6、函数计算服务关联日志(按需配置)](#6函数计算服务关联日志按需配置)
 
 ## 一、服务开通
 
@@ -44,9 +48,51 @@
 
 ## 二、相关配置（按需配置）
 
-### 1. OSS 服务配置
+### 1. 函数部署相关用户创建
 
-#### 1.1、创建 bucket
+#### 1.1、admin 用户创建
+
+- `admin`用户属于主账号下的子账号(RAM 账号), 该账号用于后续登录控制台管理该项目所有的服务
+
+![](../../images/fc/create_admin_ram.png)
+
+> 创建成功后，保存相关信息，例如用户登录名称等。
+
+- 进入`admin`用户界面，使用主账号赋予`admin`用户`AdministratorAccess`权限策略
+
+![](../../images/fc/add_admin_auth.png)
+
+![](../../images/fc/add_AdministratorAccess_auth.png)
+
+#### 1.2 API 用户创建
+
+- `API`用户属于主账号下的子账号(RAM 账号), 该账号用于项目中实际接口调用时相关权限的设置，后续的配置全部围绕该账号进行
+
+![](../../images/fc/create_api_ram.png)
+
+注：保存`AccessKey ID`、`AccessKey Secret`，后续配置需要用到
+
+
+- 赋予相关系统权限，如下所示：
+
+```
+AliyunOSSFullAccess
+AliyunRAMReadOnlyAccess
+AliyunSTSAssumeRoleAccess
+AliyunLogFullAccess
+AliyunFCFullAccess
+AliyunNASFullAccess
+AliyunVPCFullAccess
+AliyunCloudMonitorFullAccess
+```
+
+注：系统权限添加一次只能5个，剩下的请再次添加进去，如下：
+
+![](../../images/fc/add_policy.png)
+
+### 2. OSS 服务配置
+
+#### 2.1、创建 bucket
 
 ![](../../images/fc/create_oss_bucket.png)
 
@@ -54,9 +100,9 @@
 
 注：请留意 bucket 名称，后续配置需用到
 
-#### 1.2、OSS 服务相关RAM权限配置
+#### 2.2、OSS 服务相关RAM权限配置
 
-- 前往RAM控制台，在权限策略管理中创建权限策略，如图：
+- 前往`访问控制`控制台，在权限策略管理中创建权限策略，如图：
 
 ![](../../images/fc/create_ossRead_policy.png)
 
@@ -98,9 +144,9 @@
 
 > 填写角色名称：wefe-fc-ossRead，如图：
 
-![](../../images/fc/create_fc_role_1.png)
+![](../../images/fc/create_ossread_role.png)
 
-![](../../images/fc/create_ram_role_oss.png)
+![](../../images/fc/create_ossread_role_1.png)
 
 > 添加权限，将之前创建好的权限 oss-readOnly 添加到 wefe-fc-ossRead 角色
 
@@ -113,23 +159,6 @@
 > 添加  oss-readOnly 权限
 
 ![](../../images/fc/choice_oss_readOnly_policy.png)
-
-
-### 2. LOG 服务配置
-
-#### 2.1、创建 Project
-
-![](../../images/fc/create_log_project.png)
-
-![](../../images/fc/create_log_project_1.png)
-
-注：记录创建的 Project 名称，后续修改配置需用到
-
-#### 2.2、创建 Logstore
-
-![](../../images/fc/create_log_project_2.png)
-
-注：记录创建的 Logstore 名称，后续修改配置需用到
 
 
 ### 3. FC 函数计算服务配置
@@ -209,7 +238,7 @@
 - 给 wefe-fc-role 赋予相关系统权限，如下所示：
 
 ```
-AliyunOTSFullAccess
+AliyunOSSFullAccess
 AliyunFCFullAccess
 AliyunLogFullAccess
 AliyunNASFullAccess
@@ -221,66 +250,69 @@ AliyunNASFullAccess
 
 ![](../../images/fc/create_fc_role.png)
 
+### 4. LOG 服务配置
 
-> 创建 API 用户（子账户），同时赋予 API 用户相关权限
+#### 4.1、创建 Project
 
-![](../../images/fc/create_api_user.png)
+![](../../images/fc/create_log_project.png)
 
-1、赋予相关系统权限，如下所示：
+![](../../images/fc/create_log_project_1.png)
 
-```
-AliyunOSSFullAccess
-AliyunRAMReadOnlyAccess
-AliyunSTSAssumeRoleAccess
-AliyunLogFullAccess
-AliyunFCFullAccess
-AliyunNASFullAccess
-AliyunVPCFullAccess
-```
+注：记录创建的 Project 名称，后续修改配置需用到
 
-注：系统权限添加一次只能5个，剩下的请再次添加进去，如下：
+#### 4.2、创建 Logstore
 
-![](../../images/fc/add_policy.png)
+![](../../images/fc/create_log_project_2.png)
 
-2、添加自定义权限：
+注：记录创建的 Logstore 名称，后续修改配置需用到
 
-> 将上述步骤创建的策略：wefe-fc-policy, 添加到该 API 用户
 
-3、创建完成后，注意保存 <font color='red'> AccessKey ID、AccessKey Secret </font>等信息，后续配置需要用到
-
-![](../../images/fc/create_Access_key.png)
-
-### 4、项目参数配置
+### 5、项目参数配置
 
 - 统一修改 wefe.cfg 文件进行配置
 
-> 温馨提示：下面需要配置的参数如：FC_ACCESS_KEY_ID、FC_ACCESS_KEY_SECRET 即为前面创建的API账户的 AccessKey ID 与 AccessKey
+> 温馨提示：下面需要配置的参数如：FC_ACCESS_KEY_ID、FC_ACCESS_KEY_SECRET 即为前面创建的`API`账户的 AccessKey ID 与 AccessKey
 
 ```
 ##### 函数计算的相关配置  #####
 
+# 阿里云函数计算引擎相关配置
 # 阿里云账号UID
-FC_ACCOUNT_ID="xxx"
+FC_ACCOUNT_ID="102503****37039"
 
 # 函数计算所在的区域，建议:cn-shenzhen
 FC_REGION="cn-shenzhen"
 
-# 账户ID
-FC_ACCOUNT_ID=294***9042
-
 # 提供API访问的access_key_id
-FC_ACCESS_KEY_ID="LTA***ND7"
+FC_ACCESS_KEY_ID="xxx"
 
 # 提供API访问的access_key_secret
-FC_ACCESS_KEY_SECRET="nxL***sfv"
+FC_ACCESS_KEY_SECRET="xxx"
 
 # 函数计算存储类型
 FC_STORAGE_TYPE=oss
 
 # oss bucket 名称
 FC_OSS_BUCKET_NAME="xxx"
+
+# CPU、GPU 模式相关配置，NONE or GPU
+ACCELERATION="NONE"
+
+# 函数计算调佣版本号
+FC_QUALIFIER="LATEST"
 ```
 
+> 至此全部配置完毕，可以启动项目，部署函数！
 
+### 6、函数计算服务关联日志(按需配置)
+关联函数计算服务到日志服务后，函数计算执行的相关日志会写入日志仓库，后续如出现异常，便于排查问题！
+> 前提：已开通日志服务, 且函数部署完毕
 
+- 登录`admin`账户，进入函数计算控制台，修改配置
+
+![](../../images/fc/adit_fc_config.png)
+
+![](../../images/fc/add_log.png)
+
+> 至此已完成关联！
 
