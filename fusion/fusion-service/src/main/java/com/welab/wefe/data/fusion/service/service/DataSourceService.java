@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.data.fusion.service.api.datasource.AddApi;
 import com.welab.wefe.data.fusion.service.api.datasource.DeleteApi;
@@ -28,8 +27,11 @@ import com.welab.wefe.data.fusion.service.api.datasource.QueryApi;
 import com.welab.wefe.data.fusion.service.api.datasource.TestDBConnectApi;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.database.repository.DataSourceRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.DataSourceOverviewOutput;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import com.welab.wefe.data.fusion.service.utils.ModelMapper;
@@ -57,6 +59,12 @@ public class DataSourceService extends AbstractService {
     @Value("${file.upload.dir}")
     private String fileUploadDir;
 
+    @Autowired
+    DataSetRepository dataSetRepository;
+
+    @Autowired
+    BloomFilterRepository bloomFilterRepository;
+
 
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
@@ -82,17 +90,17 @@ public class DataSourceService extends AbstractService {
         // Test the connection
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
         Map<String, Object> params = new HashMap<>(16);
-        params.put("id",input.getId());
-        params.put("name",input.getName());
-        params.put("databaseType",input.getDatabaseType());
-        params.put("databaseName",input.getDatabaseName());
-        params.put("host",input.getHost());
-        params.put("port",input.getPort());
-        params.put("userName",input.getName());
-        params.put("password",input.getPassword());
-        params.put("updatedBy",CurrentAccount.id());
-        params.put("updatedTime",new Date());
-        dataSourceRepo.updateById(input.getId(),params,DataSourceMySqlModel.class);
+        params.put("id", input.getId());
+        params.put("name", input.getName());
+        params.put("databaseType", input.getDatabaseType());
+        params.put("databaseName", input.getDatabaseName());
+        params.put("host", input.getHost());
+        params.put("port", input.getPort());
+        params.put("userName", input.getName());
+        params.put("password", input.getPassword());
+        params.put("updatedBy", CurrentAccount.id());
+        params.put("updatedTime", new Date());
+        dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 
         UpdateApi.DataSourceUpdateOutput output = new UpdateApi.DataSourceUpdateOutput();
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
@@ -204,6 +212,12 @@ public class DataSourceService extends AbstractService {
         }
 
         return file;
+    }
+
+    public DataSourceOverviewOutput overview() {
+        Long dataSetCount = dataSetRepository.count();
+        Long bloomFilterCount = bloomFilterRepository.count();
+        return DataSourceOverviewOutput.of(dataSetCount, bloomFilterCount);
     }
 
 }

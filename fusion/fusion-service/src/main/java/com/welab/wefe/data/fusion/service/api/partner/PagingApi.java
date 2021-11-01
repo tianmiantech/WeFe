@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "partner/paging", name = "任务列表", desc = "任务列表", login = true)
+@Api(path = "partner/paging", name = "合作伙伴", desc = "任务列表", login = true)
 public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<PartnerMySqlModel>> {
     @Autowired
     PartnerService partnerService;
@@ -42,10 +42,10 @@ public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<Partner
 
 
     public static class Input extends PagingInput {
-        @Check(name = "指定操作的taskId")
+        @Check(name = "合作伙伴id")
         private String partnerId;
 
-        @Check(name = "任务状态")
+        @Check(name = "合作方名称")
         private String name;
 
 
