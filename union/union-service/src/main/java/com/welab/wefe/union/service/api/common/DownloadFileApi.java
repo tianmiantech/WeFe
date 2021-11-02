@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.file;
+package com.welab.wefe.union.service.api.common;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.welab.wefe.common.data.mongodb.dto.QueryFileOutput;
-import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.agreement.QueryFileInput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -34,11 +34,10 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import java.io.IOException;
 
 /**
- *
  * @author yuxin.zhang
  */
-@Api(path = "query/file", name = "query_file", login = false)
-public class QueryFileApi extends AbstractApi<QueryFileInput, QueryFileOutput> {
+@Api(path = "download/file", name = "download_file", rsaVerify = true, login = false)
+public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, QueryFileOutput> {
 
     @Autowired
     private GridFSBucket gridFSBucket;
@@ -46,9 +45,9 @@ public class QueryFileApi extends AbstractApi<QueryFileInput, QueryFileOutput> {
     private GridFsTemplate gridFsTemplate;
 
     @Override
-    protected ApiResult<QueryFileOutput> handle(QueryFileInput input) throws IOException {
+    protected ApiResult<QueryFileOutput> handle(DownloadFileApi.Input input) throws IOException {
         //根据文件id查询文件
-        GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id",input.getFileId()).build());
+        GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
         //使用GridFsBucket打开一个下载流对象
         GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
         //创建GridFsResource对象，获取流
@@ -58,6 +57,19 @@ public class QueryFileApi extends AbstractApi<QueryFileInput, QueryFileOutput> {
         queryFileOutput.setFileName(gridFSFile.getFilename());
         queryFileOutput.setFileType(gridFSFile.getMetadata().getString("fileType"));
         return success(queryFileOutput);
+    }
+
+    public static class Input extends BaseInput {
+        @Check(require = true)
+        private String fileId;
+
+        public String getFileId() {
+            return fileId;
+        }
+
+        public void setFileId(String fileId) {
+            this.fileId = fileId;
+        }
     }
 
 }
