@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.member;
+package com.welab.wefe.union.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.member.RealNameAuthInfoQueryOutput;
@@ -25,8 +25,8 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.RealNameAuthInfoQueryInput;
-import com.welab.wefe.manager.service.mapper.MemberMapper;
+import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.mapper.MemberMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,25 +36,26 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query", login = false)
-public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryInput, RealNameAuthInfoQueryOutput> {
+@Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query", rsaVerify = true, login = false)
+public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryApi.Input, RealNameAuthInfoQueryOutput> {
     @Autowired
     protected MemberMongoReop memberMongoReop;
 
     protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
 
     @Override
-    protected ApiResult<RealNameAuthInfoQueryOutput> handle(RealNameAuthInfoQueryInput input) throws StatusCodeWithException {
+    protected ApiResult<RealNameAuthInfoQueryOutput> handle(RealNameAuthInfoQueryApi.Input input) throws StatusCodeWithException {
         try {
-            Member member = memberMongoReop.findMemberId(input.getId());
+            Member member = memberMongoReop.findMemberId(input.curMemberId);
             if (member == null) {
-                throw new StatusCodeWithException("Invalid member_id: " + input.getId(), StatusCode.INVALID_MEMBER);
+                throw new StatusCodeWithException("Invalid member_id: " + input.curMemberId, StatusCode.INVALID_MEMBER);
             }
             RealNameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealNameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuth(member.getExtJson().isRealNameAuth());
+
             List<String> fileIdList = member.getExtJson().getRealNameAuthFileInfoList()
                     .stream()
                     .map(RealNameAuthFileInfo::getFileId)
@@ -66,5 +67,9 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);
             throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
         }
+    }
+
+    public static class Input extends BaseInput {
+
     }
 }

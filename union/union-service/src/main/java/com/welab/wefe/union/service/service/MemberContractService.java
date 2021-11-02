@@ -17,6 +17,7 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
@@ -393,18 +394,18 @@ public class MemberContractService extends AbstractContractService {
     }
 
 
-    public void updateExtJson(RealNameAuthApi.Input input) throws StatusCodeWithException {
+    public void updateExtJson(String memberId,MemberExtJSON extJSON) throws StatusCodeWithException {
         try {
             MemberContract memberContract = getContract();
-            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.getCurMemberId()).getExtJson());
-            Field[] fields = input.getClass().getDeclaredFields();
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(memberId).getExtJson());
+            Field[] fields = extJSON.getClass().getDeclaredFields();
             for (int i = 0; i < fields.length; i++) {
                 fields[i].setAccessible(true);
-                if (null != fields[i].get(input)) {
-                    extJson.put(fields[i].getName(), fields[i].get(input));
+                if (null != fields[i].get(extJSON)) {
+                    extJson.put(fields[i].getName(), fields[i].get(extJSON));
                 }
             }
-            TransactionReceipt transactionReceipt = memberContract.updateExtJson(input.getCurMemberId(),
+            TransactionReceipt transactionReceipt = memberContract.updateExtJson(memberId,
                     extJson.toString());
 
             // Get receipt result

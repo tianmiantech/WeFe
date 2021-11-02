@@ -1,7 +1,6 @@
-package com.welab.wefe.manager.service.dto.member;
+package com.welab.wefe.common.data.mongodb.dto.member;
 
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 
 import java.util.List;
 
@@ -10,13 +9,14 @@ import java.util.List;
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class RealNameAuthInfoQueryOutput extends AbstractApiOutput {
+public class RealNameAuthInfoQueryOutput {
 
     private boolean realNameAuth;
     private String principalName;
+    private String reviewComments;
     private String authType;
     private String description;
-    private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
+    private List<String> fileIdList;
 
 
     public boolean isRealNameAuth() {
@@ -51,11 +51,19 @@ public class RealNameAuthInfoQueryOutput extends AbstractApiOutput {
         this.description = description;
     }
 
-    public List<RealNameAuthFileInfo> getRealNameAuthFileInfoList() {
-        return realNameAuthFileInfoList;
+    public List<String> getFileIdList() {
+        return fileIdList;
     }
 
-    public void setRealNameAuthFileInfoList(List<RealNameAuthFileInfo> realNameAuthFileInfoList) {
-        this.realNameAuthFileInfoList = realNameAuthFileInfoList;
+    public void setFileIdList(List<String> fileIdList) {
+        this.fileIdList = fileIdList;
+    }
+
+    public String getReviewComments() {
+        return reviewComments;
+    }
+
+    public void setReviewComments(String reviewComments) {
+        this.reviewComments = reviewComments;
     }
 }

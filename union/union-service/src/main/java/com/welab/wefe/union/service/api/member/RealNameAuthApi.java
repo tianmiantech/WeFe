@@ -16,22 +16,27 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
+import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
-import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Jervis
+ * @author yuxin.zhang
  **/
 @Api(path = "member/realname/auth", name = "member_realname_auth", rsaVerify = true, login = false)
 public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, AbstractApiOutput> {
@@ -39,20 +44,44 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
     @Autowired
     private MemberContractService memberContractService;
 
+    @Autowired
+    private GridFsTemplate gridFsTemplate;
+
+
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("RealNameAuthApi handle..");
-        memberContractService.updateExtJson(input);
+        MemberExtJSON extJSON = new MemberExtJSON();
+        extJSON.setPrincipalName(input.principalName);
+        extJSON.setAuthType(input.authType);
+        extJSON.setDescription(input.description);
+
+
+        List<RealNameAuthFileInfo> realNameAuthFileInfoList = new ArrayList<>();
+        for (String fileId :
+                input.fileIdList) {
+            RealNameAuthFileInfo realNameAuthFileInfo = new RealNameAuthFileInfo();
+            GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", fileId).build());
+            if (gridFSFile == null) {
+                throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, fileId);
+            }
+            realNameAuthFileInfo.setFileId(fileId);
+            realNameAuthFileInfo.setSign(gridFSFile.getMetadata().getString("sign"));
+        }
+        extJSON.setRealNameAuthFileInfoList(realNameAuthFileInfoList);
+        memberContractService.updateExtJson(input.curMemberId, extJSON);
         return success();
     }
 
 
     public static class Input extends BaseInput {
+        @Check(require = true)
         private String principalName;
+        @Check(require = true)
         private String authType;
         private String description;
-        private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
-
+        @Check(require = true)
+        private List<String> fileIdList;
 
 
         public String getPrincipalName() {
@@ -79,12 +108,12 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
             this.description = description;
         }
 
-        public List<RealNameAuthFileInfo> getRealNameAuthFileInfoList() {
-            return realNameAuthFileInfoList;
+        public List<String> getFileIdList() {
+            return fileIdList;
         }
 
-        public void setRealNameAuthFileInfoList(List<RealNameAuthFileInfo> realNameAuthFileInfoList) {
-            this.realNameAuthFileInfoList = realNameAuthFileInfoList;
+        public void setFileIdList(List<String> fileIdList) {
+            this.fileIdList = fileIdList;
         }
     }
 }
