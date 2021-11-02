@@ -52,6 +52,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryA
             }
             RealNameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealNameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
+            realNameAuthInfoQueryOutput.setAuditComment(member.getExtJson().getAuditComment());
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuth(member.getExtJson().isRealNameAuth());

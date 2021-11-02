@@ -13,7 +13,7 @@ public class RealNameAuthInput extends BaseInput {
     private String id;
     @Check(require = true)
     private boolean realNameAuth;
-    private String reviewComments;
+    private String auditComment;
 
     public String getId() {
         return id;
@@ -31,11 +31,11 @@ public class RealNameAuthInput extends BaseInput {
         this.realNameAuth = realNameAuth;
     }
 
-    public String getReviewComments() {
-        return reviewComments;
+    public String getAuditComment() {
+        return auditComment;
     }
 
-    public void setReviewComments(String reviewComments) {
-        this.reviewComments = reviewComments;
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
     }
 }

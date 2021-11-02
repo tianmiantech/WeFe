@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "member/realname/auth/review", name = "member_realname_auth_review", login = false)
-public class RealNameAuthReviewApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
+@Api(path = "member/realname/auth/audit", name = "member_realname_auth_audit", login = false)
+public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
     @Autowired
     protected MemberContractService memberContractService;
 
@@ -38,7 +38,7 @@ public class RealNameAuthReviewApi extends AbstractApi<RealNameAuthInput, Abstra
     protected ApiResult<AbstractApiOutput> handle(RealNameAuthInput input) throws StatusCodeWithException {
         MemberExtJSON memberExtJSON = new MemberExtJSON();
         memberExtJSON.setRealNameAuth(input.isRealNameAuth());
-        memberExtJSON.setReviewComments(input.getReviewComments());
+        memberExtJSON.setAuditComment(input.getAuditComment());
         memberContractService.updateExtJson(input.curMemberId, memberExtJSON);
         return success();
     }

@@ -1,7 +1,5 @@
 package com.welab.wefe.common.data.mongodb.dto.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
-
 import java.util.List;
 
 /**
@@ -13,7 +11,7 @@ public class RealNameAuthInfoQueryOutput {
 
     private boolean realNameAuth;
     private String principalName;
-    private String reviewComments;
+    private String auditComment;
     private String authType;
     private String description;
     private List<String> fileIdList;
@@ -59,11 +57,11 @@ public class RealNameAuthInfoQueryOutput {
         this.fileIdList = fileIdList;
     }
 
-    public String getReviewComments() {
-        return reviewComments;
+    public String getAuditComment() {
+        return auditComment;
     }
 
-    public void setReviewComments(String reviewComments) {
-        this.reviewComments = reviewComments;
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
     }
 }
