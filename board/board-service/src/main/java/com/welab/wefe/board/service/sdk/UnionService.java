@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,15 +35,23 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.UrlUtil;
 import net.jodah.expiringmap.ExpiringMap;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +76,17 @@ public class UnionService extends AbstractService {
 
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    public JSONObject realnameAuth(Map<String, Object> data) throws StatusCodeWithException {
+        return request("member/realname/auth", new JSONObject(data), true);
+    }
+
+    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
+        JObject params = JObject
+                .create();
+
+        return request("member/file/upload", params, files, true);
+    }
 
     /**
      * initialize wefe system
@@ -344,6 +363,10 @@ public class UnionService extends AbstractService {
     }
 
     private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+        return request(api, params, null, true);
+    }
+
+    private JSONObject request(String api, JSONObject params, MultiValueMap<String, MultipartFile> files, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, causing the verification to fail.
          */
@@ -369,11 +392,39 @@ public class UnionService extends AbstractService {
 
             data = body.toJSONString();
         }
+        HttpResponse response;
+        String url = config.getUNION_BASE_URL() + "/" + api;
+        // send http request without files
+        if (files == null) {
+            response = HttpRequest
+                    .create(url)
+                    .setBody(data)
+                    .postJson();
+        }
+        // send http request with files
+        else {
+            url = UrlUtil.appendQueryParameters(url, params);
+            HttpRequest request = HttpRequest
+                    .create(url)
+                    .setContentType(HttpContentType.MULTIPART);
 
-        HttpResponse response = HttpRequest
-                .create(config.getUNION_BASE_URL() + "/" + api)
-                .setBody(data)
-                .postJson();
+            for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
+                try {
+                    MultipartFile file = item.getValue();
+                    InputStreamBody streamBody = new InputStreamBody(
+                            file.getInputStream(),
+                            ContentType.DEFAULT_BINARY,
+                            file.getOriginalFilename()
+                    );
+                    request.appendParameter(item.getKey(), streamBody);
+                } catch (IOException e) {
+                    StatusCode.FILE_IO_ERROR.throwException(e);
+                }
+            }
+
+            response = request.post();
+        }
+
 
         if (!response.success()) {
             throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
