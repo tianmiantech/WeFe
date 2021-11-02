@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "member/realname/auth", name = "member_realname_auth", login = false)
-public class RealNameAuthApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
+@Api(path = "member/realname/auth/review", name = "member_realname_auth_review", login = false)
+public class RealNameAuthReviewApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
     @Autowired
     protected MemberContractService memberContractService;
 

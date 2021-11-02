@@ -56,42 +56,38 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     private GridFSBucket gridFSBucket;
 
     @Override
-    protected ApiResult<RealNameAuthFileUploadOutput> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<RealNameAuthFileUploadOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
-        try {
-            String sign = Md5.of(input.getFirstFile().getInputStream());
-            //根据文件id查询文件
-            GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("metadata.sign", sign).build());
-            if (gridFSFile == null) {
-                RealNameAuthFileUploadOutput realNameAuthFileUploadOutput = new RealNameAuthFileUploadOutput();
-                GridFSUploadOptions options = new GridFSUploadOptions();
-                Document metadata = new Document();
-                metadata.append("sign", sign);
-                metadata.append("memberId", input.getMemberId());
+        String sign = Md5.of(input.getFirstFile().getInputStream());
+        //根据文件id查询文件
+        GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("metadata.sign", sign).build());
+        if (gridFSFile == null) {
+            RealNameAuthFileUploadOutput realNameAuthFileUploadOutput = new RealNameAuthFileUploadOutput();
+            GridFSUploadOptions options = new GridFSUploadOptions();
+            Document metadata = new Document();
+            metadata.append("sign", sign);
+            metadata.append("memberId", input.getMemberId());
 
-                options.metadata(metadata);
+            options.metadata(metadata);
 
-                String fileId = gridFSBucket.uploadFromStream(input.getFirstFile().getName(), input.getFirstFile().getInputStream(), options).toString();
-                realNameAuthFileUploadOutput.setFileId(fileId);
+            String fileId = gridFSBucket.uploadFromStream(input.getFirstFile().getName(), input.getFirstFile().getInputStream(), options).toString();
+            realNameAuthFileUploadOutput.setFileId(fileId);
 
-                return success(realNameAuthFileUploadOutput);
-            } else {
-                throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
-            }
-
-        } catch (StatusCodeWithException | IOException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            return success(realNameAuthFileUploadOutput);
+        } else {
+            throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
         }
+
 
     }
 
-    private void syncDataToOtherUnionNode(Input input){
+    private void syncDataToOtherUnionNode(Input input) {
         List<UnionNode> list = unionNodeMongoRepo.findAll();
         for (UnionNode unionNode :
                 list) {
             JSONObject result = HttpRequest.create(unionNode.getUnionBaseUrl() + "member/file/upload")
                     .setContentType(HttpContentType.MULTIPART)
-                    .appendParameter("file",input.getFirstFile())
+                    .appendParameter("file", input.getFirstFile())
                     .post()
                     .getBodyAsJson();
         }
