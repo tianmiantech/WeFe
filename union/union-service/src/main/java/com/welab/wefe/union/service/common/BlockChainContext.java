@@ -23,6 +23,7 @@ import com.welab.wefe.union.service.config.ConfigProperties;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.contract.DataSetMemberPermissionContract;
 import com.welab.wefe.union.service.contract.MemberContract;
+import com.welab.wefe.union.service.contract.UnionNodeContract;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
@@ -168,6 +169,14 @@ public class BlockChainContext {
     public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract() throws StatusCodeWithException {
         String address = getUnionLatestContractAddressByName(unionCnsService, configProperties.getBlockChainUnionDataSetMemberPermissionContractName());
         return DataSetMemberPermissionContract.load(address, unionClient, unionCryptoKeyPair);
+    }
+
+    /**
+     * Get the latest version of the DataSetMemberPermission contract
+     */
+    public UnionNodeContract getLatestVersionUnionNodeContract() throws StatusCodeWithException {
+        String address = getUnionLatestContractAddressByName(unionCnsService, configProperties.getBlockChainUnionNodeContractName());
+        return UnionNodeContract.load(address, unionClient, unionCryptoKeyPair);
     }
 
 

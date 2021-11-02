@@ -70,6 +70,7 @@ public enum StatusCode {
     REPEAT_SUBSCRIPTION(10034, "Do not repeat subscription"),
     FILE_IO_ERROR(10035, "File read / write failed"),
     RSA_ERROR(10036, "Rsa error"),
+    DUPLICATE_RESOURCE_ERROR(10037, "Duplicate resource"),
 
     /**
      * Database related error status code

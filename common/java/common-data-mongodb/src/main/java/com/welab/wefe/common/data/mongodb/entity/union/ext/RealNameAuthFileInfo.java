@@ -7,7 +7,7 @@ package com.welab.wefe.common.data.mongodb.entity.union.ext;
  */
 public class RealNameAuthFileInfo {
     private String fileId;
-    private String fileMd5Sign;
+    private String fileSign;
 
     public String getFileId() {
         return fileId;
@@ -17,11 +17,11 @@ public class RealNameAuthFileInfo {
         this.fileId = fileId;
     }
 
-    public String getFileMd5Sign() {
-        return fileMd5Sign;
+    public String getFileSign() {
+        return fileSign;
     }
 
-    public void setFileMd5Sign(String fileMd5Sign) {
-        this.fileMd5Sign = fileMd5Sign;
+    public void setFileSign(String fileSign) {
+        this.fileSign = fileSign;
     }
 }
