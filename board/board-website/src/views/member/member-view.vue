@@ -103,6 +103,14 @@
                     >
                         <p class="mb10">名片预览：</p>
                         <MemberCard />
+
+                        <div class="mt40">
+                            <el-form-item label="企业认证：">
+                                <span class="el-link el-link--success el-icon-circle-check"> 已认证 </span>
+                                <span class="el-link el-link--danger el-icon-circle-check"> 未认证 </span>
+                                <router-link class="f12 ml20" :to="{ name: '', }">重新认证</router-link>
+                            </el-form-item>
+                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -193,7 +201,6 @@
                     url: '/member/detail',
                 });
 
-                console.info(data);
                 if (code === 0) {
                     this.form = { ...data };
                     this.form.member_logo = '';

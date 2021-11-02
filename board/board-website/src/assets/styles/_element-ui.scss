@@ -1,7 +1,5 @@
 @charset "UTF-8";
-$--font-path: '../fonts';
 @import './_variable.scss';
-@import "~element-plus/packages/theme-chalk/src/index";
 
 :root {
     --el-color-success  : #35c895;
@@ -66,5 +64,6 @@ $--font-path: '../fonts';
     .el-tabs__nav-next,
     .el-tabs__nav-prev{
         padding-top: 16px;
+        line-height: 0;
     }
 }

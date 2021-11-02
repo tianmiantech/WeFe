@@ -206,8 +206,8 @@
 
         <SelectMemberDialog
             ref="SelectMemberDialog"
-            :public-member-info-list="public_member_info_list"
             :block-my-id="true"
+            :public-member-info-list="public_member_info_list"
             @select-member="selectMember"
         />
     </el-card>

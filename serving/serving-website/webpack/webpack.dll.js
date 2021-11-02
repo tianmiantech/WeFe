@@ -1,10 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
 const packageJson = require('../package.json');
-const { original } = JSON.parse(process.env.npm_config_argv);
+const argv = require('minimist')(process.argv.slice(2));
+const argvs = argv._[1] ? argv._[1].split('=') : '';
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
-const context = devMode ? '/' : `${original[3] ? `/${original[3].split('=')[1]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
+const context = devMode ? '/' : `${argvs ? `/${argvs[1]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
 const resolve = dir => path.resolve(__dirname, dir);
 
 module.exports = {
