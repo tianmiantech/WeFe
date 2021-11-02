@@ -64,7 +64,11 @@
 
 ![](../../images/fc/add_AdministratorAccess_auth.png)
 
-#### 1.2 API 用户创建
+> 如无需对账号权限进行细粒度控制(即用`API`账号进行函数计算相关部署和接口调用)，可不用创建`API`用户，
+> 直接使用`admin`账号的`AccessKey ID`、`AccessKey Secret`，配置过程中，可跳过`3. FC 函数计算服务配置`的相关配置过程
+
+
+#### 1.2、API 用户创建
 
 - `API`用户属于主账号下的子账号(RAM 账号), 该账号用于项目中实际接口调用时相关权限的设置，后续的配置全部围绕该账号进行
 
@@ -74,8 +78,63 @@
 
 注：保存`AccessKey ID`、`AccessKey Secret`，后续配置需要用到
 
+- 前往`访问控制`控制台，在权限策略管理中,创建自定义策略
 
-- 赋予相关系统权限，如下所示：
+> 策略名称：wefe-fc-policy
+
+以下是权限配置的json
+
+```json
+{
+  "Version": "1",
+  "Statement": [
+    {
+      "Action": [
+        "ecs:CreateNetworkInterface",
+        "ecs:DeleteNetworkInterface",
+        "ecs:DescribeNetworkInterfaces",
+        "ecs:CreateNetworkInterfacePermission",
+        "ecs:DescribeNetworkInterfacePermissions",
+        "ecs:DeleteNetworkInterfacePermission",
+        "ecs:CreateSecurityGroup",
+        "ecs:AuthorizeSecurityGroup"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ram:DeletePolicyVersion",
+        "ram:CreatePolicyVersion",
+        "ram:CreateServiceLinkedRole",
+        "ram:GetRole",
+        "ram:PassRole"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "sts:AssumeRole"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "vpc:CreateVSwitch",
+        "vpc:DescribeVSwitchAttributes"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    }
+  ]
+}
+```  
+
+> 自定义策略创建完成！
+
+- 赋予`API`账号相关权限，如下所示：
 
 ```
 AliyunOSSFullAccess
@@ -86,7 +145,10 @@ AliyunFCFullAccess
 AliyunNASFullAccess
 AliyunVPCFullAccess
 AliyunCloudMonitorFullAccess
+wefe-fc-policy
 ```
+
+> 其中，`wefe-fc-policy`为自定义策略
 
 注：系统权限添加一次只能5个，剩下的请再次添加进去，如下：
 
@@ -167,60 +229,6 @@ AliyunCloudMonitorFullAccess
 
 #### 3.1、函数部署相关权限配置
 
-- 创建自定义策略方法同上。
-
-> 策略名称：wefe-fc-policy
-
-以下是权限配置的json
-
-```json
-{
-  "Version": "1",
-  "Statement": [
-    {
-      "Action": [
-        "ecs:CreateNetworkInterface",
-        "ecs:DeleteNetworkInterface",
-        "ecs:DescribeNetworkInterfaces",
-        "ecs:CreateNetworkInterfacePermission",
-        "ecs:DescribeNetworkInterfacePermissions",
-        "ecs:DeleteNetworkInterfacePermission",
-        "ecs:CreateSecurityGroup",
-        "ecs:AuthorizeSecurityGroup"
-      ],
-      "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "ram:DeletePolicyVersion",
-        "ram:CreatePolicyVersion",
-        "ram:CreateServiceLinkedRole",
-        "ram:GetRole",
-        "ram:PassRole"
-      ],
-      "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "sts:AssumeRole"
-      ],
-      "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "vpc:CreateVSwitch",
-        "vpc:DescribeVSwitchAttributes"
-      ],
-      "Resource": "*",
-      "Effect": "Allow"
-    }
-  ]
-}
-```  
-
 - 创建用于配置函数计算 template.yml文件的role角色(RAM 角色)
 
 > 角色名称：wefe-fc-role
@@ -248,7 +256,7 @@ AliyunNASFullAccess
 
 - 添加自定义权限：
 
-将上述步骤创建的策略：wefe-fc-policy, 添加到该 RAM 角色中，最终如下图所示：
+将上述步骤创建的策略：`wefe-fc-policy`, 添加到该 RAM 角色中，最终如下图所示：
 
 ![](../../images/fc/create_fc_role.png)
 
@@ -278,17 +286,19 @@ AliyunNASFullAccess
 ```
 ##### 函数计算的相关配置  #####
 
-# 阿里云函数计算引擎相关配置
-# 阿里云账号UID
+# 函数部署账号: api / admin 
+FC_ACCOUNT_TYPE=admin
+
+# 阿里云账号UID: 主账号 UID, 而非 api 或者 admin 账号 UID
 FC_ACCOUNT_ID="102503****37039"
 
 # 函数计算所在的区域，建议:cn-shenzhen
 FC_REGION="cn-shenzhen"
 
-# 提供API访问的access_key_id
+# 提供RAM账号访问的access_key_id
 FC_ACCESS_KEY_ID="xxx"
 
-# 提供API访问的access_key_secret
+# 提供RAM账号访问的access_key_secret
 FC_ACCESS_KEY_SECRET="xxx"
 
 # 函数计算存储类型
@@ -302,9 +312,10 @@ ACCELERATION="NONE"
 
 # 函数计算调佣版本号
 FC_QUALIFIER="LATEST"
+
 ```
 
-> 至此全部配置完毕，可以启动项目，部署函数！
+> 至此全部配置完毕，可启动项目，部署函数！
 
 ### 6、函数计算服务关联日志(按需配置)
 关联函数计算服务到日志服务后，函数计算执行的相关日志会写入日志仓库，后续如出现异常，便于排查问题！
