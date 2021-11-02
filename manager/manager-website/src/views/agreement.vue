@@ -96,11 +96,9 @@
             <el-upload
                 drag
                 :action="action"
-                :data="fileObject"
                 accept=".png,.jpg,.pdf"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
-                :file-list="fileList"
             >
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">
@@ -121,10 +119,10 @@
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
                 <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i>
                 <embed
-                    :type="preview.fileType"
+                    v-if="preview.visible"
                     :src="preview.fileData"
                     :alt="preview.fileName"
-                    style="width: 100%;min-height:calc(100vh - 50px);display:block;"
+                    :style="`width: 100%;${preview.fileType.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
                 >
             </div>
         </el-dialog>
@@ -154,16 +152,11 @@
                 getListApi:    '/auth/agreement/template/query',
                 action:        `${window.api.baseUrl}/manager-service/auth/agreement/template/upload`,
                 editDialog:    false,
-                fileList:      [],
-                fileObject:    {
-                    fileName: '',
-                    fileType: '',
-                },
-                preview: {
+                preview:       {
                     visible:    false,
                     fileName:   '',
-                    fileType:   '',
                     fileData:   '',
+                    fileType:   '',
                     fullscreen: false,
                 },
             };
@@ -172,20 +165,31 @@
             ...mapGetters(['userInfo']),
         },
         methods: {
+            blobToDataURI(blob, callback) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    callback(e.target.result);
+                };
+                reader.readAsDataURL(blob);
+            },
             async filePreview(event, row) {
                 this.editId = row.id;
                 this.loading = true;
-                const { code, data } = await this.$http.get('/query/file?fileId=' + row.auth_agreement_file_id);
+                const { code, data } = await this.$http.post({
+                    url:          '/download/file?fileId=' + row.auth_agreement_file_id,
+                    responseType: 'blob',
+                });
 
                 this.loading = false;
                 if(code === 0) {
-                    const fileType = data.file_type === 'image' ? 'image/jpg' : 'application/pdf';
-
-                    this.preview.visible = true;
-                    this.preview.fullscreen = false;
-                    this.preview.fileType = fileType;
-                    this.preview.fileData = `data:${fileType};base64,${data.file_data}`;
-                    this.preview.fileName = data.file_name;
+                    this.preview.fileType = data.type;
+                    this.blobToDataURI(data, result => {
+                        this.preview.visible = true;
+                        this.preview.fullscreen = false;
+                        this.preview.fileData = result;
+                        this.preview.fileName = data.file_name;
+                    });
                 }
             },
             remove(event, row) {
@@ -230,9 +234,6 @@
                         return false;
                     }
                 }
-
-                this.fileObject.fileName = file.name;
-                this.fileObject.fileType = isImg ? 'image' : 'pdf';
                 return true;
             },
             uploadFinished(res) {
