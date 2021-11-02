@@ -36,7 +36,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "query/file", name = "query_file", login = false)
+@Api(path = "query/file", name = "query_file", rsaVerify = true, login = false)
 public class QueryFileApi extends AbstractApi<QueryFileApi.Input, QueryFileOutput> {
 
     @Autowired
