@@ -30,11 +30,11 @@ import java.util.List;
 @Repository
 public class UserMongoRepo extends AbstractMongoRepo {
 
-    public List<DataSetMemberPermission> findByMemberId(String memberId) {
-        Query query = new QueryBuilder().append("memberId", memberId).build();
-        List<DataSetMemberPermission> list = mongoTemplate.find(query, DataSetMemberPermission.class);
-        return list;
-    }
+//    public List<User> findByMemberId(String memberId) {
+//        Query query = new QueryBuilder().append("memberId", memberId).build();
+//        List<DataSetMemberPermission> list = mongoTemplate.find(query, DataSetMemberPermission.class);
+//        return list;
+//    }
 
     public User find(String account, String password) {
         Query query = new QueryBuilder()

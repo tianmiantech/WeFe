@@ -36,8 +36,10 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<UploadAuthAgreem
     @Override
     protected ApiResult<AbstractApiOutput> handle(UploadAuthAgreementTemplateInput input) throws StatusCodeWithException, IOException {
         GridFSUploadOptions options = new GridFSUploadOptions();
+        String contentType = input.getFirstFile().getContentType();
         Document metadata = new Document();
-        metadata.append("fileType", input.getFileType());
+//        metadata.append("fileType", input.getFileType());
+        metadata.append("contentType", contentType);
         metadata.append("sign", Md5.of(input.getFirstFile().getInputStream()));
         options.metadata(metadata);
         String fileName = input.getFirstFile().getOriginalFilename();

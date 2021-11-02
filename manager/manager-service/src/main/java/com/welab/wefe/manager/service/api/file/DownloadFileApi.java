@@ -24,40 +24,65 @@ import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.agreement.QueryFileInput;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *
  * @author yuxin.zhang
  */
 @Api(path = "download/file", name = "download_file", login = false)
-public class DownloadFileApi extends AbstractApi<QueryFileInput, QueryFileOutput> {
+public class DownloadFileApi extends AbstractApi<QueryFileInput, ResponseEntity<byte[]>> {
 
     @Autowired
     private GridFSBucket gridFSBucket;
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
+
     @Override
-    protected ApiResult<QueryFileOutput> handle(QueryFileInput input) throws IOException {
+    protected ApiResult<ResponseEntity<byte[]>> handle(QueryFileInput input) throws IOException {
         //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id",input.getFileId()).build());
+
+        String contentType = gridFSFile.getMetadata().getString("contentType");
+
         //使用GridFsBucket打开一个下载流对象
         GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
         //创建GridFsResource对象，获取流
         GridFsResource gridFsResource = new GridFsResource(gridFSFile, gridFSDownloadStream);
-        QueryFileOutput queryFileOutput = new QueryFileOutput();
-        queryFileOutput.setFileData(IOUtils.toByteArray(gridFsResource.getInputStream()));
-        queryFileOutput.setFileName(gridFSFile.getFilename());
-        queryFileOutput.setFileType(gridFSFile.getMetadata().getString("fileType"));
-        return success(queryFileOutput);
+
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Content-Disposition", "attachment; filename=" + gridFSFile.getFilename());
+        headers.add("Pragma", "no-cache");
+        headers.add("ETag", String.valueOf(System.currentTimeMillis()));
+
+        ResponseEntity<byte[]> response = ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(IOUtils.toByteArray(gridFsResource.getInputStream()));
+
+        return success(response);
+
     }
+
+
 
 }

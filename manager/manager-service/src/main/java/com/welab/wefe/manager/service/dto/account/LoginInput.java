@@ -4,9 +4,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
- * @Author Jervis
- * @Date 2020-06-04
- **/
+ * @author yuxin.zhang
+ */
 public class LoginInput extends AbstractApiInput {
 
     @Check(require = true)

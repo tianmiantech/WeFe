@@ -3,9 +3,8 @@ package com.welab.wefe.manager.service.dto.account;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 
 /**
- * @Author Jervis
- * @Date 2020-06-04
- **/
+ * @author yuxin.zhang
+ */
 public class LoginOutput extends AbstractApiOutput {
 
     private String token;
