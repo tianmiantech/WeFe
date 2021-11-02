@@ -73,7 +73,6 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
 
                 String fileId = gridFSBucket.uploadFromStream(input.getFirstFile().getName(), input.getFirstFile().getInputStream(), options).toString();
                 realNameAuthFileUploadOutput.setFileId(fileId);
-                realNameAuthFileUploadOutput.setSign(sign);
 
                 return success(realNameAuthFileUploadOutput);
             } else {
@@ -102,6 +101,8 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     public static class Input extends AbstractWithFilesApiInput {
         @Check(require = true)
         private String memberId;
+        @Check(require = true)
+        private String fileType;
 
         public String getMemberId() {
             return memberId;
@@ -111,5 +112,13 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
             this.memberId = memberId;
         }
 
+
+        public String getFileType() {
+            return fileType;
+        }
+
+        public void setFileType(String fileType) {
+            this.fileType = fileType;
+        }
     }
 }

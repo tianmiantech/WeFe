@@ -15,6 +15,7 @@ public class MemberExtJSON {
     private String principalName;
     @Column(name = "auth_type")
     private String authType;
+    private String reviewComments;
     private String description;
     private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
 
@@ -57,5 +58,13 @@ public class MemberExtJSON {
 
     public void setRealNameAuthFileInfoList(List<RealNameAuthFileInfo> realNameAuthFileInfoList) {
         this.realNameAuthFileInfoList = realNameAuthFileInfoList;
+    }
+
+    public String getReviewComments() {
+        return reviewComments;
+    }
+
+    public void setReviewComments(String reviewComments) {
+        this.reviewComments = reviewComments;
     }
 }

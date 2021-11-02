@@ -18,15 +18,14 @@ package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.manager.service.contract.DataSetContract;
 import com.welab.wefe.manager.service.contract.MemberContract;
-import com.welab.wefe.manager.service.dto.dataset.DataSetUpdateExtJsonInput;
-import com.welab.wefe.manager.service.dto.member.MemberExtJsonInput;
+import com.welab.wefe.manager.service.dto.member.RealNameAuthInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -90,17 +89,17 @@ public class MemberContractService extends AbstractContractService {
         }
     }
 
-    public void updateExtJson(MemberExtJsonInput input) throws StatusCodeWithException {
+    public void updateExtJson(String memberId,MemberExtJSON extJSON) throws StatusCodeWithException {
         try {
-            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.getId()).getExtJson());
-            Field[] fields = input.getExtJson().getClass().getDeclaredFields();
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(memberId).getExtJson());
+            Field[] fields = extJSON.getClass().getDeclaredFields();
             for (int i = 0; i < fields.length; i++) {
                 fields[i].setAccessible(true);
-                if (null != fields[i].get(input.getExtJson())) {
-                    extJson.put(fields[i].getName(), fields[i].get(input.getExtJson()));
+                if (null != fields[i].get(extJSON)) {
+                    extJson.put(fields[i].getName(), fields[i].get(extJSON));
                 }
             }
-            TransactionReceipt transactionReceipt = memberContract.updateExtJson(input.getId(),
+            TransactionReceipt transactionReceipt = memberContract.updateExtJson(memberId,
                     extJson.toString());
 
             // Get receipt result

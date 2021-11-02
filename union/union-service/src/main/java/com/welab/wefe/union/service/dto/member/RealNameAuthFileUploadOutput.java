@@ -23,7 +23,6 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
  **/
 public class RealNameAuthFileUploadOutput extends AbstractApiOutput {
     private String fileId;
-    private String sign;
 
     public String getFileId() {
         return fileId;
@@ -31,13 +30,5 @@ public class RealNameAuthFileUploadOutput extends AbstractApiOutput {
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 }

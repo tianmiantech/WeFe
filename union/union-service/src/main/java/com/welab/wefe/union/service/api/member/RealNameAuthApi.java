@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -42,16 +43,19 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("RealNameAuthApi handle..");
-        memberContractService.updateExtJson(input);
+//        memberContractService.updateExtJson(input.getCurMemberId(),memberExtJSON);
         return success();
     }
 
 
     public static class Input extends BaseInput {
+        @Check(require = true)
         private String principalName;
+        @Check(require = true)
         private String authType;
         private String description;
-        private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
+        @Check(require = true)
+        private List<String> fileIdList;
 
 
 
@@ -79,12 +83,12 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
             this.description = description;
         }
 
-        public List<RealNameAuthFileInfo> getRealNameAuthFileInfoList() {
-            return realNameAuthFileInfoList;
+        public List<String> getFileIdList() {
+            return fileIdList;
         }
 
-        public void setRealNameAuthFileInfoList(List<RealNameAuthFileInfo> realNameAuthFileInfoList) {
-            this.realNameAuthFileInfoList = realNameAuthFileInfoList;
+        public void setFileIdList(List<String> fileIdList) {
+            this.fileIdList = fileIdList;
         }
     }
 }
