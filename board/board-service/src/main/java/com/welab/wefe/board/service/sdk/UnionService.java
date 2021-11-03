@@ -408,9 +408,13 @@ public class UnionService extends AbstractService {
             for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
                 try {
                     MultipartFile file = item.getValue();
+                    ContentType contentType = StringUtil.isEmpty(file.getContentType())
+                            ? ContentType.DEFAULT_BINARY
+                            : ContentType.create(file.getContentType());
+
                     InputStreamBody streamBody = new InputStreamBody(
                             file.getInputStream(),
-                            ContentType.DEFAULT_BINARY,
+                            contentType,
                             file.getOriginalFilename()
                     );
                     request.appendParameter(item.getKey(), streamBody);
