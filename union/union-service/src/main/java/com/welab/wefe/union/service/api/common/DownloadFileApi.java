@@ -19,7 +19,6 @@ package com.welab.wefe.union.service.api.common;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import com.welab.wefe.common.data.mongodb.dto.QueryFileOutput;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -35,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * @author yuxin.zhang
@@ -59,7 +59,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + gridFSFile.getFilename());
+        headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
         headers.add("Pragma", "no-cache");
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
 

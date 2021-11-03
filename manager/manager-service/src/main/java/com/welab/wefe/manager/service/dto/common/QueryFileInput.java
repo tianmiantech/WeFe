@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.dto.agreement;
+package com.welab.wefe.manager.service.dto.common;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;

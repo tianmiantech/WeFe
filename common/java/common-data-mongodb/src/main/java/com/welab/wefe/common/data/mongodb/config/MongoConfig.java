@@ -47,6 +47,8 @@ public class MongoConfig {
     @Value("${spring.datasource.mongodb.databaseName}")
     private String databaseName;
 
+
+
     @Bean
     public MongoClient mongoUnionClient() {
         return new MongoClient(new MongoClientURI(uri));
