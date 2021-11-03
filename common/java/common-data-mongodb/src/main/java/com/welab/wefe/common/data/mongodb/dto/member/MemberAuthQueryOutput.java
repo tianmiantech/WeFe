@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.dto.authtype;
+package com.welab.wefe.common.data.mongodb.dto.member;
 
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON;
 

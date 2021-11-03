@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class RealNameAuthInfoQueryOutput {
 
-    private boolean realNameAuth;
+    private int realNameAuthStatus;
     private String principalName;
     private String auditComment;
     private String authType;
@@ -17,12 +17,12 @@ public class RealNameAuthInfoQueryOutput {
     private List<String> fileIdList;
 
 
-    public boolean isRealNameAuth() {
-        return realNameAuth;
+    public int getRealNameAuthStatus() {
+        return realNameAuthStatus;
     }
 
-    public void setRealNameAuth(boolean realNameAuth) {
-        this.realNameAuth = realNameAuth;
+    public void setRealNameAuthStatus(int realNameAuthStatus) {
+        this.realNameAuthStatus = realNameAuthStatus;
     }
 
     public String getPrincipalName() {

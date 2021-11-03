@@ -37,7 +37,7 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
     @Override
     protected ApiResult<AbstractApiOutput> handle(RealNameAuthInput input) throws StatusCodeWithException {
         MemberExtJSON memberExtJSON = new MemberExtJSON();
-        memberExtJSON.setRealNameAuth(input.isRealNameAuth());
+        memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
         memberExtJSON.setAuditComment(input.getAuditComment());
         memberContractService.updateExtJson(input.curMemberId, memberExtJSON);
         return success();

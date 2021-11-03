@@ -12,7 +12,7 @@ public class RealNameAuthInput extends BaseInput {
     @Check(require = true)
     private String id;
     @Check(require = true)
-    private boolean realNameAuth;
+    private int realNameAuthStatus;
     private String auditComment;
 
     public String getId() {
@@ -23,12 +23,12 @@ public class RealNameAuthInput extends BaseInput {
         this.id = id;
     }
 
-    public boolean isRealNameAuth() {
-        return realNameAuth;
+    public int getRealNameAuthStatus() {
+        return realNameAuthStatus;
     }
 
-    public void setRealNameAuth(boolean realNameAuth) {
-        this.realNameAuth = realNameAuth;
+    public void setRealNameAuthStatus(int realNameAuthStatus) {
+        this.realNameAuthStatus = realNameAuthStatus;
     }
 
     public String getAuditComment() {

@@ -9,8 +9,8 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class MemberExtJSON {
-    @Column(name = "real_name_auth")
-    private boolean realNameAuth;
+    @Column(name = "real_name_auth_status")
+    private int realNameAuthStatus;
     @Column(name = "principalName")
     private String principalName;
     @Column(name = "auth_type")
@@ -20,12 +20,12 @@ public class MemberExtJSON {
     private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
 
 
-    public boolean isRealNameAuth() {
-        return realNameAuth;
+    public int getRealNameAuthStatus() {
+        return realNameAuthStatus;
     }
 
-    public void setRealNameAuth(boolean realNameAuth) {
-        this.realNameAuth = realNameAuth;
+    public void setRealNameAuthStatus(int realNameAuthStatus) {
+        this.realNameAuthStatus = realNameAuthStatus;
     }
 
     public String getPrincipalName() {

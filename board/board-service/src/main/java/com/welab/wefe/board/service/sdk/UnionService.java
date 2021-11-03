@@ -77,6 +77,11 @@ public class UnionService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
+
+    public JSONObject queryMemberAuthTypeList() throws StatusCodeWithException {
+        return request("member/authtype/query", JObject.create(), true);
+    }
+
     public JSONObject realnameAuth(Map<String, Object> data) throws StatusCodeWithException {
         return request("member/realname/auth", new JSONObject(data), true);
     }
