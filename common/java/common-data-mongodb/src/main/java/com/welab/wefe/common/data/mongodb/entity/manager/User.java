@@ -18,18 +18,35 @@ package com.welab.wefe.common.data.mongodb.entity.manager;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractMongoModel;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.UUID;
 
 /**
  * @author yuxin.zhang
  **/
 @Document(collection = MongodbTable.USER)
-public class User extends AbstractMongoModel {
-    private String userId;
+public class User extends AbstractNormalMongoModel {
+    private String userId = UUID.randomUUID().toString().replaceAll("-", "");
     private String account;
     private String password;
     private String nickname;
     private String email;
+    /**
+     * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
+     */
+    private Boolean superAdminRole;
+    /**
+     * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
+     */
+    private Boolean adminRole;
+
+    /**
+     * 是否可用
+     */
+    private Boolean enable;
+
 
     public String getAccount() {
         return account;
@@ -69,5 +86,30 @@ public class User extends AbstractMongoModel {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+
+    public Boolean getSuperAdminRole() {
+        return superAdminRole;
+    }
+
+    public void setSuperAdminRole(Boolean superAdminRole) {
+        this.superAdminRole = superAdminRole;
+    }
+
+    public Boolean getAdminRole() {
+        return adminRole;
+    }
+
+    public void setAdminRole(Boolean adminRole) {
+        this.adminRole = adminRole;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
     }
 }

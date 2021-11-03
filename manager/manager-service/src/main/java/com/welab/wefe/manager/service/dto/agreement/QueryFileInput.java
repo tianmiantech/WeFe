@@ -1,6 +1,7 @@
 package com.welab.wefe.manager.service.dto.agreement;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 
 /**
@@ -8,7 +9,7 @@ import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
  * @author: yuxin.zhang
  * @date: 2021/10/28
  */
-public class QueryFileInput extends AbstractWithFilesApiInput {
+public class QueryFileInput extends AbstractApiInput {
     @Check(require = true)
     private String fileId;
 

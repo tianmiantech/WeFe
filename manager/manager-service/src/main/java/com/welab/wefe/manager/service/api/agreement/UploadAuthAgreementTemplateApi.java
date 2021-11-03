@@ -36,16 +36,19 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<UploadAuthAgreem
     @Override
     protected ApiResult<AbstractApiOutput> handle(UploadAuthAgreementTemplateInput input) throws StatusCodeWithException, IOException {
         GridFSUploadOptions options = new GridFSUploadOptions();
+        String contentType = input.getFirstFile().getContentType();
         Document metadata = new Document();
+//        metadata.append("fileType", input.getFileType());
+        metadata.append("contentType", contentType);
         metadata.append("sign", Md5.of(input.getFirstFile().getInputStream()));
         options.metadata(metadata);
-        String x = input.getFirstFile().getName();
-        String fileId = gridFSBucket.uploadFromStream(x, input.getFirstFile().getInputStream(),options).toString();
+        String fileName = input.getFirstFile().getOriginalFilename();
+        String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(),options).toString();
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id",fileId).build());
         AuthAgreementTemplate authAgreementTemplate = new AuthAgreementTemplate();
         authAgreementTemplate.setAuthAgreementFileId(fileId);
         authAgreementTemplate.setAuthAgreementFileMd5(gridFSFile.getMetadata().getString("sign"));
-        authAgreementTemplate.setFileName(input.getFirstFile().getName());
+        authAgreementTemplate.setFileName(fileName);
         authAgreementTemplateMongoRepo.save(authAgreementTemplate);
         return success();
     }

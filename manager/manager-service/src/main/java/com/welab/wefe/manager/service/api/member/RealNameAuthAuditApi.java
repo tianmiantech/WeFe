@@ -16,26 +16,30 @@
 
 package com.welab.wefe.manager.service.api.member;
 
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.member.MemberExtJsonInput;
+import com.welab.wefe.manager.service.dto.member.RealNameAuthInput;
 import com.welab.wefe.manager.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
-@Api(path = "member/update_ext_json", name = "member_update_ext_json", login = false)
-public class UpdateExtJsonApi extends AbstractApi<MemberExtJsonInput, AbstractApiOutput> {
+@Api(path = "member/realname/auth/audit", name = "member_realname_auth_audit", login = false)
+public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
     @Autowired
     protected MemberContractService memberContractService;
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(MemberExtJsonInput input) throws StatusCodeWithException {
-        memberContractService.updateExtJson(input);
+    protected ApiResult<AbstractApiOutput> handle(RealNameAuthInput input) throws StatusCodeWithException {
+        MemberExtJSON memberExtJSON = new MemberExtJSON();
+        memberExtJSON.setRealNameAuth(input.isRealNameAuth());
+        memberExtJSON.setAuditComment(input.getAuditComment());
+        memberContractService.updateExtJson(input.curMemberId, memberExtJSON);
         return success();
     }
 

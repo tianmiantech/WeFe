@@ -48,13 +48,18 @@ public class MongoConfig {
     private String databaseName;
 
     @Bean
-    public MongoClient mongoClient() {
+    public MongoClient mongoUnionClient() {
         return new MongoClient(new MongoClientURI(uri));
     }
 
     @Bean
-    public MongoDbFactory mongoDbFactory(MongoClient mongoClient) {
-        return new SimpleMongoDbFactory(mongoClient, databaseName);
+    public MongoClient mongoManagerClient() {
+        return new MongoClient(new MongoClientURI(uri));
+    }
+
+    @Bean
+    public MongoDbFactory mongoDbFactory(MongoClient mongoUnionClient) {
+        return new SimpleMongoDbFactory(mongoUnionClient, databaseName);
     }
 
     @Bean
@@ -73,8 +78,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public GridFSBucket getGridFSBucket(MongoClient mongoClient){
-        MongoDatabase database = mongoClient.getDatabase(databaseName);
+    public GridFSBucket getGridFSBucket(MongoClient mongoUnionClient){
+        MongoDatabase database = mongoUnionClient.getDatabase(databaseName);
         GridFSBucket bucket = GridFSBuckets.create(database);
         return bucket;
     }
