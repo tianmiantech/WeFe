@@ -32,13 +32,13 @@ import java.util.Map;
  * @date 2021/11/2
  */
 @Api(path = "union/member/realname/auth", name = "apply realname auth")
-public class MemberRealnameAuth extends AbstractApi<MemberRealnameAuth.Input, JSONObject> {
+public class MemberRealNameAuthApi extends AbstractApi<MemberRealNameAuthApi.Input, JSONObject> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(MemberRealnameAuth.Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<JSONObject> handle(MemberRealNameAuthApi.Input input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.realnameAuth(input.data);
         return super.unionApiResultToBoardApiResult(result);
     }

@@ -81,8 +81,13 @@ public class UnionService extends AbstractService {
         return request("member/realname/auth", new JSONObject(data), true);
     }
 
-    public JSONObject uploadFile(Map<String, Object> data, MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
-        return request("member/file/upload", new JSONObject(data), files, true);
+    public JSONObject realnameAuthInfoQuery() throws StatusCodeWithException {
+        return request("member/realname/authInfo/query", JObject.create(), true);
+    }
+
+
+    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
+        return request("member/file/upload", JObject.create(), files, true);
     }
 
     /**

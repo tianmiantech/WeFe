@@ -25,24 +25,19 @@ import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-
 /**
  * @author zane.luo
  */
 @Api(path = "union/member/file/upload", name = "upload file")
-public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, JSONObject> {
+public class MemberFileUploadApi extends AbstractApi<AbstractWithFilesApiInput, JSONObject> {
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
-        JSONObject result = unionService.uploadFile(input.data, input.files);
+    protected ApiResult<JSONObject> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException {
+        JSONObject result = unionService.uploadFile(input.files);
         return super.unionApiResultToBoardApiResult(result);
 
     }
 
-    public static class Input extends AbstractWithFilesApiInput {
-        public Map<String, Object> data;
-    }
 }

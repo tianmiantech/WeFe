@@ -65,6 +65,11 @@ public class MongoConfig {
     }
 
     @Bean
+    public MongoDbFactory mongoDbxxxFactory(MongoClient mongoManagerClient) {
+        return new SimpleMongoDbFactory(mongoManagerClient, "xxx");
+    }
+
+    @Bean
     public MongoTransactionManager transactionManager(MongoDbFactory mongoDbFactory) {
         return new MongoTransactionManager(mongoDbFactory);
     }
