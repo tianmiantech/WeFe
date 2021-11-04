@@ -387,27 +387,6 @@ CREATE TABLE `server_load_log`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='服务器负载日志 ';
 
--- ----------------------------
--- Table structure for service
--- ----------------------------
-DROP TABLE IF EXISTS `service`;
-CREATE TABLE `service`
-(
-    `id`                          varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`                  varchar(32) COMMENT '创建人',
-    `created_time`                datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`                  varchar(32) COMMENT '更新人',
-    `updated_time`                datetime(6) COMMENT '更新时间',
-    `service_id`                  varchar(32) NOT NULL COMMENT '服务id(ip+port)',
-    `instance_name`               varchar(32) COMMENT '实例名称',
-    `service_type`                varchar(32) COMMENT '服务类型 枚举（redis/mysql...）',
-    `instance_uri`                varchar(1024) COMMENT '实例 URI',
-    `check_availability_interval` int(11) COMMENT '可用性检测周期（秒）',
-    `last_heartbeat_time`         datetime(6) COMMENT '最后心跳时间',
-    `status`                      varchar(32) COMMENT '状态 枚举（success/slow/offline...）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务 ';
 
 -- ----------------------------
 -- Table structure for task
