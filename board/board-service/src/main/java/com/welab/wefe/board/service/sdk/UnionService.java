@@ -44,6 +44,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.UrlUtil;
 import net.jodah.expiringmap.ExpiringMap;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -422,12 +423,18 @@ public class UnionService extends AbstractService {
                             ? ContentType.DEFAULT_BINARY
                             : ContentType.create(file.getContentType());
 
-                    InputStreamBody streamBody = new InputStreamBody(
-                            file.getInputStream(),
+//                    InputStreamBody streamBody = new InputStreamBody(
+//                            file.getInputStream(),
+//                            contentTypefile,
+//                            file.getOriginalFilename()
+//                    );
+
+                    ByteArrayBody byteArrayBody = new ByteArrayBody(
+                            file.getBytes(),
                             contentType,
                             file.getOriginalFilename()
                     );
-                    request.appendParameter(item.getKey(), streamBody);
+                    request.appendParameter(item.getKey(), byteArrayBody);
                 } catch (IOException e) {
                     StatusCode.FILE_IO_ERROR.throwException(e);
                 }
