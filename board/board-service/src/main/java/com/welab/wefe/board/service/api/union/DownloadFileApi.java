@@ -1,7 +1,11 @@
 package com.welab.wefe.board.service.api.union;
 
 import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.UrlUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -27,7 +31,22 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
 
     @Override
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws StatusCodeWithException, IOException {
-        String url = config.getUNION_BASE_URL() + "/download/file?file_id=" + input.fileId;
+        String url = config.getUNION_BASE_URL() + "/download/file";
+
+        JObject params = JObject.create("file_id", input.fileId);
+        String data = params.toJSONString();
+        String sign;
+        try {
+            sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+        params.put("member_id", CacheObjects.getMemberId());
+        params.put("sign", sign);
+        params.put("data", data);
+
+        url = UrlUtil.appendQueryParameters(url, params);
         RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
 
         RestTemplate restTemplate = new RestTemplate();
