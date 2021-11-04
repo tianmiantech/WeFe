@@ -58,9 +58,10 @@ _start_python_service(){
     identity=$3
     identity_name=$4
     container_ip=$5
+    worker_ui_port=$6
 
     echo "准备启动远程容器$to_host, 目录:$to_path, 身份:$identity, identity_name:$identity_name"
-    ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_start.sh $identity $identity_name $container_ip $to_host"
+    ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_start.sh $identity $identity_name $container_ip $to_host $worker_ui_port"
     sleep 1
 }
 
