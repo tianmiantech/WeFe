@@ -81,7 +81,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
             realNameAuthFileUploadOutput.setFileId(fileId);
 
         } else {
-            realNameAuthFileUploadOutput.setFileId(gridFSFile.getId().toString());
+            realNameAuthFileUploadOutput.setFileId(gridFSFile.getObjectId().toString());
         }
 
         return success(realNameAuthFileUploadOutput);
