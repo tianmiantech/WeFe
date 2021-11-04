@@ -22,13 +22,16 @@ ARG SPARK_DIR=$ENV_BASE/spark-3.0.1-bin-hadoop2.7
 ARG JDK_DIR=$ENV_BASE/jdk1.8.0_241
 ARG OSSUTIL_DIR=$ENV_BASE/ossutil
 ARG NODEJS_DIR=$ENV_BASE/nodejs
+ARG FUN_ENVIRONMENT_DIR=$ENV_BASE/.s/python
 
 # 在镜像创建目录
 RUN mkdir -p $MINICONDA_DIR \
     && mkdir -p $SPARK_DIR \
     && mkdir -p $JDK_DIR \
     && mkdir -p $OSSUTIL_DIR \
-    && mkdir -p $NODEJS_DIR
+    && mkdir -p $NODEJS_DIR \
+    && mkdir -p $FUN_ENVIRONMENT_DIR
+
 
 # 复制 miniconda 的 python 环境
 COPY $LOCAL_ENV_BASE/miniconda3 $MINICONDA_DIR/
@@ -44,6 +47,9 @@ COPY $LOCAL_ENV_BASE/ossutil $OSSUTIL_DIR
 
 # 复制 nodejs 环境，包含 serverless devs 工具
 COPY $LOCAL_ENV_BASE/nodejs $NODEJS_DIR
+
+# 复制函数计算依赖
+COPY $LOCAL_ENV_BASE/python $FUN_ENVIRONMENT_DIR
 
 # 配置环境变量
 ENV JAVA_HOME $JDK_DIR
