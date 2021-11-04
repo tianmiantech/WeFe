@@ -73,7 +73,7 @@ _generate_container_ip(){
     container_subnet_split=(${CONTAINER_SUBNET//./ })
     container_subnet_split[${#container_subnet_split[@]}-1]=$container_index
     container_ip=$(IFS=.; echo "${container_subnet_split[*]}")
-    return $container_ip
+    echo $container_ip
 }
 
 # ******************
