@@ -33,8 +33,8 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws StatusCodeWithException, IOException {
         String url = config.getUNION_BASE_URL() + "/download/file";
 
-        JObject params = JObject.create("file_id", input.fileId);
-        String data = params.toJSONString();
+        JObject params = JObject.create();
+        String data = JObject.create("file_id", input.fileId).toJSONString();
         String sign;
         try {
             sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
