@@ -93,7 +93,7 @@ public class UnionService extends AbstractService {
 
 
     public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
-        return request("member/file/upload", JObject.create("member_id", CacheObjects.getMemberId()), files, true);
+        return request("member/file/upload", JObject.create(), files, true);
     }
 
     /**
@@ -381,10 +381,10 @@ public class UnionService extends AbstractService {
         params = new JSONObject(new TreeMap(params));
 
         String data = params.toJSONString();
-
+        String sign = null;
         // rsa signature
+        JSONObject body = new JSONObject();
         if (needSign) {
-            String sign = null;
             try {
                 sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
             } catch (Exception e) {
@@ -393,7 +393,6 @@ public class UnionService extends AbstractService {
             }
 
 
-            JSONObject body = new JSONObject();
             body.put("member_id", CacheObjects.getMemberId());
             body.put("sign", sign);
             body.put("data", data);
@@ -411,10 +410,12 @@ public class UnionService extends AbstractService {
         }
         // send http request with files
         else {
-            url = UrlUtil.appendQueryParameters(url, params);
+            url = UrlUtil.appendQueryParameters(url, body);
             HttpRequest request = HttpRequest
                     .create(url)
                     .setContentType(HttpContentType.MULTIPART);
+
+//            request.appendParameters(body);
 
             for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
                 try {
@@ -423,18 +424,14 @@ public class UnionService extends AbstractService {
                             ? ContentType.DEFAULT_BINARY
                             : ContentType.create(file.getContentType());
 
-//                    InputStreamBody streamBody = new InputStreamBody(
-//                            file.getInputStream(),
-//                            contentTypefile,
-//                            file.getOriginalFilename()
-//                    );
-
-                    ByteArrayBody byteArrayBody = new ByteArrayBody(
-                            file.getBytes(),
+                    InputStreamBody streamBody = new InputStreamBody(
+                            file.getInputStream(),
                             contentType,
                             file.getOriginalFilename()
                     );
-                    request.appendParameter(item.getKey(), byteArrayBody);
+
+
+                    request.appendParameter(item.getKey(), streamBody);
                 } catch (IOException e) {
                     StatusCode.FILE_IO_ERROR.throwException(e);
                 }

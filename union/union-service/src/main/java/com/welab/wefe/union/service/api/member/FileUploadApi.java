@@ -58,8 +58,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     @Override
     protected ApiResult<RealNameAuthFileUploadOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
-        LOG.info("FileUploadApi input file:" + input.files.toString());
-        LOG.info("FileUploadApi input file name：" + input.getFirstFile().getOriginalFilename());
+        String fileName = input.getFirstFile().getOriginalFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("metadata.sign", sign).build());
@@ -72,7 +71,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
 
             options.metadata(metadata);
 
-            String fileId = gridFSBucket.uploadFromStream(input.getFirstFile().getName(), input.getFirstFile().getInputStream(), options).toString();
+            String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
             realNameAuthFileUploadOutput.setFileId(fileId);
 
             return success(realNameAuthFileUploadOutput);
