@@ -343,27 +343,6 @@ CREATE TABLE `operator_log`
 
 
 -- ----------------------------
--- Table structure for server
--- ----------------------------
-DROP TABLE IF EXISTS `server`;
-CREATE TABLE `server`
-(
-    `id`                varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`        varchar(32) COMMENT '创建人',
-    `created_time`      datetime(6) NOT NULL COMMENT '创建时间',
-    `updated_by`        varchar(32) COMMENT '更新人',
-    `updated_time`      datetime(6) COMMENT '更新时间',
-    `server_name`       varchar(32) COMMENT '服务器名称',
-    `server_ip`         varchar(32) COMMENT '服务器 IP',
-    `cpu_core_count`    varchar(32) COMMENT 'CUP 核心数',
-    `memory_total_size` varchar(32) COMMENT '内存总量',
-    `fs_total_size`     varchar(32) COMMENT '文件系统总大小',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务器 ';
-
-
--- ----------------------------
 -- Table structure for system_config
 -- ----------------------------
 DROP TABLE IF EXISTS `system_config`;
