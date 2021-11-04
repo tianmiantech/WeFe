@@ -427,7 +427,7 @@ public class UnionService extends AbstractService {
                             contentType,
                             file.getOriginalFilename()
                     );
-                    request.appendParameter(item.getKey(), item.getValue());
+                    request.appendParameter(item.getKey(), streamBody);
                 } catch (IOException e) {
                     StatusCode.FILE_IO_ERROR.throwException(e);
                 }
