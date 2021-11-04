@@ -38,6 +38,7 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFile
     protected ApiResult<AbstractApiOutput> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException, IOException {
         String fileName = input.getFirstFile().getOriginalFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
+        String contentType = input.getFirstFile().getContentType();
         //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
@@ -46,7 +47,7 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFile
         );
         if(gridFSFile == null){
             GridFSUploadOptions options = new GridFSUploadOptions();
-            String contentType = input.getFirstFile().getContentType();
+
             Document metadata = new Document();
             metadata.append("contentType", contentType);
             metadata.append("sign", sign);

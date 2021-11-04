@@ -59,6 +59,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
         LOG.info("FileUploadApi handle..");
         String fileName = input.getFirstFile().getOriginalFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
+        String contentType = input.getFirstFile().getContentType();
         //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
@@ -70,6 +71,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
             Document metadata = new Document();
+            metadata.append("contentType", contentType);
             metadata.append("sign", sign);
             metadata.append("memberId", input.getMemberId());
 
