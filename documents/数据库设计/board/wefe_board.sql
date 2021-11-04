@@ -313,25 +313,6 @@ CREATE TABLE `message_queue`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='消息队列';
 
--- ----------------------------
--- Table structure for modeling
--- ----------------------------
-DROP TABLE IF EXISTS `modeling`;
-CREATE TABLE `modeling`
-(
-    `id`             varchar(32)  NOT NULL COMMENT '全局唯一标识',
-    `created_by`     varchar(32) COMMENT '创建人',
-    `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`     varchar(32) COMMENT '更新人',
-    `updated_time`   datetime(6) COMMENT '更新时间',
-    `job_id`         varchar(32)  NOT NULL COMMENT '任务 Id',
-    `name`           varchar(128) NOT NULL COMMENT '任务名称',
-    `fl_type`        varchar(32)  NOT NULL COMMENT '联邦学习模式',
-    `algorithm_name` varchar(32)  NOT NULL COMMENT '模型算法名称',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='模型 比较满意的任务执行结果会导出为模型';
-
 
 -- ----------------------------
 -- Table structure for operator_log
