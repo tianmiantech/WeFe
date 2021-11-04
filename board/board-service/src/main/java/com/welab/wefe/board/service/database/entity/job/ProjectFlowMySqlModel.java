@@ -63,6 +63,10 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      * 画布中编辑的图
      */
     private String graph;
+    /**
+     * 创建此流程的成员的ID
+     */
+    private String creatorMemberId;
 
     /**
      * 流程的状态
@@ -168,6 +172,15 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
     public void setStatusUpdatedTime(Date statusUpdatedTime) {
         this.statusUpdatedTime = statusUpdatedTime;
     }
+
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
+    }
+
     //endregion
 
 }

@@ -70,6 +70,10 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
      * 任务进度
      */
     private Integer jobProgress;
+    /**
+     * 创建此流程的成员的ID
+     */
+    private String creatorMemberId;
 
 
     //region getter/setter
@@ -169,6 +173,14 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
 
     public void setIsCreator(boolean isCreator) {
         this.isCreator = isCreator;
+    }
+
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
     }
 
     //endregion

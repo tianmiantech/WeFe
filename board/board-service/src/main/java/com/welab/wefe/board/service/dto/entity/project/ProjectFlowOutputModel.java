@@ -57,6 +57,10 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
      * 画布中编辑的图
      */
     private JSONObject graph;
+    /**
+     * 创建此流程的成员的ID
+     */
+    private String creatorMemberId;
 
     /**
      * 流程的状态
@@ -174,5 +178,12 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
         this.projectModelingOutputModel = projectModelingOutputModel;
     }
 
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
+    }
     //endregion
 }
