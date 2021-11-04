@@ -362,34 +362,6 @@ CREATE TABLE `server`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='服务器 ';
 
--- ----------------------------
--- Table structure for server_load_log
--- ----------------------------
-DROP TABLE IF EXISTS `server_load_log`;
-CREATE TABLE `server_load_log`
-(
-    `id`                  varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`          varchar(32) COMMENT '创建人',
-    `created_time`        datetime(6) NOT NULL COMMENT '创建时间',
-    `updated_by`          varchar(32) COMMENT '更新人',
-    `updated_time`        datetime(6) COMMENT '更新时间',
-    `server_name`         varchar(32) COMMENT '服务器名称',
-    `server_ip`           varchar(32) COMMENT '服务器 IP',
-    `cpu_core_count`      int(11) COMMENT 'CUP 核心数',
-    `cpu_used_percent`    decimal(4, 2) COMMENT 'CPU 使用率',
-    `memory_used_size`    bigint(20) COMMENT '内存使用量',
-    `memory_free_size`    bigint(20) COMMENT '内存剩余量',
-    `memory_used_percent` decimal(4, 2) COMMENT '内存使用率',
-    `fs_used_size`        bigint(20) COMMENT '文件系统已使用量',
-    `fs_total_percent`    decimal(4, 2) COMMENT '文件系统使用率',
-    `disk_reads`          bigint(20) COMMENT '磁盘写入速度（每秒）',
-    `disk_writes`         bigint(20) COMMENT '磁盘读取速度（每秒）',
-    `net_sends`           bigint(20) COMMENT '网络上行速度（每秒）',
-    `net_receives`        bigint(20) COMMENT '网络下行速度（每秒）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务器负载日志 ';
-
 
 -- ----------------------------
 -- Table structure for system_config
