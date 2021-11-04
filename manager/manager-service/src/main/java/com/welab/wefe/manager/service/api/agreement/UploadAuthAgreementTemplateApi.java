@@ -3,6 +3,7 @@ package com.welab.wefe.manager.service.api.agreement;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -35,20 +36,32 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFile
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException, IOException {
-        GridFSUploadOptions options = new GridFSUploadOptions();
-        String contentType = input.getFirstFile().getContentType();
-        Document metadata = new Document();
-        metadata.append("contentType", contentType);
-        metadata.append("sign", Md5.of(input.getFirstFile().getInputStream()));
-        options.metadata(metadata);
         String fileName = input.getFirstFile().getOriginalFilename();
-        String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-        GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", fileId).build());
-        AuthAgreementTemplate authAgreementTemplate = new AuthAgreementTemplate();
-        authAgreementTemplate.setAuthAgreementFileId(fileId);
-        authAgreementTemplate.setAuthAgreementFileMd5(gridFSFile.getMetadata().getString("sign"));
-        authAgreementTemplate.setFileName(fileName);
-        authAgreementTemplateMongoRepo.save(authAgreementTemplate);
+        String sign = Md5.of(input.getFirstFile().getInputStream());
+        //根据文件id查询文件
+        GridFSFile gridFSFile = gridFsTemplate.findOne(
+                new QueryBuilder()
+                        .append("metadata.sign", sign)
+                        .build()
+        );
+        if(gridFSFile == null){
+            GridFSUploadOptions options = new GridFSUploadOptions();
+            String contentType = input.getFirstFile().getContentType();
+            Document metadata = new Document();
+            metadata.append("contentType", contentType);
+            metadata.append("sign", sign);
+            options.metadata(metadata);
+
+            String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
+
+            AuthAgreementTemplate authAgreementTemplate = new AuthAgreementTemplate();
+            authAgreementTemplate.setAuthAgreementFileId(fileId);
+            authAgreementTemplate.setAuthAgreementFileMd5(sign);
+            authAgreementTemplate.setFileName(fileName);
+            authAgreementTemplateMongoRepo.save(authAgreementTemplate);
+        } else {
+            throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
+        }
         return success();
     }
 

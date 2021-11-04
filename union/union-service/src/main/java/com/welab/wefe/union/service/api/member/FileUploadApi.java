@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -61,9 +60,14 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
         String fileName = input.getFirstFile().getOriginalFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         //根据文件id查询文件
-        GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("metadata.sign", sign).build());
+        GridFSFile gridFSFile = gridFsTemplate.findOne(
+                new QueryBuilder()
+                        .append("metadata.sign", sign)
+                        .append("metadata.memberId", input.getMemberId())
+                        .build()
+        );
+        RealNameAuthFileUploadOutput realNameAuthFileUploadOutput = new RealNameAuthFileUploadOutput();
         if (gridFSFile == null) {
-            RealNameAuthFileUploadOutput realNameAuthFileUploadOutput = new RealNameAuthFileUploadOutput();
             GridFSUploadOptions options = new GridFSUploadOptions();
             Document metadata = new Document();
             metadata.append("sign", sign);
@@ -74,11 +78,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
             String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
             realNameAuthFileUploadOutput.setFileId(fileId);
 
-            return success(realNameAuthFileUploadOutput);
         } else {
-            throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
+            realNameAuthFileUploadOutput.setFileId(gridFSFile.getId().toString());
         }
 
+        return success(realNameAuthFileUploadOutput);
 
     }
 
