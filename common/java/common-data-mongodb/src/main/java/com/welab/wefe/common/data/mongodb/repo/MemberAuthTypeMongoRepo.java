@@ -33,8 +33,8 @@ import java.util.List;
  **/
 @Repository
 public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
-    public List<MemberAuthType> findAll() {
-        return mongoTemplate.findAll(MemberAuthType.class);
+    public List<MemberAuthType> findList() {
+        return mongoTemplate.find(new QueryBuilder().notRemoved().build(),MemberAuthType.class);
     }
 
     public boolean deleteByTypeId(String typeId) {

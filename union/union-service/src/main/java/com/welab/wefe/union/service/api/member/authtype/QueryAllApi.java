@@ -41,7 +41,7 @@ public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<MemberAuthQueryOutput> list = memberAuthTypeMongoRepo.findAll().stream().map(memberAuthType -> {
+        List<MemberAuthQueryOutput> list = memberAuthTypeMongoRepo.findList().stream().map(memberAuthType -> {
             MemberAuthQueryOutput memberAuthQueryOutput = new MemberAuthQueryOutput();
             memberAuthQueryOutput.setTypeId(memberAuthType.getTypeId());
             memberAuthQueryOutput.setTypeName(memberAuthType.getTypeName());

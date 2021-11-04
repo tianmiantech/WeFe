@@ -30,6 +30,7 @@ import com.welab.wefe.union.service.mapper.MemberMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,10 +58,14 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryA
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
 
-            List<String> fileIdList = member.getExtJson().getRealNameAuthFileInfoList()
-                    .stream()
-                    .map(RealNameAuthFileInfo::getFileId)
-                    .collect(Collectors.toList());
+            List<String> fileIdList = new ArrayList<>();
+            List<RealNameAuthFileInfo> realNameAuthFileInfoList = member.getExtJson().getRealNameAuthFileInfoList();
+            if(realNameAuthFileInfoList != null && !realNameAuthFileInfoList.isEmpty()){
+                fileIdList = realNameAuthFileInfoList
+                        .stream()
+                        .map(RealNameAuthFileInfo::getFileId)
+                        .collect(Collectors.toList());
+            }
 
             realNameAuthInfoQueryOutput.setFileIdList(fileIdList);
             return success(realNameAuthInfoQueryOutput);
