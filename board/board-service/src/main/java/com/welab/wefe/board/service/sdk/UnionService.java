@@ -92,7 +92,7 @@ public class UnionService extends AbstractService {
 
 
     public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
-        return request("member/file/upload", JObject.create(), files, true);
+        return request("member/file/upload", JObject.create("member_id", CacheObjects.getMemberId()), files, true);
     }
 
     /**
