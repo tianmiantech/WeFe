@@ -429,24 +429,6 @@ CREATE TABLE `service`
   DEFAULT CHARSET = utf8mb4 COMMENT ='服务 ';
 
 -- ----------------------------
--- Table structure for service_check_log
--- ----------------------------
-DROP TABLE IF EXISTS `service_check_log`;
-CREATE TABLE `service_check_log`
-(
-    `id`            varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`    varchar(32) COMMENT '创建人',
-    `created_time`  datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`    varchar(32) COMMENT '更新人',
-    `updated_time`  datetime(6) COMMENT '更新时间',
-    `instance_name` varchar(32) COMMENT '实例名称',
-    `status`        varchar(32) COMMENT '状态 枚举（success/slow/offline...）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务监控日志 ';
-
-
--- ----------------------------
 -- Table structure for task
 -- ----------------------------
 DROP TABLE IF EXISTS `task`;
