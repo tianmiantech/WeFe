@@ -20,10 +20,7 @@ package com.welab.wefe.board.service.sdk;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.DataSetTagListApi;
-import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.api.union.QueryDataSetApi;
-import com.welab.wefe.board.service.api.union.TagListApi;
+import com.welab.wefe.board.service.api.union.*;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
@@ -44,7 +41,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.UrlUtil;
 import net.jodah.expiringmap.ExpiringMap;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,8 +79,8 @@ public class UnionService extends AbstractService {
         return request("member/authtype/query", JObject.create(), true);
     }
 
-    public JSONObject realnameAuth(Map<String, Object> data) throws StatusCodeWithException {
-        return request("member/realname/auth", new JSONObject(data), true);
+    public JSONObject realnameAuth(MemberRealNameAuthApi.Input input) throws StatusCodeWithException {
+        return request("member/realname/auth", JObject.create(input), true);
     }
 
     public JSONObject realnameAuthInfoQuery() throws StatusCodeWithException {
