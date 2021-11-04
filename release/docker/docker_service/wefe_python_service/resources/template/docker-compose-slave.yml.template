@@ -5,14 +5,16 @@ services:
     image: wefe_python_service:v.2.1 # wefe_version
     environment:
       - PYTHONPATH=/opt/welab/wefe
+      - "SPARK_PUBLIC_DNS=to_replace_ip" # slave_public_dns
     tty: true
-    # ports:
-    #   - 8888:5000 # flow_port
-    expose:
-      - "8081"
+    ports:
+      - 8081:8081 # spark_slave_ui_port
     privileged: true
+    extra_hosts:
+      - "master:to_replace_container_ip" # slave_extra_hosts
     networks:
-      - network
+      spark_overlay:
+        ipv4_address: to_replace_ip # slave_container_ip
     volumes:
       - ./mount/config.properties:/opt/welab/wefe/config.properties
       # 挂在文件夹会同步，挂在文件不一定同步(vim编辑不会同步,需要给文件加权限 chmod 777 file, echo 编辑会同步)
@@ -23,7 +25,7 @@ services:
       - sh
       - -c
       - |
-            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-slave.sh spark://master:7077 # spark_master
+            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-slave.sh spark://master:7077
             tail -f /dev/null
 
     deploy:
@@ -31,5 +33,5 @@ services:
         condition: on-failure
 
 networks:
-  network:
-    driver: bridge
+  spark_overlay:
+    external: true
