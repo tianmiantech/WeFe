@@ -12,11 +12,11 @@
 ##### 1.1. 前往 `NVIDIA` [官网](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64) 选择相应的环境
 - 例如，选择基于 Linux 操作系统，x86_64, CentOS 7 的 `CUDA` 环境
 
-<img src="_media/hardware_acceleration/select_system.png" style="max-height:700px;" />
+<img src="../_media/hardware_acceleration/select_system.png" style="max-height:700px;" />
 
 - 随后按照相应的安装命令进行安装
 
-<img src="_media/hardware_acceleration/install_shell.png" style="max-height:700px;" />
+<img src="../_media/hardware_acceleration/install_shell.png" style="max-height:700px;" />
 
 ```shell
 wget https://developer.download.nvidia.com/compute/cuda/11.4.2/local_installers/cuda-repo-rhel7-11-4-local-11.4.2_470.57.02-1.x86_64.rpm
