@@ -97,10 +97,11 @@
                         取消冻结
                     </el-button>
                     <el-button
+                        v-if="!scope.row.ext_json.real_name_auth && scope.row.ext_json.principal_name"
                         type="primary"
                         @click="authorized($event, scope.row)"
                     >
-                        授权认证
+                        企业认证
                     </el-button>
                 </template>
             </el-table-column>
@@ -122,12 +123,20 @@
         </div>
 
         <el-dialog
-            title="成员认证"
+            title="企业认证"
             v-model="authorize"
         >
-            <div class="flex-form">
-                <span class="name"></span> type
-            </div>
+            <el-form class="flex-form">
+                <el-form-item label="企业名称&类型">
+                    {{ member.principalName }} ({{ member.authType }})
+                </el-form-item>
+                <el-form-item label="企业简介">
+                    {{ member.description }}
+                </el-form-item>
+                <el-form-item label="附件:">
+                    {{ member.description }}
+                </el-form-item>
+            </el-form>
             <el-button
                 type="primary"
                 @click="memberAuthorize($event, true)"
@@ -167,6 +176,13 @@
                 requestMethod: 'post',
                 getListApi:    '/member/query',
                 authorize:     false,
+                member:        {
+                    id:            '',
+                    principalName: '',
+                    authType:      '',
+                    description:   '',
+                    list:          [],
+                },
             };
         },
         computed: {
@@ -236,20 +252,29 @@
                     this.refresh();
                 }
             },
-            authorized() {
-
+            authorized(event, row) {
+                this.authorize = true;
+                this.member.id = row.id;
+                this.member.authType = row.auth_type;
+                this.member.description = row.description;
+                this.member.principalName = row.principal_name;
+                this.member.list = row.real_name_auth_file_info_list;
             },
             async memberAuthorize(event, flag) {
                 if(flag) {
                     const { code } = await this.$http.post({
-                        url:      '/',
-                        data:     {},
+                        url:  '/member/realname/auth/audit',
+                        data: {
+                            id:           this.member.id,
+                            realNameAuth: true,
+                            auditComment: '',
+                        },
                         btnState: {
                             target: event,
                         },
                     });
 
-                    if(code) {
+                    if(code === 0) {
                         this.refresh();
                         this.$message.success('处理成功!');
                     }
@@ -258,11 +283,13 @@
                         inputPattern:      /\S/,
                         inputErrorMessage: '不能为空',
                     })
-                        .then(async _ => {
+                        .then(async ({ value }) => {
                             const { code } = await this.$http.post({
-                                url:  '/',
+                                url:  '/member/realname/auth/audit',
                                 data: {
-
+                                    id:           this.member.id,
+                                    realNameAuth: false,
+                                    auditComment: value,
                                 },
                                 btnState: {
                                     target: event,

@@ -23,7 +23,7 @@
 import { baseIsLogin, setStorage } from './auth';
 
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
-const blacklist = ['register', 'find-password', 'init', 'upload'];
+const blacklist = ['register', 'find-password'];
 
 export default router => {
     router.beforeEach((to, from, next) => {

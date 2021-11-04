@@ -13,7 +13,7 @@
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
@@ -287,7 +287,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '修改密码',
                 },
-                component: () => import('../views/system-config/change-password'),
+                component: () =>
+                    import('../views/system-config/change-password'),
             },
         ],
     },
@@ -306,7 +307,19 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '成员信息',
                 },
-                component: () => import('../views/member/member-view'),
+                component: () => import('../views/system-config/member-view'),
+            },
+            {
+                path: `${prefixPath}enterprise-certification`,
+                name: 'enterprise-certification',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}member-view`,
+                    title:           '企业认证',
+                },
+                component: () =>
+                    import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
@@ -324,7 +337,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '系统设置',
                 },
-                component: () => import('../views/system-config/system-config-view'),
+                component: () =>
+                    import('../views/system-config/system-config-view'),
             },
         ],
     },

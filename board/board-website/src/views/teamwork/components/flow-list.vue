@@ -13,7 +13,7 @@
                     type="primary"
                     @click="addFlow=true"
                 >
-                    新增流程
+                    新建训练流程
                 </el-button>
             </template>
             <span v-else class="ml10 f12">(协作方无法添加流程)</span>

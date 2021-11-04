@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <el-card>
-            <el-form :model="form" :disabled="!userInfo.admin_role">
+            <el-form :disabled="!userInfo.admin_role">
                 <el-row :gutter="30">
                     <el-col :span="12">
                         <fieldset>

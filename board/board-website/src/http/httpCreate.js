@@ -65,7 +65,7 @@ httpInstance.interceptors.response.use(
 
         // global error for request
         if (config.systemError !== false) {
-            if (data && data.code !== 0) {
+            if (config.responseType !== 'blob' && data && data.code !== 0) {
 
                 // login dialog
                 if (data.code === 10006) {

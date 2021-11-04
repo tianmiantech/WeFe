@@ -67,3 +67,14 @@
         line-height: 1px;
     }
 }
+.el-upload-list{
+    .el-progress {top:0;}
+    .el-progress__text {
+        top: -17px;
+        max-width: 50px;
+        overflow: hidden;
+        white-space: nowrap;
+        word-break: break-all;
+        text-overflow: ellipsis;
+    }
+}

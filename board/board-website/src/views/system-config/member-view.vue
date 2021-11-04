@@ -30,7 +30,7 @@
                                 :disabled="!userInfo.super_admin_role"
                             />
                         </el-form-item>
-                        <el-form-item label="在联邦中隐身 (隐身后其他成员从联邦中不能看到其任何数据)：">
+                        <el-form-item label="在联邦中隐身：">
                             <el-radio
                                 v-model="form.member_hidden"
                                 :label="true"
@@ -45,6 +45,7 @@
                             >
                                 否
                             </el-radio>
+                            <p class="tips-alert" v-if="form.member_hidden"> ※ 隐身后其他成员从联邦中不能看到关于您的所有信息</p>
                         </el-form-item>
                         <el-form-item label="是否允许对外公开数据集基础信息：">
                             <el-radio
@@ -61,6 +62,7 @@
                             >
                                 否
                             </el-radio>
+                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据集</p>
                         </el-form-item>
                         <el-form-item label="邮箱：">
                             <el-input
@@ -106,9 +108,21 @@
 
                         <div class="mt40">
                             <el-form-item label="企业认证：">
-                                <span class="el-link el-link--success el-icon-circle-check"> 已认证 </span>
-                                <span class="el-link el-link--danger el-icon-circle-check"> 未认证 </span>
-                                <router-link class="f12 ml20" :to="{ name: '', }">重新认证</router-link>
+                                <span
+                                    v-if="enterpriseAuth === 0"
+                                    class="el-link el-link--danger el-icon-circle-check"
+                                > 未认证 </span>
+                                <span
+                                    v-if="enterpriseAuth === 1"
+                                    class="el-link el-link--success el-icon-circle-check"
+                                > 已认证 </span>
+                                <router-link
+                                    v-if="userInfo.super_admin_role && enterpriseAuth === 0 || enterpriseAuth === 2"
+                                    :to="{ name: 'enterprise-certification' }"
+                                    class="f12 ml20"
+                                >
+                                    {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
+                                </router-link>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -175,6 +189,7 @@
                 member_logo: '',
                 form:        {
                     member_name:                  '',
+                    member_logo:                  '',
                     member_email:                 '',
                     member_mobile:                '',
                     member_hidden:                false,
@@ -182,16 +197,14 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                memberCard: {
-                    visible:    true,
-                    transition: false,
-                },
+                enterpriseAuth: 0,
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -224,6 +237,14 @@
                 }
 
                 this.loading = false;
+            },
+
+            async getAuthStatus() {
+                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
+
+                if(code === 0) {
+                    this.enterpriseAuth = data.real_name_auth_status;
+                }
             },
 
             // upload avatar
@@ -419,5 +440,11 @@
             width: 42%;
         }
     }
+}
+.tips-alert{
+    font-size: 12px;
+    color:red;
+    line-height: 12px;
+    padding-bottom: 20px;
 }
 </style>

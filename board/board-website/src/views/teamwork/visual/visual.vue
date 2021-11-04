@@ -477,6 +477,8 @@
 
                 jobRunning(data) {
                     nextTick(_ => {
+                        const jobStopStatus = ['stop_on_running', 'error_on_running', 'reject_on_auditing', 'deleted', 'error', 'success', 'stop'];
+
                         JobPanelRef.value && JobPanelRef.value.methods.jobRunning(data);
 
                         if(data.job) {
@@ -485,7 +487,7 @@
                         }
 
                         // running job open job panel
-                        if(data.status && data.job.status === 'running') {
+                        if(data.status && !jobStopStatus.includes(data.job.status)) {
                             vData.jobGraphShow = true;
                         }
                     });

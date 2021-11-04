@@ -33,15 +33,6 @@
                         placeholder="learning_rate"
                     />
                 </el-form-item>
-                <el-form-item
-                    prop="decay"
-                    label="学习速率的衰减率："
-                >
-                    <el-input
-                        v-model="vData.form.decay"
-                        placeholder="decay"
-                    />
-                </el-form-item>
                 <el-form-item prop="optimizer" label="优化算法：">
                     <el-select
                         v-model="vData.form.optimizer"
@@ -136,7 +127,6 @@
         max_iter:      10,
         batch_size:    320,
         learning_rate: 0.1,
-        decay:         1,
         optimizer:     'Adam',
         loss:          'binary_crossentropy',
         nn_define:     {
@@ -152,8 +142,8 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        'units':      10,
-                        'activation': 'relu',
+                        'units':      1,
+                        'activation': 'sigmoid',
                     },
                 },
             ],
@@ -246,8 +236,8 @@
                     vData.form.nn_define.layers.push({
                         class_name: 'Dense',
                         config:     {
-                            'units':      10,
-                            'activation': 'relu',
+                            'units':      1,
+                            'activation': 'sigmoid',
                         },
                     });
                 },

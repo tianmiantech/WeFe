@@ -8,6 +8,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 const argvs = argv._[1] ? argv._[1].split('=') : '';
+const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
 const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
 const CONTEXT_ENV = argvs[1] || context || '';
@@ -62,7 +63,7 @@ module.exports = {
     css: {
         extract: false, // close it for less tiny css files
     },
-    configureWebpack: config => {
+    configureWebpack: (config) => {
         if (isProd) {
             // production...
             const DEPLOY_ENV = argvs[0] || 'prod';
@@ -106,6 +107,7 @@ module.exports = {
                     'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
                     'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
                     'process.env.VERSION':     JSON.stringify(`${buildDate}`),
+                    'process.env.TAIL':        JSON.stringify(`${tailSplit}`),
                 }),
                 new HashedModuleIdsPlugin(),
                 new CopyWebpackPlugin([
@@ -134,13 +136,13 @@ module.exports = {
             config.plugins.push(new BundleAnalyzerPlugin());
         }
     },
-    chainWebpack: config => {
+    chainWebpack: (config) => {
         config.module
             .rule('scss')
             .use('cache-loader')
             .loader('cache-loader')
             .end()
-            .oneOfs.store.forEach(item => {
+            .oneOfs.store.forEach((item) => {
                 item.use('cache-loader')
                     .loader('cache-loader')
                     .end()
@@ -171,7 +173,7 @@ module.exports = {
             .end();
 
         if (isProd) {
-            config.optimization.minimizer('terser').tap(args => {
+            config.optimization.minimizer('terser').tap((args) => {
                 args[0].terserOptions.compress.warnings = false;
                 args[0].terserOptions.compress.drop_console = true;
                 args[0].terserOptions.compress.drop_debugger = true;
@@ -194,7 +196,7 @@ module.exports = {
          */
         proxy:      {
             '/api': {
-                target:       'https://xxx.com/board-service',
+                target:       'http://localhost:8080/board-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

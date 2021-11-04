@@ -20,7 +20,7 @@ const baseRoutes = [
     {
         path: prefixPath,
         meta: {
-            asmenu:         true,
+            title:          '联邦管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -34,16 +34,6 @@ const baseRoutes = [
                 },
                 component: () => import('../views/account/member-list'),
             },
-        ],
-    },
-    {
-        path: prefixPath,
-        meta: {
-            asmenu:         true,
-            requiresLogout: false,
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
             {
                 path: `${prefixPath}data-list`,
                 name: 'data-list',
@@ -64,16 +54,6 @@ const baseRoutes = [
                 },
                 component: () => import('../views/data-center/data-view'),
             },
-        ],
-    },
-    {
-        path: prefixPath,
-        meta: {
-            asmenu:         true,
-            requiresLogout: false,
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
             {
                 path: `${prefixPath}keywords`,
                 name: 'keywords',
@@ -82,6 +62,43 @@ const baseRoutes = [
                     title:           '关键词管理',
                 },
                 component: () => import('../views/data-center/keywords'),
+            },
+        ],
+    },
+    {
+        path: prefixPath,
+        meta: {
+            title:          '企业认证管理',
+            requiresLogout: false,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}authorize-types`,
+                name: 'authorize-types',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '企业类型管理',
+                },
+                component: () => import('../views/authorize-list'),
+            },
+            {
+                path: `${prefixPath}union-list`,
+                name: 'union-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           'union节点列表',
+                },
+                component: () => import('../views/union-list'),
+            },
+            {
+                path: `${prefixPath}agreement`,
+                name: 'agreement',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '认证协议',
+                },
+                component: () => import('../views/agreement'),
             },
         ],
     },

@@ -37,10 +37,9 @@ const app = createApp({
 app.use(router).use(store(app)).mount('#app');
 // global error handler
 app.config.errorHandler = (err, vm, info) => {
-    app.config.globalProperties.$message.error('加载失败, 请刷新重试');
-    console.log('err:', err);
-    console.log('vm:', vm);
-    console.log('info:', info);
+    if (!err.message.includes('No match for')) {
+        app.config.globalProperties.$message.error('加载失败, 请刷新重试');
+    }
 };
 // add app to router
 router.$app = app;
