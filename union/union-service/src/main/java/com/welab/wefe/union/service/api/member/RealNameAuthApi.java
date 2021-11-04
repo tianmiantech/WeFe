@@ -70,6 +70,7 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
             realNameAuthFileInfoList.add(realNameAuthFileInfo);
         }
         extJSON.setRealNameAuthFileInfoList(realNameAuthFileInfoList);
+        extJSON.setRealNameAuthStatus(1);
         memberContractService.updateExtJson(input.curMemberId, extJSON);
         return success();
     }

@@ -41,12 +41,12 @@ public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<MemberAuthQueryOutput> list = memberAuthTypeMongoRepo.findAll().stream().map(x -> {
+        List<MemberAuthQueryOutput> list = memberAuthTypeMongoRepo.findList().stream().map(memberAuthType -> {
             MemberAuthQueryOutput memberAuthQueryOutput = new MemberAuthQueryOutput();
-            memberAuthQueryOutput.setTypeId(x.getTypeId());
-            memberAuthQueryOutput.setTypeName(x.getTypeName());
-            memberAuthQueryOutput.setStatus(x.getStatus());
-            memberAuthQueryOutput.setExtJson(x.getExtJson());
+            memberAuthQueryOutput.setTypeId(memberAuthType.getTypeId());
+            memberAuthQueryOutput.setTypeName(memberAuthType.getTypeName());
+            memberAuthQueryOutput.setStatus(memberAuthType.getStatus());
+            memberAuthQueryOutput.setExtJson(memberAuthType.getExtJson());
             return memberAuthQueryOutput;
         }).collect(Collectors.toList());
         return success(JObject.create("list", JObject.toJSON(list)));
