@@ -54,15 +54,15 @@
 
 - `admin`用户属于主账号下的子账号(RAM 账号), 该账号用于后续登录控制台管理该项目所有的服务
 
-![](../../images/fc/create_admin_ram.png)
+![](_media/fc/create_admin_ram.png)
 
 > 创建成功后，保存相关信息，例如用户登录名称等。
 
 - 进入`admin`用户界面，使用主账号赋予`admin`用户`AdministratorAccess`权限策略
 
-![](../../images/fc/add_admin_auth.png)
+![](_media/fc/add_admin_auth.png)
 
-![](../../images/fc/add_AdministratorAccess_auth.png)
+![](_media/fc/add_AdministratorAccess_auth.png)
 
 > 如无需对账号权限进行细粒度控制(即用`API`账号进行函数计算相关部署和接口调用)，可不用创建`API`用户，
 > 直接使用`admin`账号的`AccessKey ID`、`AccessKey Secret`，配置过程中，可跳过`3. FC 函数计算服务配置`的相关配置过程
@@ -74,7 +74,7 @@
 
 > 退出主账号，登录`admin`账号，创建`API`账号
 
-![](../../images/fc/create_api_ram.png)
+![](_media/fc/create_api_ram.png)
 
 注：保存`AccessKey ID`、`AccessKey Secret`，后续配置需要用到
 
@@ -152,15 +152,15 @@ wefe-fc-policy
 
 注：系统权限添加一次只能5个，剩下的请再次添加进去，如下：
 
-![](../../images/fc/add_policy.png)
+![](_media/fc/add_policy.png)
 
 ### 2. OSS 服务配置
 
 #### 2.1、创建 bucket
 
-![](../../images/fc/create_oss_bucket.png)
+![](_media/fc/create_oss_bucket.png)
 
-![](../../images/fc/create_oss_bucket_1.png)
+![](_media/fc/create_oss_bucket_1.png)
 
 注：请留意 bucket 名称，后续配置需用到
 
@@ -168,7 +168,7 @@ wefe-fc-policy
 
 - 前往`访问控制`控制台，在权限策略管理中创建权限策略，如图：
 
-![](../../images/fc/create_ossRead_policy.png)
+![](_media/fc/create_ossRead_policy.png)
 
 > 策略名称：oss-readOnly
 
@@ -204,25 +204,25 @@ wefe-fc-policy
 
 - 创建 RAM 角色，如图：
 
-![](../../images/fc/create_ram_role.png)
+![](_media/fc/create_ram_role.png)
 
 > 填写角色名称：wefe-fc-ossRead，如图：
 
-![](../../images/fc/create_ossread_role.png)
+![](_media/fc/create_ossread_role.png)
 
-![](../../images/fc/create_ossread_role_1.png)
+![](_media/fc/create_ossread_role_1.png)
 
 > 添加权限，将之前创建好的权限 oss-readOnly 添加到 wefe-fc-ossRead 角色
 
-![](../../images/fc/add_policy_oss.png)
+![](_media/fc/add_policy_oss.png)
 
 > 注：添加权限前，将最大会话时间调整到最大值，如图:
 
-![](../../images/fc/oss_max_duration_time.png)
+![](_media/fc/oss_max_duration_time.png)
 
 > 添加  oss-readOnly 权限
 
-![](../../images/fc/choice_oss_readOnly_policy.png)
+![](_media/fc/choice_oss_readOnly_policy.png)
 
 
 ### 3. FC 函数计算服务配置
@@ -237,11 +237,11 @@ wefe-fc-policy
 
 - 选择阿里云服务
 
-![](../../images/fc/create_fc_role_1.png)
+![](_media/fc/create_fc_role_1.png)
 
 - 填写角色名称：wefe-fc-role, 同时选择受信服务：函数计算, 创建完成。
 
-![](../../images/fc/create_fc_role_2.png)
+![](_media/fc/create_fc_role_2.png)
 
 2、授权
 
@@ -258,21 +258,21 @@ AliyunNASFullAccess
 
 将上述步骤创建的策略：`wefe-fc-policy`, 添加到该 RAM 角色中，最终如下图所示：
 
-![](../../images/fc/create_fc_role.png)
+![](_media/fc/create_fc_role.png)
 
 ### 4. LOG 服务配置
 
 #### 4.1、创建 Project
 
-![](../../images/fc/create_log_project.png)
+![](_media/fc/create_log_project.png)
 
-![](../../images/fc/create_log_project_1.png)
+![](_media/fc/create_log_project_1.png)
 
 注：记录创建的 Project 名称，后续修改配置需用到
 
 #### 4.2、创建 Logstore
 
-![](../../images/fc/create_log_project_2.png)
+![](_media/fc/create_log_project_2.png)
 
 注：记录创建的 Logstore 名称，后续修改配置需用到
 
@@ -323,9 +323,9 @@ FC_QUALIFIER="LATEST"
 
 - 登录`admin`账户，进入函数计算控制台，修改配置
 
-![](../../images/fc/adit_fc_config.png)
+![](_media/fc/adit_fc_config.png)
 
-![](../../images/fc/add_log.png)
+![](_media/fc/add_log.png)
 
 > 至此已完成关联！
 
