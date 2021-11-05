@@ -842,10 +842,6 @@ CREATE TABLE `image_data_set`
     `usage_count_in_job`       int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
     `usage_count_in_flow`      int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
     `usage_count_in_project`   int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `source_type`              varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
-    `source_flow_id`           varchar(64) COMMENT '来源流程id',
-    `source_job_id`            varchar(64) COMMENT '来源任务id',
-    `source_task_id`           varchar(100) COMMENT '来源子任务id',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
