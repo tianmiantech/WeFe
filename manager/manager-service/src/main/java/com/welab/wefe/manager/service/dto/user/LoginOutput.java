@@ -1,4 +1,4 @@
-package com.welab.wefe.manager.service.dto.account;
+package com.welab.wefe.manager.service.dto.user;
 
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 

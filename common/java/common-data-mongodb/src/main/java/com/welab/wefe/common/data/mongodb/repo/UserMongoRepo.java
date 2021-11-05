@@ -18,9 +18,11 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -60,5 +62,11 @@ public class UserMongoRepo extends AbstractMongoRepo {
                 .append("password", password)
                 .build();
         return mongoManagerTemplate.exists(query, User.class);
+    }
+
+    public void changeUserRole(String userId, boolean adminRole) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder().append("adminRole", adminRole).build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 }
