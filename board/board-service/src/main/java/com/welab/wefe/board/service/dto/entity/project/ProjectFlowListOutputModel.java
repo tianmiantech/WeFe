@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.dto.entity.project;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.ProjectFlowStatus;
@@ -75,6 +76,9 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
      */
     private String creatorMemberId;
 
+    public String getCreatorMemberName() {
+        return CacheObjects.getMemberName(creatorMemberId);
+    }
 
     //region getter/setter
 
