@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.union;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
@@ -29,15 +30,27 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author zane.luo
  */
 @Api(path = "union/member/file/upload", name = "upload file")
-public class MemberFileUploadApi extends AbstractApi<AbstractWithFilesApiInput, JSONObject> {
+public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, JSONObject> {
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException {
-        JSONObject result = unionService.uploadFile(input.files);
+    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
+        JSONObject result = unionService.uploadFile(input.files, JObject.create("filename",input.filename));
         return super.unionApiResultToBoardApiResult(result);
 
+    }
+
+    public static class Input extends AbstractWithFilesApiInput {
+        private String filename;
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
     }
 
 }

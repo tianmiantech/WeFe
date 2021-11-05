@@ -42,51 +42,63 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 @Configuration
 public class MongoConfig {
 
-    @Value("${spring.datasource.mongodb.uri}")
-    private String uri;
-    @Value("${spring.datasource.mongodb.databaseName}")
-    private String databaseName;
+    @Value("${spring.datasource.mongodb.union.uri}")
+    private String unionUri;
+    @Value("${spring.datasource.mongodb.manager.uri}")
+    private String managerUri;
+    @Value("${spring.datasource.mongodb.union.databaseName}")
+    private String unionDatabaseName;
+    @Value("${spring.datasource.mongodb.manager.databaseName}")
+    private String managerDatabaseName;
 
 
 
     @Bean
     public MongoClient mongoUnionClient() {
-        return new MongoClient(new MongoClientURI(uri));
+        return new MongoClient(new MongoClientURI(unionUri));
     }
 
     @Bean
     public MongoClient mongoManagerClient() {
-        return new MongoClient(new MongoClientURI(uri));
+        return new MongoClient(new MongoClientURI(managerUri));
     }
 
     @Bean
-    public MongoDbFactory mongoDbFactory(MongoClient mongoUnionClient) {
-        return new SimpleMongoDbFactory(mongoUnionClient, databaseName);
+    public MongoDbFactory mongoDbUnionFactory(MongoClient mongoUnionClient) {
+        return new SimpleMongoDbFactory(mongoUnionClient, unionDatabaseName);
     }
 
     @Bean
-    public MongoDbFactory mongoDbxxxFactory(MongoClient mongoManagerClient) {
-        return new SimpleMongoDbFactory(mongoManagerClient, "xxx");
+    public MongoDbFactory mongoDbManagerFactory(MongoClient mongoManagerClient) {
+        return new SimpleMongoDbFactory(mongoManagerClient, managerDatabaseName);
+    }
+
+    public MongoTransactionManager transactionUnionManager(MongoDbFactory mongoDbUnionFactory) {
+        return new MongoTransactionManager(mongoDbUnionFactory);
+    }
+
+    public MongoTransactionManager transactionManagerManager(MongoDbFactory mongoDbManagerFactory) {
+        return new MongoTransactionManager(mongoDbManagerFactory);
     }
 
     @Bean
-    public MongoTransactionManager transactionManager(MongoDbFactory mongoDbFactory) {
-        return new MongoTransactionManager(mongoDbFactory);
+    public MongoTemplate mongoUnionTemplate(MongoDbFactory mongoDbUnionFactory) {
+        return new MongoTemplate(mongoDbUnionFactory, getConverter(mongoDbUnionFactory));
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory) {
-        return new MongoTemplate(mongoDbFactory, getConverter(mongoDbFactory));
+    public MongoTemplate mongoManagerTemplate(MongoDbFactory mongoDbManagerFactory) {
+        return new MongoTemplate(mongoDbManagerFactory, getConverter(mongoDbManagerFactory));
     }
 
     @Bean
-    public GridFsTemplate gridFsTemplate(MongoDbFactory mongoDbFactory) {
-        return new GridFsTemplate(mongoDbFactory, getConverter(mongoDbFactory));
+    public GridFsTemplate gridFsTemplate(MongoDbFactory mongoDbUnionFactory) {
+        return new GridFsTemplate(mongoDbUnionFactory, getConverter(mongoDbUnionFactory));
     }
 
     @Bean
     public GridFSBucket getGridFSBucket(MongoClient mongoUnionClient){
-        MongoDatabase database = mongoUnionClient.getDatabase(databaseName);
+        MongoDatabase database = mongoUnionClient.getDatabase(unionDatabaseName);
         GridFSBucket bucket = GridFSBuckets.create(database);
         return bucket;
     }

@@ -36,17 +36,25 @@ public class User extends AbstractNormalMongoModel {
     /**
      * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
      */
-    private Boolean superAdminRole;
+    private boolean superAdminRole;
     /**
      * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
      */
-    private Boolean adminRole;
+    private boolean adminRole;
 
     /**
      * 是否可用
      */
-    private Boolean enable;
+    private boolean enable = true;
 
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getAccount() {
         return account;
@@ -80,36 +88,27 @@ public class User extends AbstractNormalMongoModel {
         this.email = email;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-
-    public Boolean getSuperAdminRole() {
+    public boolean isSuperAdminRole() {
         return superAdminRole;
     }
 
-    public void setSuperAdminRole(Boolean superAdminRole) {
+    public void setSuperAdminRole(boolean superAdminRole) {
         this.superAdminRole = superAdminRole;
     }
 
-    public Boolean getAdminRole() {
+    public boolean isAdminRole() {
         return adminRole;
     }
 
-    public void setAdminRole(Boolean adminRole) {
+    public void setAdminRole(boolean adminRole) {
         this.adminRole = adminRole;
     }
 
-    public Boolean getEnable() {
+    public boolean isEnable() {
         return enable;
     }
 
-    public void setEnable(Boolean enable) {
+    public void setEnable(boolean enable) {
         this.enable = enable;
     }
 }

@@ -14,6 +14,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
@@ -25,8 +26,8 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/10/28
  */
-@Api(path = "auth/agreement/template/upload", name = "auth_agreement_template_upload", login = false)
-public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFilesApiInput, AbstractApiOutput> {
+@Api(path = "auth/agreement/template/upload", name = "auth_agreement_template_upload")
+public class UploadAuthAgreementTemplateApi extends AbstractApi<UploadFileInput, AbstractApiOutput> {
     @Autowired
     private AuthAgreementTemplateMongoRepo authAgreementTemplateMongoRepo;
     @Autowired
@@ -35,8 +36,8 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFile
     private GridFsTemplate gridFsTemplate;
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException, IOException {
-        String fileName = input.getFirstFile().getOriginalFilename();
+    protected ApiResult<AbstractApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
+        String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
         //根据文件id查询文件
@@ -65,5 +66,4 @@ public class UploadAuthAgreementTemplateApi extends AbstractApi<AbstractWithFile
         }
         return success();
     }
-
 }

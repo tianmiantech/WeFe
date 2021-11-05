@@ -30,17 +30,15 @@ import java.util.regex.Pattern;
  **/
 public abstract class AbstractMongoRepo<T extends AbstractMongoModel> {
 
-    @Autowired
-    protected MongoTemplate mongoTemplate;
-
+    protected abstract MongoTemplate getMongoTemplate();
 
     public void save(T t) {
-        mongoTemplate.save(t);
+        getMongoTemplate().save(t);
     }
 
 
     public boolean upsert(Query query, Update update, Class<T> clazz) {
-        UpdateResult updateResult = mongoTemplate.upsert(query, update, clazz);
+        UpdateResult updateResult = getMongoTemplate().upsert(query, update, clazz);
         return updateResult.wasAcknowledged();
     }
 

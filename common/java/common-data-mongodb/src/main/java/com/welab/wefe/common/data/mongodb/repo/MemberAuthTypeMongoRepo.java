@@ -22,6 +22,8 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
@@ -33,8 +35,16 @@ import java.util.List;
  **/
 @Repository
 public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
+
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
     public List<MemberAuthType> findList() {
-        return mongoTemplate.find(new QueryBuilder().notRemoved().build(),MemberAuthType.class);
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(),MemberAuthType.class);
     }
 
     public boolean deleteByTypeId(String typeId) {
@@ -43,7 +53,7 @@ public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("typeId", typeId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, MemberAuthType.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, MemberAuthType.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -56,7 +66,7 @@ public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
                 .append("typeName", typeName)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, MemberAuthType.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, MemberAuthType.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -66,7 +76,7 @@ public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("typeId", typeId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, MemberAuthType.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, MemberAuthType.class);
         return updateResult.wasAcknowledged();
     }
 }

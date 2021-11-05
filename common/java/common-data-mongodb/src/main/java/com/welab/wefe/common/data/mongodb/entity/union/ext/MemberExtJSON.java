@@ -9,11 +9,8 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class MemberExtJSON {
-    @Column(name = "real_name_auth_status")
     private int realNameAuthStatus;
-    @Column(name = "principalName")
     private String principalName;
-    @Column(name = "auth_type")
     private String authType;
     private String auditComment;
     private String description;

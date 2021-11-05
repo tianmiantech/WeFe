@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author yuxin.zhang
  */
-@Api(path = "auth/agreement/template/query", name = "auth/agreement/template/query", login = false)
+@Api(path = "auth/agreement/template/query", name = "auth/agreement/template/query")
 public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired

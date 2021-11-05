@@ -88,8 +88,9 @@ public class UnionService extends AbstractService {
     }
 
 
-    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
-        return request("member/file/upload", JObject.create(), files, true);
+    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files,JObject params) throws StatusCodeWithException {
+
+        return request("member/file/upload", params, files, true);
     }
 
     /**
@@ -410,8 +411,6 @@ public class UnionService extends AbstractService {
             HttpRequest request = HttpRequest
                     .create(url)
                     .setContentType(HttpContentType.MULTIPART);
-
-//            request.appendParameters(body);
 
             for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
                 try {

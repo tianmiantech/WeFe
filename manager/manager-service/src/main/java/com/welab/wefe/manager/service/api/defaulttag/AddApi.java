@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Jervis
  * @date 2020-05-22
  **/
-@Api(path = "default_tag/add", name = "default_tag_add", login = false)
+@Api(path = "default_tag/add", name = "default_tag_add")
 public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOutput> {
 
     @Autowired

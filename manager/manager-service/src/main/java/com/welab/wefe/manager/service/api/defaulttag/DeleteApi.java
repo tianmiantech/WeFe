@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/delete", name = "default_tag_delete", login = false)
+@Api(path = "default_tag/delete", name = "default_tag_delete")
 public class DeleteApi extends AbstractApi<DatSetDefaultTagDeleteInput, AbstractApiOutput> {
 
     @Autowired

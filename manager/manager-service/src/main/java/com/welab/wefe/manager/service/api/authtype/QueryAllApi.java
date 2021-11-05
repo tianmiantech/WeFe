@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  */
-@Api(path = "member/authtype/query", name = "member_authtype_query",login = false)
+@Api(path = "member/authtype/query", name = "member_authtype_query")
 public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired

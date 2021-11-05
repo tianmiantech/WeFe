@@ -57,7 +57,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     @Override
     protected ApiResult<RealNameAuthFileUploadOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
-        String fileName = input.getFirstFile().getOriginalFilename();
+        String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
         //根据文件id查询文件
@@ -104,6 +104,15 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     public static class Input extends AbstractWithFilesApiInput {
         @Check(require = true)
         private String memberId;
+        private String filename;
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
 
         public String getMemberId() {
             return memberId;

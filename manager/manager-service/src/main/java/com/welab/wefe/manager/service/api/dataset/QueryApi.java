@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/query", name = "data_set_query",login = false)
+@Api(path = "data_set/query", name = "data_set_query")
 public class QueryApi extends AbstractApi<ApiDataSetQueryInput, PageOutput<ApiDataSetQueryOutput>> {
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;

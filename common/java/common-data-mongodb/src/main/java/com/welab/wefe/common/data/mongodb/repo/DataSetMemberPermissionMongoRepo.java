@@ -22,6 +22,8 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetMemberPermissi
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
@@ -33,10 +35,18 @@ import java.util.List;
  **/
 @Repository
 public class DataSetMemberPermissionMongoRepo extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
+
     public boolean deleteByDataSetId(String dataSetId) {
         Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
         Update udpate = new UpdateBuilder().append("status", "1").build();
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, udpate, DataSetMemberPermission.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateMulti(query, udpate, DataSetMemberPermission.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -45,18 +55,18 @@ public class DataSetMemberPermissionMongoRepo extends AbstractMongoRepo {
             return null;
         }
         Query query = new QueryBuilder().append("memberId", memberId).build();
-        List<DataSetMemberPermission> list = mongoTemplate.find(query, DataSetMemberPermission.class);
+        List<DataSetMemberPermission> list = mongoUnionTemplate.find(query, DataSetMemberPermission.class);
         return list;
     }
 
 
     public void upsert(DataSetMemberPermission dataSetMemberPermission) {
         Query query = new QueryBuilder().append("dataSetMemberPermissionId", dataSetMemberPermission.getDataSetMemberPermissionId()).build();
-        DataSetMemberPermission dbDataSetMemberPermission = mongoTemplate.findOne(query, DataSetMemberPermission.class);
+        DataSetMemberPermission dbDataSetMemberPermission = mongoUnionTemplate.findOne(query, DataSetMemberPermission.class);
         if (dbDataSetMemberPermission != null) {
             dataSetMemberPermission.setId(dbDataSetMemberPermission.getId());
         }
-        mongoTemplate.save(dataSetMemberPermission);
+        mongoUnionTemplate.save(dataSetMemberPermission);
     }
 
     public boolean updateExtJSONById(String dataSetId, DataSetMemberPermissionExtJSON extJSON) {
@@ -65,7 +75,7 @@ public class DataSetMemberPermissionMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, DataSetMemberPermission.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetMemberPermission.class);
         return updateResult.wasAcknowledged();
     }
 

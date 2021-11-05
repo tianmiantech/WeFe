@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "member/authtype/delete", name = "member_authtype_delete", login = false)
+@Api(path = "member/authtype/delete", name = "member_authtype_delete")
 public class DeleteApi extends AbstractApi<MemberAuthTypeDeleteInput, AbstractApiOutput> {
 
     @Autowired

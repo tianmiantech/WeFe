@@ -19,11 +19,12 @@ package com.welab.wefe.common.data.mongodb.repo;
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
@@ -35,8 +36,16 @@ import java.util.List;
  **/
 @Repository
 public class UnionNodeMongoRepo extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
+
     public List<UnionNode> findAll() {
-        return mongoTemplate.findAll(UnionNode.class);
+        return mongoUnionTemplate.findAll(UnionNode.class);
     }
 
     public boolean deleteByUnionNodeId(String unionNodeId) {
@@ -45,7 +54,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, UnionNode.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -60,7 +69,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
                 .append("organizationName", organizationName)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, UnionNode.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -73,7 +82,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
                 .append("enable", enable)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, UnionNode.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -83,7 +92,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 }

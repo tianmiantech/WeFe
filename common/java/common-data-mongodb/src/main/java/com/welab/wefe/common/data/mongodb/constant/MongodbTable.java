@@ -34,5 +34,5 @@ public class MongodbTable {
         public static final String AUTH_AGREEMENT_TEMPLATE = "AuthAgreementTemplate";
     }
 
-    public static final String USER = "user";
+    public static final String USER = "User";
 }

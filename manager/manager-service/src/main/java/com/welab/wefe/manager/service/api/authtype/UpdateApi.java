@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "member/authtype/update", name = "member_authtype_update", login = false)
+@Api(path = "member/authtype/update", name = "member_authtype_update")
 public class UpdateApi extends AbstractApi<MemberAuthTypeUpdateInput, AbstractApiOutput> {
 
     @Autowired

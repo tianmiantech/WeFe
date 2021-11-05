@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_set/tags/query", name = "dataset_tags_query",login = false)
+@Api(path = "data_set/tags/query", name = "dataset_tags_query")
 public class DataSetTagsApi extends AbstractApi<DataSetTagsQueryInput, ApiDataSetTagsQueryOutput> {
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;

@@ -38,7 +38,7 @@ import java.net.URLEncoder;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "download/file", name = "download_file", login = false)
+@Api(path = "download/file", name = "download_file")
 public class DownloadFileApi extends AbstractApi<QueryFileInput, ResponseEntity<byte[]>> {
 
     @Autowired

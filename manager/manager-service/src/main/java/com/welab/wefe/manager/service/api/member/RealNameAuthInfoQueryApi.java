@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query", login = false)
+@Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query")
 public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryInput, RealNameAuthInfoQueryOutput> {
     @Autowired
     protected MemberMongoReop memberMongoReop;

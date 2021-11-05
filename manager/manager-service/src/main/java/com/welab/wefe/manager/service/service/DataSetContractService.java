@@ -20,6 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.DataSetContract;
 import com.welab.wefe.manager.service.dto.dataset.DataSetUpdateExtJsonInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -36,7 +37,7 @@ import java.lang.reflect.Field;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class DataSetContractService extends AbstractContractService {
 
     @Autowired
@@ -53,7 +54,7 @@ public class DataSetContractService extends AbstractContractService {
             for (int i = 0; i < fields.length; i++) {
                 fields[i].setAccessible(true);
                 if (null != fields[i].get(input.getExtJson())) {
-                    extJson.put(fields[i].getName(), fields[i].get(input.getExtJson()));
+                    extJson.put(StringUtil.camelCaseToUnderLineCase(fields[i].getName()), fields[i].get(input.getExtJson()));
                 }
             }
             TransactionReceipt transactionReceipt = dataSetContract.updateExtJson(input.getId(),

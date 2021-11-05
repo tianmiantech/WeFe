@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_set/detail", name = "data_set_detail", login = false)
+@Api(path = "data_set/detail", name = "data_set_detail")
 public class DetailApi extends AbstractApi<DataSetDetailInput, ApiDataSetQueryOutput> {
 
     @Autowired

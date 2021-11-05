@@ -57,12 +57,6 @@
             <artifactId>common-data-mongodb</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.welab.wefe</groupId>
-            <artifactId>union-service</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
 
     </dependencies>
 

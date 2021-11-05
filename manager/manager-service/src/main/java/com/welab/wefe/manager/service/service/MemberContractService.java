@@ -96,7 +96,7 @@ public class MemberContractService extends AbstractContractService {
             for (int i = 0; i < fields.length; i++) {
                 fields[i].setAccessible(true);
                 if (null != fields[i].get(extJSON)) {
-                    extJson.put(fields[i].getName(), fields[i].get(extJSON));
+                    extJson.put(StringUtil.camelCaseToUnderLineCase(fields[i].getName()), fields[i].get(extJSON));
                 }
             }
             TransactionReceipt transactionReceipt = memberContract.updateExtJson(memberId,
