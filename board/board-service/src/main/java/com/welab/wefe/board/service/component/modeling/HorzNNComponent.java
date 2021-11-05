@@ -56,8 +56,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         JObject earlyStop = JObject.create("early_stop", "diff").append("eps", 0.0);
         horzNNParam.append("early_stop", earlyStop);
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("beta_1", 0.9)
-                .append("beta_2", 0.999).append("epsilon", 1e-07).append("amsgrad", false)
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("epsilon", 1e-07)
                 .append("optimizer", params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");
