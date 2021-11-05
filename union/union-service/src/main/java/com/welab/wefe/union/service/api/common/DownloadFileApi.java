@@ -60,6 +60,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
+        headers.add("fileName",URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
         headers.add("Pragma", "no-cache");
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
         ResponseEntity<byte[]> response = ResponseEntity
