@@ -30,7 +30,7 @@
                                 :disabled="!userInfo.super_admin_role"
                             />
                         </el-form-item>
-                        <el-form-item label="在联邦中隐身 (隐身后其他成员从联邦中不能看到其任何数据)：">
+                        <el-form-item label="在联邦中隐身：">
                             <el-radio
                                 v-model="form.member_hidden"
                                 :label="true"
@@ -45,6 +45,7 @@
                             >
                                 否
                             </el-radio>
+                            <p class="tips-alert" v-if="form.member_hidden"> ※ 隐身后其他成员从联邦中不能看到关于您的所有信息</p>
                         </el-form-item>
                         <el-form-item label="是否允许对外公开数据集基础信息：">
                             <el-radio
@@ -61,6 +62,7 @@
                             >
                                 否
                             </el-radio>
+                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据集</p>
                         </el-form-item>
                         <el-form-item label="邮箱：">
                             <el-input
@@ -412,5 +414,11 @@
             width: 42%;
         }
     }
+}
+.tips-alert{
+    font-size: 12px;
+    color:red;
+    line-height: 12px;
+    padding-bottom: 20px;
 }
 </style>

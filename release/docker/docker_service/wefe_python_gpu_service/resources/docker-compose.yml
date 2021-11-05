@@ -13,7 +13,7 @@ services:
     volumes:
       - ./mount/config.properties:/opt/welab/wefe/config.properties
       # 挂在文件夹会同步，挂在文件不一定同步(vim编辑不会同步,需要给文件加权限 chmod 777 file, echo 编辑会同步)
-      - /data/wefe/docker-compose/logs/flow:/data/logs # flow_logs
+      - /data/wefe/docker-compose/logs/flow:/opt/welab/wefe/logs # flow_logs
     command:
 #      sh -c "sh /opt/welab/wefe/fc/function/wefe-fc/update_env.sh && sh /opt/welab/wefe/flow/service.sh start && tail -f /dev/null"
 
