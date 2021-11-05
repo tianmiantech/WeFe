@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -24,6 +25,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -68,5 +71,32 @@ public class UserMongoRepo extends AbstractMongoRepo {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder().append("adminRole", adminRole).build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void changePassword(String userId, String password) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder().append("password", password).build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void update(String userId, String nickname, String email) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder()
+                .append("nickname", nickname)
+                .append("email", email)
+                .build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+    public PageOutput<User> findList(String account, String nickname, Boolean adminRole, int pageIndex, int pageSize) {
+        Query query = new QueryBuilder()
+                .append("account", account)
+                .like("nickname", nickname)
+                .append("adminRole", adminRole)
+                .page(pageIndex, pageSize)
+                .build();
+        List<User> list = mongoManagerTemplate.find(query, User.class);
+        long count = mongoManagerTemplate.count(query, User.class);
+        return new PageOutput<User>(pageIndex, count, pageSize, list);
     }
 }

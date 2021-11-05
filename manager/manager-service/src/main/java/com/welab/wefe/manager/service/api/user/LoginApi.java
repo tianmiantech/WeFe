@@ -38,7 +38,7 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
             return fail("账号不存在, 请注册");
         }
 
-        if (user.getPassword().equals(Md5.of(input.getPassword() + passwordSalt))) {
+        if (!user.getPassword().equals(Md5.of(input.getPassword() + passwordSalt))) {
             return fail("密码错误, 请重新输入");
         }
 

@@ -1,19 +1,15 @@
 package com.welab.wefe.manager.service.dto.user;
 
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
- * @author yuxin.zhang
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/2
  */
-public class LoginOutput extends AbstractApiOutput {
+public class UserUpdateInput extends AbstractApiInput {
     private String userId;
-
-    private String token;
-
-    private String account;
-
     private String nickname;
-
     private String email;
 
     public String getUserId() {
@@ -22,22 +18,6 @@ public class LoginOutput extends AbstractApiOutput {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getAccount() {
-        return account;
-    }
-
-    public void setAccount(String account) {
-        this.account = account;
     }
 
     public String getNickname() {
