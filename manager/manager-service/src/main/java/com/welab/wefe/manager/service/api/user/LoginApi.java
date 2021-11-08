@@ -25,8 +25,6 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
 
     @Autowired
     private UserMongoRepo userMongoRepo;
-    @Value(value = "${password.salt}")
-    private String passwordSalt;
     private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
 
     @Override
@@ -38,7 +36,7 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
             return fail("账号不存在, 请注册");
         }
 
-        if (!user.getPassword().equals(Md5.of(input.getPassword() + passwordSalt))) {
+        if (!user.getPassword().equals(Md5.of(input.getPassword() + user.getSalt()))) {
             return fail("密码错误, 请重新输入");
         }
 
