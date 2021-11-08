@@ -21,11 +21,11 @@ import java.io.IOException;
 @Api(path = "user/role/change", name = "user role change", login = false)
 public class UserRoleChangeApi extends AbstractApi<UserRoleChangeInput, AbstractApiOutput> {
     @Autowired
-    private UserMongoRepo userMongoRepo;
+    private UserService userService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(UserRoleChangeInput input) throws StatusCodeWithException, IOException {
-        userMongoRepo.changeUserRole(input.getUserId(),input.isAdminRole());
-        return null;
+        userService.changeUserRole(input.getUserId(),input.isAdminRole());
+        return success();
     }
 }
