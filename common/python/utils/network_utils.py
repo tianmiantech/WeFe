@@ -169,12 +169,13 @@ def check_endpoint_is_connected(endpoint):
     :return:
     """
     if endpoint in _endpoint_check_result:
+        print(f'check_endpoint_is_connected from cache：{_endpoint_check_result[endpoint]},endpoint:{endpoint}')
         return _endpoint_check_result[endpoint]
     try:
+        url = endpoint
+        r = requests.request('GET', url, timeout=1)
         _endpoint_check_result[endpoint] = True
-        print(f'check_endpoint_is_connected：{_endpoint_check_result[endpoint]},endpoint:{endpoint}')
         return True
-    except KeyError:
+    except Exception as e:
         _endpoint_check_result[endpoint] = False
-        print(f'check_endpoint_is_connected：{_endpoint_check_result[endpoint]},endpoint:{endpoint}')
         return False
