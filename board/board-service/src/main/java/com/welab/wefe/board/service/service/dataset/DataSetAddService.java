@@ -22,7 +22,7 @@ import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.DataSetTaskRepository;
-import com.welab.wefe.board.service.dto.vo.DataSetAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.*;
 import com.welab.wefe.board.service.util.*;
@@ -73,7 +73,7 @@ public class DataSetAddService extends AbstractService {
      *                 the CurrentAccount information cannot be obtained, so it needs to be passed.
      */
     @Async
-    public void add(DataSetAddInputModel input, DataSetTaskMysqlModel dataSetTask, CurrentAccount.Info userInfo) {
+    public void add(TableDataSetAddInputModel input, DataSetTaskMysqlModel dataSetTask, CurrentAccount.Info userInfo) {
 
         DataSetMysqlModel model = new ModelMapper().map(input, DataSetMysqlModel.class);
         model.setId(dataSetTask.getDataSetId());
@@ -129,7 +129,7 @@ public class DataSetAddService extends AbstractService {
     /**
      * create AbstractDataSetReader
      */
-    private AbstractDataSetReader createDataSetReader(DataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         switch (input.getDataSetAddMethod()) {
             case Database:
                 return createSqlDataSetReader(input);
@@ -148,7 +148,7 @@ public class DataSetAddService extends AbstractService {
     /**
      * create CsvDataSetReader/ExcelDataSetReader
      */
-    private AbstractDataSetReader createFileDataSetReader(DataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractDataSetReader createFileDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         try {
             File file = dataSetService.getDataSetFile(input.getDataSetAddMethod(), input.getFilename());
             boolean isCsv = file.getName().endsWith("csv");
@@ -165,7 +165,7 @@ public class DataSetAddService extends AbstractService {
     /**
      * create SqlDataSetReader
      */
-    private SqlDataSetReader createSqlDataSetReader(DataSetAddInputModel input) throws StatusCodeWithException {
+    private SqlDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         DataSourceMySqlModel dataSource = dataSetService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);

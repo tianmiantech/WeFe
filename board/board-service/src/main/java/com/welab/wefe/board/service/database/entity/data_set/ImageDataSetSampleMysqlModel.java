@@ -57,11 +57,16 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
      */
     private boolean labeled;
     /**
-     * json形式的标注信息
+     * json 形式的标注信息
      */
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JSONObject labelInfo;
+
+    /**
+     * xml 形式的标注信息
+     */
+    private String xmlAnnotation;
 
     //region getter/setter
 
@@ -121,6 +126,13 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
         this.labelInfo = labelInfo;
     }
 
+    public String getXmlAnnotation() {
+        return xmlAnnotation;
+    }
+
+    public void setXmlAnnotation(String xmlAnnotation) {
+        this.xmlAnnotation = xmlAnnotation;
+    }
 
     //endregion
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.dataset;
+package com.welab.wefe.board.service.api.dataset.image_data_set;
 
-import com.welab.wefe.board.service.database.entity.data_set.DataSetTaskMysqlModel;
-import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetTaskService;
+import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -30,16 +30,16 @@ import java.io.IOException;
 /**
  * @author Zane
  */
-@Api(path = "data_set/add", name = "add data set")
-public class AddApi extends AbstractApi<TableDataSetAddInputModel, DataSetTaskMysqlModel> {
+@Api(path = "image_data_set/add", name = "add image data set")
+public class AddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
 
     @Autowired
-    private DataSetTaskService dataSetTaskService;
+    private ImageDataSetTaskService imageDataSetTaskService;
 
     @Override
-    protected ApiResult<DataSetTaskMysqlModel> handle(TableDataSetAddInputModel input) throws StatusCodeWithException, IOException {
-        DataSetTaskMysqlModel dataSetTaskMysqlModel = dataSetTaskService.add(input);
-        return success(dataSetTaskMysqlModel);
+    protected ApiResult<ImageDataSetAddOutputModel> handle(ImageDataSetAddInputModel input) throws StatusCodeWithException, IOException {
+        ImageDataSetAddOutputModel output = imageDataSetTaskService.add(input);
+        return success(output);
     }
 
 }

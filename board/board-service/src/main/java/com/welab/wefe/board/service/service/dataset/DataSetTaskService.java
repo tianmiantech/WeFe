@@ -24,7 +24,7 @@ import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.DataSetTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
-import com.welab.wefe.board.service.dto.vo.DataSetAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
@@ -61,7 +61,7 @@ public class DataSetTaskService extends AbstractService {
     @Autowired
     private DataSetTaskRepository dataSetTaskRepository;
 
-    public DataSetTaskMysqlModel add(DataSetAddInputModel input) throws StatusCodeWithException, IOException {
+    public DataSetTaskMysqlModel add(TableDataSetAddInputModel input) throws StatusCodeWithException, IOException {
 
         // Check database connection
         MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
