@@ -10,23 +10,24 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  */
 public class ChangePasswordInput extends AbstractApiInput {
     @Check(require = true)
-    private String userId;
+    private String oldPassword;
+
     @Check(require = true)
-    private String password;
+    private String newPassword;
 
-    public String getUserId() {
-        return userId;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
-    public String getPassword() {
-        return password;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

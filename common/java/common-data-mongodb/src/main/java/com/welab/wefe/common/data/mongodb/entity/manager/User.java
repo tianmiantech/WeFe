@@ -32,6 +32,7 @@ public class User extends AbstractNormalMongoModel {
     private String account;
     private String password;
     private String nickname;
+    private String salt;
     private String email;
     /**
      * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
@@ -110,5 +111,14 @@ public class User extends AbstractNormalMongoModel {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

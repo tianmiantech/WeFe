@@ -58,6 +58,13 @@ public class UserMongoRepo extends AbstractMongoRepo {
         return mongoManagerTemplate.findOne(query, User.class);
     }
 
+    public User findByUserId(String userId) {
+        Query query = new QueryBuilder()
+                .append("userId", userId)
+                .build();
+        return mongoManagerTemplate.findOne(query, User.class);
+    }
+
 
     public boolean checkUserByAccountAndPassword(String account, String password) {
         Query query = new QueryBuilder()
@@ -73,9 +80,12 @@ public class UserMongoRepo extends AbstractMongoRepo {
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 
-    public void changePassword(String userId, String password) {
+    public void changePassword(String userId, String password,String salt) {
         Query query = new QueryBuilder().append("userId", userId).build();
-        Update update = new UpdateBuilder().append("password", password).build();
+        Update update = new UpdateBuilder()
+                .append("password", password)
+                .append("salt",salt)
+                .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 

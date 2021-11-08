@@ -20,15 +20,15 @@ import java.io.IOException;
  * @date: 2021/11/2
  */
 @Api(path = "user/register", name = "register", login = false)
-public class RegisterApi extends AbstractApi<UserUpdateInput, AbstractApiOutput> {
+public class RegisterApi extends AbstractApi<RegisterInput, AbstractApiOutput> {
     @Autowired
     private UserService userService;
 
     private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UserUpdateInput input) throws StatusCodeWithException, IOException {
-        userService.update(input);
+    protected ApiResult<AbstractApiOutput> handle(RegisterInput input) throws StatusCodeWithException, IOException {
+        userService.register(mUserMapper.transfer(input));
         return success();
     }
 }
