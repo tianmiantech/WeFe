@@ -19,54 +19,49 @@ package com.welab.wefe.board.service.database.entity.data_set;
 import com.alibaba.fastjson.JSONObject;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.ColumnDataType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author Zane
  */
-@Entity(name = "data_set_column")
+@Entity(name = "image_data_set_sample")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class DataSetColumnMysqlModel extends AbstractBaseMySqlModel {
+public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
 
     /**
-     * 数据集Id
+     * 数据集id
      */
     private String dataSetId;
     /**
-     * 字段序号
+     * 文件名
      */
-    @Column(name = "`index`")
-    private Integer index;
+    private String fileName;
     /**
-     * 字段名称
+     * 文件路径
      */
-    private String name;
+    private String filePath;
     /**
-     * 数据类型
+     * 文件大小
      */
-    @Enumerated(EnumType.STRING)
-    private ColumnDataType dataType;
+    private long fileSize;
     /**
-     * 注释
+     * label
      */
-    private String comment;
+    private String label;
     /**
-     * 空值数据行数
+     * 是否已标注
      */
-    private Long emptyRows;
+    private boolean labeled;
     /**
-     * 数值分布
+     * json形式的标注信息
      */
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    private JSONObject valueDistribution;
+    private JSONObject labelInfo;
 
     //region getter/setter
 
@@ -78,52 +73,52 @@ public class DataSetColumnMysqlModel extends AbstractBaseMySqlModel {
         this.dataSetId = dataSetId;
     }
 
-    public Integer getIndex() {
-        return index;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getName() {
-        return name;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
-    public ColumnDataType getDataType() {
-        return dataType;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public void setDataType(ColumnDataType dataType) {
-        this.dataType = dataType;
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 
-    public String getComment() {
-        return comment;
+    public String getLabel() {
+        return label;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public Long getEmptyRows() {
-        return emptyRows;
+    public boolean isLabeled() {
+        return labeled;
     }
 
-    public void setEmptyRows(Long emptyRows) {
-        this.emptyRows = emptyRows;
+    public void setLabeled(boolean labeled) {
+        this.labeled = labeled;
     }
 
-    public JSONObject getValueDistribution() {
-        return valueDistribution;
+    public JSONObject getLabelInfo() {
+        return labelInfo;
     }
 
-    public void setValueDistribution(JSONObject valueDistribution) {
-        this.valueDistribution = valueDistribution;
+    public void setLabelInfo(JSONObject labelInfo) {
+        this.labelInfo = labelInfo;
     }
 
 

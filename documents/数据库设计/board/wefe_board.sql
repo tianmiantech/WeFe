@@ -857,6 +857,7 @@ CREATE TABLE `image_data_set_sample`
     `updated_time`             datetime(6) COMMENT '更新时间',
     `data_set_id`              varchar(36)  NOT NULL COMMENT '数据集id',
     `file_name`                varchar(128) COMMENT '文件名',
+    `file_path`                varchar(512) COMMENT '文件路径',
     `file_size`                bigint(20) NOT NULL DEFAULT '0' COMMENT '文件大小',
     `label`                    varchar(32) COMMENT 'label',
     `labeled`                  bool COMMENT '是否已标注',
