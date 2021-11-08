@@ -1,5 +1,6 @@
 package com.welab.wefe.manager.service.dto.user;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
@@ -8,8 +9,11 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @date: 2021/11/2
  */
 public class RegisterInput extends AbstractApiInput {
+    @Check(require = true)
     private String account;
+    @Check(require = true)
     private String password;
+    @Check(require = true)
     private String nickname;
     private String email;
 
