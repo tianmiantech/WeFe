@@ -22,6 +22,7 @@ from common.python.db.db_models import Task, Job, GlobalSetting, JobApplyResult
 from common.python.db.task_dao import TaskDao
 from common.python.db.job_apply_result_dao import JobApplyResultDao
 from service.visualfl.visualfl_service import VisualFLService
+from utils import job_utils
 
 
 class RunVisualFLTaskAction:
@@ -55,6 +56,8 @@ class RunVisualFLTaskAction:
             self.logger.info(
                 "Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             return
+        message = ''
+        job_utils.send()
         flag = self.submit_task(apply_result)
         if flag:
             self.logger.info(
@@ -118,6 +121,7 @@ class RunVisualFLTaskAction:
         task_config_json = json.loads(self.task.task_conf)
         try:
             params = task_config_json['params']
+            # todo 将apply_result 填充到 params里面
             self.log_job_info('submit_task params:' + str(params))
             # todo 申请资源请求
             p = VisualFLService.request('submit', params)
