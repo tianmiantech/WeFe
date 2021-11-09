@@ -117,7 +117,8 @@
                         <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
                     </fieldset>
                 </el-col>
-                <el-col :span="14">
+                <!-- 结构化数据 -->
+                <el-col v-if="addDataType === 'csv'" :span="14">
                     <fieldset style="min-height:230px">
                         <legend>选择文件</legend>
                         <el-form-item>
@@ -216,6 +217,10 @@
                             <li>csv 文件请使用 utf-8 编码格式</li>
                         </ul>
                     </fieldset>
+                </el-col>
+                <!-- 图像数据 -->
+                <el-col v-else :span="14">
+                    图像数据
                 </el-col>
             </el-row>
             <el-row
@@ -593,7 +598,8 @@
                     added_row_count:     0,
                     repeat_id_row_count: 0,
                 },
-                isCanClose: false,
+                isCanClose:  false,
+                addDataType: 'csv',
             };
         },
         watch: {
@@ -616,6 +622,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.addDataType = this.$route.query.type;
             this.getDataSouceList();
             this.checkStorage();
 

@@ -95,6 +95,14 @@ const baseRoutes = [
                 component: () => import('../views/data-center/data-list'),
             },
             {
+                path: `${prefixPath}data-add-transition`,
+                name: 'data-add-transition',
+                meta: {
+                    title: '选择数据类型',
+                },
+                component: () => import('../views/data-center/data-add-transition.vue'),
+            },
+            {
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
