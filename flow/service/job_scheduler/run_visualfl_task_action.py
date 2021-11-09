@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import time
-
-from common.python.common.consts import TaskStatus
+import json
+from common.python.common.consts import TaskStatus, JobStatus
+from common.python.db.job_dao import JobDao
 from common.python.utils.core_utils import current_datetime
 from common.python.utils.log_utils import LoggerFactory, schedule_logger
-from common.python.db.db_models import Task, Job
+from common.python.db.db_models import Task, Job, GlobalSetting, JobApplyResult
 from common.python.db.task_dao import TaskDao
 from common.python.db.job_apply_result_dao import JobApplyResultDao
-from flow.settings import MEMBER_ID
 from service.visualfl.visualfl_service import VisualFLService
 
 
@@ -42,18 +42,20 @@ class RunVisualFLTaskAction:
         # if not self.wait_for_parents_success():
         #     return
         flag = self.apply_resource()
+        apply_result = None
         if flag:
             self.logger.info(
                 "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             # 等待 apply resource 执行完成
-            while not self.is_apply_progress_done():
+            while apply_result is None:
                 self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
+                apply_result = self.is_apply_progress_done()
         else:
             self.logger.info(
                 "Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             return
-        flag = self.submit_task()
+        flag = self.submit_task(apply_result)
         if flag:
             self.logger.info(
                 "Task apply resource {}（{}）start，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
@@ -66,51 +68,56 @@ class RunVisualFLTaskAction:
         else:
             self.logger.info(
                 "Task {}（{}）failed， submit task request error, time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
+            # todo
+            self.error_on_task('submit task error')
             return
+        # todo
+        self.finish_task()
+
+    def error_on_task(self, message):
+        self.task.status = TaskStatus.ERROR
+        self.task.start_time = current_datetime()
+        self.task.updated_time = current_datetime()
+        self.task.message = message
+        TaskDao.save(self.task)
+
+        job = JobDao.find_one_by_id(self.job.id)
+        job.status = JobStatus.ERROR_ON_RUNNING
+        job.status_updated_time = current_datetime()
+        job.updated_time = current_datetime()
+        job.finish_time = current_datetime()
+        job.message = message
+        job.save()
+
+    def finish_task(self):
+        self.task.status = TaskStatus.SUCCESS
+        self.task.start_time = current_datetime()
+        self.task.updated_time = current_datetime()
+        TaskDao.save(self.task)
+
+        job = JobDao.find_one_by_id(self.job.id)
+        job.status = JobStatus.SUCCESS
+        job.status_updated_time = current_datetime()
+        job.updated_time = current_datetime()
+        job.finish_time = current_datetime()
+        job.save()
 
     def is_apply_progress_done(self) -> bool:
-        apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None:
-            return False
-        return True
+        return JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
 
     # todo
     def is_task_progress_done(self) -> bool:
         apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None:
+        if apply_result is None or apply_result.status == '待运行' or apply_result.status == '运行中':
             return False
         return True
 
     # submit task
-    def submit_task(self):
+    def submit_task(self, apply_result: JobApplyResult):
         submit_task_start_status = False
+        task_config_json = json.loads(self.task.task_conf)
         try:
-            params = {
-                'job_id': '',
-                'task_id': '',
-                'job_type': 'paddle_fl',
-                'role': 'promoter',
-                'member_id': '10001',
-                'job_config': {
-                    'program': 'paddle_clas',
-                    'proposal_wait_time': 5,
-                    'worker_num': 2,
-                    'local_worker_num': 2,
-                    'local_trainerid_start': 0,
-                    'local_trainerid_end': 2,
-                    'max_iter': 10,
-                    'inner_step': 10,
-                    'device': 'cpu',
-                    'use_vdl': True,
-                    'server_endpoint': '127.0.0.1:8181',
-                    'aggregator_endpoint': 'xxx',
-                    'aggregator_assignee': ''
-                },
-                'algorithm_config': {
-                    'batch_size': 128,
-                    'need_shuffle': True
-                }
-            }
+            params = task_config_json['params']
             self.log_job_info('submit_task params:' + str(params))
             # todo 申请资源请求
             p = VisualFLService.request('submit', params)
@@ -160,7 +167,7 @@ class RunVisualFLTaskAction:
         message = 'job {} on {} {} start task subprocess:{}'.format(
             self.job.job_id,
             self.task.role,
-            MEMBER_ID,
+            GlobalSetting.get_member_id(),
             message
         )
         schedule_logger(self.running_job).info(message)

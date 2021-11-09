@@ -83,6 +83,10 @@ class JobApplyResult(Model):
     updated_time = DateTimeField()
     job_id = CharField()
     task_id = CharField()
+    server_endpoint = CharField()
+    aggregator_endpoint = CharField()
+    aggregator_assignee = CharField()
+    status = CharField()
 
     class Meta:
         database = DB

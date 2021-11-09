@@ -22,7 +22,6 @@ from common.python.utils.log_utils import schedule_logger
 from common.python.db.db_models import Job
 from common.python.db.job_dao import JobDao
 from common.python.db.task_dao import TaskDao
-from common.python.common.enums import FlowQueueActionType
 from flow.service.job_scheduler.job_service import JobService
 from service.job_scheduler.job_stop_action import JobStopAction
 from service.job_scheduler.run_visualfl_task_action import RunVisualFLTaskAction
@@ -39,7 +38,7 @@ class VisualFLJobStartAction(object):
         self.my_role = my_role
         self.task_executor_pool = ThreadPoolExecutor(max_workers=2)
 
-    def do(self, action: FlowQueueActionType):
+    def do(self):
 
         if self.job is None:
             return
