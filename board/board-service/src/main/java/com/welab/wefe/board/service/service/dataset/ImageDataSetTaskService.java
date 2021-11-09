@@ -103,7 +103,7 @@ public class ImageDataSetTaskService extends AbstractService {
             File xmlFile = xmlFiles.get(key);
             if (xmlFile != null) {
                 Annotation annotation = XmlUtil.readObjectFromXml(xmlFile);
-                sample.setLabel();
+                sample.setLabel(annotation.object.name);
                 sample.setLabeled(true);
                 sample.setXmlAnnotation("");
                 sample.setLabelInfo(new JSONObject());
