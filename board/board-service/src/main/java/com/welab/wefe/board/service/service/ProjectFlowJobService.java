@@ -327,13 +327,17 @@ public class ProjectFlowJobService extends AbstractService {
         if (jobs.isEmpty()) {
             throw new StatusCodeWithException("未找到相应的任务！", StatusCode.ILLEGAL_REQUEST);
         }
-
-        JobMySqlModel job = jobs.get(0);
-
-        if (job.getStatus().onStoping() || job.getStatus().finished()) {
+        int finishedJobCount = 0;
+        for (JobMySqlModel job : jobs) {
+            if (job.getStatus().onStoping() || job.getStatus().finished()) {
+                finishedJobCount++;
+            }
+        }
+        // all finished
+        if (finishedJobCount == jobs.size()) {
             return;
         }
-
+        JobMySqlModel job = jobs.get(0);
         ProjectMySqlModel project = projectService.findByProjectId(job.getProjectId());
 
         if (!input.fromGateway() && JobMemberRole.promoter != project.getMyRole()) {
