@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -348,7 +348,17 @@ public class UnionService extends AbstractService {
                 .append("mobile", mobile)
                 .append("code", code)
                 .append("smsBusinessType", smsBusinessType);
-        request("sms/check_verification_code", params, false);
+        try {
+            request("sms/check_verification_code", params, false);
+        } catch (StatusCodeWithException e) {
+            String errorMsg = e.getMessage();
+            if (StringUtil.isNotEmpty(errorMsg) && errorMsg.contains("：")) {
+                errorMsg = errorMsg.split("：")[1];
+            }
+            throw new StatusCodeWithException(errorMsg, StatusCode.SYSTEM_ERROR);
+        } catch (Exception e) {
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
     }
 
     private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
