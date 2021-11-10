@@ -61,8 +61,8 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
         vertNNParam.append("epochs", params.epochs).append("interactive_layer_lr", params.interactiveLayerLr)
                 .append("batch_size", params.batchSize).append("early_stop", "diff");
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("momentum", 0)
-                .append("nesterov", false).append("optimizer", params.optimizer);
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("optimizer",
+                params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");
         vertNNParam.append("optimizer", optimizer).append("loss", params.loss).append("metrics", metrics);
