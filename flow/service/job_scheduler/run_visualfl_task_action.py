@@ -38,10 +38,6 @@ class RunVisualFLTaskAction:
         self.running_job = self.job.job_id + '_' + self.job.my_role
 
     def do(self):
-
-        # 等待前置任务完毕
-        # if not self.wait_for_parents_success():
-        #     return
         flag = self.apply_resource()
         apply_result = None
         if flag:
@@ -56,8 +52,12 @@ class RunVisualFLTaskAction:
             self.logger.info(
                 "Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             return
-        message = ''
-        job_utils.send()
+        # todo
+        if self.job.my_role == 'promoter':
+            message = ''
+            job_utils.send()
+        else:
+            job_utils.get()
         flag = self.submit_task(apply_result)
         if flag:
             self.logger.info(
