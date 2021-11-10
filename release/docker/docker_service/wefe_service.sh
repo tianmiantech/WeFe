@@ -72,6 +72,7 @@ edit_wefe_config(){
     sed -i "/fc.vpc_id/s/=.*/=$FC_VPC_ID/g" ./config.properties
     sed -i "/fc.v_switch_ids/s/=.*/=$FC_V_SWITCH_IDS/g" ./config.properties
     sed -i "/fc.security_group_id/s/=.*/=$FC_SECURITY_GROUP_ID/g" ./config.properties
+    sed -i "/fc.account_type/s/=.*/=$FC_ACCOUNT_TYPE/g" ./config.properties
     sed -i "s|fc.end_point=https://.*.cn-shenzhen.fc.aliyuncs.com|fc.end_point=https://$FC_ACCOUNT_ID.cn-shenzhen.fc.aliyuncs.com|g" ./config.properties
 
 }

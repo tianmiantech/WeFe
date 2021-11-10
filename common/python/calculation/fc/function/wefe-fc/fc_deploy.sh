@@ -9,11 +9,13 @@ nas_upload(){
   s_config=`s config get -l`
   if [[ $s_config =~ 's-config' ]]
   then
-    echo "already init s-config"
+    echo "already init s-config, update s-config"
+    s config delete -a s-config
   else
     echo "does not init s-config, now start to init ..."
-    s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
   fi
+
+  s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
 
   # init project
   s nas init
@@ -57,9 +59,7 @@ nas_upload(){
 
 }
 
-
 fc_deploy(){
-
 
   fc_dir=${wefe_code_path}/common/python/calculation/fc/function/wefe-fc
   cd $fc_dir
@@ -90,10 +90,23 @@ fc_deploy(){
   security_group_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.security_group_id=*")
   security_group_id=${security_group_id##*=}
 
+  account_type=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_type=*")
+  account_type=${account_type##*=}
+
   if [ ! ${account_id} ]; then
     echo "account_id is null"
   else
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
+  fi
+
+  if [ ${account_type,,} == "admin" ]; then
+    echo "account_type is admin, auto to create fc role"
+    sed -i '9s/^/#/' s.yaml
+  elif [ ${account_type,,} == "api" ]; then
+    echo "account_type is api, create fc role manually"
+    sed -i '9s/^#*//' s.yaml
+  else
+    echo "not support type: ${account_type}, please check again !"
   fi
 
   if [ ! ${vpc_id} -o ${vpc_id} == "" ]; then
