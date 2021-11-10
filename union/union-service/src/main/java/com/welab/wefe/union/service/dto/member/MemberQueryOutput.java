@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.dto.member;
 
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
@@ -36,6 +37,8 @@ public class MemberQueryOutput extends AbstractTimedApiOutput {
     private String logo;
     private long logTime;
     private long lastActivityTime;
+
+    private MemberExtJSON extJson;
 
     public String getId() {
         return id;
@@ -139,5 +142,13 @@ public class MemberQueryOutput extends AbstractTimedApiOutput {
 
     public void setLastActivityTime(long lastActivityTime) {
         this.lastActivityTime = lastActivityTime;
+    }
+
+    public MemberExtJSON getExtJson() {
+        return extJson;
+    }
+
+    public void setExtJson(MemberExtJSON extJson) {
+        this.extJson = extJson;
     }
 }
