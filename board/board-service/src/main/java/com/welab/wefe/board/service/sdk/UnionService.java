@@ -34,6 +34,7 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
@@ -337,6 +338,17 @@ public class UnionService extends AbstractService {
         }
 
         return data.toJavaObject(DataSetOutputModel.class);
+    }
+
+    /**
+     * Check verification code
+     */
+    public void checkVerificationCode(String mobile, String code, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
+        JObject params = JObject.create()
+                .append("mobile", mobile)
+                .append("code", code)
+                .append("smsBusinessType", smsBusinessType);
+        request("sms/check_verification_code", params, false);
     }
 
     private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {

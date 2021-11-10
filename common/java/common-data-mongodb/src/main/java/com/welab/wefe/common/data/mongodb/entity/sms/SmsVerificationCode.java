@@ -1,7 +1,7 @@
 package com.welab.wefe.common.data.mongodb.entity.sms;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
-import com.welab.wefe.common.data.mongodb.constant.SmsBusinessTypeEnum;
+import com.welab.wefe.common.data.mongodb.constant.SmsBusinessType;
 import com.welab.wefe.common.data.mongodb.entity.AbstractNormalMongoModel;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SmsVerificationCode extends AbstractNormalMongoModel {
     private String mobile;
     private String code;
-    private SmsBusinessTypeEnum businessType;
+    private SmsBusinessType businessType;
 
     public String getMobile() {
         return mobile;
@@ -27,11 +27,11 @@ public class SmsVerificationCode extends AbstractNormalMongoModel {
         this.code = code;
     }
 
-    public SmsBusinessTypeEnum getBusinessType() {
+    public SmsBusinessType getBusinessType() {
         return businessType;
     }
 
-    public void setBusinessType(SmsBusinessTypeEnum businessType) {
+    public void setBusinessType(SmsBusinessType businessType) {
         this.businessType = businessType;
     }
 }

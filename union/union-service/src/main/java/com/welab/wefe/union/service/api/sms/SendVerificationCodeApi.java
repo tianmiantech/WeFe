@@ -1,6 +1,6 @@
 package com.welab.wefe.union.service.api.sms;
 
-import com.welab.wefe.common.data.mongodb.constant.SmsBusinessTypeEnum;
+import com.welab.wefe.common.data.mongodb.constant.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aaron.li
  * @Date 2021/10/19
  **/
-@Api(path = "sms/send_verification_code", name = "send sms verification code")
+@Api(path = "sms/send_verification_code", name = "send sms verification code", login = false)
 @FlowLimitByIp(count = 50, second = 24 * 60 * 60)
 @FlowLimitByMobile(count = 10, second = 24 * 60 * 60)
 public class SendVerificationCodeApi extends AbstractApi<SendVerificationCodeApi.Input, SendVerificationCodeApi.Output> {
@@ -28,32 +28,32 @@ public class SendVerificationCodeApi extends AbstractApi<SendVerificationCodeApi
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        smsService.sendVerificationCode(input.mobile, input.businessType);
+        smsService.sendVerificationCode(input.phoneNumber, input.smsBusinessType);
 
         return success();
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "Mobile phone number receiving verification code", require = true)
-        private String mobile;
+        private String phoneNumber;
 
         @Check(name = "business type", require = true)
-        private SmsBusinessTypeEnum businessType;
+        private SmsBusinessType smsBusinessType;
 
-        public String getMobile() {
-            return mobile;
+        public String getPhoneNumber() {
+            return phoneNumber;
         }
 
-        public void setMobile(String mobile) {
-            this.mobile = mobile;
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
         }
 
-        public SmsBusinessTypeEnum getBusinessType() {
-            return businessType;
+        public SmsBusinessType getSmsBusinessType() {
+            return smsBusinessType;
         }
 
-        public void setBusinessType(SmsBusinessTypeEnum businessType) {
-            this.businessType = businessType;
+        public void setSmsBusinessType(SmsBusinessType smsBusinessType) {
+            this.smsBusinessType = smsBusinessType;
         }
     }
 

@@ -8,6 +8,7 @@ import com.welab.wefe.common.data.mongodb.repo.FlowLimitRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.Api;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -97,6 +98,7 @@ public abstract class AbstractFlowLimitService {
         FlowLimit flowLimit = new FlowLimit();
         flowLimit.setKey(getFlowLimitKey());
         flowLimit.setCount(0);
+        flowLimit.setPath(api.getClass().getAnnotation(Api.class).path());
         flowLimit.setStrategyType(getFlowLimitStrategyType());
         flowLimit.setStrategyValue(getFlowLimitStrategyValue());
         flowLimit.setStartVisitTime(System.currentTimeMillis());

@@ -1,7 +1,7 @@
 package com.welab.wefe.union.service.service.sms;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.constant.SmsBusinessTypeEnum;
+import com.welab.wefe.common.data.mongodb.constant.SmsBusinessType;
 import com.welab.wefe.common.data.mongodb.constant.SmsSupplierEnum;
 import com.welab.wefe.common.data.mongodb.entity.sms.SmsDetailInfo;
 import com.welab.wefe.common.data.mongodb.entity.sms.SmsVerificationCode;
@@ -48,7 +48,7 @@ public class SmsService {
      * @param mobile target mobile number
      * @throws Exception
      */
-    public void sendVerificationCode(String mobile, SmsBusinessTypeEnum smsBusinessTypeEnum) throws StatusCodeWithException {
+    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessTypeEnum) throws StatusCodeWithException {
         if (StringUtil.isEmpty(mobile)) {
             throw new StatusCodeWithException("手机号不能为空", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
         }
@@ -105,8 +105,8 @@ public class SmsService {
      * @param code   Verification Code
      * @return true: valid, false: invalid
      */
-    public void checkVerificationCodeValid(String mobile, String code, SmsBusinessTypeEnum smsBusinessTypeEnum) throws StatusCodeWithException {
-        SmsVerificationCode smsVerificationCode = smsVerificationCodeReop.find(mobile, smsBusinessTypeEnum);
+    public void checkVerificationCodeValid(String mobile, String code, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
+        SmsVerificationCode smsVerificationCode = smsVerificationCodeReop.find(mobile, smsBusinessType);
         if (null == smsVerificationCode) {
             throw new StatusCodeWithException("验证码无效,请重新获取验证码", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -126,7 +126,7 @@ public class SmsService {
      * @param mobile target mobile number
      * @return true: expire, false: non-expire
      */
-    private boolean checkCodeIsExpire(String mobile, SmsBusinessTypeEnum smsBusinessTypeEnum) {
+    private boolean checkCodeIsExpire(String mobile, SmsBusinessType smsBusinessTypeEnum) {
         SmsVerificationCode smsVerificationCode = smsVerificationCodeReop.find(mobile, smsBusinessTypeEnum);
         if (null == smsVerificationCode) {
             return true;

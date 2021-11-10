@@ -1,6 +1,6 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.constant.SmsBusinessTypeEnum;
+import com.welab.wefe.common.data.mongodb.constant.SmsBusinessType;
 import com.welab.wefe.common.data.mongodb.entity.sms.SmsVerificationCode;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,8 +25,8 @@ public class SmsVerificationCodeReop extends AbstractMongoRepo {
         mongoTemplate.save(smsVerificationCode);
     }
 
-    public SmsVerificationCode find(String mobile, SmsBusinessTypeEnum smsBusinessTypeEnum) {
-        Query query = new QueryBuilder().append("mobile", mobile).append("businessType",smsBusinessTypeEnum).sort("updateTime", false).build();
+    public SmsVerificationCode find(String mobile, SmsBusinessType smsBusinessType) {
+        Query query = new QueryBuilder().append("mobile", mobile).append("businessType",smsBusinessType).sort("updateTime", false).build();
         List<SmsVerificationCode> list = mongoTemplate.find(query, SmsVerificationCode.class);
         return list.isEmpty() ? null : list.get(0);
     }

@@ -21,6 +21,10 @@ public class FlowLimit extends AbstractNormalMongoModel {
      */
     private int count;
     /**
+     * api path
+     */
+    private String path;
+    /**
      * flow limit strategy type
      */
     private FlowLimitStrategyTypeEnum strategyType;
@@ -96,5 +100,13 @@ public class FlowLimit extends AbstractNormalMongoModel {
 
     public void setStrategyValue(String strategyValue) {
         this.strategyValue = strategyValue;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

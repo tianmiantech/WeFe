@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
+import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -31,10 +32,7 @@ import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.BoardUserSource;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -65,6 +63,9 @@ public class AccountService extends AbstractService {
     private GatewayService gatewayService;
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    @Autowired
+    private UnionService unionService;
 
     /**
      * Paging query account
@@ -466,5 +467,34 @@ public class AccountService extends AbstractService {
         accountRepository.save(account);
         // Cancel the super administrator privileges of the current account
         accountRepository.cancelSuperAdmin(CurrentAccount.id());
+    }
+
+    public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
+        if (StringUtil.isEmpty(input.getPhoneNumber())) {
+            throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (StringUtil.isEmpty(input.getPassword())) {
+            throw new StatusCodeWithException("密码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (StringUtil.isEmpty(input.getSmsVerificationCode())) {
+            throw new StatusCodeWithException("短信验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        AccountMySqlModel model = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMySqlModel.class);
+        // phone number error
+        if (model == null) {
+            throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (!model.getEnable()) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+        }
+
+        unionService.checkVerificationCode(input.getPhoneNumber(), input.getSmsVerificationCode(), SmsBusinessType.AccountForgetPasswordVerificationCode);
+
+        // Regenerate salt
+        String salt = createRandomSalt();
+        model.setSalt(salt);
+        model.setPassword(Sha1.of(input.getPassword() + salt));
+        accountRepository.save(model);
     }
 }
