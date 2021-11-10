@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/add", name = "add image data set")
+@Api(path = "image_data_set/add", name = "add image data set", login = false)
 public class AddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
 
     @Autowired

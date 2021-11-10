@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
+package com.welab.wefe.board.service.test;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.alibaba.fastjson.JSON;
+import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Annotation;
+import com.welab.wefe.common.util.XmlUtil;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/11/10
  */
-@XStreamAlias("annotation")
-public class Annotation {
-    public String folder;
-    public String filename;
-    public String path;
-    public Source source;
-    public Size size;
-    /**
-     * 暂时没用到，先使用默认值。
-     */
-    public int segmented = 0;
-    public List<Object> object;
+public class XmlTest {
+    public static void main(String[] args) throws IOException {
+        File xmlFile = new File("/Users/zane/data/wefe_file_upload_dir/fl_fruit/Annotations/apple_1.xml");
+
+        Annotation annotation = XmlUtil.toModel(xmlFile, Annotation.class);
+        System.out.println(JSON.toJSONString(annotation, true));
+    }
 }

@@ -19,6 +19,7 @@ package com.welab.wefe.common.util;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -101,7 +102,6 @@ public class ZipUtil {
      * 支持压缩文件中包含多个文件
      */
     public static UnzipFileResult unzipFile(File srcFile, String destDirPath) throws IOException {
-        long start = System.currentTimeMillis();
         // 判断源文件是否存在
         if (!srcFile.exists()) {
             throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
@@ -114,6 +114,7 @@ public class ZipUtil {
         // 开始解压
         ZipFile zipFile = null;
         UnzipFileResult result = new UnzipFileResult();
+        result.baseDir = Paths.get(destDirPath, FileUtil.getFileNameWithoutSuffix(srcFile)).toAbsolutePath().toString();
         try {
             zipFile = new ZipFile(srcFile);
             Enumeration<?> entries = zipFile.entries();
@@ -146,8 +147,6 @@ public class ZipUtil {
                     result.add(targetFile);
                 }
             }
-            long end = System.currentTimeMillis();
-            System.out.println("解压完成，耗时：" + (end - start) + " ms");
         } finally {
             if (zipFile != null) {
                 try {
@@ -162,6 +161,7 @@ public class ZipUtil {
     }
 
     public static class UnzipFileResult {
+        public String baseDir;
         /**
          * 解压后的文件列表
          */

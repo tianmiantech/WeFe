@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.database.entity.data_set;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.DataSetStorageType;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -41,7 +42,8 @@ public class AbstractDataSetMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 存储类型
      */
-    private String storageType;
+    @Enumerated(EnumType.STRING)
+    private DataSetStorageType storageType;
     /**
      * 命名空间
      */
@@ -94,11 +96,11 @@ public class AbstractDataSetMysqlModel extends AbstractBaseMySqlModel {
         this.description = description;
     }
 
-    public String getStorageType() {
+    public DataSetStorageType getStorageType() {
         return storageType;
     }
 
-    public void setStorageType(String storageType) {
+    public void setStorageType(DataSetStorageType storageType) {
         this.storageType = storageType;
     }
 

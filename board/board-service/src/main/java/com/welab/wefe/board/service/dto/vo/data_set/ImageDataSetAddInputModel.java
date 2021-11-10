@@ -28,6 +28,8 @@ public class ImageDataSetAddInputModel extends AbstractDataSetUpdateInputModel {
     @Check(messageOnEmpty = "请指定数据集文件")
     public String filename;
 
+    public String forJobType;
+
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
@@ -45,6 +47,14 @@ public class ImageDataSetAddInputModel extends AbstractDataSetUpdateInputModel {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public String getForJobType() {
+        return forJobType;
+    }
+
+    public void setForJobType(String forJobType) {
+        this.forJobType = forJobType;
     }
 
 

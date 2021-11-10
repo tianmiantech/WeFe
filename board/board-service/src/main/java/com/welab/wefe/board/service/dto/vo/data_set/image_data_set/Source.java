@@ -20,5 +20,5 @@ package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
  * @date 2021/11/8
  */
 public class Source {
-    public String database;
+    public String database = "Unknown";
 }

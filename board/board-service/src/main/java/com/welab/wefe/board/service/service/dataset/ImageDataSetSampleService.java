@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
+package com.welab.wefe.board.service.service.dataset;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
-import java.util.List;
+import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/11/10
  */
-@XStreamAlias("annotation")
-public class Annotation {
-    public String folder;
-    public String filename;
-    public String path;
-    public Source source;
-    public Size size;
-    /**
-     * 暂时没用到，先使用默认值。
-     */
-    public int segmented = 0;
-    public List<Object> object;
+@Service
+public class ImageDataSetSampleService extends AbstractDataSetService {
+    @Autowired
+    private ImageDataSetSampleRepository imageDataSetSampleRepository;
 }

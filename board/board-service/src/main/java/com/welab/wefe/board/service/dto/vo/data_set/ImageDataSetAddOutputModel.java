@@ -21,4 +21,11 @@ package com.welab.wefe.board.service.dto.vo.data_set;
  */
 public class ImageDataSetAddOutputModel {
     public String dataSetId;
+
+    public ImageDataSetAddOutputModel() {
+    }
+
+    public ImageDataSetAddOutputModel(String dataSetId) {
+        this.dataSetId = dataSetId;
+    }
 }
