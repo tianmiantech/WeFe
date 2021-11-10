@@ -72,6 +72,8 @@ public class UnionService implements ApplicationContextAware {
                         rsaVerify(params);
                     }
                 })
+                .flowLimitByIpFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByIpService(httpServletRequest, api, params).check())
+                .flowLimitByMobileFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByMobileService(httpServletRequest, api, params).check())
                 .launch(UnionService.class, args);
 
     }
