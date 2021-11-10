@@ -73,6 +73,8 @@ class VertNNBase(ModelBase):
         self.selector_param = None
 
         self.floating_point_precision = None
+        self.is_serving_model = True
+
 
     def _init_model(self, vert_nn_param):
         self.interactive_layer_lr = vert_nn_param.interactive_layer_lr
