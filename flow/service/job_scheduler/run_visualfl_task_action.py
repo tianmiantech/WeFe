@@ -39,12 +39,12 @@ class RunVisualFLTaskAction:
 
     def do(self):
         flag = self.apply_resource()
-        apply_result = None
+        apply_result = JobApplyResult()
         if flag:
             self.logger.info(
                 "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             # 等待 apply resource 执行完成
-            while apply_result is None:
+            while apply_result is None or apply_result.server_endpoint is None or len(apply_result.server_endpoint) <= 0:
                 self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
                 apply_result = self.is_apply_progress_done()
@@ -54,10 +54,26 @@ class RunVisualFLTaskAction:
             return
         # todo
         if self.job.my_role == 'promoter':
-            message = ''
-            job_utils.send()
+            aggregator_info= {
+                'server_endpoint': apply_result.server_endpoint,
+                'aggregator_endpoint': apply_result.aggregator_endpoint,
+                'aggregator_assignee': apply_result.aggregator_assignee
+            }
+            task_config_json = json.loads(self.task.task_conf)
+            members = task_config_json['members']
+            for m in members:
+                member_id = m['member_id']
+                self.logger.info(
+                    "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
+                job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
         else:
-            job_utils.get()
+            result = None
+            while result is None:
+                result = job_utils.receive()
+                self.logger.info("wait aggregator_info")
+                time.sleep(3)
+            self.logger.info("receive aggregator_info , content is : {}".format(str(result)))
+        # todo 将 result 扔进 apply_result
         flag = self.submit_task(apply_result)
         if flag:
             self.logger.info(
