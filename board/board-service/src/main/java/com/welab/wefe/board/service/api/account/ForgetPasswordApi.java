@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author aaron.li
  * @date 2021/11/10 14:08
  **/
-@Api(path = "account/forget_password", name = "forgetPassword")
+@Api(path = "account/forget_password", name = "forgetPassword", login = false)
 public class ForgetPasswordApi extends AbstractApi<ForgetPasswordApi.Input, NoneApiOutput> {
     @Autowired
     private AccountService accountService;
