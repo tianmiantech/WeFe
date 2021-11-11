@@ -16,7 +16,7 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.dataset.image_data_set.QueryApi;
+import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
@@ -65,7 +65,7 @@ public class ImageDataSetService extends AbstractDataSetService {
     /**
      * Paging query data set
      */
-    public PagingOutput<ImageDataSetOutputModel> query(QueryApi.Input input) {
+    public PagingOutput<ImageDataSetOutputModel> query(ImageDataSetQueryApi.Input input) {
 
         Specification<ImageDataSetMysqlModel> where = Where
                 .create()

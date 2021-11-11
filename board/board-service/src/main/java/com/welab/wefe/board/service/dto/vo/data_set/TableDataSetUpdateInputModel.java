@@ -15,10 +15,12 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_set;
 
+import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -41,6 +43,10 @@ public class TableDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
         for (DataSetColumnInputModel item : metadataList) {
             item.checkAndStandardize();
+        }
+
+        if (Launcher.CONTEXT.getBean(DataSetRepository.class).countByName(name) > 0) {
+            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
         }
     }
 

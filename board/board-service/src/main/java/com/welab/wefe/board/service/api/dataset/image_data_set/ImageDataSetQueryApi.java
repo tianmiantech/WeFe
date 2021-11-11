@@ -30,8 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/query", name = "query image data set", login = false)
-public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ImageDataSetOutputModel>> {
+@Api(path = "image_data_set/query", name = "query image data set")
+public class ImageDataSetQueryApi extends AbstractApi<ImageDataSetQueryApi.Input, PagingOutput<ImageDataSetOutputModel>> {
 
     @Autowired
     private ImageDataSetService imageDataSetService;
@@ -40,7 +40,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ImageData
     protected ApiResult<PagingOutput<ImageDataSetOutputModel>> handle(Input input) throws StatusCodeWithException {
         return success(imageDataSetService.query(input));
     }
-
 
     public static class Input extends PagingInput {
 

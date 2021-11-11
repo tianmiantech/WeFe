@@ -24,8 +24,8 @@ import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.DataSetTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
-import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
+import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
 import com.welab.wefe.common.Convert;
@@ -67,10 +67,6 @@ public class DataSetTaskService extends AbstractService {
         MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
         if (!storageServiceStatus.isSuccess()) {
             throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
-        }
-
-        if (dataSetRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         DataSetTaskMysqlModel dataSetTask = new DataSetTaskMysqlModel();

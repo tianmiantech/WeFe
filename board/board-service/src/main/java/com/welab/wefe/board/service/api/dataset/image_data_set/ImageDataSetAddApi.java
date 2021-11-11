@@ -31,7 +31,7 @@ import java.io.IOException;
  * @author Zane
  */
 @Api(path = "image_data_set/add", name = "add image data set")
-public class AddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
+public class ImageDataSetAddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
 
     @Autowired
     private ImageDataSetService imageDataSetService;
