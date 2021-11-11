@@ -99,17 +99,14 @@ public class DataSetMongoReop extends AbstractMongoRepo {
                 foreignField("member_id").
                 as("member");
 
-        Boolean enable = null;
-        if(dataSetQueryInput.getExtJson() != null){
-            enable = dataSetQueryInput.getExtJson().getEnable();
-        }
         Criteria dataSetCriteria = new QueryBuilder()
                 .like("name", dataSetQueryInput.getName())
                 .like("tags", dataSetQueryInput.getTag())
                 .append("member_id", dataSetQueryInput.getMemberId())
                 .append("data_set_id", dataSetQueryInput.getDataSetId())
                 .append("contains_y", null == dataSetQueryInput.getContainsY() ? null : String.valueOf(dataSetQueryInput.getContainsY() ? 1 : 0))
-                .append("ext_json.enable",enable)
+                .append("ext_json.enable",dataSetQueryInput)
+                .append("status", dataSetQueryInput.getStatus() != null ? (dataSetQueryInput.getStatus() ? 1 : 0) : null)
                 .getCriteria();
 
 

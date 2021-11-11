@@ -16,7 +16,6 @@
 
 package com.welab.wefe.manager.service.dto.dataset;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.manager.service.dto.base.PageInput;
 
 /**
@@ -29,9 +28,8 @@ public class ApiDataSetQueryInput extends PageInput {
     private String name;
     private Boolean containsY;
     private String tag;
-
-    private DataSetExtJSON extJson;
-
+    private Boolean enable;
+    private Boolean status;
 
 
     public String getId() {
@@ -83,11 +81,19 @@ public class ApiDataSetQueryInput extends PageInput {
     }
 
 
-    public DataSetExtJSON getExtJson() {
-        return extJson;
+    public Boolean getEnable() {
+        return enable;
     }
 
-    public void setExtJson(DataSetExtJSON extJson) {
-        this.extJson = extJson;
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }

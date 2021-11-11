@@ -30,8 +30,8 @@ public class DataSetQueryInput extends PageInput {
     private Boolean containsY;
     private String tag;
     private String curMemberId;
-
-    private DataSetExtJSON extJson;
+    private Boolean status;
+    private Boolean enable;
 
 
     public String getDataSetId() {
@@ -90,11 +90,19 @@ public class DataSetQueryInput extends PageInput {
         this.curMemberId = curMemberId;
     }
 
-    public DataSetExtJSON getExtJson() {
-        return extJson;
+    public Boolean getEnable() {
+        return enable;
     }
 
-    public void setExtJson(DataSetExtJSON extJson) {
-        this.extJson = extJson;
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
