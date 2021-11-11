@@ -16,12 +16,21 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
+import com.welab.wefe.board.service.dto.vo.data_set.AbstractDataSetUpdateInputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author zane
@@ -31,6 +40,62 @@ import org.springframework.stereotype.Service;
 public abstract class AbstractDataSetService extends AbstractService {
     @Autowired
     protected UnionService unionService;
+
+    public abstract AbstractDataSetMysqlModel findOneById(String dataSetId);
+
+    protected abstract void beforeUpdate(AbstractDataSetMysqlModel model, AbstractDataSetUpdateInputModel input);
+
+    /**
+     * update data set info
+     */
+    public void update(AbstractDataSetUpdateInputModel input) throws StatusCodeWithException {
+        AbstractDataSetMysqlModel model = findOneById(input.getId());
+        if (model == null) {
+            return;
+        }
+
+        model.setUpdatedBy(input);
+        model.setName(input.getName());
+        model.setDescription(input.getDescription());
+        model.setPublicMemberList(input.getPublicMemberList());
+        model.setPublicLevel(input.getPublicLevel());
+        model.setTags(standardizeTags(input.getTags()));
+        handlePublicMemberList(model);
+
+        beforeUpdate(model, input);
+        RepositoryManager.get(model.getClass()).save(model);
+
+        if (model.getClass() == ImageDataSetMysqlModel.class) {
+            unionService.uploadImageDataSet((ImageDataSetMysqlModel) model);
+            CacheObjects.refreshImageDataSetTags();
+        } else if (model.getClass() == DataSetMysqlModel.class) {
+            unionService.uploadTableDataSet((DataSetMysqlModel) model);
+            CacheObjects.refreshTableDataSetTags();
+        }
+
+    }
+
+    /**
+     * Standardize the tag list
+     */
+    public String standardizeTags(List<String> tags) {
+        if (tags == null) {
+            return "";
+        }
+
+        tags = tags.stream()
+                // Remove comma(,，)
+                .map(x -> x.replace(",", "").replace("，", ""))
+                // Remove empty elements
+                .filter(x -> !StringUtil.isEmpty(x))
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        // Concatenate into a string, add a comma before and after it to facilitate like query.
+        return "," + StringUtil.join(tags, ',') + ",";
+
+    }
 
     /**
      * Process the list of visible members

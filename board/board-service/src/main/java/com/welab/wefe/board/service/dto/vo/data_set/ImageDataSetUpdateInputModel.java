@@ -15,39 +15,25 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_set;
 
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
+import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.List;
 
 /**
  * @author zane
  * @date 2021/11/8
  */
-public class TableDataSetUpdateInputModel extends AbstractDataSetUpdateInputModel {
-    @Check(require = true)
-    private List<DataSetColumnInputModel> metadataList;
+public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputModel {
+    public String forJobType;
 
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
 
-        if (CollectionUtils.isEmpty(metadataList)) {
-            throw new StatusCodeWithException("请设置该数据集的元数据", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        for (DataSetColumnInputModel item : metadataList) {
-            item.checkAndStandardize();
-        }
-
         int countByName = 0;
-        DataSetRepository repository = Launcher.CONTEXT.getBean(DataSetRepository.class);
+        ImageDataSetRepository repository = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
         if (StringUtil.isEmpty(getId())) {
             countByName = repository.countByName(super.getName());
         } else {
@@ -61,14 +47,13 @@ public class TableDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
     // region getter/setter
 
-    public List<DataSetColumnInputModel> getMetadataList() {
-        return metadataList;
+    public String getForJobType() {
+        return forJobType;
     }
 
-    public void setMetadataList(List<DataSetColumnInputModel> metadataList) {
-        this.metadataList = metadataList;
+    public void setForJobType(String forJobType) {
+        this.forJobType = forJobType;
     }
-
 
     // endregion
 }

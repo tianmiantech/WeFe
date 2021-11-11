@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+import com.welab.wefe.board.service.service.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @date 2021/11/10
  */
 @Service
-public class ImageDataSetSampleService extends AbstractDataSetService {
+public class ImageDataSetSampleService extends AbstractService {
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
 }

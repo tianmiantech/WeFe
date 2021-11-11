@@ -16,34 +16,14 @@
 
 package com.welab.wefe.board.service.dto.vo.data_set;
 
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.Launcher;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author zane.luo
  */
-public class ImageDataSetAddInputModel extends AbstractDataSetUpdateInputModel {
-    @Check(messageOnEmpty = "请指定数据集文件")
+public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
+    @Check(require = true, messageOnEmpty = "请指定数据集文件")
     public String filename;
-
-    public String forJobType;
-
-    @Override
-    public void checkAndStandardize() throws StatusCodeWithException {
-        super.checkAndStandardize();
-
-        if (StringUtils.isEmpty(filename)) {
-            throw new StatusCodeWithException("请指定数据集文件", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
-        }
-
-        if (Launcher.CONTEXT.getBean(ImageDataSetRepository.class).countByName(name) > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-    }
 
     // region getter/setter
 
@@ -54,15 +34,6 @@ public class ImageDataSetAddInputModel extends AbstractDataSetUpdateInputModel {
     public void setFilename(String filename) {
         this.filename = filename;
     }
-
-    public String getForJobType() {
-        return forJobType;
-    }
-
-    public void setForJobType(String forJobType) {
-        this.forJobType = forJobType;
-    }
-
 
     // endregion
 

@@ -18,14 +18,17 @@ package com.welab.wefe.board.service.service.dataset;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetDeleteApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
+import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.AbstractDataSetUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Annotation;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Size;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
@@ -64,6 +67,18 @@ public class ImageDataSetService extends AbstractDataSetService {
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
+
+    @Override
+    public AbstractDataSetMysqlModel findOneById(String dataSetId) {
+        return imageDataSetRepository.findById(dataSetId).orElse(null);
+    }
+
+    @Override
+    protected void beforeUpdate(AbstractDataSetMysqlModel model, AbstractDataSetUpdateInputModel input) {
+        ImageDataSetUpdateInputModel in = (ImageDataSetUpdateInputModel) input;
+        ((ImageDataSetMysqlModel) model).setForJobType(in.getForJobType());
+    }
+
 
     /**
      * delete image data set
@@ -277,6 +292,5 @@ public class ImageDataSetService extends AbstractDataSetService {
 
         return annotation;
     }
-
 
 }

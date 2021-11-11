@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.dto.NoneApiOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -96,11 +97,13 @@ public class ApiListJsonFormatter {
                 Class<?> tClazz;
                 if (type instanceof ParameterizedTypeImpl) {
                     tClazz = ((ParameterizedTypeImpl) type).getRawType();
+                } else if (type instanceof TypeVariableImpl) {
+                    tClazz = null;
                 } else {
                     tClazz = (Class<?>) type;
                 }
 
-                if (AbstractApiInput.class.isAssignableFrom(tClazz)) {
+                if (tClazz != null && AbstractApiInput.class.isAssignableFrom(tClazz)) {
                     inputClass = tClazz;
                 } else {
                     outputClass = tClazz;

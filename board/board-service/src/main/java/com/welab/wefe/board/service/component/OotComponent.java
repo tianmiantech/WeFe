@@ -96,7 +96,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
         }
 
-        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOne(myDataSetConfig.getDataSetId());
+        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOneById(myDataSetConfig.getDataSetId());
         if (null == dataSetMysqlModel) {
             throw new FlowNodeException(node, "成员[" + CacheObjects.getMemberName() + "]选择的数据集信息不存在。");
         }
@@ -165,7 +165,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             }
         }
         if (isSelectedMyself) {
-            myDataSet = dataSetService.findOne(myDataSetConfig.getDataSetId());
+            myDataSet = dataSetService.findOneById(myDataSetConfig.getDataSetId());
             if (myDataSet == null) {
                 throw new FlowNodeException(node, "找不到成员[" + CacheObjects.getMemberName() + "]的数据集。");
             }
