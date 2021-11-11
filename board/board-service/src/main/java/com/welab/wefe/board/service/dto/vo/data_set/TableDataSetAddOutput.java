@@ -19,15 +19,15 @@ package com.welab.wefe.board.service.dto.vo.data_set;
 /**
  * @author Zane
  */
-public class DataSetAddOutput {
+public class TableDataSetAddOutput {
     private String id;
     private long repeatDataCount;
 
 
-    public DataSetAddOutput() {
+    public TableDataSetAddOutput() {
     }
 
-    public DataSetAddOutput(String id, int repeatDataCount) {
+    public TableDataSetAddOutput(String id, int repeatDataCount) {
         this.id = id;
         this.repeatDataCount = repeatDataCount;
     }

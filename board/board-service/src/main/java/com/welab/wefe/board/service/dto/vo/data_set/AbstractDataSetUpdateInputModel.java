@@ -29,14 +29,17 @@ import java.util.List;
  * @author zane.luo
  */
 public class AbstractDataSetUpdateInputModel extends AbstractApiInput {
+
+    private String id;
+
     @Check(name = "数据集名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "数据集名称长度不能少于4，不能大于30")
-    protected String name;
+    private String name;
 
     @Check(name = "关键词", require = true, regex = "^.{1,128}$", messageOnInvalid = "关键词太多了啦~")
-    protected List<String> tags;
+    private List<String> tags;
 
     @Check(name = "描述", regex = "^.{0,3072}$", messageOnInvalid = "你写的描述太多了~")
-    protected String description;
+    private String description;
 
     @Check(name = "可见级别", require = true)
     private DataSetPublicLevel publicLevel;
@@ -69,6 +72,15 @@ public class AbstractDataSetUpdateInputModel extends AbstractApiInput {
 
 
     // region getter/setter
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

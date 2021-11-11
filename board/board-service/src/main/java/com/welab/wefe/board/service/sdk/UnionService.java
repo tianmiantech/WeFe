@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.api.union.MemberListApi;
 import com.welab.wefe.board.service.api.union.QueryDataSetApi;
 import com.welab.wefe.board.service.api.union.TagListApi;
 import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
@@ -152,14 +153,7 @@ public class UnionService extends AbstractService {
         request("member/update_logo", params);
     }
 
-    public void uploadImageDataSet(ImageDataSetMysqlModel dataSet) throws StatusCodeWithException {
-        // TODO: Zane 待补充
-    }
-
-    /**
-     * Report data set information
-     */
-    public void uploadTableDataSet(DataSetMysqlModel model) throws StatusCodeWithException {
+    private void uploadDataSet(AbstractDataSetMysqlModel model, JObject params) throws StatusCodeWithException {
         MemberInfoModel member = globalConfigService.getMemberInfo();
         // If data exposure is prohibited globally, it will not be reported.
         if (!member.getMemberAllowPublicDataSet()) {
@@ -173,7 +167,39 @@ public class UnionService extends AbstractService {
             return;
         }
 
-        // Push data set information to union
+        CommonThreadPool.run(() -> {
+            try {
+                request("data_set/put", params);
+            } catch (StatusCodeWithException e) {
+                super.log(e);
+            }
+        });
+
+    }
+
+    public void uploadImageDataSet(ImageDataSetMysqlModel model) throws StatusCodeWithException {
+        // TODO: Zane 待补充
+        JObject params = JObject
+                .create()
+                .put("id", model.getId())
+                .put("name", model.getName())
+                .put("member_id", CacheObjects.getMemberId())
+                .put("public_level", model.getPublicLevel())
+                .put("public_member_list", model.getPublicMemberList())
+                .put("usage_count_in_job", model.getUsageCountInJob())
+                .put("usage_count_in_flow", model.getUsageCountInFlow())
+                .put("usage_count_in_project", model.getUsageCountInProject())
+                .put("tags", model.getTags())
+                .put("description", model.getDescription());
+
+        uploadDataSet(model, params);
+    }
+
+    /**
+     * Report data set information
+     */
+    public void uploadTableDataSet(DataSetMysqlModel model) throws StatusCodeWithException {
+
         JObject params = JObject
                 .create()
                 .put("id", model.getId())
@@ -193,13 +219,8 @@ public class UnionService extends AbstractService {
                 .put("tags", model.getTags())
                 .put("description", model.getDescription());
 
-        CommonThreadPool.run(() -> {
-            try {
-                request("data_set/put", params);
-            } catch (StatusCodeWithException e) {
-                super.log(e);
-            }
-        });
+        uploadDataSet(model, params);
+
     }
 
     /**

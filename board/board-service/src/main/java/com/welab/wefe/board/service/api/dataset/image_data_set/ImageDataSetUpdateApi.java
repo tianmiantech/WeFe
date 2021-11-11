@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.dataset;
+package com.welab.wefe.board.service.api.dataset.image_data_set;
 
-import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetUpdateInputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetUpdateInputModel;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -27,15 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/update", name = "update data set info")
-public class UpdateApi extends AbstractNoneOutputApi<TableDataSetUpdateInputModel> {
+@Api(path = "image_data_set/update", name = "update data set info", login = false)
+public class ImageDataSetUpdateApi extends AbstractNoneOutputApi<ImageDataSetUpdateInputModel> {
 
     @Autowired
-    private DataSetService dataSetService;
+    private ImageDataSetService imageDataSetService;
 
     @Override
-    protected ApiResult<?> handler(TableDataSetUpdateInputModel input) throws StatusCodeWithException {
-        dataSetService.update(input);
+    protected ApiResult<?> handler(ImageDataSetUpdateInputModel input) throws StatusCodeWithException {
+        imageDataSetService.update(input);
 
         return success();
     }

@@ -18,10 +18,10 @@ package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.api.dataset.DeleteApi;
 import com.welab.wefe.board.service.api.dataset.QueryApi;
-import com.welab.wefe.board.service.api.dataset.UpdateApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
@@ -29,6 +29,8 @@ import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.AbstractDataSetUpdateInputModel;
+import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetUpdateInputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -39,7 +41,6 @@ import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -175,63 +175,6 @@ public class DataSetService extends AbstractDataSetService {
     }
 
     /**
-     * update data set info
-     */
-    public void update(UpdateApi.Input input) throws StatusCodeWithException {
-
-        if (repo.countByName(input.getName(), input.getId()) > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        DataSetMysqlModel model = repo.findById(input.getId()).orElse(null);
-        if (model == null) {
-            return;
-        }
-
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setName(input.getName());
-        model.setTags(StringUtil.join(input.getTags(), ","));
-        model.setDescription(input.getDescription());
-        model.setPublicMemberList(input.getPublicMemberList());
-        model.setPublicLevel(input.getPublicLevel());
-        model.setTags(standardizeTags(input.getTags()));
-
-        handlePublicMemberList(model);
-
-        repo.save(model);
-
-        // save data set column info to database
-        dataSetColumnService.update(input.getId(), input.getMetadataList(), CurrentAccount.get());
-
-        unionService.uploadTableDataSet(model);
-
-        CacheObjects.refreshTableDataSetTags();
-    }
-
-
-    /**
-     * Standardize the tag list
-     */
-    public String standardizeTags(List<String> tags) {
-        if (tags == null) {
-            return "";
-        }
-
-        tags = tags.stream()
-                // Remove comma(,，)
-                .map(x -> x.replace(",", "").replace("，", ""))
-                // Remove empty elements
-                .filter(x -> !StringUtil.isEmpty(x))
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
-
-        // Concatenate into a string, add a comma before and after it to facilitate like query.
-        return "," + StringUtil.join(tags, ',') + ",";
-
-    }
-
-    /**
      * get data source by id
      */
     public DataSourceMySqlModel getDataSourceById(String dataSourceId) {
@@ -252,11 +195,6 @@ public class DataSetService extends AbstractDataSetService {
         } else {
             return unionService.queryDataSetDetail(dataSetId);
         }
-    }
-
-    public DataSetMysqlModel findOne(String dataSetId) {
-        return repo.findById(dataSetId).orElse(null);
-
     }
 
     /**
@@ -357,5 +295,17 @@ public class DataSetService extends AbstractDataSetService {
         }
 
         return ProjectUsageDetailOutputModelList;
+    }
+
+    @Override
+    public DataSetMysqlModel findOneById(String dataSetId) {
+        return repo.findById(dataSetId).orElse(null);
+    }
+
+    @Override
+    protected void beforeUpdate(AbstractDataSetMysqlModel model, AbstractDataSetUpdateInputModel input) {
+        TableDataSetUpdateInputModel in = (TableDataSetUpdateInputModel) input;
+        // save data set column info to database
+        dataSetColumnService.update(in.getId(), in.getMetadataList(), CurrentAccount.get());
     }
 }
