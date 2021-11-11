@@ -833,7 +833,7 @@ CREATE TABLE `image_data_set`
     `storage_type`           varchar(32) COMMENT '存储类型',
     `namespace`              varchar(1000) NOT NULL COMMENT '命名空间',
     `for_job_type`           varchar(32) COMMENT '任务类型（物体检测...）',
-    `label_list`             varchar(1000) NOT NULL COMMENT 'label 列表',
+    `label_list`             varchar(1000) COMMENT 'label 列表',
     `sample_count`           bigint(20) NOT NULL COMMENT '样本数量',
     `labeled_count`          bigint(20) NOT NULL COMMENT '已标注数量',
     `completed`              bool COMMENT '是否已标注完毕',
@@ -851,19 +851,20 @@ CREATE TABLE `image_data_set`
 DROP TABLE IF EXISTS `image_data_set_sample`;
 CREATE TABLE `image_data_set_sample`
 (
-    `id`             varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `id`             varchar(32)   NOT NULL COMMENT '全局唯一标识',
     `created_by`     varchar(32) COMMENT '创建人',
     `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`     varchar(32) COMMENT '更新人',
     `updated_time`   datetime(6) COMMENT '更新时间',
-    `data_set_id`    varchar(36) NOT NULL COMMENT '数据集id',
+    `data_set_id`    varchar(36)   NOT NULL COMMENT '数据集id',
     `file_name`      varchar(128) COMMENT '文件名',
     `file_path`      varchar(512) COMMENT '文件路径',
     `file_size`      bigint(20) NOT NULL DEFAULT '0' COMMENT '文件大小',
-    `label`          varchar(32) COMMENT 'label',
+    `label_list`     varchar(1000) NOT NULL COMMENT 'label 列表',
     `labeled`        bool COMMENT '是否已标注',
-    `label_info`     text        NOT NULL COMMENT 'json形式的标注信息',
-    `xml_annotation` text        NOT NULL COMMENT 'xml形式的标注信息',
-    PRIMARY KEY (`id`) USING BTREE
+    `label_info`     text          NOT NULL COMMENT 'json形式的标注信息',
+    `xml_annotation` text          NOT NULL COMMENT 'xml形式的标注信息',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique`(`data_set_id`,`file_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集中的样本';

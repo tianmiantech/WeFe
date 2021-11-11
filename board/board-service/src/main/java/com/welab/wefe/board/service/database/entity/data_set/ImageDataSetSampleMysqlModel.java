@@ -51,7 +51,7 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
     /**
      * label
      */
-    private String label;
+    private String labelList;
     /**
      * 是否已标注
      */
@@ -102,12 +102,12 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
         this.fileSize = fileSize;
     }
 
-    public String getLabel() {
-        return label;
+    public String getLabelList() {
+        return labelList;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setLabelList(String labelList) {
+        this.labelList = labelList;
     }
 
     public boolean isLabeled() {

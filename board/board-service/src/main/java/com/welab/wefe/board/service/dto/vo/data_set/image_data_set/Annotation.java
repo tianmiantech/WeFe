@@ -16,10 +16,15 @@
 package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import com.welab.wefe.common.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * https://github.com/PaddlePaddle/PaddleDetection/blob/release/2.3/docs/tutorials/PrepareDataSet.md
+ *
  * @author zane
  * @date 2021/11/8
  */
@@ -34,5 +39,20 @@ public class Annotation {
      * 暂时没用到，先使用默认值。
      */
     public int segmented = 0;
-    public List<Object> object;
+    @XStreamImplicit
+    public List<Object> objectList;
+
+    public List<String> getLabelList() {
+        List<String> list = new ArrayList<>();
+        if (objectList == null) {
+            return list;
+        }
+
+        for (Object object : objectList) {
+            if (StringUtil.isNotEmpty(object.name)) {
+                list.add(object.name);
+            }
+        }
+        return list;
+    }
 }

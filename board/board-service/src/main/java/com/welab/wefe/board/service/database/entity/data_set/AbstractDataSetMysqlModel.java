@@ -21,54 +21,56 @@ import com.welab.wefe.common.enums.DataSetStorageType;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.MappedSuperclass;
 
 /**
  * @author zane
  * @date 2021/11/5
  */
+@MappedSuperclass
 public class AbstractDataSetMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 数据集名称
      */
-    private String name;
+    protected String name;
     /**
      * 标签
      */
-    private String tags;
+    protected String tags;
     /**
      * 描述
      */
-    private String description;
+    protected String description;
     /**
      * 存储类型
      */
     @Enumerated(EnumType.STRING)
-    private DataSetStorageType storageType;
+    protected DataSetStorageType storageType;
     /**
      * 命名空间
      */
-    private String namespace;
+    protected String namespace;
     /**
      * 数据集的可见性
      */
     @Enumerated(EnumType.STRING)
-    private DataSetPublicLevel publicLevel;
+    protected DataSetPublicLevel publicLevel;
     /**
      * 可见成员列表，只有在列表中的联邦成员才可以看到该数据集的基本信息
      */
-    private String publicMemberList;
+    protected String publicMemberList;
     /**
      * 使用次数
      */
-    private Integer usageCountInJob = 0;
+    protected Integer usageCountInJob = 0;
     /**
      * 使用次数
      */
-    private Integer usageCountInFlow = 0;
+    protected Integer usageCountInFlow = 0;
     /**
      * 使用次数
      */
-    private Integer usageCountInProject = 0;
+    protected Integer usageCountInProject = 0;
 
     // region getter/setter
 

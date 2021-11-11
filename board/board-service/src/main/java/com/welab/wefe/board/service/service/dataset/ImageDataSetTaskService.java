@@ -33,6 +33,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -40,9 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +57,7 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
 
+    @Transactional(rollbackFor = Exception.class)
     public ImageDataSetAddOutputModel add(ImageDataSetAddInputModel input) throws StatusCodeWithException {
 
         File zipFile = new File(config.getFileUploadDir(), input.getFilename());
@@ -86,9 +86,7 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
 
         // save models to database
         imageDataSetRepository.save(dataSet);
-        for (ImageDataSetSampleMysqlModel sample : sampleList) {
-            imageDataSetSampleRepository.save(sample);
-        }
+        imageDataSetSampleRepository.saveAll(sampleList);
 
         // delete source images
         FileUtil.deleteFileOrDir(zipFile);
@@ -99,12 +97,19 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
 
     private void setImageDataSetModel(ImageDataSetAddInputModel input, ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> sampleList) {
         dataSet.setForJobType(input.forJobType);
+
+        // distinct labels
+        TreeSet<String> labelSet = new TreeSet<>();
+        sampleList
+                .stream()
+                .filter(x -> x.isLabeled())
+                .forEach(x ->
+                        labelSet.addAll(Arrays.asList(x.getLabelList().split(",")))
+                );
         dataSet.setLabelList(
-                StringUtil.join(
-                        sampleList.stream().filter(x -> x.isLabeled()).map(x -> x.getLabel()).toArray(),
-                        ","
-                )
+                StringUtil.join(labelSet, ",")
         );
+
         dataSet.setSampleCount(sampleList.size());
         dataSet.setLabeledCount(
                 Convert.toInt(sampleList.stream().filter(x -> x.isLabeled()).count())
@@ -131,7 +136,6 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
      * 解析 zip 文件，获取样本信息。
      */
     private List<ImageDataSetSampleMysqlModel> parseZipFile(ImageDataSetMysqlModel dataSet, ZipUtil.UnzipFileResult unzipFileResult) throws IOException {
-
         Map<String, File> imageFiles = unzipFileResult.files
                 .stream()
                 .filter(x -> FileUtil.isImage(x))
@@ -149,14 +153,21 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
                 ));
 
         List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
-        for (String key : imageFiles.keySet()) {
-            File imageFile = imageFiles.get(key);
-            File xmlFile = xmlFiles.get(key);
+        imageFiles.keySet()
+                .parallelStream()
+                .forEach(key -> {
+                    File imageFile = imageFiles.get(key);
+                    File xmlFile = xmlFiles.get(key);
 
-            Annotation annotation = buildAnnotation(imageFile, xmlFile, dataSet);
-            ImageDataSetSampleMysqlModel sample = buildSample(dataSet, imageFile, annotation);
-            result.add(sample);
-        }
+                    try {
+                        Annotation annotation = buildAnnotation(imageFile, xmlFile, dataSet);
+                        ImageDataSetSampleMysqlModel sample = buildSample(dataSet, imageFile, annotation);
+                        result.add(sample);
+                    } catch (IOException e) {
+                        super.log(e);
+                    }
+                });
+
         return result;
     }
 
@@ -170,12 +181,8 @@ public class ImageDataSetTaskService extends AbstractDataSetService {
         sample.setFileSize(imageFile.length());
         sample.setCreatedBy(CurrentAccount.id());
 
-        if (annotation.object != null) {
-            if (StringUtil.isNotEmpty(annotation.object.name)) {
-                sample.setLabel(annotation.object.name);
-                sample.setLabeled(true);
-            }
-        }
+        sample.setLabelList(StringUtil.join(annotation.getLabelList(), ","));
+        sample.setLabeled(StringUtil.isNotEmpty(sample.getLabelList()));
 
         sample.setXmlAnnotation(XmlUtil.toXml(annotation));
         sample.setLabelInfo(new JSONObject());

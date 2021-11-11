@@ -21,6 +21,8 @@ import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * homepage: https://github.com/x-stream/xstream
@@ -31,6 +33,20 @@ import java.io.IOException;
  * @see com.welab.wefe.common.test.xml.XmlTest#main(String[])
  */
 public class XmlUtil {
+    /**
+     * The XStream instance is thread-safe.
+     * That is, once the XStream instance has been created and configured,
+     * it may be shared across multiple threads allowing objects to be serialized/deserialized concurrently.
+     */
+    private static final XStream XSTREAM = new XStream();
+    /**
+     * 对象复用，提升性能。
+     */
+    private static final Map<Class, XStream> XSTREAM_MAP = new HashMap<>();
+
+    static {
+        XSTREAM.autodetectAnnotations(true);
+    }
 
     /**
      * {@link XmlUtil#toModel(String, Class)}
@@ -48,10 +64,16 @@ public class XmlUtil {
      * @see com.welab.wefe.common.test.xml.XmlTest#main(String[])
      */
     public static <T> T toModel(String xmlString, Class<T> clazz) {
-        XStream xstream = new XStream(new StaxDriver());
-        xstream.autodetectAnnotations(true);
-        xstream.addPermission(AnyTypePermission.ANY);
-        xstream.processAnnotations(clazz);
+        // 对象复用，提升性能。
+        XStream xStream = XSTREAM_MAP.get(clazz);
+        if (xStream == null) {
+            xStream = new XStream(new StaxDriver());
+            xStream.autodetectAnnotations(true);
+            xStream.addPermission(AnyTypePermission.ANY);
+            xStream.processAnnotations(clazz);
+
+            XSTREAM_MAP.put(clazz, xStream);
+        }
 
         T model = null;
         try {
@@ -59,15 +81,13 @@ public class XmlUtil {
         } catch (Exception e) {
             return null;
         }
-        return (T) xstream.fromXML(xmlString, model);
+        return (T) xStream.fromXML(xmlString, model);
     }
 
     /**
      * model to xml string
      */
     public static String toXml(Object obj) {
-        XStream xstream = new XStream();
-        xstream.autodetectAnnotations(true);
-        return xstream.toXML(obj);
+        return XSTREAM.toXML(obj);
     }
 }
