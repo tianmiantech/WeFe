@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.alibaba.fastjson.JSONObject;
+import com.thoughtworks.xstream.io.StreamException;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetDeleteApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
@@ -53,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -138,6 +140,11 @@ public class ImageDataSetService extends AbstractDataSetService {
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
             unzipFileResult = ZipUtil.unzipFile(zipFile);
+            // 过滤掉操作系统临时目录中的文件
+            unzipFileResult.files = unzipFileResult.files.stream()
+                    .filter(x -> !x.getAbsolutePath().contains("/__MACOSX/"))
+                    .collect(Collectors.toList());
+
             sampleList = parseZipFile(dataSet, unzipFileResult);
             setImageDataSetModel(input, dataSet, sampleList);
         } catch (IOException e) {
@@ -206,7 +213,17 @@ public class ImageDataSetService extends AbstractDataSetService {
     /**
      * 解析 zip 文件，获取样本信息。
      */
-    private List<ImageDataSetSampleMysqlModel> parseZipFile(ImageDataSetMysqlModel dataSet, ZipUtil.UnzipFileResult unzipFileResult) throws IOException {
+    private List<ImageDataSetSampleMysqlModel> parseZipFile(ImageDataSetMysqlModel dataSet, ZipUtil.UnzipFileResult unzipFileResult) throws IOException, StatusCodeWithException {
+
+        Set<String> fileNameSet = new HashSet<>();
+        for (File file : unzipFileResult.files) {
+            String fileName = file.getName();
+            if (fileNameSet.contains(fileName)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("检测到多个文件名为：" + fileName + "，请删除或修改文件名后重试。");
+            }
+            fileNameSet.add(fileName);
+        }
+
         Map<String, File> imageFiles = unzipFileResult.files
                 .stream()
                 .filter(x -> FileUtil.isImage(x))
@@ -223,6 +240,7 @@ public class ImageDataSetService extends AbstractDataSetService {
                         x -> x
                 ));
 
+        AtomicReference<StatusCodeWithException> error = new AtomicReference<>();
         List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
         imageFiles.keySet()
                 .parallelStream()
@@ -234,15 +252,20 @@ public class ImageDataSetService extends AbstractDataSetService {
                         Annotation annotation = buildAnnotation(imageFile, xmlFile, dataSet);
                         ImageDataSetSampleMysqlModel sample = buildSample(dataSet, imageFile, annotation);
                         result.add(sample);
-                    } catch (IOException e) {
+                    } catch (StatusCodeWithException e) {
                         super.log(e);
+                        error.set(e);
                     }
                 });
+
+        if (error.get() != null) {
+            throw error.get();
+        }
 
         return result;
     }
 
-    private ImageDataSetSampleMysqlModel buildSample(ImageDataSetMysqlModel dataSet, File imageFile, Annotation annotation) throws IOException {
+    private ImageDataSetSampleMysqlModel buildSample(ImageDataSetMysqlModel dataSet, File imageFile, Annotation annotation) throws StatusCodeWithException {
         ImageDataSetSampleMysqlModel sample = new ImageDataSetSampleMysqlModel();
         sample.setDataSetId(dataSet.getId());
         sample.setFileName(imageFile.getName());
@@ -263,7 +286,11 @@ public class ImageDataSetService extends AbstractDataSetService {
         if (destFile.exists()) {
             destFile.delete();
         }
-        FileUtils.copyFile(imageFile, destFile);
+        try {
+            FileUtils.copyFile(imageFile, destFile);
+        } catch (IOException e) {
+            StatusCode.FILE_IO_ERROR.throwException(e);
+        }
 
         return sample;
     }
@@ -271,15 +298,26 @@ public class ImageDataSetService extends AbstractDataSetService {
     /**
      * XmlUtil Doc: https://www.bookstack.cn/read/hutool/e41e0b0a699544fb.md
      */
-    private Annotation buildAnnotation(File imageFile, File xmlFile, ImageDataSetMysqlModel dataSet) throws IOException {
-        Annotation annotation;
+    private Annotation buildAnnotation(File imageFile, File xmlFile, ImageDataSetMysqlModel dataSet) throws StatusCodeWithException {
+        Annotation annotation = null;
         if (xmlFile != null) {
-            annotation = XmlUtil.toModel(xmlFile, Annotation.class);
+            try {
+                annotation = XmlUtil.toModel(xmlFile, Annotation.class);
+            } catch (StreamException e) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("xml 文件反序列化失败：" + xmlFile.getAbsolutePath());
+            } catch (IOException e) {
+                StatusCode.FILE_IO_ERROR.throwException(e);
+            }
         } else {
             annotation = new Annotation();
         }
 
-        BufferedImage image = ImageIO.read(new FileInputStream(imageFile));
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(new FileInputStream(imageFile));
+        } catch (IOException e) {
+            StatusCode.FILE_IO_ERROR.throwException(e);
+        }
         annotation.size = new Size();
         annotation.size.depth = image.getRaster().getNumDataElements();
         annotation.size.width = image.getWidth();

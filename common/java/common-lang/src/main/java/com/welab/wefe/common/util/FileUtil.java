@@ -51,7 +51,7 @@ public class FileUtil {
      * get file name without suffix
      */
     public static String getFileNameWithoutSuffix(File file) {
-        return StringUtil.substringBefore(file.getName(), ".");
+        return StringUtil.substringBeforeLast(file.getName(), ".");
     }
 
     /**
