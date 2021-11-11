@@ -17,7 +17,9 @@ package com.welab.wefe.board.service.database.repository;
 
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author zane
@@ -25,4 +27,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ImageDataSetSampleRepository extends BaseRepository<ImageDataSetSampleMysqlModel, String> {
+    @Modifying
+    @Transactional
+    void deleteByDataSetId(String dataSetId);
 }

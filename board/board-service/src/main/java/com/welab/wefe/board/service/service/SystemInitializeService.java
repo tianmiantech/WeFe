@@ -76,7 +76,7 @@ public class SystemInitializeService extends AbstractService {
         unionService.initializeSystem(globalConfigService.getMemberInfo());
 
         for (DataSetMysqlModel model : dataSetRepository.findAll()) {
-            unionService.uploadDataSet(model);
+            unionService.uploadTableDataSet(model);
         }
     }
 

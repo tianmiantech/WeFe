@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetDeleteApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
@@ -27,6 +28,8 @@ import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Annotation;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Size;
+import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -61,6 +64,27 @@ public class ImageDataSetService extends AbstractDataSetService {
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
+
+    /**
+     * delete image data set
+     */
+    public void delete(ImageDataSetDeleteApi.Input input) throws StatusCodeWithException {
+        ImageDataSetMysqlModel model = imageDataSetRepository.findById(input.getId()).orElse(null);
+        if (model == null) {
+            return;
+        }
+
+        OnlineDemoBranchStrategy.hackOnDelete(input, model, "只能删除自己添加的数据集。");
+
+        FileUtil.deleteFileOrDir(model.getNamespace());
+
+        imageDataSetRepository.deleteById(model.getId());
+        imageDataSetSampleRepository.deleteByDataSetId(model.getId());
+
+        unionService.dontPublicDataSet(model.getId());
+
+        CacheObjects.refreshImageDataSetTags();
+    }
 
     /**
      * Paging query data set
@@ -112,6 +136,17 @@ public class ImageDataSetService extends AbstractDataSetService {
         // delete source images
         FileUtil.deleteFileOrDir(zipFile);
         FileUtil.deleteFileOrDir(unzipFileResult.baseDir);
+
+
+        // Synchronize information to union
+        try {
+            unionService.uploadImageDataSet(dataSet);
+        } catch (StatusCodeWithException e) {
+            super.log(e);
+        }
+
+        // Refresh the data set tag list
+        CacheObjects.refreshTableDataSetTags();
 
         return new ImageDataSetAddOutputModel(dataSet.getId());
     }

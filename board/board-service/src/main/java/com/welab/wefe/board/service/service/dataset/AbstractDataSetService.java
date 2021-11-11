@@ -16,9 +16,11 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
+import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,7 +29,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public abstract class AbstractDataSetService extends AbstractService {
-
+    @Autowired
+    protected UnionService unionService;
 
     /**
      * Process the list of visible members

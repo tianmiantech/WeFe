@@ -24,7 +24,10 @@ import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.DataSetTaskRepository;
 import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
-import com.welab.wefe.board.service.service.*;
+import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.DataSetColumnService;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -116,13 +119,13 @@ public class DataSetAddService extends AbstractService {
 
         // Synchronize information to union
         try {
-            unionService.uploadDataSet(model);
+            unionService.uploadTableDataSet(model);
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
 
         // Refresh the data set tag list
-        CacheObjects.refreshDataSetTags();
+        CacheObjects.refreshTableDataSetTags();
 
     }
 

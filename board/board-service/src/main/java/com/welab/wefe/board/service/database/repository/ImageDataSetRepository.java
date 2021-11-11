@@ -17,8 +17,12 @@ package com.welab.wefe.board.service.database.repository;
 
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author zane
@@ -26,6 +30,17 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ImageDataSetRepository extends BaseRepository<ImageDataSetMysqlModel, String> {
+    @Query(value = "select tags,count(tags) as count from #{#entityName} where tags<>'' group by tags;", nativeQuery = true)
+    List<Object[]> listAllTags();
+
     @Query(value = "select count(*) from #{#entityName} where name=?1", nativeQuery = true)
     int countByName(String name);
+
+    @Query(value = "select count(*) from #{#entityName} where name=?1 and id<>?2", nativeQuery = true)
+    int countByName(String name, String id);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update image_data_set set usage_count_in_project=(select count(*) from project_data_set where data_set_id=?1 and audit_status='agree') where id=?1", nativeQuery = true)
+    void updateUsageCountInProject(String dataSetId);
 }

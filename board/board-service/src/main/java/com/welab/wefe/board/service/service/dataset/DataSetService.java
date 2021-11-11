@@ -137,7 +137,7 @@ public class DataSetService extends AbstractDataSetService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, model, "只能删除自己添加的数据集。");
 
-        delete(model);
+        delete(input.getId());
     }
 
     /**
@@ -169,7 +169,7 @@ public class DataSetService extends AbstractDataSetService {
             unionService.dontPublicDataSet(model.getId());
 
             // Refresh the data set tag list
-            CacheObjects.refreshDataSetTags();
+            CacheObjects.refreshTableDataSetTags();
         }
 
     }
@@ -203,9 +203,9 @@ public class DataSetService extends AbstractDataSetService {
         // save data set column info to database
         dataSetColumnService.update(input.getId(), input.getMetadataList(), CurrentAccount.get());
 
-        unionService.uploadDataSet(model);
+        unionService.uploadTableDataSet(model);
 
-        CacheObjects.refreshDataSetTags();
+        CacheObjects.refreshTableDataSetTags();
     }
 
 
@@ -296,7 +296,7 @@ public class DataSetService extends AbstractDataSetService {
         }
 
         try {
-            unionService.uploadDataSet(model);
+            unionService.uploadTableDataSet(model);
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
@@ -335,7 +335,7 @@ public class DataSetService extends AbstractDataSetService {
         func.accept(model);
         repo.save(model);
 
-        unionService.uploadDataSet(model);
+        unionService.uploadTableDataSet(model);
     }
 
     /**
