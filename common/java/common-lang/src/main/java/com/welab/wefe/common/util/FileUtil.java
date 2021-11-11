@@ -44,6 +44,9 @@ public class FileUtil {
      * get file suffix
      */
     public static String getFileSuffix(File file) {
+        if (file.isDirectory()) {
+            return null;
+        }
         return StringUtil.substringAfterLast(file.getName(), ".");
     }
 
@@ -51,6 +54,9 @@ public class FileUtil {
      * get file name without suffix
      */
     public static String getFileNameWithoutSuffix(File file) {
+        if (file.isDirectory()) {
+            return null;
+        }
         return StringUtil.substringBeforeLast(file.getName(), ".");
     }
 

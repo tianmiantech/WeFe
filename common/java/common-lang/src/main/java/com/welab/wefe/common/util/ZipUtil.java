@@ -125,6 +125,7 @@ public class ZipUtil {
                     String dirPath = destDirPath + "/" + entry.getName();
                     File dir = new File(dirPath);
                     dir.mkdirs();
+                    result.addDir(dir);
                 } else {
                     // 如果是文件，就先创建一个文件，然后用io流把内容copy过去
                     File targetFile = new File(destDirPath + "/" + entry.getName());
@@ -144,7 +145,7 @@ public class ZipUtil {
                     // 关流顺序，先打开的后关闭
                     fos.close();
                     is.close();
-                    result.add(targetFile);
+                    result.addFile(targetFile);
                 }
             }
         } finally {
@@ -163,12 +164,36 @@ public class ZipUtil {
     public static class UnzipFileResult {
         public String baseDir;
         /**
+         * 解压后的目录列表
+         */
+        public List<File> dirs = new ArrayList<>();
+        /**
          * 解压后的文件列表
          */
         public List<File> files = new ArrayList<>();
 
-        public void add(File file) {
+        public void addDir(File file) {
+            dirs.add(file);
+        }
+
+        public void addFile(File file) {
             files.add(file);
+        }
+
+        /**
+         * delete all unzip resource
+         */
+        public void deleteAllDirAndFiles() {
+
+            FileUtil.deleteFileOrDir(baseDir);
+
+            for (File dir : dirs) {
+                FileUtil.deleteFileOrDir(dir);
+            }
+
+            for (File file : files) {
+                FileUtil.deleteFileOrDir(file);
+            }
         }
 
         @Override
