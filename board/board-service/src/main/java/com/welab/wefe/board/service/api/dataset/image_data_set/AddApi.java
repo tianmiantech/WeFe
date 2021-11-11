@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.dataset.image_data_set;
 
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetTaskService;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -30,15 +30,15 @@ import java.io.IOException;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/add", name = "add image data set", login = false)
+@Api(path = "image_data_set/add", name = "add image data set")
 public class AddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
 
     @Autowired
-    private ImageDataSetTaskService imageDataSetTaskService;
+    private ImageDataSetService imageDataSetService;
 
     @Override
     protected ApiResult<ImageDataSetAddOutputModel> handle(ImageDataSetAddInputModel input) throws StatusCodeWithException, IOException {
-        ImageDataSetAddOutputModel output = imageDataSetTaskService.add(input);
+        ImageDataSetAddOutputModel output = imageDataSetService.add(input);
         return success(output);
     }
 

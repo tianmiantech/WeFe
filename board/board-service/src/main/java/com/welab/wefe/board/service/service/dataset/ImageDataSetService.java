@@ -16,22 +16,27 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.dataset.image_data_set.QueryApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Annotation;
 import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Size;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,13 +54,29 @@ import java.util.stream.Collectors;
  * @date 2021/11/8
  */
 @Service
-public class ImageDataSetTaskService extends AbstractDataSetService {
+public class ImageDataSetService extends AbstractDataSetService {
 
     private static final String IMAGE_DATA_SET_DIR = "image_data_set";
     @Autowired
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
+
+    /**
+     * Paging query data set
+     */
+    public PagingOutput<ImageDataSetOutputModel> query(QueryApi.Input input) {
+
+        Specification<ImageDataSetMysqlModel> where = Where
+                .create()
+                .equal("id", input.getId())
+                .contains("name", input.getName())
+                .containsItem("tags", input.getTag())
+                .equal("createdBy", input.getCreator())
+                .build(ImageDataSetMysqlModel.class);
+
+        return imageDataSetRepository.paging(where, input, ImageDataSetOutputModel.class);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public ImageDataSetAddOutputModel add(ImageDataSetAddInputModel input) throws StatusCodeWithException {
