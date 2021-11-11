@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.vo;
+package com.welab.wefe.board.service.dto.vo.data_set;
 
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.common.StatusCode;
@@ -22,24 +22,12 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-
 /**
  * @author zane.luo
  */
-public class DataSetAddInputModel extends DataSetBaseInputModel {
-    @Check(name = "数据集名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "数据集名称长度不能少于4，不能大于30")
-    private String name;
-
-    @Check(name = "关键词", require = true, regex = "^.{1,128}$", messageOnInvalid = "关键词太多了啦~")
-    private List<String> tags;
-
-    @Check(name = "描述", regex = "^.{0,3072}$", messageOnInvalid = "你写的描述太多了~")
-    private String description;
-
+public class TableDataSetAddInputModel extends TableDataSetUpdateInputModel {
     @Check(messageOnEmpty = "请指定数据集文件")
     private String filename;
-
     @Check(require = true)
     private DataSetAddMethod dataSetAddMethod;
 
@@ -52,10 +40,10 @@ public class DataSetAddInputModel extends DataSetBaseInputModel {
     @Check(name = "sql脚本")
     private String sql;
 
-    public DataSetAddInputModel() {
+    public TableDataSetAddInputModel() {
     }
 
-    public DataSetAddInputModel(String dataSourceId, String sql) {
+    public TableDataSetAddInputModel(String dataSourceId, String sql) {
         this.dataSourceId = dataSourceId;
         this.sql = sql;
     }
@@ -81,38 +69,6 @@ public class DataSetAddInputModel extends DataSetBaseInputModel {
     }
 
     //region getter/setter
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
 
     public DataSetAddMethod getDataSetAddMethod() {
         return dataSetAddMethod;
@@ -144,6 +100,14 @@ public class DataSetAddInputModel extends DataSetBaseInputModel {
 
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     //endregion

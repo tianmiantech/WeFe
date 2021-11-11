@@ -30,6 +30,7 @@ import com.welab.wefe.board.service.dto.entity.project.DerivedProjectDataSetOutp
 import com.welab.wefe.board.service.dto.entity.project.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;

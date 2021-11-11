@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.api.dataset;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
-import com.welab.wefe.board.service.service.DataSetService;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;

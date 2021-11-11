@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.welab.wefe.board.service.api.union.QueryDataSetApi;
 import com.welab.wefe.board.service.api.union.TagListApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -151,10 +152,14 @@ public class UnionService extends AbstractService {
         request("member/update_logo", params);
     }
 
+    public void uploadImageDataSet(ImageDataSetMysqlModel dataSet) throws StatusCodeWithException {
+        // TODO: Zane 待补充
+    }
+
     /**
      * Report data set information
      */
-    public void uploadDataSet(DataSetMysqlModel model) throws StatusCodeWithException {
+    public void uploadTableDataSet(DataSetMysqlModel model) throws StatusCodeWithException {
         MemberInfoModel member = globalConfigService.getMemberInfo();
         // If data exposure is prohibited globally, it will not be reported.
         if (!member.getMemberAllowPublicDataSet()) {
@@ -396,6 +401,5 @@ public class UnionService extends AbstractService {
         }
         return json;
     }
-
 
 }

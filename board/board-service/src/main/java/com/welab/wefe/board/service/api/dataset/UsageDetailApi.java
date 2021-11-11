@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.api.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
-import com.welab.wefe.board.service.service.DataSetService;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;

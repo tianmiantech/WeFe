@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service;
+package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.api.dataset.DeleteApi;
 import com.welab.wefe.board.service.api.dataset.QueryApi;
@@ -31,11 +31,13 @@ import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.DataSetColumnService;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -55,7 +57,7 @@ import java.util.stream.Collectors;
  * @author Zane
  */
 @Service
-public class DataSetService extends AbstractService {
+public class DataSetService extends AbstractDataSetService {
 
     @Autowired
     protected DataSetRepository repo;
@@ -135,7 +137,7 @@ public class DataSetService extends AbstractService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, model, "只能删除自己添加的数据集。");
 
-        delete(model);
+        delete(input.getId());
     }
 
     /**
@@ -167,7 +169,7 @@ public class DataSetService extends AbstractService {
             unionService.dontPublicDataSet(model.getId());
 
             // Refresh the data set tag list
-            CacheObjects.refreshDataSetTags();
+            CacheObjects.refreshTableDataSetTags();
         }
 
     }
@@ -201,33 +203,9 @@ public class DataSetService extends AbstractService {
         // save data set column info to database
         dataSetColumnService.update(input.getId(), input.getMetadataList(), CurrentAccount.get());
 
-        unionService.uploadDataSet(model);
+        unionService.uploadTableDataSet(model);
 
-        CacheObjects.refreshDataSetTags();
-    }
-
-    /**
-     * Process the list of visible members
-     * <p>
-     * When the scene is visible to the specified members, automatically add itself is also visible.
-     */
-    public void handlePublicMemberList(DataSetMysqlModel model) {
-
-        // When the PublicLevel is PublicWithMemberList, if list contains yourself,
-        // you will be removed, and union will handle the data that you must be visible.
-        if (model.getPublicLevel() == DataSetPublicLevel.PublicWithMemberList) {
-            String memberId = CacheObjects.getMemberId();
-
-
-            if (model.getPublicMemberList().contains(memberId)) {
-                String list = model.getPublicMemberList()
-                        .replace(memberId, "")
-                        .replace(",,", ",");
-
-                model.setPublicMemberList(list);
-            }
-        }
-
+        CacheObjects.refreshTableDataSetTags();
     }
 
 
@@ -318,7 +296,7 @@ public class DataSetService extends AbstractService {
         }
 
         try {
-            unionService.uploadDataSet(model);
+            unionService.uploadTableDataSet(model);
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
@@ -357,7 +335,7 @@ public class DataSetService extends AbstractService {
         func.accept(model);
         repo.save(model);
 
-        unionService.uploadDataSet(model);
+        unionService.uploadTableDataSet(model);
     }
 
     /**
@@ -366,11 +344,11 @@ public class DataSetService extends AbstractService {
     public List<ProjectUsageDetailOutputModel> queryUsageInProject(String dataSetId) {
         List<ProjectUsageDetailOutputModel> ProjectUsageDetailOutputModelList = new ArrayList<>();
         List<ProjectDataSetMySqlModel> usageInProjectList = projectDataSetRepository.queryUsageInProject(dataSetId);
-        if (usageInProjectList == null || usageInProjectList.isEmpty()){
+        if (usageInProjectList == null || usageInProjectList.isEmpty()) {
             return ProjectUsageDetailOutputModelList;
         }
 
-        for (ProjectDataSetMySqlModel usageInProject : usageInProjectList){
+        for (ProjectDataSetMySqlModel usageInProject : usageInProjectList) {
             ProjectMySqlModel projectMySqlModel = projectRepository.findOneById(usageInProject.getProjectId());
             ProjectUsageDetailOutputModel projectUsageDetailOutputModel = new ProjectUsageDetailOutputModel();
             projectUsageDetailOutputModel.setName(projectMySqlModel.getName());
