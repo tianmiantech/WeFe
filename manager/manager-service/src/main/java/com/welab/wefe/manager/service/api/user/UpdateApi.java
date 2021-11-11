@@ -16,7 +16,7 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/udpate", name = "user update")
+@Api(path = "user/update", name = "user update")
 public class UpdateApi extends AbstractApi<UserUpdateInput, AbstractApiOutput> {
     @Autowired
     private UserService userService;
