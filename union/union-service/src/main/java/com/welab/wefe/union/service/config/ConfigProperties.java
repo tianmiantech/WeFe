@@ -54,6 +54,9 @@ public class ConfigProperties {
     @Value("${sms.aliyun.sign.name:xxx}")
     private String smsAliyunSignName;
 
+    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
+    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+
     @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
     private String smsAliyunMemberRegisterVerificationCodeTemplateCode;
 
@@ -127,5 +130,13 @@ public class ConfigProperties {
 
     public void setSmsAliyunMemberRegisterVerificationCodeTemplateCode(String smsAliyunMemberRegisterVerificationCodeTemplateCode) {
         this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
+    }
+
+    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
+        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
+        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
     }
 }

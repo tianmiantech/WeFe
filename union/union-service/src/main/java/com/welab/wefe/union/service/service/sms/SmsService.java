@@ -67,7 +67,13 @@ public class SmsService {
             AbstractSendSmsClient sendSmsClient = AliyunSendSmsClient.createClient(configProperties.getAliyunAccessKeyId(), configProperties.getAliyunAccessKeySecret());
             Map<String, Object> smsRequest = new HashMap<>(16);
             smsRequest.put("SignName", configProperties.getSmsAliyunSignName());
-            smsRequest.put("templateCode", configProperties.getSmsAliyunMemberRegisterVerificationCodeTemplateCode());
+            if (smsBusinessType.equals(SmsBusinessType.AccountForgetPasswordVerificationCode)) {
+                smsRequest.put("templateCode", configProperties.getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode());
+            } else if (smsBusinessType.equals(SmsBusinessType.MemberRegisterVerificationCode)) {
+                smsRequest.put("templateCode", configProperties.getSmsAliyunMemberRegisterVerificationCodeTemplateCode());
+            } else {
+                throw new StatusCodeWithException("无效的短信业务类型", StatusCode.ILLEGAL_REQUEST);
+            }
             smsRequest.put("code", code);
 
             AbstractSmsResponse smsResponse = sendSmsClient.sendVerificationCode(mobile, smsRequest);
@@ -114,7 +120,7 @@ public class SmsService {
         if (System.currentTimeMillis() - updateTime > CODE_VALID_DURATION_MILLISECONDS) {
             throw new StatusCodeWithException("验证码无效,请重新获取验证码", StatusCode.PARAMETER_VALUE_INVALID);
         }
-        if(!smsVerificationCode.getCode().equals(code)) {
+        if (!smsVerificationCode.getCode().equals(code)) {
             throw new StatusCodeWithException("验证码不正确", StatusCode.PARAMETER_VALUE_INVALID);
         }
     }
