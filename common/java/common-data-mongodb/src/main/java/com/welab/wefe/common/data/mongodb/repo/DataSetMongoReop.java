@@ -105,7 +105,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
                 .append("member_id", dataSetQueryInput.getMemberId())
                 .append("data_set_id", dataSetQueryInput.getDataSetId())
                 .append("contains_y", null == dataSetQueryInput.getContainsY() ? null : String.valueOf(dataSetQueryInput.getContainsY() ? 1 : 0))
-                .append("ext_json.enable",dataSetQueryInput)
+                .append("ext_json.enable",dataSetQueryInput.getEnable())
                 .append("status", dataSetQueryInput.getStatus() != null ? (dataSetQueryInput.getStatus() ? 1 : 0) : null)
                 .getCriteria();
 
