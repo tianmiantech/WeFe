@@ -12,18 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from common.python.db.db_models import DB, TaskResult
 
-from common.python.db.db_models import DB, DataSet
 
-
-class DataSetDao(object):
+class TaskResultDao(object):
 
     @staticmethod
     def get(*query, **filters):
         with DB.connection_context():
-            return DataSet.get_or_none(*query, **filters)
+            return TaskResult.get_or_none(*query, **filters)
 
     @staticmethod
-    def save(model: DataSet, force_insert=False):
+    def save(model: TaskResult, force_insert=False):
         with DB.connection_context():
             model.save(force_insert=force_insert)
+
+    @staticmethod
+    def get_last_task_result(job_id, role, result_type):
+        results = TaskResult.select().where(
+            TaskResult.job_id == job_id,
+            TaskResult.role == role,
+            TaskResult.type == result_type
+        ).order_by(TaskResult.created_time.desc()).limit(1)
+        if results:
+            return results[0]
+
+    @staticmethod
+    def get_last_statics_result(job_id, role, result_type):
+        return TaskResultDao.get_last_task_result(job_id, role, result_type)

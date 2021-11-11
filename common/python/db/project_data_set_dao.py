@@ -12,30 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from common.python.db.db_models import DB, JobMember
+from common.python.db.db_models import DB, ProjectDataSet
 
 
-class JobMemberDao:
-
-    @staticmethod
-    def list_by_job_id(job_id) -> [JobMember]:
-        """
-        Get the member list of the specified job
-
-        Parameters
-        ----------
-        job_id: str
-
-        Returns
-        -------
-        List of JobMember
-        """
-        with DB.connection_context():
-            job_members = JobMember.select().where(job_id == JobMember.job_id)
-
-            return job_members
+class ProjectDataSetDao(object):
 
     @staticmethod
     def get(*query, **filters):
         with DB.connection_context():
-            return JobMember.get_or_none(*query, **filters)
+            return ProjectDataSet.get_or_none(*query, **filters)
+
+    @staticmethod
+    def save(model: ProjectDataSet, force_insert=False):
+        with DB.connection_context():
+            model.save(force_insert=force_insert)
