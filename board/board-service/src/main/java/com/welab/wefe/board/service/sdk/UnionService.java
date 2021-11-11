@@ -340,6 +340,22 @@ public class UnionService extends AbstractService {
         return data.toJavaObject(DataSetOutputModel.class);
     }
 
+    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
+        if (!StringUtil.checkPhoneNumber(mobile)) {
+            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        JObject params = JObject.create()
+                .append("mobile", mobile)
+                .append("smsBusinessType", smsBusinessType);
+        try {
+            request("sms/send_verification_code", params, false);
+        } catch (StatusCodeWithException e) {
+            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
+        } catch (Exception e) {
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
     /**
      * Check verification code
      */
@@ -351,14 +367,21 @@ public class UnionService extends AbstractService {
         try {
             request("sms/check_verification_code", params, false);
         } catch (StatusCodeWithException e) {
-            String errorMsg = e.getMessage();
-            if (StringUtil.isNotEmpty(errorMsg) && errorMsg.contains("：")) {
-                errorMsg = errorMsg.split("：")[1];
-            }
-            throw new StatusCodeWithException(errorMsg, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
         } catch (Exception e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
+    }
+
+    private String getUnionOrigExceptionMsg(StatusCodeWithException e) {
+        String errorMsg = e.getMessage();
+        if (StringUtil.isNotEmpty(errorMsg)) {
+            int index = errorMsg.indexOf("：");
+            if (index != -1) {
+                errorMsg = errorMsg.substring(index + 1);
+            }
+        }
+        return errorMsg;
     }
 
     private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {

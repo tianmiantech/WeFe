@@ -48,7 +48,7 @@ public class SmsService {
      * @param mobile target mobile number
      * @throws Exception
      */
-    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessTypeEnum) throws StatusCodeWithException {
+    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
         if (StringUtil.isEmpty(mobile)) {
             throw new StatusCodeWithException("手机号不能为空", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
         }
@@ -57,7 +57,7 @@ public class SmsService {
             throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        if (!checkCodeIsExpire(mobile, smsBusinessTypeEnum)) {
+        if (!checkCodeIsExpire(mobile, smsBusinessType)) {
             throw new StatusCodeWithException(CODE_VALID_DURATION_MINUTE + "分钟内禁止多次获取验证码", StatusCode.ILLEGAL_REQUEST);
         }
 
@@ -78,7 +78,7 @@ public class SmsService {
             smsDetailInfo.setSupplier(SmsSupplierEnum.Aliyun);
             smsDetailInfo.setSuccess(smsResponse.success());
             smsDetailInfo.setRespContent(smsResponse.getRespBody());
-            smsDetailInfo.setBusinessType(smsBusinessTypeEnum);
+            smsDetailInfo.setBusinessType(smsBusinessType);
             smsDetailInfoReop.save(smsDetailInfo);
             if (!smsResponse.success()) {
                 throw new StatusCodeWithException("获取验证码异常:" + smsResponse.getMessage(), StatusCode.SYSTEM_ERROR);
@@ -87,7 +87,7 @@ public class SmsService {
             SmsVerificationCode smsVerificationCode = new SmsVerificationCode();
             smsVerificationCode.setMobile(mobile);
             smsVerificationCode.setCode(code);
-            smsVerificationCode.setBusinessType(smsBusinessTypeEnum);
+            smsVerificationCode.setBusinessType(smsBusinessType);
             smsVerificationCodeReop.saveOrUpdate(smsVerificationCode);
         } catch (StatusCodeWithException e) {
             LOG.error("获取短信验证码异常:", e);

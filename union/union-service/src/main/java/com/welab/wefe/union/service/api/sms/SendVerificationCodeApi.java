@@ -28,24 +28,23 @@ public class SendVerificationCodeApi extends AbstractApi<SendVerificationCodeApi
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        smsService.sendVerificationCode(input.phoneNumber, input.smsBusinessType);
-
+        smsService.sendVerificationCode(input.mobile, input.smsBusinessType);
         return success();
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "Mobile phone number receiving verification code", require = true)
-        private String phoneNumber;
+        private String mobile;
 
         @Check(name = "business type", require = true)
         private SmsBusinessType smsBusinessType;
 
-        public String getPhoneNumber() {
-            return phoneNumber;
+        public String getMobile() {
+            return mobile;
         }
 
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
+        public void setMobile(String mobile) {
+            this.mobile = mobile;
         }
 
         public SmsBusinessType getSmsBusinessType() {
