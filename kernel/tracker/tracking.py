@@ -30,6 +30,7 @@ from common.python.common.consts import NAMESPACE, TaskResultDataType, \
     ProjectStatus, ModelType, TaskStatus
 from common.python.common.enums import FlowQueueActionType
 from common.python.db.data_set_dao import DataSetDao
+from common.python.db.data_set_column_dao import DataSetColumnDao
 from common.python.db.db_models import *
 from common.python.db.job_member_dao import JobMemberDao
 from common.python.db.project_dao import ProjectDao
@@ -687,6 +688,14 @@ class Tracking(object):
         ProjectDataSetDao.save(project_data_set, force_insert=True)
 
         return project_data_set
+
+    @staticmethod
+    def get_data_set_column_type(data_set_id):
+        data_set_columns = DataSetColumnDao.list_by_data_set_id(data_set_id)
+        column_types = []
+        for item_column in data_set_columns:
+            column_types.append(item_column.data_type)
+        return column_types
 
     @staticmethod
     def save_data_set_column(old_data_set_id, data_set_id, header):

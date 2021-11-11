@@ -98,15 +98,18 @@ class DenseFeatureReader(object):
         metas = input_data.get_metas()
         header = metas.get("header", None)
         sid_name = metas.get("sid", None)
-        data_types = metas.get("data_types", None)
+        column_types = metas.get("column_types", None)
         if sid_name is None:
             schema = metas.get("schema", None)
             if schema is not None:
                 sid_name = schema['sid_name']
-        if data_types is None:
-            pass
+        if column_types is None and self.data_set_id:
+            column_type_list = self.tracker.get_data_set_column_type(self.data_set_id)
+            column_types = ",".join(column_type_list)
+
         LOGGER.debug("header is {}".format(header))
         LOGGER.debug("sid_name is {}".format(sid_name))
+        LOGGER.debug("data_types is {}".format(column_types))
 
         if not header and not sid_name:
             raise ValueError("dense input-format should have header schema")
