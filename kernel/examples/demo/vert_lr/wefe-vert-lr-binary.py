@@ -48,8 +48,8 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     promoter_data_table = param.get("promoter_data_table")
     provider_data_table = param.get("provider_data_table")
 
-    promoter_train_data = {"name": promoter_data_table, "namespace": namespace}
-    provider_train_data = {"name": provider_data_table, "namespace": namespace}
+    promoter_train_data = {"name": promoter_data_table, "namespace": namespace, "data_set_id": "11"}
+    provider_train_data = {"name": provider_data_table, "namespace": namespace, "data_set_id": "11"}
 
     handler_upload = Handler().set_roles(promoter=promoter, provider=provider)
     handler_upload.add_upload_data(file=os.path.join(data_base, data_promoter),

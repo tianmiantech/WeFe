@@ -71,6 +71,7 @@ class DenseFeatureReader(object):
         self.label_name = data_io_param.label_name
         self.label_type = data_io_param.label_type
         self.output_format = data_io_param.output_format
+        self.data_set_id = data_io_param.data_set_id
         self.missing_impute_rate = None
         self.outlier_replace_rate = None
         self.label_idx = None
@@ -94,12 +95,16 @@ class DenseFeatureReader(object):
                 raise ValueError("input data's schema for fit and transform should be same")
 
     def generate_header(self, input_data, mode="fit"):
-        header = input_data.get_meta("header")
-        sid_name = input_data.get_meta("sid")
+        metas = input_data.get_metas()
+        header = metas.get("header", None)
+        sid_name = metas.get("sid", None)
+        data_types = metas.get("data_types", None)
         if sid_name is None:
-            schema = input_data.get_meta("schema")
+            schema = metas.get("schema", None)
             if schema is not None:
                 sid_name = schema['sid_name']
+        if data_types is None:
+            pass
         LOGGER.debug("header is {}".format(header))
         LOGGER.debug("sid_name is {}".format(sid_name))
 
