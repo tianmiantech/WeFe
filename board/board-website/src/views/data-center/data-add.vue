@@ -220,7 +220,33 @@
                 </el-col>
                 <!-- 图像数据 -->
                 <el-col v-else :span="14">
-                    图像数据
+                    <fieldset style="min-height:230px">
+                        <legend>选择文件</legend>
+                        <uploader
+                            ref="imgUploaderRef"
+                            :options="img_upload_options"
+                            :file-status-text="fileStatusText"
+                            :list="form.data_set_add_method.files"
+                            @file-complete="fileUploadCompleteImage"
+                            @file-removed="fileRemovedImage"
+                            @file-added="fileAddedImage"
+                        >
+                            <uploader-unsupport />
+                            <uploader-drop v-if="img_upload_options.files.length === 0">
+                                <p class="mb10">将文件 (.zip .tar .rar .7z) 拖到此处</p>或
+                                <uploader-btn
+                                    :attrs="img_upload_attrs"
+                                    :single="true"
+                                >
+                                    点击上传
+                                </uploader-btn>
+                            </uploader-drop>
+                            <uploader-list :file-list="img_upload_options.files.length" />
+                        </uploader>
+                        <ul class="data-set-upload-tip">
+                            <li>仅限压缩文件 .zip .tar .rar等</li>
+                        </ul>
+                    </fieldset>
                 </el-col>
             </el-row>
             <el-row
@@ -532,8 +558,8 @@
                     paused:    '已暂停',
                     waiting:   '等待中',
                 },
-                file_upload_attrs: {
-                    accept: '.csv,.xls,.xlsx',
+                img_upload_attrs: {
+                    accept: '.zip, .rar, .tar, .7z',
                 },
 
                 http_upload_filename: '',
@@ -598,8 +624,29 @@
                     added_row_count:     0,
                     repeat_id_row_count: 0,
                 },
-                isCanClose:  false,
-                addDataType: 'csv',
+                isCanClose:         false,
+                addDataType:        'csv',
+                // 图像数据上传options
+                img_upload_options: {
+                    files:               [],
+                    target:              window.api.baseUrl + '/file/upload',
+                    singleFile:          true,
+                    // chunks check
+                    testChunks:          true,
+                    chunkSize:           8 * 1024 * 1024,
+                    simultaneousUploads: 4,
+                    headers:             {
+                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                    },
+                    parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
+                        return parsedTimeRemaining
+                            .replace(/\syears?/, '年')
+                            .replace(/\days?/, '天')
+                            .replace(/\shours?/, '小时')
+                            .replace(/\sminutes?/, '分钟')
+                            .replace(/\sseconds?/, '秒');
+                    },
+                },
             };
         },
         watch: {
@@ -870,6 +917,34 @@
             fileRemoved() {
                 this.file_upload_options.files = [];
             },
+            // Image
+            fileAddedImage(file) {
+                this.img_upload_options.files = [file];
+            },
+            fileRemovedImage() {
+                this.img_upload_options.files = [];
+            },
+            async fileUploadCompleteImage() {
+                this.loading = true;
+                this.data_preview_finished = true;
+                const file = arguments[0].file;
+                const { code, data } = await this.$http.get({
+                    url:     '/file/merge',
+                    timeout: 1000 * 60 * 2,
+                    params:  {
+                        filename:         file.name,
+                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                    },
+                })
+                    .catch(err => {
+                        console.log(err);
+                    });
+
+                this.loading = false;
+                if (code === 0) {
+                    this.http_upload_filename = data.filename;
+                }
+            },
             // upload completed
             async fileUploadComplete() {
                 this.loading = true;
@@ -975,10 +1050,11 @@
                 this.loading = true;
                 this.form.metadata_list = this.metadata_list;
 
+                const params = this.addDataType === 'img' ? Object.assign(this.form, { for_job_type: '目标检测', filename: this.http_upload_filename }) : this.form;
                 const { code, data } = await this.$http.post({
-                    url:     '/data_set/add',
+                    url:     this.addDataType === 'csv' ? '/data_set/add': '/image_data_set/add',
                     timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                    data:    params,
                 });
 
                 if (code === 0) {
@@ -987,9 +1063,11 @@
                     } else {
                         this.$message.success('保存成功!');
                     }
-                    setTimeout(() => {
-                        this.getAddTask(data.id);
-                    }, 500);
+                    if (this.addDataType === 'csv') {
+                        setTimeout(() => {
+                            this.getAddTask(data.id);
+                        }, 500);
+                    }
                 }
                 this.loading = false;
             },

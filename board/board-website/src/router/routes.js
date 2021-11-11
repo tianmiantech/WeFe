@@ -130,6 +130,16 @@ const baseRoutes = [
                 },
                 component: () => import('../views/data-center/data-update.vue'),
             },
+            {
+                path: `${prefixPath}data-label`,
+                name: 'data-label',
+                meta: {
+                    hidden: false,
+                    title:  '数据标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-label.vue'),
+            },
         ],
     },
     {
