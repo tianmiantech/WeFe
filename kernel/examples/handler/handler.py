@@ -333,7 +333,7 @@ class Handler(object):
                     if 'input' not in component:
                         task_config['params']['namespace'] = task_config['params']['table']['namespace']
                         task_config['params']['name'] = task_config['params']['table']['name']
-                        task_config['params']['data_set_id'] = task_config['params']['table']['data_set_id']
+                        task_config['params']['data_set_id'] = task_config['params']['table'].get('data_set_id')
                         task_config['input'] = {"data": {}}
                     else:
                         task_config['input'] = component['input']
