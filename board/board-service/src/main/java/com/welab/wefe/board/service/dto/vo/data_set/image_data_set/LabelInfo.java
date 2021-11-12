@@ -15,17 +15,49 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
 
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author zane
  * @date 2021/11/12
  */
-public class LabelInfo {
-    public List<Item> list = new ArrayList<>();
+public class LabelInfo extends AbstractCheckModel {
+    @Check(name = "图片中标记的对象列表")
+    public List<Item> objects = new ArrayList<>();
 
-    public static class Item {
+    public List<String> labelList() {
+        List<String> list = new ArrayList<>();
+        if (objects == null || objects.isEmpty()) {
+            return list;
+        }
+
+        list = objects
+                .stream()
+                .filter(x -> StringUtil.isNotEmpty(x.label))
+                .map(x -> x.label)
+                .collect(Collectors.toList());
+
+        return list;
+    }
+
+    /**
+     * 是否包含标注信息
+     */
+    public boolean isLabeled() {
+        if (objects == null || objects.isEmpty()) {
+            return false;
+        }
+        return objects.stream().anyMatch(x -> StringUtil.isNotEmpty(x.label));
+    }
+
+    public static class Item extends AbstractCheckModel {
+
         public String label;
         /**
          * 是否：难以识别的物体
@@ -48,7 +80,7 @@ public class LabelInfo {
         }
     }
 
-    public static class Point {
+    public static class Point extends AbstractCheckModel {
         public int x;
         public int y;
 

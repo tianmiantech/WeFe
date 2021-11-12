@@ -16,8 +16,10 @@
 
 package com.welab.wefe.board.service.api.dataset.image_data_set.sample;
 
+import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.LabelInfo;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetSampleService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -27,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/update", name = "update image data set sample info", login = false)
+@Api(path = "image_data_set_sample/update", name = "update image data set sample info")
 public class ImageDataSetSampleUpdateApi extends AbstractNoneOutputApi<ImageDataSetSampleUpdateApi.Input> {
 
     @Autowired
@@ -35,13 +37,15 @@ public class ImageDataSetSampleUpdateApi extends AbstractNoneOutputApi<ImageData
 
     @Override
     protected ApiResult handler(Input input) throws StatusCodeWithException {
-        //imageDataSetSampleService.update(input);
+        imageDataSetSampleService.update(input);
 
         return success();
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(require = true)
         public String id;
-//        public
+        @Check(require = true, name = "标注信息")
+        public LabelInfo labelInfo;
     }
 }

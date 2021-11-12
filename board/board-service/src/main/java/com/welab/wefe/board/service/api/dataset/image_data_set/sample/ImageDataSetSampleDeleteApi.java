@@ -14,32 +14,35 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.dataset.image_data_set;
+package com.welab.wefe.board.service.api.dataset.image_data_set.sample;
 
-import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
-import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetSampleService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/add", name = "add image data set")
-public class ImageDataSetAddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
+@Api(path = "image_data_set_sample/delete", name = "delete image data set sample", login = false)
+public class ImageDataSetSampleDeleteApi extends AbstractNoneOutputApi<ImageDataSetSampleDeleteApi.Input> {
 
     @Autowired
-    private ImageDataSetService imageDataSetService;
+    private ImageDataSetSampleService imageDataSetSampleService;
 
     @Override
-    protected ApiResult<ImageDataSetAddOutputModel> handle(ImageDataSetAddInputModel input) throws StatusCodeWithException, IOException {
-        ImageDataSetAddOutputModel output = imageDataSetService.add(input);
-        return success(output);
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+        imageDataSetSampleService.delete(input.id);
+
+        return success();
     }
 
+    public static class Input extends AbstractApiInput {
+        @Check(require = true)
+        public String id;
+    }
 }

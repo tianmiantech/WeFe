@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.util;
+package com.welab.wefe.common.web.util;
 
 import org.modelmapper.convention.MatchingStrategies;
 

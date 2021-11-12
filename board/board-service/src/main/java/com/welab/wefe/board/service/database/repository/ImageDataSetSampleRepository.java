@@ -18,8 +18,11 @@ package com.welab.wefe.board.service.database.repository;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author zane
@@ -30,4 +33,15 @@ public interface ImageDataSetSampleRepository extends BaseRepository<ImageDataSe
     @Modifying
     @Transactional
     void deleteByDataSetId(String dataSetId);
+
+    @Query(value = "select label_list from #{#entityName} where data_set_id=?1 and labeled=true group by label_list;", nativeQuery = true)
+    List<String> getAllLabelList(String dataSetId);
+
+
+    @Query(value = "select count(*) from #{#entityName} where data_set_id=?1 and labeled=true", nativeQuery = true)
+    int getLabelCount(String dataSetId);
+
+    @Query(value = "select count(*) from #{#entityName} where data_set_id=?1", nativeQuery = true)
+    int getSampleCount(String dataSetId);
+
 }

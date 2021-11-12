@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.dto.base;
 
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
+import com.welab.wefe.common.web.util.ModelMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;

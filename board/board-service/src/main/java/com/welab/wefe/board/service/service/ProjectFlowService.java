@@ -37,7 +37,6 @@ import com.welab.wefe.board.service.dto.entity.modeling_config.ModelingInfoOutpu
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.*;
@@ -46,6 +45,7 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
