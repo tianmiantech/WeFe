@@ -242,7 +242,7 @@
                                 });
                             } else {
                                 this.$store.commit('SYSTEM_INITED', false);
-                                this.$store.commit('UPDATE_USERINFO', {});
+                                this.$store.commit('UPDATE_USERINFO', null);
                                 this.$message.error('请重试');
                             }
                         } else {
