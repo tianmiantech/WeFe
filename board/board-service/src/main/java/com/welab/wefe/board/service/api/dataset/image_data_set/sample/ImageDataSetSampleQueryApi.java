@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/query", name = "query image data set", login = false)
+@Api(path = "image_data_set_sample/query", name = "query image data set samples")
 public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQueryApi.Input, PagingOutput<ImageDataSetSampleOutputModel>> {
 
     @Autowired
