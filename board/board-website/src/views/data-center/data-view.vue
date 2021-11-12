@@ -42,8 +42,8 @@
                 <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
                     {{ dataInfo.label_list.split(',').length }}
                 </el-descriptions-item>
-                <el-descriptions-item label="导入状态：">
-                    {{ completedStatus(dataInfo.completed) }}
+                <el-descriptions-item label="标注状态：">
+                    {{ completedStatus(dataInfo.label_completed) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="标注类型：">
                     {{ dataInfo.for_job_type }}
@@ -54,9 +54,9 @@
                 <el-descriptions-item label="已标注：">
                     {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.sample_count).toFixed(2) * 100 }}%)
                     <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
-                        去标注
+                        去标注 <i class="el-icon-right"></i>
                     </el-button>
-                    <el-button type="primary">
+                    <el-button hidden type="primary">
                         导入标注数据包
                     </el-button>
                 </el-descriptions-item>
@@ -104,12 +104,12 @@
         computed: {
             completedStatus(val) {
                 return function(val) {
-                    return val ? '已完成' : '进行中';
+                    return val ? '标注完成' : '进行中';
                 };
             },
         },
         created() {
-            this.addDataType = this.$route.query.type;
+            this.addDataType = this.$route.query.type || 'csv';
             this.getData();
         },
         methods: {

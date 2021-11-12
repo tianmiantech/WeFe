@@ -669,7 +669,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addDataType = this.$route.query.type;
+            this.addDataType = this.$route.query.type || 'csv';
             this.getDataSouceList();
             this.checkStorage();
 
