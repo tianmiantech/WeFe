@@ -15,15 +15,21 @@
  */
 package com.welab.wefe.board.service.service.dataset;
 
+import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleQueryApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleUpdateApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetSampleOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
@@ -36,6 +42,17 @@ public class ImageDataSetSampleService extends AbstractService {
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
     @Autowired
     private ImageDataSetService imageDataSetService;
+
+    public PagingOutput<ImageDataSetSampleOutputModel> query(ImageDataSetSampleQueryApi.Input input) {
+
+        Specification<ImageDataSetSampleMysqlModel> where = Where
+                .create()
+                .contains("labelList", input.getLabel())
+                .equal("labeled", input.getLabeled())
+                .build(ImageDataSetSampleMysqlModel.class);
+
+        return imageDataSetSampleRepository.paging(where, input, ImageDataSetSampleOutputModel.class);
+    }
 
     public void update(ImageDataSetSampleUpdateApi.Input input) throws StatusCodeWithException {
         ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
@@ -50,5 +67,17 @@ public class ImageDataSetSampleService extends AbstractService {
         imageDataSetSampleRepository.save(sample);
 
         imageDataSetService.updateLabelInfo(sample.getDataSetId());
+    }
+
+    public void delete(String id) throws StatusCodeWithException {
+        ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(id).orElse(null);
+        if (sample == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("id 对应的样本不存在：" + id);
+        }
+
+        imageDataSetSampleRepository.delete(sample);
+        imageDataSetService.updateLabelInfo(sample.getDataSetId());
+
+        FileUtil.deleteFileOrDir(sample.getFilePath());
     }
 }

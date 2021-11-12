@@ -19,12 +19,12 @@ package com.welab.wefe.board.service.api.project.flow;
 import com.welab.wefe.board.service.api.project.flow.QueryFlowTemplateApi.TemplateListOutput;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.service.FlowTemplateService;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

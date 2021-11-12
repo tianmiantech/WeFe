@@ -114,14 +114,13 @@ public class ImageDataSetService extends AbstractDataSetService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, model, "只能删除自己添加的数据集。");
 
-        FileUtil.deleteFileOrDir(model.getNamespace());
-
         imageDataSetRepository.deleteById(model.getId());
         imageDataSetSampleRepository.deleteByDataSetId(model.getId());
 
-        unionService.dontPublicDataSet(model.getId());
-
+        FileUtil.deleteFileOrDir(model.getNamespace());
         CacheObjects.refreshImageDataSetTags();
+
+        unionService.dontPublicDataSet(model.getId());
     }
 
     /**
