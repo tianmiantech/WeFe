@@ -24,7 +24,7 @@
                     </template>
                 </span>
             </el-descriptions-item>
-            <template v-if="dataInfo.contains_y">
+            <template v-if="addDataType === 'csv' && dataInfo.contains_y">
                 <el-descriptions-item label="正例样本数量：">
                     {{ dataInfo.y_positive_example_count }}
                 </el-descriptions-item>
@@ -32,12 +32,39 @@
                     {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
                 </el-descriptions-item>
             </template>
-            <el-descriptions-item label="样本量/特征量：">
+            <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
                 {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
             </el-descriptions-item>
+            <template v-if="addDataType === 'img'">
+                <el-descriptions-item label="数据总量：">
+                    {{ dataInfo.sample_count }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
+                    {{ dataInfo.label_list.split(',').length }}
+                </el-descriptions-item>
+                <el-descriptions-item label="导入状态：">
+                    {{ completedStatus(dataInfo.completed) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="标注类型：">
+                    {{ dataInfo.for_job_type }}
+                </el-descriptions-item>
+                <el-descriptions-item label="数据大小：">
+                    {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
+                </el-descriptions-item>
+                <el-descriptions-item label="已标注：">
+                    {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.sample_count).toFixed(2) * 100 }}%)
+                    <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
+                        去标注
+                    </el-button>
+                    <el-button type="primary">
+                        导入标注数据包
+                    </el-button>
+                </el-descriptions-item>
+            </template>
         </el-descriptions>
 
         <el-tabs
+            v-if="addDataType === 'csv'"
             class="mt20"
             type="border-card"
             @tab-click="tabChange"
@@ -66,14 +93,23 @@
         },
         data() {
             return {
-                loading:   false,
-                previewed: false,
-                id:        this.$route.query.id,
-                data_list: [],
-                dataInfo:  {},
+                loading:     false,
+                previewed:   false,
+                id:          this.$route.query.id,
+                data_list:   [],
+                dataInfo:    {},
+                addDataType: 'csv',
             };
         },
+        computed: {
+            completedStatus(val) {
+                return function(val) {
+                    return val ? '已完成' : '进行中';
+                };
+            },
+        },
         created() {
+            this.addDataType = this.$route.query.type;
             this.getData();
         },
         methods: {
@@ -124,7 +160,7 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set/detail',
+                    url:    this.addDataType === 'csv' ? '/data_set/detail' : '/image_data_set/detail',
                     params: {
                         id: this.id,
                     },
@@ -134,7 +170,7 @@
                     data && (this.dataInfo = data);
                 }
                 this.loading = false;
-                this.loadDataSetColumnList();
+                if (this.addDataType === 'csv') this.loadDataSetColumnList();
             },
 
             tabChange(ref) {
@@ -142,6 +178,13 @@
                     this.$refs['DataSetPreview'].loadData(this.id);
                     this.previewed = true;
                 }
+            },
+
+            jumpToLabel() {
+                this.$router.push({
+                    name:  'data-label',
+                    query: {},
+                });
             },
         },
     };

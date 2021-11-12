@@ -359,11 +359,11 @@
                 class="m20"
             >
                 <el-col :span="12">
-                    <el-checkbox v-model="form.deduplication">
+                    <el-checkbox v-if="addDataType === 'csv'" v-model="form.deduplication">
                         自动剔除主键相同的数据
                     </el-checkbox>
                     <br>
-                    <div class="deduplication-tips">
+                    <div class="deduplication-tips" v-if="addDataType === 'csv'">
                         <p>注：数据集中不允许包含主键相同的数据。</p>
                         <p>1. 如果 <strong>不确定</strong> 是否包含重复数据，请 <strong>启用</strong> 自动去重功能。</p>
                         <p>2. 如果 <strong>确定</strong> 不包含重复数据，<strong>可以禁用</strong> 自动去重功能，以提高数据集上传速度。</p>
@@ -1058,15 +1058,21 @@
                 });
 
                 if (code === 0) {
-                    if (data.repeat_data_count > 0) {
-                        this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
-                    } else {
-                        this.$message.success('保存成功!');
-                    }
                     if (this.addDataType === 'csv') {
+                        if (data.repeat_data_count > 0) {
+                            this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
+                        } else {
+                            this.$message.success('保存成功!');
+                        }
                         setTimeout(() => {
                             this.getAddTask(data.id);
                         }, 500);
+                    } else {
+                        canLeave = true;
+                        this.$router.push({
+                            name:  'data-view',
+                            query: { id: data.data_set_id, type: this.addDataType },
+                        });
                     }
                 }
                 this.loading = false;
@@ -1114,7 +1120,7 @@
 
                                     this.$router.push({
                                         name:  'data-view',
-                                        query: { id: data_set_id },
+                                        query: { id: data_set_id, type: this.addDataType },
                                     });
                                 }
                             }, 1000);
