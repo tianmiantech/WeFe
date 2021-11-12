@@ -193,7 +193,7 @@ public class ImageDataSetService extends AbstractDataSetService {
                 Convert.toInt(sampleList.stream().filter(x -> x.isLabeled()).count())
         );
 
-        dataSet.setCompleted(
+        dataSet.setLabelCompleted(
                 sampleList.stream().allMatch(x -> x.isLabeled())
         );
         dataSet.setFilesSize(

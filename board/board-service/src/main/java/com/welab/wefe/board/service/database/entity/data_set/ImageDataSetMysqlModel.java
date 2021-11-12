@@ -43,7 +43,7 @@ public class ImageDataSetMysqlModel extends AbstractDataSetMysqlModel {
     /**
      * 是否已标注完毕
      */
-    private boolean completed;
+    private boolean labelCompleted;
     /**
      * 数据集大小
      */
@@ -84,12 +84,12 @@ public class ImageDataSetMysqlModel extends AbstractDataSetMysqlModel {
         this.labeledCount = labeledCount;
     }
 
-    public boolean isCompleted() {
-        return completed;
+    public boolean isLabelCompleted() {
+        return labelCompleted;
     }
 
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void setLabelCompleted(boolean labelCompleted) {
+        this.labelCompleted = labelCompleted;
     }
 
     public long getFilesSize() {
