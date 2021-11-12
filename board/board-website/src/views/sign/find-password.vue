@@ -197,7 +197,7 @@
                             this.form.phone.substr(0, 3),
                             this.form.password.substr(this.form.password.length - 3),
                         ].join('');
-                        const { code, message } = await this.$http.post({
+                        const { code } = await this.$http.post({
                             url:  '/account/forget_password',
                             data: {
                                 phoneNumber:         this.form.phone,
@@ -208,13 +208,11 @@
 
                         if(code === 0) {
                             this.$message.success('密码更新成功! 请重新登录!');
-                            this.$store.commit('UPDATE_USERINFO', {});
+                            this.$store.commit('UPDATE_USERINFO', null);
 
                             this.$router.replace({
                                 name: 'login',
                             });
-                        } else {
-                            this.$message.error(message);
                         }
                     } else {
                         this.$message.error(valid.message);
