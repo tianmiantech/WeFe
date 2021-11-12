@@ -10,9 +10,7 @@
     ⚠️ 注意
     此文档中的表结构可能与最新版本有差异，请以代码仓库中的 `wefe_board.sql` 文件为准。
 
-<!-- tabs:start -->
-
-#### **DDL**
+## DDL
 
 ```sql
 /*
@@ -373,94 +371,6 @@ CREATE TABLE `operator_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
-
-
--- ----------------------------
--- Table structure for server
--- ----------------------------
-DROP TABLE IF EXISTS `server`;
-CREATE TABLE `server`
-(
-    `id`                varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`        varchar(32) COMMENT '创建人',
-    `created_time`      datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`        varchar(32) COMMENT '更新人',
-    `updated_time`      datetime(6) COMMENT '更新时间',
-    `server_name`       varchar(32) COMMENT '服务器名称',
-    `server_ip`         varchar(32) COMMENT '服务器 IP',
-    `cpu_core_count`    varchar(32) COMMENT 'CUP 核心数',
-    `memory_total_size` varchar(32) COMMENT '内存总量',
-    `fs_total_size`     varchar(32) COMMENT '文件系统总大小',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务器 ';
-
--- ----------------------------
--- Table structure for server_load_log
--- ----------------------------
-DROP TABLE IF EXISTS `server_load_log`;
-CREATE TABLE `server_load_log`
-(
-    `id`                  varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`          varchar(32) COMMENT '创建人',
-    `created_time`        datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`          varchar(32) COMMENT '更新人',
-    `updated_time`        datetime(6) COMMENT '更新时间',
-    `server_name`         varchar(32) COMMENT '服务器名称',
-    `server_ip`           varchar(32) COMMENT '服务器 IP',
-    `cpu_core_count`      int(11) COMMENT 'CUP 核心数',
-    `cpu_used_percent`    decimal(4, 2) COMMENT 'CPU 使用率',
-    `memory_used_size`    bigint(20) COMMENT '内存使用量',
-    `memory_free_size`    bigint(20) COMMENT '内存剩余量',
-    `memory_used_percent` decimal(4, 2) COMMENT '内存使用率',
-    `fs_used_size`        bigint(20) COMMENT '文件系统已使用量',
-    `fs_total_percent`    decimal(4, 2) COMMENT '文件系统使用率',
-    `disk_reads`          bigint(20) COMMENT '磁盘写入速度（每秒）',
-    `disk_writes`         bigint(20) COMMENT '磁盘读取速度（每秒）',
-    `net_sends`           bigint(20) COMMENT '网络上行速度（每秒）',
-    `net_receives`        bigint(20) COMMENT '网络下行速度（每秒）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务器负载日志 ';
-
--- ----------------------------
--- Table structure for service
--- ----------------------------
-DROP TABLE IF EXISTS `service`;
-CREATE TABLE `service`
-(
-    `id`                          varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`                  varchar(32) COMMENT '创建人',
-    `created_time`                datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`                  varchar(32) COMMENT '更新人',
-    `updated_time`                datetime(6) COMMENT '更新时间',
-    `service_id`                  varchar(32) NOT NULL COMMENT '服务id(ip+port)',
-    `instance_name`               varchar(32) COMMENT '实例名称',
-    `service_type`                varchar(32) COMMENT '服务类型 枚举（redis/mysql...）',
-    `instance_uri`                varchar(1024) COMMENT '实例 URI',
-    `check_availability_interval` int(11) COMMENT '可用性检测周期（秒）',
-    `last_heartbeat_time`         datetime(6) COMMENT '最后心跳时间',
-    `status`                      varchar(32) COMMENT '状态 枚举（success/slow/offline...）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务 ';
-
--- ----------------------------
--- Table structure for service_check_log
--- ----------------------------
-DROP TABLE IF EXISTS `service_check_log`;
-CREATE TABLE `service_check_log`
-(
-    `id`            varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`    varchar(32) COMMENT '创建人',
-    `created_time`  datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`    varchar(32) COMMENT '更新人',
-    `updated_time`  datetime(6) COMMENT '更新时间',
-    `instance_name` varchar(32) COMMENT '实例名称',
-    `status`        varchar(32) COMMENT '状态 枚举（success/slow/offline...）',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='服务监控日志 ';
 
 
 -- ----------------------------
@@ -941,10 +851,35 @@ global max_allowed_packet = 1024*1024*32;
 
 ```
 
-#### **ER 图**
+## ER 图
 图片较大，请点击进行放大，或右键保存到本地后查看。
 
 
-<a target="_blank" href="_media/mysql/wefe_board.jpg"><img src="_media/mysql/wefe_board.jpg" style="max-height:700px;border:1px solid #ccc" /></a>
-<!-- tabs:end -->
+#### 数据集
+<img src="_media/mysql/wefe_board-data_set.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 建模任务
+<img src="_media/mysql/wefe_board-job.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 合作项目
+<img src="_media/mysql/wefe_board-project.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 账号操作
+<img src="_media/mysql/wefe_board-account.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### 在线聊天
+<img src="_media/mysql/wefe_board-chat.png" style="max-height:700px;border:1px solid #ccc" />
+
+<br><br>
+
+#### flow 服务指令
+<img src="_media/mysql/wefe_board-flow.png" style="max-height:700px;border:1px solid #ccc" />
 
