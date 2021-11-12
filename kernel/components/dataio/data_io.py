@@ -76,6 +76,7 @@ class DenseFeatureReader(object):
         self.outlier_replace_rate = None
         self.label_idx = None
         self.header = None
+        self.column_types = None  # match with header
         self.sid_name = None
         self.tracker = None
         self.exclusive_data_type_fid_map = {}
@@ -106,10 +107,12 @@ class DenseFeatureReader(object):
         if column_types is None and self.data_set_id:
             column_type_list = self.tracker.get_data_set_column_type(self.data_set_id)
             column_types = ",".join(column_type_list)
+        else:
+            column_types = ""
 
         LOGGER.debug("header is {}".format(header))
         LOGGER.debug("sid_name is {}".format(sid_name))
-        LOGGER.debug("data_types is {}".format(column_types))
+        LOGGER.debug("column_types is {}".format(column_types))
 
         if not header and not sid_name:
             raise ValueError("dense input-format should have header schema")
@@ -118,17 +121,22 @@ class DenseFeatureReader(object):
             self.label_idx = header.split(self.delimitor, -1).index(self.label_name)
             header_gen = header.split(self.delimitor, -1)[: self.label_idx] + \
                          header.split(self.delimitor, -1)[self.label_idx + 1:]
+            types_gen = column_types.split(",", -1)[: self.label_idx] + \
+                        column_types.split(",", -1)[self.label_idx + 1:]
 
         else:
             if header:
                 header_gen = header.split(self.delimitor, -1)
+                types_gen = column_types.split(",", -1) if column_types else []
             else:
                 header_gen = None
+                types_gen = None
 
         if mode == "transform":
             self.check_header_eq(self.header, header_gen, self.sid_name, sid_name)
 
         self.header = header_gen
+        self.column_types = types_gen
         self.sid_name = sid_name
 
         if header_gen:
@@ -140,9 +148,10 @@ class DenseFeatureReader(object):
         if self.need_features:
             self.need_features_index = calc_need_feature_index(self.need_features, header_gen)
             self.header = self.need_features
+            self.column_types = [self.column_types[i] for i in self.need_features_index] if self.column_types else []
 
     def get_schema(self):
-        schema = make_schema(self.header, self.sid_name, self.label_name, self.with_label)
+        schema = make_schema(self.header, self.sid_name, self.label_name, self.with_label, self.column_types)
         return schema
 
     def process_value(self, value, data_shape=0):
@@ -864,6 +873,9 @@ class DataIO(ModelBase):
         new_data_instance = data_instance.mapValues(lambda v: self.process_data_instance_value(v, need_feature_index))
         schema = data_instance.schema
         schema['header'] = self.model_param.need_features
+        column_types = schema.get('column_types', None)
+        if column_types:
+            schema['column_types'] = [column_types[i] for i in need_feature_index]
         set_schema(new_data_instance, schema)
         return new_data_instance
 
@@ -891,7 +903,7 @@ class DataIO(ModelBase):
     """
 
 
-def make_schema(header=None, sid_name=None, label_name=None, with_label=None):
+def make_schema(header=None, sid_name=None, label_name=None, with_label=None, column_types=None):
     schema = {}
     if header:
         schema["header"] = header
@@ -904,6 +916,9 @@ def make_schema(header=None, sid_name=None, label_name=None, with_label=None):
 
     if with_label:
         schema["with_label"] = with_label
+
+    if column_types:
+        schema["column_types"] = column_types
 
     return schema
 
