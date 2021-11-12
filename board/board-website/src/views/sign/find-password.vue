@@ -1,5 +1,5 @@
 <template>
-    <div class="page">
+    <div class="full-page">
         <div class="sign-box">
             <div class="logo">
                 <img src="@assets/images/x-logo.png">
@@ -229,6 +229,10 @@
 <style lang="scss" scoped>
     @import './sign.scss';
 
+    .full-page {
+        height:100vh;
+        background: #fff;
+    }
     .el-form-item{
         .smsCount{
             width: 106px;
