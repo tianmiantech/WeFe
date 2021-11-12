@@ -42,6 +42,27 @@ public class Annotation {
     @XStreamImplicit
     public List<Object> objectList;
 
+    public LabelInfo toLabelInfo() {
+        LabelInfo labelInfo = new LabelInfo();
+
+        if (objectList != null) {
+            for (Object object : objectList) {
+                LabelInfo.Item item = new LabelInfo.Item(
+                        object.name,
+                        object.bndbox.xmin,
+                        object.bndbox.ymin,
+                        object.bndbox.xmax,
+                        object.bndbox.ymax
+                );
+
+                labelInfo.list.add(item);
+            }
+
+        }
+
+        return labelInfo;
+    }
+
     public List<String> getLabelList() {
         List<String> list = new ArrayList<>();
         if (objectList == null) {

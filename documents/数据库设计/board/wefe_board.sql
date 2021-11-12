@@ -836,7 +836,7 @@ CREATE TABLE `image_data_set`
     `label_list`             varchar(1000) COMMENT 'label 列表',
     `sample_count`           bigint(20) NOT NULL COMMENT '样本数量',
     `labeled_count`          bigint(20) NOT NULL COMMENT '已标注数量',
-    `completed`              bool COMMENT '是否已标注完毕',
+    `label_completed`        bool COMMENT '是否已标注完毕',
     `files_size`             bigint(20) NOT NULL DEFAULT '0' COMMENT '数据集大小',
     `public_level`           varchar(32) COMMENT '数据集的可见性',
     `public_member_list`     varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该数据集的基本信息',
