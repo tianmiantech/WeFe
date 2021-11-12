@@ -157,7 +157,7 @@ public class ImageDataSetService extends AbstractDataSetService {
 
         // delete source images
         FileUtil.deleteFileOrDir(zipFile);
-        FileUtil.deleteFileOrDir(unzipFileResult.baseDir);
+        unzipFileResult.deleteAllDirAndFiles();
 
 
         // Synchronize information to union
