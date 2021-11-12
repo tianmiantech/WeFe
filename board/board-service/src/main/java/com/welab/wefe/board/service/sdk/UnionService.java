@@ -348,7 +348,7 @@ public class UnionService extends AbstractService {
                 .append("mobile", mobile)
                 .append("smsBusinessType", smsBusinessType);
         try {
-            request("sms/send_verification_code", params, false);
+            request("sms/send_verification_code", params, true);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
         } catch (Exception e) {
@@ -365,7 +365,7 @@ public class UnionService extends AbstractService {
                 .append("code", code)
                 .append("smsBusinessType", smsBusinessType);
         try {
-            request("sms/check_verification_code", params, false);
+            request("sms/check_verification_code", params, true);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
         } catch (Exception e) {
