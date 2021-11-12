@@ -26,6 +26,12 @@ class DataSetColumnDao(object):
                 DataSetColumn.index.asc())
 
     @staticmethod
+    def batch_insert(data_set_column_list):
+        with DB.atomic():
+            for i in range(0, len(data_set_column_list), 1000):
+                DataSetColumn.insert_many(data_set_column_list[i:i + 1000]).execute()
+
+    @staticmethod
     def get(*query, **filters):
         with DB.connection_context():
             return DataSetColumn.get_or_none(*query, **filters)
