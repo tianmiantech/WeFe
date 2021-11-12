@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.board.service.service.dataset;
 
-import com.alibaba.fastjson.JSONObject;
 import com.thoughtworks.xstream.io.StreamException;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetDeleteApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
@@ -70,8 +69,30 @@ public class ImageDataSetService extends AbstractDataSetService {
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
 
+    public synchronized void updateLabelInfo(String dataSetId) {
+        ImageDataSetMysqlModel dataSet = findOneById(dataSetId);
+        TreeSet<String> labelSet = new TreeSet<>();
+        imageDataSetSampleRepository.getAllLabelList(dataSetId)
+                .stream()
+                .filter(x -> StringUtil.isNotEmpty(x))
+                .forEach(x ->
+                        labelSet.addAll(Arrays.asList(x.split(",")))
+                );
+
+        dataSet.setLabelList(StringUtil.joinByComma(labelSet));
+        dataSet.setSampleCount(imageDataSetSampleRepository.getSampleCount(dataSetId));
+        dataSet.setLabeledCount(imageDataSetSampleRepository.getLabelCount(dataSetId));
+
+        dataSet.setLabelCompleted(dataSet.getSampleCount() == dataSet.getLabeledCount());
+
+        imageDataSetRepository.save(dataSet);
+
+        unionService.updateImageDataSetLabelInfo(dataSet);
+
+    }
+
     @Override
-    public AbstractDataSetMysqlModel findOneById(String dataSetId) {
+    public ImageDataSetMysqlModel findOneById(String dataSetId) {
         return imageDataSetRepository.findById(dataSetId).orElse(null);
     }
 
@@ -185,7 +206,7 @@ public class ImageDataSetService extends AbstractDataSetService {
                         labelSet.addAll(Arrays.asList(x.getLabelList().split(",")))
                 );
         dataSet.setLabelList(
-                StringUtil.join(labelSet, ",")
+                StringUtil.joinByComma(labelSet)
         );
 
         dataSet.setSampleCount(sampleList.size());
@@ -274,12 +295,10 @@ public class ImageDataSetService extends AbstractDataSetService {
         );
         sample.setFileSize(imageFile.length());
         sample.setCreatedBy(CurrentAccount.id());
-
         sample.setLabelList(StringUtil.join(annotation.getLabelList(), ","));
         sample.setLabeled(StringUtil.isNotEmpty(sample.getLabelList()));
-
         sample.setXmlAnnotation(XmlUtil.toXml(annotation));
-        sample.setLabelInfo(new JSONObject());
+        sample.setLabelInfo(JObject.create(annotation.toLabelInfo()));
 
         // move image to dest dir
         File destFile = new File(sample.getFilePath());

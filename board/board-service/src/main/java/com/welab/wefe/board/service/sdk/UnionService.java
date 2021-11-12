@@ -71,6 +71,10 @@ public class UnionService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
+    public void updateImageDataSetLabelInfo(ImageDataSetMysqlModel dataSet) {
+        // TODO: Zane 待补充
+    }
+
     /**
      * initialize wefe system
      */
@@ -422,5 +426,6 @@ public class UnionService extends AbstractService {
         }
         return json;
     }
+
 
 }

@@ -15,8 +15,14 @@
  */
 package com.welab.wefe.board.service.service.dataset;
 
+import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleUpdateApi;
+import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,4 +34,21 @@ import org.springframework.stereotype.Service;
 public class ImageDataSetSampleService extends AbstractService {
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
+    @Autowired
+    private ImageDataSetService imageDataSetService;
+
+    public void update(ImageDataSetSampleUpdateApi.Input input) throws StatusCodeWithException {
+        ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
+        if (sample == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("id 对应的样本不存在：" + input.id);
+        }
+        sample.setLabeled(input.labelInfo.isLabeled());
+        sample.setLabelInfo(JObject.create(input.labelInfo));
+        sample.setLabelList(StringUtil.joinByComma(input.labelInfo.labelList()));
+        sample.setUpdatedBy(input);
+
+        imageDataSetSampleRepository.save(sample);
+
+        imageDataSetService.updateLabelInfo(sample.getDataSetId());
+    }
 }

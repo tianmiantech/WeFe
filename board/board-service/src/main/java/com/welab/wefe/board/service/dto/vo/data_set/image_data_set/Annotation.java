@@ -55,7 +55,7 @@ public class Annotation {
                         object.bndbox.ymax
                 );
 
-                labelInfo.list.add(item);
+                labelInfo.objects.add(item);
             }
 
         }

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/update", name = "update data set info", login = false)
+@Api(path = "image_data_set/update", name = "update data set info")
 public class ImageDataSetUpdateApi extends AbstractNoneOutputApi<ImageDataSetUpdateInputModel> {
 
     @Autowired
