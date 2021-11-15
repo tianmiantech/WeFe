@@ -21,6 +21,10 @@ package com.welab.wefe.common.data.mongodb.constant;
  **/
 public class MongodbTable {
 
+    public static final class Common {
+        public static final String FLOW_LIMIT = "FlowLimit";
+    }
+
     public static final class Union {
         public static final String DATASET = "DataSet";
         public static final String DATASET_MEMBER_PERMISSION = "DataSetMemberPermission";
@@ -32,6 +36,11 @@ public class MongodbTable {
         public static final String BLOCK_SYNC_CONTRACT_HEIGHT = "BlockSyncContractHeight";
         public static final String UNION_NODE = "UnionNode";
         public static final String AUTH_AGREEMENT_TEMPLATE = "AuthAgreementTemplate";
+    }
+
+    public static final class Sms {
+        public static final String VERIFICATION_CODE = "SmsVerificationCode";
+        public static final String DETAIL_INFO = "SmsDetailInfo";
     }
 
     public static final String USER = "User";

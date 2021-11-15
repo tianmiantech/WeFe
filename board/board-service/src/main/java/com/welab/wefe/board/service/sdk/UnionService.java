@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,7 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
@@ -361,6 +362,50 @@ public class UnionService extends AbstractService {
         }
 
         return data.toJavaObject(DataSetOutputModel.class);
+    }
+
+    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
+        if (!StringUtil.checkPhoneNumber(mobile)) {
+            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        JObject params = JObject.create()
+                .append("mobile", mobile)
+                .append("smsBusinessType", smsBusinessType);
+        try {
+            request("sms/send_verification_code", params, true);
+        } catch (StatusCodeWithException e) {
+            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
+        } catch (Exception e) {
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+    /**
+     * Check verification code
+     */
+    public void checkVerificationCode(String mobile, String code, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
+        JObject params = JObject.create()
+                .append("mobile", mobile)
+                .append("code", code)
+                .append("smsBusinessType", smsBusinessType);
+        try {
+            request("sms/check_verification_code", params, true);
+        } catch (StatusCodeWithException e) {
+            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
+        } catch (Exception e) {
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+    private String getUnionOrigExceptionMsg(StatusCodeWithException e) {
+        String errorMsg = e.getMessage();
+        if (StringUtil.isNotEmpty(errorMsg)) {
+            int index = errorMsg.indexOf("：");
+            if (index != -1) {
+                errorMsg = errorMsg.substring(index + 1);
+            }
+        }
+        return errorMsg;
     }
 
     private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
