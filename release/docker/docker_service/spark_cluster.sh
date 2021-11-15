@@ -78,31 +78,31 @@ _generate_container_ip(){
 }
 
 # ******************
-# 函数：拷贝python service到所有的远程机器
+# 函数：拷贝 python service 到所有的远程机器
 # *****************
 cp_python_service_all(){
 
-    # 拷贝数据到远程master目录
-    master_path=$SPARK_CLUSTER_DATA_PATH/master
+    # 拷贝数据到远程 master 目录
+    REMOTE_MASTER_PATH=$SPARK_CLUSTER_DATA_PATH/master
     # ssh root@$SPARK_MASTER "mkdir -p $master_path"
 
     # 拷贝python service 到master
-    _cp_python_service $SPARK_MASTER $master_path
+    _cp_python_service $SPARK_MASTER $REMOTE_MASTER_PATH
 
-    # 拷贝到每个slave
-    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    # 拷贝到每个 worker
+    workers=(`echo $SPARK_WORKERS | tr ',' ' '` )
     index=0
-    for slave_ip in ${slaves[@]}
+    for worker in ${workers[@]}
     do
-       # echo $slave_ip
-       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+       # echo $worker
+       worker_path=$SPARK_CLUSTER_DATA_PATH"/worker_"$index
 
-       # 远程创建slave目录
-       # ssh root@$slave_ip "mkdir -p $slave_path"
-       # echo $slave_path
+       # 远程创建 worker 目录
+       # ssh root@$worker "mkdir -p $worker_path"
+       # echo $worker_path
 
        # 远程拷贝
-       _cp_python_service $slave_ip $slave_path
+       _cp_python_service $worker $worker_path
 
        index=$[index + 1]
     done
@@ -110,9 +110,9 @@ cp_python_service_all(){
 }
 
 # ******************
-# 函数：启动集群python service
+# 函数：启动集群 python service
 # *****************
-start_cluster_python_service_all(){
+start_cluster(){
 
     # 拷贝镜像到集群机器
     cp_python_service_all
@@ -122,27 +122,27 @@ start_cluster_python_service_all(){
     master_container_ip=$(_generate_container_ip $container_index)
 
     # master目录
-    master_path=$SPARK_CLUSTER_DATA_PATH/master
+    REMOTE_MASTER_PATH=$SPARK_CLUSTER_DATA_PATH/master
 
     # start master
-    _start_python_service $SPARK_MASTER $master_path master master $master_container_ip no_worder_ui_port
+    _start_python_service $SPARK_MASTER $REMOTE_MASTER_PATH master master $master_container_ip no_worder_ui_port
     sleep 3
 
-    # 拷贝到每个slave
-    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    # 拷贝到每个 worker
+    workers=(`echo $SPARK_WORKERS | tr ',' ' '` )
     worker_ui_ports=(`echo $SPARK_WORKER_UI_PORTS | tr ',' ' '` )
     index=0
-    for slave_ip in ${slaves[@]}
+    for worker in ${workers[@]}
     do
-       echo $slave_ip
-       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
-       slave_name="slave_"$index
+       echo $worker
+       worker_path=$SPARK_CLUSTER_DATA_PATH"/worker_"$index
+       worker_name="worker_"$index
        container_index=$[container_index + 1]
-       slave_container_ip=$(_generate_container_ip $container_index)
-       slave_worker_ui_port=${worker_ui_ports[$index]}
+       worker_container_ip=$(_generate_container_ip $container_index)
+       worker_ui_port=${worker_ui_ports[$index]}
 
-       # 远程启动slave
-       _start_python_service $slave_ip $slave_path slave $slave_name $slave_container_ip $slave_worker_ui_port
+       # 远程启动 worker
+       _start_python_service $worker $worker_path worker $worker_name $worker_container_ip $worker_ui_port
 
        index=$[index + 1]
     done
@@ -153,7 +153,7 @@ start_cluster_python_service_all(){
 # ******************
 # 函数：停止集群python service
 # *****************
-stop_cluster_python_service_all(){
+stop_cluster(){
 
     # master目录
     master_path=$SPARK_CLUSTER_DATA_PATH/master
@@ -162,16 +162,16 @@ stop_cluster_python_service_all(){
     _stop_python_service $SPARK_MASTER $master_path
     sleep 3
 
-    # 拷贝到每个slave
-    slaves=(`echo $SPARK_SLAVES | tr ',' ' '` )
+    # 拷贝到每个 worker
+    workers=(`echo $SPARK_WORKERS | tr ',' ' '` )
     index=0
-    for slave_ip in ${slaves[@]}
+    for worker in ${workers[@]}
     do
-       echo $slave_ip
-       slave_path=$SPARK_CLUSTER_DATA_PATH"/slave_"$index
+       echo $worker
+       worker_path=$SPARK_CLUSTER_DATA_PATH"/worker_"$index
 
-       # 远程启动slave
-       _stop_python_service $slave_ip $slave_path
+       # 远程启动 worker
+       _stop_python_service $worker $worker_path
 
        index=$[index + 1]
     done
