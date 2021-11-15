@@ -26,6 +26,17 @@ if [ ! $PYTHON_BASE_IMAGE ]; then
   echo 'DONE'
 fi
 
+# gpu 部署镜像制作
+PYTHON_GPU_BASE_IMAGE=$(sudo docker image ls | grep wefe_python_gpu_base | awk '{print $3}' | head -n 1)
+if [ ! $PYTHON_GPU_BASE_IMAGE ]; then
+  echo 'PYTHON_GPU_BASE_IMAGE BUILDING'
+  rm -f $BASE_DIR/base_env/wefe_python_gpu_base/Dockerfile
+  cp $IMAGE_WORK_DIR/env/gpu_python_3.7/Dockerfile $BASE_DIR/base_env/wefe_python_gpu_base/
+  cd $BASE_DIR/base_env/wefe_python_gpu_base
+  sudo docker build -t wefe_python_gpu_base .
+  echo 'DONE'
+fi
+
 # 频繁操作 Docker 容易造成卡顿，操作前重启一下
 sudo systemctl restart docker
 
