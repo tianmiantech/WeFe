@@ -45,6 +45,21 @@ public class ConfigProperties {
     @Value("${block.chain.union.group.id}")
     private String blockChainUnionGroupId;
 
+    @Value("${aliyun.access.key.id:xxx}")
+    private String aliyunAccessKeyId;
+
+    @Value("${aliyun.access.key.secret:xxx}")
+    private String aliyunAccessKeySecret;
+
+    @Value("${sms.aliyun.sign.name:xxx}")
+    private String smsAliyunSignName;
+
+    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
+    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+
+    @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
+    private String smsAliyunMemberRegisterVerificationCodeTemplateCode;
+
     public String getBlockChainTomlFilePath() {
         return blockChainTomlFilePath;
     }
@@ -85,4 +100,43 @@ public class ConfigProperties {
         this.blockChainUnionDataSetMemberPermissionContractName = blockChainUnionDataSetMemberPermissionContractName;
     }
 
+    public String getAliyunAccessKeyId() {
+        return aliyunAccessKeyId;
+    }
+
+    public void setAliyunAccessKeyId(String aliyunAccessKeyId) {
+        this.aliyunAccessKeyId = aliyunAccessKeyId;
+    }
+
+    public String getAliyunAccessKeySecret() {
+        return aliyunAccessKeySecret;
+    }
+
+    public void setAliyunAccessKeySecret(String aliyunAccessKeySecret) {
+        this.aliyunAccessKeySecret = aliyunAccessKeySecret;
+    }
+
+    public String getSmsAliyunSignName() {
+        return smsAliyunSignName;
+    }
+
+    public void setSmsAliyunSignName(String smsAliyunSignName) {
+        this.smsAliyunSignName = smsAliyunSignName;
+    }
+
+    public String getSmsAliyunMemberRegisterVerificationCodeTemplateCode() {
+        return smsAliyunMemberRegisterVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunMemberRegisterVerificationCodeTemplateCode(String smsAliyunMemberRegisterVerificationCodeTemplateCode) {
+        this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
+    }
+
+    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
+        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
+        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
 }
