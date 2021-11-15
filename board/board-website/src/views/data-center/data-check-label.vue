@@ -11,8 +11,8 @@
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
                     </div>
                 </div>
-                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :name="item.name">
-                    <check-image-list :sampleList="vData.sampleList" />
+                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :value="item.value">
+                    <check-image-list v-if="vData.sampleList" :sampleList="vData.sampleList" />
                 </el-tab-pane>
             </el-tabs>
             <div
@@ -58,32 +58,41 @@
                 },
                 tabsList: [
                     {
-                        name:  '',
+                        value: '',
                         label: '全部',
                         count: '',
                     },
                     {
-                        name:  true,
+                        value: true,
                         label: '有标注信息',
                         count: '',
                     },
                     {
-                        name:  false,
+                        value: false,
                         label: '无标注信息',
                         count: '',
                     },
                 ],
-                sampleInfo: {
-                    total:     1000,
-                    labeled:   899,
-                    unlabeled: 101,
-                },
                 sampleList: [],
             });
 
             console.log(vData.sampleId);
 
             const methods = {
+                async getSampleInfo() {
+                    const { code, data } = await $http.get({
+                        url:    '/image_data_set/detail',
+                        params: { id: vData.sampleId },
+                    });
+
+                    nextTick(_ => {
+                        if(code === 0) {
+                            vData.tabsList[0].count = data.sample_count;
+                            vData.tabsList[1].count = data.labeled_count;
+                            vData.tabsList[2].count = data.sample_count - data.labeled_count;
+                        }
+                    });
+                },
                 async getSampleList() {
                     const { code, data } = await $http.post({
                         url:    '/image_data_set_sample/query',
@@ -115,6 +124,7 @@
             };
 
             onBeforeMount(() => {
+                methods.getSampleInfo();
                 methods.getSampleList();
             });
 
@@ -144,9 +154,9 @@
     .el-tabs__content {
         display: flex;
         border: 1px solid #eee;
+        height: calc(100vh - 270px);
         .label_list_box {
             width: 320px;
-            height: 690px;
             border-right: 1px solid #eee;
             .label_bar {
                 height: 60px;
