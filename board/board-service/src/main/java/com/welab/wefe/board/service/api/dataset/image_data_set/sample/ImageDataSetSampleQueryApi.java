@@ -43,6 +43,9 @@ public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQu
 
     public static class Input extends PagingInput {
 
+        @Check(name = "数据集Id")
+        private String dataSetId;
+
         @Check(name = "标签名称")
         private String label;
 
@@ -50,6 +53,15 @@ public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQu
         private Boolean labeled;
 
         //region getter/setter
+
+
+        public String getDataSetId() {
+            return dataSetId;
+        }
+
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
+        }
 
         public String getLabel() {
             return label;
