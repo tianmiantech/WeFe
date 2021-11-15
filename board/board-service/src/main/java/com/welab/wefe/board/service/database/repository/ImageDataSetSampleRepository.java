@@ -34,8 +34,11 @@ public interface ImageDataSetSampleRepository extends BaseRepository<ImageDataSe
     @Transactional
     void deleteByDataSetId(String dataSetId);
 
-    @Query(value = "select label_list from #{#entityName} where data_set_id=?1 and labeled=true group by label_list;", nativeQuery = true)
+    @Query(value = "select label_list from #{#entityName} where data_set_id=?1 and labeled=true;", nativeQuery = true)
     List<String> getAllLabelList(String dataSetId);
+
+    @Query(value = "select label_list from #{#entityName} where data_set_id=?1 and labeled=true group by label_list;", nativeQuery = true)
+    List<String> getAllDistinctLabelList(String dataSetId);
 
 
     @Query(value = "select count(*) from #{#entityName} where data_set_id=?1 and labeled=true", nativeQuery = true)
