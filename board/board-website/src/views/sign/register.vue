@@ -68,7 +68,6 @@
                         v-model="form.password"
                         placeholder="密码"
                         type="password"
-                        id="password"
                         maxlength="30"
                         clearable
                     />
@@ -299,8 +298,8 @@
                     } else {
                         this.getImgCode();
                     }
+                    this.submitting = false;
                 });
-                this.submitting = false;
             },
         },
     };

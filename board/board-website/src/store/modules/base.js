@@ -1,4 +1,3 @@
-
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 
@@ -58,7 +57,7 @@ export default _ => {
         },
         'UPDATE_USERINFO' (state, data) {
             state.userInfo = data;
-            setStorage().setItem(USERINFO, JSON.stringify(data));
+            setStorage().setItem(USERINFO, data ? JSON.stringify(data) : '');
         },
         // update tag list
         'UPDATE_TAGSLIST' (state, list) {
