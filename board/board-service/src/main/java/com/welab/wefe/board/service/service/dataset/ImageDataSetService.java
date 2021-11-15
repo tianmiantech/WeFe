@@ -72,7 +72,7 @@ public class ImageDataSetService extends AbstractDataSetService {
     public synchronized void updateLabelInfo(String dataSetId) {
         ImageDataSetMysqlModel dataSet = findOneById(dataSetId);
         TreeSet<String> labelSet = new TreeSet<>();
-        imageDataSetSampleRepository.getAllLabelList(dataSetId)
+        imageDataSetSampleRepository.getAllDistinctLabelList(dataSetId)
                 .stream()
                 .filter(x -> StringUtil.isNotEmpty(x))
                 .forEach(x ->
