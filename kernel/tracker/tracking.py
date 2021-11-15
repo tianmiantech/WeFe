@@ -642,7 +642,7 @@ class Tracking(object):
 
         # column = primary_key + y + feature
         if data_set.y_name_list is None:
-            data_set.column_name_list = data_set.primary_key_column + ",".join(header_list) + ","
+            data_set.column_name_list = data_set.primary_key_column + "," + ",".join(header_list)
         else:
             data_set.column_name_list = f"{data_set.primary_key_column},{data_set.y_name_list},{','.join(header_list)}"
 
