@@ -182,8 +182,8 @@
 
             jumpToLabel() {
                 this.$router.push({
-                    name:  'data-label',
-                    query: {},
+                    name:  'data-check-label',
+                    query: { id: this.id },
                 });
             },
         },

@@ -128,7 +128,7 @@
                 </el-button>
                 <router-link
                     :to="{
-                        name: 'data-label',
+                        name: 'data-check-label',
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >

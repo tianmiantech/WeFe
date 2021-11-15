@@ -107,8 +107,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title: '添加数据集',
-                    hidden: true,
+                    title:        '添加数据集',
+                    hidden:       true,
                     notshowattag: true,
                 },
                 component: () => import('../views/data-center/data-add.vue'),
@@ -132,6 +132,16 @@ const baseRoutes = [
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),
+            },
+            {
+                path: `${prefixPath}data-check-label`,
+                name: 'data-check-label',
+                meta: {
+                    hidden: true,
+                    title:  '查看与标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
