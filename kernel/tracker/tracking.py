@@ -655,7 +655,7 @@ class Tracking(object):
         DataSetDao.save(data_set, force_insert=True)
 
         self.save_project_data_set(data_set.id, self.job_id, self.task_id, self.component_name)
-        self.save_data_set_column(data_set, schema)
+        self.save_data_set_column(data_set, schema, data_set_old.id)
 
         return data_set
 
@@ -701,7 +701,7 @@ class Tracking(object):
         return column_types
 
     @staticmethod
-    def save_data_set_column(data_set, schema):
+    def save_data_set_column(data_set, schema, old_data_set_id):
         column_types = schema.get("column_types")
         header = schema.get("header")
 
@@ -720,8 +720,13 @@ class Tracking(object):
             index = 0
             data_set_id = data_set.id
 
+            # get old data set id column type
+            id_column = DataSetColumnDao.get(DataSetColumn.data_set_id == old_data_set_id,
+                                             DataSetColumn.name == data_set.primary_key_column)
+
             # id column
-            column_list = [get_new_column_json(data_set_id, index, data_set.primary_key_column, "String")]
+            id_column_type = id_column.data_type if id_column else "String"
+            column_list = [get_new_column_json(data_set_id, index, data_set.primary_key_column, id_column_type)]
             index += 1
 
             # label column
