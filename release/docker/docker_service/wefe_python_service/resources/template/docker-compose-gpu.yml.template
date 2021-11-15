@@ -1,32 +1,26 @@
 version: "3"
 services:
   # python 服务
-  wefe_python_service_slave: # slave_name
-    image: wefe_python_service:v.2.1 # wefe_version
-    environment:
-      - PYTHONPATH=/opt/welab/wefe
-      - "SPARK_PUBLIC_DNS=to_replace_ip" # slave_public_dns
+  wefe_python_service:
+    image: wefe_python_gpu_service:v.2.1 # wefe_version
     tty: true
     runtime: nvidia
+    env_file:
+      - variables.env
     ports:
-      - 8081:8081 # spark_slave_ui_port
+      - 8888:5000 # flow_port
     privileged: true
-    extra_hosts:
-      - "master:to_replace_container_ip" # slave_extra_hosts
     networks:
-      spark_overlay:
-        ipv4_address: to_replace_ip # slave_container_ip
+      - network
     volumes:
       - ./mount/config.properties:/opt/welab/wefe/config.properties
       # 挂在文件夹会同步，挂在文件不一定同步(vim编辑不会同步,需要给文件加权限 chmod 777 file, echo 编辑会同步)
-      - /data/wefe/docker-compose/logs/flow:/data/logs # flow_logs
+      - /data/wefe/docker-compose/logs/flow:/opt/welab/wefe/logs # flow_logs
     command:
-#      sh -c "sh /opt/welab/wefe/fc/function/wefe-fc/update_env.sh && sh /opt/welab/wefe/flow/service.sh start && tail -f /dev/null"
-
       - sh
       - -c
       - |
-            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-slave.sh spark://master:7077
+            sh /opt/welab/wefe/flow/service.sh start
             tail -f /dev/null
 
     deploy:
@@ -34,5 +28,5 @@ services:
         condition: on-failure
 
 networks:
-  spark_overlay:
-    external: true
+  network:
+    driver: bridge

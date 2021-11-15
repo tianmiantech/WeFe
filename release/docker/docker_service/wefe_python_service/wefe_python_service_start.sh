@@ -39,6 +39,10 @@ spark_cluster_config(){
         echo "master_container_ip:$master_container_ip"
         sed -i "/slave_extra_hosts/s/master:to_replace_container_ip/master:$master_container_ip/g" ./resources/docker-compose.yml
         ;;
+      gpu)
+        echo 'GPU 加速模式'
+        cp -f resources/template/docker-compose-gpu.yml.template resources/docker-compose.yml
+        ;;
       *)
         echo '非集群模式'
         ;;
@@ -62,9 +66,15 @@ sed -i "/flow_logs/s@-.*:@- $DATA_PATH/logs/flow:@g" ./resources/docker-compose.
 sed -i "/flow_port/s/-.*:/- $PYTHON_SERVICE_PORT:/g" ./resources/docker-compose.yml
 
 # 加载本地离线镜像包
-echo "开始加载 flow 离线镜像"
-docker load < resources/wefe_python_service_$WEFE_VERSION\.tar
-echo "加载 flow 离线镜像完成"
+if [ ${ACCELERATION,,} == 'gpu' ];then
+  echo "开始加载 gpu python 离线镜像"
+  docker load < resources/wefe_python_gpu_service_$WEFE_VERSION\.tar
+  echo "加载 gpu python 离线镜像完成"
+else
+  echo "开始加载 python 离线镜像"
+  docker load < resources/wefe_python_service_$WEFE_VERSION\.tar
+  echo "加载 python 离线镜像完成"
+fi
 
 # 启动 flow 镜像
 docker-compose -p $WEFE_ENV -f resources/docker-compose.yml up -d

@@ -88,4 +88,9 @@ cd $IMAGE_WORK_DIR/app/wefe_python_service
 sudo docker build -t wefe_python_service:$WEFE_VERSION .
 echo 'DONE'
 
+echo 'WEFE_PYTHON_GPU_SERVICE BUILDING'
+cd $IMAGE_WORK_DIR/app/wefe_python_gpu_service
+sudo docker build -t wefe_python_gpu_service:$WEFE_VERSION .
+echo 'DONE'
+
 # 覆盖挂载文件

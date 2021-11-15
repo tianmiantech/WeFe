@@ -81,6 +81,7 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
+    cp -f ./config.properties wefe_python_gpu_service/resources/mount/
 }
 
 init(){
@@ -91,6 +92,11 @@ init(){
 }
 
 _run_python_service(){
+    if [ ${ACCELERATION,,} = "gpu" ];then
+      cd $PWD/wefe_python_service
+      sh wefe_python_service_start.sh gpu
+    fi
+
     if [ $SPARK_MODE = "STANDALONE" ]
     then
       # 集群方式启动
