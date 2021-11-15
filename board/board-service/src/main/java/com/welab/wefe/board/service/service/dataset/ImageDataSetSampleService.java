@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.service.dataset;
 
 import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleQueryApi;
+import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleStatisticsApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.sample.ImageDataSetSampleUpdateApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
@@ -27,10 +28,16 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.MapUtil;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author zane
@@ -47,8 +54,9 @@ public class ImageDataSetSampleService extends AbstractService {
 
         Specification<ImageDataSetSampleMysqlModel> where = Where
                 .create()
-                .contains("labelList", input.getLabel())
+                .equal("dataSetId", input.getDataSetId())
                 .equal("labeled", input.getLabeled())
+                .contains("labelList", input.getLabel())
                 .build(ImageDataSetSampleMysqlModel.class);
 
         return imageDataSetSampleRepository.paging(where, input, ImageDataSetSampleOutputModel.class);
@@ -79,5 +87,26 @@ public class ImageDataSetSampleService extends AbstractService {
         imageDataSetService.updateLabelInfo(sample.getDataSetId());
 
         FileUtil.deleteFileOrDir(sample.getFilePath());
+    }
+
+    /**
+     * 统计样本分布情况
+     */
+    public ImageDataSetSampleStatisticsApi.Output statistics(String dataSetId) {
+        Map<String, Integer> countByLabel = new TreeMap<>();
+        Map<String, Integer> countBySample = new TreeMap<>();
+
+        imageDataSetSampleRepository.getAllLabelList(dataSetId)
+                .stream()
+                .filter(x -> StringUtil.isNotEmpty(x))
+                .forEach(x -> {
+                    List<String> labelList = StringUtil.splitWithoutEmptyItem(x, ",");
+                    labelList.forEach(label -> MapUtil.increment(countByLabel, label));
+
+                    List<String> distinctLabelList = labelList.stream().distinct().collect(Collectors.toList());
+                    distinctLabelList.forEach(label -> MapUtil.increment(countBySample, label));
+                });
+
+        return new ImageDataSetSampleStatisticsApi.Output(countByLabel, countBySample);
     }
 }

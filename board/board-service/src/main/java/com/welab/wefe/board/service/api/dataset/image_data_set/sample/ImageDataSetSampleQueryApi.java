@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/query", name = "query image data set", login = false)
+@Api(path = "image_data_set_sample/query", name = "query image data set samples")
 public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQueryApi.Input, PagingOutput<ImageDataSetSampleOutputModel>> {
 
     @Autowired
@@ -43,6 +43,9 @@ public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQu
 
     public static class Input extends PagingInput {
 
+        @Check(name = "数据集Id")
+        private String dataSetId;
+
         @Check(name = "标签名称")
         private String label;
 
@@ -50,6 +53,15 @@ public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQu
         private Boolean labeled;
 
         //region getter/setter
+
+
+        public String getDataSetId() {
+            return dataSetId;
+        }
+
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
+        }
 
         public String getLabel() {
             return label;
