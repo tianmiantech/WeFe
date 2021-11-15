@@ -37,7 +37,8 @@ sudo docker ps -a | grep wefe | grep $WEFE_VERSION
 
 if [ $CONTAINER ]; then
   cd $SERVICE_WORK_DIR
-  sudo sh wefe-stop.sh
+  sudo sh wefe_service.sh stop
+  sudo sh wefe_service.sh remove
 fi
 
 sudo systemctl restart docker

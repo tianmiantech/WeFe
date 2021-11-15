@@ -164,6 +164,28 @@ stop(){
     esac
 }
 
+remove(){
+    # init
+    case $INPUT_SERVICE in
+        board | gateway | python | middleware)
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            if [ $INPUT_SERVICE = "python" ]; then
+              _remove_cluster_python_service
+            fi
+            ;;
+        '')
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep wefe | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            _remove_cluster_python_service
+            ;;
+        *)
+            echo "Please Input a Legal Service"
+            echo "eg. {board|gateway|python|middleware}"
+            exit -1
+    esac
+}
+
 restart(){
     case $INPUT_SERVICE in
         board | gateway | python | middleware)
@@ -196,6 +218,9 @@ case $INPUT_ACTION in
         ;;
     restart)
         restart
+        ;;
+    remove)
+        remove
         ;;
     help)
         help
