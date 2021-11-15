@@ -61,7 +61,7 @@
     </dependencies>
 
     <build>
-        <finalName>wefe-manager-service</finalName>
+        <finalName>manager-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
