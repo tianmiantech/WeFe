@@ -9,7 +9,7 @@
             <div class="empty f14">
                 您当前没有数据集，请前往
                 <router-link
-                    :to="{ path: 'data-add', query: {type: 'image'} }"
+                    :to="{ path: 'data-add', query: {type: 'img'} }"
                     class="ml10"
                 >
                     添加数据集

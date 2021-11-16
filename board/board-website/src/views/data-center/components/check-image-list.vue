@@ -1,9 +1,8 @@
 <template>
     <div class="img_layer">
         <div v-for="item in sampleList" class="img_items" :key="item.id">
-            <!-- <img :src="methods.downloadImage(item.id)"> -->
             <div class="img_item">
-                <el-image :src="`${vData.baseUrl}/image_data_set_sample/download?id=${item.id}`" fit="contain">
+                <el-image :src="item.img_src" fit="contain">
                     <template #reference>
                         <div class="image-slot">
                             <i class="el-icon-picture-outline"></i>
@@ -23,33 +22,23 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance } from 'vue';
+    import { reactive, onBeforeMount } from 'vue';
     export default {
         props: {
             sampleList: Array,
         },
         setup() {
-            const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
             const vData = reactive({
                 baseUrl: window.api.baseUrl,
             });
 
             const methods = {
-                async downloadImage(id) {
-                    const { code } = await $http.get({
-                        url:    '/image_data_set_sample/download',
-                        params: { id },
-                    });
-
-                    console.log(code);
-                    // nextTick(_ => {
-                    //     if(code === 0) {
-                            
-                    //     }
-                    // });
-                },
+                
             };
+
+            onBeforeMount(_=> {
+                
+            });
             
             return {
                 vData,
@@ -76,7 +65,7 @@
         border: 1px solid #eee;
         margin-right: 10px;
         margin-bottom: 10px;
-        background: #eee;
+        background: #f5f5f5;
         .img_item {
             width: 120px;
             height: 110px;

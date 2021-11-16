@@ -6,7 +6,7 @@
 <script>
     import Konva from 'konva';
     import { ref, onBeforeMount, reactive } from 'vue';
-    import cup1 from '@assets/images/image-data.png';
+    // import cup1 from '@assets/images/image-data.png';
     import LabelModal from './components/label-modal.vue';
     export default {
         components: {
@@ -21,7 +21,7 @@
                 labelLayer: null,
                 groupLayer: null,
                 rectLayer:  null,
-                cup1,
+                cup1:       'blob:http://172.29.20.91:8081/fb4e8779-a882-40a6-be03-2f0f8d2ab4cf',
                 width:      800,
                 height:     528,
                 pointStart: [],

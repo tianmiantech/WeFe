@@ -11,8 +11,8 @@
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
                     </div>
                 </div>
-                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :value="item.value">
-                    <check-image-list v-if="vData.sampleList" :sampleList="vData.sampleList" />
+                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :name="item.name">
+                    <check-image-list v-loading="vData.imgLoading" ref="imgListRef" v-if="vData.sampleList" :sampleList="vData.sampleList" />
                 </el-tab-pane>
             </el-tabs>
             <div
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-    import { reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
+    import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
     import { useRoute } from 'vue-router';
     import CheckImageList from './components/check-image-list.vue';
     export default {
@@ -46,6 +46,7 @@
             // const router = useRouter();
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
+            const imgListRef = ref();
             const vData = reactive({
                 activeName: '',
                 sampleId:   route.query.id,
@@ -58,22 +59,23 @@
                 },
                 tabsList: [
                     {
-                        value: '',
                         label: '全部',
+                        name:  '',
                         count: '',
                     },
                     {
-                        value: true,
                         label: '有标注信息',
+                        name:  'labeled',
                         count: '',
                     },
                     {
-                        value: false,
                         label: '无标注信息',
+                        name:  'unlabeled',
                         count: '',
                     },
                 ],
                 sampleList: [],
+                imgLoading: false,
             });
 
             console.log(vData.sampleId);
@@ -94,6 +96,7 @@
                     });
                 },
                 async getSampleList() {
+                    vData.imgLoading = true;
                     const { code, data } = await $http.post({
                         url:    '/image_data_set_sample/query',
                         params: Object.assign(vData.search, { data_set_id: vData.sampleId }),
@@ -103,8 +106,34 @@
                         if(code === 0) {
                             if (data && data.list) {
                                 vData.search.total = data.total;
-                                vData.sampleList = data.list;
+                                data.list.forEach((item, idx) => {
+                                    methods.downloadImage(item.id, idx, data.list);
+                                });
+                            } else {
+                                vData.imgLoading = false;
                             }
+                        }
+                    });
+                },
+                async downloadImage(id, idx, list) {
+                    const { code, data } = await $http.get({
+                        url:          '/image_data_set_sample/download',
+                        params:       { id },
+                        responseType: 'blob',
+                    });
+
+                    nextTick(_ => {
+                        if(code === 0) {
+                            const url = window.URL.createObjectURL(data);
+
+                            if (id === list[idx].id) {
+                                list[idx].img_src = url;
+                            }
+                            setTimeout(_=> {
+                                vData.sampleList = list;
+                                vData.imgLoading = false;
+                            }, 500);
+                            
                         }
                     });
                 },
@@ -118,19 +147,25 @@
                     methods.getSampleList();
                 },
                 tabChange(val) {
-                    vData.search.labeled = val.props.name;
+                    console.log(val.props.name);
+                    const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
+
+                    vData.search.labeled = label_type;
                     methods.getSampleList();
                 },
             };
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
-                methods.getSampleList();
+                setTimeout(_=> {
+                    methods.getSampleList();
+                }, 200);
             });
 
             return {
                 vData,
                 methods,
+                imgListRef,
             };
         },
     };
