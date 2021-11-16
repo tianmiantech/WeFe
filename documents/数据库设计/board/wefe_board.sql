@@ -523,6 +523,7 @@ CREATE TABLE `project_flow`
     `flow_name`               varchar(256) NOT NULL COMMENT '流程名称',
     `flow_desc`               text COMMENT '流程描述',
     `graph`                   longtext COMMENT '画布中编辑的图',
+    `creator_member_id`       varchar(36) COMMENT '创建此流程的成员的ID',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`flow_id`)
 ) ENGINE = InnoDB
