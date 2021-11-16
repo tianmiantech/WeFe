@@ -28,7 +28,9 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -36,6 +38,7 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.enums.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
@@ -349,17 +352,42 @@ public class UnionService extends AbstractService {
     /**
      * Get details of a single data set
      */
-    public DataSetOutputModel queryDataSetDetail(String id) throws StatusCodeWithException {
+    public ImageDataSetOutputModel getImageDataSetDetail(String id) throws StatusCodeWithException {
+        return (ImageDataSetOutputModel) getDataSetDetail(id, DataSetType.ImageDataSet);
+    }
+
+    /**
+     * Get details of a single data set
+     */
+    public TableDataSetOutputModel getTableDataSetDetail(String id) throws StatusCodeWithException {
+        return (TableDataSetOutputModel) getDataSetDetail(id, DataSetType.TableDataSet);
+    }
+
+    /**
+     * Get details of a single data set
+     */
+    public AbstractDataSetOutputModel getDataSetDetail(String id, DataSetType dataSetType) throws StatusCodeWithException {
 
         if (CACHE_MAP.containsKey(id)) {
-            return (DataSetOutputModel) CACHE_MAP.get(id);
+            return (TableDataSetOutputModel) CACHE_MAP.get(id);
         }
 
         JObject params = JObject
                 .create()
                 .put("id", id);
 
-        JSONObject result = request("data_set/detail", params);
+        String api = null;
+        switch (dataSetType) {
+            case TableDataSet:
+                api = "data_set/detail";
+                break;
+            case ImageDataSet:
+                api = "";
+                break;
+            default:
+        }
+
+        JSONObject result = request(api, params);
 
         JSONObject data = result.getJSONObject("data");
 
@@ -367,8 +395,18 @@ public class UnionService extends AbstractService {
             return null;
         }
 
-        return data.toJavaObject(DataSetOutputModel.class);
+
+        switch (dataSetType) {
+            case TableDataSet:
+                return data.toJavaObject(TableDataSetOutputModel.class);
+            case ImageDataSet:
+                return data.toJavaObject(ImageDataSetOutputModel.class);
+            default:
+                return null;
+        }
+
     }
+
 
     public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
         if (!StringUtil.checkPhoneNumber(mobile)) {

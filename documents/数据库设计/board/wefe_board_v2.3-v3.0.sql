@@ -57,9 +57,16 @@ CREATE TABLE `image_data_set_sample`
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集中的样本';
 
 
--- ---------------------------------------
+-- -------------------------------------
 -- project 表增加字段
 -- author: zane.luo
 -- -------------------------------------
 ALTER TABLE `project`
     ADD COLUMN `project_type` varchar(36) NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型' AFTER `flow_status_statistics`;
+
+-- -------------------------------------
+-- project_data_set 表增加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `project_data_set`
+    ADD COLUMN `data_set_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型' AFTER `source_task_id`;

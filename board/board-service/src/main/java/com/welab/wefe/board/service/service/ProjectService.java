@@ -28,7 +28,11 @@ import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.ProjectDataSetInput;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
-import com.welab.wefe.board.service.dto.entity.project.*;
+import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
@@ -142,6 +146,7 @@ public class ProjectService extends AbstractService {
 
 
         ProjectMySqlModel project = new ProjectMySqlModel();
+        project.setProjectType(input.getProjectType());
         project.setCreatedBy(input);
         project.setMemberId(input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId());
         project.setMyRole(input.fromGateway() ? input.getRole() : JobMemberRole.promoter);
@@ -491,6 +496,7 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setMemberRole(item.getMemberRole());
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
+                projectDataSet.setDataSetType(item.getDataSetType());
 
             }
 
@@ -624,7 +630,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -659,6 +665,11 @@ public class ProjectService extends AbstractService {
 
 
         where.append(" and p.deleted != true ");
+
+        if (input.getProjectType() != null) {
+            where.append(" and p.project_type = '" + input.getProjectType() + "'");
+        }
+
         if (StringUtil.isNotBlank(input.getName())) {
             where.append(" and p.name like '%" + input.getName() + "%'");
         }
@@ -1122,7 +1133,7 @@ public class ProjectService extends AbstractService {
                             params.put("auditStatus",
                                     model.getMemberId().equals(CacheObjects.getMemberId())
                                             && model.getMemberRole() == myRole ? AuditStatus.auditing
-                                                    : model.getAuditStatus());
+                                            : model.getAuditStatus());
                             params.put("auditComment", model.getMemberId().equals(CacheObjects.getMemberId()) ? ""
                                     : model.getAuditComment());
                             projectDataSetRepo.updateById(model.getId(), params, ProjectDataSetMySqlModel.class);

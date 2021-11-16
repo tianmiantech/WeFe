@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity.job;
 
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.util.ModelMapper;
 
 import java.util.List;
@@ -26,13 +27,9 @@ import java.util.List;
  * @author zane.luo
  */
 public class TaskOutputView extends AbstractOutputModel {
-    /**
-     * 由组件创建的 task
-     */
+    @Check(name = "由组件创建的 task")
     private TaskOutputModel task;
-    /**
-     * task 输出的结果
-     */
+    @Check(name = "task 输出的结果")
     private List<TaskResultOutputModel> results;
 
     public TaskOutputView() {

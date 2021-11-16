@@ -26,7 +26,7 @@ import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlMode
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.dto.kernel.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
@@ -113,7 +113,7 @@ public class ProjectFlowNodeService {
             for (DataIOComponent.DataSetItem item : params.getDataSetList()) {
                 JobDataSet.Member member = new JobDataSet.Member();
                 member.memberRole = item.getMemberRole();
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
+                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
                         item.getDataSetId());
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getRowCount();

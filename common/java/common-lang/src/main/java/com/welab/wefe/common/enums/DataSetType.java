@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.board.service.dto.globalconfig;
+package com.welab.wefe.common.enums;
 
 /**
- * @author Zane
+ * @author zane
+ * @date 2021/11/16
  */
-public class GlobalConfigInput {
-    public String group;
-    public String name;
-    public String value;
+public enum DataSetType {
+    /**
+     * 二维表结构的数据集，用于常规机器学习（LR、XGB）
+     */
+    TableDataSet,
+    /**
+     * 图片形式的数据集，用于深度学习。
+     */
+    ImageDataSet
 }

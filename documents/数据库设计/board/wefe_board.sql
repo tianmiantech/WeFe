@@ -420,8 +420,8 @@ CREATE TABLE `project`
     `deleted`                  tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除',
     `name`                     varchar(128) NOT NULL COMMENT '名称',
     `project_desc`             text COMMENT '描述',
-    `audit_status`             varchar(32) NOT NULL COMMENT '综合审核状态',
-    `audit_status_from_myself` varchar(32) NOT NULL COMMENT '自己是否同意',
+    `audit_status`             varchar(32)  NOT NULL COMMENT '综合审核状态',
+    `audit_status_from_myself` varchar(32)  NOT NULL COMMENT '自己是否同意',
     `audit_status_from_others` varchar(32) COMMENT '其他人是否同意',
     `audit_comment`            varchar(512) COMMENT '审核意见',
     `status_updated_time`      datetime(6) COMMENT '状态更新时间',
@@ -430,9 +430,9 @@ CREATE TABLE `project`
     `progress`                 int(11) NOT NULL DEFAULT '0' COMMENT '进度',
     `progress_updated_time`    datetime(6) COMMENT '进度更新时间',
     `message`                  text COMMENT '消息备注 失败原因/备注',
-    `project_id`               varchar(32) NOT NULL COMMENT '项目ID',
-    `member_id`                varchar(32) NOT NULL COMMENT '该项目的创建者ID',
-    `my_role`                  varchar(32) NOT NULL COMMENT '我方角色',
+    `project_id`               varchar(32)  NOT NULL COMMENT '项目ID',
+    `member_id`                varchar(32)  NOT NULL COMMENT '该项目的创建者ID',
+    `my_role`                  varchar(32)  NOT NULL COMMENT '我方角色',
     `exited`                   tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已退出',
     `exited_by`                varchar(32) NULL COMMENT '退出项目的操作者',
     `exited_time`              datetime(6) NULL COMMENT '退出时间',
@@ -440,7 +440,7 @@ CREATE TABLE `project`
     `closed_by`                varchar(32) NULL COMMENT '关闭者',
     `closed_time`              datetime(6) NULL COMMENT '关闭时间',
     `flow_status_statistics`   varchar(512) COMMENT '流程状态统计',
-    `project_type`             varchar(36) NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型',
+    `project_type`             varchar(36)  NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`)
 ) ENGINE = InnoDB
@@ -467,6 +467,7 @@ CREATE TABLE `project_data_set`
     `source_type`         varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
     `source_job_id`       varchar(64) COMMENT '来源任务id',
     `source_task_id`      varchar(100) COMMENT '来源子任务id',
+    `data_set_type`       varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`, `member_role`, `data_set_id`)
 ) ENGINE = InnoDB

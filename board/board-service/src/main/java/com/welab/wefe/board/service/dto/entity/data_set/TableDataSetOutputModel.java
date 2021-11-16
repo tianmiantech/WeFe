@@ -17,102 +17,47 @@
 package com.welab.wefe.board.service.dto.entity.data_set;
 
 import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
-
-import java.util.TreeMap;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author Zane
  */
-public class DataSetOutputModel extends AbstractDataSetOutputModel {
+public class TableDataSetOutputModel extends AbstractDataSetOutputModel {
 
-    /**
-     * 表名
-     */
+    @Check(name = "表名")
     private String tableName;
-    /**
-     * 数据行数
-     */
+    @Check(name = "数据行数")
     private Long rowCount;
-    /**
-     * 主键字段
-     */
+    @Check(name = "主键字段")
     private String primaryKeyColumn;
-    /**
-     * 数据集列数
-     */
+    @Check(name = "数据集列数")
     private Integer columnCount;
-    /**
-     * 数据集字段列表
-     */
+    @Check(name = "数据集字段列表")
     private String columnNameList;
-    /**
-     * 特征数量
-     */
+    @Check(name = "特征数量")
     private Integer featureCount;
-    /**
-     * 特征列表
-     */
+    @Check(name = "特征列表")
     private String featureNameList;
-    /**
-     * 是否包含 Y 值
-     */
+    @Check(name = "是否包含 Y 值")
     private Boolean containsY;
-    /**
-     * y列的数量
-     */
+    @Check(name = "y列的数量")
     private Integer yCount;
-    /**
-     * y列名称列表
-     */
+    @Check(name = "y列名称列表")
     private String yNameList;
-    /**
-     * 数据集的可见性
-     */
-    private DataSetPublicLevel publicLevel;
-    /**
-     * 使用次数
-     */
-    private Integer usageCountInJob = 0;
-    /**
-     * 使用次数
-     */
-    private Integer usageCountInFlow = 0;
-    /**
-     * 使用次数
-     */
-    private Integer usageCountInProject = 0;
-    /**
-     * 可见成员列表;只有在列表中的联邦成员才可以看到该数据集的基本信息
-     */
-    private String publicMemberList;
 
-    private TreeMap<String, String> publicMemberInfoList = new TreeMap<>();
-    /**
-     * 来源类型，枚举（原始、对齐、分箱）
-     */
+    @Check(name = "来源类型，枚举（原始、对齐、分箱）")
     private ComponentType sourceType;
-    /**
-     * 来源任务id
-     */
+    @Check(name = "来源任务id")
     private String sourceJobId;
-    /**
-     * 来源流程id
-     */
+    @Check(name = "来源流程id")
     private String sourceFlowId;
-    /**
-     * 来源子任务id
-     */
+    @Check(name = "来源子任务id")
     private String sourceTaskId;
 
-    /**
-     * 正例样本数量
-     */
+    @Check(name = "正例样本数量")
     private Long yPositiveExampleCount = 0L;
 
-    /**
-     * 正例样本比例
-     */
+    @Check(name = "正例样本比例")
     private Double yPositiveExampleRatio = 0D;
 
 

@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.dto.entity.data_set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane
@@ -24,33 +25,19 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
  */
 public class ImageDataSetSampleOutputModel extends AbstractOutputModel {
 
-    /**
-     * 数据集id
-     */
+    @Check(name = "数据集id")
     private String dataSetId;
-    /**
-     * 文件名
-     */
+    @Check(name = "文件名")
     private String fileName;
-    /**
-     * 文件路径
-     */
+    @Check(name = "文件路径")
     private String filePath;
-    /**
-     * 文件大小
-     */
+    @Check(name = "文件大小")
     private long fileSize;
-    /**
-     * label
-     */
+    @Check(name = "label")
     private String labelList;
-    /**
-     * 是否已标注
-     */
+    @Check(name = "是否已标注")
     private boolean labeled;
-    /**
-     * json 形式的标注信息
-     */
+    @Check(name = "json 形式的标注信息")
     private JSONObject labelInfo;
 
     // region getter/setter

@@ -27,7 +27,7 @@ import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.AbstractDataSetUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetUpdateInputModel;
@@ -111,7 +111,7 @@ public class DataSetService extends AbstractDataSetService {
     /**
      * Paging query data set
      */
-    public PagingOutput<DataSetOutputModel> query(QueryApi.Input input) {
+    public PagingOutput<TableDataSetOutputModel> query(QueryApi.Input input) {
 
         Specification<DataSetMysqlModel> where = Where
                 .create()
@@ -123,7 +123,7 @@ public class DataSetService extends AbstractDataSetService {
                 .equal("sourceType", null, false)
                 .build(DataSetMysqlModel.class);
 
-        return repo.paging(where, input, DataSetOutputModel.class);
+        return repo.paging(where, input, TableDataSetOutputModel.class);
     }
 
     /**
@@ -184,16 +184,16 @@ public class DataSetService extends AbstractDataSetService {
     /**
      * get data sets info from local or union
      */
-    public DataSetOutputModel findDataSetFromLocalOrUnion(String memberId, String dataSetId) throws StatusCodeWithException {
+    public TableDataSetOutputModel findDataSetFromLocalOrUnion(String memberId, String dataSetId) throws StatusCodeWithException {
 
         if (memberId.equals(CacheObjects.getMemberId())) {
             DataSetMysqlModel dataSet = repo.findById(dataSetId).orElse(null);
             if (dataSet == null) {
                 return null;
             }
-            return ModelMapper.map(dataSet, DataSetOutputModel.class);
+            return ModelMapper.map(dataSet, TableDataSetOutputModel.class);
         } else {
-            return unionService.queryDataSetDetail(dataSetId);
+            return unionService.getTableDataSetDetail(dataSetId);
         }
     }
 
