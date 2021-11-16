@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.util.JObject;
 
 import java.util.Date;
@@ -125,6 +126,10 @@ public class ProjectQueryOutputModel extends AbstractOutputModel {
      * 待审核数据集数量
      */
     private int needMeAuditDataSetCount;
+    /**
+     * 项目类型
+     */
+    private ProjectType projectType;
 
 
     public String getExitOperatorNickname() {
@@ -312,6 +317,14 @@ public class ProjectQueryOutputModel extends AbstractOutputModel {
 
     public void setNeedMeAuditDataSetCount(int needMeAuditDataSetCount) {
         this.needMeAuditDataSetCount = needMeAuditDataSetCount;
+    }
+
+    public ProjectType getProjectType() {
+        return projectType;
+    }
+
+    public void setProjectType(ProjectType projectType) {
+        this.projectType = projectType;
     }
 
     //endregion
