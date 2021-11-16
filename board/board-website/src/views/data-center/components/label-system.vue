@@ -1,21 +1,26 @@
 <template>
-    <div id="container" ref="container" class="container" :style="{width: 800+'px'}" />
-    <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
-    <el-button type="primary" style="margin-top: 20px;" @click="methods.saveLabel">
-        保存当前标注
-    </el-button>
+    <div class="label_system">
+        <div id="container" ref="container" class="container" :style="{width: 800+'px'}" />
+        <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
+        <el-button plain type="primary" class="save_label" @click="methods.saveLabel">
+            保存当前标注
+        </el-button>
+    </div>
 </template>
 
 <script>
     import Konva from 'konva';
-    import { ref, onBeforeMount, reactive } from 'vue';
-    import cup1 from '@assets/images/image-data.png';
-    import LabelModal from './components/label-modal.vue';
+    import { ref, reactive } from 'vue';
+    import cup1 from '@assets/images/card-back.png';
+    import LabelModal from './label-modal.vue';
     export default {
         components: {
             LabelModal,
         },
-        setup() {
+        props: {
+            currentImage: String,
+        },
+        setup(props) {
             const vData = reactive({
                 stage:      null, // 导致无法在图片以外的区域画框 Proxy
                 layer:      null,
@@ -127,8 +132,8 @@
                 labelNowPos:   null, // 标注文字位置
                 isLabeled:     false, // 当前标注框是否已标注
             });
-            const labelModalRef = ref();
 
+            const labelModalRef = ref();
             const methods = {
                 createStage() {
                     vData.stage = new Konva.Stage({
@@ -147,12 +152,15 @@
                     let imageLayer = {};
 
                     imgObj.onload = () => {
+                        const imgW= imgObj.width, imgH = imgObj.height;
+
+                        console.log(imgW, imgH);
                         imgOptions = {
-                            x:      vData.width/2 - 300/2 - vData.height/4,
+                            x:      vData.width/2 - imgW/2,
                             y:      0,
                             image:  imgObj,
-                            width:  vData.height,
-                            height: vData.height,
+                            width:  imgW,
+                            height: imgH,
                         };
                     };
                     setTimeout(() => {
@@ -160,7 +168,7 @@
                         vData.layer.add(imageLayer);
                         vData.layer.batchDraw();
                     }, 100);
-                    imgObj.src = vData.cup1;
+                    imgObj.src = props.currentImage;
                 
                     vData.stage.on('mousedown', function(e) {
                         labelModalRef.value.methods.hideModal();
@@ -332,26 +340,26 @@
                     // 1、width、height>0
 
                     if (vData.graphNow.width() > 0 && vData.graphNow.height() > 0) {
-                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 27;
-                        labelY = vData.graphNow.attrs.y + 20;
+                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 10;
+                        labelY = vData.graphNow.attrs.y;
                     }
                 
                     // 2、width>0, height<0
                     if (vData.graphNow.width() > 0 && vData.graphNow.height() < 0) {
-                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 27;
-                        labelY = vData.graphNow.attrs.y + 20 + vData.graphNow.height();
+                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 10;
+                        labelY = vData.graphNow.attrs.y + vData.graphNow.height();
                     }
 
                     // 3、width<0, height>0
                     if (vData.graphNow.width() < 0 && vData.graphNow.height() > 0) {
-                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.scaleX + 27;
-                        labelY = vData.graphNow.attrs.y + 20;
+                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.scaleX + 10;
+                        labelY = vData.graphNow.attrs.y;
                     }
 
                     // 4、width<0, height<0
                     if (vData.graphNow.width() < 0 && vData.graphNow.height() < 0) {
-                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.scaleX + 27;
-                        labelY = vData.graphNow.attrs.y + 20 + vData.graphNow.height();
+                        labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.scaleX + 10;
+                        labelY = vData.graphNow.attrs.y + vData.graphNow.height();
                     }
 
                     vData.labelPosition =`${ labelX }px, ${ labelY }px`;
@@ -430,12 +438,6 @@
                 },
             };
 
-            onBeforeMount(() => {
-                setTimeout(() => {
-                    methods.createStage();
-                }, 10);
-            });
-
             return {
                 vData,
                 methods,
@@ -445,9 +447,19 @@
     };
 </script>
 <style lang="scss">
-.container {
-    canvas {
-        background: #f0f0f0!important;
+.label_system {
+    position: relative;
+    border: 1px solid #eee;
+    background: #acd;
+    .container {
+        canvas {
+            background: #f0f0f0!important;
+        }
+    }
+    .save_label {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
     }
 }
 </style>

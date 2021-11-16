@@ -3,7 +3,7 @@
         <div class="check_label">
             <div class="tabs_nav_btns">
                 <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
-                    <el-button plain type="primary">标注图片</el-button>
+                    <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
@@ -187,76 +187,78 @@
 }
 .page_layer {
     height: calc(100vh - 120px);
-}
-.check_label {
-    position: relative;
-    .tabs_nav_btns {
-        position: absolute;
-        right: 20px;
-        z-index: 2;
-    }
-    .el-tab-pane {
+    .check_label {
         position: relative;
-    }
-    .loading_layer {
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, .85);
-        position: absolute;
-        z-index: 3;
-        i {
-            display: block;
-            font-size: 28px;
-            color: #438bff;
+        .tabs_nav_btns {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%);
-            z-index: 5;
-        }
-    }
-    .el-tabs__nav {
-        .el-tabs__item {
-            font-size: 16px;
-        }
-    }
-    .el-tabs__content {
-        display: flex;
-        border: 1px solid #eee;
-        height: calc(100vh - 270px);
-        .label_list_box {
-            width: 320px;
-            border-right: 1px solid #eee;
-            .label_bar {
-                height: 60px;
-                @include flex_box;
-                padding: 0 20px;
-                border-bottom: 1px solid #eee;
-            }
-            .label_search {
-                height: 80px;
-                @include flex_box;
-                justify-content: center;
-                border-bottom: 1px solid #eee;
-            }
+            right: 20px;
+            z-index: 2;
         }
         .el-tab-pane {
-            flex: 1;
+            position: relative;
+        }
+        .loading_layer {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, .85);
+            position: absolute;
+            z-index: 3;
+            i {
+                display: block;
+                font-size: 28px;
+                color: #438bff;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%);
+                z-index: 5;
+            }
+        }
+        .el-tabs__nav {
+            .el-tabs__item {
+                font-size: 16px;
+            }
+        }
+        .el-tabs__content {
+            display: flex;
+            border: 1px solid #eee;
+            height: calc(100vh - 270px);
+            .label_list_box {
+                width: 320px;
+                border-right: 1px solid #eee;
+                .label_bar {
+                    height: 60px;
+                    @include flex_box;
+                    padding: 0 20px;
+                    border-bottom: 1px solid #eee;
+                }
+                .label_search {
+                    height: 80px;
+                    @include flex_box;
+                    justify-content: center;
+                    border-bottom: 1px solid #eee;
+                }
+            }
+            .el-tab-pane {
+                flex: 1;
+            }
         }
     }
-    
 }
+
 </style>
 <style lang="scss" scoped>
-.label_search {
-    .el-input {
-        width: 90%;
-        height: 40px;
-        :deep(input.el-input__inner) {
+.page_layer {
+    .label_search {
+        .el-input {
+            width: 90%;
             height: 40px;
-        }
-        :deep(.el-input__prefix) {
-            top: 5px;
+            :deep(input.el-input__inner) {
+                height: 40px;
+            }
+            :deep(.el-input__prefix) {
+                top: 5px;
+            }
         }
     }
 }

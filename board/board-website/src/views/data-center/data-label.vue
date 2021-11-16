@@ -1,12 +1,12 @@
 <template>
-    <el-card class="page_layer">
+    <el-card class="page_layer_label">
         <div class="check_label">
-            <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
-                    <el-button plain type="primary"> 标注图片 </el-button>
-                </router-link>
-            </div>
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
+                <div class="label_content">
+                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" />
+                    <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" @select-image="methods.selectImage" />
+                </div>
+                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name"></el-tab-pane>
                 <div class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
@@ -16,13 +16,6 @@
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
                     </div>
                 </div>
-                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
-                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
-                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" />
-                    <template v-else>
-                        <EmptyData />
-                    </template>
-                </el-tab-pane>
             </el-tabs>
             <div
                 v-if="vData.search.total"
@@ -45,17 +38,20 @@
 <script>
     import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
     import { useRoute } from 'vue-router';
-    import CheckImageList from './components/check-image-list.vue';
+    import LabelSystem from './components/label-system.vue';
+    import ImageThumbnailList from './components/image-thumbnail-list.vue';
     export default {
         components: {
-            CheckImageList,
+            LabelSystem,
+            ImageThumbnailList,
         },
         setup() {
             const route = useRoute();
-            // const router = useRouter();
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
             const imgListRef = ref();
+            const labelSystemRef = ref();
+            const imgThumbnailListRef = ref();
             const vData = reactive({
                 activeName: '',
                 sampleId:   route.query.id,
@@ -83,8 +79,9 @@
                         count: '',
                     },
                 ],
-                sampleList: [],
-                imgLoading: false,
+                sampleList:   [],
+                imgLoading:   false,
+                currentImage: '',
             });
 
             const methods = {
@@ -139,11 +136,21 @@
                                 list[idx].img_src = url;
                             }
                             setTimeout(_=> {
+                                vData.currentImage = list[0].img_src;
+                                nextTick(_=> {
+                                    labelSystemRef.value.methods.createStage();
+                                });
                                 vData.sampleList = list;
                                 vData.imgLoading = false;
                             }, 500);
                             
                         }
+                    });
+                },
+                selectImage(item) {
+                    vData.currentImage = item.img_src;
+                    nextTick(_=> {
+                        labelSystemRef.value.methods.createStage();
                     });
                 },
                 currentPageChange (val) {
@@ -174,6 +181,8 @@
                 vData,
                 methods,
                 imgListRef,
+                labelSystemRef,
+                imgThumbnailListRef,
             };
         },
     };
@@ -185,78 +194,56 @@
     align-items: center;
     justify-content: space-between;
 }
-.page_layer {
+.page_layer_label {
     height: calc(100vh - 120px);
-}
-.check_label {
-    position: relative;
-    .tabs_nav_btns {
-        position: absolute;
-        right: 20px;
-        z-index: 2;
-    }
-    .el-tab-pane {
+    .check_label {
         position: relative;
-    }
-    .loading_layer {
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, .85);
-        position: absolute;
-        z-index: 3;
-        i {
-            display: block;
-            font-size: 28px;
-            color: #438bff;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%);
-            z-index: 5;
-        }
-    }
-    .el-tabs__nav {
-        .el-tabs__item {
-            font-size: 16px;
-        }
-    }
-    .el-tabs__content {
-        display: flex;
-        border: 1px solid #eee;
-        height: calc(100vh - 270px);
-        .label_list_box {
-            width: 320px;
-            border-right: 1px solid #eee;
-            .label_bar {
-                height: 60px;
-                @include flex_box;
-                padding: 0 20px;
-                border-bottom: 1px solid #eee;
-            }
-            .label_search {
-                height: 80px;
-                @include flex_box;
-                justify-content: center;
-                border-bottom: 1px solid #eee;
+        .el-tabs__nav {
+            .el-tabs__item {
+                font-size: 16px;
             }
         }
-        .el-tab-pane {
-            flex: 1;
+        .el-tabs__content {
+            display: flex;
+            border: 1px solid #eee;
+            height: calc(100vh - 270px);
+            .label_list_box {
+                width: 320px;
+                border-left: 1px solid #eee;
+                .label_bar {
+                    height: 60px;
+                    @include flex_box;
+                    padding: 0 20px;
+                    border-bottom: 1px solid #eee;
+                }
+                .label_search {
+                    height: 80px;
+                    @include flex_box;
+                    justify-content: center;
+                    border-bottom: 1px solid #eee;
+                }
+            }
+            .label_content {
+                flex: 1;
+                overflow-y: auto;
+            }
         }
+        
     }
-    
 }
 </style>
 <style lang="scss" scoped>
-.label_search {
-    .el-input {
-        width: 90%;
-        height: 40px;
-        :deep(input.el-input__inner) {
+.page_layer_label {
+    .label_search {
+        .el-input {
+            width: 90%;
             height: 40px;
-        }
-        :deep(.el-input__prefix) {
-            top: 5px;
+            :deep(input.el-input__inner) {
+                height: 40px;
+            }
+            :deep(.el-input__prefix) {
+                top: 5px;
+            }
         }
     }
 }
