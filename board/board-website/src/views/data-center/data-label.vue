@@ -21,7 +21,7 @@
                 labelLayer: null,
                 groupLayer: null,
                 rectLayer:  null,
-                cup1:       'blob:http://172.29.20.91:8081/fb4e8779-a882-40a6-be03-2f0f8d2ab4cf',
+                cup1:       'blob:http://172.29.20.91:8081/d4339796-7849-4687-b17b-92feb999cac4',
                 width:      800,
                 height:     528,
                 pointStart: [],

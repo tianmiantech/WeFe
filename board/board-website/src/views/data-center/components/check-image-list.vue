@@ -2,7 +2,7 @@
     <div class="img_layer">
         <div v-for="item in sampleList" class="img_items" :key="item.id">
             <div class="img_item">
-                <el-image :src="item.img_src" fit="contain">
+                <el-image :src="item.img_src" :id="item.id" fit="contain">
                     <template #reference>
                         <div class="image-slot">
                             <i class="el-icon-picture-outline"></i>

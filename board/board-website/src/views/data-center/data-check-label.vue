@@ -12,7 +12,13 @@
                     </div>
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :name="item.name">
-                    <check-image-list v-loading="vData.imgLoading" ref="imgListRef" v-if="vData.sampleList" :sampleList="vData.sampleList" />
+                    <transition mode="out-in">
+                        <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
+                    </transition>
+                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" />
+                    <template v-else>
+                        <EmptyData />
+                    </template>
                 </el-tab-pane>
             </el-tabs>
             <div
@@ -78,8 +84,6 @@
                 imgLoading: false,
             });
 
-            console.log(vData.sampleId);
-
             const methods = {
                 async getSampleInfo() {
                     const { code, data } = await $http.get({
@@ -104,12 +108,14 @@
                     
                     nextTick(_ => {
                         if(code === 0) {
-                            if (data && data.list) {
+                            if (data && data.list.length>0) {
                                 vData.search.total = data.total;
                                 data.list.forEach((item, idx) => {
                                     methods.downloadImage(item.id, idx, data.list);
                                 });
                             } else {
+                                vData.search.total = data.total;
+                                vData.sampleList = data.list;
                                 vData.imgLoading = false;
                             }
                         }
@@ -147,7 +153,6 @@
                     methods.getSampleList();
                 },
                 tabChange(val) {
-                    console.log(val.props.name);
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
                     vData.search.labeled = label_type;
@@ -181,6 +186,26 @@
     height: calc(100vh - 120px);
 }
 .check_label {
+    .el-tab-pane {
+        position: relative;
+    }
+    .loading_layer {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, .85);
+        position: absolute;
+        z-index: 3;
+        i {
+            display: block;
+            font-size: 28px;
+            color: #438bff;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%);
+            z-index: 5;
+        }
+    }
     .el-tabs__nav {
         .el-tabs__item {
             font-size: 16px;
