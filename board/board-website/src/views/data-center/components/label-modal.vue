@@ -5,7 +5,7 @@
             <span class="close-span" @click="methods.hideModal">x</span>
         </div>
         <div class="label-modal-input">
-            <el-input v-model="vData.labelSearchText" placeholder="搜索关键词" />
+            <el-input v-model="vData.labelSearchText" placeholder="搜索关键词" @input="methods.inputKeycode" />
         </div>
         <div class="label-modal-list">
             <div v-for="item in labelList" :key="item.text" class="label-modal-item" @click="methods.labelEvent(item)">
@@ -38,12 +38,16 @@
                 },
                 hideModal() {
                     vData.isShowLabelModal = 'none';
+                    vData.labelSearchText = '';
                 },
                 deleteCalloutBox() {
                     context.emit('destroy-node');
                 },
                 labelEvent(item) {
                     context.emit('label-node', item);
+                },
+                inputKeycode(val) {
+                    context.emit('key-code-search', val);
                 },
             };
 
@@ -67,7 +71,7 @@ $height32: 32px;
 
 .label-modal {
     width: 186px;
-    height: 316px;
+    max-height: 325px;
     border: 1px solid #f6f6f6;
     position: absolute;
     left: 0;

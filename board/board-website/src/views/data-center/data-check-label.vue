@@ -1,6 +1,11 @@
 <template>
     <el-card class="page_layer">
         <div class="check_label">
+            <div class="tabs_nav_btns">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
+                    <el-button plain type="primary">标注图片</el-button>
+                </router-link>
+            </div>
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_list_box">
                     <div class="label_bar">
@@ -11,10 +16,8 @@
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
                     </div>
                 </div>
-                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' ( ' + item.count + ' )'" :name="item.name">
-                    <transition mode="out-in">
-                        <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
-                    </transition>
+                <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
+                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
                     <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" />
                     <template v-else>
                         <EmptyData />
@@ -186,6 +189,12 @@
     height: calc(100vh - 120px);
 }
 .check_label {
+    position: relative;
+    .tabs_nav_btns {
+        position: absolute;
+        right: 20px;
+        z-index: 2;
+    }
     .el-tab-pane {
         position: relative;
     }
