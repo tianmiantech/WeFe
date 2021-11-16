@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.component.feature;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
@@ -38,6 +39,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
+@Service
 public class VertFilterComponent extends AbstractComponent<VertFilterComponent.Params> {
 
     @Override
