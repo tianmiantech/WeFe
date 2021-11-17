@@ -470,7 +470,6 @@ public class UnionService extends AbstractService {
             try {
                 sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
 

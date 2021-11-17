@@ -204,10 +204,7 @@ public class ProjectDataSetService extends AbstractService {
                 .map(x -> {
 
                     try {
-                        ProjectDataSetOutputModel projectDataSet = JObject
-                                .create(x)
-                                .toJavaObject(ProjectDataSetOutputModel.class);
-
+                        ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                         AbstractDataSetOutputModel dataSet = null;
                         if (x.getDataSetType() == DataSetType.TableDataSet) {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
@@ -217,8 +214,7 @@ public class ProjectDataSetService extends AbstractService {
                         projectDataSet.setDataSet(dataSet);
                         return projectDataSet;
                     } catch (StatusCodeWithException e) {
-                        e.printStackTrace();
-
+                        super.log(e);
                         return null;
                     }
 
@@ -268,30 +264,14 @@ public class ProjectDataSetService extends AbstractService {
         List<ProjectDataSetOutputModel> output = list
                 .parallelStream()
                 .map(x -> {
-                    TableDataSetOutputModel dataSet = null;
+                    ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                     try {
-                        dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        // The data set does not exist and is marked as deleted.
-                        if (dataSet == null) {
-                            ProjectDataSetOutputModel foo = JObject
-                                    .create(x)
-                                    .toJavaObject(ProjectDataSetOutputModel.class);
-                            foo.setName("此数据集已被删除或不可见");
-                            foo.setRowCount(0L);
-                            foo.setDeleted(true);
-                            return foo;
-                        }
+                        TableDataSetOutputModel dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        projectDataSet.setDataSet(dataSet);
                     } catch (StatusCodeWithException e) {
-                        e.printStackTrace();
-
-                        return null;
+                        super.log(e);
                     }
-
-                    JObject item = JObject.create();
-                    item.putAll(JObject.create(dataSet));
-                    item.putAll(JObject.create(x));
-
-                    return item.toJavaObject(ProjectDataSetOutputModel.class);
+                    return projectDataSet;
 
                 })
                 .collect(Collectors.toList());

@@ -91,7 +91,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     }
 
     @Override
-    protected TaskResultMySqlModel getResult(String taskId, String type) {
+    protected TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException {
 
         TaskResultMySqlModel trainTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train.name());
         TaskResultMySqlModel validateTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
@@ -114,8 +114,8 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
         JObject result = JObject.create();
 
-        try {
-            // Find out all the same branch nodes with the evaluation node
+
+        // Find out all the same branch nodes with the evaluation node
             // and find the modeling node from them
             // (this method solves the problem of null pointer when the evaluation node is deleted in the original editing process again)
             List<TaskMySqlModel> homologousBranchTaskList = taskService.findHomologousBranchByJobId(taskResultMySqlModel.getJobId(), trainTaskResult.getRole(), taskResultMySqlModel.getTaskId());
@@ -174,9 +174,6 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
                     break;
 
             }
-        } catch (StatusCodeWithException e) {
-            e.printStackTrace();
-        }
 
         taskResultMySqlModel.setResult(result.toJSONString());
 

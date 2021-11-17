@@ -515,7 +515,7 @@ public class ProjectFlowService extends AbstractService {
     /**
      * Query model details: including model evaluation results.
      */
-    public TaskResultOutputModel findModelingResult(DetailApi.Input input) {
+    public TaskResultOutputModel findModelingResult(DetailApi.Input input) throws StatusCodeWithException {
 
         TaskResultOutputModel result = null;
 
