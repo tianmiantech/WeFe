@@ -18,6 +18,7 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
+import com.welab.wefe.data.fusion.service.actuator.test.ClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
@@ -101,19 +102,28 @@ public class CallbackService {
         /*
          * The other side is ready, we modify the task status and start client
          */
-        AbstractTask client = new PsiClientTask(
-                businessId,
-                new PsiClientActuator(
+//        AbstractTask client = new PsiClientTask(
+//                businessId,
+//                new PsiClientActuator(
+//                        businessId,
+//                        task.getDataCount(),
+//                        ip,
+//                        port,
+//                        task.getDataResourceId(),
+//                        task.isTrace(),
+//                        task.getTraceColumn()
+//                ));
+
+        ClientActuator client = new ClientActuator(
                         businessId,
-                        task.getDataCount(),
                         ip,
                         port,
                         task.getDataResourceId(),
                         task.isTrace(),
                         task.getTraceColumn()
-                ));
+                );
 
-        TaskManager.set(client);
+//        TaskManager.set(client);
 
         client.run();
     }

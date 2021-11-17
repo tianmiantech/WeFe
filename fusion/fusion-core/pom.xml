@@ -9,21 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fusion-service</artifactId>
-    <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-
-    <properties>
-        <parser.version>${project.version}</parser.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
+    <artifactId>fusion-core</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.welab.wefe</groupId>
@@ -32,22 +20,15 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>com.welab.wefe</groupId>-->
-            <!--<artifactId>common-data-mysql</artifactId>-->
-            <!--<version>1.0.0</version>-->
+        <!--<groupId>com.welab.wefe</groupId>-->
+        <!--<artifactId>common-data-mysql</artifactId>-->
+        <!--<version>1.0.0</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-web</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.welab.wefe</groupId>
-            <artifactId>fusion-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
@@ -80,19 +61,5 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <finalName>fusion-service</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.welab.wefe.data.fusion.service.AppService</mainClass>
-                    <includeSystemScope>true</includeSystemScope>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

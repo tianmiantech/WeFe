@@ -21,6 +21,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
+import com.welab.wefe.data.fusion.service.actuator.test.ServerActuator;
 import com.welab.wefe.data.fusion.service.api.task.*;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
@@ -40,6 +41,7 @@ import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 import com.welab.wefe.data.fusion.service.utils.ModelMapper;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -300,20 +302,32 @@ public class TaskService extends AbstractService {
         /**
          * Generate the corresponding task handler
          */
-        AbstractTask server = new PsiServerTask(
+//        AbstractTask server = new PsiServerTask(
+//                task.getBusinessId(),
+//                bf.getSrc(),
+//                new PsiServerActuator(task.getBusinessId(),
+//                        task.getDataCount(),
+//                        "localhost",
+//                        CacheObjects.getOpenSocketPort(),
+//                        new BigInteger(bf.getN()),
+//                        new BigInteger(bf.getE()),
+//                        new BigInteger(bf.getD())
+//                )
+//        );
+
+        ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
-                bf.getSrc(),
-                new PsiServerActuator(task.getBusinessId(),
-                        task.getDataCount(),
+                BloomFilterUtils.readFrom(bf.getSrc()),
+
                         "localhost",
                         CacheObjects.getOpenSocketPort(),
                         new BigInteger(bf.getN()),
                         new BigInteger(bf.getE()),
                         new BigInteger(bf.getD())
-                )
+
         );
 
-        TaskManager.set(server);
+       // TaskManager.set(server);
 
         server.run();
 
