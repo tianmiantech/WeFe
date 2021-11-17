@@ -94,7 +94,7 @@ _run_python_service(){
     if [ $SPARK_MODE = "STANDALONE" ]
     then
       # 集群方式启动
-      start_cluster_python_service_all
+      start_cluster
     else
       # 单机启动
       cd $PWD/wefe_python_service
@@ -104,7 +104,13 @@ _run_python_service(){
 
 _stop_cluster_python_service(){
     if [ $SPARK_MODE = "STANDALONE" ]; then
-      stop_cluster_python_service_all
+      stop_cluster
+    fi
+}
+
+_remove_cluster_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]; then
+      remove_cluster
     fi
 }
 
