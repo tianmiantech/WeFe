@@ -63,7 +63,7 @@ public class VertPCAComponent extends AbstractComponent<VertPCAComponent.Params>
                 features.forEach(x -> featureList.add(x));
             }
         });
-        resultObj.append("column_names", featureList).append("cross_parties", params.getCrossParties());
+        resultObj.append("column_names", featureList);
 
         taskParam.put("params", resultObj);
 
