@@ -1,7 +1,8 @@
 <template>
     <div class="img_layer" :style="{width: vData.width+'px'}">
-        <div v-for="item in sampleList" class="img_items" :key="item.id">
-            <div class="img_item" @click="methods.selectImage(item)">
+        <!-- <div><i class="el-icon-d-arrow-left"/></div> -->
+        <div v-for="(item, index) in sampleList" class="img_items" :key="item.id">
+            <div class="img_item" @click="methods.selectImage(item, index)" :style="{border: item.$isselected ? '1px solid #438bff' : ''}">
                 <el-image :src="item.img_src" :id="item.id" fit="contain">
                     <template #reference>
                         <div class="image-slot">
@@ -10,11 +11,9 @@
                     </template>
                 </el-image>
             </div>
+            <p class="label_tips" v-if="!item.labeled">未标注</p>
         </div>
-        <!-- <div class="btns">
-            <p><i class="el-icon-d-arrow-left"/></p>
-            <p><i class="el-icon-d-arrow-right"/></p>
-        </div> -->
+        <!-- <div><i class="el-icon-d-arrow-right"/></div> -->
     </div>
 </template>
 
@@ -31,8 +30,8 @@
             });
 
             const methods = {
-                selectImage(item) {
-                    context.emit('select-image', item);
+                selectImage(item, idx) {
+                    context.emit('select-image', item, idx);
                 },
             };
 
@@ -55,16 +54,15 @@
 .img_layer {
     position: relative;
     width: 100%;
-    height: 80px;
+    height: 85px;
     @include flex_box;
     overflow-x: auto;
     overflow-y: hidden;
     align-content: baseline;
-    padding: 10px 0 0 10px;
+    padding: 5px 10px;
     .img_items {
         width: 50px;
         height: 80px;
-        border: 1px solid #eee;
         margin-right: 10px;
         margin-bottom: 10px;
         background: #f5f5f5;
@@ -77,19 +75,13 @@
                 height: 100%;
             }
         }
-    }
-    .btns {
-        position: fixed;
-        width: 100%;
-        height: 30px;
-        top: 50%;
-        @include flex_box;
-        justify-content: space-between;
-        z-index: 2;
-        p {
-            i {
-                font-size: 30px;
-            }
+        .label_tips {
+            width: 50px;
+            position: absolute;
+            bottom: 0;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
         }
     }
 }

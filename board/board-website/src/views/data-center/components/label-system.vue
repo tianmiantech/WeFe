@@ -11,132 +11,41 @@
 <script>
     import Konva from 'konva';
     import { ref, reactive } from 'vue';
-    import cup1 from '@assets/images/card-back.png';
+    import { useRouter } from 'vue-router';
     import LabelModal from './label-modal.vue';
     export default {
         components: {
             LabelModal,
         },
         props: {
-            currentImage: String,
+            currentImage: Object,
+            labelList:    Array,
         },
         setup(props, context) {
+            const router = useRouter();
             const vData = reactive({
-                stage:      null, // 导致无法在图片以外的区域画框 Proxy
-                layer:      null,
-                graphNow:   null,
-                trLayer:    null,
-                labelLayer: null,
-                groupLayer: null,
-                rectLayer:  null,
-                cup1,
-                width:      800,
-                height:     528,
-                pointStart: [],
-                graphColor: '#1A73E8',
-                drawing:    false,
-                labelList:  [
-                    {
-                        text:    'mouse',
-                        keyword: 1,
-                    },
-                    {
-                        text:    'flower',
-                        keyword: 2,
-                    },
-                    {
-                        text:    'fruit',
-                        keyword: 3,
-                    },
-                    {
-                        text:    'person',
-                        keyword: 4,
-                    },
-                    {
-                        text:    'monkey',
-                        keyword: 5,
-                    },
-                    {
-                        text:    'book',
-                        keyword: 6,
-                    },
-                    {
-                        text:    'desktop',
-                        keyword: 7,
-                    },
-                    {
-                        text:    'tv',
-                        keyword: 8,
-                    },
-                    {
-                        text:    'paper',
-                        keyword: 9,
-                    },
-                    {
-                        text:    '苹果',
-                        keyword: 10,
-                    },
-                    {
-                        text:    '电脑',
-                        keyword: 11,
-                    },
-                ],
-                oldLabelList: [
-                    {
-                        text:    'mouse',
-                        keyword: 1,
-                    },
-                    {
-                        text:    'flower',
-                        keyword: 2,
-                    },
-                    {
-                        text:    'fruit',
-                        keyword: 3,
-                    },
-                    {
-                        text:    'person',
-                        keyword: 4,
-                    },
-                    {
-                        text:    'monkey',
-                        keyword: 5,
-                    },
-                    {
-                        text:    'book',
-                        keyword: 6,
-                    },
-                    {
-                        text:    'desktop',
-                        keyword: 7,
-                    },
-                    {
-                        text:    'tv',
-                        keyword: 8,
-                    },
-                    {
-                        text:    'paper',
-                        keyword: 9,
-                    },
-                    {
-                        text:    '苹果',
-                        keyword: 10,
-                    },
-                    {
-                        text:    '电脑',
-                        keyword: 11,
-                    },
-                ],
+                stage:         null, // 导致无法在图片以外的区域画框 Proxy
+                layer:         null,
+                graphNow:      null,
+                trLayer:       null,
+                labelLayer:    null,
+                groupLayer:    null,
+                rectLayer:     null,
+                width:         800,
+                height:        528,
+                pointStart:    [],
+                graphColor:    '#1A73E8',
+                drawing:       false,
+                labelList:     props.labelList,
+                // oldLabelList:  props.labelList,
                 labelPosition: '',
                 currentLabel:  {},
                 labelNowPos:   null, // 标注文字位置
                 isLabeled:     false, // 当前标注框是否已标注
             });
 
-            console.log(vData.width);
             const labelModalRef = ref();
             const methods = {
-
                 createStage() {
                     vData.stage = new Konva.Stage({
                         container: 'container',
@@ -178,11 +87,11 @@
                         vData.layer.add(imageLayer);
                         vData.layer.batchDraw();
                     }, 100);
-                    imgObj.src = props.currentImage;
+                    if(props.currentImage.item) imgObj.src = props.currentImage.item.img_src;
                 
                     vData.stage.on('mousedown', function(e) {
                         labelModalRef.value.methods.hideModal();
-                        vData.labelList = vData.oldLabelList;
+                        vData.labelList = props.labelList;
                         let lastEvent = null;
                         // 如果点击空白处 移除图形选择框
 
@@ -260,10 +169,13 @@
                         }
                     });
                     vData.rectLayer.on('mousedown', function(e) {
+                        console.log(e);
                         if (e.evt.button === 2) {
+                            e.evt.preventDefault();
+                            e.evt.returnValue = false;
+                            e.evt.cancelBubble = false;
                             // 鼠标右击 对于已标注的区域可进行编辑操作
                             if (this.attrs.isLabeled) {
-                                console.log(this);
                                 methods.showLabelModal();
                             }
                         }
@@ -277,7 +189,7 @@
                     });
                     vData.rectLayer.on('transformstart', function() {
                         labelModalRef.value.methods.hideModal();
-                        vData.labelList = vData.oldLabelList;
+                        vData.labelList = props.labelList;
                     });
                     vData.rectLayer.on('transform', function(e) {
                         if (e.target.attrs.isLabeled) {
@@ -313,7 +225,7 @@
                         }
                         vData.layer.draw();
                         labelModalRef.value.methods.hideModal();
-                        vData.labelList = vData.oldLabelList;
+                        vData.labelList = props.labelList;
                         vData.stage.container().style.cursor = 'crosshair';
                     });
                 },
@@ -332,8 +244,7 @@
                     vData.layer.draw();
                     if (e.target.attrs.isLabeled && e.evt.button !== 2) {
                         labelModalRef.value.methods.hideModal();
-                        vData.labelList = vData.oldLabelList;
-                        vData.labelList = vData.oldLabelList;
+                        vData.labelList = props.labelList;
                     }
                 },
                 stageMousemove(e) {
@@ -383,16 +294,17 @@
                     if (vData.rectLayer.attrs.isLabeled) vData.labelLayer.destroy();
                     vData.layer.draw();
                     labelModalRef.value.methods.hideModal();
-                    vData.labelList = vData.oldLabelList;
+                    vData.labelList = props.labelList;
                 },
                 // 标注
                 labelNode(data) {
+                    console.log(data);
                     // console.log(vData.labelNowPos.x(), vData.labelNowPos.y(),vData.labelNowPos.width(), vData.labelNowPos.height());
                     vData.currentLabel = data;
                     vData.labelLayer = new Konva.Text({
                         x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
                         y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
-                        text:     data.text,
+                        text:     data.label,
                         fontSize: 18,
                         fill:     'rgba(255, 255, 255, .7)',
                     });
@@ -404,10 +316,10 @@
                         vData.stage.container().style.cursor = 'move';
                     });
                     labelModalRef.value.methods.hideModal();
-                    vData.labelList = vData.oldLabelList;
+                    vData.labelList = props.labelList;
                     vData.rectLayer.setAttrs({
                         isLabeled: true,
-                        labelName: data.text,
+                        labelName: data.label,
                     });
                 },
                 setLabelTextPosition() {
@@ -418,7 +330,7 @@
                     });
                 },
                 keyCodeSearch(val) {
-                    vData.labelList = vData.oldLabelList.filter(function(item) {
+                    vData.labelList = props.labelList.filter(function(item) {
                         return Object.keys(item).some(function(key) {
                             return (
                                 String(item[key]).toLowerCase().indexOf(val) > -1
@@ -428,11 +340,8 @@
                 },
                 // 保存当前标注
                 saveLabel() {
-                    const labe_list = [];
+                    const labe_list = [], rect_list = vData.stage.find('Rect');
 
-                    const rect_list = vData.stage.find('Rect');
-
-                    console.log(rect_list);
                     rect_list.forEach(item => {
                         if (item.attrs.isLabeled) {
                             labe_list.push({
@@ -444,8 +353,54 @@
                             });
                         }
                     });
-                    console.log(labe_list);
-                    context.emit('save-label', labe_list);
+                    context.emit('save-label', labe_list, props.currentImage.item.id);
+                },
+                async handleEvent(e) {
+                    switch (e.keyCode) {
+                    case 48:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 49:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 50:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 51:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 52:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 53:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 54:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 55:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 56:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 57:
+                        if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
+                        break;
+                    case 83:
+                        e.preventDefault();
+                        e.returnValue = false; // 阻止直接保存网页
+                        methods.saveLabel();
+                        if (e.ctrlKey && e.code === 'KeyS') return false;
+                        break;
+                    case 90:
+                        router.push({ name: 'project-detail' });
+                        if (router.name === 'index') return;
+                        if (e.ctrlKey && e.code === 'KeyZ') {
+                            router.go(-1);
+                        }
+                        break;
+                    }
                 },
             };
 
@@ -461,7 +416,7 @@
 .label_system {
     position: relative;
     border: 1px solid #eee;
-    background: #acd;
+    background: #f0f0f0;
     .container {
         canvas {
             background: #f0f0f0!important;

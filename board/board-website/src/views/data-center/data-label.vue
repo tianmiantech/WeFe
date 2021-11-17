@@ -3,7 +3,7 @@
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
-                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" @save-label="methods.saveCurrentLabel" />
+                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" @save-label="methods.saveCurrentLabel" />
                     <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" @select-image="methods.selectImage" />
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name"></el-tab-pane>
@@ -14,6 +14,12 @@
                     </div>
                     <div class="label_search">
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
+                    </div>
+                    <div class="label_info">
+                        <div v-for="item in vData.count_by_sample" :key="item.label" class="label_item">
+                            <span class="span_label">{{item.label}}</span>
+                            <span class="span_count">{{item.count}}</span>
+                        </div>
                     </div>
                 </div>
             </el-tabs>
@@ -48,7 +54,7 @@
         setup() {
             const route = useRoute();
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $message } = appContext.config.globalProperties;
             const imgListRef = ref();
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
@@ -79,15 +85,17 @@
                         count: '',
                     },
                 ],
-                sampleList:   [],
-                imgLoading:   false,
-                currentImage: '',
-                timer:        null,
+                sampleList:      [],
+                imgLoading:      false,
+                currentImage:    {},
+                timer:           null,
+                count_by_label:  [],
+                count_by_sample: [],
             });
 
             const methods = {
                 async getSampleInfo() {
-                    const { code, data } = await $http.get({
+                    const { code, data } = await $http.post({
                         url:    '/image_data_set/detail',
                         params: { id: vData.sampleId },
                     });
@@ -114,6 +122,9 @@
                                 data.list.forEach((item, idx) => {
                                     methods.downloadImage(item.id, idx, data.list);
                                 });
+                                window.addEventListener('keydown', function(e) {
+                                    labelSystemRef.value.methods.handleEvent(e);
+                                });
                             } else {
                                 vData.search.total = data.total;
                                 vData.sampleList = data.list;
@@ -135,9 +146,11 @@
 
                             if (id === list[idx].id) {
                                 list[idx].img_src = url;
+                                list[idx].$isselected = false;
                             }
                             setTimeout(_=> {
-                                vData.currentImage = list[0].img_src;
+                                list[0].$isselected = true;
+                                vData.currentImage = { item: list[0], idx: 0 };
                                 nextTick(_=> {
                                     labelSystemRef.value.methods.createStage();
                                 });
@@ -148,10 +161,34 @@
                         }
                     });
                 },
-                selectImage(item) {
-                    vData.currentImage = item.img_src;
+                async getLabelInfo() {
+                    const { code, data } = await $http.get({
+                        url:    '/image_data_set_sample/statistics',
+                        params: { data_set_id: vData.sampleId },
+                    });
+
+                    nextTick(_=> {
+                        if (code === 0) {
+                            if (data) {
+                                const { count_by_label, count_by_sample } = data;
+
+                                vData.count_by_label = count_by_label;
+                                count_by_sample.forEach((item, i) => {
+                                    item.keycode = i;
+                                });
+                                vData.count_by_sample = count_by_sample;
+                            }
+                        }
+                    });
+                },
+                selectImage(item, idx) {
+                    vData.currentImage = { item, idx };
                     nextTick(_=> {
                         labelSystemRef.value.methods.createStage();
+                        vData.sampleList.forEach(i => {
+                            i.$isselected = false;
+                        });
+                        vData.sampleList[idx].$isselected = true;
                     });
                 },
                 currentPageChange (val) {
@@ -181,13 +218,48 @@
                     labelSystemRef.value.methods.createStage();
                 },
                 // 保存当前标注
-                saveCurrentLabel(data) {
-                    console.log(data);
+                async saveCurrentLabel(res, id) {
+                    console.log(res);
+                    const params = {
+                        id,
+                        label_info: {
+                            objects: res, 
+                        },
+                    };
+
+                    const { code } = await $http.post({
+                        url:  '/image_data_set_sample/update',
+                        data: params,
+                    });
+
+                    nextTick(_ => {
+                        if(code === 0) {
+                            $message.success('保存成功');
+                            // 标注下一张
+                            // 判断是否为最后一张
+                            console.log(vData.sampleList.length - 1,  vData.currentImage.idx, vData.currentImage.idx+1);
+                            if (vData.sampleList.length - 1 !== vData.currentImage.idx) {
+                                vData.sampleList[vData.currentImage.idx].$isselected = false;
+                                vData.sampleList[vData.currentImage.idx+1].$isselected = true;
+                                vData.currentImage = { item: vData.sampleList[vData.currentImage.idx+1], idx: vData.currentImage.idx+1 };
+                                nextTick(_=> {
+                                    labelSystemRef.value.methods.createStage();
+                                });
+                            } else {
+                                // 本页最后一张，获取第二页数据
+                                if (vData.search.page_index !== vData.search.total / vData.search.page_size) {
+                                    vData.search.page_index = vData.search.page_index + 1;
+                                    methods.getSampleList();
+                                }
+                            }
+                        }
+                    });
                 },
             };
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
+                methods.getLabelInfo();
                 setTimeout(_=> {
                     methods.getSampleList();
                     methods.resetWidth();
@@ -246,6 +318,23 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
+                }
+                .label_info {
+                    padding: 0 10px;
+                    .label_item {
+                        height: 40px;
+                        @include flex_box;
+                        border: 1px solid #eee;
+                        margin: 10px 0;
+                        padding: 0 10px;
+                        font-size: 14px;
+                        .span_label {
+                            
+                        }
+                        .span_count {
+                            color: #999;
+                        }
+                    }
                 }
             }
             .label_content {
