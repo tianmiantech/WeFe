@@ -1,5 +1,5 @@
 
-### 修改数据集
+### 更新样本标注信息
 POST http://localhost:8080/board-service/image_data_set_sample/update
 Content-Type: application/json
 
