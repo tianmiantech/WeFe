@@ -3,7 +3,7 @@
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
-                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" />
+                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" @save-label="methods.saveCurrentLabel" />
                     <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" @select-image="methods.selectImage" />
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name"></el-tab-pane>
@@ -82,6 +82,7 @@
                 sampleList:   [],
                 imgLoading:   false,
                 currentImage: '',
+                timer:        null,
             });
 
             const methods = {
@@ -168,13 +169,32 @@
                     vData.search.labeled = label_type;
                     methods.getSampleList();
                 },
+                debounce(){
+                    if(vData.timer) clearTimeout(vData.timer);
+                    vData.timer = setTimeout(() => {
+                        methods.resetWidth();
+                    }, 300);
+                },
+                resetWidth() {
+                    labelSystemRef.value.vData.width = document.getElementsByClassName('label_content')[0].offsetWidth - 280;
+                    imgThumbnailListRef.value.vData.width = document.getElementsByClassName('label_content')[0].offsetWidth - 280;
+                    labelSystemRef.value.methods.createStage();
+                },
+                // 保存当前标注
+                saveCurrentLabel(data) {
+                    console.log(data);
+                },
             };
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
                 setTimeout(_=> {
                     methods.getSampleList();
+                    methods.resetWidth();
                 }, 200);
+                window.onresize = () => {
+                    methods.debounce();
+                };
             });
 
             return {
@@ -208,8 +228,13 @@
             border: 1px solid #eee;
             height: calc(100vh - 270px);
             .label_list_box {
-                width: 320px;
+                width: 280px;
                 border-left: 1px solid #eee;
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                background: #fff;
                 .label_bar {
                     height: 60px;
                     @include flex_box;

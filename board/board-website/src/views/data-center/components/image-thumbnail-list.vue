@@ -1,5 +1,5 @@
 <template>
-    <div class="img_layer">
+    <div class="img_layer" :style="{width: vData.width+'px'}">
         <div v-for="item in sampleList" class="img_items" :key="item.id">
             <div class="img_item" @click="methods.selectImage(item)">
                 <el-image :src="item.img_src" :id="item.id" fit="contain">
@@ -27,6 +27,7 @@
         setup(props, context) {
             const vData = reactive({
                 baseUrl: window.api.baseUrl,
+                width:   0,
             });
 
             const methods = {

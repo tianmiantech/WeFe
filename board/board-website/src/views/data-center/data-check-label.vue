@@ -10,7 +10,6 @@
                 <div class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
-                        <el-button plain type="primary">添加标签</el-button>
                     </div>
                     <div class="label_search">
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>

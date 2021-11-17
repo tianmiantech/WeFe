@@ -1,8 +1,8 @@
 <template>
     <div class="label_system">
-        <div id="container" ref="container" class="container" :style="{width: 800+'px'}" />
+        <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
-        <el-button plain type="primary" class="save_label" @click="methods.saveLabel">
+        <el-button type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
     </div>
@@ -20,7 +20,7 @@
         props: {
             currentImage: String,
         },
-        setup(props) {
+        setup(props, context) {
             const vData = reactive({
                 stage:      null, // 导致无法在图片以外的区域画框 Proxy
                 layer:      null,
@@ -133,8 +133,10 @@
                 isLabeled:     false, // 当前标注框是否已标注
             });
 
+            console.log(vData.width);
             const labelModalRef = ref();
             const methods = {
+
                 createStage() {
                     vData.stage = new Konva.Stage({
                         container: 'container',
@@ -144,19 +146,27 @@
                     vData.stage.container().style.cursor = 'crosshair';
                     vData.layer = new Konva.Layer();
                     vData.stage.add(vData.layer);
-
                     const imgObj = new Image();
 
-                    let imgOptions = {};
-
-                    let imageLayer = {};
+                    let imgOptions = {}, imageLayer = {};
 
                     imgObj.onload = () => {
-                        const imgW= imgObj.width, imgH = imgObj.height;
+                        let imgW= imgObj.width, imgH = imgObj.height;
 
-                        console.log(imgW, imgH);
+                        if (imgW >= 999) {
+                            imgW = imgW / 2;
+                            imgH = imgH /2;
+                        } else if(999>imgW > 1500) {
+                            imgW = imgW/3;
+                            imgH = imgH /3;
+                        } else if (imgW > 3000) {
+                            imgW = imgW/6;
+                            imgH = imgH /6;
+                        }
+                        // console.log(imgW, imgH);
                         imgOptions = {
-                            x:      vData.width/2 - imgW/2,
+                            // x:      vData.width/2 - imgW/2,
+                            x:      0,
                             y:      0,
                             image:  imgObj,
                             width:  imgW,
@@ -435,6 +445,7 @@
                         }
                     });
                     console.log(labe_list);
+                    context.emit('save-label', labe_list);
                 },
             };
 
@@ -458,8 +469,8 @@
     }
     .save_label {
         position: absolute;
-        right: 5px;
-        bottom: 5px;
+        right: 300px;
+        top: 12px;
     }
 }
 </style>
