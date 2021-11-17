@@ -35,3 +35,16 @@ class TaskProgressDao:
             return TaskProgress.get_or_none(
                 TaskProgress.task_id == task.task_id, TaskProgress.role == task.role
             )
+
+    @staticmethod
+    def save(task_progress: TaskProgress, force_insert=False):
+        with DB.connection_context():
+            task_progress.save(force_insert=force_insert)
+
+    @staticmethod
+    def get_by_unique_id(task_id, role):
+        with DB.connection_context():
+            return TaskProgress.get_or_none(
+                TaskProgress.task_id == task_id,
+                TaskProgress.role == role
+            )
