@@ -36,6 +36,7 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -82,7 +83,7 @@ public class VertPCAComponent extends AbstractComponent<VertPCAComponent.Params>
 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_statistics.name());
     }
 
     @Override
