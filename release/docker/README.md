@@ -140,6 +140,22 @@ sh wefe-service.sh start
 sh wefe-service.sh stop
 ```
 
+### 项目卸载
+
+删除 Docker 镜像，清理项目数据，重新安装 WeFe 系统。
+
+```
+# project_root_dir 代表项目的根目录，即解压目录
+cd [project_root_dir]
+# 暂停项目
+sh wefe_service.sh stop
+
+# 清除项目数据
+rm -rf /data/wefe/docker-compose
+# 重启初始化 docker 服务
+systemctl restart docker
+```
+
 ## 访问项目
 
 访问 `http://[主机 IP]/board-website` 进入项目登陆界面。

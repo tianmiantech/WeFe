@@ -1,93 +1,86 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.common.web.api;
+package com.welab.wefe.common.web.util;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.ClassUtils;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.*;
-import org.apache.commons.collections4.CollectionUtils;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.NoneApiInput;
+import com.welab.wefe.common.web.dto.NoneApiOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * @author Zane
+ * @author zane
+ * @date 2021/10/27
  */
-@Api(path = "apis", name = "获取 api 列表", login = false)
-public class Apis extends AbstractNoneInputApi<Apis.Output> {
+public class ApiListMarkdownFormatter {
 
-    private static List<JObject> API_LIST = new ArrayList<>();
+    private static final Logger LOG = LoggerFactory.getLogger(ApiListMarkdownFormatter.class);
 
-    @Override
-    protected ApiResult<Output> handle() throws StatusCodeWithException {
-        if (CollectionUtils.isEmpty(API_LIST)) {
+    public static String format(List<Class<?>> list) {
 
-            List<Class<?>> list = ReflectionsUtil.getClassesWithAnnotation(Launcher.API_PACKAGE_PATH, Api.class);
+        StringBuilder str = new StringBuilder(1024);
 
-            API_LIST = list
-                    .stream()
-                    .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                    .map(this::getApiInfo)
-                    .sorted((a, b) -> {
-                        assert a != null;
-                        return a.getString("path").compareToIgnoreCase(b.getString("path"));
-                    })
-                    .collect(Collectors.toList());
+        list
+                .stream()
+                .filter(x -> !Modifier.isAbstract(x.getModifiers()))
+                .filter(x -> {
+                    for (String key : Arrays.asList("derived_data_set", "chat", "online_demo", "serving", "tianmiantech", "test/")) {
+                        if (x.getAnnotation(Api.class).path().contains(key)) {
+                            return false;
+                        }
+                    }
 
-        }
+                    return true;
+                })
+                .sorted(Comparator.comparing(x -> StringUtil.trim(x.getAnnotation(Api.class).path(), '/')))
+                .forEach(x -> getApiInfo(str, x));
 
-        return success(Output.of(API_LIST.size(), API_LIST));
+        return str.toString();
 
     }
 
     /**
      * @param clazz API classes
      */
-    private JObject getApiInfo(Class<?> clazz) {
+    private static String getApiInfo(StringBuilder str, Class<?> clazz) {
         Api api = clazz.getAnnotation(Api.class);
         if (api == null) {
             return null;
         }
 
-
-        JObject json = JObject.create()
-                .append("path", StringUtil.trim(api.path(), '/', '\\'));
-
-        if (StringUtil.isNotEmpty(api.name())) {
-            json.append("name", api.name());
-        }
+        String title = StringUtil.trim(api.path(), '/') + "(" + api.name() + ")";
+        str.append("## " + title + System.lineSeparator());
 
         if (StringUtil.isNotEmpty(api.desc())) {
-            json.append("desc", api.desc());
+            str.append("API 简介：" + api.desc() + System.lineSeparator() + "<br>" + System.lineSeparator());
         }
 
         // Gets a list of generic types for the API
@@ -118,25 +111,40 @@ public class Apis extends AbstractNoneInputApi<Apis.Output> {
             }
         }
 
-        json.append("input", buildApiParamsJObject(inputClass));
-        json.append("output", buildApiParamsJObject(outputClass));
 
-        return json;
+        buildApiParamsJObject(str, "Input", inputClass);
+
+        str.append(System.lineSeparator());
+
+
+        buildApiParamsJObject(str, "Output", outputClass);
+
+        str
+                .append(System.lineSeparator())
+                .append("<br>")
+                .append(System.lineSeparator())
+                .append(System.lineSeparator());
+
+        return str.toString();
     }
 
 
     /**
      * Generate API parameter documentation
      */
-    private static List<JObject> buildApiParamsJObject(Class<?> clazz) {
+    private static void buildApiParamsJObject(StringBuilder str, String title, Class<?> clazz) {
 
         if (clazz == null || clazz == NoneApiInput.class || clazz == NoneApiOutput.class) {
-            return null;
+            return;
         }
 
 
         Set<Field> fields = ClassUtils.listFields(clazz);
-        List<JObject> list = new ArrayList<>();
+
+        str.append("**" + title + ":**<br>").append(System.lineSeparator());
+        str.append("|name|type|comment|require|" + System.lineSeparator());
+        str.append("|---|---|---|---|" + System.lineSeparator());
+
 
         for (Field field : fields) {
             String name = StringUtil.stringToUnderLineLowerCase(field.getName());
@@ -147,14 +155,10 @@ public class Apis extends AbstractNoneInputApi<Apis.Output> {
                 continue;
             }
 
-            JObject param = JObject.create();
-            param.put("name", name);
-            String type = field.getType().getCanonicalName();
-            if (type.contains(".")) {
-                type = StringUtil.substringAfterLast(field.getType().getCanonicalName(), ".");
-            }
-            param.put("type", type);
+            String type = ClassUtils.getFieldTypeName(field);
 
+            String comment = "";
+            Boolean require = null;
             Check annotation = field.getAnnotation(Check.class);
             if (annotation != null) {
                 if (annotation.hiddenForFrontEnd()) {
@@ -162,26 +166,12 @@ public class Apis extends AbstractNoneInputApi<Apis.Output> {
                 }
 
                 if (StringUtil.isNotEmpty(annotation.name())) {
-                    param.put("comment", annotation.name());
+                    comment = annotation.name();
                 }
-                param.put("require", annotation.require());
+                require = annotation.require();
             }
 
-            list.add(param);
-        }
-        return list;
-    }
-
-
-    public static class Output extends AbstractApiOutput {
-        public int size;
-        public List<JObject> list;
-
-        public static Output of(int size, List<JObject> list) {
-            Output output = new Output();
-            output.size = size;
-            output.list = list;
-            return output;
+            str.append("|" + name + "|" + type + "|" + comment + "|" + (require == null ? "" : String.valueOf(require)) + "|" + System.lineSeparator());
         }
     }
 }
