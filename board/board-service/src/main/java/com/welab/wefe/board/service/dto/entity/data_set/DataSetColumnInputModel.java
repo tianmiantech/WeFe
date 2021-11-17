@@ -27,13 +27,9 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
  */
 public class DataSetColumnInputModel extends AbstractCheckModel {
 
-    /**
-     * 字段名称
-     */
+    @Check(name = "字段名称")
     private String name;
-    /**
-     * 数据类型
-     */
+    @Check(name = "数据类型")
     private ColumnDataType dataType;
     /**
      * 注释

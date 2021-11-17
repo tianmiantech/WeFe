@@ -25,7 +25,9 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zane
@@ -45,16 +47,37 @@ public class ImageDataSetSampleStatisticsApi extends AbstractApi<ImageDataSetSam
     public static class Output {
 
         @Check(name = "按 label 统计 label 数量", desc = "例：一个样本中有三个 apple，apple 计数三次。")
-        public Map<String, Integer> countByLabel;
+        public List<Item> countByLabel;
         @Check(name = "按样本统计 label 数量", desc = "例：一个样本中有三个 apple，apple 计数一次。")
-        public Map<String, Integer> countBySample;
+        public List<Item> countBySample;
 
         public Output() {
         }
 
         public Output(Map<String, Integer> countByLabel, Map<String, Integer> countBySample) {
-            this.countByLabel = countByLabel;
-            this.countBySample = countBySample;
+            this.countByLabel = mapToList(countByLabel);
+            this.countBySample = mapToList(countBySample);
+        }
+
+        private List<Item> mapToList(Map<String, Integer> map) {
+            return map
+                    .entrySet()
+                    .stream()
+                    .map(x -> new Item(x.getKey(), x.getValue()))
+                    .collect(Collectors.toList());
+        }
+
+        public static class Item {
+            public String label;
+            public int count;
+
+            public Item() {
+            }
+
+            public Item(String label, int count) {
+                this.label = label;
+                this.count = count;
+            }
         }
     }
 

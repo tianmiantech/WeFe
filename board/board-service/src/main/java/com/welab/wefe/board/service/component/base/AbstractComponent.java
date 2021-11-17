@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -281,7 +281,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    public TaskResultOutputModel getTaskResult(String taskId, String type) {
+    public TaskResultOutputModel getTaskResult(String taskId, String type) throws StatusCodeWithException {
         TaskResultMySqlModel result = getResult(taskId, type);
         if (result == null) {
             return null;
@@ -672,7 +672,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    protected abstract TaskResultMySqlModel getResult(String taskId, String type);
+    protected abstract TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException;
 
     /**
      * Declare the input parameter type

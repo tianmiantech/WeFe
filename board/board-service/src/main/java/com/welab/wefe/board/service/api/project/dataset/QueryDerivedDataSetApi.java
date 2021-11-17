@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.project.DerivedProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;

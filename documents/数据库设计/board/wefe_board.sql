@@ -440,6 +440,7 @@ CREATE TABLE `project`
     `closed_by`                varchar(32) NULL COMMENT '关闭者',
     `closed_time`              datetime(6) NULL COMMENT '关闭时间',
     `flow_status_statistics`   varchar(512) COMMENT '流程状态统计',
+    `project_type`             varchar(36)  NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`)
 ) ENGINE = InnoDB
@@ -466,6 +467,7 @@ CREATE TABLE `project_data_set`
     `source_type`         varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
     `source_job_id`       varchar(64) COMMENT '来源任务id',
     `source_task_id`      varchar(100) COMMENT '来源子任务id',
+    `data_set_type`       varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`, `member_role`, `data_set_id`)
 ) ENGINE = InnoDB
@@ -523,6 +525,7 @@ CREATE TABLE `project_flow`
     `flow_name`               varchar(256) NOT NULL COMMENT '流程名称',
     `flow_desc`               text COMMENT '流程描述',
     `graph`                   longtext COMMENT '画布中编辑的图',
+    `creator_member_id`       varchar(36) COMMENT '创建此流程的成员的ID',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`flow_id`)
 ) ENGINE = InnoDB

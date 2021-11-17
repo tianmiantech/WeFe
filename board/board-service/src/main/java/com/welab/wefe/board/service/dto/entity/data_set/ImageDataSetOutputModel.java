@@ -16,34 +16,24 @@
 
 package com.welab.wefe.board.service.dto.entity.data_set;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * @author Zane
  */
 public class ImageDataSetOutputModel extends AbstractDataSetOutputModel {
 
-    /**
-     * 任务类型（物体检测...）
-     */
+    @Check(name = "任务类型（物体检测...）")
     private String forJobType;
-    /**
-     * label 列表
-     */
+    @Check(name = "label 列表")
     private String labelList;
-    /**
-     * 样本数量
-     */
+    @Check(name = "样本数量")
     private int sampleCount;
-    /**
-     * 已标注数量
-     */
+    @Check(name = "已标注数量")
     private int labeledCount;
-    /**
-     * 是否已标注完毕
-     */
+    @Check(name = "是否已标注完毕")
     private boolean labelCompleted;
-    /**
-     * 数据集大小
-     */
+    @Check(name = "数据集大小")
     private long filesSize;
 
     //region getter/setter

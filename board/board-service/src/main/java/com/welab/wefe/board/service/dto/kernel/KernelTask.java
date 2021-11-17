@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,8 @@
  */
 
 package com.welab.wefe.board.service.dto.kernel;
+
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 import java.util.List;
 
@@ -32,26 +34,16 @@ public class KernelTask {
 
     private List<Member> members;
 
-    /**
-     * Mixed Federation promoter_id
-     */
+    @Check(name = "Mixed Federation promoter_id")
     private String mixPromoterMemberId;
 
-    /**
-     * Whether it is the main node of the current provider
-     */
+    @Check(name = "Whether it is the main node of the current provider")
     private boolean providerMaster;
-    /**
-     * The id of the current provider
-     */
+    @Check(name = "The id of the current provider")
     private String providerInnerId;
-    /**
-     * The primary node id of the current provider
-     */
+    @Check(name = "The primary node id of the current provider")
     private String providerMasterInnerId;
-    /**
-     * Other id of the current provider, not including itself
-     */
+    @Check(name = "Other id of the current provider, not including itself")
     private List<String> providerOtherInnerId;
 
     public List<Member> getMembers() {

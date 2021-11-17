@@ -78,7 +78,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 output = readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
         }
 

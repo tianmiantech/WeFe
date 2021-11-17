@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,24 +18,19 @@ package com.welab.wefe.board.service.dto.entity.modeling_config;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.FederatedLearningType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
 public class AbstractModelingConfigOutputModel extends AbstractOutputModel {
 
-    /**
-     * 配置名称
-     */
+    @Check(name = "配置名称")
     private String name;
-    /**
-     * 联邦学习模式
-     */
+    @Check(name = "联邦学习模式")
     private FederatedLearningType flType;
 
-    /**
-     * 是否已删除
-     */
+    @Check(name = "是否已删除")
     private Boolean deleted = false;
 
     //region getter/setter

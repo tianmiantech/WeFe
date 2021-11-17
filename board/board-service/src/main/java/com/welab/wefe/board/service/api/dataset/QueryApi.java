@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.dataset;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -31,13 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zane
  */
 @Api(path = "data_set/query", name = "query data set")
-public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<DataSetOutputModel>> {
+public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<TableDataSetOutputModel>> {
 
     @Autowired
     private DataSetService dataSetService;
 
     @Override
-    protected ApiResult<PagingOutput<DataSetOutputModel>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<PagingOutput<TableDataSetOutputModel>> handle(Input input) throws StatusCodeWithException {
         return success(dataSetService.query(input));
     }
 

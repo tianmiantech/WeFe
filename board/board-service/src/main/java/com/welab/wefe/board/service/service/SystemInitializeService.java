@@ -115,7 +115,6 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPrivateKey(pair.privateKey);
             model.setRsaPublicKey(pair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
@@ -174,7 +173,6 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPrivateKey(pair.privateKey);
             model.setRsaPublicKey(pair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 

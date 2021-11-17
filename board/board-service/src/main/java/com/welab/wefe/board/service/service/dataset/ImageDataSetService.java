@@ -40,6 +40,7 @@ import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,6 +69,22 @@ public class ImageDataSetService extends AbstractDataSetService {
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
+
+    /**
+     * get data sets info from local or union
+     */
+    public ImageDataSetOutputModel findDataSetFromLocalOrUnion(String memberId, String dataSetId) throws StatusCodeWithException {
+
+        if (memberId.equals(CacheObjects.getMemberId())) {
+            ImageDataSetMysqlModel dataSet = imageDataSetRepository.findById(dataSetId).orElse(null);
+            if (dataSet == null) {
+                return null;
+            }
+            return ModelMapper.map(dataSet, ImageDataSetOutputModel.class);
+        } else {
+            return unionService.getImageDataSetDetail(dataSetId);
+        }
+    }
 
     public synchronized void updateLabelInfo(String dataSetId) {
         ImageDataSetMysqlModel dataSet = findOneById(dataSetId);

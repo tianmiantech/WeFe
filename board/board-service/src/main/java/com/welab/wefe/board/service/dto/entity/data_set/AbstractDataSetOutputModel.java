@@ -19,6 +19,7 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.enums.DataSetStorageType;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 
@@ -31,7 +32,7 @@ import java.util.TreeMap;
  * @author zane
  * @date 2021/11/11
  */
-public class AbstractDataSetOutputModel extends AbstractOutputModel {
+public abstract class AbstractDataSetOutputModel extends AbstractOutputModel {
     /**
      * 数据集名称
      */
@@ -47,7 +48,6 @@ public class AbstractDataSetOutputModel extends AbstractOutputModel {
     /**
      * 存储类型
      */
-    @Enumerated(EnumType.STRING)
     protected DataSetStorageType storageType;
     /**
      * 命名空间
@@ -74,6 +74,7 @@ public class AbstractDataSetOutputModel extends AbstractOutputModel {
      * 使用次数
      */
     protected Integer usageCountInProject = 0;
+    private DataSetType dataSetType;
     private TreeMap<String, String> publicMemberInfoList = new TreeMap<>();
 
     public List<String> getPublicMemberList() {
@@ -184,6 +185,14 @@ public class AbstractDataSetOutputModel extends AbstractOutputModel {
 
     public void setPublicMemberInfoList(TreeMap<String, String> publicMemberInfoList) {
         this.publicMemberInfoList = publicMemberInfoList;
+    }
+
+    public DataSetType getDataSetType() {
+        return dataSetType;
+    }
+
+    public void setDataSetType(DataSetType dataSetType) {
+        this.dataSetType = dataSetType;
     }
 
     // endregion
