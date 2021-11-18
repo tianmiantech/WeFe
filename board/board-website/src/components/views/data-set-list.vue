@@ -60,6 +60,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="projectType === 'MachineLearning'"
                 label="包含Y"
                 min-width="60"
             >
@@ -85,6 +86,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="projectType === 'MachineLearning'"
                 label="数据信息"
                 prop="row_count"
                 min-width="140"
@@ -101,6 +103,16 @@
                     </template>
                 </template>
             </el-table-column>
+            <el-table-column
+                v-if="projectType === 'DeepLearning'"
+                label="数据总量"
+                prop="sample_count"
+            />
+            <el-table-column
+                v-if="projectType === 'DeepLearning'"
+                label="标注状态"
+                prop="label_completed"
+            />
             <el-table-column
                 label="参与任务次数"
                 prop="usage_count_in_job"
@@ -124,7 +136,7 @@
                     <slot name="operation">
                         <div class="cell-reverse">
                             <el-tooltip
-                                v-if="is_my_data_set"
+                                v-if="is_my_data_set && projectType === 'MachineLearning'"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -209,6 +221,7 @@
             emitEventName: String,
             dataSets:      Array,
             isShow:        Boolean,
+            projectType:   String,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {
