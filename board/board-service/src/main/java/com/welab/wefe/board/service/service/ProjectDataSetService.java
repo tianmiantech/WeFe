@@ -94,6 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
+                .equal("dataSetType", input.getDataSetType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
