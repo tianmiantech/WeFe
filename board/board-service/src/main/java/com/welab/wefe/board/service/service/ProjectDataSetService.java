@@ -94,6 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
+                .equal("dataSetType", input.getDataSetType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -186,11 +187,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, String memberId, JobMemberRole memberRole, Boolean containsY) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataSetType dataSetType, String memberId, JobMemberRole memberRole, Boolean containsY) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
+                .equal("dataSetType", dataSetType)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -251,11 +253,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> list(String projectId, String memberId) {
+    public List<ProjectDataSetOutputModel> list(String projectId, DataSetType dataSetType, String memberId) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
+                .equal("dataSetType", dataSetType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 

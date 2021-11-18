@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -39,13 +40,16 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.list(input.projectId, input.memberId);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.list(input.projectId, input.dataSetType, input.memberId);
         return success(new Output(list));
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "项目Id", require = true)
         private String projectId;
+
+        @Check(name = "数据集类型")
+        private DataSetType dataSetType;
 
         @Check(name = "成员Id", desc = "当此参数为空时，返回项目中所有数据集")
         private String memberId;
@@ -59,6 +63,15 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
         public void setProjectId(String projectId) {
             this.projectId = projectId;
+        }
+
+
+        public DataSetType getDataSetType() {
+            return dataSetType;
+        }
+
+        public void setDataSetType(DataSetType dataSetType) {
+            this.dataSetType = dataSetType;
         }
 
         public String getMemberId() {

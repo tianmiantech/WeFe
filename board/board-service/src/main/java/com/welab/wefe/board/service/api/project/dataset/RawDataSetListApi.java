@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -40,7 +41,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.memberId, input.memberRole, input.containsY);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataSetType, input.memberId, input.memberRole, input.containsY);
         return success(new Output(list));
     }
 
@@ -50,6 +51,9 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         @Check(name = "成员Id", require = true, desc = "当此参数为空时，返回项目中所有数据集")
         private String memberId;
+
+        @Check(name = "数据集类型", require = true)
+        private DataSetType dataSetType;
 
         @Check(name = "成员角色", require = true)
         private JobMemberRole memberRole;
@@ -73,6 +77,14 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         public void setMemberId(String memberId) {
             this.memberId = memberId;
+        }
+
+        public DataSetType getDataSetType() {
+            return dataSetType;
+        }
+
+        public void setDataSetType(DataSetType dataSetType) {
+            this.dataSetType = dataSetType;
         }
 
         public JobMemberRole getMemberRole() {

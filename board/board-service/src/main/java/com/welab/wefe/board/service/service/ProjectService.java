@@ -278,7 +278,7 @@ public class ProjectService extends AbstractService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null);
+        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
 
 
         // Populate the member's data set list
@@ -497,7 +497,6 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
                 projectDataSet.setDataSetType(item.getDataSetType());
-
             }
 
             projectDataSetRepo.save(projectDataSet);

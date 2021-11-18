@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.dto.entity.project.data_set;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
 import com.welab.wefe.common.enums.AuditStatus;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
@@ -45,6 +46,8 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
     private Date statusUpdatedTime;
     @Check(name = "数据集是否已删除")
     private boolean deleted;
+    @Check(name = "数据集类型")
+    private DataSetType dataSetType;
     @Check(name = "数据集详情")
     private AbstractDataSetOutputModel dataSet;
 
@@ -113,6 +116,14 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
 
     public void setStatusUpdatedTime(Date statusUpdatedTime) {
         this.statusUpdatedTime = statusUpdatedTime;
+    }
+
+    public DataSetType getDataSetType() {
+        return dataSetType;
+    }
+
+    public void setDataSetType(DataSetType dataSetType) {
+        this.dataSetType = dataSetType;
     }
 
     public AbstractDataSetOutputModel getDataSet() {
