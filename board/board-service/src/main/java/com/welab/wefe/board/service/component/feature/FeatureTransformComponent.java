@@ -74,8 +74,9 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
                     for (List<String> map : maps) {
                         rulesObj.append(map.get(0), map.get(1));
                     }
-
-                    transformRules.append(feature.getName(), rulesObj);
+                    if(!rulesObj.isEmpty()) {
+                        transformRules.append(feature.getName(), rulesObj);    
+                    }
                 });
 
             }
