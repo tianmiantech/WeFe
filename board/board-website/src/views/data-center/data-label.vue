@@ -13,13 +13,15 @@
                         <el-button plain type="primary">添加标签</el-button>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search"></el-input>
                     </div>
                     <div class="label_info">
                         <div v-for="item in vData.count_by_sample" :key="item.label" class="label_item">
                             <span class="span_label">{{item.label}}</span>
                             <span class="span_count">{{item.count}}</span>
                         </div>
+                        <!-- 自定义的可支持 编辑 删除 -->
+                        <el-input type="text" placeholder="按回车或Tab添加标签" v-model="vData.newLabel" show-word-limit :maxlength="10" @keyup.enter="methods.addLabel" @keydown.tab="methods.addLabel" />
                     </div>
                 </div>
             </el-tabs>
@@ -91,6 +93,8 @@
                 timer:           null,
                 count_by_label:  [],
                 count_by_sample: [],
+                labelName:       '',
+                newLabel:        '',
             });
 
             const methods = {
@@ -110,9 +114,16 @@
                 },
                 async getSampleList() {
                     vData.imgLoading = true;
+                    const params = {
+                        page_index:  vData.search.page_index - 1,
+                        page_size:   vData.search.page_size,
+                        label:       vData.search.label,
+                        data_set_id: vData.sampleId,
+                        labeled:     vData.search.labeled,
+                    };
                     const { code, data } = await $http.post({
-                        url:    '/image_data_set_sample/query',
-                        params: Object.assign(vData.search, { data_set_id: vData.sampleId }),
+                        url:  '/image_data_set_sample/query',
+                        data: params,
                     });
                     
                     nextTick(_ => {
@@ -122,9 +133,9 @@
                                 data.list.forEach((item, idx) => {
                                     methods.downloadImage(item.id, idx, data.list);
                                 });
-                                window.addEventListener('keydown', function(e) {
-                                    labelSystemRef.value.methods.handleEvent(e);
-                                });
+                                // window.addEventListener('keydown', function(e) {
+                                //     labelSystemRef.value.methods.handleEvent(e);
+                                // });
                             } else {
                                 vData.search.total = data.total;
                                 vData.sampleList = data.list;
@@ -152,7 +163,10 @@
                                 list[0].$isselected = true;
                                 vData.currentImage = { item: list[0], idx: 0 };
                                 nextTick(_=> {
-                                    labelSystemRef.value.methods.createStage();
+                                    // When the last picture is obtained, call the interface to update the current label information
+                                    if (idx === vData.search.page_size - 1) {
+                                        labelSystemRef.value.methods.createStage();
+                                    }
                                 });
                                 vData.sampleList = list;
                                 vData.imgLoading = false;
@@ -195,7 +209,6 @@
                     vData.search.page_index = val;
                     methods.getSampleList();
                 },
-
                 pageSizeChange (val) {
                     vData.search.page_size = val;
                     methods.getSampleList();
@@ -217,6 +230,14 @@
                     imgThumbnailListRef.value.vData.width = document.getElementsByClassName('label_content')[0].offsetWidth - 280;
                     labelSystemRef.value.methods.createStage();
                 },
+                addLabel() {
+                    vData.count_by_sample.push({
+                        label:   vData.newLabel,
+                        count:   0,
+                        keycode: vData.count_by_sample.length,
+                    });
+                    vData.newLabel = '';
+                },
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
                     console.log(res);
@@ -237,7 +258,6 @@
                             $message.success('保存成功');
                             // 标注下一张
                             // 判断是否为最后一张
-                            console.log(vData.sampleList.length - 1,  vData.currentImage.idx, vData.currentImage.idx+1);
                             if (vData.sampleList.length - 1 !== vData.currentImage.idx) {
                                 vData.sampleList[vData.currentImage.idx].$isselected = false;
                                 vData.sampleList[vData.currentImage.idx+1].$isselected = true;
@@ -347,17 +367,25 @@
 }
 </style>
 <style lang="scss" scoped>
+@mixin inputStyle {
+    height: 40px;
+    :deep(input.el-input__inner) {
+        height: 40px;
+    }
+    :deep(.el-input__prefix) {
+        top: 5px;
+    }
+}
 .page_layer_label {
     .label_search {
         .el-input {
             width: 90%;
-            height: 40px;
-            :deep(input.el-input__inner) {
-                height: 40px;
-            }
-            :deep(.el-input__prefix) {
-                top: 5px;
-            }
+            @include inputStyle;
+        }
+    }
+    .label_info {
+        .el-input {
+            @include inputStyle;
         }
     }
 }

@@ -2,6 +2,7 @@
     <div class="label_system">
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
+        <div v-if="currentImage.item && currentImage.item.labeled" class="show_label_info">{{currentImage.item.label_list}}</div>
         <el-button type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
@@ -46,6 +47,23 @@
 
             const labelModalRef = ref();
             const methods = {
+                editLabelStage() {
+                    if (props.currentImage.item) {
+                        if (props.currentImage.item.label_info.labeled) {
+                            const list = props.currentImage.item.label_info.objects;
+
+                            list.forEach(item => {
+                                const x = item.points[0].x,
+                                      y = item.points[0].y,
+                                      w = item.points[1].x - item.points[0].x,
+                                      h = item.points[1].y - item.points[0].y;
+
+                                methods.drawRect(x, y, w, h, vData.graphColor, 0);
+                                methods.labelNode(item);
+                            });
+                        }
+                    }
+                },
                 createStage() {
                     vData.stage = new Konva.Stage({
                         container: 'container',
@@ -86,11 +104,12 @@
                         imageLayer = new Konva.Image(imgOptions);
                         vData.layer.add(imageLayer);
                         vData.layer.batchDraw();
+                        methods.editLabelStage();
                     }, 100);
                     if(props.currentImage.item) imgObj.src = props.currentImage.item.img_src;
-                
+
                     vData.stage.on('mousedown', function(e) {
-                        labelModalRef.value.methods.hideModal();
+                        // labelModalRef.value.methods.hideModal();
                         vData.labelList = props.labelList;
                         let lastEvent = null;
                         // 如果点击空白处 移除图形选择框
@@ -158,7 +177,6 @@
                     vData.layer.add(vData.rectLayer);
                     vData.layer.draw();
                     vData.labelNowPos = vData.rectLayer;
-                
                     vData.rectLayer.on('dragmove', function(e) {
                         vData.labelNowPos.setAttrs({
                             x: vData.rectLayer.x(),
@@ -169,12 +187,11 @@
                         }
                     });
                     vData.rectLayer.on('mousedown', function(e) {
-                        console.log(e);
                         if (e.evt.button === 2) {
                             e.evt.preventDefault();
                             e.evt.returnValue = false;
                             e.evt.cancelBubble = false;
-                            // 鼠标右击 对于已标注的区域可进行编辑操作
+                            // right click to edit labeled element
                             if (this.attrs.isLabeled) {
                                 methods.showLabelModal();
                             }
@@ -284,23 +301,24 @@
                     }
 
                     vData.labelPosition =`${ labelX }px, ${ labelY }px`;
-                    console.log(vData.labelPosition);
                     labelModalRef.value.methods.showModal();
                 },
                 // emit 删除标注框
                 destroyNode() {
                     vData.layer.find('Transformer').destroy();
                     vData.layer.find('Rect').destroy();
-                    if (vData.rectLayer.attrs.isLabeled) vData.labelLayer.destroy();
+                    if (vData.rectLayer.attrs.isLabeled) {
+                        // vData.labelLayer.destroy();
+                        vData.layer.find('Text').destroy();
+                    }
                     vData.layer.draw();
                     labelModalRef.value.methods.hideModal();
                     vData.labelList = props.labelList;
                 },
                 // 标注
                 labelNode(data) {
-                    console.log(data);
-                    // console.log(vData.labelNowPos.x(), vData.labelNowPos.y(),vData.labelNowPos.width(), vData.labelNowPos.height());
                     vData.currentLabel = data;
+                    vData.stage.find('Text').destroy();
                     vData.labelLayer = new Konva.Text({
                         x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
                         y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
@@ -338,7 +356,7 @@
                         });
                     });
                 },
-                // 保存当前标注
+                // save current label
                 saveLabel() {
                     const labe_list = [], rect_list = vData.stage.find('Rect');
 
@@ -354,8 +372,13 @@
                         }
                     });
                     context.emit('save-label', labe_list, props.currentImage.item.id);
+                    vData.stage.find('Transformer').destroy();
+                    vData.stage.find('Rect').destroy();
+                    vData.stage.find('Text').destroy();
                 },
+                // set keycode
                 async handleEvent(e) {
+                    console.log(e.keyCode);
                     switch (e.keyCode) {
                     case 48:
                         if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);
@@ -423,9 +446,9 @@
         }
     }
     .save_label {
-        position: absolute;
-        right: 300px;
-        top: 12px;
+        position: fixed;
+        right: 330px;
+        top: 185px;
     }
 }
 </style>
