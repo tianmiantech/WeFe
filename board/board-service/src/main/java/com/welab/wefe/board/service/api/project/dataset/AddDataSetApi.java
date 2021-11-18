@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.ProjectDataSetInput;
 import com.welab.wefe.board.service.service.ProjectService;
-import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -49,8 +48,6 @@ public class AddDataSetApi extends AbstractNoneOutputApi<AddDataSetApi.Input> {
 
         @Check(name = "项目ID", require = true)
         private String projectId;
-        @Check(name = "项目类型", require = true)
-        private ProjectType projectType;
 
         @Check(name = "数据集列表", require = true)
         private List<ProjectDataSetInput> dataSetList;
@@ -63,14 +60,6 @@ public class AddDataSetApi extends AbstractNoneOutputApi<AddDataSetApi.Input> {
 
         public void setProjectId(String projectId) {
             this.projectId = projectId;
-        }
-
-        public ProjectType getProjectType() {
-            return projectType;
-        }
-
-        public void setProjectType(ProjectType projectType) {
-            this.projectType = projectType;
         }
 
         public List<ProjectDataSetInput> getDataSetList() {

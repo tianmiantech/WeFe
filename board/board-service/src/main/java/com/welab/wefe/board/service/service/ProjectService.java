@@ -497,7 +497,6 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
                 projectDataSet.setDataSetType(item.getDataSetType());
-
             }
 
             projectDataSetRepo.save(projectDataSet);
