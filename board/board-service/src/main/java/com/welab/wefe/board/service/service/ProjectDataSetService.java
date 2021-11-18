@@ -253,11 +253,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> list(String projectId, String memberId) {
+    public List<ProjectDataSetOutputModel> list(String projectId, DataSetType dataSetType, String memberId) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
+                .equal("dataSetType", dataSetType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 
