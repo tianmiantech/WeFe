@@ -17,7 +17,7 @@
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
                     <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
-                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" />
+                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" @delete-options="methods.deleteEvent" />
                     <template v-else>
                         <EmptyData />
                     </template>
@@ -53,7 +53,7 @@
             const route = useRoute();
             // const router = useRouter();
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $message } = appContext.config.globalProperties;
             const imgListRef = ref();
             const vData = reactive({
                 activeName: '',
@@ -103,9 +103,16 @@
                 },
                 async getSampleList() {
                     vData.imgLoading = true;
+                    const params = {
+                        page_index:  vData.search.page_index - 1,
+                        page_size:   vData.search.page_size,
+                        label:       vData.search.label,
+                        data_set_id: vData.sampleId,
+                        labeled:     vData.search.labeled,
+                    };
                     const { code, data } = await $http.post({
-                        url:    '/image_data_set_sample/query',
-                        params: Object.assign(vData.search, { data_set_id: vData.sampleId }),
+                        url:  '/image_data_set_sample/query',
+                        data: params,
                     });
                     
                     nextTick(_ => {
@@ -149,7 +156,6 @@
                     vData.search.page_index = val;
                     methods.getSampleList();
                 },
-
                 pageSizeChange (val) {
                     vData.search.page_size = val;
                     methods.getSampleList();
@@ -159,6 +165,19 @@
 
                     vData.search.labeled = label_type;
                     methods.getSampleList();
+                },
+                async deleteEvent(id, idx) {
+                    const { code } = await $http.get({
+                        url:    '/image_data_set_sample/delete',
+                        params: { id },
+                    });
+
+                    nextTick(_ => {
+                        if(code === 0) {
+                            vData.sampleList.splice(idx, 1);
+                            $message.success('删除成功');
+                        }
+                    });
                 },
             };
 

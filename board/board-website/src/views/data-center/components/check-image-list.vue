@@ -1,6 +1,6 @@
 <template>
     <div class="img_layer">
-        <div v-for="item in sampleList" class="img_items" :key="item.id">
+        <div v-for="(item, index) in sampleList" class="img_items" :key="item.id">
             <div class="img_item">
                 <el-image :src="item.img_src" :id="item.id" fit="contain">
                     <template #reference>
@@ -13,7 +13,7 @@
                     <div class="l_tips">{{item.labeled ? '已标注' : '未标注'}}</div>
                     <div class="r_btn">
                         <i class="el-icon-edit-outline" />
-                        <i class="el-icon-delete" />
+                        <i class="el-icon-delete" @click="methods.deleteEvent(item.id, index)" />
                     </div>
                 </div>
             </div>
@@ -27,13 +27,15 @@
         props: {
             sampleList: Array,
         },
-        setup() {
+        setup(props, context) {
             const vData = reactive({
                 baseUrl: window.api.baseUrl,
             });
 
             const methods = {
-                
+                deleteEvent(id, idx) {
+                    context.emit('delete-options', id, idx);
+                },
             };
 
             onBeforeMount(_=> {
