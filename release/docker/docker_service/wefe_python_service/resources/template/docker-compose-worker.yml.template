@@ -5,6 +5,7 @@ services:
     image: wefe_python_service:v.2.1 # wefe_version
     environment:
       - PYTHONPATH=/opt/welab/wefe
+      - SPARK_WORKER_WEBUI_PORT=8081 # worker_web_ui_port
       - "SPARK_PUBLIC_DNS=to_replace_ip" # worker_public_dns
     tty: true
     ports:
@@ -25,7 +26,7 @@ services:
       - sh
       - -c
       - |
-            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-worker.sh spark://master:7077
+            sh /data/environment/spark-3.0.1-bin-hadoop2.7/sbin/start-slave.sh spark://master:7077
             tail -f /dev/null
 
     deploy:

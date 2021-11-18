@@ -4,6 +4,8 @@ services:
   wefe_python_service_master:
     image: wefe_python_service:v.2.1 # wefe_version
     tty: true
+    environment:
+        - SPARK_MASTER_WEBUI_PORT=8080 # master_web_ui_port
     env_file:
       - variables.env
     hostname: master
