@@ -348,9 +348,6 @@
                         margin: 10px 0;
                         padding: 0 10px;
                         font-size: 14px;
-                        .span_label {
-                            
-                        }
                         .span_count {
                             color: #999;
                         }

@@ -40,7 +40,7 @@
                 labelList:     props.labelList,
                 // oldLabelList:  props.labelList,
                 labelPosition: '',
-                currentLabel:  {},
+                // currentLabel:  {},
                 labelNowPos:   null, // 标注文字位置
                 isLabeled:     false, // 当前标注框是否已标注
             });
@@ -238,7 +238,7 @@
                         this.destroy();
                         if (e.target.attrs.isLabeled) {
                             vData.labelLayer.destroy();
-                            vData.currentLabel = {};
+                            // vData.currentLabel = {};
                         }
                         vData.layer.draw();
                         labelModalRef.value.methods.hideModal();
@@ -317,8 +317,8 @@
                 },
                 // 标注
                 labelNode(data) {
-                    vData.currentLabel = data;
-                    vData.stage.find('Text').destroy();
+                    // vData.currentLabel = data;
+                    // vData.stage.find('Text').destroy();
                     vData.labelLayer = new Konva.Text({
                         x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
                         y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
@@ -329,7 +329,7 @@
                     vData.labelLayer.offsetX(vData.labelLayer.width() / 2);
                     vData.layer.add(vData.labelLayer);
                     vData.layer.draw();
-                    vData.currentLabel = {}; // 同一张图中有多个标注时，清除上个标注信息
+                    // vData.currentLabel = {}; // 同一张图中有多个标注时，清除上个标注信息
                     vData.labelLayer.on('mouseenter', function() {
                         vData.stage.container().style.cursor = 'move';
                     });
@@ -339,6 +339,7 @@
                         isLabeled: true,
                         labelName: data.label,
                     });
+                    console.log(vData.layer);
                 },
                 setLabelTextPosition() {
                     // 需考虑用户画标注框的初始方向

@@ -12,7 +12,7 @@
                 <div class="btns">
                     <div class="l_tips">{{item.labeled ? '已标注' : '未标注'}}</div>
                     <div class="r_btn">
-                        <i class="el-icon-edit-outline" />
+                        <!-- <i class="el-icon-edit-outline" /> -->
                         <i class="el-icon-delete" @click="methods.deleteEvent(item.id, index)" />
                     </div>
                 </div>
@@ -82,7 +82,7 @@
             align-items: center;
             height: 30px;
             padding: 0 4px;
-            color: #777;
+            color: #999;
             .l_tips {
                 font-size: 12px;
             }

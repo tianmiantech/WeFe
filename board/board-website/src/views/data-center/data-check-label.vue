@@ -14,6 +14,13 @@
                     <div class="label_search">
                         <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
                     </div>
+                    <div class="label_info">
+                        <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
+                        <div v-for="item in vData.count_by_label" :key="item.label" class="label_item">
+                            <span class="span_label">{{item.label}}</span>
+                            <span class="span_count">{{item.count}}</span>
+                        </div>
+                    </div>
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
                     <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
@@ -82,11 +89,33 @@
                         count: '',
                     },
                 ],
-                sampleList: [],
-                imgLoading: false,
+                sampleList:      [],
+                imgLoading:      false,
+                count_by_label:  [],
+                count_by_sample: [],
             });
 
             const methods = {
+                async getLabelInfo() {
+                    const { code, data } = await $http.get({
+                        url:    '/image_data_set_sample/statistics',
+                        params: { data_set_id: vData.sampleId },
+                    });
+
+                    nextTick(_=> {
+                        if (code === 0) {
+                            if (data) {
+                                const { count_by_label, count_by_sample } = data;
+
+                                vData.count_by_label = count_by_label;
+                                count_by_sample.forEach((item, i) => {
+                                    item.keycode = i;
+                                });
+                                vData.count_by_sample = count_by_sample;
+                            }
+                        }
+                    });
+                },
                 async getSampleInfo() {
                     const { code, data } = await $http.get({
                         url:    '/image_data_set/detail',
@@ -183,6 +212,7 @@
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
+                methods.getLabelInfo();
                 setTimeout(_=> {
                     methods.getSampleList();
                 }, 200);
@@ -255,6 +285,26 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
+                }
+                .label_info {
+                    padding: 0 10px;
+                    .label_title {
+                        @include flex_box;
+                        font-size: 12px;
+                        color: #666;
+                        padding: 16px 10px 6px;
+                    }
+                    .label_item {
+                        height: 40px;
+                        @include flex_box;
+                        border: 1px solid #eee;
+                        margin-bottom: 10px;
+                        padding: 0 10px;
+                        font-size: 14px;
+                        .span_count {
+                            color: #999;
+                        }
+                    }
                 }
             }
             .el-tab-pane {
