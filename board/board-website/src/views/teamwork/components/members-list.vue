@@ -221,6 +221,7 @@
             class="mt20"
         >
             <el-button
+                v-if="projectType === 'MachineLearning'"
                 class="add-provider-btn mr20"
                 @click="showSelectMemberDialog('promoter')"
             >
@@ -287,8 +288,9 @@
         },
         inject: ['refresh'],
         props:  {
-            form:     Object,
-            promoter: Object,
+            form:        Object,
+            promoter:    Object,
+            projectType: String,
         },
         data() {
             return {
@@ -430,7 +432,7 @@
                         data_set_id: row.id,
                     };
                 });
-                ref.loadDataList({ memberId, jobRole: role, resetPagination: false, $data_set });
+                ref.loadDataList({ memberId, jobRole: role, resetPagination: false, $data_set, projectType: this.projectType });
             },
 
             async batchDataSet(batchlist) {

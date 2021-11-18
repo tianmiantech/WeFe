@@ -56,6 +56,10 @@
                             <span class="project-desc-key">项目简介：</span>
                             <span class="f14">{{ form.desc }}</span>
                         </p>
+                        <p class="project-desc-value">
+                            <span class="project-desc-key">项目类型：</span>
+                            <span class="f14">{{ form.project_type }}</span>
+                        </p>
                         <p class="project-desc-time f13 ml10">
                             <template v-if="form.isCreator">由 {{ project.creator_nickname }}</template> 创建于 {{ dateFormat(project.created_time) }}
                         </p>
@@ -98,6 +102,7 @@
         <MembersList
             ref="membersListRef"
             :promoter="promoter"
+            :projectType="form.project_type"
             :form="form"
             @deleteDataSetEmit="deleteDataSetEmit"
         />
@@ -112,13 +117,14 @@
             <h3 class="mb10">TopN 展示</h3>
             <TopN ref="topnRef"></TopN>
         </el-card>
-
+        
         <ModelingList
+            v-if="form.project_type === 'MachineLearning'"
             ref="ModelingList"
             :form="form"
         />
 
-        <DerivedList />
+        <DerivedList v-if="form.project_type === 'MachineLearning'" />
 
         <el-dialog
             title="提示"
@@ -191,6 +197,7 @@
                     audit_status_from_myself: '',
                     // other member's audit comment
                     audit_status_from_others: '',
+                    project_type:             'MachineLearning',
                 },
                 cooperAuthDialog: {
                     show: false,
@@ -296,6 +303,7 @@
                         is_exited,
                         updated_time,
                         exited_time,
+                        project_type,
                     } = data;
                     const promoter_list = data.promoter_list || [];
 
@@ -310,6 +318,7 @@
                     this.project.is_exited = is_exited;
 
                     this.form.name = name;
+                    this.form.project_type = project_type;
                     this.form.is_exited = is_exited;
                     this.form.exited_time = exited_time;
                     this.form.updated_time = updated_time;
@@ -380,7 +389,8 @@
                     this.otherAudit();
                     callback && callback();
                     // get project/detail first
-                    if(!this.getModelingList) {
+                    console.log(!this.getModelingList && this.form.project_type === 'MachineLearning');
+                    if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
                         this.$refs['ModelingList'].getList();
                         this.getModelingList = true;
                     }

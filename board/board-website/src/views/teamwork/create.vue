@@ -485,7 +485,6 @@
             },
 
             addDataSet(role, memberId, memberIndex, $data_set) {
-                console.log(role, this.form.projectType);
                 const ref = this.$refs['SelectDatasetDialog'];
 
                 ref.show = true;
