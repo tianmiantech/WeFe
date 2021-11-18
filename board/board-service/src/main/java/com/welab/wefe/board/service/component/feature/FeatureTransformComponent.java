@@ -16,6 +16,11 @@
 
 package com.welab.wefe.board.service.component.feature;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
@@ -33,12 +38,6 @@ import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import org.springframework.stereotype.Service;
-
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author lonnie
@@ -48,15 +47,17 @@ import java.util.Map;
 public class FeatureTransformComponent extends AbstractComponent<FeatureTransformComponent.Params> {
 
     @Override
-    protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, FeatureTransformComponent.Params params) throws FlowNodeException {
+    protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+            FeatureTransformComponent.Params params) throws FlowNodeException {
         FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.FeatureStatistic);
-        if(featureStatisticNode == null){
+        if (featureStatisticNode == null) {
             throw new FlowNodeException(node, "需要在前置节点添加特征统计组件。");
         }
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, FeatureTransformComponent.Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+            FeatureTransformComponent.Params params) throws FlowNodeException {
 
         JSONObject taskParam = new JSONObject();
 
@@ -68,11 +69,10 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
                 List<Params.Feature> features = x.getFeatures();
 
                 features.forEach(feature -> {
-                    Map<String, Integer> map = feature.getTransformMap();
+                    List<List<String>> maps = feature.getTransforms();
                     JObject rulesObj = JObject.create();
-
-                    for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                        rulesObj.append(entry.getKey(), entry.getValue());
+                    for (List<String> map : maps) {
+                        rulesObj.append(map.get(0), map.get(1));
                     }
 
                     transformRules.append(feature.getName(), rulesObj);
@@ -104,16 +104,12 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
 
     @Override
     protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
-        return Arrays.asList(
-                InputMatcher.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance)
-        );
+        return Arrays.asList(InputMatcher.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
     @Override
     public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
-        return Arrays.asList(
-                OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance)
-        );
+        return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
     public static class Params extends AbstractCheckModel {
@@ -148,7 +144,7 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
             private String name;
 
             @Check(name = "转换规则")
-            private Map<String, Integer> transformMap;
+            private List<List<String>> transforms;
 
             public String getName() {
                 return name;
@@ -158,13 +154,14 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
                 this.name = name;
             }
 
-            public Map<String, Integer> getTransformMap() {
-                return transformMap;
+            public List<List<String>> getTransforms() {
+                return transforms;
             }
 
-            public void setTransformMap(Map<String, Integer> transformMap) {
-                this.transformMap = transformMap;
+            public void setTransforms(List<List<String>> transforms) {
+                this.transforms = transforms;
             }
+
         }
     }
 }
