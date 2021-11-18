@@ -21,8 +21,10 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
+import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
@@ -101,6 +103,21 @@ public class ClientActuator extends PsiClientActuator {
                 .builder();
         PSIUtils.sendString(socket, ActionType.end.name());
         SocketUtils.close(socket);
+
+        TaskService taskService = Launcher.CONTEXT.getBean(TaskService.class);
+
+        switch (status) {
+            case success:
+                taskService.updateByBusinessId(businessId, TaskStatus.Success, fusionCount.intValue(), getSpend());
+                break;
+            case falsify:
+            case running:
+                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, fusionCount.intValue(), getSpend());
+                break;
+            default:
+                taskService.updateByBusinessId(businessId, TaskStatus.Failure, fusionCount.intValue(), getSpend());
+                break;
+        }
     }
 
     @Override

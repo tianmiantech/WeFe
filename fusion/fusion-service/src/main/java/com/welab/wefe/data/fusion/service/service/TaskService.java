@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
 import com.welab.wefe.data.fusion.service.actuator.test.ServerActuator;
 import com.welab.wefe.data.fusion.service.api.task.*;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
@@ -38,8 +37,6 @@ import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.*;
 import com.welab.wefe.data.fusion.service.manager.TaskManager;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
-import com.welab.wefe.data.fusion.service.task.AbstractTask;
-import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -317,17 +314,16 @@ public class TaskService extends AbstractService {
 
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
-                BloomFilterUtils.readFrom(bf.getSrc()),
-
-                        "localhost",
-                        CacheObjects.getOpenSocketPort(),
-                        new BigInteger(bf.getN()),
-                        new BigInteger(bf.getE()),
-                        new BigInteger(bf.getD())
-
+                BloomFilterUtils.readFrom(
+                        bf.getSrc()),
+                "localhost",
+                CacheObjects.getOpenSocketPort(),
+                new BigInteger(bf.getN()),
+                new BigInteger(bf.getE()),
+                new BigInteger(bf.getD())
         );
 
-       // TaskManager.set(server);
+        // TaskManager.set(server);
 
         server.run();
 

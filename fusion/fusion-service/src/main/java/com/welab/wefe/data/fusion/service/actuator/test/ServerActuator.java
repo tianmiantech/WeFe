@@ -20,8 +20,11 @@ import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.manager.TaskManager;
 import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
-import com.welab.wefe.data.fusion.service.utils.SocketUtils;
+import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
 import com.welab.wefe.fusion.core.enums.ActionType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
@@ -113,6 +116,25 @@ public class ServerActuator extends PsiServerActuator {
         } catch (Exception e) {
             LOG.warn(e.getClass().getSimpleName() + " close error:" + e.getMessage());
         }
+
+
+        TaskService taskService = Launcher.CONTEXT.getBean(TaskService.class);
+
+        switch (status) {
+            case success:
+                taskService.updateByBusinessId(businessId, TaskStatus.Success, fusionCount.intValue(), getSpend());
+                break;
+            case falsify:
+            case running:
+                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, fusionCount.intValue(), getSpend());
+                break;
+            default:
+                taskService.updateByBusinessId(businessId, TaskStatus.Failure, fusionCount.intValue(), getSpend());
+                break;
+        }
+
+//        TaskManager.remove(businessId);
+
     }
 
     private void listen() {
@@ -248,7 +270,6 @@ public class ServerActuator extends PsiServerActuator {
             e.printStackTrace();
         }
     }
-
 
 
     private boolean DUMP_TABLE_EXIST = false;
