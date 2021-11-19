@@ -51,7 +51,7 @@ class FeatureTransform(ModelBase):
                 continue
             feature_index = self.header.index(feature_name)
             value = data_value.features[feature_index]
-            if value == '' or value is None:
+            if value == '' or value is None or value not in self.transform_rules[feature_name]:
                 continue
             new_value = self.transform_rules[feature_name][value]
             data_value.features[feature_index] = new_value
