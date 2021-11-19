@@ -12,6 +12,7 @@
  * @param {meta: title} String                   menu title
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
+ * @param {meta: notshowattag} Boolean           not show this page at tag bar
  */
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
@@ -95,10 +96,20 @@ const baseRoutes = [
                 component: () => import('../views/data-center/data-list'),
             },
             {
+                path: `${prefixPath}data-add-transition`,
+                name: 'data-add-transition',
+                meta: {
+                    title: '添加数据集',
+                },
+                component: () => import('../views/data-center/data-add-transition.vue'),
+            },
+            {
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title: '添加数据集',
+                    title:        '添加数据集',
+                    hidden:       true,
+                    notshowattag: true,
                 },
                 component: () => import('../views/data-center/data-add.vue'),
             },
@@ -121,6 +132,26 @@ const baseRoutes = [
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),
+            },
+            {
+                path: `${prefixPath}data-check-label`,
+                name: 'data-check-label',
+                meta: {
+                    hidden: true,
+                    title:  '查看与标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-check-label.vue'),
+            },
+            {
+                path: `${prefixPath}data-label`,
+                name: 'data-label',
+                meta: {
+                    hidden: true,
+                    title:  '数据标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-label.vue'),
             },
         ],
     },
