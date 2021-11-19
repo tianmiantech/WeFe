@@ -136,6 +136,7 @@ public class Components {
                 || type == ComponentType.HorzSecureBoost
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
-                || type == ComponentType.MixStatistic;
+                || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzStatistic;
     }
 }
