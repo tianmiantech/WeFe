@@ -18,7 +18,7 @@ spark_cluster_config(){
     case $identity_type in
       master)
         cp -f resources/template/docker-compose-master.yml.template resources/docker-compose.yml
-        sed -i "/master_web_ui_port/s/=.* #/=$SPARK_MASTER_UI_PORT/g" ./resources/docker-compose.yml
+        sed -i "/master_web_ui_port/s/=.* #/=$SPARK_MASTER_UI_PORT #/g" ./resources/docker-compose.yml
         sed -i "/spark_master_ui_port/s/8080:8080/$SPARK_MASTER_UI_PORT:$SPARK_MASTER_UI_PORT/g" ./resources/docker-compose.yml
         sed -i "/master_public_dns/s/SPARK_PUBLIC_DNS=to_replace_ip/SPARK_PUBLIC_DNS=$SPARK_MASTER/g" ./resources/docker-compose.yml
         sed -i "/master_container_ip/s/ipv4_address: to_replace_ip/ipv4_address: $cluster_container_ip/g" ./resources/docker-compose.yml
@@ -27,7 +27,7 @@ spark_cluster_config(){
         cp -f resources/template/docker-compose-worker.yml.template resources/docker-compose.yml
         sed -i "/worker_name/s/wefe_python_service_worker/wefe_python_service_$identity_name/g" ./resources/docker-compose.yml
         sed -i "/worker_public_dns/s/SPARK_PUBLIC_DNS=to_replace_ip/SPARK_PUBLIC_DNS=$cluster_host_ip/g" ./resources/docker-compose.yml
-        sed -i "/worker_web_ui_port/s/=.* #/=$worker_ui_port/g" ./resources/docker-compose.yml
+        sed -i "/worker_web_ui_port/s/=.* #/=$worker_ui_port #/g" ./resources/docker-compose.yml
         sed -i "/worker_container_ip/s/ipv4_address: to_replace_ip/ipv4_address: $cluster_container_ip/g" ./resources/docker-compose.yml
 
         # worker ui port
