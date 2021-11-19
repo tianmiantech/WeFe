@@ -1,10 +1,10 @@
 ### 查询用户操作日志
-POST {{baseUrl}}/log/query
+POST http://localhost:8080/board-service/log/query
 Content-Type: application/json
 token: {{token}}
 
 {
-  "action":"model_result",
+  "action": "model_result",
   "operator_phone": "15914412294",
   "start_time": 1597567046000,
   "end_time": 1597627277000

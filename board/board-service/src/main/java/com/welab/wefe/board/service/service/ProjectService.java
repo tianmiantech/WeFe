@@ -199,7 +199,8 @@ public class ProjectService extends AbstractService {
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
-
+                dataSet.setDataSetType(dataSetInput.getDataSetType());
+                
                 projectDataSetRepo.save(dataSet);
 
                 // Update the usage count of the dataset in the project

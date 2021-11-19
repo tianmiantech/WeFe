@@ -1,5 +1,5 @@
 ###
-POST {{baseUrl}}/project/detail
+POST http://localhost:8080/board-service/project/detail
 Content-Type: application/json
 
 {

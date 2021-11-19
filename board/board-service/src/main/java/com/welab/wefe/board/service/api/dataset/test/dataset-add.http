@@ -1,6 +1,6 @@
 
 ### 添加数据集-xlsx
-POST {{baseUrl}}/data_set/add
+POST http://localhost:8080/board-service/data_set/add
 Content-Type: application/json
 token: ac266310-0c98-46ac-b9d0-d7d8ff9ff888
 
@@ -119,7 +119,7 @@ token: ac266310-0c98-46ac-b9d0-d7d8ff9ff888
 
 
 ### 添加数据集-xls
-POST {{baseUrl}}/data_set/add
+POST http://localhost:8080/board-service/data_set/add
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 token: {{token}}
 
@@ -159,7 +159,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 添加数据集-csv
-POST {{baseUrl}}/data_set/add
+POST http://localhost:8080/board-service/data_set/add
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary

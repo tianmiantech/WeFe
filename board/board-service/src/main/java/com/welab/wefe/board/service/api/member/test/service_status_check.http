@@ -1,4 +1,4 @@
-POST {{baseUrl}}/member/service_status_check
+POST http://localhost:8080/board-service/member/service_status_check
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 
 ### 查别人
-POST {{baseUrl}}/member/service_status_check
+POST http://localhost:8080/board-service/member/service_status_check
 Content-Type: application/json
 
 {
