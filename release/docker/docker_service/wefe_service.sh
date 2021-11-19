@@ -100,7 +100,7 @@ _run_python_service(){
     if [ $SPARK_MODE = "STANDALONE" ]
     then
       # 集群方式启动
-      start_cluster_python_service_all
+      start_cluster
     else
       # 单机启动
       cd $PWD/wefe_python_service
@@ -110,7 +110,13 @@ _run_python_service(){
 
 _stop_cluster_python_service(){
     if [ $SPARK_MODE = "STANDALONE" ]; then
-      stop_cluster_python_service_all
+      stop_cluster
+    fi
+}
+
+_remove_cluster_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]; then
+      remove_cluster
     fi
 }
 
@@ -170,6 +176,28 @@ stop(){
     esac
 }
 
+remove(){
+    # init
+    case $INPUT_SERVICE in
+        board | gateway | python | middleware)
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            if [ $INPUT_SERVICE = "python" ]; then
+              _remove_cluster_python_service
+            fi
+            ;;
+        '')
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep wefe | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            _remove_cluster_python_service
+            ;;
+        *)
+            echo "Please Input a Legal Service"
+            echo "eg. {board|gateway|python|middleware}"
+            exit -1
+    esac
+}
+
 restart(){
     case $INPUT_SERVICE in
         board | gateway | python | middleware)
@@ -202,6 +230,9 @@ case $INPUT_ACTION in
         ;;
     restart)
         restart
+        ;;
+    remove)
+        remove
         ;;
     help)
         help
