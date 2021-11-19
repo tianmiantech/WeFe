@@ -14,14 +14,16 @@ fi
 
 # Consul 服务
 CONSUL_SERVICE=$(docker ps | grep consul)
-if [ ! $CONSUL_SERVICE ]]; then
+if [[ ! $CONSUL_SERVICE ]]; then
   echo '未检测到 consul 服务，请参照集群部署文档部署 consul 服务'
+  exit 0
 fi
 
 # 网络检测
 OVERLAY_NETWORK=$(docker network ls | grep overlay)
 if [[ ! $OVERLAY_NETWORK ]]; then
   echo '未检测到 Overlay 网络，请参照集群部署文档创建 Overlay 网络'
+  exit 0
 fi
 
 
