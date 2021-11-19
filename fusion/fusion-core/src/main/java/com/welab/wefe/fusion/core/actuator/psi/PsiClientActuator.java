@@ -102,8 +102,6 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
             //取数
             List<JObject> data = next();
 
-
-
             List<String> d = new ArrayList<>();
             List<BigInteger> r = new ArrayList<>();
             List<BigInteger> rInv = new ArrayList<>();

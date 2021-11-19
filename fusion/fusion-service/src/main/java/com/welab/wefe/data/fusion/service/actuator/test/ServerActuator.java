@@ -32,6 +32,7 @@ import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
+import org.apache.commons.compress.utils.Lists;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -220,8 +221,6 @@ public class ServerActuator extends PsiServerActuator {
         try {
 
             byte[][] query = PSIUtils.receive2DBytes(socket);
-            //   DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            // int index = (int) PSIUtils.receiveInteger(d_in);
 
             LOG.info("server wait spend :  {} ms ", (System.currentTimeMillis() - start));
 
@@ -259,7 +258,7 @@ public class ServerActuator extends PsiServerActuator {
             //PSIUtils
             PSIUtils.sendString(socket, ActionType.end.name());
 
-            List<JObject> fruit = new ArrayList<>();
+            List<JObject> fruit = Lists.newArrayList();
             for (int i = 0; i < rs.size(); i++) {
                 fruit.add(JObject.create(new String(rs.get(i))));
                 fusionCount.increment();

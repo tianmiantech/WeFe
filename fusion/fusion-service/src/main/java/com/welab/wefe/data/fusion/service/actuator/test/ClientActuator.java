@@ -17,7 +17,6 @@ package com.welab.wefe.data.fusion.service.actuator.test;
 
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.ThreadUtil;
@@ -36,6 +35,7 @@ import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.SocketUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
+import org.apache.commons.compress.utils.Lists;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class ClientActuator extends PsiClientActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 10000;
+    private int shard_size = 1000;
     private int current_index = 0;
     public List<FieldInfo> fieldInfoList;
 
@@ -136,11 +136,7 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("cursor {} spend: {}", current_index, System.currentTimeMillis() - start);
 
-        if (curList.size() >= shard_size) {
-            hasNext = true;
-        }
-
-        hasNext = false;
+        current_index++;
 
         //
 //        List<JObject> curList = Lists.newArrayList();
@@ -191,7 +187,16 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public Boolean hasNext() {
-        return hasNext;
+
+        DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
+        List<JObject> curList = Lists.newArrayList();
+        try {
+            curList = service.paging(columnList, dataSetId, current_index, shard_size);
+
+        } catch (StatusCodeWithException e) {
+        }
+
+        return curList.size() > 0;
     }
 
     @Override
@@ -304,7 +309,6 @@ public class ClientActuator extends PsiClientActuator {
         return PrimaryKeyUtils.create(value, fieldInfoList);
 //        return value.getString("id");
     }
-
 
 
     private boolean DUMP_TABLE_EXIST = false;
