@@ -10,6 +10,22 @@ else
   exit 0
 fi
 
+# 检查依赖环境
+
+# Consul 服务
+CONSUL_SERVICE=$(docker ps | grep consul)
+if [[ ! $CONSUL_SERVICE ]]; then
+  echo '未检测到 consul 服务，请参照集群部署文档部署 consul 服务'
+  exit 0
+fi
+
+# 网络检测
+OVERLAY_NETWORK=$(docker network ls | grep overlay)
+if [[ ! $OVERLAY_NETWORK ]]; then
+  echo '未检测到 Overlay 网络，请参照集群部署文档创建 Overlay 网络'
+  exit 0
+fi
+
 
 INPUT_ACTION=$1
 
@@ -45,6 +61,19 @@ _stop_python_service(){
     # ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_stop.sh"
     to_stop=$(ssh root@$to_host "docker ps -a | grep $WEFE_ENV | grep python " | awk '{print $1}' | xargs)
     ssh root@$to_host "docker stop $to_stop"
+    sleep 1
+}
+
+
+_remove_python_service(){
+    # 参数
+    to_host=$1
+    to_path=$2
+
+    echo "准备关闭远程容器$to_host, 目录:$to_path"
+    # ssh root@$to_host "cd $to_path && cd wefe_python_service && sh wefe_python_service_stop.sh"
+    to_remove=$(ssh root@$to_host "docker ps -a | grep $WEFE_ENV | grep python " | awk '{print $1}' | xargs)
+    ssh root@$to_host "docker rm $to_remove"
     sleep 1
 }
 
@@ -172,6 +201,31 @@ stop_cluster(){
 
        # 远程启动 worker
        _stop_python_service $worker $worker_path
+
+       index=$[index + 1]
+    done
+
+}
+
+remove_cluster(){
+
+    # master目录
+    master_path=$SPARK_CLUSTER_DATA_PATH/master
+
+    # start master
+    _remove_python_service $SPARK_MASTER $master_path
+    sleep 3
+
+    # 拷贝到每个 worker
+    workers=(`echo $SPARK_WORKERS | tr ',' ' '` )
+    index=0
+    for worker in ${workers[@]}
+    do
+       echo $worker
+       worker_path=$SPARK_CLUSTER_DATA_PATH"/worker_"$index
+
+       # 远程启动 worker
+       _remove_python_service $worker $worker_path
 
        index=$[index + 1]
     done
