@@ -124,7 +124,7 @@
             :form="form"
         />
 
-        <DerivedList v-if="form.project_type === 'MachineLearning'" />
+        <DerivedList v-if="form.project_type === 'MachineLearning'" :project-type="form.project_type" />
 
         <el-dialog
             title="提示"
@@ -389,7 +389,6 @@
                     this.otherAudit();
                     callback && callback();
                     // get project/detail first
-                    console.log(!this.getModelingList && this.form.project_type === 'MachineLearning');
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
                         this.$refs['ModelingList'].getList();
                         this.getModelingList = true;

@@ -112,7 +112,12 @@
                 v-if="projectType === 'DeepLearning'"
                 label="标注状态"
                 prop="label_completed"
-            />
+                width="100"
+            >
+                <template v-slot="scope">
+                    {{scope.row.label_completed ? '已完成' : '标注中'}}
+                </template>
+            </el-table-column>
             <el-table-column
                 label="参与任务次数"
                 prop="usage_count_in_job"

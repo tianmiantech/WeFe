@@ -116,7 +116,16 @@
                             </template>
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="标注状态" prop="label_completed" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作">
                             <template v-slot="scope">
                                 <el-button
@@ -559,9 +568,10 @@
                 if(this.promoter.$data_set.length) {
                     this.promoter.$data_set.forEach(data => {
                         promoterDataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   this.userInfo.member_id,
-                            data_set_id: data.id,
+                            member_role:   'promoter',
+                            member_id:     this.userInfo.member_id,
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                 }
@@ -575,9 +585,10 @@
 
                     item.$data_set.forEach(data => {
                         promoter.dataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   item.member_id,    // promoter Id
-                            data_set_id: data.id,
+                            member_role:   'promoter',
+                            member_id:     item.member_id,    // promoter Id
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     promoterList.push(promoter);
@@ -592,9 +603,10 @@
 
                     item.$data_set.forEach(data => {
                         provider.dataSetList.push({
-                            member_role: 'provider',
-                            member_id:   item.member_id,    // provider Id
-                            data_set_id: data.id,
+                            member_role:   'provider',
+                            member_id:     item.member_id,    // provider Id
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     providerList.push(provider);
