@@ -70,8 +70,8 @@ public class ServerActuator extends PsiServerActuator {
     @Override
     public void dump(List<JObject> fruit) {
 
-//            //Put in storage
-//            dump(fruit);
+            //Put in storage
+            dump(fruit);
 
         LOG.info("fruit insert ready...");
 
@@ -133,7 +133,7 @@ public class ServerActuator extends PsiServerActuator {
                 break;
         }
 
-//        TaskManager.remove(businessId);
+        TaskManager.remove(businessId);
 
     }
 
@@ -255,6 +255,10 @@ public class ServerActuator extends PsiServerActuator {
              * Receive alignment results
              */
             List<byte[]> rs = PSIUtils.receive2DBytes2(socket);
+
+            //PSIUtils
+            PSIUtils.sendString(socket, ActionType.end.name());
+
             List<JObject> fruit = new ArrayList<>();
             for (int i = 0; i < rs.size(); i++) {
                 fruit.add(JObject.create(new String(rs.get(i))));

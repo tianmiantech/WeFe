@@ -17,6 +17,7 @@ package com.welab.wefe.data.fusion.service.actuator.test;
 
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.ThreadUtil;
@@ -146,6 +147,8 @@ public class ClientActuator extends PsiClientActuator {
 //        for (int i = 1; i <= 100; i++) {
 //            curList.add(JObject.create().append("id", i));
 //        }
+//
+//        hasNext = false;
 
         return curList;
     }
@@ -284,6 +287,7 @@ public class ClientActuator extends PsiClientActuator {
 
             PSIUtils.send2DBytes(socket, rs);
 
+            PSIUtils.receiveString(socket);
         } finally {
             try {
                 if (socket != null) {
@@ -297,11 +301,7 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public String hashValue(JObject value) {
-
-
         return PrimaryKeyUtils.create(value, fieldInfoList);
-        //String key = data.get(i).getString("id");
-
 //        return value.getString("id");
     }
 

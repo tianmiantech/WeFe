@@ -102,6 +102,8 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
             //取数
             List<JObject> data = next();
 
+
+
             List<String> d = new ArrayList<>();
             List<BigInteger> r = new ArrayList<>();
             List<BigInteger> rInv = new ArrayList<>();
@@ -133,6 +135,37 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
         }
 
         status = PSIActuatorStatus.success;
+    }
+
+    void exe(List<JObject> data){
+
+        List<String> d = new ArrayList<>();
+        List<BigInteger> r = new ArrayList<>();
+        List<BigInteger> rInv = new ArrayList<>();
+        byte[][] bs = new byte[data.size()][];
+
+        //加密
+        for (int i = 0; i < data.size(); i++) {
+
+            String key = hashValue(data.get(i));
+            d.add(key);
+
+            BigInteger h = PSIUtils.stringToBigInteger(key);
+            BigInteger blindFactor = generateBlindingFactor();
+            r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
+            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
+            BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
+            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+        }
+
+        //发送
+        byte[][] result = qureyFusionData(bs);
+
+        //匹配
+        List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
+
+        //dump
+        dump(fruit);
     }
 
     /**
