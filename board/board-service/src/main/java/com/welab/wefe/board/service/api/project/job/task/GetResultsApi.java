@@ -27,6 +27,7 @@ import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -53,6 +54,8 @@ public class GetResultsApi extends AbstractApi<GetResultsApi.Input, List<TaskRes
         }
         List<TaskResultOutputModel> results = new ArrayList<>();
         for (TaskMySqlModel task : tasks) {
+            String taskConf = task.getTaskConf();
+            JObject taskConfigJson = JObject.create(taskConf);
             TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
                     input.type);
             if (result == null) {
@@ -66,6 +69,7 @@ public class GetResultsApi extends AbstractApi<GetResultsApi.Input, List<TaskRes
             result.setErrorCause(task.getErrorCause());
             result.setPosition(task.getPosition());
             result.setSpend(task.getSpend());
+            result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
             results.add(result);
         }
 
