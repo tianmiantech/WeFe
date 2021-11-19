@@ -200,7 +200,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
                 dataSet.setDataSetType(dataSetInput.getDataSetType());
-                
+
                 projectDataSetRepo.save(dataSet);
 
                 // Update the usage count of the dataset in the project
@@ -314,9 +314,9 @@ public class ProjectService extends AbstractService {
                 .filter(x -> x.getMemberRole() == JobMemberRole.provider).collect(Collectors.toList());
 
         ProjectOutputModel output = ModelMapper.map(project, ProjectOutputModel.class);
-        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
-                ProjectDetailMemberOutputModel.class);
-        output.setPromoter(newPromoter);
+//        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
+//                ProjectDetailMemberOutputModel.class);
+        output.setPromoter(promoter);
         output.setProviderList(providers);
         output.setPromoterList(promoters);
         output.setIsCreator(
