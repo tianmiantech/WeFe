@@ -131,7 +131,7 @@
                             if (data && data.list.length>0) {
                                 vData.search.total = data.total;
                                 data.list.forEach((item, idx) => {
-                                    methods.downloadImage(item.id, idx, data.list);
+                                    methods.downloadImage(item.id, idx, item);
                                 });
                                 // window.addEventListener('keydown', function(e) {
                                 //     labelSystemRef.value.methods.handleEvent(e);
@@ -144,7 +144,7 @@
                         }
                     });
                 },
-                async downloadImage(id, idx, list) {
+                async downloadImage(id, idx, item) {
                     const { code, data } = await $http.get({
                         url:          '/image_data_set_sample/download',
                         params:       { id },
@@ -155,22 +155,20 @@
                         if(code === 0) {
                             const url = window.URL.createObjectURL(data);
 
-                            if (id === list[idx].id) {
-                                list[idx].img_src = url;
-                                list[idx].$isselected = false;
+                            if (id === item.id) {
+                                item.img_src = url;
+                                item.$isselected = false;
                             }
-                            setTimeout(_=> {
-                                list[0].$isselected = true;
-                                vData.currentImage = { item: list[0], idx: 0 };
-                                nextTick(_=> {
-                                    // When the last picture is obtained, call the interface to update the current label information
-                                    if (idx === vData.search.page_size - 1) {
-                                        labelSystemRef.value.methods.createStage();
-                                    }
-                                });
-                                vData.sampleList = list;
-                                vData.imgLoading = false;
-                            }, 500);
+                            vData.sampleList.push(item);
+                            vData.sampleList[0].$isselected = true;
+                            vData.currentImage = { item: vData.sampleList[0], idx: 0 };
+                            nextTick(_=> {
+                                // When the last picture is obtained, call the interface to update the current label information
+                                if (idx === vData.search.page_size - 1) {
+                                    labelSystemRef.value.methods.createStage();
+                                }
+                            });
+                            vData.imgLoading = false;
                             
                         }
                     });
@@ -207,16 +205,21 @@
                 },
                 currentPageChange (val) {
                     vData.search.page_index = val;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 pageSizeChange (val) {
                     vData.search.page_size = val;
+                    vData.search.page_index = 1;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
                     vData.search.labeled = label_type;
+                    vData.search.page_index = 1;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 debounce(){

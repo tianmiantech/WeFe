@@ -339,7 +339,6 @@
                         isLabeled: true,
                         labelName: data.label,
                     });
-                    console.log(vData.layer);
                 },
                 setLabelTextPosition() {
                     // 需考虑用户画标注框的初始方向

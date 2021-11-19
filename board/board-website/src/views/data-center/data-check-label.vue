@@ -149,7 +149,7 @@
                             if (data && data.list.length>0) {
                                 vData.search.total = data.total;
                                 data.list.forEach((item, idx) => {
-                                    methods.downloadImage(item.id, idx, data.list);
+                                    methods.downloadImage(item.id, idx, item);
                                 });
                             } else {
                                 vData.search.total = data.total;
@@ -159,7 +159,7 @@
                         }
                     });
                 },
-                async downloadImage(id, idx, list) {
+                async downloadImage(id, idx, item) {
                     const { code, data } = await $http.get({
                         url:          '/image_data_set_sample/download',
                         params:       { id },
@@ -170,29 +170,33 @@
                         if(code === 0) {
                             const url = window.URL.createObjectURL(data);
 
-                            if (id === list[idx].id) {
-                                list[idx].img_src = url;
+                            if (id === item.id) {
+                                item.img_src = url;
                             }
+                            vData.sampleList.push(item);
                             setTimeout(_=> {
-                                vData.sampleList = list;
                                 vData.imgLoading = false;
-                            }, 500);
-                            
+                            }, 200);
                         }
                     });
                 },
                 currentPageChange (val) {
                     vData.search.page_index = val;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 pageSizeChange (val) {
                     vData.search.page_size = val;
+                    vData.search.page_index = 1;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
                     vData.search.labeled = label_type;
+                    vData.search.page_index = 1;
+                    vData.sampleList = [];
                     methods.getSampleList();
                 },
                 async deleteEvent(id, idx) {

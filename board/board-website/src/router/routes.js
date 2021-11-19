@@ -147,7 +147,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-label`,
                 name: 'data-label',
                 meta: {
-                    hidden: false,
+                    hidden: true,
                     title:  '数据标注',
                     active: `${prefixPath}data-list`,
                 },
