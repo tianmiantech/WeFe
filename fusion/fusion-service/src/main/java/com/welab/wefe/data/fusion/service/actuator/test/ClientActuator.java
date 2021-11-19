@@ -53,7 +53,6 @@ public class ClientActuator extends PsiClientActuator {
     protected String ip;
     protected int port;
     public List<String> columnList;
-    public boolean hasNext = true;
 
     /**
      * Fragment size, default 10000
@@ -127,14 +126,14 @@ public class ClientActuator extends PsiClientActuator {
         long start = System.currentTimeMillis();
 
         DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
-        List<JObject> curList = null;
+        List<JObject> curList = Lists.newArrayList();
         try {
             curList = service.paging(columnList, dataSetId, current_index, shard_size);
 
         } catch (StatusCodeWithException e) {
         }
 
-        LOG.info("cursor {} spend: {}", current_index, System.currentTimeMillis() - start);
+        LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
 
         current_index++;
 
