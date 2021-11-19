@@ -1,6 +1,6 @@
 
 ### 查询全部 member
-POST {{baseUrl}}/union/member/query
+POST http://localhost:8080/board-service/union/member/query
 Content-Type: application/json
 
 {}
@@ -16,7 +16,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 按名字查
-POST {{baseUrl}}/union/member/query
+POST http://localhost:8080/board-service/union/member/query
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### 按id查
-POST {{baseUrl}}/union/member/query
+POST http://localhost:8080/board-service/union/member/query
 Content-Type: application/json
 
 {

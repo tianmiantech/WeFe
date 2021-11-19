@@ -1,6 +1,6 @@
 
 ### 修改数据集
-POST {{baseUrl}}/data_set/update
+POST http://localhost:8080/board-service/data_set/update
 Content-Type: application/json
 
 {

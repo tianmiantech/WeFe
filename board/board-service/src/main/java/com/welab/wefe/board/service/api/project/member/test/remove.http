@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/member/remove
+POST http://localhost:8080/board-service/project/member/remove
 Content-Type: application/json
 
 {
