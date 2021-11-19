@@ -1,5 +1,5 @@
 #ntos，版本为7，build镜像时会自动下载
-FROM gpu_python37_base:latest
+FROM wefe_python_gpu_base:latest
 
 #语言编码设置
 RUN localedef -c -f UTF-8 -i zh_CN zh_CN.utf8
