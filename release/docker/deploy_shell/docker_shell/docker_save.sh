@@ -25,6 +25,12 @@ rm  -f wefe_python_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_python_service_$WEFE_VERSION.tar wefe_python_service:$WEFE_VERSION
 echo "PYTHON SERVICE SAVED"
 
+echo "SAVING GPU PYTHON SERVICE"
+cd $SERVICE_WORK_DIR/wefe_python_gpu_service/resources
+rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
+sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
+echo "GPU PYTHON SERVICE SAVED"
+
 echo "SAVING GATEWAY SERVICE"
 cd $SERVICE_WORK_DIR/wefe_gateway_service/resources
 rm -f wefe_gateway_service_$WEFE_VERSION.tar
@@ -33,8 +39,15 @@ echo "GATEWAY SERVICE SAVED"
 
 cd $SERVICE_WORK_DIR
 
-sudo tar -cf welab_wefe_${WEFE_VERSION}.tar *
+# 排除 gpu 版本 Python 包，另外打包
+sudo tar -cf welab_wefe_${WEFE_VERSION}.tar * --exclude=wefe_python_gpu_service
 
+# 单独打包 gpu 镜像
+cd wefe_python_gpu_service
+sudo tar -cf wefe_python_gpu_service_$WEFE_VERSION.tar
+
+cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
+cd $SERVICE_WORK_DIR
 cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
 
 echo 'The Final Package Build Success'
