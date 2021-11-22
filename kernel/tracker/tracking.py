@@ -173,7 +173,7 @@ class Tracking(object):
             self.save_task_result(data_input, self._get_task_result_type(TaskResultDataType.DATA, data_name))
 
             if save_dataset:
-                self.save_dataset(data_input, data_table.schema)
+                self.save_dataset(data_input, data_table.schema, data_table)
 
     def get_output_data_table(self, data_name: str = 'component'):
         """
@@ -578,7 +578,7 @@ class Tracking(object):
 
         self.save_task_result(result, result_type, component_name)
 
-    def save_dataset(self, data_input, schema):
+    def save_dataset(self, data_input, schema, data_table):
         header_list = schema.get("header")
 
         # Determine whether the task exists
@@ -645,6 +645,12 @@ class Tracking(object):
             data_set.column_name_list = data_set.primary_key_column + "," + ",".join(header_list)
         else:
             data_set.column_name_list = f"{data_set.primary_key_column},{data_set.y_name_list},{','.join(header_list)}"
+
+            # y positive count
+            y_positive_count = data_table.filter(lambda k, v: int(v.label) > 0).count()
+            y_positive_ratio = round(y_positive_count / data_input['table_create_count'], 4)
+            data_set.y_positive_example_count = y_positive_count
+            data_set.y_positive_example_ratio = y_positive_ratio
 
         if len(header_list) == 0:
             data_set.column_name_list = data_set.column_name_list[1:]
