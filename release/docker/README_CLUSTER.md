@@ -98,8 +98,10 @@ systemctl restart docker
 
 在 master 机器上创建 Docker Overlay 网络。
 
+需要注意的是，此处指定的网络 subnet 需要与 wefe.cfg 中配置的 CONTAINER_SUBNET 一致（默认是一致的）。
+
 ```shell
-docker network create -d overlay wefe_overlay
+docker network create -d overlay --subnet 10.101.0.0/24  spark_overlay
 ```
 
 查看网络是否创建成功。
