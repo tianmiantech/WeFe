@@ -49,10 +49,6 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
             FeatureTransformComponent.Params params) throws FlowNodeException {
-        FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, ComponentType.FeatureStatistic);
-        if (featureStatisticNode == null) {
-            throw new FlowNodeException(node, "需要在前置节点添加特征统计组件。");
-        }
     }
 
     @Override
