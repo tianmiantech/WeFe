@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskConfigApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
@@ -440,7 +440,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             if (null == jobMySqlModel) {
                 throw new FlowNodeException(node, "找不到原流程任务信息");
             }
-            ListApi.Input input = new ListApi.Input();
+            ListInProjectApi.Input input = new ListInProjectApi.Input();
             input.setProjectId(jobMySqlModel.getProjectId());
             input.setOotJobId(params.jobId);
             try {

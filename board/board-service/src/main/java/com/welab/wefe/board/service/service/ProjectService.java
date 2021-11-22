@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.api.project.member.RemoveApi;
 import com.welab.wefe.board.service.api.project.project.*;
 import com.welab.wefe.board.service.database.entity.job.*;
@@ -1149,7 +1149,7 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListApi.Input(projectId), ListApi.class);
+        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListInProjectApi.Input(projectId), ListInProjectApi.class);
 
         // Find the promoter in the current project from all members of the sender
         ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)
