@@ -37,6 +37,8 @@ public class ConfigProperties {
     private String blockChainUnionDataSetContractName;
     @Value("${block.chain.union.data.set.member.permission.contract.name}")
     private String blockChainUnionDataSetMemberPermissionContractName;
+    @Value("${block.chain.union.node.contract.name}")
+    private String blockChainUnionNodeContractName;
 
 
     /**
@@ -100,6 +102,13 @@ public class ConfigProperties {
         this.blockChainUnionDataSetMemberPermissionContractName = blockChainUnionDataSetMemberPermissionContractName;
     }
 
+    public String getBlockChainUnionNodeContractName() {
+        return blockChainUnionNodeContractName;
+    }
+
+    public void setBlockChainUnionNodeContractName(String blockChainUnionNodeContractName) {
+        this.blockChainUnionNodeContractName = blockChainUnionNodeContractName;
+    }
     public String getAliyunAccessKeyId() {
         return aliyunAccessKeyId;
     }

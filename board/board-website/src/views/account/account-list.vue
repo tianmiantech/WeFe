@@ -222,8 +222,9 @@
             title="用户审核"
             v-model="dialogAuditAccountVisible"
             destroy-on-close
+            width="500px"
         >
-            <el-form :model="form">
+            <el-form :model="form" inline>
                 <el-form-item
                     label="审核意见："
                     :label-width="formLabelWidth"

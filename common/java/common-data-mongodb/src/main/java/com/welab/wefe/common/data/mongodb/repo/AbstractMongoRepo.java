@@ -17,7 +17,7 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.AbstractMongoModel;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractMongoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,17 +30,15 @@ import java.util.regex.Pattern;
  **/
 public abstract class AbstractMongoRepo<T extends AbstractMongoModel> {
 
-    @Autowired
-    protected MongoTemplate mongoTemplate;
-
+    protected abstract MongoTemplate getMongoTemplate();
 
     public void save(T t) {
-        mongoTemplate.save(t);
+        getMongoTemplate().save(t);
     }
 
 
     public boolean upsert(Query query, Update update, Class<T> clazz) {
-        UpdateResult updateResult = mongoTemplate.upsert(query, update, clazz);
+        UpdateResult updateResult = getMongoTemplate().upsert(query, update, clazz);
         return updateResult.wasAcknowledged();
     }
 

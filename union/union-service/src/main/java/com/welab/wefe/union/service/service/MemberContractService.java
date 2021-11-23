@@ -17,10 +17,13 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.api.member.RealNameAuthApi;
 import com.welab.wefe.union.service.api.member.UpdateExcludeLogoApi;
 import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.MemberContract;
@@ -28,11 +31,14 @@ import com.welab.wefe.union.service.entity.Member;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +51,8 @@ import java.util.List;
 public class MemberContractService extends AbstractContractService {
     private static final Logger LOG = LoggerFactory.getLogger(MemberContractService.class);
 
+    @Autowired
+    private MemberMongoReop memberMongoReop;
     /**
      * add member
      */
@@ -384,5 +392,33 @@ public class MemberContractService extends AbstractContractService {
         list.add(StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis())));
         return list;
     }
+
+
+    public void updateExtJson(String memberId,MemberExtJSON extJSON) throws StatusCodeWithException {
+        try {
+            MemberContract memberContract = getContract();
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(memberId).getExtJson());
+            Field[] fields = extJSON.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                if (null != fields[i].get(extJSON)) {
+                    extJson.put(StringUtil.camelCaseToUnderLineCase(fields[i].getName()), fields[i].get(extJSON));
+                }
+            }
+            TransactionReceipt transactionReceipt = memberContract.updateExtJson(memberId,
+                    extJson.toString());
+
+            // Get receipt result
+            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+                    .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
+        }
+    }
+
 
 }

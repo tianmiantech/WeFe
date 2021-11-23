@@ -22,6 +22,8 @@ package com.welab.wefe.constant;
 public class EventConstant {
     public static final String RUN_SUCCESS_CODE = "0";
 
+
+    public static final String UPDATE_EXTJSON_EVENT = "UPDATEEXTJSONEVENT";
     public static final class DataSet {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";
@@ -49,5 +51,18 @@ public class EventConstant {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";
         public static final String DELETE_BY_TAGID_EVENT = "DELETEBYTAGIDEVENT";
+    }
+
+    public static final class MemberAuthType {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_TYPEID_EVENT = "DELETEBYTYPEIDEVENT";
+    }
+
+    public static final class UnionNode {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String UPDATE_ENABLE_EVENT = "UPDATEENABLEEVENT";
+        public static final String DELETE_BY_UNIONNODEID_EVENT = "DELETEBYUNIONNODEIDEVENT";
     }
 }

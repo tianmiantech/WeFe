@@ -16,7 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;

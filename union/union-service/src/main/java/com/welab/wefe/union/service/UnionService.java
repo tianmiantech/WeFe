@@ -19,7 +19,7 @@ package com.welab.wefe.union.service;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
@@ -88,6 +88,7 @@ public class UnionService implements ApplicationContextAware {
      */
     private static void rsaVerify(JSONObject params) throws Exception {
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+        signedApiInput.setSign(signedApiInput.getSign().replaceAll(" ","+"));
         MemberMongoReop memberMongoReop = CONTEXT.getBean(MemberMongoReop.class);
         Member member = memberMongoReop.findMemberId(signedApiInput.getMemberId());
         if (member == null) {

@@ -265,6 +265,25 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}modeling-list`,
+        meta: {
+            title:  '模型列表',
+            hidden: true,
+        },
+        component: () => import('@comp/LayoutFullScreen.vue'),
+        children:  [
+            {
+                path: `${prefixPath}modeling-list`,
+                name: 'modeling-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '模型列表',
+                },
+                component: () => import('../views/teamwork/modeling-list.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}account`,
         meta: {
             title: '用户管理',

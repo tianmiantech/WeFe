@@ -16,8 +16,10 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncDetailInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncDetailInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -26,10 +28,17 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public class BlockSyncDetailInfoMongoRepo extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
 
     public BlockSyncDetailInfo findByGroupIdAndBlockNumber(int groupId, long blockNumber) {
         Query query = new QueryBuilder().append("groupId", groupId).append("blockNumber", blockNumber).build();
-        return mongoTemplate.findOne(query, BlockSyncDetailInfo.class);
+        return mongoUnionTemplate.findOne(query, BlockSyncDetailInfo.class);
     }
 
     public void upsert(BlockSyncDetailInfo blockSyncDetailInfo) {
@@ -39,6 +48,8 @@ public class BlockSyncDetailInfoMongoRepo extends AbstractMongoRepo {
             blockSyncDetailInfo.setCreateTime(dbRecord.getCreateTime());
         }
         blockSyncDetailInfo.setUpdateTime(System.currentTimeMillis());
-        mongoTemplate.save(blockSyncDetailInfo);
+        mongoUnionTemplate.save(blockSyncDetailInfo);
     }
+
+
 }
