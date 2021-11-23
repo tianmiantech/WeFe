@@ -194,11 +194,12 @@ class OneHotEncoder(ModelBase):
         LOGGER.debug("original_dimension:{}".format(len(header)))
         self.inner_param.set_header(header)
 
-        if self.model_param.transform_col_indexes == -1:
-            self.inner_param.set_transform_all()
-        else:
-            self.inner_param.add_transform_indexes(self.model_param.transform_col_indexes)
+        if self.model_param.transform_col_names is not None:
             self.inner_param.add_transform_names(self.model_param.transform_col_names)
+            self.inner_param.add_transform_indexes(
+                [header.index(feature) for feature in self.model_param.transform_col_names])
+        else:
+            self.inner_param.set_transform_all()
 
     @staticmethod
     def record_new_header(data, inner_param: OneHotInnerParam):
