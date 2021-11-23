@@ -311,6 +311,7 @@
             onBeforeMount(() => {
                 methods.getSampleInfo();
                 methods.getLabelInfo();
+                // 注意清除定时器
                 setTimeout(_=> {
                     methods.getSampleList();
                     methods.resetWidth();
