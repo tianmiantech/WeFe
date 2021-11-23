@@ -81,7 +81,7 @@ public class ProjectMemberService {
      * project: auditing
      * project_member: auditing
      */
-    //@Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public synchronized void addMember(AddApi.Input input) throws StatusCodeWithException {
 
         List<ProjectMemberMySqlModel> members = findListByProjectId(input.getProjectId());
