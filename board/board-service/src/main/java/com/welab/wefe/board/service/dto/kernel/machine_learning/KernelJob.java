@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.kernel;
+package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.welab.wefe.common.enums.FederatedLearningModel;
 import com.welab.wefe.common.enums.FederatedLearningType;

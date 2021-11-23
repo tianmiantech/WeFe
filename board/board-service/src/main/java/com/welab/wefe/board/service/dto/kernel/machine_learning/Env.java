@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.kernel;
+package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.welab.wefe.common.data.storage.common.DBType;
 import com.welab.wefe.common.enums.JobBackendType;

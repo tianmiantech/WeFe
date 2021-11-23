@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.kernel;
-
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-
-import java.util.List;
+package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 /**
  * @author zane.luo
  */
-public class JobDataSet {
-    public String nodeId;
-    public String taskId;
-    public ComponentType componentType;
-    public List<Member> members;
+public class Project {
+    private String projectId;
 
-    public static class Member {
-        public String memberId;
-        public JobMemberRole memberRole;
-        public String dataSetId;
-        public long dataSetRows;
-        public long dataSetFeatures;
+    //region getter/setter
+
+    public String getProjectId() {
+        return projectId;
     }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+
+    //endregion
 }

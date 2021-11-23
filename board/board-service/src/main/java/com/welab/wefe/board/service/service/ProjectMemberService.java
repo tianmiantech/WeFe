@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.project.member.AddApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.ProjectMemberRepository;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
@@ -339,7 +339,7 @@ public class ProjectMemberService {
 
     }
 
-    public List<ProjectMemberMySqlModel> findList(ListApi.Input input) throws StatusCodeWithException {
+    public List<ProjectMemberMySqlModel> findList(ListInProjectApi.Input input) throws StatusCodeWithException {
         List<ProjectMemberMySqlModel> projectMemberMySqlModelList = findListByProjectId(input.getProjectId());
         if (StringUtil.isEmpty(input.getOotJobId())) {
             return projectMemberMySqlModelList;

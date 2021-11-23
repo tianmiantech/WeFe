@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author zane.luo
  */
 @Api(path = "project/member/all", name = "Get a list of all the members who work with me")
-public class ListAllApi extends AbstractApi<ListAllApi.Input, ListAllApi.Output> {
+public class ListInAllProjectApi extends AbstractApi<ListInAllProjectApi.Input, ListInAllProjectApi.Output> {
 
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
