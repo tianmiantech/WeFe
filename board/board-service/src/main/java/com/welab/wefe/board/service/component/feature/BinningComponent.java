@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -133,10 +134,14 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 if (feature.method == BinningMethod.custom) {
-                    List<String> point = feature.getPoint();
-                    if (!CollectionUtils.isEmpty(point)) {
+                    String points = feature.getPoint();
+                    if (!StringUtils.isBlank(points)) {
                         List<Float> pointList = new LinkedList<>();
-                        for (String p : point) {
+                        if (points.startsWith("[") && points.endsWith("]")) {
+                            points = points.substring(1, points.length() - 1);
+                        }
+                        String pointArr[] = points.split(",|，");
+                        for (String p : pointArr) {
                             pointList.add(Float.parseFloat(p));
                         }
                         featurePoints.put(feature.name, pointList);
@@ -388,7 +393,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         private BinningMethod method;
         @Check(require = true)
         private int count;
-        private List<String> point;
+        private String point;
 
         //region getter/setter
 
@@ -416,14 +421,13 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
             this.count = count;
         }
 
-        public List<String> getPoint() {
+        public String getPoint() {
             return point;
         }
 
-        public void setPoint(List<String> point) {
+        public void setPoint(String point) {
             this.point = point;
         }
-
         //endregion
     }
 
