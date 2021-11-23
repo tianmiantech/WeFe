@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
-import com.welab.wefe.board.service.dto.kernel.*;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;

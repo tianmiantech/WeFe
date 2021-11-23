@@ -146,7 +146,6 @@ public class ProjectService extends AbstractService {
 
 
         ProjectMySqlModel project = new ProjectMySqlModel();
-        project.setProjectType(input.getProjectType());
         project.setCreatedBy(input);
         project.setMemberId(input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId());
         project.setMyRole(input.fromGateway() ? input.getRole() : JobMemberRole.promoter);
@@ -163,6 +162,7 @@ public class ProjectService extends AbstractService {
                 .append(ProjectFlowStatus.editing.name(), 0)
                 .append(ProjectFlowStatus.running.name(), 0)
                 .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
         // create and save ProjectMember to database
@@ -1033,6 +1033,7 @@ public class ProjectService extends AbstractService {
                     .append(ProjectFlowStatus.editing.name(), 0)
                     .append(ProjectFlowStatus.running.name(), 0)
                     .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
             // save ProjectMember to database

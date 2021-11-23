@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepositor
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
 import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
-import com.welab.wefe.board.service.dto.kernel.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.dataset.DataSetService;
