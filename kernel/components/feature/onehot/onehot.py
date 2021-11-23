@@ -199,8 +199,7 @@ class OneHotEncoder(ModelBase):
     def _init_params(self, data_instances):
         if len(self.schema) == 0:
             self.schema = data_instances.schema
-        self.schema['column_types'] = {'Integer', 'Integer', 'Integer1', 'Integer2', 'Integer', 'Integer', 'Integer',
-                                       'Integer', 'Integer', }
+
         if self.inner_param is not None:
             return
         self.inner_param = OneHotInnerParam()
