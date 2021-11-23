@@ -16,6 +16,19 @@
 
 package com.welab.wefe.board.service.component.feature;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.DataIOComponent;
@@ -36,14 +49,6 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author lonnie
@@ -128,11 +133,10 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 if (feature.method == BinningMethod.custom) {
-                    String points = feature.getPoints();
-                    if (StringUtils.isNotBlank(points)) {
-                        String[] pointArr = points.split(",");
+                    List<String> points = feature.getPoints();
+                    if (!CollectionUtils.isEmpty(points)) {
                         List<Float> pointList = new LinkedList<>();
-                        for (String p : pointArr) {
+                        for (String p : points) {
                             pointList.add(Float.parseFloat(p));
                         }
                         featurePoints.put(feature.name, pointList);
@@ -384,7 +388,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         private BinningMethod method;
         @Check(require = true)
         private int count;
-        private String points;
+        private List<String> points;
 
         //region getter/setter
 
@@ -412,14 +416,13 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
             this.count = count;
         }
 
-        public String getPoints() {
+        public List<String> getPoints() {
             return points;
         }
 
-        public void setPoints(String points) {
+        public void setPoints(List<String> points) {
             this.points = points;
         }
-
 
         //endregion
     }
