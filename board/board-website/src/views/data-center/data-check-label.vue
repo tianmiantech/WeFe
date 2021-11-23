@@ -12,14 +12,19 @@
                         <p>标签栏</p>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" prefix-icon="el-icon-search"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search" @input="methods.labelSearch"></el-input>
                     </div>
                     <div class="label_info">
                         <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
-                        <div v-for="item in vData.count_by_label" :key="item.label" class="label_item">
-                            <span class="span_label">{{item.label}}</span>
-                            <span class="span_count">{{item.count}}</span>
-                        </div>
+                        <template v-if="vData.count_by_label_list.length">
+                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item">
+                                <span class="span_label">{{item.label}}</span>
+                                <span class="span_count">{{item.count}}</span>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <EmptyData />
+                        </template>
                     </div>
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
@@ -89,10 +94,11 @@
                         count: '',
                     },
                 ],
-                sampleList:      [],
-                imgLoading:      false,
-                count_by_label:  [],
-                count_by_sample: [],
+                sampleList:          [],
+                imgLoading:          false,
+                count_by_label:      [],
+                count_by_sample:     [],
+                count_by_label_list: [],
             });
 
             const methods = {
@@ -108,6 +114,7 @@
                                 const { count_by_label, count_by_sample } = data;
 
                                 vData.count_by_label = count_by_label;
+                                vData.count_by_label_list = count_by_label;
                                 count_by_sample.forEach((item, i) => {
                                     item.keycode = i;
                                 });
@@ -210,6 +217,15 @@
                             vData.sampleList.splice(idx, 1);
                             $message.success('删除成功');
                         }
+                    });
+                },
+                labelSearch(val) {
+                    vData.count_by_label_list = vData.count_by_label.filter(function(item) {
+                        return Object.keys(item).some(function(key) {
+                            return (
+                                String(item[key]).toLowerCase().indexOf(val) > -1
+                            );
+                        });
                     });
                 },
             };
