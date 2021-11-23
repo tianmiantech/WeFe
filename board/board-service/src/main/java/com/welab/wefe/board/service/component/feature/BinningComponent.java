@@ -133,10 +133,10 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 if (feature.method == BinningMethod.custom) {
-                    List<String> points = feature.getPoints();
-                    if (!CollectionUtils.isEmpty(points)) {
+                    List<String> point = feature.getPoint();
+                    if (!CollectionUtils.isEmpty(point)) {
                         List<Float> pointList = new LinkedList<>();
-                        for (String p : points) {
+                        for (String p : point) {
                             pointList.add(Float.parseFloat(p));
                         }
                         featurePoints.put(feature.name, pointList);
@@ -388,7 +388,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         private BinningMethod method;
         @Check(require = true)
         private int count;
-        private List<String> points;
+        private List<String> point;
 
         //region getter/setter
 
@@ -416,12 +416,12 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
             this.count = count;
         }
 
-        public List<String> getPoints() {
-            return points;
+        public List<String> getPoint() {
+            return point;
         }
 
-        public void setPoints(List<String> points) {
-            this.points = points;
+        public void setPoint(List<String> point) {
+            this.point = point;
         }
 
         //endregion
