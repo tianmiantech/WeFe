@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -82,7 +81,7 @@ public class ProjectMemberService {
      * project: auditing
      * project_member: auditing
      */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     public synchronized void addMember(AddApi.Input input) throws StatusCodeWithException {
 
         List<ProjectMemberMySqlModel> members = findListByProjectId(input.getProjectId());
