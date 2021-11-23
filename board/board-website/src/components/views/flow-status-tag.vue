@@ -43,6 +43,11 @@
                     title:  'wait_stop',
                     effect: 'dark',
                 },
+                wait_run: {
+                    type:   'warning',
+                    title:  'wait_run',
+                    effect: 'dark',
+                },
                 wait_success: {
                     type:   'success',
                     title:  'wait_success',

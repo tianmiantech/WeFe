@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.database.entity.job;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.enums.JobMemberRole;
 
 import javax.persistence.Entity;
@@ -79,7 +80,11 @@ public class ProjectDataSetMySqlModel extends AbstractBaseMySqlModel {
      * 来源子任务id
      */
     private String sourceTaskId;
-
+    /**
+     * 数据集类型
+     */
+    @Enumerated(EnumType.STRING)
+    private DataSetType dataSetType;
 
     //region getter/setter
 
@@ -162,6 +167,14 @@ public class ProjectDataSetMySqlModel extends AbstractBaseMySqlModel {
 
     public void setSourceTaskId(String sourceTaskId) {
         this.sourceTaskId = sourceTaskId;
+    }
+
+    public DataSetType getDataSetType() {
+        return dataSetType;
+    }
+
+    public void setDataSetType(DataSetType dataSetType) {
+        this.dataSetType = dataSetType;
     }
 
     //endregion

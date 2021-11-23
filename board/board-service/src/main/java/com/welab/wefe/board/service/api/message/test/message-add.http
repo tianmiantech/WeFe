@@ -1,5 +1,5 @@
 ### 添加消息
-POST {{baseUrl}}/message/add
+POST http://localhost:8080/board-service/message/add
 Content-Type: application/json
 
 {
@@ -11,7 +11,7 @@ Content-Type: application/json
 
 
 ### 添加消息
-POST {{baseUrl}}/message/add
+POST http://localhost:8080/board-service/message/add
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 
 ### 添加消息
-POST {{baseUrl}}/message/add
+POST http://localhost:8080/board-service/message/add
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 
 ### 添加消息
-POST {{baseUrl}}/message/add
+POST http://localhost:8080/board-service/message/add
 Content-Type: application/json
 
 {

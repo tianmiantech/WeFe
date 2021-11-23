@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.flow;
 
-import com.welab.wefe.board.service.dto.kernel.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.service.ProjectFlowNodeService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;

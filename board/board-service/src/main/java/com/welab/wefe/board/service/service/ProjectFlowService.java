@@ -37,7 +37,6 @@ import com.welab.wefe.board.service.dto.entity.modeling_config.ModelingInfoOutpu
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.*;
@@ -46,6 +45,7 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -154,6 +154,7 @@ public class ProjectFlowService extends AbstractService {
         flow.setFlowDesc(input.getDesc());
         flow.setFlowStatus(ProjectFlowStatus.editing);
         flow.setMyRole(input.fromGateway() ? project.getMyRole() : JobMemberRole.promoter);
+        flow.setCreatorMemberId(input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId());
 
         if (StringUtils.isNotBlank(input.getTemplateId())) {
             FlowTemplateMySqlModel template = flowTemplateService.findById(input.getTemplateId());
@@ -429,6 +430,7 @@ public class ProjectFlowService extends AbstractService {
         targetProjectFlow.setFlowStatus(ProjectFlowStatus.editing);
         targetProjectFlow.setCreatedTime(new Date());
         targetProjectFlow.setCreatedBy(input);
+        targetProjectFlow.setCreatorMemberId(sourceProjectFlow.getCreatorMemberId());
         projectFlowRepo.save(targetProjectFlow);
 
         for (ProjectFlowNodeOutputModel sourceProjectFlowNode : sourceProjectFlowNodeList) {
@@ -513,7 +515,7 @@ public class ProjectFlowService extends AbstractService {
     /**
      * Query model details: including model evaluation results.
      */
-    public TaskResultOutputModel findModelingResult(DetailApi.Input input) {
+    public TaskResultOutputModel findModelingResult(DetailApi.Input input) throws StatusCodeWithException {
 
         TaskResultOutputModel result = null;
 

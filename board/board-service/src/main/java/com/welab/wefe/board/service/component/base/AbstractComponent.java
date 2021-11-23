@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,23 +26,23 @@ import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
-import com.welab.wefe.board.service.dto.kernel.KernelJob;
-import com.welab.wefe.board.service.dto.kernel.KernelTask;
-import com.welab.wefe.board.service.dto.kernel.Member;
-import com.welab.wefe.board.service.dto.kernel.TaskConfig;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Member;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,6 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -282,7 +281,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    public TaskResultOutputModel getTaskResult(String taskId, String type) {
+    public TaskResultOutputModel getTaskResult(String taskId, String type) throws StatusCodeWithException {
         TaskResultMySqlModel result = getResult(taskId, type);
         if (result == null) {
             return null;
@@ -673,7 +672,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    protected abstract TaskResultMySqlModel getResult(String taskId, String type);
+    protected abstract TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException;
 
     /**
      * Declare the input parameter type

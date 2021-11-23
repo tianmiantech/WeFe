@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.dto.entity;
 
 import com.welab.wefe.common.enums.AuditStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.CurrentAccount;
 
 /**
@@ -24,39 +25,23 @@ import com.welab.wefe.common.web.CurrentAccount;
  */
 public class AccountOutputModel extends AbstractOutputModel {
 
-    /**
-     * 手机号
-     */
+    @Check(name = "手机号")
     private String phoneNumber;
 
-    /**
-     * 昵称
-     */
+    @Check(name = "昵称")
     private String nickname;
-    /**
-     * 邮箱
-     */
+    @Check(name = "邮箱")
     private String email;
-    /**
-     * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
-     */
+    @Check(name = "是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人")
     private Boolean superAdminRole;
-    /**
-     * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
-     */
+    @Check(name = "是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。")
     private Boolean adminRole;
-    /**
-     * 审核状态
-     */
+    @Check(name = "审核状态")
     private AuditStatus auditStatus;
-    /**
-     * 审核意见
-     */
+    @Check(name = "审核意见")
     private String auditComment;
 
-    /**
-     * 是否可用
-     */
+    @Check(name = "是否可用")
     private Boolean enable;
 
     public String getEmail() {

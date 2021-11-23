@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.union;
 
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -30,15 +30,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zane
  */
 @Api(path = "union/data_set/detail", name = "Get data set details from union")
-public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, DataSetOutputModel> {
+public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, TableDataSetOutputModel> {
 
     @Autowired
     UnionService unionService;
 
     @Override
-    protected ApiResult<DataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
+    protected ApiResult<TableDataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
 
-        return success(unionService.queryDataSetDetail(input.getId()));
+        return success(unionService.getTableDataSetDetail(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {

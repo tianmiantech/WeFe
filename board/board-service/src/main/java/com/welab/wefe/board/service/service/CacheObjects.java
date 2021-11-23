@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.database.repository.DataSetRepository;
+import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -64,7 +65,8 @@ public class CacheObjects {
      * Data set tags
      * tag : count
      */
-    private static final TreeMap<String, Long> DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -127,11 +129,18 @@ public class CacheObjects {
         return MEMBER_NAME;
     }
 
-    public static TreeMap<String, Long> getDataSetTags() {
-        if (DATA_SET_TAGS.isEmpty()) {
-            refreshDataSetTags();
+    public static TreeMap<String, Long> getTableDataSetTags() {
+        if (TABLE_DATA_SET_TAGS.isEmpty()) {
+            refreshTableDataSetTags();
         }
-        return DATA_SET_TAGS;
+        return TABLE_DATA_SET_TAGS;
+    }
+
+    public static TreeMap<String, Long> getImageDataSetTags() {
+        if (IMAGE_DATA_SET_TAGS.isEmpty()) {
+            refreshTableDataSetTags();
+        }
+        return IMAGE_DATA_SET_TAGS;
     }
 
     public static List<String> getAccountIdList() {
@@ -218,25 +227,34 @@ public class CacheObjects {
     /**
      * Reload the number of data sets corresponding to each tag
      */
-    public static synchronized void refreshDataSetTags() {
-        // Query all tags from the database
-        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
-        DATA_SET_TAGS.clear();
+    private static synchronized void refreshDataSetTags(List<Object[]> allRows, TreeMap<String, Long> map) {
+        map.clear();
 
         // Count the number of data sets corresponding to each tag
-        for (Object[] row : rows) {
+        for (Object[] row : allRows) {
             List<String> tags = StringUtil.splitWithoutEmptyItem(String.valueOf(row[0]), ",");
             long count = Convert.toLong(row[1]);
             for (String tag : tags) {
-                if (!DATA_SET_TAGS.containsKey(tag)) {
-                    DATA_SET_TAGS.put(tag, 0L);
+                if (!map.containsKey(tag)) {
+                    map.put(tag, 0L);
                 }
-
-                DATA_SET_TAGS.put(tag, DATA_SET_TAGS.get(tag) + count);
-
+                map.put(tag, map.get(tag) + count);
             }
         }
+    }
+
+    public static synchronized void refreshTableDataSetTags() {
+        // Query all tags from the database
+        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
+        List<Object[]> rows = repo.listAllTags();
+        refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
+    }
+
+    public static synchronized void refreshImageDataSetTags() {
+        // Query all tags from the database
+        ImageDataSetRepository repo = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
+        List<Object[]> rows = repo.listAllTags();
+        refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
 
     /**

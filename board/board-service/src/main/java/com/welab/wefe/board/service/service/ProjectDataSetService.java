@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,29 +16,30 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.gateway.GetDerivedDataSetDetailApi;
 import com.welab.wefe.board.service.api.project.dataset.QueryDerivedDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.DerivedProjectDataSetOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,9 @@ import java.util.stream.Collectors;
 public class ProjectDataSetService extends AbstractService {
 
     @Autowired
-    private DataSetService dataSetService;
+    private DataSetService tableDataSetService;
+    @Autowired
+    private ImageDataSetService imageDataSetService;
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
 
@@ -63,7 +66,8 @@ public class ProjectDataSetService extends AbstractService {
      * Get the details of the derived data set
      */
     public DerivedProjectDataSetOutputModel getDerivedDataSetDetail(GetDerivedDataSetDetailApi.Input input) throws StatusCodeWithException {
-        DataSetMysqlModel dataSet = dataSetService.findOne(input.getDataSetId());
+        // 衍生数据集目前只有 TableDataSet
+        DataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataSetId());
         ProjectDataSetMySqlModel projectDataSet = findOne(input.getProjectId(), input.getDataSetId(), input.getMemberRole());
 
         if (dataSet == null || projectDataSet == null) {
@@ -74,16 +78,11 @@ public class ProjectDataSetService extends AbstractService {
             throw new StatusCodeWithException("拒绝查询原始数据集信息", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        JObject json = JObject.create();
-        json.putAll(JObject.create(dataSet));
-        json.putAll(JObject.create(projectDataSet));
-
-        DerivedProjectDataSetOutputModel output = json.toJavaObject(DerivedProjectDataSetOutputModel.class);
         List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getSourceJobId(), false), JobMemberWithDataSetOutputModel.class);
-        output.setMembers(members);
 
-        LOG.info("members:" + JSON.toJSONString(members, true));
-        LOG.info("input.callerMemberInfo:" + JSON.toJSONString(input.callerMemberInfo, true));
+        DerivedProjectDataSetOutputModel output = ModelMapper.map(projectDataSet, DerivedProjectDataSetOutputModel.class);
+        output.setDataSet(ModelMapper.map(dataSet, TableDataSetOutputModel.class));
+        output.setMembers(members);
 
         return output;
     }
@@ -95,6 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
+                .equal("dataSetType", input.getDataSetType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -119,8 +119,13 @@ public class ProjectDataSetService extends AbstractService {
 
     }
 
+    /**
+     * 组装衍生数据集 output 对象
+     * <p>
+     * tips：衍生数据集目前只有 TableDataSet 类型
+     */
     private DerivedProjectDataSetOutputModel buildDerivedProjectDataSetOutputModel(ProjectDataSetMySqlModel projectDataSet) {
-        DataSetMysqlModel dataSet = dataSetService.findOne(projectDataSet.getDataSetId());
+        DataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
 
         JObject json = JObject.create();
         if (dataSet != null) {
@@ -138,29 +143,30 @@ public class ProjectDataSetService extends AbstractService {
                     .stream()
                     .map(m -> {
                         JobMemberWithDataSetOutputModel member = ModelMapper.map(m, JobMemberWithDataSetOutputModel.class);
+
                         // Take your own feature list directly
+                        TableDataSetOutputModel tableDataSet = null;
                         if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
-                            member.setFeatureNameList(derivedDataSet.getFeatureNameList());
-                            member.setFeatureCount(derivedDataSet.getFeatureCount());
+                            tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataSet();
                         }
                         // Others’ feature list should be checked remotely
                         else {
                             try {
-                                ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(
+                                DerivedProjectDataSetOutputModel derivedProjectDataSet = gatewayService.callOtherMemberBoard(
                                         member.getMemberId(),
                                         GetDerivedDataSetDetailApi.class,
-                                        new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole())
-
+                                        new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
+                                        DerivedProjectDataSetOutputModel.class
                                 );
-                                if (apiResult.data != null) {
-                                    DerivedProjectDataSetOutputModel derivedProjectDataSet = ((JSONObject) apiResult.data).toJavaObject(DerivedProjectDataSetOutputModel.class);
-                                    member.setFeatureNameList(derivedProjectDataSet.getFeatureNameList());
-                                    member.setFeatureCount(derivedProjectDataSet.getFeatureCount());
-                                }
-
+                                tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataSet();
                             } catch (MemberGatewayException e) {
                                 super.log(e);
                             }
+                        }
+
+                        if (tableDataSet != null) {
+                            member.setFeatureNameList(tableDataSet.getFeatureNameList());
+                            member.setFeatureCount(tableDataSet.getFeatureCount());
                         }
 
                         return member;
@@ -181,11 +187,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, String memberId, JobMemberRole memberRole, Boolean containsY) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataSetType dataSetType, String memberId, JobMemberRole memberRole, Boolean containsY) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
+                .equal("dataSetType", dataSetType)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -197,35 +204,26 @@ public class ProjectDataSetService extends AbstractService {
         List<ProjectDataSetOutputModel> output = list
                 .parallelStream()
                 .map(x -> {
-                    DataSetOutputModel dataSet = null;
-                    try {
-                        dataSet = dataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        // The data set does not exist and is marked as deleted.
-                        if (dataSet == null) {
-                            ProjectDataSetOutputModel foo = JObject
-                                    .create(x)
-                                    .toJavaObject(ProjectDataSetOutputModel.class);
-                            foo.setName("此数据集已被删除或不可见");
-                            foo.setRowCount(0L);
-                            foo.setDeleted(true);
-                            return foo;
-                        }
-                    } catch (StatusCodeWithException e) {
-                        e.printStackTrace();
 
+                    try {
+                        ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
+                        AbstractDataSetOutputModel dataSet = null;
+                        if (x.getDataSetType() == DataSetType.TableDataSet) {
+                            dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        } else if (x.getDataSetType() == DataSetType.ImageDataSet) {
+                            dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        }
+                        projectDataSet.setDataSet(dataSet);
+                        return projectDataSet;
+                    } catch (StatusCodeWithException e) {
+                        super.log(e);
                         return null;
                     }
-
-                    JObject item = JObject.create();
-                    item.putAll(JObject.create(dataSet));
-                    item.putAll(JObject.create(x));
-
-                    return item.toJavaObject(ProjectDataSetOutputModel.class);
 
                 })
                 .filter(x -> {
                     if (containsY != null) {
-                        return containsY.equals(x.getContainsY());
+                        return containsY.equals(((TableDataSetOutputModel) x.getDataSet()).getContainsY());
                     }
                     return true;
                 })
@@ -255,11 +253,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> list(String projectId, String memberId) {
+    public List<ProjectDataSetOutputModel> list(String projectId, DataSetType dataSetType, String memberId) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
+                .equal("dataSetType", dataSetType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 
@@ -268,30 +267,14 @@ public class ProjectDataSetService extends AbstractService {
         List<ProjectDataSetOutputModel> output = list
                 .parallelStream()
                 .map(x -> {
-                    DataSetOutputModel dataSet = null;
+                    ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                     try {
-                        dataSet = dataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        // The data set does not exist and is marked as deleted.
-                        if (dataSet == null) {
-                            ProjectDataSetOutputModel foo = JObject
-                                    .create(x)
-                                    .toJavaObject(ProjectDataSetOutputModel.class);
-                            foo.setName("此数据集已被删除或不可见");
-                            foo.setRowCount(0L);
-                            foo.setDeleted(true);
-                            return foo;
-                        }
+                        TableDataSetOutputModel dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        projectDataSet.setDataSet(dataSet);
                     } catch (StatusCodeWithException e) {
-                        e.printStackTrace();
-
-                        return null;
+                        super.log(e);
                     }
-
-                    JObject item = JObject.create();
-                    item.putAll(JObject.create(dataSet));
-                    item.putAll(JObject.create(x));
-
-                    return item.toJavaObject(ProjectDataSetOutputModel.class);
+                    return projectDataSet;
 
                 })
                 .collect(Collectors.toList());
@@ -340,7 +323,7 @@ public class ProjectDataSetService extends AbstractService {
                                 .build(ProjectDataSetMySqlModel.class)
                 ).orElse(null);
     }
-    
+
     public List<ProjectDataSetMySqlModel> findAll(String projectId, String dataSetId) {
         return projectDataSetRepo.findAll(Where.create().equal("projectId", projectId).equal("dataSetId", dataSetId)
                 .build(ProjectDataSetMySqlModel.class));

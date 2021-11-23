@@ -82,6 +82,14 @@ class RDDSource(Table):
     def __repr__(self):
         return f"{self._namespace}, {self._name}, {self._dsource}"
 
+    def __del__(self):
+        try:
+            if hasattr(self, "_rdd") and self._rdd is not None:
+                self._rdd.unpersist()
+                del self._rdd
+        except:
+            return
+
     def _tmp_table_from_rdd(self, rdd, name=None):
         """
         tmp table, with namespace == job_id

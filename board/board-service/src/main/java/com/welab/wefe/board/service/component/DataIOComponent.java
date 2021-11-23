@@ -31,7 +31,7 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.DataSetService;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
@@ -94,7 +94,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         DataSetItem promoterProjectDataSet = params.getDataSetList().stream().filter(x -> x.memberId.equals(promoter.getMemberId())).findFirst().orElse(null);
-        DataSetMysqlModel promoterDataSet = dataSetService.findOne(promoterProjectDataSet.dataSetId);
+        DataSetMysqlModel promoterDataSet = dataSetService.findOneById(promoterProjectDataSet.dataSetId);
         if (!promoterDataSet.getContainsY()) {
             throw new FlowNodeException(node, "promoter 的数据集必须包含 y 值");
         }
@@ -105,7 +105,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 continue;
             }
 
-            DataSetMysqlModel one = dataSetService.findOne(dataSet.getDataSetId());
+            DataSetMysqlModel one = dataSetService.findOneById(dataSet.getDataSetId());
             if (one == null) {
                 throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
             }
@@ -156,7 +156,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "请保存自己的数据集信息。");
         }
 
-        DataSetMysqlModel myDataSet = dataSetService.findOne(myDataSetConfig.dataSetId);
+        DataSetMysqlModel myDataSet = dataSetService.findOneById(myDataSetConfig.dataSetId);
         if (myDataSet == null) {
             throw new FlowNodeException(node, "找不到自己的数据集。");
         }
@@ -251,7 +251,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             DataSetMysqlModel myDataSet = Launcher
                     .CONTEXT
                     .getBean(DataSetService.class)
-                    .findOne(myDataSetConfig.getDataSetId());
+                    .findOneById(myDataSetConfig.getDataSetId());
 
             return myDataSet;
         }

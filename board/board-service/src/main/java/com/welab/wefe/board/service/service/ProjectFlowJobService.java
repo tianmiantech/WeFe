@@ -27,13 +27,14 @@ import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
-import com.welab.wefe.board.service.dto.kernel.*;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -249,7 +250,7 @@ public class ProjectFlowJobService extends AbstractService {
                     throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已删除。", StatusCode.PARAMETER_VALUE_INVALID);
                 }
 
-                DataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
+                TableDataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
                 if (dataSet == null) {
                     throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除。", StatusCode.PARAMETER_VALUE_INVALID);
                 }
@@ -266,7 +267,7 @@ public class ProjectFlowJobService extends AbstractService {
                     if (projectDataSet.getSourceType() != null) {
                         continue;
                     } else {
-                        DataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
+                        TableDataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
                         if (dataSet == null) {
                             throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除或不可见。", StatusCode.PARAMETER_VALUE_INVALID);
                         }
@@ -824,7 +825,7 @@ public class ProjectFlowJobService extends AbstractService {
                 member.memberRole = item.getMemberRole();
                 member.dataSetId = item.getDataSetId();
 
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
+                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getRowCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();

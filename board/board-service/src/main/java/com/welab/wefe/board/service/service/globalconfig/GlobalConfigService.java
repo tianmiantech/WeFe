@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zane
@@ -43,15 +44,15 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
 
-        input.groups.forEach((groupName, groupItems) ->
-                groupItems.forEach((key, value) -> {
-                    try {
-                        put(groupName, key, value, null);
-                    } catch (StatusCodeWithException e) {
-                        e.printStackTrace();
-                    }
-                })
-        );
+        for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
+            String groupName = group.getKey();
+            Map<String, String> groupItems = group.getValue();
+            for (Map.Entry<String, String> item : groupItems.entrySet()) {
+                String key = item.getKey();
+                String value = item.getValue();
+                put(groupName, key, value, null);
+            }
+        }
 
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();

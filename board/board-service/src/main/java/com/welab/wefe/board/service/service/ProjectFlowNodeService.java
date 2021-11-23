@@ -26,12 +26,12 @@ import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlMode
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
-import com.welab.wefe.board.service.dto.kernel.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.ComponentType;
@@ -39,6 +39,7 @@ import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.ProjectFlowStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -112,7 +113,7 @@ public class ProjectFlowNodeService {
             for (DataIOComponent.DataSetItem item : params.getDataSetList()) {
                 JobDataSet.Member member = new JobDataSet.Member();
                 member.memberRole = item.getMemberRole();
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
+                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
                         item.getDataSetId());
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getRowCount();

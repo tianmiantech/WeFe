@@ -27,6 +27,8 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
+import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
+import com.welab.wefe.union.service.service.flowlimit.FlowLimitByMobileService;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -36,9 +38,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Jervis
@@ -72,6 +71,8 @@ public class UnionService implements ApplicationContextAware {
                         rsaVerify(params);
                     }
                 })
+                .flowLimitByIpFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByIpService(httpServletRequest, api, params).check())
+                .flowLimitByMobileFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByMobileService(httpServletRequest, api, params).check())
                 .launch(UnionService.class, args);
 
     }
