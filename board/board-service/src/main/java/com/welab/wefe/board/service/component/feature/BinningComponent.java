@@ -54,6 +54,11 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
+        FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
+        if (intersectionNode == null) {
+            throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
+        }
+        
         if (CollectionUtils.isEmpty(params.getMembers())) {
             throw new FlowNodeException(node, "请添加分箱策略");
         }
