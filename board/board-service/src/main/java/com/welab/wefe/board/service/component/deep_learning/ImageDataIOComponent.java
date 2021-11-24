@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +135,8 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
     }
 
     public static class Params extends AbstractDataIOParam<DataSetItem> {
-
+        @Check(name = "数据集切割比例", desc = "取值1-99，该值为训练集的百分比。", require = true)
+        public int trainTestSplitRatio;
     }
 
     public static class DataSetItem extends AbstractDataSetItem {
