@@ -152,14 +152,12 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             if (graph.getJob().getMyRole() == JobMemberRole.provider) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost) {
-                    JSONObject p = taskParam.getJSONObject("params");
-                    p.put("random_cipher_seed", randomCipherSeed);
-                    taskParam.put("params", p);
+                    taskParam.put("random_cipher_seed", randomCipherSeed);
                 }
             }
             taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
-            taskConfig.setParams(taskParam.getJSONObject("params"));
+            taskConfig.setParams(taskParam);
             taskConfig.setInput(getInputs(graph, node));
             taskConfig.setOutput(getOutputs(graph, node));
             taskConfig.setTask(kernelTask);
