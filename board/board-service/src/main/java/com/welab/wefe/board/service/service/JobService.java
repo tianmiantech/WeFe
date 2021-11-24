@@ -183,7 +183,7 @@ public class JobService extends AbstractService {
      * 1. If the node has been edited after the task is created, the cache is not available.
      * 2. The status of the corresponding task of the node is not success is unavailable
      */
-    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) {
+    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) throws StatusCodeWithException {
 
         // Based on the time when the task was created,
         // nodes that have been edited after this time cannot use the cache.
