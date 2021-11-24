@@ -69,7 +69,12 @@ public class Components {
     @Autowired
     private OotComponent ootComponent;
     @Autowired
+    private HorzNNComponent horzNNComponent;
+    @Autowired
+    private VertNNComponent vertNNComponent;
+    @Autowired
     private MixBinningComponent mixBinningComponent;
+    
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
     }
@@ -119,6 +124,10 @@ public class Components {
                 return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case HorzNN:
+                return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
+            case VertNN:
+                return Launcher.CONTEXT.getBean(Components.class).vertNNComponent;
             case MixBinning:
                 return Launcher.CONTEXT.getBean(Components.class).mixBinningComponent;
             default:
@@ -132,6 +141,7 @@ public class Components {
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
                 || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzNN
                 || type == ComponentType.MixBinning;
     }
 }

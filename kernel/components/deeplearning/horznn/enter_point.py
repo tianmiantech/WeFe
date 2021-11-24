@@ -76,7 +76,7 @@ class HorzNNServer(HorzNNBase):
                              metric_meta=metric_meta,
                              metric_data=(iter_num, loss))
 
-    def fit(self, data_inst):
+    def fit(self, data_inst, *args):
         if self.is_version_0():
             from kernel.components.deeplearning.horznn import _version_0
 

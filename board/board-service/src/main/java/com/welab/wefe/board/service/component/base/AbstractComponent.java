@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.DataTypeGroup;
@@ -94,7 +95,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             ComponentType.HorzSecureBoost,
             ComponentType.VertSecureBoost,
             ComponentType.MixLR,
-            ComponentType.MixSecureBoost
+            ComponentType.MixSecureBoost,
+            ComponentType.HorzNN,
+            ComponentType.VertNN
     );
 
 
@@ -612,8 +615,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             member.setMemberName(CacheObjects.getMemberName(x.getMemberId()));
             member.setMemberRole(x.getMemberRole());
             members.add(member);
-            // Horizontal modeling component, and the current member is a promoter, need to increase arbiter.
-            if (node.getComponentType() == ComponentType.HorzLR || node.getComponentType() == ComponentType.HorzSecureBoost) {
+            // Horizontal modeling component, and the current member is a promoter, need to
+            // increase arbiter.
+            if (Components.needArbiterTask(node.getComponentType())) {
                 if (x.getMemberRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())) {
                     Member arbiterMember = new Member();
                     arbiterMember.setMemberId(x.getMemberId());
@@ -627,8 +631,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         Member promoter = graph.getMembers().stream().map(x -> new Member(x))
                 .filter(s -> s.getMemberRole() == JobMemberRole.promoter).findFirst().orElse(null);
 
-        if (node.getComponentType() == ComponentType.HorzLR
-                || node.getComponentType() == ComponentType.HorzSecureBoost) {
+        if (Components.needArbiterTask(node.getComponentType())) {
             if (graph.getJob().getMyRole() == JobMemberRole.provider && promoter != null) {
                 Member arbiterMember = new Member();
                 arbiterMember.setMemberId(promoter.getMemberId());
