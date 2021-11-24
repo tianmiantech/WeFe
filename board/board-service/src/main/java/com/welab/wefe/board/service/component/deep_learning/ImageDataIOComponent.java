@@ -18,6 +18,8 @@ package com.welab.wefe.board.service.component.deep_learning;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
@@ -33,8 +35,6 @@ import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,58 +133,12 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         return null;
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataSetItem> dataSetList;
-
-        //region getter/setter
-
-        public List<DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
-
-        //endregion
+    public static class Params extends AbstractDataIOParam<DataSetItem> {
 
     }
 
-    public static class DataSetItem extends AbstractCheckModel {
-        @Check(name = "成员Id", require = true)
-        private String memberId;
-        @Check(name = "成员角色", require = true)
-        private JobMemberRole memberRole;
-        @Check(name = "数据集 Id", require = true)
-        private String dataSetId;
+    public static class DataSetItem extends AbstractDataSetItem {
 
-        //region getter/setter
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public JobMemberRole getMemberRole() {
-            return memberRole;
-        }
-
-        public void setMemberRole(JobMemberRole memberRole) {
-            this.memberRole = memberRole;
-        }
-
-        public String getDataSetId() {
-            return dataSetId;
-        }
-
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
-        }
-
-        //endregion
     }
 
 

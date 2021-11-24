@@ -24,6 +24,8 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
@@ -182,6 +184,12 @@ public class ProjectFlowJobService extends AbstractService {
                                           ProjectMySqlModel project) {
         JobArbiterInfo info = new JobArbiterInfo();
         info.setHasArbiter(false);
+
+        // 深度学习没有 arbiter 角色
+        if (project.getProjectType() == ProjectType.DeepLearning) {
+            return info;
+        }
+
         if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
             if (project.getMyRole() == JobMemberRole.promoter) {
                 info.setHasArbiter(true);
@@ -712,33 +720,39 @@ public class ProjectFlowJobService extends AbstractService {
 
         String promoterId = null;
         for (ProjectFlowNodeMySqlModel node : nodes) {
-            List<DataIOComponent.DataSetItem> dataSetItemList = null;
-            if (node.getComponentType().equals(ComponentType.Oot)) {
-                if (isOotMode) {
-                    OotComponent.Params params = (OotComponent.Params) Components
-                            .get(node.getComponentType())
-                            .deserializationParam(null, node.getParams());
-                    // oot model
-                    dataSetItemList = StringUtil.isNotEmpty(params.getJobId()) ? params.getDataSetList() : dataSetItemList;
-                }
-            } else {
-                DataIOComponent.Params params = (DataIOComponent.Params) Components
-                        .get(node.getComponentType())
-                        .deserializationParam(null, node.getParams());
-                dataSetItemList = params.getDataSetList();
+            List<? extends AbstractDataSetItem> dataSetItemList = null;
+
+            AbstractDataIOParam params = (AbstractDataIOParam) Components
+                    .get(node.getComponentType())
+                    .deserializationParam(null, node.getParams());
+
+            switch (node.getComponentType()) {
+                case DataIO:
+                case ImageDataIO:
+                    dataSetItemList = params.getDataSetList();
+                    break;
+                case Oot:
+                    OotComponent.Params ootParams = (OotComponent.Params) params;
+                    dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
+                            ? params.getDataSetList()
+                            : dataSetItemList;
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
 
             if (CollectionUtils.isEmpty(dataSetItemList)) {
                 continue;
             }
 
-            for (DataIOComponent.DataSetItem item : dataSetItemList) {
-                boolean existMember = jobMembers.stream().anyMatch(x ->
-                        x.getMemberId().equals(item.getMemberId())
-                                && x.getJobRole().equals(item.getMemberRole())
-                );
+            for (AbstractDataSetItem item : dataSetItemList) {
+                boolean memberExisted = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getMemberId().equals(item.getMemberId())
+                                        && x.getJobRole().equals(item.getMemberRole())
+                        );
 
-                if (existMember) {
+                if (memberExisted) {
                     continue;
                 }
 

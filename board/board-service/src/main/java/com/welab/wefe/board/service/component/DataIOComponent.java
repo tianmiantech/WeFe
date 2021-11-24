@@ -19,6 +19,8 @@ package com.welab.wefe.board.service.component;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
@@ -36,7 +38,6 @@ import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.TaskResultType;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -229,8 +230,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataSetItem> dataSetList;
+    public static class Params extends AbstractDataIOParam<DataSetItem> {
 
         /**
          * Find my data set object information from the configuration list
@@ -263,55 +263,13 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
 
-        //region getter/setter
-
-        public List<DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
-
-        //endregion
-
     }
 
-    public static class DataSetItem extends AbstractCheckModel {
-        @Check(name = "成员Id", require = true)
-        private String memberId;
-        @Check(name = "成员角色", require = true)
-        private JobMemberRole memberRole;
-        @Check(name = "数据集 Id", require = true)
-        private String dataSetId;
+    public static class DataSetItem extends AbstractDataSetItem {
         @Check(name = "选择的特征列")
         private List<String> features;
 
         //region getter/setter
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public JobMemberRole getMemberRole() {
-            return memberRole;
-        }
-
-        public void setMemberRole(JobMemberRole memberRole) {
-            this.memberRole = memberRole;
-        }
-
-        public String getDataSetId() {
-            return dataSetId;
-        }
-
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
-        }
 
         public List<String> getFeatures() {
             return features;
