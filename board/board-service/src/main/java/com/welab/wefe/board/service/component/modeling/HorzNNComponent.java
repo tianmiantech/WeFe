@@ -43,7 +43,6 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                         Params params) throws FlowNodeException {
-
     }
 
     @Override
@@ -57,8 +56,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         JObject earlyStop = JObject.create("early_stop", "diff").append("eps", 0.0);
         horzNNParam.append("early_stop", earlyStop);
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("decay", params.decay)
-                .append("beta_1", 0.9).append("beta_2", 0.999).append("epsilon", 1e-07).append("amsgrad", false)
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("epsilon", 1e-07)
                 .append("optimizer", params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");
@@ -107,8 +105,6 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         private int batchSize;
         @Check(name = "学习率", require = true)
         private float learningRate;
-        @Check(name = "学习率衰减值", require = true)
-        private int decay;
         @Check(name = "优化器", require = true)
         private String optimizer;
         @Check(name = "损失函数", require = true)
@@ -138,14 +134,6 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
 
         public void setLearningRate(float learningRate) {
             this.learningRate = learningRate;
-        }
-
-        public int getDecay() {
-            return decay;
-        }
-
-        public void setDecay(int decay) {
-            this.decay = decay;
         }
 
         public String getOptimizer() {

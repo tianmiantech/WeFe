@@ -32,13 +32,14 @@ public enum ComponentType {
     FeatureStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向统计组件的各项指标"),
     HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
     MixStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合统计组件的各项指标"),
-    FillMissingValue("缺失值填充", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "填充缺失值"),
+    MixBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
+    FillMissingValue("缺失值填充", null, "填充缺失值"),
 
     Binning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行纵向分箱，并进行 woe 编码。"),
     HorzFeatureBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "对特征进行横向分箱，并进行 woe 编码。"),
     FeatureCalculation("计算特征价值", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "计算特征的 CV/IV，需要在分箱之后。"),
 
-    FeatureSelection("特征筛选", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "挑选出需要入模的特征"),
+    FeatureSelection("特征筛选", null, "挑选出需要入模的特征"),
     Segment("数据切割", null, "将数据集切割成训练集和测试集两部分"),
     VertPearson("皮尔逊相关系数", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "描述两个特征的相关性"),
     FeatureStandardized("特征标准化", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "对特征进行标准化"),

@@ -27,12 +27,14 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -43,7 +45,11 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                         Params params) throws FlowNodeException {
-
+        List<JobMemberMySqlModel> jobMembers = graph.getMembers();
+        long providerCount = jobMembers.stream().filter(x -> x.getJobRole() == JobMemberRole.provider).count();
+        if(providerCount == 2) {
+            throw new FlowNodeException(node, "纵向深度学习不支持多个协作方，请保留一个协作方数据集");
+        }
     }
 
     @Override
@@ -55,8 +61,8 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
         vertNNParam.append("epochs", params.epochs).append("interactive_layer_lr", params.interactiveLayerLr)
                 .append("batch_size", params.batchSize).append("early_stop", "diff");
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("decay", params.decay)
-                .append("momentum", 0).append("nesterov", false).append("optimizer", params.optimizer);
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("optimizer",
+                params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");
         vertNNParam.append("optimizer", optimizer).append("loss", params.loss).append("metrics", metrics);
@@ -122,9 +128,6 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
 
         @Check(name = "学习率", require = true)
         private float learningRate;
-
-        @Check(name = "学习率衰减值", require = true)
-        private int decay;
 
         @Check(name = "优化器", require = true)
         private String optimizer;
@@ -207,14 +210,6 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
 
         public void setLearningRate(float learningRate) {
             this.learningRate = learningRate;
-        }
-
-        public int getDecay() {
-            return decay;
-        }
-
-        public void setDecay(int decay) {
-            this.decay = decay;
         }
 
         public String getOptimizer() {

@@ -22,6 +22,11 @@ from common.python.utils.core_utils import current_datetime
 class TaskDao:
 
     @staticmethod
+    def get(*query, **filters):
+        with DB.connection_context():
+            return Task.get_or_none(*query, **filters)
+
+    @staticmethod
     def find_one_by_task(task: Task):
         with DB.connection_context():
             return Task.get(Task.id == task.id)
