@@ -398,7 +398,7 @@ class Handler(object):
             head = upload_conf['head'] == 1
             file = upload_conf['file']
             upload = Upload(backend, work_mode, db_type)
-            upload.prevent_repeat_upload(table_name, namespace)
+            upload.prevent_repeat_upload(table_name, namespace, partition)
             data_table_count = upload.save_data_table(file, table_name, namespace, partition, head)
 
             LOGGER.debug(f"upload_data_count is {data_table_count}")

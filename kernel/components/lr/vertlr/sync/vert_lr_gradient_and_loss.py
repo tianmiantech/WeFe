@@ -46,6 +46,7 @@ from kernel.utils import consts
 from kernel.utils import data_util
 from kernel.utils.base_operator import vec_dot
 from kernel.utils.random_number_generator import RandomNumberGenerator
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
 
 LOGGER = log_utils.get_logger()
 
@@ -135,8 +136,12 @@ def compute_gradient(data_instances, fore_gradient, fit_intercept):
     f = functools.partial(__compute_partition_gradient,
                           fit_intercept=fit_intercept,
                           is_sparse=is_sparse)
-    gradient_partition = feat_join_grad.mapPartitions(f)
-    gradient_partition = gradient_partition.reduce(lambda x, y: x + y)
+
+    if check_aclr_support():
+        gradient_partition = f(feat_join_grad.collect())
+    else:
+        gradient_partition = feat_join_grad.mapPartitions(f)
+        gradient_partition = gradient_partition.reduce(lambda x, y: x + y)
 
     gradient = gradient_partition / data_instances.count()
 

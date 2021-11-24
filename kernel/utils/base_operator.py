@@ -27,8 +27,7 @@
 # limitations under the License.
 
 #
-
-
+import time
 from collections import Iterable
 
 import numpy as np
@@ -39,7 +38,7 @@ from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_s
 from common.python.utils import log_utils
 from kernel.base.instance import Instance
 from kernel.base.sparse_vector import SparseVector
-from kernel.security.paillier import PaillierEncryptedNumber
+from kernel.security.paillier import PaillierEncryptedNumber, PaillierKeypair
 
 LOGGER = log_utils.get_logger()
 
@@ -93,10 +92,34 @@ def dot(value, w):
         return cpu_dot(value, w)
 
 
+def test_dot():
+    # value = [[1, 2, 3], [4, 5, 6]]
+    # w = [1, 2, 3]
+    # public_key, private_key = PaillierKeypair.generate_keypair(n_length=1024)
+    # w = [public_key.encrypt(1), public_key.encrypt(2), public_key.encrypt(3)]
+    # result = dot(value, w)
+    # print(private_key.decrypt(result[0]), private_key.decrypt(result[1]))
+
+    # cpu：129 gpu:63
+    x_length = 100000
+    value = []
+    for i in range(30):
+        value.append([j for j in range(x_length)])
+    public_key, private_key = PaillierKeypair.generate_keypair(n_length=1024)
+    encrypt_test = public_key.encrypt(1)
+    w = [encrypt_test for i in range(x_length)]
+
+    start = time.time()
+    result = dot(value, w)
+    print(len(result))
+    print(f"consume:{time.time() - start}")
+
+
 if __name__ == '__main__':
-    value = [[1, 2, 3], [4, 5, 6]]
-    w = [1, 2, 3]
-    print(dot(value, w))
+    test_dot()
+    # value = [[1, 2, 3], [4, 5, 6]]
+    # w = [1, 2, 3]
+    # print(dot(value, w))
 
 
 def vec_dot(x, w):

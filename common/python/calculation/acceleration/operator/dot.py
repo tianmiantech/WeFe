@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 
+import math
 import numpy as np
+import multiprocessing
 from scipy.sparse import csr_matrix
 
 from common.python import RuntimeInstance
@@ -121,49 +124,70 @@ def dot(value, w):
             res = np.array(res)
         else:
             # GPU acceleration is used here, w is ciphertext, X is plaintext
+            process_count = multiprocessing.cpu_count()
+            pool = multiprocessing.Pool(processes=process_count)
+            each_size = math.ceil(len(X) / process_count)
+            process_list = []
+            for i in range(process_count):
+                x = X[i * each_size:(i + 1) * each_size]
+                if len(x) > 0:
+                    process_list.append(pool.apply_async(_gpu_dot_4_batch, args=(x, w)))
+            pool.close()
+            pool.join()
+
             res = []
-            batch_w = []
-            batch_x = []
-
-            # Record the length of each x,
-            # in order to restore the calculation result of the corresponding number according to the length
-            x_length_to_restore = []
-            batch_result = []
-            result_array = []
-
-            for x in X:
-                x_length_to_restore.append(len(x))
-                for j in range(len(x)):
-                    batch_w.append(w[j])
-                    batch_x.append(x[j])
-                    if len(batch_w) >= BATCH_SIZE:
-                        # submit to gpu calc
-                        batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
-                        batch_w = []
-                        batch_x = []
-                        _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
-                        _result_array_reduce_add(result_array)
-
-            # submit residue to gpu
-            if len(batch_w) > 0:
-                batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
-                _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
-                _result_array_reduce_add(result_array)
-
-            # Submit the remaining batches that are not enough to use CPU calculation and return the result
-            for item_result_array in result_array:
-                item_result = 0
-                for item in item_result_array:
-                    item_result += item
-                res.append(item_result)
+            for item_process in process_list:
+                item_result = item_process.get()
+                res.extend(item_result)
 
             res = np.array(res)
-
     else:
         res = np.dot(X, w)
 
     return res
 
+def _gpu_dot_4_batch(X, w):
+    res = []
+    batch_w = []
+    batch_x = []
+
+    # Record the length of each x,
+    # in order to restore the calculation result of the corresponding number according to the length
+    x_length_to_restore = []
+    batch_result = []
+    result_array = []
+
+    for x in X:
+        x_length_to_restore.append(len(x))
+        for j in range(len(x)):
+            batch_w.append(w[j])
+            batch_x.append(x[j])
+            if len(batch_w) >= BATCH_SIZE:
+                # submit to gpu calc
+                batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
+                batch_w = []
+                batch_x = []
+                # _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
+                # _result_array_reduce_add(result_array)
+
+    # submit residue to gpu
+    if len(batch_w) > 0:
+        batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
+    _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
+
+    print(f'start:{datetime.datetime.now()}')
+    _result_array_reduce_add(result_array)
+    print(f'end:{datetime.datetime.now()}')
+
+    # Submit the remaining batches that are not enough to use CPU calculation and return the result
+    for item_result_array in result_array:
+        item_result = 0
+        for item in item_result_array:
+            item_result += item
+        res.append(item_result)
+
+    return res
+    # return np.array(res)
 
 def _restore_batch_result_2_array(x_length_to_restore: list, batch_result: list, result_array: list):
     """
@@ -179,13 +203,24 @@ def _restore_batch_result_2_array(x_length_to_restore: list, batch_result: list,
     -------
 
     """
-    while len(x_length_to_restore) > 0:
-        if len(batch_result) >= x_length_to_restore[0]:
-            result_array.append(batch_result[0:x_length_to_restore[0]])
-            del batch_result[0:x_length_to_restore[0]]
-            x_length_to_restore.pop(0)
-        else:
-            break
+    # scheme 1
+    # while len(x_length_to_restore) > 0:
+    #     if len(batch_result) >= x_length_to_restore[0]:
+    #         result_array.append(batch_result[0:x_length_to_restore[0]])
+    #         del batch_result[0:x_length_to_restore[0]]
+    #         x_length_to_restore.pop(0)
+    #     else:
+    #         break
+
+    # scheme 2
+    if len(x_length_to_restore) > 0:
+        each_size = x_length_to_restore[0]
+        times = len(batch_result) // each_size
+        if times > 0:
+            for i in range(times):
+                result_array.append(batch_result[i * each_size:(i + 1) * each_size])
+            del batch_result[0:each_size * times]
+            del x_length_to_restore[0:times]
 
 
 def _dot_list_to_restore(x_length_to_restore: list, res: list, batch_result: list):
