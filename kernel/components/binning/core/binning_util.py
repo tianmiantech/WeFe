@@ -37,7 +37,6 @@ import numpy as np
 
 from common.python import session
 from common.python.utils import log_utils
-from kernel.components.binning.horzfeaturebinning.horz_binning_base import SplitPointNode
 from kernel.utils import consts
 
 LOGGER = log_utils.get_logger()
@@ -94,7 +93,7 @@ def init_query_points(self, partitions, split_num, error_rank=1, need_first=True
 
         if not need_first:
             sps = sps[1:]
-
+        from kernel.components.binning.horzfeaturebinning.horz_binning_base import SplitPointNode
         split_point_array = [SplitPointNode(sps[i], min_value, max_value, allow_error_rank=error_rank)
                              for i in range(len(sps))]
         query_points.append((col_name, split_point_array))
