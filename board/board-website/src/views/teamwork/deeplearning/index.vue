@@ -3,9 +3,9 @@
         <div class="deep_flow">
             <div class="left_content">
                 <h3 class="flow_title">
-                    <span v-if="vData.active === 0"><i class="el-icon-edit-outline"/> 基本设置</span>
-                    <span v-if="vData.active === 1"><i class="el-icon-download"/> 数据输入</span>
-                    <span v-if="vData.active === 2"><i class="el-icon-s-operation"/> 调整流程参数</span>
+                    <span v-show="vData.active === 0"><i class="el-icon-edit-outline"/> 基本设置</span>
+                    <span v-show="vData.active === 1"><i class="el-icon-download"/> 数据输入与处理</span>
+                    <span v-show="vData.active === 2"><i class="el-icon-s-operation"/> 调整流程参数</span>
                 </h3>
                 <div class="step_content">
                     <div v-show="vData.active === 0" class="item base_setting">
@@ -103,7 +103,6 @@
                             custom-class="dialog-min-width"
                             :close-on-click-modal="false"
                             destroy-on-close
-                            append-to-body
                             width="70%"
                         >
                             <el-form
@@ -216,15 +215,16 @@
                     </div>
                 </div>
                 <div class="operation_btn">
-                    <el-button @click="methods.prev">上一步</el-button>
-                    <el-button type="primary" @click="methods.next">下一步</el-button>
+                    <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
+                    <el-button v-show="vData.active !== 2" type="primary" @click="methods.next">下一步</el-button>
+                    <el-button v-show="vData.active === 2" type="primary" @click="methods.start">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
                 <el-steps direction="vertical" :active="vData.active" align-center>
-                    <el-step title="基本设置" @click="methods.changeSteps(0)" />
-                    <el-step title="数据输入" @click="methods.changeSteps(1)" />
-                    <el-step title="调整流程参数" @click="methods.changeSteps(2)" />
+                    <el-step title="基本设置" />
+                    <el-step title="数据输入与处理" />
+                    <el-step title="调整流程参数" />
                 </el-steps>
             </div>
         </div>
@@ -232,10 +232,9 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance, computed, ref } from 'vue';
+    import { reactive, getCurrentInstance, ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import { nextTick, onBeforeMount } from '@vue/runtime-core';
-    import { useStore } from 'vuex';
     import DataSetList from '@comp/views/data-set-list';
 
     export default {
@@ -245,8 +244,6 @@
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http, $notify, $message } = appContext.config.globalProperties;
-            const store = useStore();
-            const userInfo = computed(() => store.state.base.userInfo);
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
@@ -350,8 +347,21 @@
                         value: 'DenseNet',
                     },
                 ],
-                classify:  '',
-                algorithm: '',
+                formImageDataIO: {
+                    componentType: 'ImageDataIO',
+                    flowId:        '',
+                    nodeId:        '',
+                    params:        {
+                        dataset_list: [
+                            {
+                                member_id:   '',
+                                member_role: '',
+                                data_set_id: '',
+                            },
+                        ],
+                    },
+                },
+                prevActive: 0,
             });
             const methods = {
                 async getFlowInfo() {
@@ -367,20 +377,141 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
+                            if(!data.graph) {
+                                // methods.createNode();
+                                vData.formImageDataIO.nodeId = methods.generateNodeId();
+                            } else {
+                                // 查看选择数据集节点信息
+                                methods.getNodeDetail();
+                            }
                         }
                     });
                 },
+                async createNode() {
+                    const params = {
+                        flow_id: vData.flow_id,
+                        graph:   {
+                            combos: [],
+                            edges:  [],
+                            nodes:  [
+                                {
+                                    id:    'start',
+                                    label: '开始',
+                                    type:  'flow-node',
+                                    data:  {
+                                        nodeType: 'system',
+                                    },
+                                },
+                                {
+                                    id:    methods.generateNodeId(),
+                                    label: '选择数据集',
+                                    type:  'flow-node',
+                                    data:  {
+                                        componentType: 'ImageDataIO',
+                                    },
+                                },
+                                {
+                                    id:    methods.generateNodeId(),
+                                    label: '数据切割',
+                                    type:  'flow-node',
+                                    data:  {
+                                        componentType: 'ImageSegment',
+                                    },
+                                },
+                            ],
+                        },
+                    };
+
+                    console.log(params);
+                    const { code } = await $http.post({
+                        url:  '/project/flow/update/graph',
+                        data: params,
+                    });
+
+                    if (code === 0) {
+                        $notify.success({
+                            offset:   -10,
+                            duration: 1000,
+                            title:    '提示',
+                            message:  '保存成功!',
+                        });
+                    }
+                },
                 prev() {
+                    // console.log('prev-prevActive=', vData.prevActive);
                     if (vData.active-- === 0) vData.active = 0;
+                    if (vData.active === 0) {
+                        // 保存数据集信息
+                        methods.saveImageDataIOInfo();
+                    }
+                    if (vData.active === 0) {
+                        console.log('选择数据集');
+                    }
                 },
                 next() {
+                    vData.prevActive = vData.active;
                     if (vData.active++ > 2) vData.active = 0;
+                    if (vData.active === 1 && !vData.member_list.length) {
+                        methods.getMemberList();
+                        methods.getNodeData();
+                    }
+                    if (vData.prevActive === 1 && vData.active === 2) {
+                        // 保存数据集信息
+                        methods.saveImageDataIOInfo();
+                    }
+                },
+                saveImageDataIOInfo() {
+                    console.log(vData.member_list);
+                    vData.formImageDataIO.flowId = vData.flow_id;
+                    const $dataset_list = [];
+
+                    vData.member_list.forEach(item => {
+                        if (item.$data_set_list.length) {
+                            $dataset_list.push({
+                                member_id:   item.member_id,
+                                member_role: item.member_role,
+                                data_set_id: item.$data_set_list[0].data_set_id,
+                            });
+                        }
+                    });
+                    vData.formImageDataIO.params.dataset_list = $dataset_list;
+                    console.log(vData.formImageDataIO);
+                    methods.submitFormData();
+                },
+                async submitFormData($event) {
+                    const btnState = {};
+
+                    if($event !== 'node-update') {
+                        btnState.target = $event;
+                    }
+                    const { code } = await $http.post({
+                        url:  '/project/flow/node/update',
+                        data: vData.formImageDataIO,
+                        btnState,
+                    });
+
+                    if(code === 0) {
+                        nextTick(_=> {
+                            if($event !== 'node-update') {
+                                $notify.success({
+                                    offset:   -10,
+                                    duration: 1000,
+                                    title:    '提示',
+                                    message:  '保存成功!',
+                                });
+                            }
+                        });
+                    }
                 },
                 changeSteps(val) {
+                    console.log(val);
                     vData.active = val;
-                    if (vData.active === 1 && !vData.member_list.length) methods.getNodeData();
+                    if (vData.active === 1 && !vData.member_list.length) {
+                        methods.getMemberList();
+                        methods.getNodeData();
+                    }
                 },
-                async getNodeData() {
+                async getMemberList() {
                     const { code, data } = await $http.get({
                         url:    '/project/member/list',
                         params: {
@@ -395,12 +526,7 @@
                                     row.$data_set_list = [];
                                     if(!row.exited) {
                                         if (row.member_role === 'promoter') {
-                                            // only mix has more than one promoter member
-                                            if(props.learningType === 'mix') {
-                                                vData.promoterList.push(row);
-                                            } else if(row.member_id === userInfo.value.member_id) {
-                                                vData.promoterList.push(row);
-                                            }
+                                            vData.promoterList.push(row);
                                         } else {
                                             vData.providerList.push(row);
                                         }
@@ -411,9 +537,10 @@
                                     ...vData.providerList,
                                 ];
                             }
-                            vData.inited = true;
                         }
                     });
+                },
+                async getNodeData() {
                 },
                 async checkDataSet(member, index) {
                     vData.currentItem = member;
@@ -421,12 +548,8 @@
                     vData.memberId = member.member_id;
                     vData.memberRole = member.member_role;
                     vData.showSelectDataSet = true;
-                    vData.dataSetTabName = 'raw';
 
                     nextTick(_ => {
-                        if (props.learningType === 'horizontal' || (vData.memberRole === 'promoter' && props.learningType === 'vertical')) {
-                            vData.rawSearch.contains_y = true;
-                        }
                         const ref = rawDataSetListRef.value;
 
                         ref.searchField.project_id = vData.flowInfo.project_id;
@@ -444,18 +567,14 @@
                     });
                 },
                 selectDataSet(item) {
-                    console.log(item);
                     vData.showSelectDataSet = false;
-
                     const currentMember = vData.member_list[vData.memberIndex];
                     const dataset_list = currentMember.$data_set_list[0];
-                    // const features = item.feature_name_list.split(',');
                     const dataset = {
                         ...item,
                     };
 
                     if(dataset_list) {
-                        // remove last selected
                         const { data_set_id } = dataset_list;
 
                         vData.member_list.forEach(item => {
@@ -524,47 +643,49 @@
                         }
                     }
                 },
-                async submitFormData($event, params) {
-                    const btnState = {};
-
-                    if($event !== 'node-update') {
-                        btnState.target = $event;
-                    }
-                    const { projectId, flowId } = vData.flowInfo;
-                    const { code } = await $http.post({
-                        url:  '/project/flow/node/update',
-                        data: {
-                            nodeId:        '',
-                            componentType: '',
-                            flowId,
-                            params,
+                async getNodeDetail () {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  vData.formImageDataIO.nodeId,
+                            flow_id: vData.flow_id,
                         },
-                        btnState,
                     });
 
-                    if(code === 0) {
-                        if(!flowId) {
-                            router.replace({
-                                query: {
-                                    project_id: projectId,
-                                    flow_id:    flowId,
-                                },
-                            });
+                    nextTick(() => {
+                        if (code === 0) {
+                            const { params } = data || {};
+
+                            if (params) {
+                                if (methods.formatter) {
+                                    methods.formatter(params);
+                                } else {
+                                    vData.form = params;
+                                }
+                            }
                         }
-                        if($event !== 'node-update') {
-                            $notify.success({
-                                offset:   -10,
-                                duration: 1000,
-                                title:    '提示',
-                                message:  '保存成功!',
-                            });
-                        }
+                    });
+                },
+                formatter(params) {
+                    vData.form = {
+                        ...params,
+                    };
+                    if(Array.isArray(params.tree_param.criterion_params)) {
+                        vData.form.tree_param.criterion_params = params.tree_param.criterion_params.join('');
+                    }
+                    if(Array.isArray(params.objective_param.params)) {
+                        vData.form.objective_param.params = params.objective_param.params.join('');
                     }
                 },
+                generateNodeId() {
+                    return `${+new Date() + (Math.random() * 10000).toFixed(0)}`;
+                },
+                async start() {},
             };
 
             onBeforeMount(() => {
                 methods.getFlowInfo();
+                // methods.getNodeDetail();
             });
 
             return {
@@ -579,6 +700,7 @@
 <style lang="scss" scoped>
 .deep_flow {
     width: 100%;
+    min-height: calc(100vh - 180px);
     display: flex;
     justify-content: space-between;
     .left_content {
@@ -610,12 +732,13 @@
         }
     }
     .step_header {
-        width: 120px;
+        width: 135px;
         height: 320px;
         margin-left: 70px;
         :deep(.el-step__title) {
             font-size: 14px;
             font-weight: 600;
+            // cursor: pointer;
         }
         :deep(.is-finish) {
             color: #5088fc;
