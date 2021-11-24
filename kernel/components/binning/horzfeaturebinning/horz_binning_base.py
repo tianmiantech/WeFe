@@ -186,7 +186,8 @@ class Client(Binning):
                 counts.extend(result)
             transform_result_counts.append((feature, np.array(counts)))
         LOGGER.info(f'result_counts_tables={transform_result_counts}')
-        result_count_tables = session.parallelize(transform_result_counts, partition=10, include_key=True)
+        result_count_tables = session.parallelize(transform_result_counts, partition=10, include_key=True,
+                                                  need_send=True)
         LOGGER.info(f'result_count_tables={result_count_tables.first()}')
         self.aggregator.send_table(result_count_tables, suffix=(self.suffix, 'event_count'))
         merge_result_counts_tables = self.aggregator.get_aggregated_table(suffix=(self.suffix, 'event_count'))
@@ -252,7 +253,7 @@ class Client(Binning):
         return self.max_values, self.min_values
 
     def query_values(self, summary_table, query_points):
-        local_ranks = summary_table.join(query_points, binning_util.query_table)
+        local_ranks = summary_table.join(query_points, binning_util.query_table, need_send=True)
         LOGGER.debug(f'local_ranks={local_ranks.first()}')
         self.aggregator.send_table(local_ranks, suffix=(self.suffix, 'rank'))
         global_rank = self.aggregator.get_aggregated_table(suffix=(self.suffix, 'rank'))
