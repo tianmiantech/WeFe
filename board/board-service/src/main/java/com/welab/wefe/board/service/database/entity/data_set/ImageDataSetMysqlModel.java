@@ -16,7 +16,11 @@
 
 package com.welab.wefe.board.service.database.entity.data_set;
 
+import com.welab.wefe.common.enums.DeepLearningJobType;
+
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 /**
  * @author Zane
@@ -27,7 +31,8 @@ public class ImageDataSetMysqlModel extends AbstractDataSetMysqlModel {
     /**
      * 任务类型（物体检测...）
      */
-    private String forJobType;
+    @Enumerated(EnumType.STRING)
+    private DeepLearningJobType forJobType;
     /**
      * label 列表
      */
@@ -52,11 +57,11 @@ public class ImageDataSetMysqlModel extends AbstractDataSetMysqlModel {
 
     // region getter/setter
 
-    public String getForJobType() {
+    public DeepLearningJobType getForJobType() {
         return forJobType;
     }
 
-    public void setForJobType(String forJobType) {
+    public void setForJobType(DeepLearningJobType forJobType) {
         this.forJobType = forJobType;
     }
 

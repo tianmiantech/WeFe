@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.dto.vo.data_set;
 
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -26,7 +27,7 @@ import com.welab.wefe.common.web.Launcher;
  * @date 2021/11/8
  */
 public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputModel {
-    public String forJobType;
+    public DeepLearningJobType forJobType;
 
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
@@ -47,11 +48,11 @@ public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
     // region getter/setter
 
-    public String getForJobType() {
+    public DeepLearningJobType getForJobType() {
         return forJobType;
     }
 
-    public void setForJobType(String forJobType) {
+    public void setForJobType(DeepLearningJobType forJobType) {
         this.forJobType = forJobType;
     }
 

@@ -23,9 +23,12 @@ import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
+import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -75,7 +78,16 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         }
         params.numClasses = labelNames.size();
 
-        JObject output = JObject.create(params);
+        KernelJob job = new KernelJob();
+        job.jobId = graph.getJob().getJobId();
+        job.taskId = node.createTaskId(graph.getJob());
+        job.role = graph.getJob().getMyRole();
+        job.memberId = CacheObjects.getMemberId();
+        job.env = new Env(imageDataIoParam);
+
+        JObject output = JObject.create(job);
+        output.put("data_set", imageDataIoParam.getMyJobDataSet(job.role));
+        output.put("algorithm_config", params);
 
         return output;
     }
