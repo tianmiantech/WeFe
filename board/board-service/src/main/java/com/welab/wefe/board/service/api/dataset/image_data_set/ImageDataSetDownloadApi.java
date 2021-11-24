@@ -19,27 +19,28 @@ package com.welab.wefe.board.service.api.dataset.image_data_set;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.io.File;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/delete", name = "delete data set")
-public class ImageDataSetDownloadApi extends AbstractNoneOutputApi<ImageDataSetDownloadApi.Input> {
+@Api(path = "image_data_set/download", name = "delete data set")
+public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
     private ImageDataSetService dataSetService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
         File file = dataSetService.download(input.id);
-        return success();
+        return file(file);
     }
 
     public static class Input extends AbstractApiInput {

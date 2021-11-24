@@ -369,6 +369,8 @@ public class ImageDataSetService extends AbstractDataSetService {
 
     public File download(String id) {
         ImageDataSetMysqlModel dataSet = findOneById(id);
+
+
         return null;
     }
 }
