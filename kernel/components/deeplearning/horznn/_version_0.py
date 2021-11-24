@@ -83,6 +83,8 @@ def server_fit(self, data_inst):
             LOGGER.info(f"early stop at iter {self.aggregate_iteration_num}")
             break
         self.aggregate_iteration_num += 1
+
+        self.tracker.add_task_progress(1)
     else:
         LOGGER.warn(f"reach max iter: {self.aggregate_iteration_num}, not converged")
     self.set_summary(self._summary)
@@ -131,7 +133,7 @@ def client_set_params(self, param):
     self.encode_label = param.encode_label
 
     self.data_converter = nn_model.get_data_converter(self.config_type)
-    self.model_builder = nn_model.get_nn_builder(config_type=self.config_type)
+    self.model_builder = nn_model.get_nn_builder(self.config_type)
 
 
 def client_init_model(self, param):
@@ -191,6 +193,8 @@ def client_fit(self, data_inst):
             f"role {self.role} finish {self.aggregate_iteration_num}_th aggregation"
         )
         self.aggregate_iteration_num += 1
+
+        self.tracker.add_task_progress(1)
     else:
         LOGGER.warn(f"reach max iter: {self.aggregate_iteration_num}, not converged")
 

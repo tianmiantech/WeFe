@@ -46,10 +46,12 @@ class HorzNNBase(ModelBase):
         self.model_param = HorzNNParam()
         self.transfer_variable = trans_var
         self._api_version = 0
+        self.is_serving_model = True
 
     def _init_model(self, param):
         self.param = param
         self.set_version(param.api_version)
+        self.tracker.init_task_progress(param.max_iter)
 
     def is_version_0(self):
         return self._api_version == 0
