@@ -133,6 +133,7 @@ class VertSampleFilter(ModelBase):
         new_data_instances = data_instances.mapValues(lambda v: self.process_value(v))
         new_data_instances = new_data_instances.filter(lambda k, v: v is not None and len(v.features) > 0)
         new_data_instances.schema = data_instances.schema
+        new_count = new_data_instances.count()
         LOGGER.debug(f'schema={new_data_instances.schema},  count={new_data_instances.count()}')
         metric_data = [("count", new_data_instances.count())]
         LOGGER.info(f'metric_data: {metric_data}, metric_name:{self.metric_name}')
