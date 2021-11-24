@@ -1,0 +1,126 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.welab.wefe.board.service.component.deep_learning;
+
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.io.InputMatcher;
+import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.exception.FlowNodeException;
+import com.welab.wefe.board.service.model.FlowGraph;
+import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author zane.luo
+ */
+@Service
+public class DeepLearningComponent extends AbstractComponent<DeepLearningComponent.Params> {
+
+    @Autowired
+    private ImageDataSetService imageDataSetService;
+
+    @Override
+    public ComponentType taskType() {
+        return ComponentType.DeepLearning;
+    }
+
+    @Override
+    protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+        FlowGraphNode imageDataIo = graph.findOneNodeFromParent(node, ComponentType.ImageDataIO);
+        if (imageDataIo == null) {
+            throw new FlowNodeException(node, "尚未选择数据集");
+        }
+    }
+
+
+    @Override
+    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
+        ImageDataIOComponent.Params imageDataIoParam = (ImageDataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.ImageDataIO).getParamsModel();
+
+        Set<String> labelNames = new HashSet<>();
+        for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.getDataSetList()) {
+            ImageDataSetOutputModel dataSet = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.getMemberId(), dataSetItem.getDataSetId());
+            List<String> list = StringUtil.splitWithoutEmptyItem(dataSet.getLabelList(), ",");
+            labelNames.addAll(list);
+        }
+        params.numClasses = labelNames.size();
+
+        JObject output = JObject.create(params);
+
+        return output;
+    }
+
+    @Override
+    protected List<TaskResultMySqlModel> getAllResult(String taskId) {
+        return null;
+    }
+
+    @Override
+    protected TaskResultMySqlModel getResult(String taskId, String type) {
+        return null;
+    }
+
+    @Override
+    protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) {
+        return null;
+    }
+
+    @Override
+    public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
+        return null;
+    }
+
+    public static class Params extends AbstractCheckModel {
+        @Check(
+                name = "算法类型",
+                regex = "(paddle_clas|paddle_detection)",
+                desc = "paddle_clas(分类), paddle_detection(目标检测)"
+        )
+        public Integer program;
+        @Check(name = "迭代次数")
+        public Integer maxIter;
+        @Check(name = "聚合步长")
+        public Integer innerStep;
+        @Check(name = "检测模型名称")
+        public String architecture;
+        @Check(name = "类别数")
+        public Integer numClasses;
+        @Check(name = "学习率")
+        public Double baseLr;
+        @Check(name = "图像输入尺寸")
+        public Integer[] imageShape;
+        @Check(name = "批量大小")
+        public Integer batchSize;
+    }
+
+}

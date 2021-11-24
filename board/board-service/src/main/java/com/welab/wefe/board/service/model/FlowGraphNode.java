@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 /**
  * @author zane.luo
  */
-public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
+public class FlowGraphNode<T extends AbstractCheckModel> extends ProjectFlowNodeMySqlModel {
 
     /**
      * Node form parameters
      */
-    private AbstractCheckModel paramsModel;
+    private T paramsModel;
     /**
      * Depth
      * <p>
@@ -147,13 +147,13 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
     /**
      * Get form parameter object
      */
-    public AbstractCheckModel getParamsModel() {
+    public T getParamsModel() {
         if (paramsModel != null) {
             return paramsModel;
         }
 
         try {
-            paramsModel = Components
+            paramsModel = (T) Components
                     .get(super.getComponentType())
                     .deserializationParam(this, super.getParams());
         } catch (FlowNodeException e) {

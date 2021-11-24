@@ -658,7 +658,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Assemble the input parameters of the task according to the component configuration
      */
-    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws FlowNodeException;
+    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws StatusCodeWithException;
 
     public abstract ComponentType taskType();
 
