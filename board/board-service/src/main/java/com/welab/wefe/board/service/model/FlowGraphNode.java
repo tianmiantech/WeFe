@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 /**
  * @author zane.luo
  */
-public class FlowGraphNode<T extends AbstractCheckModel> extends ProjectFlowNodeMySqlModel {
+public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
 
     /**
      * Node form parameters
      */
-    private T paramsModel;
+    private AbstractCheckModel paramsModel;
     /**
      * Depth
      * <p>
@@ -147,13 +147,13 @@ public class FlowGraphNode<T extends AbstractCheckModel> extends ProjectFlowNode
     /**
      * Get form parameter object
      */
-    public T getParamsModel() {
+    public AbstractCheckModel getParamsModel() {
         if (paramsModel != null) {
             return paramsModel;
         }
 
         try {
-            paramsModel = (T) Components
+            paramsModel = Components
                     .get(super.getComponentType())
                     .deserializationParam(this, super.getParams());
         } catch (FlowNodeException e) {
