@@ -33,6 +33,7 @@ import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -40,7 +41,6 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 
 /**
@@ -66,8 +66,13 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
             Params params) throws FlowNodeException {
         JSONObject taskParam = new JSONObject();
-        JObject featureStatisticsParam = JObject.create(params);
-        taskParam.put("params", featureStatisticsParam);
+        List<MemberFeatureInfoModel> members = params.members;
+        for (MemberFeatureInfoModel member : members) {
+            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
+                List<String> features = member.features;
+                taskParam.put("params", JObject.create("col_names", features));
+            }
+        }
         return taskParam;
     }
 
@@ -123,15 +128,29 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
     }
 
     public static class Params extends AbstractCheckModel {
-        @Check(require = true)
-        private List<String> colNames;
 
-        public List<String> getColNames() {
-            return colNames;
+        private List<MemberFeatureInfoModel> members;
+
+        public List<MemberFeatureInfoModel> getMembers() {
+            return members;
         }
 
-        public void setColNames(List<String> colNames) {
-            this.colNames = colNames;
+        public void setMembers(List<MemberFeatureInfoModel> members) {
+            this.members = members;
+        }
+
+    }
+
+    public static class MemberFeatureInfoModel extends MemberModel {
+
+        private List<String> features;
+
+        public List<String> getFeatures() {
+            return features;
+        }
+
+        public void setFeatures(List<String> features) {
+            this.features = features;
         }
 
     }
