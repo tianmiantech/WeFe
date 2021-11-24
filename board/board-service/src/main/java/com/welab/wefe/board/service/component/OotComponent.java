@@ -246,14 +246,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
 
         // Create input parameters for OOT components
-        JObject ootParam = JObject.create(newDataIoParam)
+        JObject output = JObject.create(newDataIoParam)
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap);
 
         // OotParam
-        return JObject.create().append("params", ootParam);
+        return output;
     }
 
     @Override

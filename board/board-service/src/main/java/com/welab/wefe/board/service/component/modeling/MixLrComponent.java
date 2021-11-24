@@ -55,10 +55,8 @@ public class MixLrComponent extends AbstractModelingComponent<MixLrComponent.Par
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) {
 
-        JSONObject taskParam = new JSONObject();
-
-        JObject vertLRParam = JObject.create();
-        vertLRParam.append("penalty", params.otherParam.penalty)
+        JObject output = JObject.create();
+        output.append("penalty", params.otherParam.penalty)
                 .append("tol", params.otherParam.tol)
                 .append("alpha", params.otherParam.alpha)
                 .append("optimizer", params.otherParam.optimizer)
@@ -75,9 +73,7 @@ public class MixLrComponent extends AbstractModelingComponent<MixLrComponent.Par
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
 
-        taskParam.put("params", vertLRParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override

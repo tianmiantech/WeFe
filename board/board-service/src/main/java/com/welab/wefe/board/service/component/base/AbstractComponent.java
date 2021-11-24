@@ -225,7 +225,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         TaskConfig taskConfig = new TaskConfig();
         taskConfig.setJob(jobInfo);
         taskConfig.setModule(taskType());
-        taskConfig.setParams(taskParam.getJSONObject("params"));
+        taskConfig.setParams(taskParam);
         taskConfig.setInput(getInputs(graph, node));
         taskConfig.setOutput(getOutputs(graph, node));
         taskConfig.setTask(getTaskMembers(graph, node));
