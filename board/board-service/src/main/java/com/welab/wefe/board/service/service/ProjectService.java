@@ -1126,8 +1126,8 @@ public class ProjectService extends AbstractService {
                                     : model.getAuditComment());
                             projectDataSetRepo.updateById(model.getId(), params, ProjectDataSetMySqlModel.class);
                         } else {
-                            x.setAuditStatus(AuditStatus.auditing);
-                            x.setAuditComment("");
+//                            x.setAuditStatus(AuditStatus.auditing);
+//                            x.setAuditComment("");
                             projectDataSetRepo.save(x);
                         }
                     });

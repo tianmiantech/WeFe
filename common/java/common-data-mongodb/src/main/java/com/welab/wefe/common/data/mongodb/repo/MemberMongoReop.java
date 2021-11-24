@@ -166,10 +166,11 @@ public class MemberMongoReop extends AbstractMongoRepo {
     }
 
     public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
-        String paramHidden = null == hidden ? null : String.valueOf(hidden ? 1 : 0);
-        String paramFreezed = null == freezed ? null : String.valueOf(freezed ? 1 : 0);
+        String paramHidden = null == hidden ? "0" : String.valueOf(hidden ? 1 : 0);
+        String paramFreezed = null == freezed ? "0" : String.valueOf(freezed ? 1 : 0);
         String paramLostContact = null == lostContact ? null : String.valueOf(lostContact ? 1 : 0);
         Query query = new QueryBuilder()
+                .notRemoved()
                 .append("memberId", memberId)
                 .like("name", name)
                 .append("hidden", paramHidden)
