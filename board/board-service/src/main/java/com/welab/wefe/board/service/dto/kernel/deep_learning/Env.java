@@ -15,11 +15,13 @@
  */
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
+import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
+
 /**
  * @author zane
  * @date 2021/11/22
  */
-public class JobConfig {
+public class Env {
     /**
      * 本方 worker 个数
      * <p>
@@ -37,7 +39,7 @@ public class JobConfig {
      * 本方 worker 索引，多方之间不能重复。
      * e.g: [0,1]
      */
-    public String localTrainerIndexs;
+    public int[] localTrainerIndexs;
     /**
      * 设备 cpu/gpu
      */
@@ -45,5 +47,12 @@ public class JobConfig {
     /**
      * 是否使用 visualdl 可视化
      */
-    public boolean useVdl;
+    public boolean useVdl = true;
+
+    public Env() {
+    }
+
+    public Env(ImageDataIOComponent.Params imageDataIoParam) {
+    }
+
 }

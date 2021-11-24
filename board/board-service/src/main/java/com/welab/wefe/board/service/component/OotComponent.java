@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskConfigApi;
 import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
@@ -38,7 +39,6 @@ import com.welab.wefe.board.service.service.*;
 import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -246,14 +246,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
 
         // Create input parameters for OOT components
-        JObject ootParam = JObject.create(newDataIoParam)
+        JObject output = JObject.create(newDataIoParam)
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap);
 
         // OotParam
-        return JObject.create().append("params", ootParam);
+        return output;
     }
 
     @Override
@@ -647,8 +647,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return StringUtil.isNotEmpty(params.getJobId());
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataIOComponent.DataSetItem> dataSetList;
+    public static class Params extends AbstractDataIOParam<DataIOComponent.DataSetItem> {
         /**
          * Specify jobid to create OOT component (used in OOT mode)
          */
@@ -665,14 +664,6 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
          * Positive label type (if there is no evaluation component in the original process, this parameter should be filled in the OOT component input parameter)
          */
         private Integer posLabel;
-
-        public List<DataIOComponent.DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataIOComponent.DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
 
         public String getJobId() {
             return jobId;

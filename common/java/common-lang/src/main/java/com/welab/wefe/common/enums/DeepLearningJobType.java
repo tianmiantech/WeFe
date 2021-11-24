@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.kernel.deep_learning;
-
-import com.welab.wefe.common.enums.JobMemberRole;
+package com.welab.wefe.common.enums;
 
 /**
  * @author zane
- * @date 2021/11/22
+ * @date 2021/11/24
  */
-public class KernelJob {
-    public String jobId;
-    public String taskId;
-    public String jobType = "paddle_fl";
-    public JobMemberRole role;
-    public String memberId;
-    public Env env;
+public enum DeepLearningJobType {
+    /**
+     * 分类
+     */
+    classify,
+    /**
+     * 目标检测
+     */
+    detection
 }

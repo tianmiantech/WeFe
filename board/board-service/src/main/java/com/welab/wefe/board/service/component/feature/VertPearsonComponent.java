@@ -63,9 +63,6 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
 
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-
-        JSONObject taskParam = new JSONObject();
-
         // Need to find DataIO data set
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
         TaskMySqlModel dataIOTask = findTaskFromPretasks(preTasks, dataIONode);
@@ -73,7 +70,7 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
             throw new FlowNodeException(node, "请添加DataIO组件!");
         }
 
-        JObject resultObj = JObject.create();
+        JObject output = JObject.create();
 
         params.getMembers().forEach(x -> {
             if (x.getMemberId().equals(CacheObjects.getMemberId())) {
@@ -83,16 +80,14 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
                         features.add(feature.getName());
                     }
                 });
-                resultObj.append("column_names", features);
+                output.append("column_names", features);
             }
 
         });
 
-        resultObj.append("cross_parties", params.isCrossParties());
+        output.append("cross_parties", params.isCrossParties());
 
-        taskParam.put("params", resultObj);
-
-        return taskParam;
+        return output;
     }
 
 
