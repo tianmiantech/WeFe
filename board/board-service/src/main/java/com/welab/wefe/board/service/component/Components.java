@@ -150,6 +150,7 @@ public class Components {
                 || type == ComponentType.MixSecureBoost
                 || type == ComponentType.MixStatistic
                 || type == ComponentType.HorzStatistic
+                || type == ComponentType.HorzFeatureBinning
                 || type == ComponentType.HorzNN
                 || type == ComponentType.MixBinning;
     }
