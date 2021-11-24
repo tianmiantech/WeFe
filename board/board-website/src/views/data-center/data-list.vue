@@ -5,7 +5,7 @@
     >
         <el-form
             inline
-            class="mb20"
+            class="mb20 clearfix"
             @submit.prevent
         >
             <el-form-item
@@ -66,8 +66,11 @@
             >
                 查询
             </el-button>
+            <el-button plain type="primary" class="fr">
+                上传中的数据集 <i class="el-icon-right"></i>
+            </el-button>
         </el-form>
-
+        
         <el-tabs
             v-model="vData.activeTab"
             type="border-card"
@@ -78,26 +81,25 @@
                 :key="tab.name"
             >
                 <el-tab-pane
-                    v-if="tab.name === 'uploadUnions'"
+                    v-if="tab.name === 'imageUnions'"
                     :name="tab.name"
                     :label="tab.label"
                 >
                     <template #label>
-                        <el-badge
+                        <!-- <el-badge
                             :max="99"
                             :value="tab.count"
                             :hidden="tab.count < 1"
                             type="danger"
-                        >
-                            {{ tab.label }}
-                        </el-badge>
+                        > -->
+                        {{ tab.label }}
+                        <!-- </el-badge> -->
                     </template>
-                    <UploadingList
-                        ref="uploadUnions"
-                        key="uploadUnions"
+                    <ImagesList
+                        ref="imageUnions"
+                        key="imageUnions"
                         :table-loading="vData.loading"
                         :search-field="vData.search"
-                        :upload-list="vData.uploadList"
                     />
                 </el-tab-pane>
                 <el-tab-pane
@@ -133,20 +135,20 @@
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import List from './components/list';
-    import UploadingList from './components/uploading-list';
+    import ImagesList from './components/images-list';
 
     export default {
         components: {
             List,
-            UploadingList,
+            ImagesList,
         },
         setup() {
-            let timer = null;
+            const timer = null;
             const route = useRoute();
             const router = useRouter();
             const { appContext } = getCurrentInstance();
             const { $http, $confirm, $message } = appContext.config.globalProperties;
-            const uploadUnions = ref();
+            const imageUnions = ref();
             const allUnions = ref();
             const vData = reactive({
                 loading: false,
@@ -167,48 +169,21 @@
                 unionTabs: [
                     {
                         name:  'allUnions',
-                        label: '全部数据集',
+                        label: '结构化数据',
                         count: 0,
                     },
                     {
-                        name:  'uploadUnions',
-                        label: '上传中的数据集',
+                        name:  'imageUnions',
+                        label: '图像数据',
                         count: 0,
                     },
                 ],
-                uploadList: [], // uploading list
             });
             const methods = {
                 async getUploadList() {
-                    const $ref = uploadUnions.value;
+                    const $ref = imageUnions.value;
 
-                    if($ref) {
-                        const { code, data } = await $http.get($ref.getListApi, {
-                            params: {
-                                ...vData.search,
-                                page_index: $ref.pagination.page_index - 1,
-                                page_size:  $ref.pagination.page_size,
-                            },
-                        });
-
-                        if (code === 0) {
-                            const $data = vData;
-
-                            $data.unionTabs[1].count = data.total;
-                            $data.uploadList = data.list;
-                            $ref.pagination.total = data.total;
-                            $ref.loading = false;
-                        }
-
-                        clearTimeout(timer);
-                        timer = setTimeout(() => {
-                            methods.getUploadList();
-                        }, 2000);
-
-                        if (code === 10006) {
-                            clearTimeout(timer);
-                        }
-                    }
+                    $ref.getDataList();
                 },
 
                 async getTags() {
@@ -301,7 +276,7 @@
                 };
             };
             const searchList = (opt = {}) => {
-                const refInstance = vData.activeTab === 'uploadUnions' ? uploadUnions : allUnions;
+                const refInstance = vData.activeTab === 'imageUnions' ? imageUnions : allUnions;
 
                 refInstance.value.getDataList(opt);
             };
@@ -335,7 +310,7 @@
                 searchList,
                 syncUrlParams,
                 tabChange,
-                uploadUnions,
+                imageUnions,
                 allUnions,
             };
         },
@@ -343,6 +318,20 @@
 </script>
 
 <style lang="scss" scoped>
+    // 清除浮动
+    .clearfix:after, .clearfix:before {
+        content: '';
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+    .clearfix {
+        *zoom: 1;
+        .fr {
+            float: right;
+        }
+    }
     .el-tabs{
         :deep(.el-tabs__header) {height: 40px;}
         :deep(.el-tabs__nav-wrap){
