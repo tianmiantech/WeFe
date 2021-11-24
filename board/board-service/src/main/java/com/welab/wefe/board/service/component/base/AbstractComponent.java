@@ -16,12 +16,35 @@
 
 package com.welab.wefe.board.service.component.base;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.base.io.*;
+import com.welab.wefe.board.service.component.base.io.DataTypeGroup;
+import com.welab.wefe.board.service.component.base.io.InputGroup;
+import com.welab.wefe.board.service.component.base.io.InputMatcher;
+import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
+import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -44,18 +67,6 @@ import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -142,9 +153,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
+            // special
             node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
+            // special
             if (parentNode != null) {
                 parentNode
                         .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
@@ -164,7 +177,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam.getJSONObject("params"));
-            taskConfig.setInput(getInputs(graph, node));
+            taskConfig.setInput(generateInput(graph, node, count));
             taskConfig.setOutput(getOutputs(graph, node));
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
@@ -177,10 +190,43 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskRepository.save(task);
             subTasks.add(task);
             count++;
+            
+            // rollback
+            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()));
+            if (parentNode != null) {
+                parentNode.setTaskName(
+                        FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId()));
+            }
         }
         return subTasks;
     }
 
+    private Map<String, Object> generateInput(FlowGraph graph, FlowGraphNode node, int count) throws FlowNodeException{
+        Map<String, Object> inputs = getInputs(graph, node);
+        try {
+            
+            JSONObject json = JSON.parseObject(JSON.toJSONString(inputs));
+            JSONObject data = json.getJSONObject("data");
+            List<String> normal = data.getObject("normal", TypeReference.LIST_STRING);
+            List<String> newNormal = new ArrayList<>();
+            String end = "_" + count;
+            for (String s : normal) {
+                if (s.endsWith(end)) {
+                    newNormal.add(s);
+                } else {
+                    newNormal.add(s + end);
+                }
+            }
+            if (!newNormal.isEmpty()) {
+                data.put("normal", newNormal);
+                json.put("data", data);
+                inputs = json.getInnerMap();
+            }
+        } catch (Exception e) {
+            LOG.warn("parse inputs error, json = " + JSON.toJSONString(inputs), e);
+        }
+        return inputs;
+    }
     private int getCount(List<TaskMySqlModel> preTasks, int parentDeep, int currentCount) {
         if (parentDeep < 0 || preTasks == null || preTasks.isEmpty()) {
             return currentCount;
@@ -447,7 +493,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .findFirst().orElse(null);
                 if (promoter != null) {
@@ -464,7 +511,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -487,7 +535,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 KernelTask task = new KernelTask();
                 task.setMembers(members);
                 kernelTasks.add(task);
-            } else if (node.getComponentType() == ComponentType.MixStatistic) {
+            } else if (node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -508,7 +557,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             for (Member promoter : promoters) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost
-                        || node.getComponentType() == ComponentType.MixStatistic) {
+                        || node.getComponentType() == ComponentType.MixStatistic
+                        || node.getComponentType() == ComponentType.MixBinning) {
                     KernelTask task = new KernelTask();
                     task.setMembers(allMembers);
                     task.setMixPromoterMemberId(promoter.getMemberId());

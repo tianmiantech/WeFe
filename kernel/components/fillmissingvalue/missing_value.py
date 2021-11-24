@@ -55,7 +55,7 @@ class FillMissingValue(ModelBase):
 
         self.transfer_variable = FillMissingValueTransferVariable()
 
-    def _inti_params(self):
+    def _init_params(self):
         self.features_rules = json.loads(self.model_param.features)
         self.statistics = self.model_param.statistics
         self.save_dataset = self.model_param.save_dataset
@@ -63,8 +63,7 @@ class FillMissingValue(ModelBase):
         self.methods = self.get_fill_methods()
 
     def fit(self, data_instances):
-        self._inti_params()
-        abnormal_detection.empty_table_detection(data_instances)
+        self._init_params()
         if not data_instances.schema:
             data_instances.schema = data_instances.get_metas()
         self.header = get_header(data_instances)
@@ -125,18 +124,13 @@ class FillMissingValue(ModelBase):
         return methods
 
     def calc_statistics(self, data_instances):
-        self.statistics = self.tracker.get_statics_result()
-        LOGGER.info("mysql statistics:{}".format(self.statistics))
-        if self.statistics:
-            return
-
         self.statistics = {}
         statistics = MultivariateStatistical(data_instances=data_instances)
         self.multivariateStatistical = statistics
         self.statistics['missing_count'] = statistics.get_missing_count()
-
         if len(self.methods) == 1 and 'const' in self.methods:
             return
+
         for method in self.methods:
             if method == 'max':
                 self.statistics['max'] = statistics.get_max()
