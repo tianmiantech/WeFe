@@ -75,6 +75,8 @@ public enum StatusCode {
 
     FILE_DOES_NOT_EXIST(10038, "file does not exist error fileId: (%s)"),
 
+    INVALID_DATASET(10039, "Invalid dataset id (%s)"),
+
     /**
      * Database related error status code
      */

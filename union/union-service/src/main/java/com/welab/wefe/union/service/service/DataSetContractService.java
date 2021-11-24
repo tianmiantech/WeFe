@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Service
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
-public class DatasetContractService extends AbstractContractService {
+public class DataSetContractService extends AbstractContractService {
 
     private final BlockChainContext blockChainContext = BlockChainContext.getInstance();
 

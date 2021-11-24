@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset;
+package com.welab.wefe.union.service.api.dataset.nomal;
 
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
@@ -25,7 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.DataSetDetailOutput;
 import com.welab.wefe.union.service.mapper.DataSetMapper;
-import com.welab.wefe.union.service.service.DatasetContractService;
+import com.welab.wefe.union.service.service.DataSetContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,7 +38,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DataSetDetailOutput>
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;
     @Autowired
-    protected DatasetContractService mDatasetContractService;
+    protected DataSetContractService mDataSetContractService;
 
     protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
 

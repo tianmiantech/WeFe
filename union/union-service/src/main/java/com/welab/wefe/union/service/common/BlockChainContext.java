@@ -20,10 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.union.service.UnionService;
 import com.welab.wefe.union.service.config.ConfigProperties;
-import com.welab.wefe.union.service.contract.DataSetContract;
-import com.welab.wefe.union.service.contract.DataSetMemberPermissionContract;
-import com.welab.wefe.union.service.contract.MemberContract;
-import com.welab.wefe.union.service.contract.UnionNodeContract;
+import com.welab.wefe.union.service.contract.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
@@ -177,6 +174,15 @@ public class BlockChainContext {
     public UnionNodeContract getLatestVersionUnionNodeContract() throws StatusCodeWithException {
         String address = getUnionLatestContractAddressByName(unionCnsService, configProperties.getBlockChainUnionNodeContractName());
         return UnionNodeContract.load(address, unionClient, unionCryptoKeyPair);
+    }
+
+
+    /**
+     * Get the latest version of the DataSet contract
+     */
+    public ImageDataSetContract getLatestVersionImageDataSetContract() throws StatusCodeWithException {
+        String address = getUnionLatestContractAddressByName(unionCnsService, configProperties.getBlockChainUnionImageDataSetContractName());
+        return ImageDataSetContract.load(address, unionClient, unionCryptoKeyPair);
     }
 
 

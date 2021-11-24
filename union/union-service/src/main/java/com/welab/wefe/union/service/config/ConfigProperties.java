@@ -39,6 +39,8 @@ public class ConfigProperties {
     private String blockChainUnionDataSetMemberPermissionContractName;
     @Value("${block.chain.union.node.contract.name}")
     private String blockChainUnionNodeContractName;
+    @Value("${block.chain.union.image.data.set.contract.name}")
+    private String blockChainUnionImageDataSetContractName;
 
 
     /**
@@ -147,5 +149,13 @@ public class ConfigProperties {
 
     public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
         this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public String getBlockChainUnionImageDataSetContractName() {
+        return blockChainUnionImageDataSetContractName;
+    }
+
+    public void setBlockChainUnionImageDataSetContractName(String blockChainUnionImageDataSetContractName) {
+        this.blockChainUnionImageDataSetContractName = blockChainUnionImageDataSetContractName;
     }
 }

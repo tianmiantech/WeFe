@@ -23,7 +23,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.api.member.RealNameAuthApi;
 import com.welab.wefe.union.service.api.member.UpdateExcludeLogoApi;
 import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.MemberContract;
@@ -31,7 +30,6 @@ import com.welab.wefe.union.service.entity.Member;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -412,7 +410,7 @@ public class MemberContractService extends AbstractContractService {
             TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
 
-            transactionIsSuccess(transactionResponse);
+            checkTransactionResponse(transactionResponse);
 
         } catch (
                 Exception e) {

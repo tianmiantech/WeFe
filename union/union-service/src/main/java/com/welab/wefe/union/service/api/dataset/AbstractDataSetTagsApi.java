@@ -17,6 +17,7 @@
 package com.welab.wefe.union.service.api.dataset;
 
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetTagsQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -25,7 +26,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.ApiTagsQueryOutput;
 import com.welab.wefe.union.service.dto.dataset.TagsDTO;
-import com.welab.wefe.union.service.service.DatasetContractService;
+import com.welab.wefe.union.service.service.DataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -36,16 +37,15 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_set/tags/query", name = "dataset_tags_query", rsaVerify = true, login = false)
-public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, ApiTagsQueryOutput> {
+public abstract class AbstractDataSetTagsApi extends AbstractApi<AbstractDataSetTagsApi.Input, ApiTagsQueryOutput> {
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    protected DatasetContractService mDatasetContractService;
+
+    protected abstract AbstractDataSetMongoRepo getDataSetMongoRepo();
 
     @Override
-    protected ApiResult<ApiTagsQueryOutput> handle(DataSetTagsApi.Input input) {
-        List<DataSetTagsQueryOutput> list = dataSetMongoReop.findByTags(input.getTagName());
+    protected ApiResult<ApiTagsQueryOutput> handle(AbstractDataSetTagsApi.Input input) {
+        List<DataSetTagsQueryOutput> list = getDataSetMongoRepo().findByTags(input.getTagName());
 
         ApiTagsQueryOutput output = new ApiTagsQueryOutput();
         output.setTagList(convertTagList(input.tagName, list));

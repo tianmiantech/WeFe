@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset;
+package com.welab.wefe.union.service.api.dataset.nomal;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.DataSetOutput;
 import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
-import com.welab.wefe.union.service.service.DatasetContractService;
+import com.welab.wefe.union.service.service.DataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(path = "data_set/delete", name = "data_set_delete", rsaVerify = true, login = false)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, DataSetOutput> {
     @Autowired
-    protected DatasetContractService datasetContractService;
+    protected DataSetContractService datasetContractService;
 
     @Autowired
     private DataSetMemberPermissionContractService mDataSetMemberPermissionContractService;

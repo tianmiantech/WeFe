@@ -30,6 +30,14 @@ public class EventConstant {
         public static final String DELETE_BY_DATASETID_EVENT = "DELETEBYDATASETIDEVENT";
     }
 
+    public static final class ImageDataSet {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_DATASETID_EVENT = "DELETEBYDATASETIDEVENT";
+        public static final String UPDATE_LABELED_COUNT = "UPDATELABELEDCOUNT";
+        public static final String UPDATE_ENABLE_EVENT = "UPDATEENABLEEVENT";
+    }
+
     public static final class Member {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";
