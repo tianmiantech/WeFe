@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.dataset.image_data_set.sample;
+package com.welab.wefe.board.service.api.dataset.image_data_set;
 
-import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
-import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -28,27 +27,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/download", name = "download image data set sample")
-public class ImageDataSetSampleDownloadApi extends AbstractApi<ImageDataSetSampleDownloadApi.Input, ResponseEntity<?>> {
+@Api(path = "image_data_set/download", name = "delete data set")
+public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
-    private ImageDataSetSampleRepository imageDataSetSampleRepository;
+    private ImageDataSetService dataSetService;
 
     @Override
-    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
-        ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
-        File file = new File(sample.getFilePath());
-
+    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
+        File file = dataSetService.download(input.id);
         return file(file);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(require = true)
-        public String id;
+        @Check(name = "数据集 Id", require = true)
+        private String id;
+
+        //region getter/setter
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+
+        //endregion
     }
 }

@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -45,6 +46,9 @@ public class ImageDataSetQueryApi extends AbstractApi<ImageDataSetQueryApi.Input
 
         private String id;
 
+        @Check(name = "任务类型（分类、目标检测）")
+        private DeepLearningJobType forJobType;
+
         @Check(name = "数据集名称")
         private String name;
 
@@ -63,6 +67,14 @@ public class ImageDataSetQueryApi extends AbstractApi<ImageDataSetQueryApi.Input
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public DeepLearningJobType getForJobType() {
+            return forJobType;
+        }
+
+        public void setForJobType(DeepLearningJobType forJobType) {
+            this.forJobType = forJobType;
         }
 
         public String getName() {

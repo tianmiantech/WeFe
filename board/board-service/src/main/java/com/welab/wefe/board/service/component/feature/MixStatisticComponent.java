@@ -25,13 +25,13 @@ import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -57,17 +57,29 @@ public class MixStatisticComponent extends AbstractComponent<MixStatisticCompone
     }
 
     @Override
+    public boolean canSelectFeatures() {
+        return true;
+    }
+
+    @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) {
 
-        return JObject.create(params);
+        MemberFeatureInfoModel me = params.members
+                .stream()
+                .filter(member -> CacheObjects.getMemberId().equals(member.getMemberId()))
+                .findFirst()
+                .orElse(null);
+
+        return JObject.create("col_names", me.features);
     }
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
 
         List<TaskResultMySqlModel> list = taskResultService.listAllResult(taskId).stream()
-                .filter(x -> x.getType().equals(TaskResultType.data_feature_statistic.name())).collect(Collectors.toList());
+                .filter(x -> x.getType().equals(TaskResultType.data_feature_statistic.name()))
+                .collect(Collectors.toList());
 
         // Put the reassembled data in
         list.add(getResult(taskId, TaskResultType.data_feature_statistic.name()));
@@ -115,15 +127,29 @@ public class MixStatisticComponent extends AbstractComponent<MixStatisticCompone
     }
 
     public static class Params extends AbstractCheckModel {
-        @Check(require = true)
-        private List<String> colNames;
 
-        public List<String> getColNames() {
-            return colNames;
+        private List<MemberFeatureInfoModel> members;
+
+        public List<MemberFeatureInfoModel> getMembers() {
+            return members;
         }
 
-        public void setColNames(List<String> colNames) {
-            this.colNames = colNames;
+        public void setMembers(List<MemberFeatureInfoModel> members) {
+            this.members = members;
+        }
+
+    }
+
+    public static class MemberFeatureInfoModel extends MemberModel {
+
+        private List<String> features;
+
+        public List<String> getFeatures() {
+            return features;
+        }
+
+        public void setFeatures(List<String> features) {
+            this.features = features;
         }
 
     }

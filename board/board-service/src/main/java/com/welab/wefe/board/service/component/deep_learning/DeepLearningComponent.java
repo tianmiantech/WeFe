@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
@@ -30,12 +31,14 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.Launcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,11 +88,24 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         job.memberId = CacheObjects.getMemberId();
         job.env = new Env(imageDataIoParam);
 
+        AbstractDataSetOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
+        JObject dataSetInfo = JObject.create(myJobDataSet);
+        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
+
+
         JObject output = JObject.create(job);
-        output.put("data_set", imageDataIoParam.getMyJobDataSet(job.role));
+        output.put("data_set", dataSetInfo);
         output.put("algorithm_config", params);
 
         return output;
+    }
+
+    private String buildDataSetDownloadUrl(String id) {
+        return Launcher.CONTEXT.getBean(GlobalConfigService.class)
+                .getBoardConfig()
+                .intranetBaseUri
+                + "/image_data_set/download?id=" + id;
+
     }
 
     @Override

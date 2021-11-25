@@ -148,6 +148,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         Specification<ImageDataSetMysqlModel> where = Where
                 .create()
                 .equal("id", input.getId())
+                .equal("forJobType", input.getForJobType())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
@@ -366,4 +367,10 @@ public class ImageDataSetService extends AbstractDataSetService {
         return annotation;
     }
 
+    public File download(String id) {
+        ImageDataSetMysqlModel dataSet = findOneById(id);
+
+
+        return null;
+    }
 }

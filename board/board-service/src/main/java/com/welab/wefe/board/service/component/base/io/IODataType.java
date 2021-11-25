@@ -31,6 +31,7 @@ public enum IODataType {
     ModelFromLr("逻辑回归模型", DataTypeGroup.Model),
     ModelFromXGBoost("XGBoost模型", DataTypeGroup.Model),
     ModelFromBinning("分箱后的模型", DataTypeGroup.Model),
+    ModelFromNN("深度学习模型", DataTypeGroup.Model),
 
     Json("Json Result", DataTypeGroup.Other);
 

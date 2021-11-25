@@ -159,15 +159,17 @@ class BinInnerParam(object):
         return [self.__encode_col_name(x) for x in col_name_list]
 
     def __encode_col_name(self, col_name):
-        col_index = self.col_name_maps.get(col_name)
-        if col_index is None:
-            LOGGER.warning("Encoding a non-exist column name")
-            return None
-        return '.'.join(['provider', str(col_index)])
+        # col_index = self.col_name_maps.get(col_name)
+        # if col_index is None:
+        #     LOGGER.warning("Encoding a non-exist column name")
+        #     return None
+        # return '.'.join(['provider', str(col_index)])
+        return col_name
 
     def decode_col_name(self, encoded_name: str):
-        try:
-            col_index = int(encoded_name.split('.')[1])
-        except IndexError or ValueError:
-            raise RuntimeError("Bin inner param is trying to decode an invalid col_name.")
-        return self.header[col_index]
+        # try:
+        #     col_index = int(encoded_name.split('.')[1])
+        # except IndexError or ValueError:
+        #     raise RuntimeError("Bin inner param is trying to decode an invalid col_name.")
+        # return self.header[col_index]
+        return encoded_name
