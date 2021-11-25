@@ -20,9 +20,8 @@ import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.dataset.image.AddApi;
+import com.welab.wefe.union.service.api.dataset.image.PutApi;
 import com.welab.wefe.union.service.api.dataset.image.QueryApi;
-import com.welab.wefe.union.service.api.dataset.image.UpdateApi;
 import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -60,21 +59,12 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(input.isEnable() ? 1 : 0))"),
-            @Mapping(target = "completed", expression = "java(String.valueOf(input.isCompleted() ? 1 : 0))"),
+            @Mapping(target = "enable", defaultValue = "1"),
+            @Mapping(target = "labelCompleted", expression = "java(String.valueOf(input.isLabelCompleted() ? 1 : 0))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })
-    ImageDataSet transferAddInput(AddApi.Input input);
-
-
-    @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(input.isEnable() ? 1 : 0))"),
-            @Mapping(target = "completed", expression = "java(String.valueOf(input.isCompleted() ? 1 : 0))"),
-            @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
-            @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
-    })
-    ImageDataSet transferUpdateInput(UpdateApi.Input input);
+    ImageDataSet transferPutInput(PutApi.Input input);
 
 
 }

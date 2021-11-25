@@ -13,16 +13,16 @@ contract ImageDataSetContract{
 
 
     event insertEvent(int256 ret_code,string[] params,string ext_json);
-    event updateEvent(int256 ret_code,string id,string[] params);
+    event updateEvent(int256 ret_code,string[] params);
     event updateEnableEvent(int256 ret_code,string id,string enable,string updated_time);
     event deleteByDataSetIdEvent(int256 ret_code,string id);
     event updateExtJsonEvent(int256 ret_code,string id, string ext_json,string updated_time);
-    event updateLabeledCountEvent(int256 ret_code,string id,string labeled_count,string completed,string updated_time);
+    event updateLabeledCountEvent(int256 ret_code,string id,string labeled_count,string label_completed,string updated_time);
 
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "id,member_id,name,tags,description,storage_type,for_job_type,label_list,sample_count,labeled_count,completed,files_size,public_level,public_member_list,usage_count_in_job,usage_count_in_flow,usage_count_in_project,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "id,member_id,name,tags,description,for_job_type,label_list,sample_count,labeled_count,label_completed,files_size,public_level,public_member_list,usage_count_in_job,usage_count_in_flow,usage_count_in_project,enable,created_time,updated_time,ext_json");
     }
 
 
@@ -44,18 +44,18 @@ contract ImageDataSetContract{
         entry.set("name", params[2]);
         entry.set("tags", params[3]);
         entry.set("description", params[4]);
-        entry.set("storage_type", params[5]);
-        entry.set("for_job_type", params[6]);
-        entry.set("label_list", params[7]);
-        entry.set("sample_count", params[8]);
-        entry.set("labeled_count", params[9]);
-        entry.set("completed", params[10]);
-        entry.set("files_size", params[11]);
-        entry.set("public_level", params[12]);
-        entry.set("public_member_list", params[13]);
-        entry.set("usage_count_in_job", params[14]);
-        entry.set("usage_count_in_flow", params[15]);
-        entry.set("usage_count_in_project", params[16]);
+        entry.set("for_job_type", params[5]);
+        entry.set("label_list", params[6]);
+        entry.set("sample_count", params[7]);
+        entry.set("labeled_count", params[8]);
+        entry.set("label_completed", params[9]);
+        entry.set("files_size", params[10]);
+        entry.set("public_level", params[11]);
+        entry.set("public_member_list", params[12]);
+        entry.set("usage_count_in_job", params[13]);
+        entry.set("usage_count_in_flow", params[14]);
+        entry.set("usage_count_in_project", params[15]);
+        entry.set("enable", params[16]);
         entry.set("created_time", params[17]);
         entry.set("updated_time", params[18]);
         entry.set("ext_json", ext_json);
@@ -71,42 +71,41 @@ contract ImageDataSetContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
 
-    function update(string id,string[] params) public returns (int) {
+    function update(string[] params) public returns (int) {
         int256 ret_code = 0;
-        if (!isExist(id)) {
+        if (!isExist(params[0])) {
             ret_code = -1;
-            emit updateEvent(ret_code,id,params);
+            emit updateEvent(ret_code,params);
             return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
-        condition.EQ("id", id);
+        condition.EQ("id", params[0]);
 
         Entry entry = table.newEntry();
         entry.set("member_id", params[1]);
         entry.set("name", params[2]);
         entry.set("tags", params[3]);
         entry.set("description", params[4]);
-        entry.set("storage_type", params[5]);
-        entry.set("for_job_type", params[6]);
-        entry.set("label_list", params[7]);
-        entry.set("sample_count", params[8]);
-        entry.set("labeled_count", params[9]);
-        entry.set("completed", params[10]);
-        entry.set("files_size", params[11]);
-        entry.set("public_level", params[12]);
-        entry.set("public_member_list", params[13]);
-        entry.set("usage_count_in_job", params[14]);
-        entry.set("usage_count_in_flow", params[15]);
-        entry.set("usage_count_in_project", params[16]);
-        entry.set("updated_time", params[17]);
+        entry.set("for_job_type", params[5]);
+        entry.set("label_list", params[6]);
+        entry.set("sample_count", params[7]);
+        entry.set("labeled_count", params[8]);
+        entry.set("label_completed", params[9]);
+        entry.set("files_size", params[10]);
+        entry.set("public_level", params[11]);
+        entry.set("public_member_list", params[12]);
+        entry.set("usage_count_in_job", params[13]);
+        entry.set("usage_count_in_flow", params[14]);
+        entry.set("usage_count_in_project", params[15]);
+        entry.set("updated_time", params[16]);
 
 
         int count = table.update(FIX_ID, entry, condition);
@@ -117,8 +116,8 @@ contract ImageDataSetContract{
             ret_code = -2;
         }
 
-        emit updateEvent(ret_code,id,params);
-        return count;
+        emit updateEvent(ret_code,params);
+        return ret_code;
     }
 
     function deleteByDataSetId(string id) public returns (int) {
@@ -136,7 +135,7 @@ contract ImageDataSetContract{
 
         emit deleteByDataSetIdEvent(ret_code,id);
 
-        return count;
+        return ret_code;
 
     }
 
@@ -180,7 +179,7 @@ contract ImageDataSetContract{
         }
 
         emit updateEnableEvent(ret_code,id,enable,updated_time);
-        return count;
+        return ret_code;
     }
 
 
@@ -209,7 +208,7 @@ contract ImageDataSetContract{
     }
 
 
-    function updateLabeledCount(string id,string labeled_count,string completed,string updated_time) public returns (int256) {
+    function updateLabeledCount(string id,string labeled_count,string label_completed,string updated_time) public returns (int256) {
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
@@ -217,7 +216,7 @@ contract ImageDataSetContract{
 
         Entry entry = table.newEntry();
         entry.set("labeled_count", labeled_count);
-        entry.set("completed", completed);
+        entry.set("label_completed", label_completed);
         entry.set("updated_time", updated_time);
 
         int count = table.update(FIX_ID, entry, condition);
@@ -229,7 +228,7 @@ contract ImageDataSetContract{
             ret_code = -2;
         }
 
-        emit updateLabeledCountEvent(ret_code,id,labeled_count,completed,updated_time);
+        emit updateLabeledCountEvent(ret_code,id,labeled_count,label_completed,updated_time);
         return ret_code;
     }
 
@@ -260,17 +259,21 @@ contract ImageDataSetContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("name")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("contains_y")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("tags")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("row_count")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("description")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("column_count")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("for_job_type")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("column_name_list")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_list")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("feature_count")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("sample_count")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("feature_name_list")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("labeled_count")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_completed")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("files_size")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("public_level")));
             dataStr = strConcat(dataStr, "|");
@@ -282,15 +285,11 @@ contract ImageDataSetContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("usage_count_in_project")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("description")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("tags")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("enable")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("updated_time")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("log_time")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("ext_json")));
 

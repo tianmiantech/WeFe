@@ -18,11 +18,8 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -67,33 +64,33 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     }
 
     private void parseInsertAndUpdateEvent(boolean isAdd) {
-        ImageDataSet dataSet = new ImageDataSet();
-        dataSet.setDataSetId(StringUtil.strTrim2(params.getString(0)));
-        dataSet.setMemberId(StringUtil.strTrim2(params.getString(1)));
-        dataSet.setName(StringUtil.strTrim2(params.getString(2)));
-        dataSet.setTags(StringUtil.strTrim2(params.getString(3)));
-        dataSet.setDescription(StringUtil.strTrim2(params.getString(4)));
-        dataSet.setStorageType(StringUtil.strTrim2(params.getString(5)));
-        dataSet.setForJobType(params.getString(6));
-        dataSet.setLabelList(StringUtil.strTrim2(params.getString(7)));
-        dataSet.setSampleCount(StringUtil.strTrim2(params.getString(8)));
-        dataSet.setLabeledCount(StringUtil.strTrim2(params.getString(9)));
-        dataSet.setCompleted(StringUtil.strTrim2(params.getString(10)));
-        dataSet.setFilesSize(StringUtil.strTrim2(params.getString(11)));
-        dataSet.setPublicLevel(StringUtil.strTrim2(params.getString(12)));
-        dataSet.setPublicMemberList(StringUtil.strTrim2(params.getString(13)));
-        dataSet.setUsageCountInJob(StringUtil.strTrim2(params.getString(14)));
-        dataSet.setUsageCountInFlow(StringUtil.strTrim2(params.getString(15)));
-        dataSet.setUsageCountInProject(StringUtil.strTrim2(params.getString(16)));
+        ImageDataSet imageDataSet = new ImageDataSet();
+        imageDataSet.setDataSetId(StringUtil.strTrim2(params.getString(0)));
+        imageDataSet.setMemberId(StringUtil.strTrim2(params.getString(1)));
+        imageDataSet.setName(StringUtil.strTrim2(params.getString(2)));
+        imageDataSet.setTags(StringUtil.strTrim2(params.getString(3)));
+        imageDataSet.setDescription(StringUtil.strTrim2(params.getString(4)));
+        imageDataSet.setForJobType(params.getString(5));
+        imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(6)));
+        imageDataSet.setSampleCount(StringUtil.strTrim2(params.getString(7)));
+        imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(8)));
+        imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(9)));
+        imageDataSet.setFilesSize(StringUtil.strTrim2(params.getString(10)));
+        imageDataSet.setPublicLevel(StringUtil.strTrim2(params.getString(11)));
+        imageDataSet.setPublicMemberList(StringUtil.strTrim2(params.getString(12)));
+        imageDataSet.setUsageCountInJob(StringUtil.strTrim2(params.getString(13)));
+        imageDataSet.setUsageCountInFlow(StringUtil.strTrim2(params.getString(14)));
+        imageDataSet.setUsageCountInProject(StringUtil.strTrim2(params.getString(15)));
         if(isAdd) {
-            dataSet.setCreatedTime(StringUtil.strTrim2(params.getString(17)));
-            dataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(18)));
-            dataSet.setExtJson(extJSON);
+            imageDataSet.setEnable(StringUtil.strTrim2(params.getString(16)));
+            imageDataSet.setCreatedTime(StringUtil.strTrim2(params.getString(17)));
+            imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(18)));
+            imageDataSet.setExtJson(extJSON);
         } else {
-            dataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(17)));
+            imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(16)));
         }
 
-        dataSetMongoReop.upsert(dataSet);
+        dataSetMongoReop.upsert(imageDataSet);
 
     }
 
@@ -113,7 +110,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     private void parseUpdateLabeledCountEvent() {
         String dataSetId = eventBO.getEntity().get("id").toString();
         String labeledCount = eventBO.getEntity().get("labeled_count").toString();
-        String completed = eventBO.getEntity().get("completed").toString();
+        String completed = eventBO.getEntity().get("labelCompleted").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         dataSetMongoReop.updateLabeledCount(dataSetId, labeledCount, completed, updatedTime);
     }

@@ -31,12 +31,11 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
     private String name;
     private String tags;
     private String description;
-    private String storageType;
     private String forJobType;
     private String labelList;
     private String sampleCount;
     private String labeledCount;
-    private String completed;
+    private String labelCompleted;
     private String filesSize;
     private String publicLevel;
     private String publicMemberList;
@@ -87,14 +86,6 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
         this.description = description;
     }
 
-    public String getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(String storageType) {
-        this.storageType = storageType;
-    }
-
     public String getForJobType() {
         return forJobType;
     }
@@ -127,12 +118,12 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
         this.labeledCount = labeledCount;
     }
 
-    public String getCompleted() {
-        return completed;
+    public String getLabelCompleted() {
+        return labelCompleted;
     }
 
-    public void setCompleted(String completed) {
-        this.completed = completed;
+    public void setLabelCompleted(String labelCompleted) {
+        this.labelCompleted = labelCompleted;
     }
 
     public String getFilesSize() {

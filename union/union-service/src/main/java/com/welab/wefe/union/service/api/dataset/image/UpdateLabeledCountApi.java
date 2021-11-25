@@ -52,7 +52,7 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
             throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataSetId());
         }
 
-        if ("1".equals(imageDataSet.getCompleted())) {
+        if ("1".equals(imageDataSet.getLabelCompleted())) {
             return success();
         }
 

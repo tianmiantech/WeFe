@@ -29,12 +29,11 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
     private String name;
     private String tags;
     private String description;
-    private String storageType;
     private String forJobType;
     private String labelList;
     private Integer sampleCount;
     private Integer labeledCount;
-    private String completed;
+    private String labelCompleted;
     private String filesSize;
     private String publicLevel;
     private String publicMemberList;
@@ -94,13 +93,6 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
         this.description = description;
     }
 
-    public String getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(String storageType) {
-        this.storageType = storageType;
-    }
 
     public String getForJobType() {
         return forJobType;
@@ -134,12 +126,12 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
         this.labeledCount = labeledCount;
     }
 
-    public String getCompleted() {
-        return completed;
+    public String getLabelCompleted() {
+        return labelCompleted;
     }
 
-    public void setCompleted(String completed) {
-        this.completed = completed;
+    public void setLabelCompleted(String labelCompleted) {
+        this.labelCompleted = labelCompleted;
     }
 
     public String getFilesSize() {

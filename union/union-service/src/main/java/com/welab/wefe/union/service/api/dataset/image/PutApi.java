@@ -31,39 +31,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/update", name = "image_data_set_update", rsaVerify = true, login = false)
-public class UpdateApi extends AbstractApi<UpdateApi.Input, AbstractApiOutput> {
+@Api(path = "image_data_set/add", name = "image_data_set_add", rsaVerify = true, login = false)
+public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
-    private ImageDataSetContractService imageDataSetContractService;
+    protected ImageDataSetContractService imageDataSetContractService;
 
-    private ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
+    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        imageDataSetContractService.update(imageDataSetMapper.transferUpdateInput(input));
+
+        imageDataSetContractService.upsert(imageDataSetMapper.transferPutInput(input));
+
         return success();
     }
 
     public static class Input extends BaseInput {
         @Check(require = true)
         private String dataSetId;
+        @Check(require = true)
         private String memberId;
+        @Check(require = true)
         private String name;
         private String tags;
         private String description;
-        private String storageType;
         private String forJobType;
         private String labelList;
         private int sampleCount;
         private int labeledCount;
-        private boolean completed;
+        private boolean labelCompleted;
         private String filesSize;
+        @Check(require = true)
         private String publicLevel;
         private String publicMemberList;
         private int usageCountInJob;
         private int usageCountInFlow;
         private int usageCountInProject;
-        private boolean enable = true;
 
         public String getDataSetId() {
             return dataSetId;
@@ -105,14 +108,6 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AbstractApiOutput> {
             this.description = description;
         }
 
-        public String getStorageType() {
-            return storageType;
-        }
-
-        public void setStorageType(String storageType) {
-            this.storageType = storageType;
-        }
-
         public String getForJobType() {
             return forJobType;
         }
@@ -145,12 +140,12 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AbstractApiOutput> {
             this.labeledCount = labeledCount;
         }
 
-        public boolean isCompleted() {
-            return completed;
+        public boolean isLabelCompleted() {
+            return labelCompleted;
         }
 
-        public void setCompleted(boolean completed) {
-            this.completed = completed;
+        public void setLabelCompleted(boolean labelCompleted) {
+            this.labelCompleted = labelCompleted;
         }
 
         public String getFilesSize() {
@@ -200,14 +195,5 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AbstractApiOutput> {
         public void setUsageCountInProject(int usageCountInProject) {
             this.usageCountInProject = usageCountInProject;
         }
-
-        public boolean isEnable() {
-            return enable;
-        }
-
-        public void setEnable(boolean enable) {
-            this.enable = enable;
-        }
-
     }
 }
