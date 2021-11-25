@@ -61,7 +61,7 @@ public class ImageDataSetContractService extends AbstractContractService {
                     .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, insertTransactionReceipt);
             String values = insertResponse.getValues();
             if (!transactionIsSuccess(values) && transactionDataIsExist(values)) {
-                TransactionReceipt updateTransactionReceipt = imageDataSetContract.update(imageDataSet.getDataSetId(),generateParams(imageDataSet, false));
+                TransactionReceipt updateTransactionReceipt = imageDataSetContract.update(generateParams(imageDataSet, false));
 
                 // Get receipt result
                 TransactionResponse updateResponse = blockChainContext.getUnionTransactionDecoder()
