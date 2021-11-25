@@ -22,7 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
@@ -134,7 +134,7 @@ public class ServerActuator extends PsiServerActuator {
                 break;
         }
 
-        TaskManager.remove(businessId);
+        ActuatorManager.remove(businessId);
 
     }
 

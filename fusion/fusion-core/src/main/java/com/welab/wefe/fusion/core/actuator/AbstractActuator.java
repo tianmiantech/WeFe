@@ -68,6 +68,15 @@ public abstract class AbstractActuator implements AutoCloseable {
         return this;
     }
 
+    /**
+     * get businessId
+     *
+     * @return
+     */
+    public String getBusinessId() {
+        return businessId;
+    }
+
 
     /**
      * Time consuming

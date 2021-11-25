@@ -43,7 +43,7 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
     }
 
 
-    private byte[] compute(byte[] value){
+    public byte[][] compute(byte[][] value){
         LOG.info("align start...");
 
         long start = System.currentTimeMillis();

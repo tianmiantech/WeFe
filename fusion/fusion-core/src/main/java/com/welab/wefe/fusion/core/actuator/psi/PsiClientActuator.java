@@ -17,17 +17,16 @@
 package com.welab.wefe.fusion.core.actuator.psi;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.primarykey.FieldInfo;
-import com.welab.wefe.common.util.JObject;
 
 import java.math.BigInteger;
-import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -42,12 +41,6 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
 
     public List<String> columnList;
     public List<FieldInfo> fieldInfoList;
-
-    public PsiClientActuator(String businessId, String dataSetId) {
-        super(businessId);
-        this.dataSetId = dataSetId;
-    }
-
 
     public PsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
         super(businessId);
@@ -85,9 +78,8 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
     public abstract void sendFusionData(List<byte[]> rs);
 
     /**
-     * 主键hash处理
+     * Primary key hash processing
      */
-    //Handle the primary key according to the keyPrimary method
     public abstract String hashValue(JObject value);
 
     /**
@@ -105,7 +97,7 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
             List<String> d = new ArrayList<>();
             List<BigInteger> r = new ArrayList<>();
             List<BigInteger> rInv = new ArrayList<>();
-            byte[][] bs = new byte[data.size()][];
+            byte[][] bs = new byte[data.size()][16];
 
             //加密
             for (int i = 0; i < data.size(); i++) {
@@ -133,37 +125,6 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
         }
 
         status = PSIActuatorStatus.success;
-    }
-
-    void exe(List<JObject> data){
-
-        List<String> d = new ArrayList<>();
-        List<BigInteger> r = new ArrayList<>();
-        List<BigInteger> rInv = new ArrayList<>();
-        byte[][] bs = new byte[data.size()][];
-
-        //加密
-        for (int i = 0; i < data.size(); i++) {
-
-            String key = hashValue(data.get(i));
-            d.add(key);
-
-            BigInteger h = PSIUtils.stringToBigInteger(key);
-            BigInteger blindFactor = generateBlindingFactor();
-            r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
-            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
-            BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
-            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
-        }
-
-        //发送
-        byte[][] result = qureyFusionData(bs);
-
-        //匹配
-        List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
-
-        //dump
-        dump(fruit);
     }
 
     /**
