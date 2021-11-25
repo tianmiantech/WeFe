@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,49 +14,38 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.board.service.api.union.image_data_set;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
-@Api(path = "union/member/query", name = "Query members from union")
-public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> {
+@Api(path = "union/image_data_set/detail", name = "Get data set details from union")
+public class ImageDataSetDetailApi extends AbstractApi<ImageDataSetDetailApi.Input, ImageDataSetOutputModel> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
-        JSONObject result = unionService.queryMembers(input);
-        return unionApiResultToBoardApiResult(result);
+    protected ApiResult<ImageDataSetOutputModel> handle(ImageDataSetDetailApi.Input input) throws StatusCodeWithException {
+
+        return success(unionService.getImageDataSetDetail(input.getId()));
     }
 
-    public static class Input extends PagingInput {
-        @Check(name = "member 名称")
-        private String name;
-
-        @Check(name = "member id")
+    public static class Input extends AbstractApiInput {
+        @Check(name = "数据集 Id", require = true)
         private String id;
 
         //region getter/setter
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
 
         public String getId() {
             return id;
@@ -65,7 +54,8 @@ public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> 
         public void setId(String id) {
             this.id = id;
         }
-//endregion
 
+
+        //endregion
     }
 }

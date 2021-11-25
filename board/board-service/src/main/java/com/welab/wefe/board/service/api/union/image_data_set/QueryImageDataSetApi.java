@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.board.service.api.union.image_data_set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.base.PagingInput;
@@ -29,26 +29,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "union/member/query", name = "Query members from union")
-public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> {
+@Api(path = "union/image_data_set/query", name = "Query image data set from union")
+public class QueryImageDataSetApi extends AbstractApi<QueryImageDataSetApi.Input, JSONObject> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
-        JSONObject result = unionService.queryMembers(input);
+        JSONObject result = unionService.queryImageDataSets(input);
         return unionApiResultToBoardApiResult(result);
     }
 
     public static class Input extends PagingInput {
-        @Check(name = "member 名称")
-        private String name;
 
-        @Check(name = "member id")
-        private String id;
+        @Check(name = "数据集Id")
+        private String dataSetId;
+        @Check(name = "数据集名称")
+        private String name;
+        @Check(name = "标签名称")
+        private String tag;
+        @Check(name = "成员Id")
+        private String memberId;
+        @Check(name = "成员名称")
+        private String memberName;
+
 
         //region getter/setter
+
+        public String getDataSetId() {
+            return dataSetId;
+        }
+
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
+        }
 
         public String getName() {
             return name;
@@ -58,14 +73,30 @@ public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> 
             this.name = name;
         }
 
-        public String getId() {
-            return id;
+        public String getTag() {
+            return tag;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setTag(String tag) {
+            this.tag = tag;
         }
-//endregion
 
+        public String getMemberId() {
+            return memberId;
+        }
+
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
+        }
+
+        public String getMemberName() {
+            return memberName;
+        }
+
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
+        }
+
+        //endregion
     }
 }

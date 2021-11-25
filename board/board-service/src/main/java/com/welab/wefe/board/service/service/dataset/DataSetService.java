@@ -166,7 +166,7 @@ public class DataSetService extends AbstractDataSetService {
         // is raw data set
         if (model.getSourceType() == null) {
             // Notify the union to do not public the data set
-            unionService.dontPublicDataSet(model.getId());
+            unionService.dontPublicDataSet(model);
 
             // Refresh the data set tag list
             CacheObjects.refreshTableDataSetTags();
