@@ -18,6 +18,8 @@ package com.welab.wefe.board.service.component.base;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
@@ -82,7 +84,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             ComponentType.HorzSecureBoost,
             ComponentType.VertSecureBoost,
             ComponentType.MixLR,
-            ComponentType.MixSecureBoost
+            ComponentType.MixSecureBoost,
+            ComponentType.HorzNN,
+            ComponentType.VertNN
     );
 
 
@@ -138,9 +142,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
+            // special
             node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
+            // special
             if (parentNode != null) {
                 parentNode
                         .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
@@ -159,7 +165,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
             taskConfig.setInput(getInputs(graph, node));
-            taskConfig.setOutput(getOutputs(graph, node));
+            taskConfig.setOutput(generateInput(graph, node, count));
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
             task.setRole(graph.getJob().getMyRole());
@@ -171,8 +177,42 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskRepository.save(task);
             subTasks.add(task);
             count++;
+
+            // rollback
+            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()));
+            if (parentNode != null) {
+                parentNode.setTaskName(
+                        FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId()));
+            }
         }
         return subTasks;
+    }
+
+    private Map<String, Object> generateInput(FlowGraph graph, FlowGraphNode node, int count) throws FlowNodeException {
+        Map<String, Object> inputs = getInputs(graph, node);
+        try {
+
+            JSONObject json = JSON.parseObject(JSON.toJSONString(inputs));
+            JSONObject data = json.getJSONObject("data");
+            List<String> normal = data.getObject("normal", TypeReference.LIST_STRING);
+            List<String> newNormal = new ArrayList<>();
+            String end = "_" + count;
+            for (String s : normal) {
+                if (s.endsWith(end)) {
+                    newNormal.add(s);
+                } else {
+                    newNormal.add(s + end);
+                }
+            }
+            if (!newNormal.isEmpty()) {
+                data.put("normal", newNormal);
+                json.put("data", data);
+                inputs = json.getInnerMap();
+            }
+        } catch (Exception e) {
+            LOG.warn("parse inputs error, json = " + JSON.toJSONString(inputs), e);
+        }
+        return inputs;
     }
 
     private int getCount(List<TaskMySqlModel> preTasks, int parentDeep, int currentCount) {
@@ -441,7 +481,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .findFirst().orElse(null);
                 if (promoter != null) {
@@ -458,7 +499,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -481,7 +523,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 KernelTask task = new KernelTask();
                 task.setMembers(members);
                 kernelTasks.add(task);
-            } else if (node.getComponentType() == ComponentType.MixStatistic) {
+            } else if (node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -502,7 +545,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             for (Member promoter : promoters) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost
-                        || node.getComponentType() == ComponentType.MixStatistic) {
+                        || node.getComponentType() == ComponentType.MixStatistic
+                        || node.getComponentType() == ComponentType.MixBinning) {
                     KernelTask task = new KernelTask();
                     task.setMembers(allMembers);
                     task.setMixPromoterMemberId(promoter.getMemberId());
@@ -559,8 +603,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             member.setMemberName(CacheObjects.getMemberName(x.getMemberId()));
             member.setMemberRole(x.getMemberRole());
             members.add(member);
-            // Horizontal modeling component, and the current member is a promoter, need to increase arbiter.
-            if (node.getComponentType() == ComponentType.HorzLR || node.getComponentType() == ComponentType.HorzSecureBoost) {
+            // Horizontal modeling component, and the current member is a promoter, need to
+            // increase arbiter.
+            if (Components.needArbiterTask(node.getComponentType())) {
                 if (x.getMemberRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())) {
                     Member arbiterMember = new Member();
                     arbiterMember.setMemberId(x.getMemberId());
@@ -574,8 +619,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         Member promoter = graph.getMembers().stream().map(x -> new Member(x))
                 .filter(s -> s.getMemberRole() == JobMemberRole.promoter).findFirst().orElse(null);
 
-        if (node.getComponentType() == ComponentType.HorzLR
-                || node.getComponentType() == ComponentType.HorzSecureBoost) {
+        if (Components.needArbiterTask(node.getComponentType())) {
             if (graph.getJob().getMyRole() == JobMemberRole.provider && promoter != null) {
                 Member arbiterMember = new Member();
                 arbiterMember.setMemberId(promoter.getMemberId());
