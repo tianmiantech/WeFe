@@ -92,7 +92,6 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         JObject dataSetInfo = JObject.create(myJobDataSet);
         dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
 
-
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
         output.put("algorithm_config", params);

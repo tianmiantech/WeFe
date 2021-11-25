@@ -37,6 +37,7 @@ import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -137,6 +138,15 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
     public static class Params extends AbstractDataIOParam<DataSetItem> {
         @Check(name = "数据集切割比例", desc = "取值1-99，该值为训练集的百分比。", require = true)
         public int trainTestSplitRatio;
+
+        public void fillDataSetDetail() throws StatusCodeWithException {
+
+            ImageDataSetService imageDataSetService = Launcher.CONTEXT.getBean(ImageDataSetService.class);
+
+            for (ImageDataIOComponent.DataSetItem dataSetItem : dataSetList) {
+                dataSetItem.dataSet = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
+            }
+        }
     }
 
     public static class DataSetItem extends AbstractDataSetItem {

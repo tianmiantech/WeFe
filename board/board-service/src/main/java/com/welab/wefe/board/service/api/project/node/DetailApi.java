@@ -57,10 +57,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ProjectFlowNodeOutpu
         // ImageDataIO 节点顺带输出数据集信息。
         if (one.getComponentType() == ComponentType.ImageDataIO) {
             ImageDataIOComponent.Params params = output.getParams().toJavaObject(ImageDataIOComponent.Params.class);
-
-            for (ImageDataIOComponent.DataSetItem dataSetItem : params.dataSetList) {
-                dataSetItem.dataSet = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
-            }
+            params.fillDataSetDetail();
             output.setParams(JObject.create(params));
         }
 
