@@ -58,7 +58,7 @@ public class ServingService extends AbstractService {
     private static final String SEPARATOR = "_";
 
     @Autowired
-    UnionService unionService;
+    private UnionService unionService;
 
     @Autowired
     JobRepository jobRepository;

@@ -137,7 +137,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         FileUtil.deleteFileOrDir(model.getNamespace());
         CacheObjects.refreshImageDataSetTags();
 
-        unionService.dontPublicDataSet(model.getId());
+        unionService.dontPublicDataSet(model);
     }
 
     /**
@@ -206,7 +206,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         }
 
         // Refresh the data set tag list
-        CacheObjects.refreshTableDataSetTags();
+        CacheObjects.refreshImageDataSetTags();
 
         return new ImageDataSetAddOutputModel(dataSet.getId());
     }
