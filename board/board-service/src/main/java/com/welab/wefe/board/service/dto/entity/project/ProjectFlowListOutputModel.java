@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.dto.entity.project;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.ProjectFlowStatus;
@@ -70,7 +71,14 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
      * 任务进度
      */
     private Integer jobProgress;
+    /**
+     * 创建此流程的成员的ID
+     */
+    private String creatorMemberId;
 
+    public String getCreatorMemberName() {
+        return CacheObjects.getMemberName(creatorMemberId);
+    }
 
     //region getter/setter
 
@@ -169,6 +177,14 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
 
     public void setIsCreator(boolean isCreator) {
         this.isCreator = isCreator;
+    }
+
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
     }
 
     //endregion

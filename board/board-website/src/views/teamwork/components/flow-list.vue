@@ -57,7 +57,6 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="form.isPromoter"
                 label="创建者"
                 prop="creator_nickname"
             />
@@ -351,6 +350,9 @@
                 if(code === 0) {
                     this.pagination.total = data.total || 0;
                     if(data.list.length) {
+                        data.list.forEach(item => {
+                            item.creator_nickname = item.creator_nickname || item.creator_member_name;
+                        });
                         this.list = data.list;
                         this.afterTableRender();
                     }
