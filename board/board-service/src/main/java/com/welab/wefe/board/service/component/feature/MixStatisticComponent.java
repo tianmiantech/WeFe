@@ -65,14 +65,13 @@ public class MixStatisticComponent extends AbstractComponent<MixStatisticCompone
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) {
 
-        List<MemberFeatureInfoModel> members = params.members;
-        for (MemberFeatureInfoModel member : members) {
-            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
-                List<String> features = member.features;
-                return JObject.create("col_names", features);
-            }
-        }
+        MemberFeatureInfoModel me = params.members
+                .stream()
+                .filter(member -> CacheObjects.getMemberId().equals(member.getMemberId()))
+                .findFirst()
+                .orElse(null);
 
+        return JObject.create("col_names", me.features);
     }
 
     @Override
