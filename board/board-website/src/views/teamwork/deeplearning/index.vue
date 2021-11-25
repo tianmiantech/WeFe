@@ -11,6 +11,7 @@
                     <div v-show="vData.active === 0" class="item base_setting">
                         <el-form
                             @submit.prevent
+                            v-loading="vData.loading"
                         >
                             <el-form-item
                                 label="流程名称："
@@ -26,75 +27,80 @@
                                     v-model="vData.form.flow_desc"
                                     type="textarea"
                                     rows="6"
+                                    placeholder="请输入流程描述"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
                         </el-form>
                     </div>
                     <div v-show="vData.active === 1" class="item enter_data">
-                        <div
-                            v-for="(member, index) in vData.member_list"
-                            v-show="vData.disabled ? member.$data_set_list.length : true"
-                            :key="member.id"
-                            class="li"
-                        >
-                            <h3
-                                v-if="index === 0"
-                                class="role-title pb5"
-                            >
-                                发起方:
-                            </h3>
-                            <h3
-                                v-if="index === vData.promoterList.length"
-                                class="role-title pb5"
-                            >
-                                协作方:
-                            </h3>
-                            <p class="member-info">
-                                <span class="name f16">
-                                    <i
-                                        v-if="member.audit_status !== 'agree'"
-                                        class="el-icon-warning-outline color-danger"
-                                    />
-                                    {{ member.member_name }}
-                                </span>
-                                <span
-                                    v-if="member.audit_status !== 'agree'"
-                                    class="f12"
-                                >({{ member.audit_comment || '审核通过的成员才能参与流程' }})</span>
-                                <el-button
-                                    v-if="member.audit_status === 'agree' && !vData.disabled"
-                                    type="text"
-                                    class="ml10"
-                                    @click="methods.checkDataSet(member, index)"
-                                >
-                                    选择数据集
-                                </el-button>
-                            </p>
-
+                        
+                        <div class="data_select">
+                            <h4>选择数据集</h4>
                             <div
-                                v-if="member.audit_status === 'agree'"
-                                class="data-set f14"
+                                v-for="(member, index) in vData.member_list"
+                                v-show="vData.disabled ? member.$data_set_list.length : true"
+                                :key="member.id"
+                                class="li"
                             >
-                                <el-form
-                                    v-for="row in member.$data_set_list"
-                                    :key="row.id"
-                                    label-width="96px"
+                                <h3
+                                    v-if="index === 0"
+                                    class="role-title pb5"
                                 >
-                                    <el-form-item label="数据集名称：">
-                                        {{ row.data_set.name }}
+                                    发起方:
+                                </h3>
+                                <h3
+                                    v-if="index === vData.promoterList.length"
+                                    class="role-title pb5"
+                                >
+                                    协作方:
+                                </h3>
+                                <p class="member-info">
+                                    <span class="name f16">
                                         <i
-                                            v-if="!vData.disabled"
-                                            title="移除"
-                                            class="el-icon-circle-close f20 ml10"
-                                            @click="methods.removeDataSet(index)"
+                                            v-if="member.audit_status !== 'agree'"
+                                            class="el-icon-warning-outline color-danger"
                                         />
-                                    </el-form-item>
-                                    <el-form-item label="数据集id："> {{ row.data_set_id }} </el-form-item>
-                                    <el-form-item label="数据总量：">
-                                        {{ row.data_set.sample_count }}
-                                    </el-form-item>
-                                </el-form>
+                                        {{ member.member_name }}
+                                    </span>
+                                    <span
+                                        v-if="member.audit_status !== 'agree'"
+                                        class="f12"
+                                    >({{ member.audit_comment || '审核通过的成员才能参与流程' }})</span>
+                                    <el-button
+                                        v-if="member.audit_status === 'agree' && !vData.disabled"
+                                        type="text"
+                                        class="ml10"
+                                        @click="methods.checkDataSet(member, index)"
+                                    >
+                                        选择数据集
+                                    </el-button>
+                                </p>
+
+                                <div
+                                    v-if="member.audit_status === 'agree'"
+                                    class="data-set f14"
+                                >
+                                    <el-form
+                                        v-for="row in member.$data_set_list"
+                                        :key="row.id"
+                                        label-width="96px"
+                                    >
+                                        <el-form-item label="数据集名称：">
+                                            {{ row.data_set.name }}
+                                            <i
+                                                v-if="!vData.disabled"
+                                                title="移除"
+                                                class="el-icon-circle-close f20 ml10"
+                                                @click="methods.removeDataSet(index)"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="数据集id："> {{ row.data_set_id }} </el-form-item>
+                                        <el-form-item label="数据总量：">
+                                            {{ row.data_set.sample_count }}
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
                             </div>
                         </div>
                         <el-dialog
@@ -144,13 +150,49 @@
                                 </template>
                             </DataSetList>
                         </el-dialog>
+                        <div class="data_cut">
+                            <h4>数据切割</h4>
+                            <el-form
+                                ref="form"
+                                :model="vData.dataCutForm"
+                                @submit.prevent
+                            >
+                                <el-form-item label="训练与验证数据比例（%）：" style="width: 300px">
+                                    <div style="height: 50px;">
+                                        <div class="float-left">
+                                            <p style="font-weight:bold;color:#4D84F7;" class="mb5">训练:</p>
+                                            <el-input-number
+                                                v-model="vData.dataCutForm.training_ratio"
+                                                style="width:100px"
+                                                size="mini"
+                                            />
+                                        </div>
+
+                                        <div class="float-right">
+                                            <p style="font-weight:bold;color:#FF4343;" class="text-r mb5">验证:</p>
+                                            <el-input-number
+                                                v-model="vData.dataCutForm.verification_ratio"
+                                                style="width:100px"
+                                                size="mini"
+                                                @change="methods.onDataSetVerificationRatioChange"
+                                            />
+                                        </div>
+                                    </div>
+                                    <el-slider
+                                        v-model="vData.dataCutForm.training_ratio"
+                                        :show-tooltip="false"
+                                        @input="methods.onDataSetTrainingVerificationRatioChange"
+                                    />
+                                </el-form-item>
+                            </el-form>
+                        </div>
                     </div>
                     <div v-show="vData.active === 2" class="item params_setting">
                         <el-form
                             @submit.prevent
                         >
                             <el-form-item label="算法类型：" required>
-                                <el-select v-model="vData.form.algorithm_config.program" placeholder="请选择算法类型">
+                                <el-select v-model="vData.deepLearnParams.algorithm_config.program" placeholder="请选择算法类型">
                                     <el-option
                                         v-for="item in vData.classifyList"
                                         :key="item.value"
@@ -160,9 +202,9 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="模型名称：" required>
-                                <el-select v-model="vData.form.algorithm_config.architecture" placeholder="请选择模型名称">
+                                <el-select v-model="vData.deepLearnParams.algorithm_config.architecture" placeholder="请选择模型名称">
                                     <el-option
-                                        v-for="item in vData.form.algorithm_config.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
+                                        v-for="item in vData.deepLearnParams.algorithm_config.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value">
@@ -171,43 +213,49 @@
                             </el-form-item>
                             <el-form-item label="迭代次数：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.max_iter"
+                                    v-model="vData.deepLearnParams.algorithm_config.max_iter"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
                             <el-form-item label="聚合步长：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.inner_step"
+                                    v-model="vData.deepLearnParams.algorithm_config.inner_step"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
                             <el-form-item label="类别数：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.num_classes"
+                                    v-model="vData.deepLearnParams.algorithm_config.num_classes"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
                             <el-form-item label="学习率：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.base_lr"
+                                    v-model="vData.deepLearnParams.algorithm_config.base_lr"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
-                            <el-form-item label="数据集路径：" required>
+                            <el-form-item label="图片通道数：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.dataset_dir"
-                                    @blur="methods.saveFlowInfo($event)"
+                                    type="number"
+                                    v-model="vData.image_shape.aisle"
                                 />
                             </el-form-item>
-                            <el-form-item label="图像输入尺寸：" required>
+                            <el-form-item label="图片宽度：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.image_shape"
-                                    @blur="methods.saveFlowInfo($event)"
+                                    type="number"
+                                    v-model="vData.image_shape.width"
+                                />
+                            </el-form-item>
+                            <el-form-item label="图片高度" required>
+                                <el-input
+                                    type="number"
+                                    v-model="vData.image_shape.height"
                                 />
                             </el-form-item>
                             <el-form-item label="批量大小：" required>
                                 <el-input
-                                    v-model="vData.form.algorithm_config.batch_size"
+                                    v-model="vData.deepLearnParams.algorithm_config.batch_size"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
@@ -217,7 +265,7 @@
                 <div class="operation_btn">
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next">下一步</el-button>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.start">开始训练</el-button>
+                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
@@ -234,7 +282,7 @@
 <script>
     import { reactive, getCurrentInstance, ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { nextTick, onBeforeMount } from '@vue/runtime-core';
+    import { nextTick, onBeforeMount, watch } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
 
     export default {
@@ -248,11 +296,14 @@
             const router = useRouter();
             const rawDataSetListRef = ref();
             const vData = reactive({
+                loading: false,
                 active:  0,
                 flow_id: route.query.flow_id,
                 form:    {
-                    flow_name:        '',
-                    flow_desc:        '',
+                    flow_name: '',
+                    flow_desc: '',
+                },
+                deepLearnParams: {
                     algorithm_config: {
                         program:      'paddle_detection',
                         max_iter:     10,
@@ -260,12 +311,12 @@
                         architecture: 'YOLOv3',
                         num_classes:  3,
                         base_lr:      0.00001,
-                        dataset_dir:  '',
-                        image_shape:  '3, 608, 608',
+                        image_shape:  [],
                         batch_size:   128,
                     },
                 },
-                flowInfo: {
+                image_shape: {},
+                flowInfo:    {
                     project_id: '',
                 },
                 promoterList:      [],
@@ -359,12 +410,19 @@
                                 data_set_id: '',
                             },
                         ],
+                        train_test_split_ratio: 70,
                     },
                 },
+                dataCutForm: {
+                    training_ratio:     70,
+                    verification_ratio: 30,
+                },
                 prevActive: 0,
+                graphNodes: {},
             });
             const methods = {
                 async getFlowInfo() {
+                    vData.loading = true;
                     const { code, data } = await $http.get({
                         url:    '/project/flow/detail',
                         params: {
@@ -377,18 +435,19 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
+                            methods.getMemberList();
                             if(!data.graph) {
-                                // methods.createNode();
-                                vData.formImageDataIO.nodeId = methods.generateNodeId();
+                                methods.createNode();
                             } else {
                                 // 查看选择数据集节点信息
-                                methods.getNodeDetail();
+                                methods.getDataIONodeDetail(data.graph.nodes[1].id);
+                                methods.getDeeplearningNodeDetail(data.graph.nodes[2].id);
                             }
                         }
                     });
                 },
                 async createNode() {
-                    const params = {
+                    vData.graphNodes = {
                         flow_id: vData.flow_id,
                         graph:   {
                             combos: [],
@@ -412,57 +471,52 @@
                                 },
                                 {
                                     id:    methods.generateNodeId(),
-                                    label: '数据切割',
+                                    label: '训练',
                                     type:  'flow-node',
                                     data:  {
-                                        componentType: 'ImageSegment',
+                                        componentType: 'DeepLearning',
                                     },
                                 },
                             ],
                         },
                     };
 
-                    console.log(params);
+                    console.log(vData.graphNodes);
                     const { code } = await $http.post({
                         url:  '/project/flow/update/graph',
-                        data: params,
+                        data: vData.graphNodes,
                     });
 
-                    if (code === 0) {
-                        $notify.success({
-                            offset:   -10,
-                            duration: 1000,
-                            title:    '提示',
-                            message:  '保存成功!',
-                        });
-                    }
+                    nextTick(_=> {
+                        if (code === 0) {
+                            $notify.success({
+                                offset:   -10,
+                                duration: 1000,
+                                title:    '提示',
+                                message:  '保存成功!',
+                            });
+                        }
+                        vData.loading = false;
+                    });
                 },
                 prev() {
-                    // console.log('prev-prevActive=', vData.prevActive);
                     if (vData.active-- === 0) vData.active = 0;
                     if (vData.active === 0) {
                         // 保存数据集信息
                         methods.saveImageDataIOInfo();
                     }
-                    if (vData.active === 0) {
-                        console.log('选择数据集');
-                    }
                 },
                 next() {
                     vData.prevActive = vData.active;
                     if (vData.active++ > 2) vData.active = 0;
-                    if (vData.active === 1 && !vData.member_list.length) {
-                        methods.getMemberList();
-                        methods.getNodeData();
-                    }
                     if (vData.prevActive === 1 && vData.active === 2) {
                         // 保存数据集信息
                         methods.saveImageDataIOInfo();
                     }
                 },
                 saveImageDataIOInfo() {
-                    console.log(vData.member_list);
                     vData.formImageDataIO.flowId = vData.flow_id;
+                    vData.formImageDataIO.nodeId = vData.flowInfo.graph.nodes[1].id || vData.graphNodes.graph.nodes[1].id;
                     const $dataset_list = [];
 
                     vData.member_list.forEach(item => {
@@ -484,6 +538,7 @@
                     if($event !== 'node-update') {
                         btnState.target = $event;
                     }
+                    console.log(vData.formImageDataIO);
                     const { code } = await $http.post({
                         url:  '/project/flow/node/update',
                         data: vData.formImageDataIO,
@@ -506,10 +561,10 @@
                 changeSteps(val) {
                     console.log(val);
                     vData.active = val;
-                    if (vData.active === 1 && !vData.member_list.length) {
-                        methods.getMemberList();
-                        methods.getNodeData();
-                    }
+                    // if (vData.active === 1 && !vData.member_list.length) {
+                    //     methods.getMemberList();
+                    //     methods.getNodeData();
+                    // }
                 },
                 async getMemberList() {
                     const { code, data } = await $http.get({
@@ -643,11 +698,53 @@
                         }
                     }
                 },
-                async getNodeDetail () {
+                async getDataIONodeDetail (nodeId) {
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
-                            nodeId:  vData.formImageDataIO.nodeId,
+                            nodeId,
+                            flow_id: vData.flow_id,
+                        },
+                    });
+
+                    nextTick(() => {
+                        if (code === 0 && data && data.params) {
+                            const { data_set_list, train_test_split_ratio } = data.params;
+
+                            vData.formImageDataIO.params.train_test_split_ratio  = train_test_split_ratio;
+                            vData.dataCutForm.training_ratio  = train_test_split_ratio;
+                            vData.dataCutForm.verification_ratio  = 100 - train_test_split_ratio;
+                            for(const memberIndex in vData.member_list) {
+                                const member = vData.member_list[memberIndex];
+                                const datasetIndex = data_set_list.findIndex(item => member.member_id === item.member_id && member.member_role === item.member_role && !item.deleted);
+
+                                if(~datasetIndex) {
+                                    const item = data_set_list[datasetIndex];
+
+                                    member.$data_set_list.push({
+                                        ...item,
+                                    });
+                                } else if(!props.isCreator) {
+                                    // only creator can see all members
+                                    const { member_role } = member;
+                                    const list = member_role === 'promoter' ? vData.promoterList : vData.providerList;
+
+                                    const index = list.findIndex(item => member.member_id === item.member_id);
+
+                                    if(~index) {
+                                        list.splice(index, 1);
+                                    }
+                                }
+                            }
+                        }
+                        vData.loading = false;
+                    });
+                },
+                async getDeeplearningNodeDetail (nodeId) {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId,
                             flow_id: vData.flow_id,
                         },
                     });
@@ -657,13 +754,15 @@
                             const { params } = data || {};
 
                             if (params) {
-                                if (methods.formatter) {
-                                    methods.formatter(params);
-                                } else {
-                                    vData.form = params;
+                                if (params.algorithm_config.image_shape.length) {
+                                    vData.image_shape.aisle = params.algorithm_config.image_shape[0] || 0;
+                                    vData.image_shape.width = params.algorithm_config.image_shape[1] || 0;
+                                    vData.image_shape.height = params.algorithm_config.image_shape[2] || 0;
                                 }
+                                vData.deepLearnParams = params;
                             }
                         }
+                        vData.loading = false;
                     });
                 },
                 formatter(params) {
@@ -680,14 +779,91 @@
                 generateNodeId() {
                     return `${+new Date() + (Math.random() * 10000).toFixed(0)}`;
                 },
-                async start() {},
+                // Event: modify validation data scale
+                onDataSetVerificationRatioChange(newVaule) {
+                    vData.dataCutForm.training_ratio = 100 - newVaule;
+                    vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
+                },
+                // Event: drag the training and validation data scale slider
+                onDataSetTrainingVerificationRatioChange(newVaule) {
+                    vData.dataCutForm.verification_ratio = 100 - newVaule;
+                    vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
+                },
+                async saveDeeplearningNode($event) {
+                    // 1. 保存deeplearning node 数据
+                    // 2. 启动流程
+                    const btnState = {};
+
+                    if($event !== 'node-update') {
+                        btnState.target = $event;
+                    }
+                    vData.formImageDataIO.flowId = vData.flow_id;
+                    vData.formImageDataIO.nodeId = vData.flowInfo.graph.nodes[1].id || vData.graphNodes.graph.nodes[1].id;
+                    vData.deepLearnParams.algorithm_config.image_shape[0] = Number(vData.image_shape.aisle) || 0;
+                    vData.deepLearnParams.algorithm_config.image_shape[1] = Number(vData.image_shape.width) || 0;
+                    vData.deepLearnParams.algorithm_config.image_shape[2] = Number(vData.image_shape.height) || 0;
+                    const params = {
+                        componentType: vData.flowInfo.graph.nodes[2].data.componentType || vData.graphNodes.graph.nodes[2].data.componentType,
+                        flowId:        vData.flow_id,
+                        nodeId:        vData.flowInfo.graph.nodes[2].id || vData.graphNodes.graph.nodes[2].id,
+                        params:        vData.deepLearnParams,
+                    };
+
+                    vData.loading = true;
+                    const { code } = await $http.post({
+                        url:  '/project/flow/node/update',
+                        data: params,
+                        btnState,
+                    });
+
+                    if(code === 0) {
+                        nextTick(_=> {
+                            if($event !== 'node-update') {
+                                $notify.success({
+                                    offset:   -10,
+                                    duration: 1000,
+                                    title:    '提示',
+                                    message:  '保存成功!',
+                                });
+                            }
+                            methods.startFlow();
+                        });
+                    }
+                },
+                async startFlow() {
+                    const { code, data } = await $http.post({
+                        url:     '/flow/start',
+                        timeout: 1000 * 30,
+                        data:    { flowId: vData.flow_id },
+                    });
+
+                    nextTick(_ => {
+                        if(code === 0) {
+                            if(data.job_id) {
+                                $message.success('启动成功! ');
+                            }
+                        }
+                        vData.loading = false;
+                    });
+                },
             };
 
             onBeforeMount(() => {
                 methods.getFlowInfo();
-                // methods.getNodeDetail();
             });
 
+            watch(
+                () => vData.deepLearnParams.algorithm_config.program, 
+                (newVal, oldVal) => {
+                    if (newVal !== oldVal) {
+                        if (newVal === 'paddle_clas') {
+                            vData.deepLearnParams.algorithm_config.architecture = vData.imageAlgorithmList[0].value;
+                        } else if (newVal === 'paddle_detection') {
+                            vData.deepLearnParams.algorithm_config.architecture = vData.targetAlgorithmList[0].value;
+                        }
+                    }
+                },
+            );
             return {
                 vData,
                 methods,
@@ -711,6 +887,19 @@
             padding: 10px;
         }
         .enter_data {
+            h4 {
+                color: #222;
+                padding-bottom: 10px;
+            }
+            .data_cut {
+                border-top: 1px solid #eee;
+                h4 {
+                    margin-top: 10px;
+                }
+                .el-slider {
+                    margin-top: 15px;
+                }
+            }
             .li {
                 margin-bottom: 14px;
                 .member-info, .data-set {
