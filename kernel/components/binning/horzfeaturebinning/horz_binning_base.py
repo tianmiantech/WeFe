@@ -253,7 +253,7 @@ class Client(Binning):
         return self.max_values, self.min_values
 
     def query_values(self, summary_table, query_points):
-        local_ranks = summary_table.join(query_points, binning_util.query_table, need_send=True)
+        local_ranks = summary_table.join(query_points, binning_util.query_table)
         LOGGER.debug(f'local_ranks={local_ranks.first()}')
         self.aggregator.send_table(local_ranks, suffix=(self.suffix, 'rank'))
         global_rank = self.aggregator.get_aggregated_table(suffix=(self.suffix, 'rank'))
