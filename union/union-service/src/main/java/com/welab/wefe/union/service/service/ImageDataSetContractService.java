@@ -80,13 +80,15 @@ public class ImageDataSetContractService extends AbstractContractService {
 
 
 
-    public void updateLabeledCount(String dataSetId, String labeledCount, String completed) throws StatusCodeWithException {
+    public void updateLabeledCount(String dataSetId, String labeledCount, String sampleCount,String labelList,String labelCompleted) throws StatusCodeWithException {
         try {
             ImageDataSetContract imageDataSetContract = blockChainContext.getLatestVersionImageDataSetContract();
             TransactionReceipt transactionReceipt = imageDataSetContract.updateLabeledCount(
                     dataSetId,
                     labeledCount,
-                    completed,
+                    sampleCount,
+                    labelList,
+                    labelCompleted,
                     DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
 
             // Get receipt result

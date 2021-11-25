@@ -81,7 +81,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
         imageDataSet.setUsageCountInJob(StringUtil.strTrim2(params.getString(13)));
         imageDataSet.setUsageCountInFlow(StringUtil.strTrim2(params.getString(14)));
         imageDataSet.setUsageCountInProject(StringUtil.strTrim2(params.getString(15)));
-        if(isAdd) {
+        if (isAdd) {
             imageDataSet.setEnable(StringUtil.strTrim2(params.getString(16)));
             imageDataSet.setCreatedTime(StringUtil.strTrim2(params.getString(17)));
             imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(18)));
@@ -110,9 +110,11 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     private void parseUpdateLabeledCountEvent() {
         String dataSetId = eventBO.getEntity().get("id").toString();
         String labeledCount = eventBO.getEntity().get("labeled_count").toString();
-        String completed = eventBO.getEntity().get("labelCompleted").toString();
+        String sampleCount = eventBO.getEntity().get("sample_count").toString();
+        String labelList = eventBO.getEntity().get("label_list").toString();
+        String labelCompleted = eventBO.getEntity().get("label_completed").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        dataSetMongoReop.updateLabeledCount(dataSetId, labeledCount, completed, updatedTime);
+        dataSetMongoReop.updateLabeledCount(dataSetId, labeledCount, sampleCount, labelList, labelCompleted, updatedTime);
     }
 
     private void parseUpdateExtJson() {

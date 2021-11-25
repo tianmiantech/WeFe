@@ -44,7 +44,12 @@ public class ImageDataSetLabelCountUpdateTask {
                     isLabelCompleted = true;
                 }
                 try {
-                    imageDataSetContractService.updateLabeledCount(imageDataSetLabeledCount.getDataSetId(), String.valueOf(imageDataSetLabeledCount.getLabeledCount()), isLabelCompleted ? "1" : "0");
+                    imageDataSetContractService.updateLabeledCount(
+                            imageDataSetLabeledCount.getDataSetId(),
+                            String.valueOf(imageDataSetLabeledCount.getLabeledCount()),
+                            String.valueOf(imageDataSetLabeledCount.getSampleCount()),
+                            imageDataSetLabeledCount.getLabelList(),
+                            isLabelCompleted ? "1" : "0");
                 } catch (StatusCodeWithException e) {
                     LOG.error("update ImageDataSetLabeledCount error dataSetId: " + imageDataSetLabeledCount.getDataSetId(), e);
                 }

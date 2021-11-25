@@ -19,20 +19,17 @@ package com.welab.wefe.common.data.mongodb.repo;
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.*;
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -43,7 +40,6 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 /**
@@ -198,7 +194,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         mongoUnionTemplate.save(dataSet);
     }
 
-    public boolean updateExtJSONById(String dataSetId, ImageDataSetExtJSON extJSON,String updateTime) {
+    public boolean updateExtJSONById(String dataSetId, ImageDataSetExtJSON extJSON, String updateTime) {
         if (StringUtils.isEmpty(dataSetId)) {
             return false;
         }
@@ -212,7 +208,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public boolean updateEnable(String dataSetId,String enable,String updatedTime) {
+    public boolean updateEnable(String dataSetId, String enable, String updatedTime) {
         if (StringUtils.isEmpty(dataSetId)) {
             return false;
         }
@@ -226,14 +222,17 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public boolean updateLabeledCount(String dataSetId,String labeledCount,String completed,String updatedTime) {
+
+    public boolean updateLabeledCount(String dataSetId, String labeledCount, String sampleCount, String labelList, String labelCompleted, String updatedTime) {
         if (StringUtils.isEmpty(dataSetId)) {
             return false;
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
         Update udpate = new UpdateBuilder()
                 .append("labeledCount", labeledCount)
-                .append("completed", completed)
+                .append("sampleCount", sampleCount)
+                .append("labelList", labelList)
+                .append("labelCompleted", labelCompleted)
                 .append("updatedTime", updatedTime)
                 .build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);

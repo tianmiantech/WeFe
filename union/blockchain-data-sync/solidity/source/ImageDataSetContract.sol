@@ -17,7 +17,7 @@ contract ImageDataSetContract{
     event updateEnableEvent(int256 ret_code,string id,string enable,string updated_time);
     event deleteByDataSetIdEvent(int256 ret_code,string id);
     event updateExtJsonEvent(int256 ret_code,string id, string ext_json,string updated_time);
-    event updateLabeledCountEvent(string id,string labeled_count,string sample_count,string label_list,string label_completed,string updated_time);
+    event updateLabeledCountEvent(int256 ret_code,string id,string labeled_count,string sample_count,string label_list,string label_completed,string updated_time);
 
     constructor() public {
         // 创建表
