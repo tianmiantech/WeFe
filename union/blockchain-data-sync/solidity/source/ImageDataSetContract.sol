@@ -17,7 +17,7 @@ contract ImageDataSetContract{
     event updateEnableEvent(int256 ret_code,string id,string enable,string updated_time);
     event deleteByDataSetIdEvent(int256 ret_code,string id);
     event updateExtJsonEvent(int256 ret_code,string id, string ext_json,string updated_time);
-    event updateLabeledCountEvent(int256 ret_code,string id,string labeled_count,string label_completed,string updated_time);
+    event updateLabeledCountEvent(string id,string labeled_count,string sample_count,string label_list,string label_completed,string updated_time);
 
     constructor() public {
         // 创建表
@@ -208,7 +208,7 @@ contract ImageDataSetContract{
     }
 
 
-    function updateLabeledCount(string id,string labeled_count,string label_completed,string updated_time) public returns (int256) {
+    function updateLabeledCount(string id,string labeled_count,string sample_count,string label_list,string label_completed,string updated_time) public returns (int256) {
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
@@ -216,6 +216,8 @@ contract ImageDataSetContract{
 
         Entry entry = table.newEntry();
         entry.set("labeled_count", labeled_count);
+        entry.set("sample_count", sample_count);
+        entry.set("label_list", label_list);
         entry.set("label_completed", label_completed);
         entry.set("updated_time", updated_time);
 
@@ -228,7 +230,7 @@ contract ImageDataSetContract{
             ret_code = -2;
         }
 
-        emit updateLabeledCountEvent(ret_code,id,labeled_count,label_completed,updated_time);
+        emit updateLabeledCountEvent(ret_code,id,labeled_count,sample_count,label_list,label_completed,updated_time);
         return ret_code;
     }
 

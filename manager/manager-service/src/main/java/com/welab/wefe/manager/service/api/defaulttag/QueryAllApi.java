@@ -16,7 +16,12 @@
 
 package com.welab.wefe.manager.service.api.defaulttag;
 
-import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.ImageDataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.TableDataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -34,14 +39,18 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  */
 @Api(path = "default_tag/query", name = "default_tag_query")
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
+public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
 
     @Autowired
-    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    protected TableDataSetDefaultTagMongoRepo tableDataSetDefaultTagMongoRepo;
+
+    @Autowired
+    protected ImageDataSetDefaultTagMongoRepo imageDataSetDefaultTagMongoRepo;
 
     @Override
-    protected ApiResult<JObject> handle(BaseInput input) {
-        List<ApiDataSetDefaultTagQueryOutput> list = dataSetDefaultTagMongoRepo.findAll()
+    protected ApiResult<JObject> handle(QueryAllApi.Input input) {
+        List<DataSetDefaultTag> dataSetDefaultTagList = getMongoRepo(input).findAll(DataSetDefaultTag.class);
+        List<ApiDataSetDefaultTagQueryOutput> list = dataSetDefaultTagList
                 .stream().map(x -> {
                     ApiDataSetDefaultTagQueryOutput apiDataSetDefaultTagQueryOutput = new ApiDataSetDefaultTagQueryOutput();
                     apiDataSetDefaultTagQueryOutput.setId(x.getTagId());
@@ -52,6 +61,26 @@ public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
                 }).collect(Collectors.toList());
 
         return success(JObject.create("list", JObject.toJSON(list)));
+    }
+
+    public AbstractDataSetDefaultTagMongoRepo getMongoRepo(QueryAllApi.Input input) {
+        if (DataSetType.ImageDataSet.name().equals(input.getDataSetType())) {
+            return imageDataSetDefaultTagMongoRepo;
+        }
+        return tableDataSetDefaultTagMongoRepo;
+    }
+
+    public static class Input extends BaseInput {
+        private String dataSetType;
+
+
+        public String getDataSetType() {
+            return dataSetType;
+        }
+
+        public void setDataSetType(String dataSetType) {
+            this.dataSetType = dataSetType;
+        }
     }
 
 

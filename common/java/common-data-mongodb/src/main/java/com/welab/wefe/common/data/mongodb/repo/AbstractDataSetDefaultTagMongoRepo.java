@@ -17,7 +17,6 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -33,8 +32,7 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  **/
-@Repository
-public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
+public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRepo {
 
     @Autowired
     protected MongoTemplate mongoUnionTemplate;
@@ -44,8 +42,11 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public List<DataSetDefaultTag> findAll() {
-        return mongoUnionTemplate.findAll(DataSetDefaultTag.class);
+
+    protected abstract String getTableName();
+
+    public <T> List<T> findAll(Class<T> t) {
+        return mongoUnionTemplate.findAll(t);
     }
 
     public boolean deleteByTagId(String tagId) {
@@ -54,7 +55,7 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
         return updateResult.wasAcknowledged();
     }
 
@@ -68,7 +69,7 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
                 .append("extJson", extJson)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
         return updateResult.wasAcknowledged();
     }
 
@@ -78,7 +79,7 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, getTableName());
         return updateResult.wasAcknowledged();
     }
 }

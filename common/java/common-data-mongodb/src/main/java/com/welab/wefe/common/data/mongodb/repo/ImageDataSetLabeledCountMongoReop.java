@@ -66,4 +66,9 @@ public class ImageDataSetLabeledCountMongoReop extends AbstractMongoRepo {
         return mongoUnionTemplate.findOne(query, ImageDataSetLabeledCount.class);
     }
 
+    public List<ImageDataSetLabeledCount> findAll() {
+        Query query = new QueryBuilder().notRemoved().sort("updateTime").build();
+        return mongoUnionTemplate.find(query, ImageDataSetLabeledCount.class);
+    }
+
 }

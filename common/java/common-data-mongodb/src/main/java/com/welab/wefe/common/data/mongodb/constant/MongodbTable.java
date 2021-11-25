@@ -38,6 +38,7 @@ public class MongodbTable {
         public static final String AUTH_AGREEMENT_TEMPLATE = "AuthAgreementTemplate";
         public static final String IMAGE_DATASET = "ImageDataSet";
         public static final String IMAGE_DATASET_LABELEDCOUNT = "ImageDataSetLabeledCount";
+        public static final String IMAGE_DATA_SET_DEFAULT_TAG = "ImageDataSetDefaultTag";
     }
 
     public static final class Sms {

@@ -16,7 +16,6 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetTagsQueryOutput;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public abstract class AbstractDataSetMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    protected abstract String getDbName();
+    protected abstract String getTableName();
 
     public List<DataSetTagsQueryOutput> findByTags(String tagName) {
         Criteria criteria = new QueryBuilder()
@@ -57,7 +56,7 @@ public abstract class AbstractDataSetMongoRepo extends AbstractMongoRepo {
 
         );
 
-        List<DataSetTagsQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, getDbName(), DataSetTagsQueryOutput.class).getMappedResults();
+        List<DataSetTagsQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, getTableName(), DataSetTagsQueryOutput.class).getMappedResults();
 
         return result;
     }

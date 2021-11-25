@@ -59,7 +59,7 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
     @Override
-    protected String getDbName() {
+    protected String getTableName() {
         return MongodbTable.Union.DATASET;
     }
 

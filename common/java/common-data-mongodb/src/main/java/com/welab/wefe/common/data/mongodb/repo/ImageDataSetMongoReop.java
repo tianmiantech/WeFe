@@ -61,7 +61,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
     @Override
-    protected String getDbName() {
+    protected String getTableName() {
         return MongodbTable.Union.IMAGE_DATASET;
     }
 

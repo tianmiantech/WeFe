@@ -37,9 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(path = "image_data_set/update_labeled_count", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
 public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Input, AbstractApiOutput> {
     @Autowired
-    private ImageDataSetContractService imageDataSetContractService;
-
-    @Autowired
     private ImageDataSetMongoReop imageDataSetMongoReop;
 
     @Autowired
@@ -56,24 +53,29 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
             return success();
         }
 
-        ImageDataSetLabeledCount imageDataSetLabeledCount = imageDataSetLabeledCountMongoReop.findById(input.getDataSetId());
-        if (imageDataSetLabeledCount.getCount() == 100 ||
-                (Integer.parseInt(imageDataSet.getSampleCount()) - Integer.parseInt(imageDataSet.getLabeledCount())) <= imageDataSetLabeledCount.getCount()) {
-            int labeledCount = Integer.parseInt(imageDataSet.getLabeledCount()) + imageDataSetLabeledCount.getCount();
-            boolean isCompleted = false;
-            if (labeledCount >= Integer.parseInt(imageDataSet.getSampleCount())) {
-                labeledCount = Integer.parseInt(imageDataSet.getSampleCount());
-                isCompleted = true;
-            }
-            imageDataSetContractService.updateLabeledCount(input.getDataSetId(), String.valueOf(labeledCount), isCompleted ? "1" : "0");
-        }
+        saveImageDataSetLabeledCount(input);
 
         return success();
+    }
+
+    private void saveImageDataSetLabeledCount(Input input){
+        ImageDataSetLabeledCount imageDataSetLabeledCount = new ImageDataSetLabeledCount();
+        imageDataSetLabeledCount.setDataSetId(input.getDataSetId());
+        imageDataSetLabeledCount.setLabeledCount(input.getLabeledCount());
+        imageDataSetLabeledCount.setSampleCount(input.getSampleCount());
+        imageDataSetLabeledCount.setLabelList(input.getLabelList());
+        imageDataSetLabeledCountMongoReop.save(imageDataSetLabeledCount);
     }
 
     public static class Input extends BaseInput {
         @Check(require = true)
         private String dataSetId;
+        @Check(require = true)
+        private String labelList;
+        @Check(require = true)
+        private int sampleCount;
+        @Check(require = true)
+        private int labeledCount;
 
         public String getDataSetId() {
             return dataSetId;
@@ -81,6 +83,31 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
 
         public void setDataSetId(String dataSetId) {
             this.dataSetId = dataSetId;
+        }
+
+
+        public String getLabelList() {
+            return labelList;
+        }
+
+        public void setLabelList(String labelList) {
+            this.labelList = labelList;
+        }
+
+        public int getSampleCount() {
+            return sampleCount;
+        }
+
+        public void setSampleCount(int sampleCount) {
+            this.sampleCount = sampleCount;
+        }
+
+        public int getLabeledCount() {
+            return labeledCount;
+        }
+
+        public void setLabeledCount(int labeledCount) {
+            this.labeledCount = labeledCount;
         }
     }
 }
