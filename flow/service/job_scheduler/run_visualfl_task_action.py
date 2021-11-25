@@ -22,6 +22,7 @@ from common.python.db.db_models import Task, Job, GlobalSetting, JobApplyResult
 from common.python.db.task_dao import TaskDao
 from common.python.db.job_apply_result_dao import JobApplyResultDao
 from service.visualfl.visualfl_service import VisualFLService
+from flow.service.job_scheduler.job_service import JobService
 from utils import job_utils
 
 
@@ -38,21 +39,20 @@ class RunVisualFLTaskAction:
         self.running_job = self.job.job_id + '_' + self.job.my_role
 
     def do(self):
-        flag = self.apply_resource()
+        self.logger.info(
+            "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id,
+                                                             current_datetime()))
+        response = self.apply_resource()
         apply_result = JobApplyResult()
-        if flag:
-            self.logger.info(
-                "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
+        if response is not None and response['job_id'] is not None:
             # 等待 apply resource 执行完成
             while apply_result is None or apply_result.server_endpoint is None or len(apply_result.server_endpoint) <= 0:
                 self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
-                apply_result = self.is_apply_progress_done()
+                apply_result = self.query_apply_progress_result()
         else:
-            self.logger.info(
-                "Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-            return
-        # todo
+            raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime())))
+        # send
         if self.job.my_role == 'promoter':
             aggregator_info= {
                 'server_endpoint': apply_result.server_endpoint,
@@ -66,20 +66,21 @@ class RunVisualFLTaskAction:
                 self.logger.info(
                     "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
                 job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
+        # receive
         else:
             result = None
             while result is None:
-                result = job_utils.receive()
                 self.logger.info("wait aggregator_info")
+                result = job_utils.receive()
                 time.sleep(3)
             self.logger.info("receive aggregator_info , content is : {}".format(str(result)))
         # todo 将 result 扔进 apply_result
-        flag = self.submit_task(apply_result)
-        if flag:
+        response = self.submit_task(apply_result)
+        if response:
             self.logger.info(
                 "Task apply resource {}（{}）start，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-            # # task 执行完毕后更新 job 进度
-            # JobService.update_progress(self.job)
+            # task 执行完毕后更新 job 进度
+            JobService.update_progress(self.job)
             # 等待 task 执行完成
             while not self.is_task_progress_done():
                 self.logger.info("Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
@@ -87,10 +88,8 @@ class RunVisualFLTaskAction:
         else:
             self.logger.info(
                 "Task {}（{}）failed， submit task request error, time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-            # todo
             self.error_on_task('submit task error')
-            return
-        # todo
+            raise RuntimeError('submit task error')
         self.finish_task()
 
     def error_on_task(self, message):
@@ -121,10 +120,9 @@ class RunVisualFLTaskAction:
         job.finish_time = current_datetime()
         job.save()
 
-    def is_apply_progress_done(self) -> bool:
+    def query_apply_progress_result(self):
         return JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
 
-    # todo
     def is_task_progress_done(self) -> bool:
         apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
         if apply_result is None or apply_result.status == '待运行' or apply_result.status == '运行中':
@@ -137,18 +135,14 @@ class RunVisualFLTaskAction:
         task_config_json = json.loads(self.task.task_conf)
         try:
             params = task_config_json['params']
+            env = params['env']
             # todo 将apply_result 填充到 params里面
+            env.append(apply_result)
             self.log_job_info('submit_task params:' + str(params))
-            # todo 申请资源请求
-            p = VisualFLService.request('submit', params)
-            if p:
-                submit_task_start_status = True
-                # self.task.pid = p.pid
-                self.task.status = TaskStatus.RUNNING
-                self.task.start_time = current_datetime()
-                self.task.updated_time = current_datetime()
-                TaskDao.save(self.task)
-            return p
+            # submit
+            response = VisualFLService.request('submit', params)
+            submit_task_start_status = response is not None and response['job_id'] is not None
+            return response
         except Exception as e:
             schedule_logger(self.running_job).exception(e)
         finally:
@@ -159,25 +153,23 @@ class RunVisualFLTaskAction:
         apply_resource_start_status = False
         try:
             params = {
-                'job_id': '',
-                'task_id': '',
+                'job_id': self.job.job_id,
+                'task_id': self.task.task_id,
                 'job_type': 'paddle_fl',
-                'role': '',
-                'member_id': '',
-                'callback_url': ''
+                'role': self.job.my_role,
+                'member_id': GlobalSetting.get_member_id(),
+                'callback_url': '/visualfl/apply_callback_api'
             }
             self.log_job_info('apply_resource params:' + str(params))
-            # todo 申请资源请求
-            p = VisualFLService.request('apply', params)
-            if p:
-                # todo 这里不一定需要
+            response = VisualFLService.request('apply', params)
+            if response:
                 apply_resource_start_status = True
                 # self.task.pid = p.pid
                 self.task.status = TaskStatus.RUNNING
                 self.task.start_time = current_datetime()
                 self.task.updated_time = current_datetime()
                 TaskDao.save(self.task)
-            return p
+            return response
         except Exception as e:
             schedule_logger(self.running_job).exception(e)
         finally:
