@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.util;
 
+import com.welab.wefe.common.util.dto.FileDecompressionResult;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +57,7 @@ public class FileUtil {
      */
     public static String getFileNameWithoutSuffix(File file) {
         if (file.isDirectory()) {
-            return null;
+            return "";
         }
         return StringUtil.substringBeforeLast(file.getName(), ".");
     }
@@ -126,5 +128,13 @@ public class FileUtil {
         deleteFileOrDir(new File(filePath));
     }
 
+    /**
+     * 解压文件
+     * 注意：该方法会递归解压压缩包内的压缩包
+     */
+    public static FileDecompressionResult decompression(File file, String destDirPath) {
+        FileDecompressionResult result = new FileDecompressionResult(file, destDirPath);
+        return result;
+    }
 
 }

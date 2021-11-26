@@ -166,8 +166,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
-            taskConfig.setInput(getInputs(graph, node));
-            taskConfig.setOutput(generateInput(graph, node, count));
+            taskConfig.setInput(generateInput(graph, node, count));
+            taskConfig.setOutput(getOutputs(graph, node));
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
             task.setRole(graph.getJob().getMyRole());
@@ -196,18 +196,25 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
             JSONObject json = JSON.parseObject(JSON.toJSONString(inputs));
             JSONObject data = json.getJSONObject("data");
-            List<String> normal = data.getObject("normal", TypeReference.LIST_STRING);
-            List<String> newNormal = new ArrayList<>();
-            String end = "_" + count;
-            for (String s : normal) {
-                if (s.endsWith(end)) {
-                    newNormal.add(s);
-                } else {
-                    newNormal.add(s + end);
+            Set<Map.Entry<String, Object>> entrySet = data.entrySet();
+
+            for (Map.Entry<String, Object> entry : entrySet) {
+                List<String> dataSetList = data.getObject(entry.getKey(), TypeReference.LIST_STRING);
+                String end = "_" + count;
+                List<String> newDataSet = new ArrayList<>();
+                for (String s : dataSetList) {
+                    if (s.endsWith(end)) {
+                        newDataSet.add(s);
+                    } else {
+                        newDataSet.add(s + end);
+                    }
+                }
+
+                if (!newDataSet.isEmpty()) {
+                    data.put(entry.getKey(), newDataSet);
                 }
             }
-            if (!newNormal.isEmpty()) {
-                data.put("normal", newNormal);
+            if (!data.isEmpty()) {
                 json.put("data", data);
                 inputs = json.getInnerMap();
             }

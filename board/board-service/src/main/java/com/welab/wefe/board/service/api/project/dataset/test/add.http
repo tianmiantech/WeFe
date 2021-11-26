@@ -11,3 +11,19 @@ Content-Type: application/json
     }
   ]
 }
+
+###
+
+POST http://localhost:8080/board-service/project/data_set/add
+Content-Type: application/json
+
+{
+  "project_id": "76c0bab0068f4ff9989592b3185e6ea9",
+  "dataSetList": [
+    {
+      "member_role": "provider",
+      "member_id": "cbd2c82da50d4408877061e3e981f8ae",
+      "data_set_type": "ImageDataSet"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ClassUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -44,12 +45,17 @@ public abstract class AbstractCheckModel {
                         ((AbstractCheckModel) value).checkAndStandardize();
                     }
                 } else if ("List".equals(type.getSimpleName())) {
-                    Class<?> tClass = ClassUtils.getGenericClass(fieldGenericType.getClass(), 0);
-                    if (tClass != null && AbstractCheckModel.class.isAssignableFrom(tClass)) {
-                        Object list = field.get(this);
-                        if (list != null) {
-                            for (Object item : (List) list) {
-                                ((AbstractCheckModel) item).checkAndStandardize();
+                    if (ParameterizedType.class.isAssignableFrom(fieldGenericType.getClass())) {
+                        Type actualTypeArgument = ((ParameterizedType) fieldGenericType).getActualTypeArguments()[0];
+                        if (actualTypeArgument instanceof Class) {
+                            type = (Class<?>) actualTypeArgument;
+                            if (AbstractCheckModel.class.isAssignableFrom(type)) {
+                                Object list = field.get(this);
+                                if (list != null) {
+                                    for (Object item : (List) list) {
+                                        ((AbstractCheckModel) item).checkAndStandardize();
+                                    }
+                                }
                             }
                         }
                     }
