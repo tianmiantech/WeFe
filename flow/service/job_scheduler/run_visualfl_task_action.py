@@ -21,9 +21,9 @@ from common.python.utils.log_utils import LoggerFactory, schedule_logger
 from common.python.db.db_models import Task, Job, GlobalSetting, JobApplyResult
 from common.python.db.task_dao import TaskDao
 from common.python.db.job_apply_result_dao import JobApplyResultDao
-from service.visualfl.visualfl_service import VisualFLService
+from flow.service.visualfl.visualfl_service import VisualFLService
 from flow.service.job_scheduler.job_service import JobService
-from utils import job_utils
+from flow.utils import job_utils
 
 
 class RunVisualFLTaskAction:
@@ -46,7 +46,7 @@ class RunVisualFLTaskAction:
         apply_result = JobApplyResult()
         if response is not None and response['job_id'] is not None:
             # 等待 apply resource 执行完成
-            while apply_result is None or apply_result.server_endpoint is None or len(apply_result.server_endpoint) <= 0:
+            while apply_result is None or apply_result.server_endpoint is None:
                 self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
                 apply_result = self.query_apply_progress_result()
@@ -158,7 +158,7 @@ class RunVisualFLTaskAction:
                 'job_type': 'paddle_fl',
                 'role': self.job.my_role,
                 'member_id': GlobalSetting.get_member_id(),
-                'callback_url': '/visualfl/apply_callback_api'
+                'callback_url': '/visualfl/apply_callback'
             }
             self.log_job_info('apply_resource params:' + str(params))
             response = VisualFLService.request('apply', params)

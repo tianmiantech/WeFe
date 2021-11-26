@@ -23,8 +23,8 @@ from common.python.db.db_models import Job
 from common.python.db.job_dao import JobDao
 from common.python.db.task_dao import TaskDao
 from flow.service.job_scheduler.job_service import JobService
-from service.job_scheduler.job_stop_action import JobStopAction
-from service.job_scheduler.run_visualfl_task_action import RunVisualFLTaskAction
+from flow.service.job_scheduler.job_stop_action import JobStopAction
+from flow.service.job_scheduler.run_visualfl_task_action import RunVisualFLTaskAction
 
 
 class VisualFLJobStartAction(object):
