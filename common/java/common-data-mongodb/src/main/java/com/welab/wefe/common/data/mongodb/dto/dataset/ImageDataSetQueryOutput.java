@@ -28,12 +28,11 @@ public class ImageDataSetQueryOutput {
     private String name;
     private String tags;
     private String description;
-    private String storageType;
     private String forJobType;
     private String labelList;
     private String sampleCount;
     private String labeledCount;
-    private String completed;
+    private String labelCompleted;
     private String filesSize;
     private String publicLevel;
     private String publicMemberList;
@@ -86,12 +85,12 @@ public class ImageDataSetQueryOutput {
         this.description = description;
     }
 
-    public String getStorageType() {
-        return storageType;
+    public String getLabelCompleted() {
+        return labelCompleted;
     }
 
-    public void setStorageType(String storageType) {
-        this.storageType = storageType;
+    public void setLabelCompleted(String labelCompleted) {
+        this.labelCompleted = labelCompleted;
     }
 
     public String getForJobType() {
@@ -126,13 +125,7 @@ public class ImageDataSetQueryOutput {
         this.labeledCount = labeledCount;
     }
 
-    public String getCompleted() {
-        return completed;
-    }
 
-    public void setCompleted(String completed) {
-        this.completed = completed;
-    }
 
     public String getFilesSize() {
         return filesSize;
