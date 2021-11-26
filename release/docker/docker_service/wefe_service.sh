@@ -95,10 +95,7 @@ _run_python_service(){
     if [ ${ACCELERATION,,} = "gpu" ];then
       cd $PWD/wefe_python_service
       sh wefe_python_service_start.sh gpu
-    fi
-
-    if [ $SPARK_MODE = "STANDALONE" ]
-    then
+    elif [ $SPARK_MODE = "STANDALONE" ];then
       # 集群方式启动
       start_cluster
     else
