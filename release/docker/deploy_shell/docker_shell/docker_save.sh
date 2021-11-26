@@ -40,10 +40,10 @@ echo "GATEWAY SERVICE SAVED"
 cd $SERVICE_WORK_DIR
 
 # 排除 gpu 版本 Python 包，另外打包
-sudo tar -cvf welab_wefe_${WEFE_VERSION}.tar * --exclude=wefe_python_service/resources/wefe_python_gpu_*
+sudo tar -cf welab_wefe_${WEFE_VERSION}.tar *
 
 # 单独打包 gpu 镜像
-sudo tar -cvf wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar
+sudo tar -cf wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar
 
 cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
 cd $SERVICE_WORK_DIR
