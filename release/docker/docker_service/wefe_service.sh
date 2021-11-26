@@ -5,7 +5,16 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
-source ./spark_cluster.sh
+
+if [ $SPARK_MODE = "STANDALONE" ]
+then
+  source ./spark_cluster.sh
+  echo '当前为集群部署'
+else
+  echo '非集群模式'
+fi
+
+
 
 export PWD=$(pwd)
 
