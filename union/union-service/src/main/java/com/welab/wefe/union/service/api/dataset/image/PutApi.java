@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/add", name = "image_data_set_add", rsaVerify = true, login = false)
+@Api(path = "image_data_set/put", name = "image_data_set_put", rsaVerify = true, login = false)
 public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected ImageDataSetContractService imageDataSetContractService;
