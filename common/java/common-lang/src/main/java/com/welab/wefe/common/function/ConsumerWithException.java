@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.test;
-
-import com.welab.wefe.common.util.ZipUtil;
-import com.welab.wefe.common.util.dto.FileDecompressionResult;
-
-import java.io.IOException;
+package com.welab.wefe.common.function;
 
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/11/26
  */
-public class ZipUtilTest {
-    public static void main(String[] args) throws IOException {
-        FileDecompressionResult result = ZipUtil.unzipFile("/Users/zane/data/wefe_file_upload_dir/fl_fruit.zip");
-
-        System.out.println(result);
-    }
+@FunctionalInterface
+public interface ConsumerWithException<T> {
+    void accept(T t) throws Exception;
 }
