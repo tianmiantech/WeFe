@@ -35,8 +35,7 @@ import paddle
 import yaml
 
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
-from visualfl import get_data_dir
-
+from visualfl.algorithm.paddle_clas import data_loader
 
 @click.command()
 @click.option("--scheduler-ep", type=str, required=True)
@@ -92,6 +91,12 @@ from visualfl import get_data_dir
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     required=True,
 )
+@click.option(
+    "--data-set",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    required=True,
+)
+
 def fl_trainer(
     trainer_id: int,
     trainer_ep: str,
@@ -106,6 +111,7 @@ def fl_trainer(
     feeds,
     config,
     algorithm_config,
+    data_set
 ):
     import numpy as np
     import paddle.fluid as fluid
@@ -122,19 +128,18 @@ def fl_trainer(
 
     with open(config) as f:
         config_json = json.load(f)
-    max_iter = config_json["max_iter"]
+    max_iter = config_json["max_iters"]
     device = config_json.get("device", "cpu")
     use_vdl = config_json.get("use_vdl", False)
     resume_checkpoint = config_json.get("resume_checkpoint", None)
-    need_eval = config_json.get("need_eval", False)
-    model_dir = "model"
-    checkpoint_dir = "checkpoint"
-    output_eval = "eval"
+    save_model_dir = "model"
+    save_checkpoint_dir = "checkpoint"
 
     with open(algorithm_config) as f:
         algorithm_config_dict = yaml.load(f)
     batch_size = algorithm_config_dict.get("batch_size", 128)
     need_shuffle = algorithm_config_dict.get("need_shuffle", True)
+
 
     logging.debug(f"training program begin")
     trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
@@ -160,27 +165,15 @@ def fl_trainer(
     feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
     logging.debug(f"data loader ready")
 
-
     epoch_id = 0
     step = 0
-    # global_step = 0
-    resume_checkpoint = f"/Users/tracy.zhang/Wefe/VisualFL/logs/jobs/job_0003/trainer_{trainer_id}/checkpoint/3"
     if resume_checkpoint:
         checkpoint.load_checkpoint(trainer.exe, trainer._main_program,resume_checkpoint)
         epoch_id = checkpoint.global_step()
         logging.debug(f"checkpoint epoch {epoch_id}")
 
-    reader = paddle.dataset.mnist.reader_creator(
-        image_filename=os.path.join(
-            get_data_dir(),
-            "mnist",
-            "train-images-idx3-ubyte.gz",
-        ),
-        label_filename=os.path.join(
-            get_data_dir(), "mnist", "train-labels-idx1-ubyte.gz"
-        ),
-        buffer_size=100,
-    )
+    #TODO download the data based on the download_url
+    reader = data_loader.train()
     if need_shuffle:
         reader = fluid.io.shuffle(
             reader=reader,
@@ -213,11 +206,11 @@ def fl_trainer(
 
         # save model
         logging.debug(f"saving model at {epoch_id}-th epoch")
-        trainer.save_model(os.path.join(model_dir,str(epoch_id)))
+        trainer.save_model(os.path.join(save_model_dir,str(epoch_id)))
 
         # info scheduler
         trainer.scheduler_agent.finish()
-        checkpoint.save(trainer.exe, trainer._main_program, os.path.join(checkpoint_dir,str(epoch_id)))
+        checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
         epoch_id += 1
 
     logging.debug(f"reach max iter, finish training")

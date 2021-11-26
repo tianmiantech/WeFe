@@ -34,7 +34,7 @@ class PaddleFLJob(Job):
         self._worker_num = config["worker_num"]
         self._local_worker_num = config["local_worker_num"]
         self._local_trainer_indexs = config["local_trainer_indexs"]
-        self._program = config["program"]
+        self._program = algorithm_config["program"]
         self._trainer_entrypoint = f"visualfl.algorithm.{self._program}.fl_trainer"
         self._config_string = json.dumps(config)
         self._algorithm_config = algorithm_config
@@ -77,19 +77,6 @@ class PaddleFLJob(Job):
         if returncode != 0:
 
             raise VisualFLJobCompileException("compile error")
-
-    # def generate_proposal_request(self) -> coordinator_pb2.Proposal.REQ:
-    #     request = coordinator_pb2.Proposal.REQ(
-    #         job_id=self.job_id,
-    #         job_type=self.job_type,
-    #         proposal_wait_time=self._proposal_wait_time,
-    #         minimum_acceptance=self._worker_num,
-    #         maximum_acceptance=self._worker_num,
-    #     )
-    #     for i in range(self._worker_num):
-    #         task = request.tasks.add()
-    #         self._generate_trainer_task_pb(task, i)
-    #     return request
 
     def generate_trainer_tasks(self) -> List[job_pb2.Task]:
         tasks = []

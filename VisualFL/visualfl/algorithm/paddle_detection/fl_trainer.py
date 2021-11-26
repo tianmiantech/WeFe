@@ -162,40 +162,9 @@ def fl_trainer(
     feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
     logging.debug(f"data loader ready")
 
-    if need_eval:
-        eval_prog = fluid.Program()
-        with fluid.program_guard(eval_prog, trainer._startup_program):
-            with fluid.unique_name.guard():
-                model = create(cfg.architecture)
-                inputs_def = cfg['EvalReader']['inputs_def']
-                feed_vars, eval_loader = model.build_inputs(**inputs_def)
-                fetches = model.eval(feed_vars)
-        eval_prog = eval_prog.clone(True)
-
-        eval_reader = create_reader(cfg.EvalReader, devices_num=1)
-        # When iterable mode, set set_sample_list_generator(eval_reader, place)
-        eval_loader.set_sample_list_generator(eval_reader)
-
-        # parse eval fetches
-        extra_keys = []
-        if cfg.metric == 'COCO':
-            extra_keys = ['im_info', 'im_id', 'im_shape']
-        if cfg.metric == 'VOC':
-            extra_keys = ['gt_bbox', 'gt_class', 'is_difficult']
-        if cfg.metric == 'WIDERFACE':
-            extra_keys = ['im_id', 'im_shape', 'gt_bbox']
-        eval_keys, eval_values, eval_cls = parse_fetches(fetches, eval_prog,
-                                                         extra_keys)
-
-        compiled_eval_prog = fluid.CompiledProgram(eval_prog)
-
-    # ignore_params = cfg.finetune_exclude_pretrained_params \
-    #     if 'finetune_exclude_pretrained_params' in cfg else []
-
     epoch_id = 0
-    best_box_ap_list = [0.0, 0]  # [map, iter]
     vdl_loss_step = 0
-    vdl_mAP_step = 0
+    # vdl_mAP_step = 0
     if checkpoint_path:
         checkpoint.load_checkpoint(trainer.exe, trainer._main_program, checkpoint_path)
         vdl_loss_step = checkpoint.global_step()
@@ -206,15 +175,6 @@ def fl_trainer(
     # elif cfg.pretrain_weights:
     #     checkpoint.load_params(
     #         trainer.exe, trainer._main_program, cfg.pretrain_weights, ignore_params=ignore_params)
-
-    # whether output bbox is normalized in model output layer
-    is_bbox_normalized = False
-    if hasattr(model, 'is_bbox_normalized') and \
-            callable(model.is_bbox_normalized):
-        is_bbox_normalized = model.is_bbox_normalized()
-
-    # if map_type not set, use default 11point, only use in VOC eval
-    map_type = cfg.map_type if 'map_type' in cfg else '11point'
 
     # redirect dataset path to VisualFL/data
     cfg.TrainReader["dataset"].dataset_dir = os.path.join(
@@ -251,38 +211,6 @@ def fl_trainer(
         # save model
         logging.debug(f"saving model at {epoch_id}-th epoch")
         trainer.save_model(f"model/{epoch_id}")
-
-        if need_eval:
-            # evaluation
-            resolution = None
-            if 'Mask' in cfg.architecture:
-                resolution = model.mask_head.resolution
-            results = eval_run(
-                trainer.exe,
-                compiled_eval_prog,
-                eval_loader,
-                eval_keys,
-                eval_values,
-                eval_cls,
-                cfg,
-                resolution=resolution)
-            box_ap_stats = eval_results(
-                results, cfg.metric, cfg.num_classes, resolution,
-                is_bbox_normalized, output_eval, map_type,
-                cfg['EvalReader']['dataset'])
-
-            # use vdl_paddle to log mAP
-            if use_vdl:
-                vdl_writer.add_scalar("mAP", box_ap_stats[0], vdl_mAP_step)
-                vdl_mAP_step += 1
-
-            if box_ap_stats[0] > best_box_ap_list[0]:
-                best_box_ap_list[0] = box_ap_stats[0]
-                best_box_ap_list[1] = epoch_id
-                checkpoint.save(trainer.exe, trainer._main_program,
-                                os.path.join(checkpoint_dir, "best_model"))
-            logging.info("Best test box ap: {}, in iter: {}".format(
-                best_box_ap_list[0], best_box_ap_list[1]))
 
         # info scheduler
         trainer.scheduler_agent.finish()

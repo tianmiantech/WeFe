@@ -1,17 +1,19 @@
 
 from __future__ import annotations
 
+import os
 import asyncio
 import enum
 import json
 import traceback
 from datetime import datetime
 from typing import Optional, MutableMapping, List
-
+import yaml
 import attr
 import grpc
 from aiohttp import web
 
+from visualfl import __basedir__
 from visualfl import extensions
 from visualfl.paddle_fl.abs.job import Job
 from visualfl.protobuf import (
@@ -21,6 +23,7 @@ from visualfl.protobuf import (
 )
 from visualfl.utils.exception import VisualFLExtensionException
 from visualfl.utils.logger import Logger
+
 
 
 class _JobStatus(enum.Enum):
@@ -153,8 +156,26 @@ class RESTService(Logger):
             role = data["role"]
             member_id = data["member_id"]
             job_type = data["job_type"]
-            job_config = data["job_config"]
+            config = data["env"]
+            data_set = data["data_set"]
+            download_url = data_set["download_url"]
             algorithm_config = data.get("algorithm_config", None)
+            program = algorithm_config["program"]
+            if program is "paddle_detection":
+                program_full_path = os.path.join(__basedir__, 'visualfl', 'algorithm', program)
+                default_config_name = 'default_algorithm_config.yaml'
+                architecture = algorithm_config["architecture"]
+                default_algorithm_config = os.path.join(program_full_path,"configs",architecture,default_config_name)
+                with open(default_algorithm_config) as f:
+                    default_algorithm_dict = yaml.load(f)
+                default_algorithm_dict["download_url"] = download_url
+                default_algorithm_dict["max_iters"] = algorithm_config["max_iters"]
+                default_algorithm_dict["inner_step"] = algorithm_config["inner_step"]
+                default_algorithm_dict["num_classes"] = algorithm_config["num_classes"]
+                default_algorithm_dict["LearningRate"]["base_lr"] = algorithm_config["base_lr"]
+                default_algorithm_dict["TrainReader"]["inputs_def"]["image_shape"] = algorithm_config["image_shape"]
+                default_algorithm_dict["TrainReader"]["batch_size"] = algorithm_config["batch_size"]
+
         except KeyError:
             return web.json_response(
                 data=dict(exception=traceback.format_exc()), status=400
@@ -166,10 +187,9 @@ class RESTService(Logger):
             validator = extensions.get_job_schema_validator(job_type)
             if loader is None:
                 raise VisualFLExtensionException(f"job type {job_type} not supported")
-            validator.validate(job_config)
-            # job_id = self.shared_status.generate_job_id()
+            validator.validate(config)
             job = loader.load(
-                job_id=job_id, role=role,member_id=member_id,config=job_config, algorithm_config=algorithm_config
+                job_id=job_id, role=role,member_id=member_id,config=config, algorithm_config=default_algorithm_dict
             )
 
         except Exception:

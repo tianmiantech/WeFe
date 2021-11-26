@@ -3,15 +3,12 @@ task_id: task_0002
 job_type: paddle_fl
 role: promoter
 member_id: master1
-callback_url: https://www.baidu.com
-job_config:
-  program: paddle_detection
+callback_url: https://www.xxx.com
+env:
   proposal_wait_time: 5
   worker_num: 2
   local_worker_num: 2
   local_trainer_indexs: [0,1]
-  max_iter: 10
-  inner_step: 10
   device: cpu
   use_vdl: true
   server_endpoint: 127.0.0.1:12002

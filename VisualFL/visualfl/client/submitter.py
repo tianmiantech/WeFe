@@ -54,6 +54,7 @@ def submit(endpoint, config):
     role = config_json.get("role")
     member_id = config_json.get("member_id")
     job_config = config_json.get("job_config")
+
     algorithm_config_path = base.parent.joinpath(
         config_json.get("algorithm_config")
     ).absolute()
