@@ -26,7 +26,7 @@ sudo docker save -o wefe_python_service_$WEFE_VERSION.tar wefe_python_service:$W
 echo "PYTHON SERVICE SAVED"
 
 echo "SAVING GPU PYTHON SERVICE"
-cd $SERVICE_WORK_DIR/wefe_python_gpu_service/resources
+cd $SERVICE_WORK_DIR/wefe_python_service/resources
 rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
 echo "GPU PYTHON SERVICE SAVED"
