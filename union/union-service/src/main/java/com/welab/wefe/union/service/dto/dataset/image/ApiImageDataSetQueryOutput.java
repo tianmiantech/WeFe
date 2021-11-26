@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.dto.dataset.image;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
@@ -40,7 +39,6 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
     private Integer usageCountInJob;
     private Integer usageCountInFlow;
     private Integer usageCountInProject;
-    private ImageDataSetExtJSON extJson;
 
     public ApiImageDataSetQueryOutput() {
     }
@@ -182,11 +180,4 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
         this.usageCountInProject = usageCountInProject;
     }
 
-    public ImageDataSetExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(ImageDataSetExtJSON extJson) {
-        this.extJson = extJson;
-    }
 }

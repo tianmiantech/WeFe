@@ -45,8 +45,8 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
-            @Mapping(source = "pageSize", target = "pageSize", defaultValue = "10"),
-            @Mapping(source = "pageIndex", target = "pageIndex", defaultValue = "0"),
+            @Mapping(source = "pageSize", target = "pageSize"),
+            @Mapping(source = "pageIndex", target = "pageIndex"),
     })
     ImageDataSetQueryInput transferInput(QueryApi.Input entity);
 
@@ -59,7 +59,7 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
-            @Mapping(target = "enable", defaultValue = "1"),
+            @Mapping(target = "enable", expression = "java(\"1\")"),
             @Mapping(target = "labelCompleted", expression = "java(String.valueOf(input.isLabelCompleted() ? 1 : 0))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),

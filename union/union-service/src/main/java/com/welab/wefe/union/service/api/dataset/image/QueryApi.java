@@ -64,7 +64,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDat
         private String memberId;
         private String memberName;
         private String name;
-        private Boolean containsY;
         private String tag;
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
@@ -99,14 +98,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDat
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
         }
 
         public String getTag() {
