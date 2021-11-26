@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ClassUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public abstract class AbstractCheckModel {
 
             for (Field field : ClassUtils.listFields(this.getClass())) {
                 Class<?> type = field.getType();
-                Type genericType = field.getGenericType();
+                Type fieldGenericType = field.getGenericType();
                 field.setAccessible(true);
 
                 if (AbstractCheckModel.class.isAssignableFrom(type)) {
@@ -44,17 +43,13 @@ public abstract class AbstractCheckModel {
                     if (value != null) {
                         ((AbstractCheckModel) value).checkAndStandardize();
                     }
-                }
-
-                else if ("List".equals(type.getSimpleName())) {
-                    if (ParameterizedType.class.isAssignableFrom(genericType.getClass())) {
-                        type = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
-                        if (AbstractCheckModel.class.isAssignableFrom(type)) {
-                            Object list = field.get(this);
-                            if (list != null) {
-                                for (Object item : (List) list) {
-                                    ((AbstractCheckModel) item).checkAndStandardize();
-                                }
+                } else if ("List".equals(type.getSimpleName())) {
+                    Class<?> tClass = ClassUtils.getGenericClass(fieldGenericType.getClass(), 0);
+                    if (tClass != null && AbstractCheckModel.class.isAssignableFrom(tClass)) {
+                        Object list = field.get(this);
+                        if (list != null) {
+                            for (Object item : (List) list) {
+                                ((AbstractCheckModel) item).checkAndStandardize();
                             }
                         }
                     }

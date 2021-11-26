@@ -16,6 +16,12 @@
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 
 /**
  * @author zane
@@ -52,7 +58,39 @@ public class Env {
     public Env() {
     }
 
-    public Env(ImageDataIOComponent.Params imageDataIoParam) {
+    public Env(ImageDataIOComponent.Params imageDataIoParam) throws StatusCodeWithException {
+        imageDataIoParam.fillDataSetDetail();
+        // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
+        double min = imageDataIoParam.dataSetList
+                .stream()
+                .mapToDouble(x -> x.dataSet.getLabeledCount())
+                .min()
+                .orElse(0);
+
+
+        // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
+        imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
+
+        LinkedHashMap<String, Integer> workerCountMap = new LinkedHashMap<>();
+        for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
+            int workerCount = Convert.toInt(
+                    Math.round(
+                            dataSetItem.dataSet.getLabeledCount() / min
+                    )
+            );
+
+            // is me
+            if (CacheObjects.getMemberId().equals(dataSetItem.getMemberId())) {
+                this.localWorkerNum = workerCount;
+                int startIndex = workerCountMap.values().stream().mapToInt(x -> x).sum();
+                int endIndex = startIndex + this.localWorkerNum - 1;
+                this.localTrainerIndexs = new int[]{startIndex, endIndex};
+            }
+
+            workerCountMap.put(dataSetItem.getMemberId(), workerCount);
+        }
+
+        this.workerNum = workerCountMap.values().stream().mapToInt(x -> x).sum();
     }
 
 }

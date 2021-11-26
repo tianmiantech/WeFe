@@ -92,7 +92,6 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         JObject dataSetInfo = JObject.create(myJobDataSet);
         dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
 
-
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
         output.put("algorithm_config", params);
@@ -131,23 +130,24 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
     public static class Params extends AbstractCheckModel {
         @Check(
                 name = "算法类型",
+                require = true,
                 regex = "(paddle_clas|paddle_detection)",
                 desc = "paddle_clas(分类), paddle_detection(目标检测)"
         )
-        public Integer program;
-        @Check(name = "迭代次数")
+        public String program;
+        @Check(name = "迭代次数", require = true)
         public Integer maxIter;
-        @Check(name = "聚合步长")
+        @Check(name = "聚合步长", require = true)
         public Integer innerStep;
-        @Check(name = "检测模型名称")
+        @Check(name = "检测模型名称", require = true)
         public String architecture;
         @Check(name = "类别数")
         public Integer numClasses;
-        @Check(name = "学习率")
+        @Check(name = "学习率", require = true)
         public Double baseLr;
-        @Check(name = "图像输入尺寸")
+        @Check(name = "图像输入尺寸", require = true)
         public Integer[] imageShape;
-        @Check(name = "批量大小")
+        @Check(name = "批量大小", require = true)
         public Integer batchSize;
     }
 
