@@ -27,6 +27,8 @@
                     :to="{name: 'project-detail', query: { project_id: item.project_id }}"
                     class="li"
                 >
+                    <p class="project_type" :style="{background: item.project_type === 'DeepLearning' ? '#eee' : '#f5f5f5'}">{{item.project_type}}
+                    </p>
                     <p class="p-name">
                         {{ item.name }}
                         <el-tooltip
@@ -197,6 +199,7 @@
         }
     }
     .li{
+        position: relative;
         flex: 1;
         margin-left: 20px;
         min-height: 220px;
@@ -216,6 +219,49 @@
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
             .el-icon-delete{display: block;}
+        }
+        .project_type {
+            // position: absolute;
+            // top: -18px;
+            // right: 2px;
+            // z-index: 2;
+            // margin: 20px auto;
+            // height: 26px;
+            // width: 84px;
+            // font-size: 12px;
+            // background: #eee;
+            // padding-right: 4px;
+            // &::after {
+            //     content: '';
+            //     position: absolute;
+            //     border-top: 10px solid #eee;
+            //     border-left: 42px solid #eee;
+            //     border-right: 42px solid #eee;
+            //     border-bottom: 42px solid transparent;
+            //     top: 26px;
+            //     left: 0px;
+            // }
+
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 26px;
+            line-height: 26px;
+            font-size: 14px;
+            color: #438BFF;
+            padding-right: 5px;
+            border-radius: 0 3px 0 0;
+            &::before {
+                position: absolute;
+                left: -16px;
+                content: '';
+                height: 0;
+                width: 0;
+                border-top: 13px solid transparent;
+                border-right: 16px solid #eee;
+                border-bottom: 13px solid transparent;
+            }
+
         }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {
