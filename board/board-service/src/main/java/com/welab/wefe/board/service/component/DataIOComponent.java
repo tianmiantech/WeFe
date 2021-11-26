@@ -162,6 +162,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
         JObject output = JObject
                 .create()
+                .append("data_set_id", myDataSet.getId())
                 .append("with_label", myDataSet.getContainsY())
                 .append("label_name", "y")
                 .append("namespace", myDataSet.getNamespace())
