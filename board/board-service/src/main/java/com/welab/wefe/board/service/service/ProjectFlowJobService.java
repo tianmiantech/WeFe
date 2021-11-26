@@ -40,6 +40,7 @@ import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.collections4.CollectionUtils;
@@ -168,7 +169,12 @@ public class ProjectFlowJobService extends AbstractService {
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.run_job);
+        flowActionQueueService.notifyFlow(
+                input,
+                input.getJobId(),
+                FlowActionType.run_job,
+                JObject.create("type", "visualfl")
+        );
 
         //update flow
         projectFlowService.updateFlowStatus(flow.getFlowId(), ProjectFlowStatus.running);
