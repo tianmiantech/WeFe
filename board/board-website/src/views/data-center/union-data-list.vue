@@ -57,115 +57,152 @@
             </el-button>
         </el-form>
 
-        <el-table
-            v-loading="vData.loading"
-            :data="vData.list"
-            stripe
-            border
+        <el-tabs
+            v-model="vData.activeTab"
+            type="border-card"
+            @tab-click="tabChange"
         >
-            <el-table-column label="添加" width="60" v-slot="scope">
-                <i
-                    title="快捷创建项目"
-                    class="el-icon-folder-add"
-                    @click="addDataSet($event, scope.row)"
-                ></i>
-            </el-table-column>
-            <el-table-column
-                label="成员"
-                min-width="100"
+            <template
+                v-for="tab in vData.unionTabs"
+                :key="tab.name"
             >
-                <template v-slot="scope">
-                    <span
-                        class="p-name"
-                        @click="checkCard(scope.row.member_id)"
-                    >
-                        <i class="iconfont icon-visiting-card" />
-                        {{ scope.row.member_name }}
-                    </span>
-                    <span class="p-id">{{ scope.row.member_id }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="数据集"
-                min-width="100"
-            >
-                <template v-slot="scope">
-                    <router-link :to="{ name: 'union-data-view', query: { id: scope.row.id }}">
-                        {{ scope.row.name }}
-                    </router-link>
-                    <br>
-                    <span class="p-id">{{ scope.row.id }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="关键词">
-                <template v-slot="scope">
-                    <template
-                        v-for="(item, index) in scope.row.tags.split(',')"
-                        :key="index"
-                    >
-                        <el-tag
-                            v-show="item"
-                            class="mr10"
-                        >
-                            {{ item }}
-                        </el-tag>
+                <el-tab-pane
+                    v-if="tab.name === 'imageUnions'"
+                    :name="tab.name"
+                    :label="tab.label"
+                >
+                    <template #label>
+                        {{ tab.label }}
                     </template>
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="数据量"
-                prop="row_count"
-                width="140"
-            >
-                <template v-slot="scope">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.row_count }}
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="参与项目数"
-                prop="usage_count_in_project"
-                width="100"
-            />
-            <el-table-column
-                label="包含Y"
-                width="100"
-            >
-                <template v-slot="scope">
-                    <i
-                        v-if="scope.row.contains_y "
-                        class="el-icon-check"
+                    <UnionImagesList
+                        ref="imageUnionsRef"
+                        key="imageUnions"
+                        :table-loading="vData.loading"
+                        :search-field="vData.search"
                     />
-                    <i
-                        v-else
-                        class="el-icon-close"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="上传时间"
-                min-width="120"
-            >
-                <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
-                </template>
-            </el-table-column>
-        </el-table>
-        <div
-            v-if="pagination.total"
-            class="mt20 text-r"
-        >
-            <el-pagination
-                :total="pagination.total"
-                :page-sizes="[10, 20, 30, 40, 50]"
-                :page-size="pagination.page_size"
-                :current-page="pagination.page_index"
-                layout="total, sizes, prev, pager, next, jumper"
-                @current-change="currentPageChange"
-                @size-change="pageSizeChange"
-            />
-        </div>
+                </el-tab-pane>
+                <el-tab-pane
+                    v-else
+                    :name="tab.name"
+                    :label="tab.label"
+                >
+                    <template #label>
+                        <el-badge v-if="tab.label">
+                            {{ tab.label }}
+                        </el-badge>
+                    </template>
+                    <el-table
+                        v-loading="vData.loading"
+                        :data="vData.list"
+                        stripe
+                        border
+                    >
+                        <el-table-column label="添加" width="60" v-slot="scope">
+                            <i
+                                title="快捷创建项目"
+                                class="el-icon-folder-add"
+                                @click="addDataSet($event, scope.row)"
+                            ></i>
+                        </el-table-column>
+                        <el-table-column
+                            label="成员"
+                            min-width="100"
+                        >
+                            <template v-slot="scope">
+                                <span
+                                    class="p-name"
+                                    @click="checkCard(scope.row.member_id)"
+                                >
+                                    <i class="iconfont icon-visiting-card" />
+                                    {{ scope.row.member_name }}
+                                </span>
+                                <span class="p-id">{{ scope.row.member_id }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            label="数据集"
+                            min-width="100"
+                        >
+                            <template v-slot="scope">
+                                <router-link :to="{ name: 'union-data-view', query: { id: scope.row.id }}">
+                                    {{ scope.row.name }}
+                                </router-link>
+                                <br>
+                                <span class="p-id">{{ scope.row.id }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="关键词">
+                            <template v-slot="scope">
+                                <template
+                                    v-for="(item, index) in scope.row.tags.split(',')"
+                                    :key="index"
+                                >
+                                    <el-tag
+                                        v-show="item"
+                                        class="mr10"
+                                    >
+                                        {{ item }}
+                                    </el-tag>
+                                </template>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            label="数据量"
+                            prop="row_count"
+                            width="140"
+                        >
+                            <template v-slot="scope">
+                                特征量：{{ scope.row.feature_count }}
+                                <br>
+                                样本量：{{ scope.row.row_count }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            label="参与项目数"
+                            prop="usage_count_in_project"
+                            width="100"
+                        />
+                        <el-table-column
+                            label="包含Y"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                <i
+                                    v-if="scope.row.contains_y "
+                                    class="el-icon-check"
+                                />
+                                <i
+                                    v-else
+                                    class="el-icon-close"
+                                />
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            label="上传时间"
+                            min-width="120"
+                        >
+                            <template v-slot="scope">
+                                {{ dateFormat(scope.row.created_time) }}
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <div
+                        v-if="pagination.total"
+                        class="mt20 text-r"
+                    >
+                        <el-pagination
+                            :total="pagination.total"
+                            :page-sizes="[10, 20, 30, 40, 50]"
+                            :page-size="pagination.page_size"
+                            :current-page="pagination.page_index"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            @current-change="currentPageChange"
+                            @size-change="pageSizeChange"
+                        />
+                    </div>
+                </el-tab-pane>
+            </template>
+        </el-tabs>
 
         <el-dialog
             title="名片预览"
@@ -216,19 +253,24 @@
         getCurrentInstance,
         nextTick,
     } from 'vue';
+    import { useRouter } from 'vue-router';
     import table from '@src/mixins/table.js';
     import speedCart from './components/speed-cart';
+    import UnionImagesList from './components/union-images-list';
 
     export default {
         mixins:     [table],
         components: {
             speedCart,
+            UnionImagesList,
         },
         setup() {
             const { ctx, appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
             const memberCard = ref();
             const speedCart = ref();
+            const router = useRouter();
+            const imageUnionsRef = ref();
             const vData = reactive({
                 loading: true,
                 search:  {
@@ -248,6 +290,19 @@
                 cardData:    {}, // Business card information
                 dataSetList: [], // dataset form Quick create project
                 balls:       [],
+                activeTab:   'allUnions',
+                unionTabs:   [
+                    {
+                        name:  'allUnions',
+                        label: '结构化数据',
+                        count: 0,
+                    },
+                    {
+                        name:  'imageUnions',
+                        label: '图像数据',
+                        count: 0,
+                    },
+                ],
             });
 
             const methods = {
@@ -272,7 +327,6 @@
                         vData.member_list = data.list;
                     }
                 },
-
                 async checkCard(member_id) {
                     const res = await $http.post({
                         url:  '/union/member/query',
@@ -350,6 +404,23 @@
                     speedCart.value.addDataSet(item[0].item);
                 }
             };
+            const tabChange = (refInstance) => {
+                console.log(refInstance);
+                router.push({
+                    query: {
+                        ...vData.search,
+                        page_index:  1,
+                        source_type: refInstance.paneName,
+                    },
+                });
+                if (refInstance.paneName === 'allUnions') {
+                    vData.getListApi = '/union/data_set/query';
+                    ctx.getList();
+                } else {
+                    vData.getListApi = imageUnionsRef.value.vData.getListApi;
+                    imageUnionsRef.value.methods.getDataList();
+                }
+            };
 
             onMounted(async () => {
                 await methods.loadTags();
@@ -366,6 +437,8 @@
                 ballBeforeEnter,
                 ballEnter,
                 ballAfterEnter,
+                tabChange,
+                imageUnionsRef,
             };
         },
     };

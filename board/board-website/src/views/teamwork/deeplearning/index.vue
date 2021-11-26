@@ -192,7 +192,7 @@
                             @submit.prevent
                         >
                             <el-form-item label="算法类型：" required>
-                                <el-select v-model="vData.deepLearnParams.algorithm_config.program" placeholder="请选择算法类型">
+                                <el-select v-model="vData.deepLearnParams.program" placeholder="请选择算法类型">
                                     <el-option
                                         v-for="item in vData.classifyList"
                                         :key="item.value"
@@ -202,9 +202,9 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="模型名称：" required>
-                                <el-select v-model="vData.deepLearnParams.algorithm_config.architecture" placeholder="请选择模型名称">
+                                <el-select v-model="vData.deepLearnParams.architecture" placeholder="请选择模型名称">
                                     <el-option
-                                        v-for="item in vData.deepLearnParams.algorithm_config.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
+                                        v-for="item in vData.deepLearnParams.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value">
@@ -213,25 +213,25 @@
                             </el-form-item>
                             <el-form-item label="迭代次数：" required>
                                 <el-input
-                                    v-model="vData.deepLearnParams.algorithm_config.max_iter"
+                                    v-model="vData.deepLearnParams.max_iter"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
                             <el-form-item label="聚合步长：" required>
                                 <el-input
-                                    v-model="vData.deepLearnParams.algorithm_config.inner_step"
+                                    v-model="vData.deepLearnParams.inner_step"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
-                            <el-form-item label="类别数：" required>
+                            <!-- <el-form-item label="类别数：" required>
                                 <el-input
-                                    v-model="vData.deepLearnParams.algorithm_config.num_classes"
+                                    v-model="vData.deepLearnParams.num_classes"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
-                            </el-form-item>
+                            </el-form-item> -->
                             <el-form-item label="学习率：" required>
                                 <el-input
-                                    v-model="vData.deepLearnParams.algorithm_config.base_lr"
+                                    v-model="vData.deepLearnParams.base_lr"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
@@ -255,7 +255,7 @@
                             </el-form-item>
                             <el-form-item label="批量大小：" required>
                                 <el-input
-                                    v-model="vData.deepLearnParams.algorithm_config.batch_size"
+                                    v-model="vData.deepLearnParams.batch_size"
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
@@ -304,16 +304,14 @@
                     flow_desc: '',
                 },
                 deepLearnParams: {
-                    algorithm_config: {
-                        program:      'paddle_detection',
-                        max_iter:     10,
-                        inner_step:   10,
-                        architecture: 'YOLOv3',
-                        num_classes:  3,
-                        base_lr:      0.00001,
-                        image_shape:  [],
-                        batch_size:   128,
-                    },
+                    program:      'paddle_detection',
+                    max_iter:     10,
+                    inner_step:   10,
+                    architecture: 'YOLOv3',
+                    // num_classes:  3,
+                    base_lr:      0.00001,
+                    image_shape:  [],
+                    batch_size:   128,
                 },
                 image_shape: {},
                 flowInfo:    {
@@ -403,7 +401,7 @@
                     flowId:        '',
                     nodeId:        '',
                     params:        {
-                        dataset_list: [
+                        data_set_list: [
                             {
                                 member_id:   '',
                                 member_role: '',
@@ -451,8 +449,17 @@
                         flow_id: vData.flow_id,
                         graph:   {
                             combos: [],
-                            edges:  [],
-                            nodes:  [
+                            edges:  [
+                                {
+                                    source: 'start',
+                                    target: '',
+                                },
+                                {
+                                    source: '',
+                                    target: '',
+                                },
+                            ],
+                            nodes: [
                                 {
                                     id:    'start',
                                     label: '开始',
@@ -480,7 +487,9 @@
                             ],
                         },
                     };
-
+                    vData.graphNodes.graph.edges[0].target = vData.graphNodes.graph.nodes[1].id;
+                    vData.graphNodes.graph.edges[1].source = vData.graphNodes.graph.nodes[1].id;
+                    vData.graphNodes.graph.edges[1].target = vData.graphNodes.graph.nodes[2].id;
                     console.log(vData.graphNodes);
                     const { code } = await $http.post({
                         url:  '/project/flow/update/graph',
@@ -495,6 +504,10 @@
                                 title:    '提示',
                                 message:  '保存成功!',
                             });
+                            // methods.saveImageDataIOInfo();
+                            // methods.saveDeeplearningNode();
+                            methods.getDataIONodeDetail(vData.graphNodes.graph.nodes[1].id);
+                            methods.getDeeplearningNodeDetail(vData.graphNodes.graph.nodes[2].id);
                         }
                         vData.loading = false;
                     });
@@ -516,7 +529,7 @@
                 },
                 saveImageDataIOInfo() {
                     vData.formImageDataIO.flowId = vData.flow_id;
-                    vData.formImageDataIO.nodeId = vData.flowInfo.graph.nodes[1].id || vData.graphNodes.graph.nodes[1].id;
+                    vData.formImageDataIO.nodeId = vData.flowInfo.graph ? vData.flowInfo.graph.nodes[1].id : vData.graphNodes.graph.nodes[1].id;
                     const $dataset_list = [];
 
                     vData.member_list.forEach(item => {
@@ -528,7 +541,7 @@
                             });
                         }
                     });
-                    vData.formImageDataIO.params.dataset_list = $dataset_list;
+                    vData.formImageDataIO.params.data_set_list = $dataset_list;
                     console.log(vData.formImageDataIO);
                     methods.submitFormData();
                 },
@@ -754,10 +767,10 @@
                             const { params } = data || {};
 
                             if (params) {
-                                if (params.algorithm_config.image_shape.length) {
-                                    vData.image_shape.aisle = params.algorithm_config.image_shape[0] || 0;
-                                    vData.image_shape.width = params.algorithm_config.image_shape[1] || 0;
-                                    vData.image_shape.height = params.algorithm_config.image_shape[2] || 0;
+                                if (params.image_shape.length) {
+                                    vData.image_shape.aisle = params.image_shape[0] || 0;
+                                    vData.image_shape.width = params.image_shape[1] || 0;
+                                    vData.image_shape.height = params.image_shape[2] || 0;
                                 }
                                 vData.deepLearnParams = params;
                             }
@@ -790,6 +803,7 @@
                     vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
                 },
                 async saveDeeplearningNode($event) {
+                    console.log($event);
                     // 1. 保存deeplearning node 数据
                     // 2. 启动流程
                     const btnState = {};
@@ -798,14 +812,14 @@
                         btnState.target = $event;
                     }
                     vData.formImageDataIO.flowId = vData.flow_id;
-                    vData.formImageDataIO.nodeId = vData.flowInfo.graph.nodes[1].id || vData.graphNodes.graph.nodes[1].id;
-                    vData.deepLearnParams.algorithm_config.image_shape[0] = Number(vData.image_shape.aisle) || 0;
-                    vData.deepLearnParams.algorithm_config.image_shape[1] = Number(vData.image_shape.width) || 0;
-                    vData.deepLearnParams.algorithm_config.image_shape[2] = Number(vData.image_shape.height) || 0;
+                    vData.formImageDataIO.nodeId = vData.flowInfo.graph ? vData.flowInfo.graph.nodes[1].id : vData.graphNodes.graph.nodes[1].id;
+                    vData.deepLearnParams.image_shape[0] = Number(vData.image_shape.aisle) || 0;
+                    vData.deepLearnParams.image_shape[1] = Number(vData.image_shape.width) || 0;
+                    vData.deepLearnParams.image_shape[2] = Number(vData.image_shape.height) || 0;
                     const params = {
-                        componentType: vData.flowInfo.graph.nodes[2].data.componentType || vData.graphNodes.graph.nodes[2].data.componentType,
+                        componentType: vData.flowInfo.graph ? vData.flowInfo.graph.nodes[2].data.componentType : vData.graphNodes.graph.nodes[2].data.componentType,
                         flowId:        vData.flow_id,
-                        nodeId:        vData.flowInfo.graph.nodes[2].id || vData.graphNodes.graph.nodes[2].id,
+                        nodeId:        vData.flowInfo.graph ? vData.flowInfo.graph.nodes[2].id : vData.graphNodes.graph.nodes[2].id,
                         params:        vData.deepLearnParams,
                     };
 
@@ -826,7 +840,8 @@
                                     message:  '保存成功!',
                                 });
                             }
-                            methods.startFlow();
+                            // 点击开始训练时生效
+                            if ($event) methods.startFlow();
                         });
                     }
                 },
@@ -853,13 +868,13 @@
             });
 
             watch(
-                () => vData.deepLearnParams.algorithm_config.program, 
+                () => vData.deepLearnParams.program, 
                 (newVal, oldVal) => {
                     if (newVal !== oldVal) {
                         if (newVal === 'paddle_clas') {
-                            vData.deepLearnParams.algorithm_config.architecture = vData.imageAlgorithmList[0].value;
+                            vData.deepLearnParams.architecture = vData.imageAlgorithmList[0].value;
                         } else if (newVal === 'paddle_detection') {
-                            vData.deepLearnParams.algorithm_config.architecture = vData.targetAlgorithmList[0].value;
+                            vData.deepLearnParams.architecture = vData.targetAlgorithmList[0].value;
                         }
                     }
                 },
