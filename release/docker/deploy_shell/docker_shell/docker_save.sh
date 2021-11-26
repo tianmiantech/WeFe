@@ -45,7 +45,7 @@ sudo tar -cf welab_wefe_${WEFE_VERSION}.tar *
 # 单独打包 gpu 镜像
 sudo tar -cf wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar
 
-cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
+cp wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
 cd $SERVICE_WORK_DIR
 cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
 
