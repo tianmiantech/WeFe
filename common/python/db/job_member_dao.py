@@ -34,3 +34,8 @@ class JobMemberDao:
             job_members = JobMember.select().where(job_id == JobMember.job_id)
 
             return job_members
+
+    @staticmethod
+    def get(*query, **filters):
+        with DB.connection_context():
+            return JobMember.get_or_none(*query, **filters)
