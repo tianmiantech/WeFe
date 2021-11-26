@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
@@ -40,6 +41,7 @@ import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
@@ -232,7 +234,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
 
         T params = (T) node.getParamsModel();
 
@@ -262,17 +264,21 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         task.setTaskType(taskType());
         task.setName(node.getTaskName());
 
-        TaskConfig taskConfig = new TaskConfig();
-        taskConfig.setJob(jobInfo);
-        taskConfig.setModule(taskType());
-        taskConfig.setParams(taskParam);
-        taskConfig.setInput(getInputs(graph, node));
-        taskConfig.setOutput(getOutputs(graph, node));
-        taskConfig.setTask(getTaskMembers(graph, node));
+        if (project.getProjectType() == ProjectType.MachineLearning) {
+            TaskConfig taskConfig = new TaskConfig();
+            taskConfig.setJob(jobInfo);
+            taskConfig.setModule(taskType());
+            taskConfig.setParams(taskParam);
+            taskConfig.setInput(getInputs(graph, node));
+            taskConfig.setOutput(getOutputs(graph, node));
+            taskConfig.setTask(getTaskMembers(graph, node));
 
-        task.setTaskConf(
-                JSON.toJSONString(taskConfig)
-        );
+            task.setTaskConf(
+                    JSON.toJSONString(taskConfig)
+            );
+        } else if (project.getProjectType() == ProjectType.DeepLearning) {
+            task.setTaskConf(taskParam.toJSONString());
+        }
 
         task.setRole(graph.getJob().getMyRole());
         task.setStatus(TaskStatus.wait_run);

@@ -19,6 +19,7 @@ import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 
@@ -27,6 +28,7 @@ import com.welab.wefe.common.web.Launcher;
  * @date 2021/11/8
  */
 public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputModel {
+    @Check(name = "数据集应用的任务类型", require = true)
     public DeepLearningJobType forJobType;
 
     @Override
