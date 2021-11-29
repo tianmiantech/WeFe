@@ -196,6 +196,7 @@ public class ImageDataSetService extends AbstractDataSetService {
             sampleList = dataSetParser.parseFilesToSamples(dataSet, fileDecompressionResult.files);
             setImageDataSetModel(input, dataSet, sampleList);
         } catch (Exception e) {
+            super.log(e);
             StatusCode.FILE_IO_ERROR.throwException(e);
         }
 

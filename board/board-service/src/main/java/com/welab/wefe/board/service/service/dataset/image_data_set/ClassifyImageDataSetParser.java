@@ -143,7 +143,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
         File labelListFile = txtFiles.get(LABEL_LIST_FILE_NAME);
 
         Map<Integer, String> labelIndexMap = new HashMap<>();
-        if (labelListFile != null) {
+        if (labelListFile == null) {
             return labelIndexMap;
         }
 
