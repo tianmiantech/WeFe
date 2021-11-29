@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.entity.data_set;
 
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -24,7 +25,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 public class ImageDataSetOutputModel extends AbstractDataSetOutputModel {
 
     @Check(name = "任务类型（物体检测...）")
-    private String forJobType;
+    private DeepLearningJobType forJobType;
     @Check(name = "label 列表")
     private String labelList;
     @Check(name = "样本数量")
@@ -38,11 +39,11 @@ public class ImageDataSetOutputModel extends AbstractDataSetOutputModel {
 
     //region getter/setter
 
-    public String getForJobType() {
+    public DeepLearningJobType getForJobType() {
         return forJobType;
     }
 
-    public void setForJobType(String forJobType) {
+    public void setForJobType(DeepLearningJobType forJobType) {
         this.forJobType = forJobType;
     }
 

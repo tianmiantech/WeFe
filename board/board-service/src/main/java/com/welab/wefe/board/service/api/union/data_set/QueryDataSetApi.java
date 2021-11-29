@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.board.service.api.union.data_set;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObject> {
 
     @Autowired
-    UnionService unionService;
+    private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
@@ -55,7 +55,7 @@ public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObje
 
     public static class Input extends PagingInput {
 
-        private String id;
+        private String dataSetId;
 
         @Check(name = "数据集名称")
         private String name;
@@ -71,12 +71,12 @@ public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObje
         //region getter/setter
 
 
-        public String getId() {
-            return id;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
 
         public String getName() {

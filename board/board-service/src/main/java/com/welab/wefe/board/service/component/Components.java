@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,8 @@
 package com.welab.wefe.board.service.component;
 
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.deep_learning.DeepLearningComponent;
+import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.component.feature.*;
 import com.welab.wefe.board.service.component.modeling.*;
 import com.welab.wefe.common.enums.ComponentType;
@@ -68,10 +70,22 @@ public class Components {
     private MixStatisticComponent mixStatisticComponent;
     @Autowired
     private OotComponent ootComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
+    @Autowired
+    private VertNNComponent vertNNComponent;
+    @Autowired
+    private MixBinningComponent mixBinningComponent;
 
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
     }
+
+    @Autowired
+    private ImageDataIOComponent imageDataIOComponent;
+    @Autowired
+    private DeepLearningComponent deepLearningComponent;
+
 
     public static AbstractComponent<?> get(ComponentType componentType) {
 
@@ -118,6 +132,16 @@ public class Components {
                 return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case HorzNN:
+                return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
+            case VertNN:
+                return Launcher.CONTEXT.getBean(Components.class).vertNNComponent;
+            case MixBinning:
+                return Launcher.CONTEXT.getBean(Components.class).mixBinningComponent;
+            case ImageDataIO:
+                return Launcher.CONTEXT.getBean(Components.class).imageDataIOComponent;
+            case DeepLearning:
+                return Launcher.CONTEXT.getBean(Components.class).deepLearningComponent;
             default:
                 return null;
         }
@@ -128,6 +152,8 @@ public class Components {
                 || type == ComponentType.HorzSecureBoost
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
-                || type == ComponentType.MixStatistic;
+                || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzNN
+                || type == ComponentType.MixBinning;
     }
 }

@@ -25,7 +25,7 @@ import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -283,7 +283,7 @@ public class CacheObjects {
         }
         LAST_REFRESH_MEMBER_MAP_TIME = System.currentTimeMillis();
 
-        UnionService service = Launcher.CONTEXT.getBean(UnionService.class);
+        AbstractUnionService service = Launcher.CONTEXT.getBean(AbstractUnionService.class);
         MEMBER_MAP.clear();
         MemberListApi.Input input = new MemberListApi.Input();
         while (true) {

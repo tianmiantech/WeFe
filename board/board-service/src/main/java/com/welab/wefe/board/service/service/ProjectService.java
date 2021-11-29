@@ -1069,6 +1069,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
+                        dataSet.setDataSetType(x.getDataSetType());
                         projectDataSetRepo.save(dataSet);
                     });
 

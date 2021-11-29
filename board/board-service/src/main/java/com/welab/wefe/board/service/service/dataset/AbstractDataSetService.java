@@ -49,7 +49,7 @@ public abstract class AbstractDataSetService extends AbstractService {
      * update data set info
      */
     public void update(AbstractDataSetUpdateInputModel input) throws StatusCodeWithException {
-        AbstractDataSetMysqlModel model = findOneById(input.getId());
+        AbstractDataSetMysqlModel model = findOneById(input.getDataSetId());
         if (model == null) {
             return;
         }

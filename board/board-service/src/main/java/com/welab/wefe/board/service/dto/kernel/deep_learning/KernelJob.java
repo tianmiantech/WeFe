@@ -23,9 +23,9 @@ import com.welab.wefe.common.enums.JobMemberRole;
  */
 public class KernelJob {
     public String jobId;
-    public String task_id;
-    public String job_type;
+    public String taskId;
+    public String jobType = "paddle_fl";
     public JobMemberRole role;
-    public String member_id;
-    public JobConfig jobConfig;
+    public String memberId;
+    public Env env;
 }
