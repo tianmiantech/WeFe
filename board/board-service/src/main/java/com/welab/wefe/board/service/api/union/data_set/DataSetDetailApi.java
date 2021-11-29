@@ -37,24 +37,22 @@ public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, TableD
 
     @Override
     protected ApiResult<TableDataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
-
-        return success(unionService.getTableDataSetDetail(input.getId()));
+        return success(unionService.getTableDataSetDetail(input.getDataSetId()));
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "数据集 Id", require = true)
-        private String id;
+        private String dataSetId;
 
         //region getter/setter
 
-        public String getId() {
-            return id;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
-
 
         //endregion
     }

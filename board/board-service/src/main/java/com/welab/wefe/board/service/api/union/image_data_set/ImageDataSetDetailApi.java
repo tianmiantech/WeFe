@@ -37,22 +37,21 @@ public class ImageDataSetDetailApi extends AbstractApi<ImageDataSetDetailApi.Inp
 
     @Override
     protected ApiResult<ImageDataSetOutputModel> handle(ImageDataSetDetailApi.Input input) throws StatusCodeWithException {
-
-        return success(unionService.getImageDataSetDetail(input.getId()));
+        return success(unionService.getImageDataSetDetail(input.getDataSetId()));
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "数据集 Id", require = true)
-        private String id;
+        private String dataSetId;
 
         //region getter/setter
 
-        public String getId() {
-            return id;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
 
 
