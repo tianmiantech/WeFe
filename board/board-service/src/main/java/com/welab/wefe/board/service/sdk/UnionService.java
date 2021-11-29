@@ -183,7 +183,11 @@ public class UnionService extends AbstractUnionService {
      * Paging query data set
      */
     public JSONObject queryDataSets(QueryDataSetApi.Input input) throws StatusCodeWithException {
-        return request("data_set/query", JObject.create(input));
+        JObject data = JObject.create()
+                .put("id", input.getDataSetId())
+                .put("data_set_id", input.getDataSetId());
+
+        return request("data_set/query", data);
     }
 
     public JSONObject queryImageDataSets(QueryImageDataSetApi.Input input) throws StatusCodeWithException {

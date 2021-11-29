@@ -306,6 +306,6 @@ public class DataSetService extends AbstractDataSetService {
     protected void beforeUpdate(AbstractDataSetMysqlModel model, AbstractDataSetUpdateInputModel input) {
         TableDataSetUpdateInputModel in = (TableDataSetUpdateInputModel) input;
         // save data set column info to database
-        dataSetColumnService.update(in.getId(), in.getMetadataList(), CurrentAccount.get());
+        dataSetColumnService.update(in.getDataSetId(), in.getMetadataList(), CurrentAccount.get());
     }
 }

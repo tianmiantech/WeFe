@@ -55,7 +55,7 @@ public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObje
 
     public static class Input extends PagingInput {
 
-        private String id;
+        private String dataSetId;
 
         @Check(name = "数据集名称")
         private String name;
@@ -71,12 +71,12 @@ public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObje
         //region getter/setter
 
 
-        public String getId() {
-            return id;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
 
         public String getName() {

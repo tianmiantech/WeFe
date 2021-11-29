@@ -48,10 +48,10 @@ public class TableDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
         int countByName = 0;
         DataSetRepository repository = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        if (StringUtil.isEmpty(getId())) {
+        if (StringUtil.isEmpty(super.getDataSetId())) {
             countByName = repository.countByName(super.getName());
         } else {
-            countByName = repository.countByName(super.getName(), getId());
+            countByName = repository.countByName(super.getName(), super.getDataSetId());
         }
 
         if (countByName > 0) {

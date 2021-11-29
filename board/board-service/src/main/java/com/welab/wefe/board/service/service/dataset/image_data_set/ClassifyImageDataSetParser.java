@@ -159,7 +159,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
         return labelIndexMap;
     }
 
-    private ImageDataSetSampleMysqlModel createSample(ImageDataSetMysqlModel dataSet, File imageFile, String label) throws StatusCodeWithException {
+    private ImageDataSetSampleMysqlModel createSample(ImageDataSetMysqlModel dataSet, File imageFile, String label) throws StatusCodeWithException, IOException {
         ImageDataSetSampleMysqlModel sample = super.createSampleModel(dataSet, imageFile);
         sample.setLabelList(label);
         sample.setLabeled(StringUtil.isNotEmpty(label));

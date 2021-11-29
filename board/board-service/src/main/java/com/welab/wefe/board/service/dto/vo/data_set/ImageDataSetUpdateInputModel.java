@@ -37,10 +37,10 @@ public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
         int countByName = 0;
         ImageDataSetRepository repository = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
-        if (StringUtil.isEmpty(getId())) {
+        if (StringUtil.isEmpty(super.getDataSetId())) {
             countByName = repository.countByName(super.getName());
         } else {
-            countByName = repository.countByName(super.getName(), getId());
+            countByName = repository.countByName(super.getName(), super.getDataSetId());
         }
 
         if (countByName > 0) {
