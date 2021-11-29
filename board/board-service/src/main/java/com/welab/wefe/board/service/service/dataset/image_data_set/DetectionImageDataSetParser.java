@@ -70,7 +70,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
         return result;
     }
 
-    private ImageDataSetSampleMysqlModel createSample(ImageDataSetMysqlModel dataSet, File imageFile, Annotation annotation) throws StatusCodeWithException {
+    private ImageDataSetSampleMysqlModel createSample(ImageDataSetMysqlModel dataSet, File imageFile, Annotation annotation) throws StatusCodeWithException, IOException {
         ImageDataSetSampleMysqlModel sample = super.createSampleModel(dataSet, imageFile);
         sample.setLabelList(StringUtil.join(annotation.getLabelList(), ","));
         sample.setLabeled(CollectionUtils.isNotEmpty(annotation.getLabelList()));

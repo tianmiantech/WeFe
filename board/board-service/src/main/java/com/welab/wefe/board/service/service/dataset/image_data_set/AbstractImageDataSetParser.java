@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -83,20 +84,10 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
 
         List<ImageDataSetSampleMysqlModel> samples = parseFilesToSamples(dataSet, imageFiles, xmlFiles, txtFiles);
 
-        // move image to dest dir
-        for (ImageDataSetSampleMysqlModel sample : samples) {
-            File destFile = new File(sample.getFilePath());
-            if (destFile.exists()) {
-                destFile.delete();
-            }
-
-            FileUtils.copyFile(new File(sample.getFilePath()), destFile);
-        }
-
         return samples;
     }
 
-    protected ImageDataSetSampleMysqlModel createSampleModel(ImageDataSetMysqlModel dataSet, File imageFile) throws StatusCodeWithException {
+    protected ImageDataSetSampleMysqlModel createSampleModel(ImageDataSetMysqlModel dataSet, File imageFile) throws StatusCodeWithException, IOException {
         ImageDataSetSampleMysqlModel sample = new ImageDataSetSampleMysqlModel();
         sample.setDataSetId(dataSet.getId());
         sample.setFileName(imageFile.getName());
@@ -105,6 +96,14 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         );
         sample.setFileSize(imageFile.length());
         sample.setCreatedBy(CurrentAccount.id());
+
+        // move image to dest dir
+        File destFile = new File(sample.getFilePath());
+        if (destFile.exists()) {
+            destFile.delete();
+        }
+        FileUtils.copyFile(imageFile, destFile);
+
         return sample;
     }
 }

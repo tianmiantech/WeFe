@@ -29,8 +29,7 @@ import java.util.List;
  * @author zane.luo
  */
 public class AbstractDataSetUpdateInputModel extends AbstractApiInput {
-
-    private String id;
+    private String dataSetId;
 
     @Check(name = "数据集名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "数据集名称长度不能少于4，不能大于30")
     private String name;
@@ -74,12 +73,12 @@ public class AbstractDataSetUpdateInputModel extends AbstractApiInput {
     // region getter/setter
 
 
-    public String getId() {
-        return id;
+    public String getDataSetId() {
+        return dataSetId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDataSetId(String dataSetId) {
+        this.dataSetId = dataSetId;
     }
 
     public String getName() {
