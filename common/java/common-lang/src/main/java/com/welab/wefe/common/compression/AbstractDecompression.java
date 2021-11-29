@@ -48,8 +48,8 @@ public abstract class AbstractDecompression {
      */
     public DecompressionResult decompression(File srcFile, String destDirPath) throws IOException {
         // 判断源文件是否存在
-        if (!srcFile.exists()) {
-            throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
+        if (srcFile == null || !srcFile.exists()) {
+            throw new RuntimeException(srcFile.getPath() + "文件不存在");
         }
 
         if (StringUtil.isEmpty(destDirPath)) {
