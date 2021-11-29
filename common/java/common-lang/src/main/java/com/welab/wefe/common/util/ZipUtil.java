@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.util;
 
-import com.welab.wefe.common.util.dto.FileDecompressionResult;
+import com.welab.wefe.common.compression.dto.DecompressionResult;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -85,11 +85,11 @@ public class ZipUtil {
     }
 
 
-    public static FileDecompressionResult unzipFile(String srcFilePath) throws IOException {
+    public static DecompressionResult unzipFile(String srcFilePath) throws IOException {
         return unzipFile(new File(srcFilePath), null);
     }
 
-    public static FileDecompressionResult unzipFile(File srcFile) throws IOException {
+    public static DecompressionResult unzipFile(File srcFile) throws IOException {
         return unzipFile(srcFile, null);
     }
 
@@ -98,7 +98,7 @@ public class ZipUtil {
      * 解压 zip 文件
      * 支持压缩文件中包含多个文件
      */
-    public static FileDecompressionResult unzipFile(File srcFile, String destDirPath) throws IOException {
+    public static DecompressionResult unzipFile(File srcFile, String destDirPath) throws IOException {
         // 判断源文件是否存在
         if (!srcFile.exists()) {
             throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
@@ -110,7 +110,7 @@ public class ZipUtil {
 
         // 开始解压
         ZipFile zipFile = null;
-        FileDecompressionResult result = new FileDecompressionResult(srcFile, destDirPath);
+        DecompressionResult result = new DecompressionResult(srcFile, destDirPath);
         try {
             zipFile = new ZipFile(srcFile);
             Enumeration<?> entries = zipFile.entries();

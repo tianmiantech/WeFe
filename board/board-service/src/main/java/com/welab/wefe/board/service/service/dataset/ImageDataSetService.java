@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.service.dataset.image_data_set.ClassifyImage
 import com.welab.wefe.board.service.service.dataset.image_data_set.DetectionImageDataSetParser;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.compression.dto.DecompressionResult;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -42,7 +43,6 @@ import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ZipUtil;
-import com.welab.wefe.common.util.dto.FileDecompressionResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -177,7 +177,7 @@ public class ImageDataSetService extends AbstractDataSetService {
                         .toString()
         );
 
-        FileDecompressionResult fileDecompressionResult = null;
+        DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
             fileDecompressionResult = ZipUtil.unzipFile(zipFile);
