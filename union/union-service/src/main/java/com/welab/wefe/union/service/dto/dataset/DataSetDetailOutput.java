@@ -44,7 +44,7 @@ public class DataSetDetailOutput extends AbstractTimedApiOutput {
 
     @Override
     public String toString() {
-        return "DataSetDetailOutput{" +
+        return "{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", memberId='" + memberId + '\'' +
