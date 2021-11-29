@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.dto.dataset;
 
+import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
@@ -39,10 +40,11 @@ public class DataSetDetailOutput extends AbstractTimedApiOutput {
     private String description;
     private String tags;
     private long logTime;
+    private String dataSetType = DataSetType.TableDataSet.name();
 
     @Override
     public String toString() {
-        return "{" +
+        return "DataSetDetailOutput{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", memberId='" + memberId + '\'' +
@@ -60,8 +62,7 @@ public class DataSetDetailOutput extends AbstractTimedApiOutput {
                 ", description='" + description + '\'' +
                 ", tags='" + tags + '\'' +
                 ", logTime=" + logTime +
-                ", createdTime=" + createdTime +
-                ", updatedTime=" + updatedTime +
+                ", dataSetType='" + dataSetType + '\'' +
                 '}';
     }
 
@@ -199,5 +200,13 @@ public class DataSetDetailOutput extends AbstractTimedApiOutput {
 
     public void setLogTime(long logTime) {
         this.logTime = logTime;
+    }
+
+    public String getDataSetType() {
+        return dataSetType;
+    }
+
+    public void setDataSetType(String dataSetType) {
+        this.dataSetType = dataSetType;
     }
 }
