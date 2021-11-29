@@ -182,12 +182,13 @@
             const addDataSet = (item) => {
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
-                    data_set_id: item.id,
+                    data_set_id: item.id ? item.id : item.data_set_id,
+                    id:          item.id ? item.id : item.data_set_id,
                     ...item,
                 };
 
                 if(item.member_id === userInfo.value.member_id) {
-                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id);
+                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_set_id);
 
                     if(index < 0) {
                         promoterDataSetList.value.push(dataset);

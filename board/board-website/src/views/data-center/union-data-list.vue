@@ -10,7 +10,7 @@
         >
             <el-form-item label="数据集 ID：">
                 <el-input
-                    v-model="vData.search.id"
+                    v-model="vData.search.data_set_id"
                     clearable
                 />
             </el-form-item>
@@ -79,6 +79,8 @@
                         key="imageUnions"
                         :table-loading="vData.loading"
                         :search-field="vData.search"
+                        @add-data-set="addDataSet"
+                        @check-card="checkCard"
                     />
                 </el-tab-pane>
                 <el-tab-pane
@@ -274,10 +276,10 @@
             const vData = reactive({
                 loading: true,
                 search:  {
-                    id:        '',
-                    name:      '',
-                    member_id: '',
-                    tag:       '',
+                    data_set_id: '',
+                    name:        '',
+                    member_id:   '',
+                    tag:         '',
                 },
                 getListApi:     '/union/data_set/query',
                 member_list:    [],
@@ -348,7 +350,7 @@
                 },
                 // add dataset to cart
                 addDataSet(ev, row) {
-                    const { id } = row;
+                    const id = row.id ? row.id : row.data_set_id;
 
                     vData.balls.push({
                         id,
@@ -405,7 +407,6 @@
                 }
             };
             const tabChange = (refInstance) => {
-                console.log(refInstance);
                 router.push({
                     query: {
                         ...vData.search,
