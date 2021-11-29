@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.util;
 
-import com.welab.wefe.board.service.dto.entity.bloomfilter.BloomfilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 
@@ -49,9 +49,9 @@ public abstract class AbstractBloomfilterReader implements Closeable {
      * Number of rows of data read
      */
     protected int readDataRows = 0;
-    private Map<String, BloomfilterColumnInputModel> metadataMap;
+    private Map<String, BloomFilterColumnInputModel> metadataMap;
 
-    public AbstractBloomfilterReader(List<BloomfilterColumnInputModel> metadataList) {
+    public AbstractBloomfilterReader(List<BloomFilterColumnInputModel> metadataList) {
         if (metadataList != null) {
             this.metadataMap = metadataList.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
         }
@@ -151,7 +151,7 @@ public abstract class AbstractBloomfilterReader implements Closeable {
                 return;
             }
 
-            BloomfilterColumnInputModel column = this.metadataMap.get(entry.getKey());
+            BloomFilterColumnInputModel column = this.metadataMap.get(entry.getKey());
             Pattern pattern;
             switch (column.getDataType()) {
                 case Long:

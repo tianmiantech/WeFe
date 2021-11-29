@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.util;
 
-import com.welab.wefe.board.service.dto.entity.bloomfilter.BloomfilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.io.excel.ExcelReader;
 
@@ -37,7 +37,7 @@ public class ExcelBloomfilterReader extends AbstractBloomfilterReader {
         this(null, file);
     }
 
-    public ExcelBloomfilterReader(List<BloomfilterColumnInputModel> metadataList, File file) throws IOException {
+    public ExcelBloomfilterReader(List<BloomFilterColumnInputModel> metadataList, File file) throws IOException {
         super(metadataList);
         reader = new ExcelReader(file);
     }

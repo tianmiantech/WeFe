@@ -278,7 +278,6 @@ public class DataSetService extends AbstractService {
 
     public DataSetMysqlModel findOne(String dataSetId) {
         return repo.findById(dataSetId).orElse(null);
-
     }
 
     /**

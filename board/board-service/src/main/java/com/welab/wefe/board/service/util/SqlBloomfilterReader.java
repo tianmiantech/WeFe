@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.util;
 
-import com.welab.wefe.board.service.dto.entity.bloomfilter.BloomfilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -48,7 +48,7 @@ public class SqlBloomfilterReader extends AbstractBloomfilterReader {
         this(null, conn, sql);
     }
 
-    public SqlBloomfilterReader(List<BloomfilterColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
+    public SqlBloomfilterReader(List<BloomFilterColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
         super(metadataList);
         this.conn = conn;
         this.sql = sql;

@@ -17,9 +17,10 @@
 package com.welab.wefe.fusion.core.actuator.psi;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
-import com.welab.wefe.common.util.JObject;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,8 +43,11 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         this.bf = bloomFilters;
     }
 
+    public PsiActuatorMeta getActuatorParam() {
+        return PsiActuatorMeta.of(e, N, bf);
+    }
 
-    public byte[][] compute(byte[][] value){
+    public byte[][] compute(byte[][] value) {
         LOG.info("align start...");
 
         long start = System.currentTimeMillis();
@@ -60,9 +64,10 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
 
     /**
      * 接收结果
+     *
      * @param rs
      */
-    public void receiveResult(List<byte[]> rs){
+    public void receiveResult(List<byte[]> rs) {
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {

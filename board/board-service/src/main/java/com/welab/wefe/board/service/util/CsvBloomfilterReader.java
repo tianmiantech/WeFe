@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.util;
 
-import com.welab.wefe.board.service.dto.entity.bloomfilter.BloomfilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import de.siegmar.fastcsv.reader.CsvParser;
@@ -48,7 +48,7 @@ public class CsvBloomfilterReader extends AbstractBloomfilterReader {
         this(null, file);
     }
 
-    public CsvBloomfilterReader(List<BloomfilterColumnInputModel> metadataList, File file) throws IOException {
+    public CsvBloomfilterReader(List<BloomFilterColumnInputModel> metadataList, File file) throws IOException {
         super(metadataList);
         this.file = file;
 

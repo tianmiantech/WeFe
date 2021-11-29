@@ -21,7 +21,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-import com.welab.wefe.fusion.core.utils.primarykey.FieldInfo;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -40,7 +39,7 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
     private PsiActuatorMeta psiClientMeta;
 
     public List<String> columnList;
-    public List<FieldInfo> fieldInfoList;
+//    public List<FieldInfo> fieldInfoList;
 
     public PsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
         super(businessId);

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.vo;
 
-import com.welab.wefe.board.service.dto.entity.bloomfilter.BloomfilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.BloomfilterPublicLevel;
 import com.welab.wefe.common.enums.ColumnDataType;
@@ -42,7 +42,7 @@ public class BloomfilterBaseInputModel extends AbstractApiInput {
     )
     private String publicMemberList;
     @Check(require = true)
-    private List<BloomfilterColumnInputModel> metadataList;
+    private List<BloomFilterColumnInputModel> metadataList;
 
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
@@ -56,7 +56,7 @@ public class BloomfilterBaseInputModel extends AbstractApiInput {
             throw new StatusCodeWithException("请设置该过滤器的元数据", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        for (BloomfilterColumnInputModel item : metadataList) {
+        for (BloomFilterColumnInputModel item : metadataList) {
             if (item.getDataType() == null) {
                 throw new StatusCodeWithException("请给字段【" + item.getName() + "】设置数据类型", StatusCode.PARAMETER_VALUE_INVALID);
             }
@@ -86,11 +86,11 @@ public class BloomfilterBaseInputModel extends AbstractApiInput {
         this.publicMemberList = publicMemberList;
     }
 
-    public List<BloomfilterColumnInputModel> getMetadataList() {
+    public List<BloomFilterColumnInputModel> getMetadataList() {
         return metadataList;
     }
 
-    public void setMetadataList(List<BloomfilterColumnInputModel> metadataList) {
+    public void setMetadataList(List<BloomFilterColumnInputModel> metadataList) {
         this.metadataList = metadataList;
     }
 

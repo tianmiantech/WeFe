@@ -25,42 +25,32 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 
 import java.io.IOException;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/down_bloom_filter", name = "down bloomfilter", desc = "down bloomfilter")
-public class DownBloomFilterApi extends AbstractApi<DownBloomFilterApi.Input, PsiActuatorMeta> {
+@Api(path = "fusion/psi/handle", name = "psi handle", desc = "psi handle")
+public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
+
 
     @Override
-    protected ApiResult<PsiActuatorMeta> handle(Input input) throws StatusCodeWithException, IOException {
-
-//        BigInteger N = new BigInteger("146167375152084793681454802679848639178224348966309619052798488909082307110902445595724341286608959925801829756525526243684536115856528805020439965613516355067753856475629524304268915399502745195831856710907661535868988721331189916736238540712398051680091965455756603260140826492895494853907634504720747245633");
-//        BigInteger e = new BigInteger("65537");
-//        BigInteger d = new BigInteger("19889843166551599707817170915649025194796904711560632661135799992236385779254894331792265065443622756890012020212927705588884036211735720023380435682764524449631974370220019402021038164175570368177776959055309765000696946731304849785712081220896277458221633983822452333249197209907929579769680795368625751585");
-//
-//        BloomFilters bf = new BloomFilters(0.001, 1000);
-//
-//        for (int i = 1; i <= 1000; i++) {
-//            BigInteger h = PSIUtils.stringToBigInteger(String.valueOf(i));
-//            BigInteger z = h.modPow(d, N);
-//
-//            bf.add(z);
-//        }
+    protected ApiResult<byte[][]> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
 
-        return success(actuator.getActuatorParam());
+        return success(actuator.compute(input.getBs()));
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        public Input(String businessId) {
+        byte[][] bs;
+
+        public Input(String businessId, byte[][] bs) {
             this.businessId = businessId;
+            this.bs = bs;
         }
 
         public String getBusinessId() {
@@ -69,6 +59,14 @@ public class DownBloomFilterApi extends AbstractApi<DownBloomFilterApi.Input, Ps
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
+        }
+
+        public byte[][] getBs() {
+            return bs;
+        }
+
+        public void setBs(byte[][] bs) {
+            this.bs = bs;
         }
     }
 }

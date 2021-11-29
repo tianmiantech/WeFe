@@ -1,4 +1,4 @@
-package com.welab.wefe.data.fusion.service.actuator.board;
+package com.welab.wefe.board.service.fusion.actuator;
 
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
@@ -19,30 +19,22 @@ package com.welab.wefe.data.fusion.service.actuator.board;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.fusion.AlignApi;
 import com.welab.wefe.board.service.api.fusion.DownBloomFilterApi;
-import com.welab.wefe.board.service.fusion.manager.TaskResultManager;
+import com.welab.wefe.board.service.api.fusion.PsiHandleApi;
+import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.DataSetService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
+import com.welab.wefe.board.service.util.primarykey.FieldInfo;
+import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.api.board.AlignApi;
-import com.welab.wefe.data.fusion.service.api.board.GetBloomFilterApi;
-import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
-import com.welab.wefe.data.fusion.service.service.FieldInfoService;
-import com.welab.wefe.data.fusion.service.service.board.GatewayService;
-import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
-import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
-import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
-import com.welab.wefe.fusion.core.utils.primarykey.FieldInfo;
 import org.apache.commons.compress.utils.Lists;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,11 +96,11 @@ public class ClientActuator extends PsiClientActuator {
 
         DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
         List<JObject> curList = Lists.newArrayList();
-        try {
-            curList = service.paging(columnList, dataSetId, current_index, shard_size);
-
-        } catch (StatusCodeWithException e) {
-        }
+//        try {
+//            curList = service.paging(columnList, dataSetId, current_index, shard_size);
+//
+//        } catch (StatusCodeWithException e) {
+//        }
 
         LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
 
@@ -131,7 +123,7 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("fruit inserting...");
 
         //Build table
-        createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
+        //  createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
 
         /**
          * Fruit Standard formatting
@@ -149,7 +141,7 @@ public class ClientActuator extends PsiClientActuator {
                     }
                 }).collect(Collectors.toList());
 
-        TaskResultManager.saveTaskResultRows(businessId, fruits);
+//        TaskResultManager.saveTaskResultRows(businessId, fruits);
 
         LOG.info("fruit insert end...");
 
@@ -177,11 +169,18 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
-        // ApiResult<?> test = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId));
+        ApiResult<?> result = null;
+        try {
+            result = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId));
+        } catch (MemberGatewayException e) {
+            e.printStackTrace();
+        }
 
-        // LOG.info("downloadBloomFilter end {} ", test.data);
+        LOG.info("downloadBloomFilter end {} ", result.data);
 
-      //  return JObject.toJavaObject((JSONObject) test.data, PsiActuatorMeta.class);
+        return JObject.toJavaObject((JSONObject) result.data, PsiActuatorMeta.class);
+
+        //return null;
     }
 
     @Override
@@ -191,12 +190,15 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
-//        ApiResult<?> test = gatewayService.callOtherMemberBoard(memberId, AlignApi.class, new AlignApi.Input(businessId, bs));
+        ApiResult<?> result = null;
+        try {
+            result = gatewayService.callOtherMemberBoard(memberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs));
+        } catch (MemberGatewayException e) {
+            e.printStackTrace();
+        }
 
         LOG.info("qureyFusionData start");
-//        return (byte[][]) test.data;
-
-        return null;
+        return (byte[][]) result.data;
     }
 
     @Override
@@ -205,7 +207,7 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public String hashValue(JObject value) {
-//        return PrimaryKeyUtils.create(value, fieldInfoList);
-        return value.getString("id");
+        return PrimaryKeyUtils.create(value, fieldInfoList);
+//        return value.getString("id");
     }
 }
