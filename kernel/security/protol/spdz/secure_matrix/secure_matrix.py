@@ -115,9 +115,8 @@ class SecureMatrix(object):
         else:
             res = []
             for var_name in kwargs.keys():
-                dst_role = consts.PROMOTER if self.party.role == consts.PROVIDER else consts.PROVIDER
-                z = self.transfer_variable.encrypted_share_matrix.get(role=dst_role, idx=0,
-                                                                      suffix=(var_name,) + current_suffix)
+                z = self.transfer_variable.encrypted_share_matrix.get_parties(parties=self.other_party,
+                                                                              suffix=(var_name,) + current_suffix)[0]
                 if is_table(z):
                     res.append(fixedpoint_table.PaillierFixedPointTensor(z))
                 else:

@@ -111,7 +111,10 @@ class PaillierPublicKey(object):
     def encrypt(self, value, precision=None, random_value=None):
         """Encode and Paillier encrypt a real number value.
         """
-        encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
+        if isinstance(value, FixedPointNumber):
+            encoding = value
+        else:
+            encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
         obfuscator = random_value or 1
         ciphertext = self.raw_encrypt(encoding.encoding, random_value=obfuscator)
         encryptednumber = PaillierEncryptedNumber(self, ciphertext, encoding.exponent)

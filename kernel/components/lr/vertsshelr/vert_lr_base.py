@@ -119,7 +119,7 @@ class VertLRBase(BaseLRModel, ABC):
         parties.extend(provider_parties)
 
         local_party = RuntimeInstance.FEDERATION.local_party
-        other_party = parties[0] if parties[0] != local_party else parties[1]
+        other_party = parties[0] if str(parties[0]) != str(local_party) else parties[1]
 
         self.parties = parties
         self.local_party = local_party
@@ -131,6 +131,7 @@ class VertLRBase(BaseLRModel, ABC):
 
     def share_model(self, w, suffix):
         source = [w, self.other_party]
+        LOGGER.debug(f'source={source}, role={self.local_party.role}')
         if self.local_party.role == consts.PROMOTER:
             wb, wa = (
                 fixedpoint_numpy.FixedPointTensor.from_source(f"wb_{suffix}", source[0],
