@@ -55,10 +55,10 @@ class VertNNModel(object):
         pass
 
 
-class VertNNHostModel(VertNNModel):
+class VertNNProviderModel(VertNNModel):
     def __init__(self):
-        super(VertNNHostModel, self).__init__()
-        self.role = "host"
+        super(VertNNProviderModel, self).__init__()
+        self.role = "provider"
 
     def train(self, x, epoch, batch):
         pass
