@@ -100,6 +100,10 @@ public class DecompressionResult {
                 + System.lineSeparator()
                 + "dirs=" + System.lineSeparator()
                 + StringUtil.join(dirsList, System.lineSeparator())
+                + System.lineSeparator()
+                + System.lineSeparator()
+                + "base_dir=" + System.lineSeparator()
+                + baseDir
                 + '}';
     }
 }

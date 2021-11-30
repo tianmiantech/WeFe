@@ -43,10 +43,13 @@ public class SevenZip extends AbstractDecompression {
 
             // 处理目录
             if (entry.isDirectory()) {
-                boolean mkdirs = newFile.mkdirs();
-                if (!mkdirs) {
-                    throw new RuntimeException("Fail mkdir:" + newFilePath);
+                if (!newFile.exists()) {
+                    boolean mkdirs = newFile.mkdirs();
+                    if (!mkdirs) {
+                        throw new RuntimeException("Fail mkdir:" + newFilePath);
+                    }
                 }
+
                 result.addDir(newFilePath);
                 continue;
             }
@@ -70,4 +73,13 @@ public class SevenZip extends AbstractDecompression {
         }
         return result;
     }
+
+    public static void main(String[] args) throws IOException {
+        SevenZip sevenZip = new SevenZip();
+        File file = new File("/Users/zane/data/wefe_file_upload_dir/flower.7z");
+        String outputDir = "/Users/zane/data/wefe_file_upload_dir/temp";
+        DecompressionResult decompression = sevenZip.decompression(file, outputDir);
+        System.out.println(decompression);
+    }
+
 }
