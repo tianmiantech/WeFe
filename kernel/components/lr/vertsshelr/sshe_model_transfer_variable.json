@@ -1,0 +1,36 @@
+{
+  "SSHEModelTransferVariable": {
+    "q_field": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "host_prob": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "loss": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "is_converged": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

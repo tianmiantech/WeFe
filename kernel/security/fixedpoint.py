@@ -13,19 +13,19 @@
 # limitations under the License.
 
 # Copyright 2019 The FATE Authors. All Rights Reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import functools
 import math
 import sys
 
@@ -39,15 +39,18 @@ class FixedPointNumber(object):
     LOG2_BASE = math.log(BASE, 2)
     FLOAT_MANTISSA_BITS = sys.float_info.mant_dig
 
-    Q = 293973345475167247070445277780365744413
+    Q = 293973345475167247070445277780365744413 ** 2
 
     def __init__(self, encoding, exponent, n=None, max_int=None):
-        self.n = n
-        self.max_int = max_int
-
-        if self.n is None:
-            self.n = self.Q
-            self.max_int = self.Q // 3 - 1
+        if n is None:
+            self.n = FixedPointNumber.Q
+            self.max_int = self.n // 2
+        else:
+            self.n = n
+            if max_int is None:
+                self.max_int = self.n // 2
+            else:
+                self.max_int = max_int
 
         self.encoding = encoding
         self.exponent = exponent
@@ -67,7 +70,7 @@ class FixedPointNumber(object):
 
         if n is None:
             n = cls.Q
-            max_int = cls.Q // 3 - 1
+            max_int = n // 2
 
         if precision is None:
             if isinstance(scalar, int) or isinstance(scalar, np.int16) or \
@@ -273,3 +276,69 @@ class FixedPointNumber(object):
     def __mul_scalar(self, scalar):
         encoded = self.encode(scalar)
         return self.__mul_fixpointnumber(encoded)
+
+
+class FixedPointEndec(object):
+
+    def __init__(self, n=None, max_int=None, precision=None, *args, **kwargs):
+        if n is None:
+            self.n = FixedPointNumber.Q
+            self.max_int = self.n // 2
+        else:
+            self.n = n
+            if max_int is None:
+                self.max_int = self.n // 2
+            else:
+                self.max_int = max_int
+
+        self.precision = precision
+
+    @classmethod
+    def _transform_op(cls, tensor, op):
+        from common.python.session import is_table
+
+        def _transform(x):
+            arr = np.zeros(shape=x.shape, dtype=object)
+            view = arr.view().reshape(-1)
+            x_array = x.view().reshape(-1)
+            for i in range(arr.size):
+                view[i] = op(x_array[i])
+
+            return arr
+
+        if isinstance(tensor, (int, np.int16, np.int32, np.int64,
+                               float, np.float16, np.float32, np.float64,
+                               FixedPointNumber)):
+            return op(tensor)
+
+        if isinstance(tensor, np.ndarray):
+            z = _transform(tensor)
+            return z
+
+        elif is_table(tensor):
+            f = functools.partial(_transform)
+            return tensor.mapValues(f)
+        else:
+            raise ValueError(f"unsupported type: {type(tensor)}")
+
+    def _encode(self, scalar):
+        return FixedPointNumber.encode(scalar,
+                                       n=self.n,
+                                       max_int=self.max_int,
+                                       precision=self.precision)
+
+    def _decode(self, number):
+        return number.decode()
+
+    def _truncate(self, number):
+        scalar = number.decode()
+        return FixedPointNumber.encode(scalar, n=self.n, max_int=self.max_int)
+
+    def encode(self, float_tensor):
+        return self._transform_op(float_tensor, op=self._encode)
+
+    def decode(self, integer_tensor):
+        return self._transform_op(integer_tensor, op=self._decode)
+
+    def truncate(self, integer_tensor, *args, **kwargs):
+        return self._transform_op(integer_tensor, op=self._truncate)

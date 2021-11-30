@@ -1,15 +1,42 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Copyright 2019 The FATE Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import operator
 
 import numpy as np
 
 from common.python.calculation.acceleration import aclr
-# from common.python.common.consts import Member
 from common.python.session import is_table
 from common.python.utils import log_utils
 from common.python.utils.member import Member
+from kernel.security.fixedpoint import FixedPointEndec
 from kernel.security.protol.spdz.beaver_triples import beaver_triplets
 from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
+# from kernel.security.protol.spdz.tensor.fixedpoint_endec import FixedPointEndec
 from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 
@@ -91,7 +118,7 @@ class FixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 6
             q_field = kwargs['q_field'] if 'q_field' in kwargs else spdz.q_field
-            encoder = fixedpoint_numpy.FixedPointEndec(q_field, base, frac)
+            encoder = FixedPointEndec(q_field, base, frac)
         if is_table(source):
             source = encoder.encode(source)
             _pre = urand_tensor(spdz.q_field, source, use_mix=spdz.use_mix_rand, need_send=True)
@@ -162,3 +189,125 @@ class FixedPointTensor(TensorBase):
 
     def _boxed(self, value, tensor_name=None):
         return FixedPointTensor(value=value, q_field=self.q_field, endec=self.endec, tensor_name=tensor_name)
+
+
+class PaillierFixedPointTensor(TensorBase):
+    __array_ufunc__ = None
+
+    def __init__(self, value, tensor_name: str = None, cipher=None):
+        super().__init__(q_field=None, tensor_name=tensor_name)
+        self.value = value
+        self.cipher = cipher
+
+    def dot(self, other, target_name=None):
+        def _vec_dot(x, y):
+            ret = np.dot(x, y)
+            if not isinstance(ret, np.ndarray):
+                ret = np.array([ret])
+            return ret
+
+        if isinstance(other, (FixedPointTensor, fixedpoint_numpy.FixedPointTensor)):
+            other = other.value
+
+        if isinstance(other, np.ndarray):
+            ret = self.value.mapValues(lambda x: _vec_dot(x, other))
+            return self._boxed(ret, target_name)
+
+        elif is_table(other):
+            ret = table_dot(self.value, other).reshape((1, -1))[0]
+            return fixedpoint_numpy.PaillierFixedPointTensor(ret, target_name)
+        else:
+            raise ValueError(f"type={type(other)}")
+
+    def reduce(self, func, **kwargs):
+        ret = self.value.reduce(func)
+        return fixedpoint_numpy.PaillierFixedPointTensor(ret)
+
+    def __str__(self):
+        return f"tensor_name={self.tensor_name}, value={self.value}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __add__(self, other):
+        if isinstance(other, (PaillierFixedPointTensor, FixedPointTensor)):
+            return self._boxed(_table_binary_op(self.value, other.value, operator.add))
+        elif is_table(other):
+            return self._boxed(_table_binary_op(self.value, other, operator.add))
+        else:
+            return self._boxed(_table_scalar_op(self.value, other, operator.add))
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        if isinstance(other, (PaillierFixedPointTensor, FixedPointTensor)):
+            return self._boxed(_table_binary_op(self.value, other.value, operator.sub))
+        elif is_table(other):
+            return self._boxed(_table_binary_op(self.value, other, operator.sub))
+        else:
+            return self._boxed(_table_scalar_op(self.value, other, operator.sub))
+
+    def __rsub__(self, other):
+        if isinstance(other, (PaillierFixedPointTensor, FixedPointTensor)):
+            return self._boxed(_table_binary_op(other.value, self.value, operator.sub))
+        elif is_table(other):
+            return self._boxed(_table_binary_op(other, self.value, operator.sub))
+        else:
+            return self._boxed(_table_scalar_op(self.value, other, -1 * operator.sub))
+
+    def __mul__(self, other):
+        if isinstance(other, FixedPointTensor):
+            z_value = _table_binary_op(self.value, other.value, operator.mul)
+        elif is_table(other):
+            z_value = _table_binary_op(self.value, other, operator.mul)
+        else:
+            z_value = _table_scalar_op(self.value, other, operator.mul)
+        return self._boxed(z_value)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def _boxed(self, value, tensor_name=None):
+        return PaillierFixedPointTensor(value=value, tensor_name=tensor_name)
+
+    @classmethod
+    def from_source(cls, tensor_name, source, **kwargs):
+        spdz = cls.get_spdz()
+        q_field = kwargs['q_field'] if 'q_field' in kwargs else spdz.q_field
+
+        if 'encoder' in kwargs:
+            encoder = kwargs['encoder']
+        else:
+            base = kwargs['base'] if 'base' in kwargs else 10
+            frac = kwargs['frac'] if 'frac' in kwargs else 4
+            encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
+
+        if is_table(source):
+            _pre = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
+
+            share = _pre
+
+            spdz.communicator.remote_share(share=_table_binary_op(source, encoder.decode(_pre), operator.sub),
+                                           tensor_name=tensor_name, party=spdz.other_parties[-1])
+            return FixedPointTensor(value=share,
+                                    q_field=q_field,
+                                    endec=encoder,
+                                    tensor_name=tensor_name)
+
+        elif isinstance(source, Member):
+            share = spdz.communicator.get_share(tensor_name=tensor_name, party=source)[0]
+            is_cipher_source = kwargs['is_cipher_source'] if 'is_cipher_source' in kwargs else True
+            if is_cipher_source:
+                cipher = kwargs.get("cipher")
+                if cipher is None:
+                    raise ValueError("Cipher is not provided")
+
+                share = cipher.distribute_decrypt(share)
+                share = encoder.encode(share)
+            return FixedPointTensor(value=share,
+                                    q_field=q_field,
+                                    endec=encoder,
+                                    tensor_name=tensor_name)
+        else:
+            raise ValueError(f"type={type(source)}")

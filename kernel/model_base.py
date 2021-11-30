@@ -38,6 +38,7 @@ import numpy as np
 from common.python.common.consts import MemberRole
 from common.python.federation import roles_to_parties
 from common.python.utils import log_utils
+from kernel.callbacks.callback_list import CallbackList
 from kernel.components.evaluation.param import EvaluateParam
 from kernel.transfer.variables.transfer_class.common_transfer_variable import CommonTransferVariable
 from kernel.utils import consts
@@ -84,6 +85,9 @@ class ModelBase(object):
         self._summary = dict()
         self._align_cache = dict()
 
+        self.callback_list: CallbackList
+        self.callback_variables = CallbacksVariable()
+
         self.provider_master = False
         self.provider_other_inner_id = None
         self.provider_master_inner_id = None
@@ -110,12 +114,22 @@ class ModelBase(object):
         self.federated_learning_mode = componentProperties.federated_learning_mode
         self.federated_learning_type = componentProperties.federated_learning_type
         self._init_model(param)
+
+        self.callback_list = CallbackList(self.role, self.mode, self)
+        if hasattr(self.model_param, "callback_param"):
+            callback_param = getattr(self.model_param, "callback_param")
+            self.callback_list.init_callback_list(callback_param)
+
         self.set_save_dataset_flag(param)
         return param
 
     def set_save_dataset_flag(self, param):
         if hasattr(param, 'save_dataset'):
             self.save_dataset = param.save_dataset
+
+    @property
+    def stop_training(self):
+        return self.callback_variables.stop_training
 
     @property
     def need_cv(self):
@@ -489,3 +503,24 @@ class ModelBase(object):
             result_data = header_alignment(data_instances=data_instances, pre_header=pre_header)
             self._align_cache[id(data_instances)] = result_data
         return result_data
+
+    def callback_warm_start_init_iter(self, iter_num):
+        # todo
+        pass
+        # metric_meta = MetricMeta(name='train',
+        #                          metric_type="init_iter",
+        #                          extra_metas={
+        #                              "unit_name": "iters",
+        #                          })
+        #
+        # self.callback_meta(metric_name='init_iter', metric_namespace='train', metric_meta=metric_meta)
+        # self.callback_metric(metric_name='init_iter',
+        #                      metric_namespace='train',
+        #                      metric_data=[Metric("init_iter", iter_num)])
+
+
+class CallbacksVariable(object):
+    def __init__(self):
+        self.stop_training = False
+        self.best_iteration = -1
+        self.validation_summary = None
