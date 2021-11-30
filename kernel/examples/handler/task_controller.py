@@ -23,7 +23,7 @@ from common.python.db.db_models import *
 from common.python.utils import conf_utils, file_utils
 from kernel.task_executor import TaskExecutor
 
-PYTHON = "/usr/local/Cellar/python@3.7/3.7.12/bin/python3"
+PYTHON = "python3"
 
 
 class TaskController(object):

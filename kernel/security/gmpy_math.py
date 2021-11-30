@@ -48,6 +48,25 @@ def powmod(a, b, c):
         return int(gmpy2.powmod(a, b, c))
 
 
+def crt_coefficient(p, q):
+    """
+    return crt coefficient
+    """
+    tq = gmpy2.invert(p, q)
+    tp = gmpy2.invert(q, p)
+    return tp * q, tq * p
+
+
+def powmod_crt(x, d, n, p, q, cp, cq):
+    """
+    return int: (a ** b) % n
+    """
+
+    rp = gmpy2.powmod(x, d % (p - 1), p)
+    rq = gmpy2.powmod(x, d % (q - 1), q)
+    return int((rp * cp + rq * cq) % n)
+
+
 def invert(a, b):
     """return int: x, where a * x == 1 mod b
     """

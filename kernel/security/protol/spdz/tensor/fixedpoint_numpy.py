@@ -98,6 +98,7 @@ class FixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
+        q_field = q_field // 2 - 1
         if isinstance(source, np.ndarray):
             source = encoder.encode(source)
             _pre = urand_tensor(q_field, source)
