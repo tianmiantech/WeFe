@@ -115,21 +115,6 @@ public class FusionTaskService extends AbstractService {
         FusionTaskMySqlModel task=   ModelMapper.map(input,FusionTaskMySqlModel.class);
         task.setBusinessId(businessId);
         task.setStatus(FusionTaskStatus.Await);
-//        FusionTaskMySqlModel task = new FusionTaskMySqlModel();
-//        task.setProjectId(input.getProjectId());
-
-//        task.setName(input.getName());
-//        task.setMemberId(input.getPartnerDataResourceId());
-//        task.setAlgorithm(input.getAlgorithm());
-
-//        task.setDataResourceId(input.getDataResourceId());
-//        task.setDataResourceType(input.getDataResourceType());
-//        task.setPartnerDataResourceId(input.getPartnerDataResourceId());
-//        task.setPartnerDataResourceType(input.getPartnerDataResourceType());
-//        task.setRowCount(input.getRowCount());
-//        task.setDescription(input.getDescription());
-//        task.setTrace(input.getTrace());
-//        task.setTraceColumn(input.getTraceColumn());
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -339,19 +324,6 @@ public class FusionTaskService extends AbstractService {
         //Add tasks
         FusionTaskMySqlModel model = ModelMapper.map(input,FusionTaskMySqlModel.class);
         model.setStatus(FusionTaskStatus.Pending);
-
-//        FusionTaskMySqlModel model = new FusionTaskMySqlModel();
-//        model.setBusinessId(input.getBusinessId());
-//        model.setMemberId(input.getMemberId());
-//        model.setName(input.getName());
-//        model.setRowCount(input.getRowCount());
-//        model.setPsiActuatorRole(input.getPsiActuatorRole());
-//        model.setAlgorithm(input.getAlgorithm());
-//        model.setDescription(input.getDescription());
-//        model.setDataResourceId(input.getDataResourceId());
-//        model.setDataResourceType(input.getDataResourceType());
-//        model.setPartnerDataResourceId(input.getPartnerDataResourceId());
-//        model.setPartnerDataResourceType(input.getPartnerDataResourceType());
 
         fusionTaskRepository.save(model);
     }

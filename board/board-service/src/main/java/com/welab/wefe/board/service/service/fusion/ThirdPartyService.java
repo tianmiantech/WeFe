@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.fusion.task.ReceiveApi;
+import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -57,6 +58,7 @@ public class ThirdPartyService {
 
         JObject params = JObject
                 .create()
+                .put("project_id", task.getBusinessId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
                 .put("row_count", task.getRowCount())
@@ -141,7 +143,8 @@ public class ThirdPartyService {
             data = body.toJSONString();
         }
 
-        ApiResult<?> test=  gatewayService.callOtherMemberBoard("member_id", api, data);
+
+        ApiResult<?> test=  gatewayService.callOtherMemberBoard("8896e74890a5459386287ec817e8b4f3", api, JObject.create(data));
 
         if (!test.success()) {
             throw new StatusCodeWithException(test.getMessage(), StatusCode.RPC_ERROR);
