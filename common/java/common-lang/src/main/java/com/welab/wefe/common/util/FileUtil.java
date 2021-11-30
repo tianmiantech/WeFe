@@ -41,6 +41,23 @@ public class FileUtil {
     }
 
     /**
+     * 是否是压缩包文件
+     */
+    public static boolean isArchive(File file) {
+        switch (getFileSuffix(file).toLowerCase()) {
+            case "zip":
+            case "tar":
+            case "gz":
+            case "tgz":
+            case "7z":
+            case "rar":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * get file suffix
      */
     public static String getFileSuffix(File file) {

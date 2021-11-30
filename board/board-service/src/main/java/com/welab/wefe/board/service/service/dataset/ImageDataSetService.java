@@ -35,19 +35,18 @@ import com.welab.wefe.board.service.service.dataset.image_data_set.ClassifyImage
 import com.welab.wefe.board.service.service.dataset.image_data_set.DetectionImageDataSetParser;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.compression.dto.DecompressionResult;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.decompression.SuperDecompressor;
+import com.welab.wefe.common.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.ZipUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -160,10 +159,9 @@ public class ImageDataSetService extends AbstractDataSetService {
     @Autowired
     private ClassifyImageDataSetParser classifyImageDataSetParser;
 
-    @Transactional(rollbackFor = Exception.class)
     public ImageDataSetAddOutputModel add(ImageDataSetAddInputModel input) throws StatusCodeWithException {
 
-        File zipFile = new File(config.getFileUploadDir(), input.getFilename());
+        File dataSetFile = new File(config.getFileUploadDir(), input.getFilename());
 
         ImageDataSetMysqlModel dataSet = new ImageDataSetMysqlModel();
         // image data set dir
@@ -180,7 +178,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
-            fileDecompressionResult = ZipUtil.unzipFile(zipFile);
+            fileDecompressionResult = SuperDecompressor.decompression(dataSetFile, true);
 
             AbstractImageDataSetParser dataSetParser = null;
             switch (input.forJobType) {
@@ -204,17 +202,16 @@ public class ImageDataSetService extends AbstractDataSetService {
         imageDataSetRepository.save(dataSet);
         imageDataSetSampleRepository.saveAll(sampleList);
 
-        // delete source images
-        FileUtil.deleteFileOrDir(zipFile);
-        fileDecompressionResult.deleteAllDirAndFiles();
-
-
         // Synchronize information to union
         try {
             unionService.uploadImageDataSet(dataSet);
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
+
+        // delete source images
+        FileUtil.deleteFileOrDir(dataSetFile);
+        fileDecompressionResult.deleteAllDirAndFiles();
 
         // Refresh the data set tag list
         CacheObjects.refreshImageDataSetTags();

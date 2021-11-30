@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.common.test;
 
-import com.welab.wefe.common.compression.dto.DecompressionResult;
+import com.welab.wefe.common.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.ZipUtil;
 
 import java.io.IOException;
