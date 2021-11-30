@@ -14,6 +14,8 @@
 
 import random
 
+from common.python.calculation.acceleration.utils import aclr_utils
+from common.python.calculation.acceleration.aclr import dh_encrypt_id
 from common.python.utils import log_utils
 from kernel.components.intersection.intersect import DhIntersect
 from kernel.security.diffie_hellman import DiffieHellman
@@ -54,8 +56,15 @@ class DhIntersectionPromoter(DhIntersect):
         self.r = [random.SystemRandom().getrandbits(self.random_bit) for i in range(len(self.p))]
 
         # (promoter_eid, id)
-        promoter_id_list = [data_instances.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i], True))
-                            for i in range(len(self.r))]
+        # promoter_id_list = [data_instances.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i], True))
+        #                     for i in range(len(self.r))]
+
+        if aclr_utils.check_aclr_support():
+            promoter_id_list = [dh_encrypt_id(data_instances, self.r[i], self.p[i], True) for i in range(len(self.r))]
+        else:
+            promoter_id_list = [data_instances.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i], True))
+                                for i in range(len(self.r))]
+
         for i, promoter_ids in enumerate(promoter_id_list):
             promoter_ids_provider = promoter_ids.mapValues(lambda v: 1, need_send=True)
             self.transfer_variable.intersect_promoter_ids.remote(promoter_ids_provider,
