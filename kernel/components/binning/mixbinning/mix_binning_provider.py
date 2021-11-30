@@ -21,7 +21,7 @@ from kernel.components.binning.mixbinning.virtual_summary_binning_client import 
 from kernel.components.binning.mixbinning.virtual_summary_binning_server import VirtualSummaryBinningServer
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
 from kernel.transfer.variables.transfer_class.mix_feature_binning_transfer_variable import MixBinningTransferVariable
-from kernel.utils import consts
+from kernel.utils import consts, data_util
 
 LOGGER = log_utils.get_logger()
 
@@ -44,6 +44,8 @@ class MixBinningProvider(BaseVertFeatureBinning):
                                             self.provider_inner_id, self.member_id, self.mix_promoter_member_id)
 
     def fit(self, data_instances):
+        header = data_util.get_header(data_instances)
+        self.model_param.set_bin_index(header)
         self._setup_bin_inner_param(data_instances, self.model_param)
         self.binning_obj.set_bin_inner_param(self.bin_inner_param)
         self.binning_obj.set_transfer_variable(self.transfer_variable)

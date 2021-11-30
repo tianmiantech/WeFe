@@ -31,7 +31,7 @@ from kernel.components.binning.horzfeaturebinning import virtual_summary_binning
 from kernel.components.binning.horzfeaturebinning.param import HorzFeatureBinningParam
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
 from kernel.transfer.variables.transfer_class.horz_feature_binning_transfer_variable import HorzBinningTransferVariable
-from kernel.utils import consts
+from kernel.utils import consts, data_util
 
 LOGGER = log_utils.get_logger()
 
@@ -79,6 +79,8 @@ class HorzBinningClient(BaseVertFeatureBinning):
             raise ValueError(f"Method: {self.model_param.method} cannot be recognized")
 
     def fit(self, data_instances):
+        header = data_util.get_header(data_instances)
+        self.model_param.set_bin_index(header)
         self._setup_bin_inner_param(data_instances, self.model_param)
         self.binning_obj.set_bin_inner_param(self.bin_inner_param)
         self.binning_obj.set_transfer_variable(self.transfer_variable)
