@@ -51,7 +51,7 @@
             <el-button
                 type="primary"
                 native-type="submit"
-                @click="getList({ resetPagination: true })"
+                @click="searchList({ to: true, resetPagination: true })"
             >
                 查询
             </el-button>
@@ -306,7 +306,6 @@
                     },
                 ],
             });
-
             const methods = {
                 async loadTags() {
                     const { code, data } = await $http.get('/union/data_set/tag/query');
@@ -407,6 +406,7 @@
                 }
             };
             const tabChange = (refInstance) => {
+                vData.search.data_set_id = '';
                 router.push({
                     query: {
                         ...vData.search,
@@ -418,8 +418,17 @@
                     vData.getListApi = '/union/data_set/query';
                     ctx.getList();
                 } else {
+                    imageUnionsRef.value.search = vData.search;
                     vData.getListApi = imageUnionsRef.value.vData.getListApi;
                     imageUnionsRef.value.methods.getDataList();
+                }
+            };
+            const searchList = (opt = {}) => {
+                if (vData.activeTab === 'imageUnions') {
+                    imageUnionsRef.value.search = vData.search;
+                    imageUnionsRef.value.methods.getDataList();
+                } else {
+                    ctx.getList();
                 }
             };
 
@@ -440,6 +449,7 @@
                 ballAfterEnter,
                 tabChange,
                 imageUnionsRef,
+                searchList,
             };
         },
     };

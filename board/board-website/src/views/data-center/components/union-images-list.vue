@@ -122,17 +122,12 @@
             const methods = {
                 async getDataList(opt) {
                     ctx.search = props.searchField;
-                    console.log(ctx.search);
-                    // ctx.pagination.page_index = + props.$route.query.page_index || 1;
-                    // ctx.pagination.page_size = + props.$route.query.page_size || 20;
                     await ctx.getList(opt);
-                    console.log(vData.list);
                 },
                 addDataSet(ev, item) {
                     context.emit('add-data-set', ev, item);
                 },
                 checkCard(id) {
-                    console.log(id);
                     context.emit('check-card', id);
                 },
             };
