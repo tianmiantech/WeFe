@@ -51,7 +51,7 @@ def dot(value, w):
     return operator_dot.dot(value, w)
 
 
-def dh_encrypt_id(data_instance, r, p, is_hash):
+def dh_encrypt_id(data_instance, r, p, is_hash=False):
     """
     encrypt id for dh
     :param data_instance:

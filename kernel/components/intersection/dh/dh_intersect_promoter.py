@@ -56,9 +56,6 @@ class DhIntersectionPromoter(DhIntersect):
         self.r = [random.SystemRandom().getrandbits(self.random_bit) for i in range(len(self.p))]
 
         # (promoter_eid, id)
-        # promoter_id_list = [data_instances.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i], True))
-        #                     for i in range(len(self.r))]
-
         if aclr_utils.check_aclr_support():
             promoter_id_list = [dh_encrypt_id(data_instances, self.r[i], self.p[i], True) for i in range(len(self.r))]
         else:
@@ -79,8 +76,14 @@ class DhIntersectionPromoter(DhIntersect):
         encrypt_promoter_id_list = self.transfer_variable.intersect_promoter_ids_process.get(-1)
 
         # (provider_eeid, provider_eid)
-        encrypt_provider_id_list = [ids.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i])) for i, ids
-                                    in enumerate(provider_id_list)]
+        if aclr_utils.check_aclr_support():
+            encrypt_provider_id_list = [dh_encrypt_id(ids, self.r[i], self.p[i]) for i, ids in
+                                        enumerate(provider_id_list)]
+        else:
+            encrypt_provider_id_list = [ids.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i])) for
+                                        i, ids
+                                        in enumerate(provider_id_list)]
+
         # (intersect_eeid, (promoter_eid, provider_eid))
         encrypt_intersect_id_list = [
             encrypt_promoter_id_list[i].join(encrypt_provider_id_list[i], lambda pm_eid, pv_eid: (pm_eid, pv_eid))

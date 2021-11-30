@@ -52,18 +52,16 @@ def _each_batch_encrypt(data_tuple):
         cal_data = [(k, r, p) for k in data]
 
     gpu_result = aclr_client.powm_base(cal_data)
-    return [(gpu_result[i], cal_data[i]) for i in range(len(cal_data))]
+    return [(gpu_result[i], data[i]) for i in range(len(cal_data))]
 
 
 def _dh_encrypt_id(data_instance, r, p, is_hash):
     import multiprocessing
     process_count = multiprocessing.cpu_count()
     with multiprocessing.Pool(processes=process_count) as pool:
-        result_iter = pool.imap_unordered(_each_batch_encrypt, _generate_batch_data_iter(data_instance, r, p, is_hash),chunksize=6)
+        result_iter = pool.map(_each_batch_encrypt, _generate_batch_data_iter(data_instance, r, p, is_hash))
         for item_result in result_iter:
-            print(f"item_result:{item_result}")
             for item in item_result:
-                print(item)
                 yield item
 
 
