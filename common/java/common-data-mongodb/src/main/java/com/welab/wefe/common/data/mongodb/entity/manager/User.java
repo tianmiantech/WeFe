@@ -17,7 +17,6 @@
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
-import com.welab.wefe.common.data.mongodb.entity.base.AbstractMongoModel;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -31,7 +30,7 @@ public class User extends AbstractNormalMongoModel {
     private String userId = UUID.randomUUID().toString().replaceAll("-", "");
     private String account;
     private String password;
-    private String nickname;
+    private String realname;
     private String salt;
     private String email;
     /**
@@ -73,12 +72,12 @@ public class User extends AbstractNormalMongoModel {
         this.password = password;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {

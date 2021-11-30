@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
+import com.welab.wefe.manager.service.dto.base.BaseQueryInput;
 import com.welab.wefe.manager.service.dto.tag.ApiDataSetDefaultTagQueryOutput;
 import com.welab.wefe.manager.service.dto.union.UnionNodeQueryOutput;
 import com.welab.wefe.manager.service.mapper.UnionNodeMapper;
@@ -38,19 +39,21 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  */
 @Api(path = "union/node/query", name = "union_node_query",login = false)
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
+public class QueryAllApi extends AbstractApi<BaseQueryInput, JObject> {
 
     @Autowired
     protected UnionNodeMongoRepo unionNodeMongoRepo;
     protected UnionNodeMapper unionNodeMapper = Mappers.getMapper(UnionNodeMapper.class);
     @Override
-    protected ApiResult<JObject> handle(BaseInput input) {
-        List<UnionNodeQueryOutput> list = unionNodeMongoRepo.findAll()
+    protected ApiResult<JObject> handle(BaseQueryInput input) {
+        List<UnionNodeQueryOutput> list = unionNodeMongoRepo.findAll(input.getStatus())
                 .stream()
                 .map(unionNode -> unionNodeMapper.transfer(unionNode))
                 .collect(Collectors.toList());
 
         return success(JObject.create("list", JObject.toJSON(list)));
     }
+
+
 
 }

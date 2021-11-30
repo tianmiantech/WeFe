@@ -45,7 +45,7 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
     }
 
     public List<DataSetDefaultTag> findAll() {
-        return mongoUnionTemplate.findAll(DataSetDefaultTag.class);
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), DataSetDefaultTag.class);
     }
 
     public boolean deleteByTagId(String tagId) {

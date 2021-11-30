@@ -1,10 +1,7 @@
 package com.welab.wefe.manager.service.dto.union;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
-
-import java.util.UUID;
 
 /**
  * @Description:
@@ -17,9 +14,6 @@ public class UnionNodeAddInput extends BaseInput {
     @Check(require = true)
     private String organizationName;
     private boolean enable = true;
-    private UnionNodeExtJSON extJson;
-
-
 
 
     public String getUnionBaseUrl() {
@@ -45,15 +39,5 @@ public class UnionNodeAddInput extends BaseInput {
     public void setEnable(boolean enable) {
         this.enable = enable;
     }
-
-    public UnionNodeExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(UnionNodeExtJSON extJson) {
-        this.extJson = extJson;
-    }
-
-
 
 }

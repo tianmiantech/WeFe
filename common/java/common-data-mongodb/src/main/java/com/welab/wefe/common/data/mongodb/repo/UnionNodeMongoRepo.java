@@ -44,8 +44,17 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public List<UnionNode> findAll() {
-        return mongoUnionTemplate.findAll(UnionNode.class);
+    public List<UnionNode> findAll(){
+        return findAll(false);
+    }
+
+    public List<UnionNode> findAll(boolean status) {
+        return mongoUnionTemplate.find(
+                new QueryBuilder()
+                        .append("status", status ? 1 : 0)
+                        .build()
+                ,
+                UnionNode.class);
     }
 
     public boolean deleteByUnionNodeId(String unionNodeId) {
@@ -58,7 +67,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean update(String unionNodeId,String sign,String unionBaseUrl,String organizationName,String updatedTime) {
+    public boolean update(String unionNodeId, String sign, String unionBaseUrl, String organizationName, String updatedTime) {
         if (StringUtils.isEmpty(unionNodeId)) {
             return false;
         }
@@ -73,7 +82,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateEnable(String unionNodeId,String enable,String updatedTime) {
+    public boolean updateEnable(String unionNodeId, String enable, String updatedTime) {
         if (StringUtils.isEmpty(unionNodeId)) {
             return false;
         }

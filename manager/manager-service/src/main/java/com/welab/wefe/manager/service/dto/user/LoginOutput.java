@@ -12,7 +12,7 @@ public class LoginOutput extends AbstractApiOutput {
 
     private String account;
 
-    private String nickname;
+    private String realname;
 
     private String email;
 
@@ -40,12 +40,12 @@ public class LoginOutput extends AbstractApiOutput {
         this.account = account;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {

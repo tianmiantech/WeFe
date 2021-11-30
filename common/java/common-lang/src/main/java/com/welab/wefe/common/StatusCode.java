@@ -74,7 +74,7 @@ public enum StatusCode {
 
 
     FILE_DOES_NOT_EXIST(10038, "file does not exist error fileId: (%s)"),
-
+    INVALID_PARAMETER(10039,"Invalid parameter (%s)"),
     /**
      * Database related error status code
      */

@@ -8,15 +8,15 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @date: 2021/11/2
  */
 public class UserUpdateInput extends AbstractApiInput {
-    private String nickname;
+    private String realname;
     private String email;
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {
