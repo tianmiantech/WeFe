@@ -136,4 +136,24 @@ ALTER TABLE `project`
 -- author: zane.luo
 -- -------------------------------------
 ALTER TABLE `project_data_set`
-    ADD COLUMN `data_resource_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据资源类型' AFTER `source_task_id`;
+    ADD COLUMN `data_resource_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型' AFTER `source_task_id`;
+
+
+
+DROP TABLE IF EXISTS `job_apply_result`;
+CREATE TABLE `job_apply_result`
+(
+    `id`               varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`       varchar(32) COMMENT '创建人',
+    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`       varchar(32) COMMENT '更新人',
+    `updated_time`     datetime(6) COMMENT '更新时间',
+    `job_id`           varchar(255) DEFAULT NULL COMMENT 'jobid',
+    `task_id`          varchar(255) DEFAULT NULL COMMENT 'taskid',
+    `server_endpoint`  varchar(255) DEFAULT NULL COMMENT '',
+    `aggregator_endpoint`   varchar(32)  DEFAULT NULL COMMENT '',
+    `aggregator_assignee`      varchar(255) DEFAULT NULL COMMENT '',
+    `status` varchar(255) DEFAULT NULL COMMENT '状态',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';

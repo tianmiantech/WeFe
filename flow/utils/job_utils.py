@@ -81,6 +81,13 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
     return result
 
 
+def receive():
+    transfer_meta = TransferMeta(sessionId=get_commit_id())
+    result = JOB_GRPC.recv(transfer_meta)
+    schedule_logger().debug("[REMOTE] receive message from %s, content:%s", result.src, result.content)
+    return str(result.content)
+
+
 def mail(host, port=25, username=None, password=None, sender=None, sender_alias='WEFE', receivers=None, subject=None,
          content=None):
     message = MIMEText(content, 'plain', 'utf-8')
