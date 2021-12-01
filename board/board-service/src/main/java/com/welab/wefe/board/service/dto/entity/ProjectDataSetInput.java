@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -34,7 +34,7 @@ public class ProjectDataSetInput extends AbstractCheckModel {
     private String dataSetId;
 
     @Check(name = "数据集类型", require = true)
-    private DataSetType dataSetType;
+    private DataResourceType dataResourceType;
 
 
     //region getter/setter
@@ -64,12 +64,12 @@ public class ProjectDataSetInput extends AbstractCheckModel {
         this.dataSetId = dataSetId;
     }
 
-    public DataSetType getDataSetType() {
-        return dataSetType;
+    public DataResourceType getDataSetType() {
+        return dataResourceType;
     }
 
-    public void setDataSetType(DataSetType dataSetType) {
-        this.dataSetType = dataSetType;
+    public void setDataSetType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     //endregion

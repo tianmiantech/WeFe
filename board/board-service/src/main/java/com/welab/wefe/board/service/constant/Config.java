@@ -42,9 +42,6 @@ public class Config {
     @Value("${wefe.file.upload.dir}")
     private String fileUploadDir;
 
-    @Value("${wefe.file.filter.dir}")
-    private String filterDir;
-
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
 
@@ -79,14 +76,6 @@ public class Config {
 
     public void setFileUploadDir(String fileUploadDir) {
         this.fileUploadDir = fileUploadDir;
-    }
-
-    public String getFilterDir() {
-        return filterDir;
-    }
-
-    public void setFilterDir(String filterDir) {
-        this.filterDir = filterDir;
     }
 
     public Integer getWorkMode() {

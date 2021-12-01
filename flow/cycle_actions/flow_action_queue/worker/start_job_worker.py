@@ -16,6 +16,7 @@ from common.python.common.enums import FlowQueueActionType
 from common.python.utils.log_utils import schedule_logger
 from flow.cycle_actions.flow_action_queue.worker.base_flow_action_worker import BaseFlowActionWorker
 from flow.service.job_scheduler.job_start_action import JobStartAction
+from flow.service.job_scheduler.visualfl_job_start_action import VisualFLJobStartAction
 
 
 class StartJobWorker(BaseFlowActionWorker):
@@ -26,8 +27,11 @@ class StartJobWorker(BaseFlowActionWorker):
     def work(self, params):
         job_id = params.get('jobId', '')
         my_role = params.get('dstRole', '')
+        type = params.get('type', '')
         running_job = job_id + '_' + my_role
 
         schedule_logger(running_job).info('schedule job {}'.format(params))
-
-        JobStartAction(job_id, my_role).do(FlowQueueActionType.RUN_JOB)
+        if 'visualfl' == type:
+            VisualFLJobStartAction(job_id, my_role).do()
+        else:
+            JobStartAction(job_id, my_role).do(FlowQueueActionType.RUN_JOB)

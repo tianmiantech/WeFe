@@ -75,6 +75,27 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
+class JobApplyResult(Model):
+    id = CharField(primary_key=True)
+    created_by = CharField(null=True)
+    created_time = DateTimeField()
+    updated_by = CharField(null=True)
+    updated_time = DateTimeField()
+    job_id = CharField()
+    task_id = CharField()
+    server_endpoint = CharField()
+    aggregator_endpoint = CharField()
+    aggregator_assignee = CharField()
+    status = CharField()
+
+    class Meta:
+        database = DB
+        table_name = 'job_apply_result'
+
+    def to_json(self):
+        return self.__dict__['__data__']
+
+
 # GlobalSetting
 class GlobalSetting(object):
     """
@@ -115,6 +136,11 @@ class GlobalSetting(object):
     def get_rsa_private_key():
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.getMemberInfo().rsa_private_key
+
+    @staticmethod
+    def get_flow_base_url():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
 
 
 # DataSet
