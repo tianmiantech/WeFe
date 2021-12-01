@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  */
-@Api(path = "union/node/query", name = "union_node_query", login = false)
+@Api(path = "union/node/query", name = "union_node_query")
 public class QueryAllApi extends AbstractApi<BaseQueryInput, JObject> {
 
     @Autowired

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "realname/auth/agreement/template/enable", name = "realname_auth_agreement_template_enable", login = false)
+@Api(path = "realname/auth/agreement/template/enable", name = "realname_auth_agreement_template_enable")
 public class EnableApi extends AbstractApi<RealnameAuthAgreementTemplateEnableInput, AbstractApiOutput> {
 
     @Autowired

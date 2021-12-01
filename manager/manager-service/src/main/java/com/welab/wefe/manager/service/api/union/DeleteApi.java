@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "union/node/delete", name = "union_node_delete", login = false)
+@Api(path = "union/node/delete", name = "union_node_delete")
 public class DeleteApi extends AbstractApi<UnionNodeDeleteInput, AbstractApiOutput> {
 
     @Autowired

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "union/node/enable", name = "union_node_enable", login = false)
+@Api(path = "union/node/enable", name = "union_node_enable")
 public class EnableApi extends AbstractApi<UnionNodeEnableInput, AbstractApiOutput> {
 
     @Autowired
