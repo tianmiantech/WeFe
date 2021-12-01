@@ -63,6 +63,11 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
     }
 
     @Override
+    public boolean canSelectFeatures() {
+        return true;
+    }
+    
+    @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
             Params params) throws FlowNodeException {
         JSONObject taskParam = new JSONObject();
