@@ -19,8 +19,8 @@ package com.welab.wefe.board.service.fusion.actuator;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.fusion.DownBloomFilterApi;
-import com.welab.wefe.board.service.api.fusion.PsiHandleApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.dataset.DataSetService;
