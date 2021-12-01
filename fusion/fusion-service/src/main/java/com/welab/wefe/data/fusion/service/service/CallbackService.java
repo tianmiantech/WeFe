@@ -18,13 +18,15 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
+import com.welab.wefe.data.fusion.service.actuator.test.ClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiClientTask;
+import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,12 +68,12 @@ public class CallbackService {
                 break;
             case falsify:
                 //Alignment data check invalid, shut down task
-                AbstractTask job = TaskManager.get(input.getBusinessId());
+                AbstractActuator job = ActuatorManager.get(input.getBusinessId());
                 job.finish();
                 break;
             case success:
                 //Mission completed. Destroy task
-                AbstractTask successTask = TaskManager.get(input.getBusinessId());
+                AbstractActuator successTask = ActuatorManager.get(input.getBusinessId());
                 successTask.finish();
 
                 break;
@@ -87,7 +89,7 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId, String ip, int port) throws StatusCodeWithException {
-        if (TaskManager.get(businessId) != null) {
+        if (ActuatorManager.get(businessId) != null) {
             return;
         }
 
@@ -101,19 +103,28 @@ public class CallbackService {
         /*
          * The other side is ready, we modify the task status and start client
          */
-        AbstractTask client = new PsiClientTask(
-                businessId,
-                new PsiClientActuator(
+//        AbstractTask client = new PsiClientTask(
+//                businessId,
+//                new PsiClientActuator(
+//                        businessId,
+//                        task.getDataCount(),
+//                        ip,
+//                        port,
+//                        task.getDataResourceId(),
+//                        task.isTrace(),
+//                        task.getTraceColumn()
+//                ));
+
+        ClientActuator client = new ClientActuator(
                         businessId,
-                        task.getDataCount(),
                         ip,
                         port,
                         task.getDataResourceId(),
                         task.isTrace(),
                         task.getTraceColumn()
-                ));
+                );
 
-        TaskManager.set(client);
+//        ActuatorManager.set(client);
 
         client.run();
     }
