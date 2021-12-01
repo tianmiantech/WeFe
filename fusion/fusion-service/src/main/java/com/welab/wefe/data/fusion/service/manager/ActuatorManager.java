@@ -20,6 +20,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.data.fusion.service.service.PartnerService;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
+import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,42 +33,38 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author hunter
  */
-public class TaskManager {
-    public static final Logger LOG = LoggerFactory.getLogger(TaskManager.class);
+public class ActuatorManager {
+    public static final Logger LOG = LoggerFactory.getLogger(ActuatorManager.class);
 
     /**
      * taskId : task
      */
-    private static final ConcurrentHashMap<String, AbstractTask> TASKS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AbstractActuator> ACTUATORS = new ConcurrentHashMap<>();
 
-    static TaskService taskService;
-
-    static PartnerService partnerService;
-
-    public static AbstractTask get(String businessId) {
-        return TASKS.get(businessId);
+    public static AbstractActuator get(String businessId) {
+        return ACTUATORS.get(businessId);
     }
 
-    public static void set(AbstractTask task) {
+    public static void set(AbstractActuator task) {
 
         String businessId = task.getBusinessId();
-        if (TASKS.containsKey(businessId)) {
-            throw new RuntimeException(businessId + "该 job 已存在，快看下代码是哪里搞错了！");
+        if (ACTUATORS.containsKey(businessId)) {
+            throw new RuntimeException(businessId + " This actuator already exists");
         }
 
-        TASKS.put(businessId, task);
+        ACTUATORS.put(businessId, task);
 
     }
 
     public synchronized static void remove(String businessId) {
 
-        TASKS.remove(businessId);
+        ACTUATORS.remove(businessId);
     }
 
     public synchronized static List<JObject> dashboard() {
 
         List<JObject> list = new ArrayList<>();
-        Object[] keys = TASKS.keySet().toArray();
+        Object[] keys = ACTUATORS.keySet().toArray();
 
         for (Object key : keys) {
 
@@ -82,69 +79,30 @@ public class TaskManager {
     }
 
     public static JObject getTaskInfo(String businessId) {
-        AbstractTask task = TASKS.get(businessId);
-        if (task == null) {
+        AbstractActuator actuator = ACTUATORS.get(businessId);
+        if (actuator == null) {
             return null;
         }
 
         JObject info = JObject
                 .create()
                 .append("business_id", businessId)
-                .append("fusion_count", task.getFusionCount())
-                .append("processed_count", task.getProcessedCount())
-                .append("data_count", task.getDataCount())
-                .append("spend", task.getSpend())
-                .append("stimated_spend", task.getEstimatedSpend())
-                .append("progress", task.progress());
+//                .append("fusion_count", actuator.getFusionCount())
+//                .append("processed_count", actuator.getProcessedCount())
+//                .append("data_count", actuator.getDataCount())
+                .append("spend", actuator.getSpend())
+                .append("stimated_spend", actuator.getEstimatedSpend())
+                .append("progress", actuator.progress());
 
         return info;
     }
-
-    /**
-     * Remove a stalled task
-     */
-//    public synchronized static void removeCrashedTasks() {
-//
-//        Object[] keys = TASKS.keySet().toArray();
-//
-//        for (Object key : keys) {
-//
-//            String taskId = key.toString();
-//            AbstractTask<?> task = get(taskId);
-//
-//            if (task == null) {
-//                continue;
-//            }
-//
-//
-//            if (task.userLost()) {
-//                try {
-//                    task.close(TaskStatus.discard, "user lost, finish by client.");
-//                    TASKS.remove(taskId);
-//                } catch (Exception e) {
-//                    LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-//                }
-//            } else if (task.crashed()) {
-//
-//                try {
-//                    task.close(TaskStatus.crashed, "task crashed, finish by client.");
-//                    TASKS.remove(taskId);
-//                } catch (Exception e) {
-//                    LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-//                }
-//            }
-//
-//
-//        }
-//
-//    }
 
     /**
      * Number of tasks
      * @return Number of tasks
      */
     public static int size() {
-        return TASKS.size();
+        return ACTUATORS.size();
     }
 
     public static String ip() {
