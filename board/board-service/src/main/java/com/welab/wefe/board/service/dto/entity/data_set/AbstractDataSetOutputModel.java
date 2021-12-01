@@ -17,9 +17,9 @@ package com.welab.wefe.board.service.dto.entity.data_set;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.enums.DataSetStorageType;
-import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 
@@ -74,7 +74,7 @@ public abstract class AbstractDataSetOutputModel extends AbstractOutputModel {
      * 使用次数
      */
     protected Integer usageCountInProject = 0;
-    private DataSetType dataSetType;
+    private DataResourceType dataResourceType;
     private TreeMap<String, String> publicMemberInfoList = new TreeMap<>();
 
     public List<String> getPublicMemberList() {
@@ -187,12 +187,12 @@ public abstract class AbstractDataSetOutputModel extends AbstractOutputModel {
         this.publicMemberInfoList = publicMemberInfoList;
     }
 
-    public DataSetType getDataSetType() {
-        return dataSetType;
+    public DataResourceType getDataSetType() {
+        return dataResourceType;
     }
 
-    public void setDataSetType(DataSetType dataSetType) {
-        this.dataSetType = dataSetType;
+    public void setDataSetType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     // endregion
