@@ -21,8 +21,8 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.database.repository.GlobalSettingRepository;
-import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

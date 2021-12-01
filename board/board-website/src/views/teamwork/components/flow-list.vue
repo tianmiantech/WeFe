@@ -11,7 +11,7 @@
                     v-if="!form.closed && !form.is_exited"
                     class="ml10"
                     type="primary"
-                    @click="addFlow=true"
+                    @click="addFlowMethod"
                 >
                     新增流程
                 </el-button>
@@ -36,7 +36,7 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
@@ -393,7 +393,7 @@
                 }
             },
 
-            async createFlow(event, opt = { name: '', id: '' }) {
+            async createFlow(event, opt = { name: '', id: '', type: 'MachineLearning' }) {
                 if(this.locker) return;
                 this.locker = true;
 
@@ -403,7 +403,7 @@
                 const seconds = now.getSeconds();
                 const params = {
                     project_id:            this.project_id,
-                    FederatedLearningType: 'vertical',
+                    FederatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : 'vertical',
                     name:                  `${opt.name || '新流程'}-${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
                     desc:                  '',
                 };
@@ -428,7 +428,7 @@
                 this.loading = false;
                 if(code === 0) {
                     this.$router.push({
-                        name:  'project-flow',
+                        name:  this.form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow',
                         query: {
                             flow_id: data.flow_id,
                         },
@@ -519,6 +519,15 @@
                             }
                         }
                     });
+            },
+
+            addFlowMethod() {
+                if (this.form.project_type === 'MachineLearning') {
+                    this.addFlow = true;
+                } else {
+                    // 创建深度学习流程
+                    this.createFlow();
+                }
             },
         },
     };

@@ -1,6 +1,6 @@
 
 ### 查询单个数据集
-POST {{baseUrl}}/data_set/detail
+POST http://localhost:8080/board-service/data_set/detail
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 
 ### 查询已删除的数据集
-POST {{baseUrl}}/data_set/detail
+POST http://localhost:8080/board-service/data_set/detail
 Content-Type: application/json
 
 {

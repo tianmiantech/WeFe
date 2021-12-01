@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/flow/node/detail
+POST http://localhost:8080/board-service/project/flow/node/detail
 Content-Type: application/json
 
 {
@@ -10,4 +10,4 @@ Content-Type: application/json
 
 ###
 
-GET {{baseUrl}}/project/flow/node/detail?nodeId=16088884188236603&flow_id=a9632fcc436f4400bba1726532475f7b
+GET http://localhost:8080/board-service/project/flow/node/detail?nodeId=16088884188236603&flow_id=a9632fcc436f4400bba1726532475f7b

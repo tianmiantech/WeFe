@@ -71,7 +71,7 @@ public class TransferMetaDataAsyncSaveService {
             LOG.error("transferMeta deserialization fail, path: " + processingTransferMetaData.serializePath, e);
 
             processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_FAIL;
-            FileUtil.deleteFile(processingTransferMetaData.serializePath);
+            FileUtil.deleteFileOrDir(processingTransferMetaData.serializePath);
             messageService.saveError("数据反序列化失败", e.getMessage());
             return;
         }
@@ -149,6 +149,6 @@ public class TransferMetaDataAsyncSaveService {
             // Update status is processing failed
             processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_FAIL;
         }
-        FileUtil.deleteFile(processingTransferMetaData.serializePath);
+        FileUtil.deleteFileOrDir(processingTransferMetaData.serializePath);
     }
 }

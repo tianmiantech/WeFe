@@ -20,7 +20,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 
 /**
@@ -68,6 +68,6 @@ public abstract class AbstractPsiTask<T extends AbstractPsiActuator> extends Abs
                 break;
         }
 
-        TaskManager.remove(businessId);
+        ActuatorManager.remove(businessId);
     }
 }

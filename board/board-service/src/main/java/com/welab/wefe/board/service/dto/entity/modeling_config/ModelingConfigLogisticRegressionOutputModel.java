@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,87 +16,51 @@
 
 package com.welab.wefe.board.service.dto.entity.modeling_config;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * 模型配置·逻辑回归
  *
  * @author Zane
  */
 public class ModelingConfigLogisticRegressionOutputModel extends AbstractModelingConfigOutputModel {
-    /**
-     * 模型初始化方式
-     */
+    @Check(name = "模型初始化方式")
     private String initParam_InitMethod;
-    /**
-     * 是否需要偏置系数
-     */
+    @Check(name = "是否需要偏置系数")
     private Boolean initParam_FitIntercept;
-    /**
-     * 惩罚方式
-     */
+    @Check(name = "惩罚方式")
     private String penalty;
-    /**
-     * 收敛容忍度
-     */
+    @Check(name = "收敛容忍度")
     private Double tol;
-    /**
-     * 惩罚项系数
-     */
+    @Check(name = "惩罚项系数")
     private Double alpha;
-    /**
-     * 优化算法
-     */
+    @Check(name = "优化算法")
     private String optimizer;
-    /**
-     * 批量大小
-     */
+    @Check(name = "批量大小")
     private Integer batchSize;
-    /**
-     * 学习率
-     */
+    @Check(name = "学习率")
     private Double learningRate;
-    /**
-     * 最大迭代次数
-     */
+    @Check(name = "最大迭代次数")
     private Integer maxIter;
-    /**
-     * 判断收敛性与否的方法
-     */
+    @Check(name = "判断收敛性与否的方法")
     private String earlyStop;
-    /**
-     * 同态加密方法
-     */
+    @Check(name = "同态加密方法")
     private String encryptParam_Method;
-    /**
-     * 在KFold中使用分割符大小
-     */
+    @Check(name = "在KFold中使用分割符大小")
     private Integer cvParam_NSplits;
-    /**
-     * 在KFold之前是否进行洗牌
-     */
+    @Check(name = "在KFold之前是否进行洗牌")
     private Boolean cvParam_Shuffle;
-    /**
-     * 是否需要进行此模块
-     */
+    @Check(name = "是否需要进行此模块")
     private Boolean cvParam_NeedCv;
-    /**
-     * 学习速率的衰减率
-     */
+    @Check(name = "学习速率的衰减率")
     private Double decay;
-    /**
-     * 衰减率是否开平方
-     */
+    @Check(name = "衰减率是否开平方")
     private Boolean decaySqrt;
-    /**
-     * 多分类策略;枚举（ovr/ovo）
-     */
+    @Check(name = "多分类策略;枚举（ovr/ovo）")
     private String multiClass;
-    /**
-     * 验证频次
-     */
+    @Check(name = "验证频次")
     private Integer validationFreqs;
-    /**
-     * 提前结束的迭代次数
-     */
+    @Check(name = "提前结束的迭代次数")
     private Integer earlyStoppingRounds;
 
     //region getter/setter

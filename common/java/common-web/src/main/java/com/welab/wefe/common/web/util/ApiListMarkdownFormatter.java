@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.welab.wefe.common.web.dto.NoneApiOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -68,7 +69,7 @@ public class ApiListMarkdownFormatter {
     }
 
     /**
-     * @param clazz API classes
+     * @param clazz API class
      */
     private static String getApiInfo(StringBuilder str, Class<?> clazz) {
         Api api = clazz.getAnnotation(Api.class);
@@ -97,11 +98,13 @@ public class ApiListMarkdownFormatter {
                 Class<?> tClazz;
                 if (type instanceof ParameterizedTypeImpl) {
                     tClazz = ((ParameterizedTypeImpl) type).getRawType();
+                } else if (type instanceof TypeVariableImpl) {
+                    tClazz = null;
                 } else {
                     tClazz = (Class<?>) type;
                 }
 
-                if (AbstractApiInput.class.isAssignableFrom(tClazz)) {
+                if (tClazz != null && AbstractApiInput.class.isAssignableFrom(tClazz)) {
                     inputClass = tClazz;
                 } else {
                     outputClass = tClazz;

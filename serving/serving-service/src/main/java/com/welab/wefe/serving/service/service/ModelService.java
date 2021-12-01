@@ -20,6 +20,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.Algorithm;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
@@ -31,7 +32,6 @@ import com.welab.wefe.serving.service.database.serving.repository.ModelRepositor
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;

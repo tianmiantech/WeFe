@@ -117,7 +117,8 @@
                         <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
                     </fieldset>
                 </el-col>
-                <el-col :span="14">
+                <!-- 结构化数据 -->
+                <el-col v-if="addDataType === 'csv'" :span="14">
                     <fieldset style="min-height:230px">
                         <legend>选择文件</legend>
                         <el-form-item>
@@ -214,6 +215,36 @@
                             <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
                             <li>y 值列的列名必须为 y</li>
                             <li>csv 文件请使用 utf-8 编码格式</li>
+                        </ul>
+                    </fieldset>
+                </el-col>
+                <!-- 图像数据 -->
+                <el-col v-else :span="14">
+                    <fieldset style="min-height:230px">
+                        <legend>选择文件</legend>
+                        <uploader
+                            ref="imgUploaderRef"
+                            :options="img_upload_options"
+                            :file-status-text="fileStatusText"
+                            :list="form.data_set_add_method.files"
+                            @file-complete="fileUploadCompleteImage"
+                            @file-removed="fileRemovedImage"
+                            @file-added="fileAddedImage"
+                        >
+                            <uploader-unsupport />
+                            <uploader-drop v-if="img_upload_options.files.length === 0">
+                                <p class="mb10">将文件 (.zip .tar .rar .7z) 拖到此处</p>或
+                                <uploader-btn
+                                    :attrs="img_upload_attrs"
+                                    :single="true"
+                                >
+                                    点击上传
+                                </uploader-btn>
+                            </uploader-drop>
+                            <uploader-list :file-list="img_upload_options.files.length" />
+                        </uploader>
+                        <ul class="data-set-upload-tip">
+                            <li>仅限压缩文件 .zip .tar .rar等</li>
                         </ul>
                     </fieldset>
                 </el-col>
@@ -328,11 +359,11 @@
                 class="m20"
             >
                 <el-col :span="12">
-                    <el-checkbox v-model="form.deduplication">
+                    <el-checkbox v-if="addDataType === 'csv'" v-model="form.deduplication">
                         自动剔除主键相同的数据
                     </el-checkbox>
                     <br>
-                    <div class="deduplication-tips">
+                    <div class="deduplication-tips" v-if="addDataType === 'csv'">
                         <p>注：数据集中不允许包含主键相同的数据。</p>
                         <p>1. 如果 <strong>不确定</strong> 是否包含重复数据，请 <strong>启用</strong> 自动去重功能。</p>
                         <p>2. 如果 <strong>确定</strong> 不包含重复数据，<strong>可以禁用</strong> 自动去重功能，以提高数据集上传速度。</p>
@@ -527,8 +558,8 @@
                     paused:    '已暂停',
                     waiting:   '等待中',
                 },
-                file_upload_attrs: {
-                    accept: '.csv,.xls,.xlsx',
+                img_upload_attrs: {
+                    accept: '.zip, .rar, .tar, .7z',
                 },
 
                 http_upload_filename: '',
@@ -593,7 +624,29 @@
                     added_row_count:     0,
                     repeat_id_row_count: 0,
                 },
-                isCanClose: false,
+                isCanClose:         false,
+                addDataType:        'csv',
+                // 图像数据上传options
+                img_upload_options: {
+                    files:               [],
+                    target:              window.api.baseUrl + '/file/upload',
+                    singleFile:          true,
+                    // chunks check
+                    testChunks:          true,
+                    chunkSize:           8 * 1024 * 1024,
+                    simultaneousUploads: 4,
+                    headers:             {
+                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                    },
+                    parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
+                        return parsedTimeRemaining
+                            .replace(/\syears?/, '年')
+                            .replace(/\days?/, '天')
+                            .replace(/\shours?/, '小时')
+                            .replace(/\sminutes?/, '分钟')
+                            .replace(/\sseconds?/, '秒');
+                    },
+                },
             };
         },
         watch: {
@@ -616,6 +669,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.addDataType = this.$route.query.type || 'csv';
             this.getDataSouceList();
             this.checkStorage();
 
@@ -863,6 +917,34 @@
             fileRemoved() {
                 this.file_upload_options.files = [];
             },
+            // Image
+            fileAddedImage(file) {
+                this.img_upload_options.files = [file];
+            },
+            fileRemovedImage() {
+                this.img_upload_options.files = [];
+            },
+            async fileUploadCompleteImage() {
+                this.loading = true;
+                this.data_preview_finished = true;
+                const file = arguments[0].file;
+                const { code, data } = await this.$http.get({
+                    url:     '/file/merge',
+                    timeout: 1000 * 60 * 2,
+                    params:  {
+                        filename:         file.name,
+                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                    },
+                })
+                    .catch(err => {
+                        console.log(err);
+                    });
+
+                this.loading = false;
+                if (code === 0) {
+                    this.http_upload_filename = data.filename;
+                }
+            },
             // upload completed
             async fileUploadComplete() {
                 this.loading = true;
@@ -968,21 +1050,30 @@
                 this.loading = true;
                 this.form.metadata_list = this.metadata_list;
 
+                const params = this.addDataType === 'img' ? Object.assign(this.form, { for_job_type: '目标检测', filename: this.http_upload_filename }) : this.form;
                 const { code, data } = await this.$http.post({
-                    url:     '/data_set/add',
+                    url:     this.addDataType === 'csv' ? '/data_set/add': '/image_data_set/add',
                     timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                    data:    params,
                 });
 
                 if (code === 0) {
-                    if (data.repeat_data_count > 0) {
-                        this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
+                    if (this.addDataType === 'csv') {
+                        if (data.repeat_data_count > 0) {
+                            this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
+                        } else {
+                            this.$message.success('保存成功!');
+                        }
+                        setTimeout(() => {
+                            this.getAddTask(data.id);
+                        }, 500);
                     } else {
-                        this.$message.success('保存成功!');
+                        canLeave = true;
+                        this.$router.push({
+                            name:  'data-view',
+                            query: { id: data.data_set_id, type: this.addDataType },
+                        });
                     }
-                    setTimeout(() => {
-                        this.getAddTask(data.id);
-                    }, 500);
                 }
                 this.loading = false;
             },
@@ -1029,7 +1120,7 @@
 
                                     this.$router.push({
                                         name:  'data-view',
-                                        query: { id: data_set_id },
+                                        query: { id: data_set_id, type: this.addDataType },
                                     });
                                 }
                             }, 1000);

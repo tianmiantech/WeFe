@@ -212,7 +212,7 @@ public class TransferMetaDataSink extends AbstractTransferMetaDataSink {
     private void clearTransferMetaDataCache(GatewayMetaProto.TransferMeta transferMeta) {
         completeBlockFlagCache.remove(transferMeta.getSessionId());
         processingTransferMetaDataCache.remove(transferMeta.getSessionId());
-        FileUtil.deleteFile(sinkTransferMetaDataBaseDir() + File.separator + SerializeUtil.generatePersistentId(transferMeta));
+        FileUtil.deleteFileOrDir(sinkTransferMetaDataBaseDir() + File.separator + SerializeUtil.generatePersistentId(transferMeta));
     }
 
 

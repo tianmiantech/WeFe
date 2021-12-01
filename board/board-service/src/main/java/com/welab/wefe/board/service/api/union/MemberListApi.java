@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> {
 
     @Autowired
-    UnionService unionService;
+    private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {

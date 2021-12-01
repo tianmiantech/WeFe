@@ -18,26 +18,26 @@ package com.welab.wefe.board.service.api.dataset;
 
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
 @Api(path = "data_set/detail", name = "get data set detail")
-public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> {
+public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputModel> {
 
     @Autowired
     DataSetRepository dataSetRepository;
 
     @Override
-    protected ApiResult<DataSetOutputModel> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<TableDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
 
         DataSetMysqlModel model = dataSetRepository.findById(input.id).orElse(null);
 
@@ -45,7 +45,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> 
             return success();
         }
 
-        DataSetOutputModel output = ModelMapper.map(model, DataSetOutputModel.class);
+        TableDataSetOutputModel output = ModelMapper.map(model, TableDataSetOutputModel.class);
 
         return success(output);
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -84,8 +84,6 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-
-        JSONObject taskParam = new JSONObject();
 
         // Reassemble front-end parameters
         JObject transformParam = JObject.create()
@@ -169,7 +167,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
             }
         }
 
-        JObject binningParam = JObject.create()
+        JObject output = JObject.create()
                 .append("method", "quantile")
                 .append("compress_thres", 10000)
                 .append("head_size", 10000)
@@ -186,9 +184,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 .append("optimal_binning_param", optimalBinningParam)
                 .append("modes", modesObj);
 
-        taskParam.put("params", binningParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override

@@ -1,4 +1,4 @@
-POST {{baseUrl}}/flow/job/query
+POST http://localhost:8080/board-service/flow/job/query
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-POST {{baseUrl}}/flow/job/query
+POST http://localhost:8080/board-service/flow/job/query
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
-POST {{baseUrl}}/flow/job/query
+POST http://localhost:8080/board-service/flow/job/query
 Content-Type: application/json
 
 {

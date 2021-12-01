@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.Launcher;
@@ -78,6 +79,9 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
         @Check(name = "项目名称", require = true)
         private String name;
 
+        @Check(name = "项目类型", require = true)
+        private ProjectType projectType;
+
         @Check(name = "项目描述", require = true)
         private String desc;
 
@@ -92,7 +96,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
         @Check(name = "角色")
         private JobMemberRole role;
-
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -198,6 +201,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
         public void setRole(JobMemberRole role) {
             this.role = role;
+        }
+
+        public ProjectType getProjectType() {
+            return projectType;
+        }
+
+        public void setProjectType(ProjectType projectType) {
+            this.projectType = projectType;
         }
 
         //endregion

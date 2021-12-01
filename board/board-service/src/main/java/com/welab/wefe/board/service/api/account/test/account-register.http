@@ -1,13 +1,15 @@
 
 ### 正常注册
-POST {{baseUrl}}/account/register
+POST http://localhost:8080/board-service/account/register
 Content-Type: application/json
 
 {
   "phone_number": "13100000001",
   "nickname": "小甜甜",
   "password": "password",
-  "email": "email@email.com"
+  "email": "email@email.com",
+  "code": "test",
+  "key": "key"
 }
 
 > {%
@@ -20,7 +22,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 手机号冲突
-POST {{baseUrl}}/account/register
+POST http://localhost:8080/board-service/account/register
 Content-Type: application/json
 
 {
@@ -40,7 +42,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 手机号错误
-POST {{baseUrl}}/account/register
+POST http://localhost:8080/board-service/account/register
 Content-Type: application/json
 
 {
@@ -60,7 +62,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 邮箱错误
-POST {{baseUrl}}/account/register
+POST http://localhost:8080/board-service/account/register
 Content-Type: application/json
 
 {

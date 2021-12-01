@@ -26,6 +26,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
@@ -42,7 +43,6 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,60 +21,39 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
 public class ProjectMemberOutputModel extends AbstractOutputModel {
 
-    /**
-     * 邀请方成员Id
-     */
+    @Check(name = "邀请方成员Id")
     private String inviterId;
-    /**
-     * 邀请方成员名称
-     */
+    @Check(name = "邀请方成员名称")
     private String inviterName;
-    /**
-     * 是否是初始化项目时添加进来的（关系到审核流程不同）
-     */
+    @Check(name = "是否是初始化项目时添加进来的（关系到审核流程不同）")
     private boolean fromCreateProject;
-    /**
-     * 所属项目 Id 项目主键
-     */
+    @Check(name = "所属项目 Id 项目主键")
     private String projectId;
 
-    /**
-     * 成员 Id
-     */
+    @Check(name = "成员 Id")
     private String memberId;
 
-    /**
-     * 在任务中的角色;枚举（promoter/provider/arbiter）
-     */
+    @Check(name = "在任务中的角色;枚举（promoter/provider/arbiter）")
     private JobMemberRole memberRole;
 
-    /**
-     * 综合的审核结果
-     */
+    @Check(name = "综合的审核结果")
     private AuditStatus auditStatus;
-    /**
-     * 自己是否同意
-     */
+    @Check(name = "自己是否同意")
     private AuditStatus auditStatusFromMyself;
-    /**
-     * 其他人是否同意
-     */
+    @Check(name = "其他人是否同意")
     private AuditStatus auditStatusFromOthers;
 
-    /**
-     * 审核意见
-     */
+    @Check(name = "审核意见")
     private String auditComment;
 
-    /**
-     * 是否已退出
-     */
+    @Check(name = "是否已退出")
     private boolean exited = false;
 
 
