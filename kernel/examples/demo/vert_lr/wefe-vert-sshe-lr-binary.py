@@ -62,6 +62,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
 
     # initialize handler
     job_id = "job_" + time.strftime("%Y%m%d%H%M%S")
+    job_id = 'job_20211201085309'
     handler = Handler(job_id=job_id, backend=backend, work_mode=work_mode,
                       db_type=db_type, fl_type='vertical')
     handler.set_initiator(role='promoter', member_id=promoter)
@@ -101,9 +102,9 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     evaluation_0 = Evaluation(name='evaluation_0', eval_type="binary")
 
     # add components to handler, in order of task execution
-    handler.add_component(dataio_0)
-    handler.add_component(intersection_0, data=Data(data=dataio_0.name), output_data_type=["train"])
-    handler.add_component(vert_sshe_lr_0, data=Data(train_data=intersection_0.name))
+    handler.add_component(dataio_0, output_data_type=["train"])
+    # handler.add_component(intersection_0, data=Data(data=dataio_0.name), output_data_type=["train"])
+    handler.add_component(vert_sshe_lr_0, data=Data(train_data=dataio_0.name))
     handler.add_component(evaluation_0, data=Data(data=vert_sshe_lr_0.name))
 
     # compile handler once finished adding modules, this step will form conf and dsl files for running job

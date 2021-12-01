@@ -377,9 +377,9 @@ class PaillierFixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-
+        q_field_int = q_field // 2 - 1
         if is_table(source):
-            _pre = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
+            _pre = urand_tensor(q_field_int, source, use_mix=spdz.use_mix_rand)
 
             share = _pre
 

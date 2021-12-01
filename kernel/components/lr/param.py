@@ -129,7 +129,7 @@ class LogisticParam(BaseParam):
                  stepwise_param=StepwiseParam(),
                  metrics=None,
                  use_first_metric_only=False,
-                 use_mix_rand=True,
+                 use_mix_rand=False,
                  reveal_strategy="respectively",
                  reveal_every_iter=True,
                  callback_param=CallbackParam(),

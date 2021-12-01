@@ -355,7 +355,7 @@ class PaillierFixedPointTensor(TensorBase):
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
 
         if isinstance(source, np.ndarray):
-            _pre = urand_tensor(q_field, source)
+            _pre = urand_tensor(q_field // 2 - 1, source)
 
             share = _pre
 

@@ -48,6 +48,7 @@ import math
 import sys
 
 import numpy as np
+
 from kernel.utils import LOGGER
 
 
@@ -105,6 +106,8 @@ class FixedPointNumber(object):
                 flt_exponent = math.frexp(scalar)[1]
                 lsb_exponent = cls.FLOAT_MANTISSA_BITS - flt_exponent
                 exponent = math.floor(lsb_exponent / cls.LOG2_BASE)
+                LOGGER.debug(
+                    f'flt_exponent={flt_exponent},lsb_exponent={lsb_exponent}, exponent={exponent}, max_exponent={max_exponent}')
             else:
                 raise TypeError("Don't know the precision of type %s."
                                 % type(scalar))
@@ -116,10 +119,10 @@ class FixedPointNumber(object):
 
         int_fixpoint = int(round(scalar * pow(cls.BASE, exponent)))
 
-        if abs(int_fixpoint) > max_int:
-            raise ValueError(f"Integer needs to be within +/- {max_int}, n={n},but got {int_fixpoint},"
-                             f"basic info, scalar={scalar}, base={cls.BASE}, exponent={exponent}"
-                             )
+        # if abs(int_fixpoint) > max_int:
+        #     raise ValueError(f"Integer needs to be within +/- {max_int}, n={n},but got {int_fixpoint},"
+        #                      f"basic info, scalar={scalar}, base={cls.BASE}, exponent={exponent}, precision={precision}"
+        #                      )
 
         return cls(int_fixpoint % n, exponent, n, max_int)
 
@@ -151,6 +154,8 @@ class FixedPointNumber(object):
 
         factor = pow(self.BASE, new_exponent - self.exponent)
         new_encoding = self.encoding * factor % self.n
+        if new_encoding > self.max_int:
+            LOGGER.debug(f'new_encoding={new_encoding},new_exponent={new_exponent},encoding={self.encoding},self.max_int={self.max_int}')
 
         return FixedPointNumber(new_encoding, new_exponent, self.n, self.max_int)
 
@@ -379,10 +384,15 @@ class FixedPointEndec(object):
                                        precision=self.precision)
 
     def _decode(self, number):
+        if isinstance(number, int):
+            return number
         return number.decode()
 
     def _truncate(self, number):
-        scalar = number.decode()
+        if isinstance(number, (int, float)):
+            scalar = number
+        else:
+            scalar = number.decode()
         return FixedPointNumber.encode(scalar, n=self.n, max_int=self.max_int)
 
     def encode(self, float_tensor):
