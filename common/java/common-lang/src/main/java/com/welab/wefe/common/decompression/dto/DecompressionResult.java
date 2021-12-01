@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.util.dto;
+package com.welab.wefe.common.decompression.dto;
 
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  * @author zane
  * @date 2021/11/26
  */
-public class FileDecompressionResult {
+public class DecompressionResult {
     public final String baseDir;
     /**
      * 解压后的目录列表
@@ -43,12 +44,20 @@ public class FileDecompressionResult {
      */
     public final Set<File> files = new HashSet<>();
 
-    public FileDecompressionResult(File srcFile, String destDirPath) {
+    public DecompressionResult(File srcFile, String destDirPath) {
         baseDir = Paths.get(destDirPath, FileUtil.getFileNameWithoutSuffix(srcFile)).toAbsolutePath().toString();
     }
 
     public void addDir(File file) {
         dirs.add(file);
+    }
+
+    public void addDir(String dir) {
+        dirs.add(new File(dir));
+    }
+
+    public void addDir(Path dir) {
+        dirs.add(dir.toFile());
     }
 
     public void addFile(File file) {
@@ -73,15 +82,28 @@ public class FileDecompressionResult {
 
     @Override
     public String toString() {
-        List<String> list = files
+        List<String> filesList = files
+                .stream()
+                .map(x -> x.getAbsolutePath())
+                .collect(Collectors.toList());
+
+        List<String> dirsList = dirs
                 .stream()
                 .map(x -> x.getAbsolutePath())
                 .collect(Collectors.toList());
 
 
-        return "FileDecompressionResult{" +
-                "files=" + System.lineSeparator()
-                + StringUtil.join(list, System.lineSeparator())
+        return "Result{" + System.lineSeparator()
+                + "files=" + System.lineSeparator()
+                + StringUtil.join(filesList, System.lineSeparator())
+                + System.lineSeparator()
+                + System.lineSeparator()
+                + "dirs=" + System.lineSeparator()
+                + StringUtil.join(dirsList, System.lineSeparator())
+                + System.lineSeparator()
+                + System.lineSeparator()
+                + "base_dir=" + System.lineSeparator()
+                + baseDir
                 + '}';
     }
 }
