@@ -32,8 +32,8 @@ import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
-import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import org.springframework.stereotype.Service;
@@ -198,22 +198,22 @@ public class UnionService extends AbstractUnionService {
      * Get details of a single data set
      */
     public ImageDataSetOutputModel getImageDataSetDetail(String id) throws StatusCodeWithException {
-        return (ImageDataSetOutputModel) getDataSetDetail(id, DataSetType.ImageDataSet);
+        return (ImageDataSetOutputModel) getDataSetDetail(id, DataResourceType.ImageDataSet);
     }
 
     /**
      * Get details of a single data set
      */
     public TableDataSetOutputModel getTableDataSetDetail(String id) throws StatusCodeWithException {
-        return (TableDataSetOutputModel) getDataSetDetail(id, DataSetType.TableDataSet);
+        return (TableDataSetOutputModel) getDataSetDetail(id, DataResourceType.TableDataSet);
     }
 
     /**
      * Get details of a single data set
      */
-    public AbstractDataSetOutputModel getDataSetDetail(String id, DataSetType dataSetType) throws StatusCodeWithException {
+    public AbstractDataSetOutputModel getDataSetDetail(String id, DataResourceType dataResourceType) throws StatusCodeWithException {
 
-        String key = id + dataSetType;
+        String key = id + dataResourceType;
         if (CACHE_MAP.containsKey(key)) {
             return (AbstractDataSetOutputModel) CACHE_MAP.get(key);
         }
@@ -224,7 +224,7 @@ public class UnionService extends AbstractUnionService {
                 .put("data_set_id", id);
 
         String api = null;
-        switch (dataSetType) {
+        switch (dataResourceType) {
             case TableDataSet:
                 api = "data_set/detail";
                 break;
@@ -243,7 +243,7 @@ public class UnionService extends AbstractUnionService {
         }
 
         AbstractDataSetOutputModel output = null;
-        switch (dataSetType) {
+        switch (dataResourceType) {
             case TableDataSet:
                 output = data.toJavaObject(TableDataSetOutputModel.class);
                 break;

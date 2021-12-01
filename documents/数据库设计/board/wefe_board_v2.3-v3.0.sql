@@ -136,4 +136,4 @@ ALTER TABLE `project`
 -- author: zane.luo
 -- -------------------------------------
 ALTER TABLE `project_data_set`
-    ADD COLUMN `data_set_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型' AFTER `source_task_id`;
+    ADD COLUMN `data_resource_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据资源类型' AFTER `source_task_id`;

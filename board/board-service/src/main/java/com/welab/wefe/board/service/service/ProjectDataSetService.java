@@ -33,7 +33,7 @@ import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -187,12 +187,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataSetType dataSetType, String memberId, JobMemberRole memberRole, Boolean containsY) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataSetType)
+                .equal("dataSetType", dataResourceType)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -208,9 +208,9 @@ public class ProjectDataSetService extends AbstractService {
                     try {
                         ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                         AbstractDataSetOutputModel dataSet = null;
-                        if (x.getDataSetType() == DataSetType.TableDataSet) {
+                        if (x.getDataSetType() == DataResourceType.TableDataSet) {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        } else if (x.getDataSetType() == DataSetType.ImageDataSet) {
+                        } else if (x.getDataSetType() == DataResourceType.ImageDataSet) {
                             dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         }
                         projectDataSet.setDataSet(dataSet);
@@ -253,12 +253,12 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> list(String projectId, DataSetType dataSetType, String memberId) {
+    public List<ProjectDataSetOutputModel> list(String projectId, DataResourceType dataResourceType, String memberId) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataSetType)
+                .equal("dataSetType", dataResourceType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 
