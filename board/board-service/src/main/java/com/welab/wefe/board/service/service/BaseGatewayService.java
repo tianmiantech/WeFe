@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
@@ -56,7 +57,7 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send a message to your own gateway service
      */
-    protected ApiResult<?> sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected ApiResult<JSONObject> sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) {
         if (gatewayUri == null) {
             GatewayConfigModel gatewayConfig = globalConfigService.getGatewayConfig();
             if (gatewayConfig != null) {
@@ -76,7 +77,7 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send message to other party's gateway service
      */
-    protected ApiResult<?> sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected ApiResult<JSONObject> sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) {
         return sendMessage(
                 globalConfigService.getGatewayConfig().intranetBaseUri,
                 dstMemberId,
@@ -96,7 +97,7 @@ public class BaseGatewayService extends AbstractService {
      * @param data          data of the message
      * @param processorType enum, see:{@link com.welab.wefe.common.enums.GatewayProcessorType}
      */
-    private ApiResult<?> sendMessage(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    private ApiResult<JSONObject> sendMessage(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
 
         if (StringUtil.isEmpty(gatewayUri)) {
             ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, "尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
@@ -104,7 +105,7 @@ public class BaseGatewayService extends AbstractService {
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
         ManagedChannel grpcChannel = null;
-        ApiResult<?> result = null;
+        ApiResult<JSONObject> result = null;
         try {
             grpcChannel = getGrpcChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);

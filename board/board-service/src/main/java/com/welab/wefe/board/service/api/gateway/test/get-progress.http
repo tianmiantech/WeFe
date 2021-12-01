@@ -1,4 +1,4 @@
-POST {{baseUrl}}/gateway/get_job_progress
+POST http://localhost:8080/board-service/gateway/get_job_progress
 Content-Type: application/json
 
 {

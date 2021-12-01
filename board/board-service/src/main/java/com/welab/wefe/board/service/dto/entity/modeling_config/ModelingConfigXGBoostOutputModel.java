@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,100 +16,58 @@
 
 package com.welab.wefe.board.service.dto.entity.modeling_config;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * 模型配置·逻辑回归
  *
  * @author Zane
  */
 public class ModelingConfigXGBoostOutputModel extends AbstractModelingConfigOutputModel {
-    /**
-     * 任务类型;枚举（分类/回归）
-     */
+    @Check(name = "任务类型;枚举（分类/回归）")
     private String taskType;
-    /**
-     * 学习率
-     */
+    @Check(name = "学习率")
     private Double learningRate;
-    /**
-     * 最大树数量
-     */
+    @Check(name = "最大树数量")
     private Integer numTrees;
-    /**
-     * 特征随机采样比率
-     */
+    @Check(name = "特征随机采样比率")
     private Double subsampleFeatureRate;
-    /**
-     * n次迭代没变化是否停止
-     */
+    @Check(name = "n次迭代没变化是否停止")
     private Boolean nIterNoChange;
-    /**
-     * 收敛阀值
-     */
+    @Check(name = "收敛阀值")
     private Double tol;
-    /**
-     * 最大桶数量
-     */
+    @Check(name = "最大桶数量")
     private Integer binNum;
-    /**
-     * 标准函数;默认xgboost
-     */
+    @Check(name = "标准函数;默认xgboost")
     private String treeParam_CriterionMethod;
-    /**
-     * 标准参数
-     */
+    @Check(name = "标准参数")
     private String treeParam_CriterionParams;
-    /**
-     * 树的最大深度
-     */
+    @Check(name = "树的最大深度")
     private Integer treeParam_MaxDepth;
-    /**
-     * 分裂一个内部节点(非叶子节点)需要的最小样本;默认2
-     */
+    @Check(name = "分裂一个内部节点(非叶子节点)需要的最小样本;默认2")
     private Integer treeParam_MinSampleSplit;
-    /**
-     * 每个叶子节点包含的最小样本数
-     */
+    @Check(name = "每个叶子节点包含的最小样本数")
     private Integer treeParam_MinLeafNode;
-    /**
-     * 单个拆分的要达到的最小增益
-     */
+    @Check(name = "单个拆分的要达到的最小增益")
     private Double treeParam_MinImpuritySplit;
-    /**
-     * 可拆分的最大并行数量
-     */
+    @Check(name = "可拆分的最大并行数量")
     private Integer treeParam_MaxSplitNodes;
-    /**
-     * 目标函数
-     */
+    @Check(name = "目标函数")
     private String objectiveParam_Objective;
-    /**
-     * 学习目标参数
-     */
+    @Check(name = "学习目标参数")
     private String objectiveParam_Params;
-    /**
-     * 加密算法
-     */
+    @Check(name = "加密算法")
     private String encryptParam_Method;
 
-    /**
-     * 在KFold中使用分割符大小
-     */
+    @Check(name = "在KFold中使用分割符大小")
     private Integer cvParam_NSplits;
-    /**
-     * 在KFold之前是否进行洗牌
-     */
+    @Check(name = "在KFold之前是否进行洗牌")
     private Boolean cvParam_Shuffle;
-    /**
-     * 是否需要进行此模块
-     */
+    @Check(name = "是否需要进行此模块")
     private Boolean cvParam_NeedCv;
-    /**
-     * 验证频次
-     */
+    @Check(name = "验证频次")
     private Integer validationFreqs;
-    /**
-     * 提前结束的迭代次数
-     */
+    @Check(name = "提前结束的迭代次数")
     private Integer earlyStoppingRounds;
 
     //region getter/setter

@@ -20,6 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
 import com.welab.wefe.data.fusion.service.api.task.*;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
@@ -35,11 +36,10 @@ import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.*;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiServerTask;
-import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -108,7 +108,7 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
         //If a task is being executed, add it after the task is completed
-        if (TaskManager.size() > 0) {
+        if (ActuatorManager.size() > 0) {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
         }
 
@@ -195,7 +195,7 @@ public class TaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
-        if (TaskManager.size() > 0) {
+        if (ActuatorManager.size() > 0) {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
         }
 
@@ -285,7 +285,7 @@ public class TaskService extends AbstractService {
         task.setUpdatedTime(new Date());
         taskRepository.save(task);
 
-        if (TaskManager.get(task.getBusinessId()) != null) {
+        if (ActuatorManager.get(task.getBusinessId()) != null) {
             return;
         }
 
@@ -313,7 +313,7 @@ public class TaskService extends AbstractService {
                 )
         );
 
-        TaskManager.set(server);
+        //ActuatorManager.set(server);
 
         server.run();
 
@@ -322,7 +322,7 @@ public class TaskService extends AbstractService {
                 partner.getBaseUrl(),
                 task.getBusinessId(),
                 CallbackType.running,
-                TaskManager.ip(),
+                ActuatorManager.ip(),
                 CacheObjects.getOpenSocketPort()
         );
     }

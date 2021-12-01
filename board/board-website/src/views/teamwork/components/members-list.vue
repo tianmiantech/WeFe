@@ -52,7 +52,7 @@
                     >
                         <template v-slot="scope">
                             <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
-                                {{ scope.row.name }}
+                                {{ scope.row.data_set.name }}
                             </router-link>
                             <br>
                             <span>{{ scope.row.data_set_id }}</span>
@@ -60,9 +60,9 @@
                     </el-table-column>
                     <el-table-column label="关键词">
                         <template v-slot="scope">
-                            <template v-if="scope.row.tags">
+                            <template v-if="scope.row.data_set.tags">
                                 <template
-                                    v-for="(item, index) in scope.row.tags.split(',')"
+                                    v-for="(item, index) in scope.row.data_set.tags.split(',')"
                                     :key="index"
                                 >
                                     <el-tag
@@ -75,11 +75,11 @@
                             </template>
                         </template>
                     </el-table-column>
-                    <el-table-column label="数据量">
+                    <el-table-column v-if="projectType === 'MachineLearning'" label="数据量">
                         <template v-slot="scope">
-                            特征：{{ scope.row.feature_count }}
+                            特征：{{ scope.row.data_set.feature_count }}
                             <br>
-                            行数：{{ scope.row.row_count }}
+                            行数：{{ scope.row.data_set.row_count }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -87,12 +87,31 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.usage_count_in_job }}
+                            {{ scope.row.data_set.usage_count_in_job }}
                         </template>
                     </el-table-column>
-                    <el-table-column label="是否包含 Y">
+                    <el-table-column v-if="projectType === 'MachineLearning'" label="是否包含 Y">
                         <template v-slot="scope">
-                            {{ scope.row.contains_y ? '是' : '否' }}
+                            {{ scope.row.data_set.contains_y ? '是' : '否' }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
+                        label="数据总量"
+                        width="80"
+                    >
+                        <template v-slot="scope">
+                            {{ scope.row.data_set.sample_count }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
+                        label="标注状态"
+                        prop="label_completed"
+                        width="100"
+                    >
+                        <template v-slot="scope">
+                            {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -116,7 +135,7 @@
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
+                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id && projectType === 'MachineLearning'"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -221,6 +240,7 @@
             class="mt20"
         >
             <el-button
+                v-if="projectType === 'MachineLearning'"
                 class="add-provider-btn mr20"
                 @click="showSelectMemberDialog('promoter')"
             >
@@ -287,8 +307,9 @@
         },
         inject: ['refresh'],
         props:  {
-            form:     Object,
-            promoter: Object,
+            form:        Object,
+            promoter:    Object,
+            projectType: String,
         },
         data() {
             return {
@@ -430,7 +451,7 @@
                         data_set_id: row.id,
                     };
                 });
-                ref.loadDataList({ memberId, jobRole: role, resetPagination: false, $data_set });
+                ref.loadDataList({ memberId, jobRole: role, resetPagination: false, $data_set, projectType: this.projectType });
             },
 
             async batchDataSet(batchlist) {
@@ -440,9 +461,10 @@
                 if (batchlist.length) {
                     batchlist.forEach(item => {
                         this.batchDataSetList.push({
-                            member_role: row.member_role,
-                            member_id:   row.member_id,
-                            data_set_id: item.id,
+                            member_role:   row.member_role,
+                            member_id:     row.member_id,
+                            data_set_id:   item.id,
+                            data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     const { code } = await this.$http.post({
@@ -473,9 +495,10 @@
                             project_id:  this.form.project_id,
                             dataSetList: [
                                 {
-                                    member_role: row.member_role,
-                                    member_id:   row.member_id,
-                                    data_set_id: item.id,
+                                    member_role:   row.member_role,
+                                    member_id:     row.member_id,
+                                    data_set_id:   item.id,
+                                    data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                 },
                             ],
                         },

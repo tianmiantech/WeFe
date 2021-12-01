@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 import java.util.Date;
 
@@ -29,70 +30,38 @@ import java.util.Date;
  * @author zane.luo
  */
 public class TaskResultOutputModel extends AbstractOutputModel {
-    /**
-     * 任务Id
-     */
+    @Check(name = "任务Id")
     private String jobId;
-    /**
-     * 流程Id
-     */
+    @Check(name = "流程Id")
     private String flowId;
-    /**
-     * 流程节点Id
-     */
+    @Check(name = "流程节点Id")
     private String flowNodeId;
-    /**
-     * 子任务Id
-     */
+    @Check(name = "子任务Id")
     private String taskId;
-    /**
-     * 任务名称，例如：vert_lr_0
-     */
+    @Check(name = "任务名称，例如：vert_lr_0")
     private String name;
-    /**
-     * 组件id
-     */
+    @Check(name = "组件id")
     private ComponentType componentType;
-    /**
-     * 成员角色
-     */
+    @Check(name = "成员角色")
     private JobMemberRole role;
-    /**
-     * 类型，一个 task 会有多行不同类型的 result
-     */
+    @Check(name = "类型，一个 task 会有多行不同类型的 result")
     private String type;
-    /**
-     * 执行结果
-     */
+    @Check(name = "执行结果")
     private JSONObject result;
-    /**
-     * 是否是可以导出到 serving 的模型
-     */
+    @Check(name = "是否是可以导出到 serving 的模型")
     private boolean servingModel;
 
-    /**
-     * task的状态
-     */
+    @Check(name = "task的状态")
     private TaskStatus status;
-    /**
-     * 开始时间
-     */
+    @Check(name = "开始时间")
     private Date startTime;
-    /**
-     * 结束时间
-     */
+    @Check(name = "结束时间")
     private Date finishTime;
-    /**
-     * 消息备注;失败原因/备注
-     */
+    @Check(name = "消息备注;失败原因/备注")
     private String message;
-    /**
-     * 发生错误的详细原因，通常是堆栈信息。
-     */
+    @Check(name = "发生错误的详细原因，通常是堆栈信息。")
     private String errorCause;
-    /**
-     * task执行顺序
-     */
+    @Check(name = "task执行顺序")
     private Integer position;
     private Integer spend;
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.dataset.GetHeadersApi;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
@@ -29,7 +30,6 @@ import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
-import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class GetHeadersService {
 
     public List<String> getHeaders(GetHeadersApi.Input input) throws StatusCodeWithException {
         List<String> headers;
-        DataSetMySqlModel model = new ModelMapper().map(input, DataSetMySqlModel.class);
+        DataSetMySqlModel model = ModelMapper.map(input, DataSetMySqlModel.class);
         model.setId(new DataSetMySqlModel().getId());
         model.setCreatedBy(CurrentAccount.id());
 

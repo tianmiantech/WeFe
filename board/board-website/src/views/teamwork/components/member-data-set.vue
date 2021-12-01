@@ -468,7 +468,7 @@
                             data_set_id: row.id,
                         };
                     });
-                    ref.loadDataList({ memberId, $data_set });
+                    ref.loadDataList({ memberId, $data_set, projectType: props.form.project_type });
                 },
 
                 cooperAuth(flag, role = 'myself', { $audit_comment, member_id }) {
@@ -561,9 +561,10 @@
                     if (batchlist.length) {
                         batchlist.forEach(item => {
                             vData.batchDataSetList.push({
-                                member_role: row.member_role,
-                                member_id:   row.member_id,
-                                data_set_id: item.id,
+                                member_role:   row.member_role,
+                                member_id:     row.member_id,
+                                data_set_id:   item.id,
+                                data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });
                         const { code } = await $http.post({
@@ -594,9 +595,10 @@
                                 project_id:  props.form.project_id,
                                 dataSetList: [
                                     {
-                                        member_role: row.member_role,
-                                        member_id:   row.member_id,
-                                        data_set_id: item.id,
+                                        member_role:   row.member_role,
+                                        member_id:     row.member_id,
+                                        data_set_id:   item.id,
+                                        data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                     },
                                 ],
                             },

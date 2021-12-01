@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,10 +37,20 @@ public class FlowActionQueueService extends AbstractService {
     @Autowired
     private JobService jobService;
 
+
+    public void notifyFlow(AbstractApiInput input, String jobId, FlowActionType actionType) {
+
+        notifyFlow(input, jobId, actionType, null);
+    }
+
     /**
      * send a action message to flow service
      */
-    public void notifyFlow(AbstractApiInput input, String jobId, FlowActionType actionType) {
+    public void notifyFlow(AbstractApiInput input, String jobId, FlowActionType actionType, JObject params) {
+
+        if (params == null) {
+            params = new JObject();
+        }
 
         for (JobMySqlModel job : jobService.listByJobId(jobId)) {
 
@@ -49,8 +59,7 @@ public class FlowActionQueueService extends AbstractService {
             action.setProducer(input.fromGateway() ? ProducerType.gateway : ProducerType.board);
             action.setPriority(0);
             action.setParams(
-                    JObject
-                            .create()
+                    params
                             .put("jobId", job.getJobId())
                             .put("dstRole", job.getMyRole().name())
                             .toStringWithNull()

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,43 +19,28 @@ package com.welab.wefe.board.service.dto.entity.job;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
 public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
-    /**
-     * 是否是起始节点
-     */
+    @Check(name = "是否是起始节点")
     private boolean startNode;
 
-    /**
-     * 前端画布中的节点id，由前端生成
-     */
+    @Check(name = "前端画布中的节点id，由前端生成")
     private String nodeId;
-    /**
-     * 项目ID
-     */
+    @Check(name = "项目ID")
     private String projectId;
-    /**
-     * 流程ID
-     */
+    @Check(name = "流程ID")
     private String flowId;
-    /**
-     * 父节点
-     */
+    @Check(name = "父节点")
     private String parentNodeIdList;
-    /**
-     * 组件类型
-     */
+    @Check(name = "组件类型")
     private ComponentType componentType;
-    /**
-     * 组件参数
-     */
+    @Check(name = "组件参数")
     private JSONObject params;
-    /**
-     * 参数版本号
-     */
+    @Check(name = "参数版本号")
     private long paramsVersion;
 
     /**
@@ -68,6 +53,19 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
         return componentType.getLabel();
     }
 
+    public JSONObject getParams() {
+        return params;
+    }
+
+    public void setParams(String params) {
+        if (params != null) {
+            this.params = JSONObject.parseObject(params);
+        }
+    }
+
+    public void setParams(JSONObject json) {
+        this.params = json;
+    }
 
     //region getter/setter
 
@@ -109,16 +107,6 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
 
     public void setComponentType(ComponentType componentType) {
         this.componentType = componentType;
-    }
-
-    public JSONObject getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        if (params != null) {
-            this.params = JSONObject.parseObject(params);
-        }
     }
 
     public long getParamsVersion() {

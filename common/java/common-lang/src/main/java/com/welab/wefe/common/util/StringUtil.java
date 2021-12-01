@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,20 +45,14 @@ public class StringUtil extends StringUtils {
 
     private static final Pattern MATCH_PHONENUMBER = Pattern.compile("^((\\+86)|(86))?1[3456789]\\d{9}$");
 
-
-    public static String removeCharacter(String str) {
-        String empty = "";
-        if (str != null && !empty.equals(str)) {
-            StringBuilder sbuilder = new StringBuilder();
-            for (int i = 0; i < str.length(); i++) {
-                if (Character.isDigit(str.charAt(i))) {
-                    sbuilder.append(str.charAt(i));
-                }
-
-            }
-            return sbuilder.toString();
+    /**
+     * 将列表拼接为用逗号分隔的字符串
+     */
+    public static String joinByComma(final Iterable<?> iterable) {
+        if (iterable == null) {
+            return "";
         }
-        return empty;
+        return join(iterable, ",");
     }
 
 

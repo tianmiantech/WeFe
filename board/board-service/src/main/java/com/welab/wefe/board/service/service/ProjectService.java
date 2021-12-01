@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.api.project.member.RemoveApi;
 import com.welab.wefe.board.service.api.project.project.*;
 import com.welab.wefe.board.service.database.entity.job.*;
@@ -28,11 +28,15 @@ import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.ProjectDataSetInput;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
-import com.welab.wefe.board.service.dto.entity.project.*;
+import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -47,6 +51,7 @@ import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +162,7 @@ public class ProjectService extends AbstractService {
                 .append(ProjectFlowStatus.editing.name(), 0)
                 .append(ProjectFlowStatus.running.name(), 0)
                 .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
         // create and save ProjectMember to database
@@ -193,6 +199,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
+                dataSet.setDataSetType(dataSetInput.getDataSetType());
 
                 projectDataSetRepo.save(dataSet);
 
@@ -272,7 +279,7 @@ public class ProjectService extends AbstractService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null);
+        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
 
 
         // Populate the member's data set list
@@ -307,9 +314,9 @@ public class ProjectService extends AbstractService {
                 .filter(x -> x.getMemberRole() == JobMemberRole.provider).collect(Collectors.toList());
 
         ProjectOutputModel output = ModelMapper.map(project, ProjectOutputModel.class);
-        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
-                ProjectDetailMemberOutputModel.class);
-        output.setPromoter(newPromoter);
+//        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
+//                ProjectDetailMemberOutputModel.class);
+        output.setPromoter(promoter);
         output.setProviderList(providers);
         output.setPromoterList(promoters);
         output.setIsCreator(
@@ -490,7 +497,7 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setMemberRole(item.getMemberRole());
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
-
+                projectDataSet.setDataSetType(item.getDataSetType());
             }
 
             projectDataSetRepo.save(projectDataSet);
@@ -623,7 +630,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -658,6 +665,11 @@ public class ProjectService extends AbstractService {
 
 
         where.append(" and p.deleted != true ");
+
+        if (input.getProjectType() != null) {
+            where.append(" and p.project_type = '" + input.getProjectType() + "'");
+        }
+
         if (StringUtil.isNotBlank(input.getName())) {
             where.append(" and p.name like '%" + input.getName() + "%'");
         }
@@ -1021,6 +1033,7 @@ public class ProjectService extends AbstractService {
                     .append(ProjectFlowStatus.editing.name(), 0)
                     .append(ProjectFlowStatus.running.name(), 0)
                     .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
             // save ProjectMember to database
@@ -1056,6 +1069,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
+                        dataSet.setDataSetType(x.getDataSetType());
                         projectDataSetRepo.save(dataSet);
                     });
 
@@ -1121,7 +1135,7 @@ public class ProjectService extends AbstractService {
                             params.put("auditStatus",
                                     model.getMemberId().equals(CacheObjects.getMemberId())
                                             && model.getMemberRole() == myRole ? AuditStatus.auditing
-                                                    : model.getAuditStatus());
+                                            : model.getAuditStatus());
                             params.put("auditComment", model.getMemberId().equals(CacheObjects.getMemberId()) ? ""
                                     : model.getAuditComment());
                             projectDataSetRepo.updateById(model.getId(), params, ProjectDataSetMySqlModel.class);
@@ -1137,7 +1151,7 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListApi.Input(projectId), ListApi.class);
+        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListInProjectApi.Input(projectId), ListInProjectApi.class);
 
         // Find the promoter in the current project from all members of the sender
         ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity.project;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.ProjectFlowStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 import java.util.Date;
 
@@ -25,24 +26,15 @@ import java.util.Date;
  * @author zane.luo
  */
 public class ProjectFlowProgressOutputModel extends AbstractOutputModel {
-    /**
-     * 项目ID
-     */
+    @Check(name = "项目ID")
     private String projectId;
-    /**
-     * 流程ID
-     */
+    @Check(name = "流程ID")
     private String flowId;
-
-    /**
-     * 流程的状态
-     */
+    @Check(name = "流程的状态")
     private ProjectFlowStatus flowStatus;
     private Date statusUpdatedTime;
     private String message;
-    /**
-     * 任务进度
-     */
+    @Check(name = "任务进度")
     private Integer jobProgress;
 
 

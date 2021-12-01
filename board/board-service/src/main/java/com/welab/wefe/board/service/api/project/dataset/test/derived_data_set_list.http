@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/derived_data_set/query
+POST http://localhost:8080/board-service/project/derived_data_set/query
 Content-Type: application/json
 
 {

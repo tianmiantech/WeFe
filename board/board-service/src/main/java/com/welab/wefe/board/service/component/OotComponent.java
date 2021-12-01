@@ -19,8 +19,9 @@ package com.welab.wefe.board.service.component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskConfigApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
@@ -28,16 +29,16 @@ import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.dto.kernel.Env;
-import com.welab.wefe.board.service.dto.kernel.KernelJob;
-import com.welab.wefe.board.service.dto.kernel.TaskConfig;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.*;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -95,7 +96,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
         }
 
-        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOne(myDataSetConfig.getDataSetId());
+        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOneById(myDataSetConfig.getDataSetId());
         if (null == dataSetMysqlModel) {
             throw new FlowNodeException(node, "成员[" + CacheObjects.getMemberName() + "]选择的数据集信息不存在。");
         }
@@ -164,7 +165,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             }
         }
         if (isSelectedMyself) {
-            myDataSet = dataSetService.findOne(myDataSetConfig.getDataSetId());
+            myDataSet = dataSetService.findOneById(myDataSetConfig.getDataSetId());
             if (myDataSet == null) {
                 throw new FlowNodeException(node, "找不到成员[" + CacheObjects.getMemberName() + "]的数据集。");
             }
@@ -245,14 +246,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
 
         // Create input parameters for OOT components
-        JObject ootParam = JObject.create(newDataIoParam)
+        JObject output = JObject.create(newDataIoParam)
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap);
 
         // OotParam
-        return JObject.create().append("params", ootParam);
+        return output;
     }
 
     @Override
@@ -439,7 +440,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             if (null == jobMySqlModel) {
                 throw new FlowNodeException(node, "找不到原流程任务信息");
             }
-            ListApi.Input input = new ListApi.Input();
+            ListInProjectApi.Input input = new ListInProjectApi.Input();
             input.setProjectId(jobMySqlModel.getProjectId());
             input.setOotJobId(params.jobId);
             try {
@@ -646,8 +647,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return StringUtil.isNotEmpty(params.getJobId());
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataIOComponent.DataSetItem> dataSetList;
+    public static class Params extends AbstractDataIOParam<DataIOComponent.DataSetItem> {
         /**
          * Specify jobid to create OOT component (used in OOT mode)
          */
@@ -664,14 +664,6 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
          * Positive label type (if there is no evaluation component in the original process, this parameter should be filled in the OOT component input parameter)
          */
         private Integer posLabel;
-
-        public List<DataIOComponent.DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataIOComponent.DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
 
         public String getJobId() {
             return jobId;

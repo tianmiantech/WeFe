@@ -1,6 +1,6 @@
 
 ### 查询全部数据集
-POST {{baseUrl}}/data_set/query
+POST http://localhost:8080/board-service/data_set/query
 Content-Type: application/json
 
 {}
@@ -16,7 +16,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 按名字查
-POST {{baseUrl}}/data_set/query
+POST http://localhost:8080/board-service/data_set/query
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### 按 tag 查
-POST {{baseUrl}}/data_set/query
+POST http://localhost:8080/board-service/data_set/query
 Content-Type: application/json
 
 {
@@ -32,7 +32,7 @@ Content-Type: application/json
 }
 
 ### 按是否有 Y 值查
-POST {{baseUrl}}/data_set/query
+POST http://localhost:8080/board-service/data_set/query
 Content-Type: application/json
 
 {

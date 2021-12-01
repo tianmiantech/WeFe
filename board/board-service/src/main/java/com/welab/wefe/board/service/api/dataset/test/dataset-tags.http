@@ -1,13 +1,13 @@
 
 ### 查询所有标签
-POST {{baseUrl}}/data_set/tags
+POST http://localhost:8080/board-service/data_set/tags
 Content-Type: application/json
 
 {}
 
 
 ### 根据标签名称模糊查询
-POST {{baseUrl}}/data_set/tags
+POST http://localhost:8080/board-service/data_set/tags
 Content-Type: application/json
 
 {

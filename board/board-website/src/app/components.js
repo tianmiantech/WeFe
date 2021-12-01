@@ -14,6 +14,7 @@ import { dateFormat, dateLast } from '@src/utils/date';
 import { timeFormat } from '@src/utils/timer';
 import '@js/polyfill/requestAnimationFrame';
 import '@styles/base.scss';
+import Konva from 'konva';
 
 export default {
     install (Vue) {
@@ -52,5 +53,6 @@ export default {
         Vue.use(VueSimpleUploader);
         Vue.use(VueDragResize);
         Vue.use(CGrid);
+        Vue.use(Konva);
     },
 };

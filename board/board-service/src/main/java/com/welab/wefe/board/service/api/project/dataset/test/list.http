@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/data_set/list
+POST http://localhost:8080/board-service/project/data_set/list
 Content-Type: application/json
 
 {

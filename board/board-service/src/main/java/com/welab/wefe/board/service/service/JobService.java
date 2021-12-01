@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,6 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.JobStatus;
@@ -55,8 +54,6 @@ public class JobService extends AbstractService {
     JobMemberRepository jobMemberRepo;
     @Autowired
     DataSetRepository dataSetRepository;
-    @Autowired
-    UnionService unionService;
     @Autowired
     JobMemberService jobMemberService;
     @Autowired
@@ -153,7 +150,7 @@ public class JobService extends AbstractService {
 
 
         // Set all child nodes of the node without cache to be available without cache
-        while (true) {
+        while (graph.getLastJob().getMyRole() != JobMemberRole.arbiter) {
             List<FlowGraphNode> before = graph
                     .getAllJobSteps()
                     .stream()
@@ -183,7 +180,7 @@ public class JobService extends AbstractService {
      * 1. If the node has been edited after the task is created, the cache is not available.
      * 2. The status of the corresponding task of the node is not success is unavailable
      */
-    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) {
+    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) throws StatusCodeWithException {
 
         // Based on the time when the task was created,
         // nodes that have been edited after this time cannot use the cache.
@@ -200,6 +197,23 @@ public class JobService extends AbstractService {
                 .filter(x -> x.getParamsVersion() >= lastJobCreateTime)
                 .forEach(x -> x.setHasCacheResult(false));
 
+        List<FlowGraphNode> nodes = graph.getAllJobSteps();
+        Collections.sort(nodes, new Comparator<FlowGraphNode>() {
+            @Override
+            public int compare(FlowGraphNode o1, FlowGraphNode o2) {
+                return o1.getDeep() - o2.getDeep();
+            }
+        });
+        boolean clearCacheResultAfter = false;
+        for (FlowGraphNode node : nodes) {
+            if (node.getParamsVersion() >= lastJobCreateTime) {
+                node.setHasCacheResult(false);
+                clearCacheResultAfter = true;
+            }
+            if (clearCacheResultAfter) {
+                node.setHasCacheResult(false);
+            }
+        }
 
         // Check whether the cache of the task corresponding to the node is available.
         // If the task status is incorrect, the cache is not available.

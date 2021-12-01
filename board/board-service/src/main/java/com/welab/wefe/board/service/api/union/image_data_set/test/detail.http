@@ -1,0 +1,9 @@
+
+### 登录
+POST http://localhost:8080/board-service/union/image_data_set/detail
+Content-Type: application/json
+token:{{token}}
+
+{
+  "id": "b290ea05673c4a8f987ab12d4bb02bd1"
+}

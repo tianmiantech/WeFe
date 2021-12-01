@@ -32,7 +32,6 @@ import com.welab.wefe.common.enums.MemberService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ import static com.welab.wefe.board.service.service.DataSetStorageService.DATABAS
  * @author lonnie
  */
 @Service
-public class ServiceCheckService {
+public class ServiceCheckService extends AbstractService {
 
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
@@ -86,9 +85,12 @@ public class ServiceCheckService {
         String memberId = input.getMemberId();
         // If you are not checking your own status, go to the gateway.
         if (!CacheObjects.getMemberId().equals(memberId)) {
-            ApiResult<?> result = gatewayService.callOtherMemberBoard(memberId, ServiceStatusCheckApi.class, JObject.create(input));
-            return JObject.create(result.data).toJavaObject(ServiceStatusCheckApi.Output.class);
-
+            return gatewayService.callOtherMemberBoard(
+                    memberId,
+                    ServiceStatusCheckApi.class,
+                    JObject.create(input),
+                    ServiceStatusCheckApi.Output.class
+            );
         }
 
         LinkedHashMap<MemberService, MemberServiceStatusOutput> result = new LinkedHashMap<>();
@@ -213,8 +215,7 @@ public class ServiceCheckService {
             storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
             output.setSuccess(true);
         } catch (Exception e) {
-            LOG.error(e.getMessage());
-            e.printStackTrace();
+            super.log(e);
             output.setSuccess(false);
             output.setMessage(config.getDbType().name() + " put异常，请检查相关配置是否正确。");
             return output;

@@ -32,11 +32,11 @@ from common.python.utils import log_utils
 from kernel.components.deeplearning.horznn import nn_model
 from kernel.components.deeplearning.vertnn.backend.tf_keras.data_generator import KerasSequenceDataConverter
 from kernel.components.deeplearning.vertnn.model.interactive_layer import InterActivePromoterDenseLayer
-from kernel.components.deeplearning.vertnn.model.interactive_layer import InteractiveHostDenseLayer
+from kernel.components.deeplearning.vertnn.model.interactive_layer import InteractiveProviderDenseLayer
 from kernel.components.deeplearning.vertnn.model.vert_nn_bottom_model import VertNNBottomModel
 from kernel.components.deeplearning.vertnn.model.vert_nn_top_model import VertNNTopModel
 from kernel.components.deeplearning.vertnn.strategy.selector import SelectorFactory
-from kernel.components.deeplearning.vertnn.vert_nn_model import VertNNHostModel
+from kernel.components.deeplearning.vertnn.vert_nn_model import VertNNProviderModel
 from kernel.components.deeplearning.vertnn.vert_nn_model import VertNNPromoterModel
 from kernel.protobuf.generated.vert_nn_model_meta_pb2 import OptimizerParam
 from kernel.protobuf.generated.vert_nn_model_meta_pb2 import VertNNModelMeta
@@ -70,7 +70,7 @@ class VertNNKerasPromoterModel(VertNNPromoterModel):
         self.is_empty = False
 
         self.set_nn_meta(vert_nn_param)
-        self.model_builder = nn_model.get_nn_builder(config_type=self.config_type)
+        self.model_builder = nn_model.get_nn_builder(self.config_type)
         self.data_converter = KerasSequenceDataConverter()
 
         self.selector = SelectorFactory.get_selector(vert_nn_param.selector_param.method,
@@ -286,9 +286,9 @@ class VertNNKerasPromoterModel(VertNNPromoterModel):
         self.interactive_model.restore_model(interactive_model_param)
 
 
-class VertNNKerasHostModel(VertNNHostModel):
+class VertNNKerasProviderModel(VertNNProviderModel):
     def __init__(self, vert_nn_param):
-        super(VertNNKerasHostModel, self).__init__()
+        super(VertNNKerasProviderModel, self).__init__()
 
         self.bottom_model_input_shape = None
         self.bottom_model = None
@@ -333,7 +333,7 @@ class VertNNKerasHostModel(VertNNHostModel):
         self.bottom_model.restore_model(model_bytes)
 
     def _build_interactive_model(self):
-        self.interactive_model = InteractiveHostDenseLayer(self.vert_nn_param)
+        self.interactive_model = InteractiveProviderDenseLayer(self.vert_nn_param)
 
         self.interactive_model.set_transfer_variable(self.transfer_variable)
         self.interactive_model.set_partition(self.partition)
@@ -414,13 +414,13 @@ class VertNNKerasHostModel(VertNNHostModel):
                 self.bottom_model.set_batch(self.batch_size)
                 self.interactive_model.set_backward_select_strategy()
 
-        host_bottom_output = self.bottom_model.forward(x)
+        Provider_bottom_output = self.bottom_model.forward(x)
 
-        self.interactive_model.forward(host_bottom_output, epoch, batch_idx, train=True)
+        self.interactive_model.forward(Provider_bottom_output, epoch, batch_idx, train=True)
 
-        host_gradient, selective_ids = self.interactive_model.backward(epoch, batch_idx)
+        Provider_gradient, selective_ids = self.interactive_model.backward(epoch, batch_idx)
 
-        self.bottom_model.backward(x, host_gradient, selective_ids)
+        self.bottom_model.backward(x, Provider_gradient, selective_ids)
 
     def predict(self, x):
         promoter_bottom_output = self.bottom_model.predict(x)

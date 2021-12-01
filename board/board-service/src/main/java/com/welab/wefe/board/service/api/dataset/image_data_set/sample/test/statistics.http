@@ -1,0 +1,8 @@
+
+### 统计数据集样本分布
+POST http://localhost:8080/board-service/image_data_set_sample/statistics
+Content-Type: application/json
+
+{
+  "data_set_id": "f39cce565d70441d89643babe77bb27b"
+}

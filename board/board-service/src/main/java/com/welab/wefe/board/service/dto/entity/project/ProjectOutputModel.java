@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,8 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.enums.ProjectType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 
 import java.util.Date;
@@ -30,85 +32,55 @@ import java.util.List;
  */
 public class ProjectOutputModel extends AbstractOutputModel {
 
-    /**
-     * 项目ID
-     */
+    @Check(name = "项目ID")
     private String projectId;
 
-    /**
-     * 名称
-     */
+    @Check(name = "名称")
     private String name;
 
-    /**
-     * 项目描述
-     */
+    @Check(name = "项目描述")
     private String projectDesc;
 
     private AuditStatus auditStatus;
-    /**
-     * 自己是否同意
-     */
+    @Check(name = "自己是否同意")
     private AuditStatus auditStatusFromMyself;
-    /**
-     * 其他人是否同意
-     */
+    @Check(name = "其他人是否同意")
     private AuditStatus auditStatusFromOthers;
-    /**
-     * 审核意见
-     */
+    @Check(name = "审核意见")
     private String auditComment;
 
-    /**
-     * 我方身份;枚举（promoter/provider）
-     */
+    @Check(name = "我方身份;枚举（promoter/provider）")
     private JobMemberRole myRole;
 
-    /**
-     * 是否是创建者
-     */
+    @Check(name = "是否是创建者")
     private boolean isCreator;
 
-    /**
-     * 我方成员ID
-     */
+    @Check(name = "我方成员ID")
     private String memberId;
 
-    /**
-     * 消息备注 失败原因/备注
-     */
+    @Check(name = "消息备注 失败原因/备注")
     private String message;
 
     private ProjectDetailMemberOutputModel promoter;
     private List<ProjectDetailMemberOutputModel> providerList;
     private List<ProjectDetailMemberOutputModel> promoterList;
 
-    /**
-     * 退出项目的操作者
-     */
+    @Check(name = "退出项目的操作者")
     private String exitedBy;
-    /**
-     * 退出时间
-     */
+    @Check(name = "退出时间")
     private Date exitedTime;
 
-    /**
-     * 当前成员是否退出了项目
-     */
+    @Check(name = "当前成员是否退出了项目")
     private boolean isExited;
-    /**
-     * 是否已关闭
-     */
+    @Check(name = "是否已关闭")
     private boolean closed = false;
-    /**
-     * 关闭项目的操作者
-     */
+    @Check(name = "关闭项目的操作者")
     private String closedBy;
-    /**
-     * 关闭时间
-     */
+    @Check(name = "关闭时间")
     private Date closedTime;
     private JObject flowStatusStatistics;
+    @Check(name = "项目类型")
+    private ProjectType projectType;
 
     public String getExitOperatorNickname() {
         return CacheObjects.getNickname(exitedBy);
@@ -285,5 +257,13 @@ public class ProjectOutputModel extends AbstractOutputModel {
 
     public void setIsExited(boolean isExited) {
         this.isExited = isExited;
+    }
+
+    public ProjectType getProjectType() {
+        return projectType;
+    }
+
+    public void setProjectType(ProjectType projectType) {
+        this.projectType = projectType;
     }
 }

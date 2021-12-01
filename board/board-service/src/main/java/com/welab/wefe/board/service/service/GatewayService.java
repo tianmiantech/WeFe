@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -246,19 +246,24 @@ public class GatewayService extends BaseGatewayService {
     /**
      * Call the board of other members
      */
-    public ApiResult<?> callOtherMemberBoard(String dstMemberId, Class<?> api, Object data) throws MemberGatewayException {
+    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Object params, Class<T> resultClass) throws MemberGatewayException {
         Api annotation = api.getAnnotation(Api.class);
-        return callOtherMemberBoard(dstMemberId, annotation.path(),
-                data instanceof JSONObject
-                        ? (JSONObject) data
-                        : JObject.create(data)
+        ApiResult<JSONObject> apiResult = callOtherMemberBoard(dstMemberId, annotation.path(),
+                params instanceof JSONObject
+                        ? (JSONObject) params
+                        : JObject.create(params)
         );
+
+        if (apiResult.data != null) {
+            return apiResult.data.toJavaObject(resultClass);
+        }
+        return null;
     }
 
     /**
      * Call the board of other members
      */
-    public ApiResult<?> callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws MemberGatewayException {
+    public ApiResult<JSONObject> callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws MemberGatewayException {
 
         String request = JObject.create()
                 .append("url", api)
@@ -266,7 +271,7 @@ public class GatewayService extends BaseGatewayService {
                 .append("body", data)
                 .toStringWithNull();
 
-        ApiResult<?> result = sendToOtherGateway(dstMemberId, GatewayActionType.http_job, request, GatewayProcessorType.boardHttpProcessor);
+        ApiResult<JSONObject> result = sendToOtherGateway(dstMemberId, GatewayActionType.http_job, request, GatewayProcessorType.boardHttpProcessor);
         if (!result.success()) {
             throw new MemberGatewayException(dstMemberId, result.getMessage());
         }
