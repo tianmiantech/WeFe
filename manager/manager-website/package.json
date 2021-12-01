@@ -2,6 +2,9 @@
   "name": "wefe-manager-website",
   "description": "wefe 联邦学习前台服务",
   "author": "claude.wu",
+  "welab": {
+    "contextPath": "manager-website"
+  },
   "scripts": {
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve",

@@ -211,6 +211,13 @@
         nextTick,
     } from 'vue';
     import { useRouter } from 'vue-router';
+    import {
+        Graph,
+        registerNode,
+        registerEdge,
+        registerBehavior,
+    } from '@antv/g6';
+    import g6Register from 'welabx-g6';
 
     export default {
         props: {
@@ -282,6 +289,7 @@
                 },
 
                 async shouldStart($event, node) {
+                    if(vData.jobStatus === 'wait_stop') return;
                     if(node) {
                         endNodeItem = node;
                         endNodeId = node.getModel().id;
@@ -393,6 +401,7 @@
                 },
 
                 async pause() {
+                    if(vData.jobStatus === 'wait_stop') return;
                     if(vData.locker) return;
                     vData.locker = true;
                     // pause job
@@ -597,11 +606,13 @@
                     if(props.graph.instance) {
                         nextTick(async _ => {
                             const { nodes, edges } = JSON.parse(JSON.stringify(props.graph.instance.save()));
-                            const G6 = await import('@antv/g6');
-                            const register = await import('welabx-g6');
 
                             if(jobPreview.value) {
-                                const config = register.default(G6, {
+                                const config = g6Register({
+                                    registerNode,
+                                    registerEdge,
+                                    registerBehavior,
+                                }, {
                                     container:   jobPreview.value,
                                     width:       jobPreview.value.offsetWidth,
                                     height:      jobPreview.value.offsetHeight,
@@ -663,7 +674,7 @@
                                     fitCenter: true,
                                 });
 
-                                previewGraph = new G6.Graph(config);
+                                previewGraph = new Graph(config);
 
                                 nodes.forEach(node => {
                                     node.preview = ids[node.id];

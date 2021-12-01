@@ -5,6 +5,8 @@ const { HashedModuleIdsPlugin } = require('webpack');
 const argv = require('minimist')(process.argv.slice(2));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const resolvers = require('unplugin-vue-components/resolvers');
+const components = require('unplugin-vue-components/webpack');
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 const argvs = argv._[1] ? argv._[1].split('=') : '';
@@ -84,11 +86,11 @@ module.exports = {
                             test:     /[\\/]node_modules[\\/]echarts[\\/]/,
                             priority: 20,
                         },
-                        'antv-g6': {
+                        /* 'antv-g6': {
                             name:     'antv-g6',
                             test:     /[\\/]node_modules[\\/]@antv[\\/]/,
                             priority: 20,
-                        },
+                        }, */
                         'cheetah-grid': {
                             name:     'cheetah-grid',
                             test:     /[\\/]node_modules[\\/](cheetah-grid|vue-cheetah-grid|zrender)[\\/]/,
@@ -135,6 +137,14 @@ module.exports = {
         if (argv['report']) {
             config.plugins.push(new BundleAnalyzerPlugin());
         }
+
+        // on demand import
+        config.plugins.push(
+            components({
+                // eslint-disable-next-line new-cap
+                resolvers: [resolvers.ElementPlusResolver()],
+            }),
+        );
     },
     chainWebpack: (config) => {
         config.module

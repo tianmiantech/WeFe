@@ -3,7 +3,7 @@
  * User authentication
  */
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV}`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 export const setStorage = () => {
     /* const KEEPALIVE = `${baseUrl}_keepAlive`;
@@ -65,11 +65,11 @@ export const syncLogin = async (userInfo = {}) => {
  * force to logout
  */
 export const baseLogout = (opt = { redirect: true }) => {
-    const { baseUrl } = window.api;
+    // const { baseUrl } = window.api;
 
     // reset store & localstorage
     clearUserInfo();
-    setStorage().removeItem(`${baseUrl}_system_inited`);
+    // setStorage().removeItem(`${baseUrl}_system_inited`);
 
     let query = {};
     const { $router } = window.$app.config.globalProperties;

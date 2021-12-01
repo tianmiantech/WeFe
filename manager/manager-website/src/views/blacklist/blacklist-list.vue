@@ -100,7 +100,7 @@
             return {
                 search: {
                     phone_number: '',
-                    nickname:     '',
+                    realname:     '',
                 },
                 getListApi:     '/blacklist/list',
                 viewDataDialog: {

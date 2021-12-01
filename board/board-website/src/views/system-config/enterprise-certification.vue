@@ -1,12 +1,12 @@
 <template>
-    <div class="page">
+    <div v-loading="loading" class="page">
         <el-card shadow="never">
-            <h3>企业认证</h3>
+            <h3>企业认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
             <el-form
                 class="mt20"
                 :model="form"
-                :disabled="!userInfo.super_admin_role"
             >
+                <!-- :disabled="!userInfo.super_admin_role" -->
                 <el-form-item
                     :rules="[{required: true, message: '名称必填!'}]"
                     label="企业名称及类型："
@@ -46,29 +46,33 @@
                     :rules="[{required: true, message: '认证文件必传!'}]"
                 >
                     <el-upload
+                        ref="uploader"
                         v-loading="pending"
                         :file-list="fileList"
                         :on-remove="onRemove"
+                        :on-preview="onPreview"
                         :http-request="() => {}"
                         :before-upload="beforeUpload"
-                        accept=".png,.jpg,.pdf"
+                        :headers="{ token: userInfo.token }"
+                        accept=".png,.jpg,.pdf,.doc,.docx"
                         list-type="picture"
                         action="#"
-                        multiple
                         drag
                     >
-                        <i class="el-icon--upload"></i>
+                        <el-icon class="el-icon--upload">
+                            <elicon-upload-filled />
+                        </el-icon>
                         <div>
-                            将文件 (.jpg/png/PDF) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
+                            将文件 (.jpg/png/PDF/doc/docx) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
                             </p>
-                            <div class="el-upload__tip">jpg/png 文件最大上传 10M, PDF 最大上传 5M, <br>可同时上传多个文件</div>
+                            <div class="el-upload__tip">jpg/png/doc/docx 文件最大 5M, PDF 最大 10M</div>
                         </div>
                     </el-upload>
                 </el-form-item>
             </el-form>
 
             <el-button
-                v-loading="loading"
+                v-loading="submitting"
                 v-if="userInfo.super_admin_role"
                 :disabled="!form.principalName || !form.authType || !form.fileIdList.length || !!uploading"
                 style="width: 120px;"
@@ -76,9 +80,27 @@
                 type="primary"
                 @click="submit"
             >
-                提交
+                {{ form.realNameAuth ? '重新' : '' }}提交
             </el-button>
         </el-card>
+
+        <el-dialog
+            title="文件预览:"
+            v-model="preview.visible"
+        >
+            <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
+                <el-icon @click="preview.fullscreen = !preview.fullscreen">
+                    <elicon-full-screen />
+                </el-icon>
+                <embed
+                    v-if="preview.visible"
+                    :src="preview.fileData"
+                    :alt="preview.fileName"
+                    :style="`width: 100%;${preview.fileType.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
+                    @click="preview.fullscreen = !preview.fullscreen"
+                >
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -89,11 +111,12 @@
         inject: ['refresh'],
         data() {
             return {
-                loading:  false,
-                pending:  false,
-                options:  [],
-                fileList: [],
-                form:     {
+                loading:    false,
+                pending:    false,
+                submitting: false,
+                options:    [],
+                fileList:   [],
+                form:       {
                     realNameAuth:  0,
                     fileIdList:    [],
                     auditComment:  '',
@@ -105,6 +128,13 @@
 
                 },
                 uploading: 0,
+                preview:   {
+                    visible:    false,
+                    fileName:   '',
+                    fileData:   '',
+                    fileType:   '',
+                    fullscreen: false,
+                },
             };
         },
         computed: {
@@ -116,19 +146,28 @@
         },
         methods: {
             async getAuthStatus() {
+                this.loading = true;
                 const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
 
                 if(code === 0) {
+                    const { file_id_list } = data;
+
                     this.form.realNameAuth = data.real_name_auth_status;
                     this.form.principalName = data.principal_name;
                     this.form.auditComment = data.audit_comment;
                     this.form.description = data.description;
-                    this.form.fileIdList = data.file_id_list;
+                    this.form.fileIdList = file_id_list;
                     this.form.authType = data.auth_type;
 
-                    data.file_id_list.forEach(id => {
-                        this.getFile(id);
-                    });
+                    if(file_id_list.length) {
+                        file_id_list.forEach(id => {
+                            this.getFile(id, data.file_id_list.length);
+                        });
+                    } else {
+                        this.loading = false;
+                    }
+                } else {
+                    this.loading = false;
                 }
             },
             async getAuthType() {
@@ -151,34 +190,56 @@
                 };
                 reader.readAsDataURL(blob);
             },
-            async getFile(id) {
-                const { code, data } = await this.$http.get(`union/download/file?fileId=${id}`, {
-                    // responseType: 'blob',
+            async getFile(fileId, files) {
+                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                    url:          '/union/download/file',
+                    responseType: 'blob',
+                    data:         {
+                        fileId,
+                    },
                 });
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
                         this.fileList.push({
-                            name: data.name,
+                            name: window.decodeURIComponent(filename),
                             url:  result,
+                            fileId,
                         });
+
+                        if(this.fileList.length === files) {
+                            setTimeout(() => {
+                                this.loading = false;
+                            }, 1000);
+                        }
                     });
                 }
             },
 
             onRemove(file) {
-                console.log(this.fileList);
+                const index = this.form.fileIdList.findIndex(id => id === file.fileId);
+
+                if(~index) {
+                    this.form.fileIdList.splice(index, 1);
+                }
+            },
+            onPreview(file) {
+                this.preview.fileType = file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpg';
+                this.preview.fileData = file.url;
+                this.preview.fullscreen = false;
+                this.preview.visible = true;
             },
             beforeUpload(file) {
                 const isImg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+                const isWord = file.type.includes('wordprocessingml.document');
                 const isPdf = file.type === 'application/pdf';
 
-                if(!isImg && !isPdf) {
+                if(!isImg && !isWord && !isPdf) {
                     this.$message.error('文件格式不支持!');
                     return false;
                 }
 
-                if(isImg) {
+                if(isImg || isWord) {
                     if(file.size / 1024 / 1024 > 5) {
                         this.$message.error('文件大小不能超过 5M !');
                         return false;
@@ -200,6 +261,7 @@
                 const formData = new FormData();
 
                 formData.append('file', file);
+                formData.append('filename', file.name);
 
                 const { code, data } = await this.$http.post({
                     url:  '/union/member/file/upload',
@@ -232,7 +294,9 @@
 
                 if(code === 0) {
                     this.$message.success('提交成功! 正在为您审核');
-                    this.$router.replace('member-view');
+                    setTimeout(() => {
+                        this.$router.replace('member-view');
+                    }, 500);
                 }
             },
         },
@@ -240,11 +304,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form{max-width: 400px;}
+    .el-form{max-width: 500px;}
     .el-upload__tip{
         padding:20px;
         line-height: 16px;
     }
+    .el-icon--upload{margin:20px 0 10px;}
     .el-select{
         height:32px;
         :deep(.el-input) {
@@ -253,5 +318,35 @@
                 height:30px;
             }
         }
+    }
+    .el-icon-full-screen{
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 10px;
+        font-size: 16px;
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+    .preview-box{
+        position: relative;
+        padding-top: 30px;
+        margin-top: -20px;
+        &.fullscreen{
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            bottom: 30px;
+            left: 30px;
+            overflow:auto;
+        }
+        .el-icon{
+            position: absolute;
+            top:10px;
+            right:0;
+            cursor: pointer;
+        }
+        embed{cursor: pointer;}
     }
 </style>

@@ -229,9 +229,9 @@
 
                 <el-table-column label="数据量">
                     <template v-slot="scope">
-                        特征：{{ scope.row.feature_count }}
+                        特征量：{{ scope.row.feature_count }}
                         <br>
-                        行数：{{ scope.row.row_count }}
+                        样本量：{{ scope.row.row_count }}
                     </template>
                 </el-table-column>
 
@@ -265,7 +265,9 @@
                                 content="被拒绝的数据集需要移除后再进行添加！"
                                 placement="top"
                             >
-                                <i class="el-icon-info"></i>
+                                <el-icon>
+                                    <elicon-info-filled />
+                                </el-icon>
                             </el-tooltip>
                         </template>
                     </template>
@@ -311,7 +313,9 @@
                                 class="dataset-preview"
                                 @click="methods.showDataSetPreview(scope.row)"
                             >
-                                <i class="el-icon-view" />
+                                <el-icon>
+                                    <elicon-view />
+                                </el-icon>
                             </el-button>
                         </el-tooltip>
                         <!--
@@ -323,7 +327,7 @@
                             circle
                             type="danger"
                             class="mr10"
-                            icon="el-icon-delete"
+                            icon="elicon-delete"
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
                         <template v-if="scope.row.deleted">

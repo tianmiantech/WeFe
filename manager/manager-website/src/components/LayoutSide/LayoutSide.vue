@@ -1,12 +1,12 @@
 <template>
     <div :class="['layout-sider', { isCollapsed: vData.isCollapsed }]">
         <div class="heading-logo">
-            <MemberAvatar :width="60" />
+            <img style="width:60px;" src="../../assets/images/x-logo.png" alt="">
             <p
                 class="member-name mt10"
-                :title="userInfo.member_name"
+                :title="userInfo.realname"
             >
-                {{ userInfo.member_name }}
+                {{ userInfo.realname }}
             </p>
         </div>
         <el-menu

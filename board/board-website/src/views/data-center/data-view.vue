@@ -50,7 +50,7 @@
             </el-tab-pane>
 
             <el-tab-pane name="preview" label="数据预览">
-                <h4 class="mb10">主键已被 hash</h4>
+                <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
                 <DataSetPreview ref="DataSetPreview" />
             </el-tab-pane>
         </el-tabs>

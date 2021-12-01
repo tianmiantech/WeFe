@@ -97,8 +97,12 @@ httpInstance.interceptors.response.use(
             return {
                 code: 0,
                 data,
+                response,
             };
         }
+
+        // 添加自定义字段以备用
+        data._axios_response = response;
         return data;
     },
     result => {

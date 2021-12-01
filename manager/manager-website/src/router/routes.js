@@ -13,7 +13,7 @@
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
@@ -27,7 +27,7 @@ const baseRoutes = [
         children:  [
             {
                 path: prefixPath,
-                name: 'member-list',
+                name: 'index',
                 meta: {
                     loginAndRefresh: true,
                     title:           '成员列表',
@@ -99,6 +99,34 @@ const baseRoutes = [
                     title:           '认证协议',
                 },
                 component: () => import('../views/agreement'),
+            },
+        ],
+    },
+    {
+        path: prefixPath,
+        meta: {
+            title:          '用户管理',
+            requiresLogout: false,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}user-list`,
+                name: 'user-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '用户列表',
+                },
+                component: () => import('../views/system/user-list'),
+            },
+            {
+                path: `${prefixPath}account-setting`,
+                name: 'account-setting',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '账户设置',
+                },
+                component: () => import('../views/system/account-setting'),
             },
         ],
     },

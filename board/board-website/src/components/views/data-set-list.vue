@@ -17,7 +17,11 @@
                         :to="{ name: 'data-add' }"
                         target="_blank"
                     >
-                        <el-button type="primary">上传数据集<i class="el-icon-right" /></el-button>
+                        <el-button type="primary">上传数据集
+                            <el-icon>
+                                <elicon-arrow-right />
+                            </el-icon>
+                        </el-button>
                     </router-link>
                 </div>
             </slot>
@@ -133,7 +137,9 @@
                                     type="info"
                                     @click="showDataSetPreview(scope.row)"
                                 >
-                                    <i class="el-icon-view" />
+                                    <el-icon>
+                                        <elicon-view />
+                                    </el-icon>
                                 </el-button>
                             </el-tooltip>
                             <el-switch

@@ -1,10 +1,10 @@
 <template>
     <el-form
-        ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
         @submit.prevent
     >
+        <p class="color-danger mb10 f12">tips: 所有发起方需选择共有的特征!</p>
         <el-form-item
             v-for="(item, index) in vData.selectList"
             :key="item.id"
@@ -22,25 +22,29 @@
                     :value="option.value"
                 />
             </el-select>
-            <el-input-number
-                v-model="item.count"
-                type="number"
-                :min="1"
-                controls-position="right"
-                @blur="methods.changeMethodCount(item, index)"
-                @change="methods.changeMethodCount(item, index)"
-            />箱
+            <span class="mr10">
+                <el-input-number
+                    v-model="item.count"
+                    type="number"
+                    :min="1"
+                    controls-position="right"
+                    @blur="methods.changeMethodCount(item, index)"
+                    @change="methods.changeMethodCount(item, index)"
+                />箱
+            </span>
             <el-button
                 size="mini"
+                style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog(item, index)"
             >
                 选择特征（{{ item.feature_column_count }}/{{ vData.total_column_count }}）
             </el-button>
             <el-button
+                v-if="vData.selectList.length > 1"
                 type="text"
-                class="el-icon-delete"
-                style="color:#F85564;font-size: 14px;"
+                class="color-danger"
+                icon="elicon-delete"
                 @click="methods.removeRow(item, index)"
             />
         </el-form-item>
@@ -103,6 +107,7 @@
     import {
         ref,
         reactive,
+        getCurrentInstance,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -124,6 +129,8 @@
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
             const CheckFeatureDialogRef = ref();
+            const { appContext } = getCurrentInstance();
+            const { $alert } = appContext.config.globalProperties;
 
             let vData = reactive({
                 inited:               false,
@@ -215,6 +222,46 @@
                         item.$indeterminate = false;
                         item.$checkedAll = true;
                     }
+                },
+
+                paramsCheck() {
+                    let promoters = 0;
+                    const checked = true;
+                    const featureMaps = {};
+
+                    vData.featureSelectTab.forEach(member => {
+                        if(member.member_role === 'promoter') {
+                            promoters++;
+                        }
+                    });
+
+                    vData.featureSelectTab.forEach((member, index) => {
+                        if(member.member_role === 'promoter') {
+                            member.$feature_list.forEach(row => {
+                                if(row.method) {
+                                    if(!featureMaps[row.name]) {
+                                        featureMaps[row.name] = 1;
+                                    } else {
+                                        featureMaps[row.name]++;
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    for(const key in featureMaps) {
+                        const val = featureMaps[key];
+
+                        if(val !== promoters) {
+                            $alert(`所有 [发起方] 需选择共有的特征! <p class="color-danger">特征 ${key} 未被所有发起方选择, 请检查</p>`, '警告', {
+                                type:                     'warning',
+                                dangerouslyUseHTMLString: true,
+                            });
+                            return false;
+                        }
+                    }
+
+                    return checked;
                 },
             };
 

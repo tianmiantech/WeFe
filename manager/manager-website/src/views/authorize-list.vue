@@ -139,8 +139,8 @@
                 authorizeId:   '',
                 authorizeName: '',
                 search:        {
-                    name:   '',
-                    status: '',
+                    name: '',
+                    // status: '',
                 },
                 watchRoute:    true,
                 defaultSearch: true,
@@ -153,27 +153,7 @@
             ...mapGetters(['userInfo']),
         },
         methods: {
-            _getUrlParams() {
-                const { query } = this.$route;
-                const params = ['status'];
-
-                this.unUseParams = [];
-
-                for (const $key in this.search) {
-                    this.search[$key] = '';
-                }
-                params.forEach(key => {
-                    const val = query[key];
-
-                    if(val) {
-                        this.search[key] = val === 'true';
-                    } else {
-                        this.search[key] = false;
-                        this.unUseParams.push(key);
-                    }
-                });
-            },
-            async changeStatus(event, row, status) {
+            /* async changeStatus(event, row, status) {
                 const params = {
                     typeId: row.type_id,
                 };
@@ -198,7 +178,7 @@
                 if(code === 0) {
                     this.refresh();
                 }
-            },
+            }, */
             update(event, row) {
                 this.authorizeId = row.type_id;
                 this.authorizeName = row.type_name;
@@ -257,7 +237,7 @@
         position: relative;
         display: inline-block;
         vertical-align: top;
-        :deep(.nickname){font-size:40px;}
+        :deep(.realname){font-size:40px;}
     }
     .more-info{
         width: 100%;

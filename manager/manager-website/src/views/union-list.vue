@@ -39,10 +39,10 @@
                 <EmptyData />
             </template>
             <el-table-column label="序号" type="index"></el-table-column>
-            <el-table-column label="名称" min-width="200">
+            <el-table-column label="名称" min-width="100">
                 <template v-slot="scope">
                     {{ scope.row.organization_name }}
-                    <p>节点id: {{ scope.row.union_node_id }}</p>
+                    <!-- <p>节点id: {{ scope.row.union_node_id }}</p> -->
                 </template>
             </el-table-column>
             <el-table-column label="链接" min-width="100">
@@ -50,12 +50,12 @@
                     {{ scope.row.union_base_url }}
                 </template>
             </el-table-column>
-            <el-table-column label="签名" min-width="100">
+            <!-- <el-table-column label="签名" min-width="100">
                 <template v-slot="scope">
                     {{ scope.row.sign }}
                 </template>
-            </el-table-column>
-            <el-table-column label="是否启用" width="60">
+            </el-table-column> -->
+            <el-table-column label="是否启用" width="100">
                 <template v-slot="scope">
                     <el-tag :type="scope.row.enable ? 'success' : 'danger'">
                         {{ scope.row.enable ? '是' : '否' }}
@@ -116,20 +116,20 @@
         <el-dialog
             title="union节点"
             v-model="editDialog"
-            width="300px"
+            width="400px"
         >
-            <el-form class="flex-form">
+            <el-form class="flex-form pl20 pr20">
                 <el-form-item label="名称:">
                     <el-input v-model.trim="editName" />
                 </el-form-item>
                 <el-form-item label="链接:">
-                    <el-input v-model.trim="editURL" />
+                    <el-input v-model.trim="editURL" placeholder="https://www.example.com/board-service" />
                 </el-form-item>
             </el-form>
             <el-button
                 type="primary"
                 :disabled="!editName || !editURL"
-                style="width:120px; margin-left:80px;"
+                style="width:120px; margin-left:120px;"
                 @click="confirm"
             >
                 提交
@@ -151,9 +151,9 @@
                 editName: '',
                 editURL:  '',
                 search:   {
-                    id:     '',
-                    name:   '',
-                    status: '',
+                    id:   '',
+                    name: '',
+                    // status: '',
                 },
                 watchRoute:    true,
                 defaultSearch: true,
@@ -166,26 +166,6 @@
             ...mapGetters(['userInfo']),
         },
         methods: {
-            _getUrlParams() {
-                const { query } = this.$route;
-                const params = ['status'];
-
-                this.unUseParams = [];
-
-                for (const $key in this.search) {
-                    this.search[$key] = '';
-                }
-                params.forEach(key => {
-                    const val = query[key];
-
-                    if(val) {
-                        this.search[key] = val === 'true';
-                    } else {
-                        this.search[key] = false;
-                        this.unUseParams.push(key);
-                    }
-                });
-            },
             async changeStatus(event, row, status) {
                 const params = {
                     unionNodeId: row.union_node_id,
@@ -286,7 +266,7 @@
         position: relative;
         display: inline-block;
         vertical-align: top;
-        :deep(.nickname){font-size:40px;}
+        :deep(.realname){font-size:40px;}
     }
     .more-info{
         width: 100%;

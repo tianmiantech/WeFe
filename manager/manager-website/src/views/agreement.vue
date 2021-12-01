@@ -93,10 +93,16 @@
             v-model="editDialog"
             width="400px"
         >
+            <el-alert type="error" :closable="false">
+                新上传的文件将会覆盖现有的协议文件, 请谨慎操作!
+            </el-alert>
             <el-upload
                 drag
-                :action="action"
-                accept=".png,.jpg,.pdf"
+                action="#"
+                class="mt10"
+                :http-request="() => {}"
+                accept=".png,.jpg,.pdf,.doc,.docx"
+                :headers="{ token: userInfo.token }"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
             >
@@ -106,7 +112,7 @@
                 </div>
                 <template #tip>
                     <div class="el-upload__tip">
-                        支持 png, jpg 最大上传 5M, PDF 最大上传 10M
+                        支持 png, jpg 最大5M, word文档最大5M, PDF 最大10M
                     </div>
                 </template>
             </el-upload>
@@ -138,6 +144,7 @@
         mixins: [table],
         data() {
             return {
+                pending:  false,
                 editId:   '',
                 editName: '',
                 editURL:  '',
@@ -150,7 +157,6 @@
                 defaultSearch: true,
                 requestMethod: 'post',
                 getListApi:    '/auth/agreement/template/query',
-                action:        `${window.api.baseUrl || ''}/manager-service/auth/agreement/template/upload`,
                 editDialog:    false,
                 preview:       {
                     visible:    false,
@@ -214,14 +220,15 @@
             },
             beforeUpload(file) {
                 const isImg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+                const isWord = file.type.includes('wordprocessingml.document');
                 const isPdf = file.type === 'application/pdf';
 
-                if(!isImg && !isPdf) {
+                if(!isImg && !isWord && !isPdf) {
                     this.$message.error('文件格式不支持!');
                     return false;
                 }
 
-                if(isImg) {
+                if(isImg || isWord) {
                     if(file.size / 1024 / 1024 > 5) {
                         this.$message.error('文件大小不能超过 5M !');
                         return false;
@@ -233,7 +240,29 @@
                         return false;
                     }
                 }
+
+                this.upload(file);
                 return true;
+            },
+            async upload(file) {
+                this.pending = true;
+                const formData = new FormData();
+
+                formData.append('file', file);
+                formData.append('filename', file.name);
+
+                const { code, data } = await this.$http.post({
+                    url:  '/auth/agreement/template/upload',
+                    data: formData,
+                });
+
+                if(code === 0) {
+                    this.fileMap[file.uid] = data.file_id;
+                    this.form.fileIdList.push(data.file_id);
+                }
+                if(this.uploading === 0) {
+                    this.pending = false;
+                }
             },
             uploadFinished(res) {
                 if(res.code === 0) {

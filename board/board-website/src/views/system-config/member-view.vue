@@ -106,18 +106,37 @@
                         <p class="mb10">名片预览：</p>
                         <MemberCard />
 
-                        <div class="mt40">
+                        <div v-if="enterpriseAuth !== ''" class="mt40">
                             <el-form-item label="企业认证：">
                                 <span
                                     v-if="enterpriseAuth === 0"
-                                    class="el-link el-link--danger el-icon-circle-check"
-                                > 未认证 </span>
+                                    class="el-link el-link--danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    未认证
+                                </span>
                                 <span
                                     v-if="enterpriseAuth === 1"
-                                    class="el-link el-link--success el-icon-circle-check"
-                                > 已认证 </span>
+                                    class="el-link el-link--danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    审核中
+                                </span>
+                                <span
+                                    v-if="enterpriseAuth === 2"
+                                    class="el-link el-link--success"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    已认证
+                                </span>
                                 <router-link
-                                    v-if="userInfo.super_admin_role && enterpriseAuth === 0 || enterpriseAuth === 2"
+                                    v-if="userInfo.super_admin_role && enterpriseAuth !== 1"
                                     :to="{ name: 'enterprise-certification' }"
                                     class="f12 ml20"
                                 >
@@ -147,9 +166,9 @@
             <el-alert
                 title="未雨绸缪总是好的："
                 description="当 union 服务出现意外导致您的数据丢失时，可以使用此功能将数据同步到 union。"
-                style="max-width:600px;"
-                type="info"
+                style="max-width:550px;"
                 close-text=" "
+                type="info"
                 show-icon
             />
             <br>
@@ -197,7 +216,7 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                enterpriseAuth: 0,
+                enterpriseAuth: '',
             };
         },
         computed: {
@@ -219,10 +238,16 @@
                     this.form.member_logo = '';
 
                     this.member_logo = data.member_logo;
-                    this.userInfo.member_logo = data.member_logo;
-                    this.userInfo.member_name = this.form.member_name;
-                    this.userInfo.member_email = this.form.member_email;
-                    this.$store.commit('UPDATE_USERINFO', this.userInfo);
+
+                    const info = Object.assign({
+                        ...this.userInfo,
+                    }, {
+                        member_logo:  data.member_logo,
+                        member_name:  this.form.member_name,
+                        member_email: this.form.member_email,
+                    });
+
+                    this.$store.commit('UPDATE_USERINFO', info);
 
                     const res = await this.$http.post({
                         url:  '/union/member/query',

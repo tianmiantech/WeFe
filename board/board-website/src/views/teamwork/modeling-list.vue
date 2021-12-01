@@ -135,12 +135,9 @@
                 document.body.appendChild(link);
                 link.click();
             };
-            const afterTableRender = () => {
-                console.log(vData.list);
-            };
+            const afterTableRender = () => {};
 
             onMounted(async () => {
-                console.log(route);
                 vData.search.project_id = route.query.project_id;
                 await ctx.getList();
             });

@@ -1,6 +1,5 @@
 <template>
     <el-form
-        ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
         @submit.prevent
@@ -39,6 +38,47 @@
                 选择特征（{{ item.feature_column_count }}/{{ vData.total_column_count }}）
             </el-button>
         </el-form-item>
+
+        <el-tabs
+            type="card"
+            class="mt20"
+        >
+            <el-tab-pane
+                v-for="(item, index) in vData.featureSelectTab"
+                :key="`${item.member_id}-${item.member_role}`"
+                :label="`${item.member_name} (${item.member_role === 'provider' ? '协作方' : '发起方'})`"
+                :name="`${index}`"
+            >
+                <el-table
+                    :data="item.$feature_list"
+                    style="width:402px"
+                    max-height="500px"
+                    stripe
+                    border
+                >
+                    <el-table-column
+                        prop="name"
+                        label="特征"
+                        width="150"
+                    />
+                    <el-table-column label="分箱策略">
+                        <template v-slot="scope">
+                            <template v-if="scope.row.method === 'custom'">
+                                自定义分箱:
+                                <el-input
+                                    v-model.trim="scope.row.points"
+                                    style="width:160px;"
+                                    clearable
+                                />
+                            </template>
+                            <template v-else-if="scope.row.method">
+                                {{ `${vData.methodObj[scope.row.method]} ${scope.row.count}箱` }}
+                            </template>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-tab-pane>
+        </el-tabs>
 
         <CheckFeatureDialog
             ref="CheckFeatureDialogRef"
@@ -98,41 +138,19 @@
                 methodObj: {
                     'quantile': '等频',
                 },
-                columnListType:   'quantile',
-                selectListIndex:  0,
-                featureSelectTab: [],
+                columnListType:  'quantile',
+                selectListIndex: 0,
             });
 
-            let methods = {
-                checkParams () {
-                    const strategies = [];
-
-                    vData.selectList.forEach(row => {
-                        strategies.push({
-                            ...row,
-                            strategy_id: row.id,
-                        });
-                    });
-
-                    return {
-                        params: {
-                            strategies,
-                        },
-                    };
-                },
-            };
-
             // merge mixin
-            const { $data, $methods } = checkFeatureMixin().mixin({
+            const { $data, $methods: methods } = checkFeatureMixin().mixin({
                 vData,
                 props,
                 context,
-                methods,
                 CheckFeatureDialogRef,
             });
 
             vData = $data;
-            methods = $methods;
 
             return {
                 vData,

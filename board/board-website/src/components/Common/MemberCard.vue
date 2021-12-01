@@ -3,7 +3,9 @@
         :class="['member-card', { readonly: !edit }]"
         :style="{ width: size[0], height: size[1] }"
     >
-        <i class="iconfont icon-certification" title="企业认证"></i>
+        <el-tooltip v-if="form && form.ext_json.real_name_auth_status === 2"  content="已通过企业认证" effect="light">
+            <i class="iconfont icon-certification" title="已通过企业认证"></i>
+        </el-tooltip>
         <MemberAvatar
             :uploader="uploader"
             :member-name="vData.member.member_name"
@@ -15,18 +17,24 @@
                 <el-form-item>
                     <el-input
                         v-model="vData.member.member_email"
-                        prefix-icon="iconfont icon-email"
                         placeholder="邮箱"
                         :readonly="!edit"
-                    />
+                    >
+                        <template #prefix>
+                            <i class="iconfont icon-email"></i>
+                        </template>
+                    </el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-input
                         v-model="vData.member.member_mobile"
-                        prefix-icon="iconfont icon-mobile"
                         placeholder="电话"
                         :readonly="!edit"
-                    />
+                    >
+                        <template #prefix>
+                            <i class="iconfont icon-mobile"></i>
+                        </template>
+                    </el-input>
                 </el-form-item>
             </el-form>
         </div>
@@ -121,7 +129,7 @@
         position: absolute;
         top: 20px;
         right: 20px;
-        font-size: 20px;
+        font-size: 24px;
         color: $--color-warning;
     }
     .member-avatar{margin-top: 30px;}

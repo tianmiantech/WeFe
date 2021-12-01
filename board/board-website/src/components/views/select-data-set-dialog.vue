@@ -28,8 +28,16 @@
                     clearable
                 />
             </el-form-item>
+            <el-form-item>
+                <el-checkbox
+                    v-model="search.containsY"
+                    clearable
+                >
+                    是否包含Y
+                </el-checkbox>
+            </el-form-item>
             <el-button
-                class="mb20"
+                class="ml10 mb20"
                 type="primary"
                 @click="loadDataList({ memberId, resetPagination: true })"
             >
@@ -40,12 +48,13 @@
         <DataSetList
             ref="raw"
             source-type="Raw"
+            :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
             :contains-y="containsY"
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
-            :is-show="isShow"
+            :project-type="projectType"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
@@ -77,13 +86,15 @@
         emits: ['selectDataSet', 'batchDataSet'],
         data() {
             return {
-                show:       false,
-                memberId:   '',
-                jobRole:    '',
-                myMemberId: '',
-                search:     {
-                    id:   '',
-                    name: '',
+                show:        false,
+                memberId:    '',
+                jobRole:     '',
+                projectType: '',
+                myMemberId:  '',
+                search:      {
+                    id:        '',
+                    name:      '',
+                    containsY: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
@@ -131,6 +142,7 @@
                 jobRole,
                 resetPagination,
                 $data_set,
+                projectType,
             }) {
                 // change memberId, reset search
                 if (memberId && this.memberId !== memberId) {
@@ -138,6 +150,7 @@
                 }
 
                 this.jobRole = jobRole || this.jobRole;
+                this.projectType = projectType || this.projectType;
 
                 if (memberId) {
                     this.memberId = memberId;
@@ -163,10 +176,18 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
+                        if (this.projectType === 'DeepLearning') {
+                            url = '/image_data_set/query';
+                        } else {
+                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
+                        }
                     } else {
                         // search from union
-                        url = `/union/data_set/query?member_id=${this.memberId}`;
+                        if (this.projectType === 'DeepLearning') {
+                            url = '/union/image_data_set/query';
+                        } else {
+                            url = `/union/data_set/query?member_id=${this.memberId}`;
+                        }
                     }
                 }
 
