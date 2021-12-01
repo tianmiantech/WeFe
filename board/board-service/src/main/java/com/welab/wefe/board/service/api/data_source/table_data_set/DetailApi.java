@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.api.data_source.table_data_set;
 
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -34,12 +35,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputModel> {
 
     @Autowired
-    DataSetRepository dataSetRepository;
+    TableDataSetRepository dataSetRepository;
 
     @Override
     protected ApiResult<TableDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
 
-        DataSetMysqlModel model = dataSetRepository.findById(input.id).orElse(null);
+        TableDataSetMysqlModel model = dataSetRepository.findById(input.id).orElse(null);
 
         if (model == null) {
             return success();

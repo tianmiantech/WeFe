@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.api.data_source.table_data_set;
 
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -35,11 +35,11 @@ import java.util.List;
 @Api(path = "data_set/usage_detail", name = "list usage_detail")
 public class UsageDetailApi extends AbstractApi<UsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
-    private DataSetService dataSetService;
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataSetService.queryUsageInProject(input.getDataSetId()));
+        return success(dataResourceService.queryUsageInProject(input.getDataSetId()));
     }
 
     public static class Input extends AbstractApiInput {

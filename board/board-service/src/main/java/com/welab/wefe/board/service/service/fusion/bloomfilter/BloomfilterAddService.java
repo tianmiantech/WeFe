@@ -16,14 +16,12 @@
 
 package com.welab.wefe.board.service.service.fusion.bloomfilter;
 
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
-import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.fusion.BloomfilterColumnService;
@@ -66,13 +64,9 @@ public class BloomfilterAddService extends AbstractService {
     @Autowired
     protected BloomfilterColumnService bloomfilterColumnService;
     @Autowired
-    protected UnionService unionService;
-    @Autowired
     protected BloomfilterTaskService bloomfilterTaskService;
     @Autowired
     protected FieldInfoService fieldInfoService;
-    @Autowired
-    private Config config;
 
 
     /**
@@ -184,7 +178,7 @@ public class BloomfilterAddService extends AbstractService {
      * create SqlDataSetReader
      */
     private SqlBloomfilterReader createSqlBloomfilterReader(BloomfilterAddInputModel input) throws StatusCodeWithException {
-        DataSourceMySqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
+        DataSourceMysqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }

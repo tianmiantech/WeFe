@@ -17,14 +17,14 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.welab.wefe.board.service.api.fusion.actuator.CallbackApi;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
@@ -51,10 +51,8 @@ public class CallbackService {
 
     @Autowired
     private BloomfilterService bloomfilterService;
-
     @Autowired
-    private DataSetService dataSetService;
-
+    private TableDataSetService tableDataSetService;
 
     /**
      * rsa-callback
@@ -142,7 +140,7 @@ public class CallbackService {
      */
     private void psiClient(FusionTaskMySqlModel task) throws StatusCodeWithException {
 
-        DataSetMysqlModel dataSet = dataSetService.findOneById(task.getDataResourceId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
         if (dataSet == null) {
             throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
         }

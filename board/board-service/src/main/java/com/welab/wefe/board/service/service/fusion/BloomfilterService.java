@@ -19,8 +19,7 @@ package com.welab.wefe.board.service.service.fusion;
 import com.welab.wefe.board.service.api.fusion.bloomfilter.DeleteApi;
 import com.welab.wefe.board.service.api.fusion.bloomfilter.QueryApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
 import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
@@ -30,7 +29,6 @@ import com.welab.wefe.board.service.database.repository.fusion.BloomFilterReposi
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.util.JdbcManager;
@@ -59,8 +57,6 @@ public class BloomfilterService extends AbstractService {
     @Autowired
     protected BloomFilterRepository repo;
     @Autowired
-    protected UnionService unionService;
-    @Autowired
     protected BloomfilterStorageService bloomfilterStorageService;
     @Autowired
     protected JobRepository jobRepository;
@@ -72,8 +68,6 @@ public class BloomfilterService extends AbstractService {
     DataSourceRepository dataSourceRepo;
     @Autowired
     private BloomFilterRepository bloomfilterRepository;
-    @Autowired
-    private Config config;
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -217,7 +211,7 @@ public class BloomfilterService extends AbstractService {
     /**
      * get data source by id
      */
-    public DataSourceMySqlModel getDataSourceById(String dataSourceId) {
+    public DataSourceMysqlModel getDataSourceById(String dataSourceId) {
         return dataSourceRepo.findById(dataSourceId).orElse(null);
     }
 
@@ -231,7 +225,7 @@ public class BloomfilterService extends AbstractService {
      * Test whether SQL can be queried normally
      */
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
-        DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+        DataSourceMysqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }

@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.api.data_source.image_data_set;
 
-import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+
+import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;

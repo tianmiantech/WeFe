@@ -15,7 +15,8 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
+
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -47,11 +48,11 @@ public class TableDataSetUpdateInputModel extends AbstractDataResourceUpdateInpu
         }
 
         int countByName = 0;
-        DataSetRepository repository = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        if (StringUtil.isEmpty(super.getDataSetId())) {
+        TableDataSetRepository repository = Launcher.CONTEXT.getBean(TableDataSetRepository.class);
+        if (StringUtil.isEmpty(super.getId())) {
             countByName = repository.countByName(super.getName());
         } else {
-            countByName = repository.countByName(super.getName(), super.getDataSetId());
+            countByName = repository.countByName(super.getName(), super.getId());
         }
 
         if (countByName > 0) {

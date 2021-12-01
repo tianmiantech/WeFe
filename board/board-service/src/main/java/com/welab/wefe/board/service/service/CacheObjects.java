@@ -19,11 +19,11 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -245,7 +245,7 @@ public class CacheObjects {
 
     public static synchronized void refreshTableDataSetTags() {
         // Query all tags from the database
-        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
+        TableDataSetRepository repo = Launcher.CONTEXT.getBean(TableDataSetRepository.class);
         List<Object[]> rows = repo.listAllTags();
         refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
@@ -262,11 +262,11 @@ public class CacheObjects {
      */
     public static synchronized void refreshAccountMap() {
         AccountRepository repo = Launcher.CONTEXT.getBean(AccountRepository.class);
-        List<AccountMySqlModel> list = repo.findAll(Sort.by("nickname"));
+        List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
         ACCOUNT_MAP.clear();
         ACCOUNT_ID_LIST.clear();
-        for (AccountMySqlModel item : list) {
+        for (AccountMysqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
             ACCOUNT_ID_LIST.add(item.getId());
         }

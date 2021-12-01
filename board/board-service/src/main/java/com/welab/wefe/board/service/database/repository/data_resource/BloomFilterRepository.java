@@ -15,8 +15,7 @@
  */
 package com.welab.wefe.board.service.database.repository.data_resource;
 
-import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMySqlModel;
-import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -24,5 +23,5 @@ import org.springframework.stereotype.Repository;
  * @date 2021/12/1
  */
 @Repository
-public interface BloomFilterRepository extends BaseRepository<BloomFilterMySqlModel, String> {
+public interface BloomFilterRepository extends DataResourceRepository<BloomFilterMysqlModel> {
 }

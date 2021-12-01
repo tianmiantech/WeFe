@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.welab.wefe.board.service.api.fusion.task.*;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.AuditStatus;
@@ -62,7 +62,7 @@ public class FusionTaskService extends AbstractService {
     FusionTaskRepository fusionTaskRepository;
 
     @Autowired
-    DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Autowired
     ThirdPartyService thirdPartyService;
@@ -122,7 +122,7 @@ public class FusionTaskService extends AbstractService {
         }
 
 
-        DataSetMysqlModel dataSet = dataSetService.findOneById(input.getDataResourceId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
         if (dataSet == null) {
             throw new StatusCodeWithException(DATA_NOT_FOUND);
         }
@@ -131,7 +131,7 @@ public class FusionTaskService extends AbstractService {
             task.setPsiActuatorRole(PSIActuatorRole.client);
         }
 
-        task.setRowCount(dataSet.getRowCount());
+        task.setRowCount(dataSet.getTotalDataCount());
         fusionTaskRepository.save(task);
 
         thirdPartyService.alignApply(task);
@@ -159,7 +159,7 @@ public class FusionTaskService extends AbstractService {
             return;
         }
 
-        DataSetMysqlModel dataSet = dataSetService.findOneById(input.getDataResourceId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
 
         if (dataSet == null) {
             throw new StatusCodeWithException(DATA_NOT_FOUND);
@@ -168,7 +168,7 @@ public class FusionTaskService extends AbstractService {
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
             task.setPsiActuatorRole(PSIActuatorRole.client);
         }
-        task.setRowCount(dataSet.getRowCount());
+        task.setRowCount(dataSet.getTotalDataCount());
 
         fusionTaskRepository.save(task);
     }
@@ -230,7 +230,7 @@ public class FusionTaskService extends AbstractService {
      */
     private void psiClient(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
-        DataSetMysqlModel dataSet = dataSetService.findOneById(task.getDataResourceId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
         if (dataSet == null) {
             throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
         }
@@ -392,7 +392,7 @@ public class FusionTaskService extends AbstractService {
 //            model.setBloomFilterList(Arrays.asList(bf));
 //        } else {
 //            DataSetOutputModel dataSet = ModelMapper.map(
-//                    dataSetRepository.findOne("id", model.getDataResourceId(), DataSetMySqlModel.class),
+//                    dataSetRepository.findOne("id", model.getDataResourceId(), TableDataSetMysqlModel.class),
 //                    DataSetOutputModel.class);
 //
 //            model.setDataSetList(Arrays.asList(dataSet));

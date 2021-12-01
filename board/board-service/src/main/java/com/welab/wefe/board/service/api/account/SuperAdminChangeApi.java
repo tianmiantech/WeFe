@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.account;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.common.StatusCode;
@@ -42,7 +42,7 @@ public class SuperAdminChangeApi extends AbstractApi<SuperAdminChangeApi.Input, 
 
     @Override
     protected ApiResult<NoneApiOutput> handle(SuperAdminChangeApi.Input input) throws StatusCodeWithException {
-        AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("指定用户不存在", StatusCode.DATA_NOT_FOUND);

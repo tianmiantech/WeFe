@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.account.AccountService;
@@ -182,9 +182,9 @@ public class EmailService extends AbstractService {
      */
     private Set<String> getTotalEmails() {
         Set<String> totalEmails = new HashSet<>(16);
-        List<AccountMySqlModel> accountMySqlModelList = accountService.queryAll();
-        if (CollectionUtils.isNotEmpty(accountMySqlModelList)) {
-            for (AccountMySqlModel model : accountMySqlModelList) {
+        List<AccountMysqlModel> accountMysqlModelList = accountService.queryAll();
+        if (CollectionUtils.isNotEmpty(accountMysqlModelList)) {
+            for (AccountMysqlModel model : accountMysqlModelList) {
                 if (StringUtil.isNotEmpty(model.getEmail())) {
                     totalEmails.add(model.getEmail());
                 }

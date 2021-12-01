@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
@@ -36,7 +36,7 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.*;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -70,7 +70,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
     private Config config;
 
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -96,13 +96,13 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
         }
 
-        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOneById(myDataSetConfig.getDataSetId());
-        if (null == dataSetMysqlModel) {
+        TableDataSetMysqlModel TableDataSetMysqlModel = tableDataSetService.findOneById(myDataSetConfig.getDataSetId());
+        if (null == TableDataSetMysqlModel) {
             throw new FlowNodeException(node, "成员[" + CacheObjects.getMemberName() + "]选择的数据集信息不存在。");
         }
 
         // All characteristic columns of the dataset I selected
-        List<String> myFeatureNameList = Arrays.asList(dataSetMysqlModel.getFeatureNameList().split(","));
+        List<String> myFeatureNameList = Arrays.asList(TableDataSetMysqlModel.getFeatureNameList().split(","));
 
         // Dataio task component
         TaskMySqlModel dataIoTaskMysqlModel = null;
@@ -158,14 +158,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
         DataIOComponent.DataSetItem myDataSetConfig = getMyDataSetConfig(graph, params);
         boolean isSelectedMyself = (null != myDataSetConfig);
-        DataSetMysqlModel myDataSet = null;
+        TableDataSetMysqlModel myDataSet = null;
         if (FederatedLearningType.vertical.equals(graph.getFederatedLearningType()) || isOotMode) {
             if (!isSelectedMyself) {
                 throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
             }
         }
         if (isSelectedMyself) {
-            myDataSet = dataSetService.findOneById(myDataSetConfig.getDataSetId());
+            myDataSet = tableDataSetService.findOneById(myDataSetConfig.getDataSetId());
             if (myDataSet == null) {
                 throw new FlowNodeException(node, "找不到成员[" + CacheObjects.getMemberName() + "]的数据集。");
             }
@@ -221,10 +221,10 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             JObject taskConfigObj = JObject.create(JObject.toJSONString(taskConfig));
             // If it is a dataio component, replace it with a new dataset
             if (DATA_IO_COMPONENT_TYPE_LIST.contains(taskType)) {
-                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.getContainsY() : false)
+                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.isContainsY() : false)
                         .append("label_name", "y")
-                        .append("namespace", isSelectedMyself ? myDataSet.getNamespace() : taskConfigObj.getStringByPath("params.namespace"))
-                        .append("name", isSelectedMyself ? myDataSet.getTableName() : taskConfigObj.getStringByPath("params.name"))
+                        .append("namespace", isSelectedMyself ? myDataSet.getStorageNamespace() : taskConfigObj.getStringByPath("params.namespace"))
+                        .append("name", isSelectedMyself ? myDataSet.getStorageResourceName() : taskConfigObj.getStringByPath("params.name"))
                         .append("need_features", JObject.parseArray(taskConfigObj.getStringByPath("params.need_features")).toJavaList(String.class));
                 taskConfigObj.put("params", newDataIoParam);
             } else if (MODEL_COMPONENT_TYPE_LIST.contains(taskType)) {

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -79,7 +79,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         }
 
         if (countByName > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("此资源名称已存在，请换一个名称", StatusCode.PARAMETER_VALUE_INVALID);
         }
     }
 

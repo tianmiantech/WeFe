@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.api.data_source.table_data_set;
 
-import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetUpdateInputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetUpdateInputModel;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -31,11 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class UpdateApi extends AbstractNoneOutputApi<TableDataSetUpdateInputModel> {
 
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Override
     protected ApiResult<?> handler(TableDataSetUpdateInputModel input) throws StatusCodeWithException {
-        dataSetService.update(input);
+        tableDataSetService.update(input);
 
         return success();
     }

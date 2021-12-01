@@ -16,7 +16,8 @@
 
 package com.welab.wefe.board.service.api.union.data_set;
 
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -37,7 +38,7 @@ public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, TableD
 
     @Override
     protected ApiResult<TableDataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
-        return success(unionService.getTableDataSetDetail(input.getDataSetId()));
+        return success(unionService.getDataResourceDetail(input.getDataSetId(), TableDataSetOutputModel.class));
     }
 
     public static class Input extends AbstractApiInput {

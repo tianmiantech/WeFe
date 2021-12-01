@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.api.data_source.image_data_set.sample;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetSampleOutputModel;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetSampleService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;

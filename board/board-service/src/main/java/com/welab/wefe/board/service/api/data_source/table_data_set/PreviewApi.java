@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.api.data_source.table_data_set;
 
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
-import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.board.service.util.AbstractDataSetReader;
 import com.welab.wefe.board.service.util.CsvDataSetReader;
 import com.welab.wefe.board.service.util.ExcelDataSetReader;
@@ -58,7 +58,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     private static final Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^-?\\d+\\.\\d+$");
 
     @Autowired
-    DataSetService dataSetService;
+    TableDataSetService tableDataSetService;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
@@ -67,13 +67,13 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         // Read data from the database for preview
         if (DataSetAddMethod.Database.equals(input.getDataSetAddMethod())) {
             // Test whether SQL can be queried normally
-            boolean result = dataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
+            boolean result = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
             if (result) {
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
             }
         } else {
 
-            File file = dataSetService.getDataSetFile(input.getDataSetAddMethod(), input.getFilename());
+            File file = tableDataSetService.getDataSetFile(input.getDataSetAddMethod(), input.getFilename());
             try {
                 output = readFile(file);
             } catch (IOException e) {
@@ -207,7 +207,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     }
 
     private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
-        DataSourceMySqlModel model = dataSetService.getDataSourceById(dataSourceId);
+        DataSourceMysqlModel model = tableDataSetService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,17 +26,19 @@ import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -77,13 +79,11 @@ public class ProjectFlowJobService extends AbstractService {
     @Autowired
     private ProjectFlowRepository projectFlowRepo;
     @Autowired
-    private Config config;
-    @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
     @Autowired
     private ProjectService projectService;
     @Autowired
-    private DataSetService dataSetService;
+    private DataResourceService dataResourceService;
     @Autowired
     private ProjectFlowService projectFlowService;
     @Autowired
@@ -92,6 +92,9 @@ public class ProjectFlowJobService extends AbstractService {
     private ProjectDataSetService projectDataSetService;
     @Autowired
     private ServiceCheckService serviceCheckService;
+    @Autowired
+    private TableDataSetService tableDataSetService;
+
 
     public static final int MIX_FLOW_PROMOTER_NUM = 2;
 
@@ -283,8 +286,13 @@ public class ProjectFlowJobService extends AbstractService {
                     if (projectDataSet.getSourceType() != null) {
                         continue;
                     } else {
-                        TableDataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
-                        if (dataSet == null) {
+                        DataResourceOutputModel resource = dataResourceService.findDataResourceFromLocalOrUnion(
+                                member.getMemberId(),
+                                member.getDataSetId(),
+                                DataResourceMysqlModel.class,
+                                DataResourceOutputModel.class
+                        );
+                        if (resource == null) {
                             throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除或不可见。", StatusCode.PARAMETER_VALUE_INVALID);
                         }
                     }
@@ -525,7 +533,7 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         for (String dataSetId : dataSetIds) {
-            dataSetService.usageCountInJobIncrement(dataSetId);
+            dataResourceService.usageCountInJobIncrement(dataSetId);
         }
     }
 
@@ -847,9 +855,9 @@ public class ProjectFlowJobService extends AbstractService {
                 member.memberRole = item.getMemberRole();
                 member.dataSetId = item.getDataSetId();
 
-                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
+                TableDataSetOutputModel dataSetInfo = tableDataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
                 if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
+                    member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
                 }
 

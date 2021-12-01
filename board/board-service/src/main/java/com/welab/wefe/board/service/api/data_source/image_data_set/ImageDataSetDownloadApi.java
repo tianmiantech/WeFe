@@ -16,7 +16,8 @@
 
 package com.welab.wefe.board.service.api.data_source.image_data_set;
 
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -35,11 +36,11 @@ import java.io.File;
 public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
-    private ImageDataSetService dataSetService;
+    private ImageDataSetService imageDataSetService;
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
-        File file = dataSetService.download(input.id);
+        File file = imageDataSetService.download(input.id);
         return file(file);
     }
 

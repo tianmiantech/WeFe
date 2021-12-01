@@ -18,8 +18,8 @@ package com.welab.wefe.board.service.api.data_source.image_data_set;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;

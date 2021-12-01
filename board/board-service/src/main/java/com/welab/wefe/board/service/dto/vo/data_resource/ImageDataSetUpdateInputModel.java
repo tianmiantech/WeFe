@@ -30,8 +30,6 @@ public class ImageDataSetUpdateInputModel extends AbstractDataResourceUpdateInpu
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
-
-
     }
 
     // region getter/setter

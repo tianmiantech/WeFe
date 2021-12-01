@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.api.data_source.upload_progress;
 
-import com.welab.wefe.board.service.database.entity.data_set.DataSetTaskMysqlModel;
-import com.welab.wefe.board.service.service.dataset.DataSetTaskService;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,14 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author lonnie
  */
 @Api(path = "data_set_task/detail", name = "get a data set upload task info")
-public class DetailApi extends AbstractApi<DetailApi.Input, DataSetTaskMysqlModel> {
+public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
-    private DataSetTaskService dataSetTaskService;
+    private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<DataSetTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
-        return success(dataSetTaskService.findById(input.getId()));
+    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
+        return success(dataResourceUploadTaskService.findById(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {

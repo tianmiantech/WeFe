@@ -16,9 +16,9 @@
 
 package com.welab.wefe.board.service.api.data_source.table_data_set;
 
-import com.welab.wefe.board.service.database.entity.data_set.DataSetTaskMysqlModel;
-import com.welab.wefe.board.service.dto.vo.data_set.TableDataSetAddInputModel;
-import com.welab.wefe.board.service.service.dataset.DataSetTaskService;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetAddInputModel;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -31,15 +31,15 @@ import java.io.IOException;
  * @author Zane
  */
 @Api(path = "data_set/add", name = "add data set")
-public class AddApi extends AbstractApi<TableDataSetAddInputModel, DataSetTaskMysqlModel> {
+public class AddApi extends AbstractApi<TableDataSetAddInputModel, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
-    private DataSetTaskService dataSetTaskService;
+    private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<DataSetTaskMysqlModel> handle(TableDataSetAddInputModel input) throws StatusCodeWithException, IOException {
-        DataSetTaskMysqlModel dataSetTaskMysqlModel = dataSetTaskService.add(input);
-        return success(dataSetTaskMysqlModel);
+    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(TableDataSetAddInputModel input) throws StatusCodeWithException, IOException {
+        DataResourceUploadTaskMysqlModel DataResourceUploadTaskMysqlModel = dataResourceUploadTaskService.add(input);
+        return success(DataResourceUploadTaskMysqlModel);
     }
 
 }
