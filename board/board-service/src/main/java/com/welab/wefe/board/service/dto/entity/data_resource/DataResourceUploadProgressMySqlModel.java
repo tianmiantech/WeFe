@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.database.entity.data_resource;
+package com.welab.wefe.board.service.dto.entity.data_resource;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.enums.DataResourceUploadStatus;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
-@Entity(name = "data_resource_upload_progress")
 public class DataResourceUploadProgressMySqlModel extends AbstractBaseMySqlModel {
     /**
      * 数据资源id
@@ -63,7 +58,6 @@ public class DataResourceUploadProgressMySqlModel extends AbstractBaseMySqlModel
     /**
      * 状态：上传中、已完成、已失败
      */
-    @Enumerated(EnumType.STRING)
     private DataResourceUploadStatus status;
 
     // region getter/setter

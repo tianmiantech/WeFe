@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.database.entity.data_resource;
+package com.welab.wefe.board.service.dto.entity.data_resource;
 
 import com.welab.wefe.common.enums.DeepLearningJobType;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
-@Entity(name = "image_data_set")
-public class ImageDataSetMySqlModel extends DataResourceMySqlModel {
+public class ImageDataSetMySqlModel extends DataResourceOutputModel {
     /**
      * 任务类型;物体检测...）
      */
-    @Enumerated(EnumType.STRING)
     private DeepLearningJobType forJobType;
     /**
      * label;列表

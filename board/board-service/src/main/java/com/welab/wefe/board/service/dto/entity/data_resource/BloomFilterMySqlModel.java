@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.database.entity.data_resource;
+package com.welab.wefe.board.service.dto.entity.data_resource;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
-@Entity(name = "bloom_filter")
-public class BloomFilterMySqlModel extends DataResourceMySqlModel {
+public class BloomFilterMySqlModel extends DataResourceOutputModel {
     /**
      * 密钥e
      */
@@ -54,7 +49,6 @@ public class BloomFilterMySqlModel extends DataResourceMySqlModel {
     /**
      * 布隆过滤器添加方式
      */
-    @Enumerated(EnumType.STRING)
     private BloomfilterAddMethod addMethod;
     /**
      * sql语句

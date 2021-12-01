@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.database.entity.data_resource;
+package com.welab.wefe.board.service.dto.entity.data_resource;
 
 import com.alibaba.fastjson.JSONObject;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.enums.DataSetStorageType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
-@Entity(name = "data_resource")
-@TypeDef(name = "json", typeClass = JsonStringType.class)
-public class DataResourceMySqlModel extends AbstractBaseMySqlModel {
+public class DataResourceOutputModel extends AbstractOutputModel {
     /**
      * 资源名称
      */
@@ -51,7 +41,6 @@ public class DataResourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * 存储类型
      */
-    @Enumerated(EnumType.STRING)
     private DataSetStorageType storageType;
     /**
      * 资源在存储中的命名空间;库名、目录路径）
@@ -68,7 +57,6 @@ public class DataResourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * 资源的可见性
      */
-    @Enumerated(EnumType.STRING)
     private DataSetPublicLevel publicLevel;
     /**
      * 可见成员列表;只有在列表中的联邦成员才可以看到该资源的基本信息
@@ -97,7 +85,6 @@ public class DataResourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * 衍生来源，枚举;原始、对齐、分箱）
      */
-    @Enumerated(EnumType.STRING)
     private ComponentType derivedFrom;
     /**
      * 衍生来源流程id
@@ -114,8 +101,6 @@ public class DataResourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * 该数据资源相关的统计信息
      */
-    @Type(type = "json")
-    @Column(columnDefinition = "json")
     private JSONObject statisticalInformation;
 
     // region getter/setter
