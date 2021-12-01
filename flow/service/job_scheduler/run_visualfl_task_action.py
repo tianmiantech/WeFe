@@ -74,14 +74,18 @@ class RunVisualFLTaskAction:
                 result = job_utils.receive()
                 time.sleep(3)
             self.logger.info("receive aggregator_info , content is : {}".format(str(result)))
-        # todo 将 result 扔进 apply_result
+        # append result to apply_result
+        if result is not None:
+            result_json = json.loads(str(result))
+            apply_result.append(result_json)
+        self.logger.info("receive aggregator_info , content is : {}".format(apply_result))
         response = self.submit_task(apply_result)
         if response:
             self.logger.info(
                 "Task apply resource {}（{}）start，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-            # task 执行完毕后更新 job 进度
+            # update job progress
             JobService.update_progress(self.job)
-            # 等待 task 执行完成
+            # wait task finished
             while not self.is_task_progress_done():
                 self.logger.info("Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
