@@ -137,6 +137,11 @@ class GlobalSetting(object):
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.getMemberInfo().rsa_private_key
 
+    @staticmethod
+    def get_flow_base_url():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+
 
 # DataSet
 class DataSet(ModelBase):
