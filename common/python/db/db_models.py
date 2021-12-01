@@ -90,6 +90,7 @@ class JobApplyResult(Model):
 
     class Meta:
         database = DB
+        table_name = 'job_apply_result'
 
     def to_json(self):
         return self.__dict__['__data__']
