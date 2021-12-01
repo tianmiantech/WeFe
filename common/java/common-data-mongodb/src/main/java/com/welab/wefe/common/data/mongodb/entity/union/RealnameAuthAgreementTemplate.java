@@ -17,8 +17,10 @@
 package com.welab.wefe.common.data.mongodb.entity.union;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthAgreementTemplateExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
@@ -27,11 +29,28 @@ import java.util.UUID;
  * @author yuxin.zhang
  **/
 @Document(collection = MongodbTable.Union.AUTH_AGREEMENT_TEMPLATE)
-public class AuthAgreementTemplate extends AbstractNormalMongoModel {
-    private String authAgreementFileId;
-    private String authAgreementFileMd5;
+public class RealnameAuthAgreementTemplate extends AbstractBlockChainBusinessModel {
+    private String templateFileId;
+    private String templateFileSign;
     private String fileName;
+    private String enable;
+    private RealnameAuthAgreementTemplateExtJSON extJson;
 
+    public String getTemplateFileId() {
+        return templateFileId;
+    }
+
+    public void setTemplateFileId(String templateFileId) {
+        this.templateFileId = templateFileId;
+    }
+
+    public String getTemplateFileSign() {
+        return templateFileSign;
+    }
+
+    public void setTemplateFileSign(String templateFileSign) {
+        this.templateFileSign = templateFileSign;
+    }
 
     public String getFileName() {
         return fileName;
@@ -41,20 +60,19 @@ public class AuthAgreementTemplate extends AbstractNormalMongoModel {
         this.fileName = fileName;
     }
 
-    public String getAuthAgreementFileId() {
-        return authAgreementFileId;
+    public String getEnable() {
+        return enable;
     }
 
-    public void setAuthAgreementFileId(String authAgreementFileId) {
-        this.authAgreementFileId = authAgreementFileId;
+    public void setEnable(String enable) {
+        this.enable = enable;
     }
 
-    public String getAuthAgreementFileMd5() {
-        return authAgreementFileMd5;
+    public RealnameAuthAgreementTemplateExtJSON getExtJson() {
+        return extJson;
     }
 
-    public void setAuthAgreementFileMd5(String authAgreementFileMd5) {
-        this.authAgreementFileMd5 = authAgreementFileMd5;
+    public void setExtJson(RealnameAuthAgreementTemplateExtJSON extJson) {
+        this.extJson = extJson;
     }
-
 }

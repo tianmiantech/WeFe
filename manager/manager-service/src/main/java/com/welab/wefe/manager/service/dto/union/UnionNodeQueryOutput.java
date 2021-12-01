@@ -9,7 +9,6 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
  */
 public class UnionNodeQueryOutput {
     private String unionNodeId;
-    private String sign;
     private String unionBaseUrl;
     private String organizationName;
     private int enable;
@@ -23,14 +22,6 @@ public class UnionNodeQueryOutput {
 
     public void setUnionNodeId(String unionNodeId) {
         this.unionNodeId = unionNodeId;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 
     public String getUnionBaseUrl() {

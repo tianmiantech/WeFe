@@ -2,7 +2,6 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
@@ -45,12 +44,11 @@ public class UnionNodeContractEventParser extends AbstractParser {
     private void parseInsertEvent() {
         UnionNode unionNode = new UnionNode();
         unionNode.setUnionNodeId(StringUtil.strTrim2(params.getString(0)));
-        unionNode.setSign(StringUtil.strTrim2(params.getString(1)));
-        unionNode.setUnionBaseUrl(StringUtil.strTrim2(params.getString(2)));
-        unionNode.setOrganizationName(StringUtil.strTrim2(params.getString(3)));
-        unionNode.setEnable(StringUtil.strTrim2(params.getString(4)));
-        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(5)));
-        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(6)));
+        unionNode.setUnionBaseUrl(StringUtil.strTrim2(params.getString(1)));
+        unionNode.setOrganizationName(StringUtil.strTrim2(params.getString(2)));
+        unionNode.setEnable(StringUtil.strTrim2(params.getString(3)));
+        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(4)));
+        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(5)));
         unionNode.setExtJson(extJSON);
 
         unionNodeMongoRepo.save(unionNode);
@@ -59,18 +57,17 @@ public class UnionNodeContractEventParser extends AbstractParser {
 
     private void parseUpdateEvent() {
         String unionNodeId = eventBO.getEntity().get("union_node_id").toString();
-        String sign = StringUtil.strTrim2(params.getString(0));
-        String unionBaseUrl = StringUtil.strTrim2(params.getString(1));
-        String organizationName = StringUtil.strTrim2(params.getString(2));
-        String updatedTime = StringUtil.strTrim2(params.getString(3));
-        unionNodeMongoRepo.update(unionNodeId, sign, unionBaseUrl,organizationName,updatedTime);
+        String unionBaseUrl = StringUtil.strTrim2(params.getString(0));
+        String organizationName = StringUtil.strTrim2(params.getString(1));
+        String updatedTime = StringUtil.strTrim2(params.getString(2));
+        unionNodeMongoRepo.update(unionNodeId, unionBaseUrl, organizationName, updatedTime);
     }
 
     private void parseUpdateEnableEvent() {
         String unionNodeId = eventBO.getEntity().get("union_node_id").toString();
         String enable = eventBO.getEntity().get("enable").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        unionNodeMongoRepo.updateEnable(unionNodeId, enable,updatedTime);
+        unionNodeMongoRepo.updateEnable(unionNodeId, enable, updatedTime);
     }
 
     private void parseDeleteByUnionNodeIdEvent() {
@@ -79,8 +76,8 @@ public class UnionNodeContractEventParser extends AbstractParser {
     }
 
     private void parseUpdateExtJson() {
-        String typeId = eventBO.getEntity().get("type_id").toString();
-        unionNodeMongoRepo.updateExtJSONById(typeId, extJSON);
+        String unionNodeId = eventBO.getEntity().get("unionNodeId").toString();
+        unionNodeMongoRepo.updateExtJSONById(unionNodeId, extJSON);
     }
 
 }

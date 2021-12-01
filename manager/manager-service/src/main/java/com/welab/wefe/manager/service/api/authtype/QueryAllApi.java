@@ -46,7 +46,6 @@ public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
             memberAuthQueryOutput.setTypeId(memberAuthType.getTypeId());
             memberAuthQueryOutput.setTypeName(memberAuthType.getTypeName());
             memberAuthQueryOutput.setStatus(memberAuthType.getStatus());
-            memberAuthQueryOutput.setExtJson(memberAuthType.getExtJson());
             return memberAuthQueryOutput;
         }).collect(Collectors.toList());
         return success(JObject.create("list", JObject.toJSON(list)));

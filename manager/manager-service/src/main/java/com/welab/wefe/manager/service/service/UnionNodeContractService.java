@@ -53,16 +53,7 @@ public class UnionNodeContractService extends AbstractContractService {
 
             LOG.info("UnionNode contract insert transaction, unionBaseUrl: {},  receipt response: {}", unionNode.getUnionBaseUrl(), JObject.toJSON(transactionResponse).toString());
 
-            String responseValues = transactionResponse.getValues();
-            if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("UnionNode already exists", StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("UnionNode information failed", StatusCode.SYSTEM_BUSY);
-            }
+            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);
@@ -110,7 +101,6 @@ public class UnionNodeContractService extends AbstractContractService {
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
         list.add(unionNode.getUnionNodeId());
-        list.add(unionNode.getSign());
         list.add(unionNode.getUnionBaseUrl());
         list.add(unionNode.getOrganizationName());
         list.add(unionNode.getEnable());
@@ -122,7 +112,6 @@ public class UnionNodeContractService extends AbstractContractService {
 
     private List<String> generateUpdateParams(UnionNodeUpdateInput input) {
         List<String> list = new ArrayList<>();
-        list.add(Md5.of(input.getUnionBaseUrl()));
         list.add(input.getUnionBaseUrl());
         list.add(input.getOrganizationName());
         list.add(toStringYYYY_MM_DD_HH_MM_SS2(new Date()));

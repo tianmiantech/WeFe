@@ -65,6 +65,7 @@ public class BlockChainConfig {
     private String dataSetDefaultTagContractName;
     private String memberAuthTypeContractName;
     private String unionNodeContractName;
+    private String realnameAuthAgreementTemplateContractName;
 
 
     // add channel disconnect
@@ -218,6 +219,16 @@ public class BlockChainConfig {
     public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
         return UnionNodeContract.load(address, client, cryptoKeyPair);
+    }
+
+
+    /**
+     * RealnameAuthAgreementTemplateContract（实名认证协议模板）合约
+     */
+    @Bean
+    public RealnameAuthAgreementTemplateContract getLatestVersionRealnameAuthAgreementTemplateContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
+        return RealnameAuthAgreementTemplateContract.load(address, client, cryptoKeyPair);
     }
 
 

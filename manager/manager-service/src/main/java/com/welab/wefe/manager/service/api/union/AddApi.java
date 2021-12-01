@@ -1,6 +1,8 @@
 package com.welab.wefe.manager.service.api.union;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -21,6 +23,8 @@ public class AddApi extends AbstractApi<UnionNodeAddInput, AbstractApiOutput> {
 
     @Autowired
     private UnionNodeContractService unionNodeContractService;
+    @Autowired
+    private UnionNodeMongoRepo unionNodeMongoRepo;
     protected UnionNodeMapper unionNodeMapper = Mappers.getMapper(UnionNodeMapper.class);
 
     @Override
@@ -31,6 +35,12 @@ public class AddApi extends AbstractApi<UnionNodeAddInput, AbstractApiOutput> {
             if (!isValid) {
                 throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "unionBaseUrl");
             }
+
+            UnionNode unionNode = unionNodeMongoRepo.findByUnionBaseUrl(input.getUnionBaseUrl());
+            if (unionNode != null) {
+                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "unionBaseUrl", input.getUnionBaseUrl());
+            }
+
             unionNodeContractService.add(unionNodeMapper.transferAddInput(input));
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

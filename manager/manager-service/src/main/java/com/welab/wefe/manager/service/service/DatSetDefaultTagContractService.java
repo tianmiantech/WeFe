@@ -51,16 +51,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
             LOG.info("DatSetDefaultTag contract insert transaction, tagId id: {},  receipt response: {}", dataSetDefaultTag.getTagId(), JObject.toJSON(transactionResponse).toString());
 
-            String responseValues = transactionResponse.getValues();
-            if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("DatSetDefaultTag already exists", StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("DatSetDefaultTag information failed", StatusCode.SYSTEM_BUSY);
-            }
+            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);

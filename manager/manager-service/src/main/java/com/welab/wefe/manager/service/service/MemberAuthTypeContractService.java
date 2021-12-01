@@ -51,16 +51,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
             LOG.info("MemberAuthType contract insert transaction, type id: {},  receipt response: {}", memberAuthType.getTypeId(), JObject.toJSON(transactionResponse).toString());
 
-            String responseValues = transactionResponse.getValues();
-            if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("MemberAuthType already exists", StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("MemberAuthType information failed", StatusCode.SYSTEM_BUSY);
-            }
+            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);

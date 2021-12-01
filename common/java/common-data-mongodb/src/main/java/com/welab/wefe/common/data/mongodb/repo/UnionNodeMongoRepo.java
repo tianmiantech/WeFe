@@ -17,7 +17,6 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -44,7 +43,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public List<UnionNode> findAll(){
+    public List<UnionNode> findAll() {
         return findAll(false);
     }
 
@@ -52,6 +51,16 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate.find(
                 new QueryBuilder()
                         .append("status", status ? 1 : 0)
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public UnionNode findByUnionBaseUrl(String unionBaseUrl) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("unionBaseUrl", unionBaseUrl)
+                        .notRemoved()
                         .build()
                 ,
                 UnionNode.class);
@@ -67,13 +76,12 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean update(String unionNodeId, String sign, String unionBaseUrl, String organizationName, String updatedTime) {
+    public boolean update(String unionNodeId, String unionBaseUrl, String organizationName, String updatedTime) {
         if (StringUtils.isEmpty(unionNodeId)) {
             return false;
         }
         Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
         Update udpate = new UpdateBuilder()
-                .append("sign", sign)
                 .append("unionBaseUrl", unionBaseUrl)
                 .append("organizationName", organizationName)
                 .append("updatedTime", updatedTime)
@@ -101,7 +109,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 }

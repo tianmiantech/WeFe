@@ -16,8 +16,8 @@
 
 package com.welab.wefe.manager.service.api.agreement;
 
-import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
+import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
+import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -31,15 +31,15 @@ import java.util.List;
  *
  * @author yuxin.zhang
  */
-@Api(path = "auth/agreement/template/query", name = "auth/agreement/template/query")
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
+@Api(path = "realname/auth/agreement/template/query", name = "realname_auth_agreement_template_query")
+public class QueryApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired
-    private AuthAgreementTemplateMongoRepo authAgreementTemplateMongoRepo;
+    private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<AuthAgreementTemplate> list = authAgreementTemplateMongoRepo.findAll();
+        List<RealnameAuthAgreementTemplate> list = realnameAuthAgreementTemplateMongoRepo.find();
         return success(JObject.create("list", JObject.toJSON(list)));
     }
 

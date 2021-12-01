@@ -16,11 +16,11 @@ contract UnionNodeContract{
     event updateEvent(int256 ret_code,string union_node_id,string[] params);
     event updateEnableEvent(int256 ret_code,string union_node_id,string enable,string updated_time);
     event deleteByUnionNodeIdEvent(int256 ret_code,string union_node_id);
-    event updateExtJsonEvent(int256 ret_code,string union_node_id, string ext_json);
+    event updateExtJsonEvent(int256 ret_code,string union_node_id, string ext_json,string updated_time);
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "union_node_id,sign,union_base_url,organization_name,enable,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "union_node_id,union_base_url,organization_name,enable,created_time,updated_time,ext_json");
     }
 
 
@@ -38,12 +38,11 @@ contract UnionNodeContract{
         Entry entry = table.newEntry();
         entry.set("fix_id", FIX_ID);
         entry.set("union_node_id", params[0]);
-        entry.set("sign", params[1]);
-        entry.set("union_base_url", params[2]);
-        entry.set("organization_name", params[3]);
-        entry.set("enable", params[4]);
-        entry.set("created_time", params[5]);
-        entry.set("updated_time", params[6]);
+        entry.set("union_base_url", params[1]);
+        entry.set("organization_name", params[2]);
+        entry.set("enable", params[3]);
+        entry.set("created_time", params[4]);
+        entry.set("updated_time", params[5]);
         entry.set("ext_json", ext_json);
 
 
@@ -106,10 +105,9 @@ contract UnionNodeContract{
         condition.EQ("union_node_id", union_node_id);
 
         Entry entry = table.newEntry();
-        entry.set("sign", params[0]);
-        entry.set("union_base_url", params[1]);
-        entry.set("organization_name", params[2]);
-        entry.set("updated_time", params[3]);
+        entry.set("union_base_url", params[0]);
+        entry.set("organization_name", params[1]);
+        entry.set("updated_time", params[2]);
 
 
         int count = table.update(FIX_ID, entry, condition);
@@ -155,7 +153,7 @@ contract UnionNodeContract{
         return (0, wrapReturnMemberInfo(entries));
     }
 
-    function updateExtJson(string union_node_id,string ext_json) public returns (int256) {
+    function updateExtJson(string union_node_id,string ext_json,string updated_time) public returns (int256) {
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
@@ -163,6 +161,7 @@ contract UnionNodeContract{
 
         Entry entry = table.newEntry();
         entry.set("ext_json", ext_json);
+        entry.set("updated_time", updated_time);
 
         int count = table.update(FIX_ID, entry, condition);
 
@@ -173,7 +172,7 @@ contract UnionNodeContract{
             ret_code = -2;
         }
 
-        emit updateExtJsonEvent(ret_code,union_node_id,ext_json);
+        emit updateExtJsonEvent(ret_code,union_node_id,ext_json,updated_time);
         return ret_code;
     }
 
@@ -197,8 +196,6 @@ contract UnionNodeContract{
             Entry entry = entries.get(i);
 
             string memory dataStr = strConcat(strEmptyToSpace(entry.getString("union_node_id")), "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("sign")));
-            dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("union_base_url")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("organization_name")));

@@ -29,7 +29,6 @@ import java.util.UUID;
 @Document(collection = MongodbTable.Union.UNION_NODE)
 public class UnionNode extends AbstractBlockChainBusinessModel {
     private String unionNodeId = UUID.randomUUID().toString().replaceAll("-", "");
-    private String sign;
     private String unionBaseUrl;
     private String organizationName;
     private String enable;
@@ -42,14 +41,6 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setUnionNodeId(String unionNodeId) {
         this.unionNodeId = unionNodeId;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 
     public String getUnionBaseUrl() {

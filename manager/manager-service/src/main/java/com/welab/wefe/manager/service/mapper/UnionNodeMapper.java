@@ -19,7 +19,6 @@ public interface UnionNodeMapper {
      */
     @Mappings({
             @Mapping(target = "enable",expression = "java(String.valueOf(input.isEnable() ? 1 : 0))"),
-            @Mapping(target = "sign",expression = "java(com.welab.wefe.common.util.Md5.of(input.getUnionBaseUrl()))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })
