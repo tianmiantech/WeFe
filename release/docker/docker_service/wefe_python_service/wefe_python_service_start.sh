@@ -68,6 +68,7 @@ sed -i "/flow_port/s/-.*:/- $PYTHON_SERVICE_PORT:/g" ./resources/docker-compose.
 
 # 加载本地离线镜像包
 if [ ${ACCELERATION,,} == 'gpu' ];then
+  sed -i "/wefe_version/s/python_gpu_service:.*#/python_gpu_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
   echo "开始加载 gpu python 离线镜像"
   docker load < resources/wefe_python_gpu_service_$WEFE_VERSION\.tar
   echo "加载 gpu python 离线镜像完成"
@@ -77,5 +78,6 @@ else
   echo "加载 python 离线镜像完成"
 fi
 
-# 启动 flow 镜像
 docker-compose -p $WEFE_ENV -f resources/docker-compose.yml up -d
+
+
