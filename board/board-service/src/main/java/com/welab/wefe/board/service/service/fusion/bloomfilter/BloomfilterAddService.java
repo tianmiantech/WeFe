@@ -139,7 +139,7 @@ public class BloomfilterAddService extends AbstractService {
 //        }
 
         // Refresh the bloomfilter tag list
-        CacheObjects.refreshDataSetTags();
+        CacheObjects.refreshTableDataSetTags();
 
     }
 

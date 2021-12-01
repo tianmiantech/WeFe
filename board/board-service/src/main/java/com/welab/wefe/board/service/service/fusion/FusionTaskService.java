@@ -27,14 +27,17 @@ import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.DataSetService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.fusion.core.enums.*;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.fusion.core.enums.AlgorithmType;
+import com.welab.wefe.fusion.core.enums.DataResourceType;
+import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
+import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -112,7 +115,7 @@ public class FusionTaskService extends AbstractService {
 //        fieldInfoService.saveAll(businessId, input.getFieldInfoList());
 
         //Add tasks
-        FusionTaskMySqlModel task=   ModelMapper.map(input,FusionTaskMySqlModel.class);
+        FusionTaskMySqlModel task = ModelMapper.map(input, FusionTaskMySqlModel.class);
         task.setBusinessId(businessId);
         task.setStatus(FusionTaskStatus.Await);
 
@@ -125,7 +128,7 @@ public class FusionTaskService extends AbstractService {
         }
 
 
-        DataSetMysqlModel dataSet = dataSetService.findOne(input.getDataResourceId());
+        DataSetMysqlModel dataSet = dataSetService.findOneById(input.getDataResourceId());
         if (dataSet == null) {
             throw new StatusCodeWithException(DATA_NOT_FOUND);
         }
@@ -162,7 +165,7 @@ public class FusionTaskService extends AbstractService {
             return;
         }
 
-        DataSetMysqlModel dataSet = dataSetService.findOne(input.getDataResourceId());
+        DataSetMysqlModel dataSet = dataSetService.findOneById(input.getDataResourceId());
 
         if (dataSet == null) {
             throw new StatusCodeWithException(DATA_NOT_FOUND);
@@ -228,7 +231,7 @@ public class FusionTaskService extends AbstractService {
      */
     private void psiClient(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
-        DataSetMysqlModel dataSet = dataSetService.findOne(task.getDataResourceId());
+        DataSetMysqlModel dataSet = dataSetService.findOneById(task.getDataResourceId());
         if (dataSet == null) {
             throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
         }
@@ -322,7 +325,7 @@ public class FusionTaskService extends AbstractService {
         }
 
         //Add tasks
-        FusionTaskMySqlModel model = ModelMapper.map(input,FusionTaskMySqlModel.class);
+        FusionTaskMySqlModel model = ModelMapper.map(input, FusionTaskMySqlModel.class);
         model.setStatus(FusionTaskStatus.Pending);
 
         fusionTaskRepository.save(model);

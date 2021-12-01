@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.dto.fusion;
 
-import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;;
+import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
@@ -85,7 +85,7 @@ public class FusionTaskOutput extends AbstractOutputModel {
     /**
      * Data set list
      */
-    private List<DataSetOutputModel> dataSetList;
+    private List<TableDataSetOutputModel> dataSetList;
 
     /**
      * bloomFilterList
@@ -222,11 +222,11 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.description = description;
     }
 
-    public List<DataSetOutputModel> getDataSetList() {
+    public List<TableDataSetOutputModel> getDataSetList() {
         return dataSetList;
     }
 
-    public void setDataSetList(List<DataSetOutputModel> dataSetList) {
+    public void setDataSetList(List<TableDataSetOutputModel> dataSetList) {
         this.dataSetList = dataSetList;
     }
 

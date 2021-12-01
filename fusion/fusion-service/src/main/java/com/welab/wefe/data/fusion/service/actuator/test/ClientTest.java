@@ -16,35 +16,31 @@ package com.welab.wefe.data.fusion.service.actuator.test;
  */
 
 
-import com.welab.wefe.data.fusion.service.actuator.board.Client;
-
-import java.util.Arrays;
-
 /**
  * @author hunter.zhao
  */
 public class ClientTest {
     public static void main(String[] args) {
-//        ClientActuator clientActuator = new ClientActuator(
-//                "test001",
-//                "127.0.0.1",
-//                9000,
-//                "3ee8e9581ef84a63a66e7c8ed94e3dc4",
-//                null,
-//                null
-//              //  Arrays.asList("id", "tel")
-//        );
-//
-//        clientActuator.run();
-
-        Client client = new Client(
+        ClientActuator clientActuator = new ClientActuator(
                 "test001",
+                "127.0.0.1",
+                9000,
                 "3ee8e9581ef84a63a66e7c8ed94e3dc4",
                 null,
-                null,
                 null
+                //  Arrays.asList("id", "tel")
         );
 
-        client.run();
+        clientActuator.run();
+
+//        Client client = new Client(
+//                "test001",
+//                "3ee8e9581ef84a63a66e7c8ed94e3dc4",
+//                null,
+//                null,
+//                null
+//        );
+
+//        client.run();
     }
 }

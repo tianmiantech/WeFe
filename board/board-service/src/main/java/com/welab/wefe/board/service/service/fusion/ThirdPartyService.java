@@ -78,7 +78,7 @@ public class ThirdPartyService {
 //            throw new StatusCodeWithException("No partner information was found", StatusCode.DATA_NOT_FOUND);
 //        }
 //
-        request(ReceiveApi.class, params);
+        request("task/receive", params);
     }
 
     /**
@@ -111,11 +111,11 @@ public class ThirdPartyService {
     }
 
 
-    private JSONObject request(Class<?> api, JSONObject params) throws StatusCodeWithException {
+    private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
         return request(api, params, true);
     }
 
-    private JSONObject request(Class<?> api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+    private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */
@@ -144,7 +144,7 @@ public class ThirdPartyService {
         }
 
 
-        ApiResult<?> test=  gatewayService.callOtherMemberBoard("8896e74890a5459386287ec817e8b4f3", api, JObject.create(data));
+        ApiResult<JSONObject> test=  gatewayService.callOtherMemberBoard("8896e74890a5459386287ec817e8b4f3", api, JObject.create(data));
 
         if (!test.success()) {
             throw new StatusCodeWithException(test.getMessage(), StatusCode.RPC_ERROR);

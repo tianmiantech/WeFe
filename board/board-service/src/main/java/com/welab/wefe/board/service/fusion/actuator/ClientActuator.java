@@ -22,15 +22,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.fusion.DownBloomFilterApi;
 import com.welab.wefe.board.service.api.fusion.PsiHandleApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
-import com.welab.wefe.board.service.service.DataSetService;
 import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import org.apache.commons.compress.utils.Lists;
@@ -169,16 +168,16 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
-        ApiResult<?> result = null;
+        JObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId));
+            result = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
 
-        LOG.info("downloadBloomFilter end {} ", result.data);
+        LOG.info("downloadBloomFilter end {} ", result.get("data"));
 
-        return JObject.toJavaObject((JSONObject) result.data, PsiActuatorMeta.class);
+        return JObject.toJavaObject((JSONObject) result.get("data"), PsiActuatorMeta.class);
 
         //return null;
     }
@@ -190,15 +189,15 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
-        ApiResult<?> result = null;
+        JObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(memberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs));
+            result = gatewayService.callOtherMemberBoard(memberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs), JObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
 
         LOG.info("qureyFusionData start");
-        return (byte[][]) result.data;
+        return (byte[][]) result.get("data");
     }
 
     @Override
