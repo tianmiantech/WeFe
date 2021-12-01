@@ -280,7 +280,9 @@
                 }
 
                 this.$confirm(`你确定要进行${ this.statusMap[status] }操作吗?`, '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 }).then(async _ => {
                     const { code } = await this.$http.post({
                         url:      '/member/update',

@@ -35,7 +35,7 @@
                 >
                     <div class="el-alert__content">
                         <p
-                            class="el-alert__title"
+                            class="el-alert__title mr10"
                             v-html="`【${vData.jobFinishedMessage.status}】${vData.jobFinishedMessage.message}`"
                         />
                         <span

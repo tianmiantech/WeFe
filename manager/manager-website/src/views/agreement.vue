@@ -64,10 +64,11 @@
             >
                 <template v-slot="scope">
                     <el-button
-                        type="danger"
-                        @click="remove($event, scope.row)"
+                        v-if="!scope.row.enable"
+                        type="primary"
+                        @click="enable($event, scope.row)"
                     >
-                        删除
+                        启用
                     </el-button>
                 </template>
             </el-table-column>
@@ -94,7 +95,7 @@
             width="400px"
         >
             <el-alert type="error" :closable="false">
-                新上传的文件将会覆盖现有的协议文件, 请谨慎操作!
+                新上传的文件需要在列表中启用后才能生效!
             </el-alert>
             <el-upload
                 drag
@@ -156,7 +157,7 @@
                 watchRoute:    true,
                 defaultSearch: true,
                 requestMethod: 'post',
-                getListApi:    '/auth/agreement/template/query',
+                getListApi:    '/realname/auth/agreement/template/query',
                 editDialog:    false,
                 preview:       {
                     visible:    false,
@@ -183,7 +184,7 @@
                 this.editId = row.id;
                 this.loading = true;
                 const { code, data } = await this.$http.post({
-                    url:          '/download/file?fileId=' + row.auth_agreement_file_id,
+                    url:          '/download/file?fileId=' + row.template_file_id,
                     responseType: 'blob',
                 });
 
@@ -197,18 +198,17 @@
                     });
                 }
             },
-            remove(event, row) {
-                this.$confirm('是否继续删除该文件吗?', '警告', {
-                    type: 'warning',
+            enable(event, row) {
+                this.$confirm('确定要启用该文件吗? 其他文件将被禁用!', '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({
-                            url:  '/auth/agreement/template/delete',
+                            url:  '/realname/auth/agreement/template/enable',
                             data: {
-                                unionNodeId: row.union_node_id,
-                            },
-                            btnState: {
-                                target: event,
+                                templateFileId: row.template_file_id,
                             },
                         });
 
@@ -252,7 +252,7 @@
                 formData.append('filename', file.name);
 
                 const { code, data } = await this.$http.post({
-                    url:  '/auth/agreement/template/upload',
+                    url:  '/realname/auth/agreement/template/upload',
                     data: formData,
                 });
 

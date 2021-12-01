@@ -48,7 +48,7 @@
             </el-form-item>
         </template>
 
-        <el-alert v-if="!vData.colChecked" title="请选出所有成员共有的特征!" type="error" effect="dark" show-icon :closable="false" style="width: 260px;" />
+        <el-alert v-if="!vData.colChecked" :title="`请选出所有 [发起方] 共有的特征! ${vData.colUnCheckedMsg}`" type="error" effect="dark" show-icon :closable="false" style="width: 260px;" />
 
         <el-dialog
             width="70%"
@@ -173,6 +173,7 @@
                 indeterminate:     false,
                 checkedAll:        false,
                 colChecked:        true,
+                colUnCheckedMsg:   '',
             });
 
             let methods = {
@@ -358,33 +359,6 @@
                     }
                 },
 
-                checkDuplicates() {
-                    let checked = true;
-                    const nums = vData.data_set_list.length;
-                    const featureCache = {};
-
-                    vData.data_set_list.forEach((member, memberIndex) => {
-                        member.features.forEach(name => {
-                            if(!featureCache[name]) {
-                                featureCache[name] = 1;
-                            } else {
-                                featureCache[name] += 1;
-                            }
-                        });
-                    });
-
-                    for(const key in featureCache) {
-                        const val = featureCache[key];
-
-                        if(val !== nums) {
-                            checked = false;
-                            return;
-                        }
-                    }
-
-                    return checked;
-                },
-
                 confirmCheck() {
                     const row = vData.data_set_list[vData.row_index];
 
@@ -396,8 +370,47 @@
                     vData.colChecked = true;
                 },
 
+                paramsCheck() {
+                    let promoters = 0;
+                    const checked = true;
+                    const featureMaps = {};
+
+                    vData.data_set_list.forEach(member => {
+                        if(member.member_role === 'promoter') {
+                            promoters++;
+                        }
+                    });
+
+                    if(promoters === 1) {
+                        return checked;
+                    }
+
+                    vData.data_set_list.forEach((member, memberIndex) => {
+                        if(member.member_role === 'promoter') {
+                            member.features.forEach(name => {
+                                if(!featureMaps[name]) {
+                                    featureMaps[name] = 1;
+                                } else {
+                                    featureMaps[name] += 1;
+                                }
+                            });
+                        }
+                    });
+
+                    for(const key in featureMaps) {
+                        const val = featureMaps[key];
+
+                        if(val !== promoters) {
+                            vData.colUnCheckedMsg = `特征 ${key} 未被所有发起方选择, 请检查`;
+                            return false;
+                        }
+                    }
+
+                    return checked;
+                },
+
                 checkParams() {
-                    if(!methods.checkDuplicates()) {
+                    if(!methods.paramsCheck()) {
                         vData.colChecked = false;
                         return false;
                     }

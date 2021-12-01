@@ -120,8 +120,8 @@
                         <template #content>
                             <p>{{member.message}}</p>
                         </template>
-                        <span style="color: #000;">
-                            <el-icon class="color-danger" style="padding-left: 2px; padding-right: 2px;">
+                        <span style="color: #222;">
+                            <el-icon class="color-danger" style="padding: 0 2px;">
                                 <elicon-warning />
                             </el-icon>
                             {{member.message}}
@@ -465,7 +465,7 @@
                                 context.emit('resetGraphState');
                             } else {
                                 // switch components
-                                context.emit('switchComponent', model);
+                                context.emit('checkResult', e.item);
                             }
                         }
                     });

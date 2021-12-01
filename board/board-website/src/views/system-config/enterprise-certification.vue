@@ -41,10 +41,20 @@
                         :rows="4"
                     />
                 </el-form-item>
-                <el-form-item
-                    label="认证文件："
-                    :rules="[{required: true, message: '认证文件必传!'}]"
-                >
+                <el-form-item :rules="[{required: true, message: '认证文件必传!'}]">
+                    <template #label>
+                        上传认证文件：
+                        <el-alert
+                            class="text-l"
+                            :closable="false"
+                            type="info"
+                        >
+                            1. 下载 <el-link type="primary" @click="downloadFile">认证文件</el-link>
+                            <p>2. 盖上公章</p>
+                            3. 上传带有公章的图片/word/pdf文件
+                        </el-alert>
+                    </template>
+
                     <el-upload
                         ref="uploader"
                         v-loading="pending"
@@ -182,6 +192,20 @@
                     });
                 }
             },
+
+            async downloadFile() {
+                if(this.loading) return;
+                this.loading = true;
+
+                const { code } = await this.$http.post({
+                    url: '/',
+                });
+
+                if(code === 0) {
+                    this.loading = false;
+                }
+            },
+
             blobToDataURI(blob, callback) {
                 const reader = new FileReader();
 
@@ -305,11 +329,12 @@
 
 <style lang="scss" scoped>
     .el-form{max-width: 500px;}
+    .el-link{line-height: 1;}
     .el-upload__tip{
         padding:20px;
         line-height: 16px;
     }
-    .el-icon--upload{margin:20px 0 10px;}
+    .el-icon--upload{margin:20px 0 0;}
     .el-select{
         height:32px;
         :deep(.el-input) {

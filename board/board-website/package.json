@@ -1,10 +1,10 @@
 {
-  "name": "wefe-manager-website",
+  "name": "wefe-board-website",
   "version": "2.3.0",
-  "description": "wefe 联邦学习 manager 服务",
+  "description": "wefe 联邦学习前台服务",
   "author": "claude.wu",
   "welab": {
-    "contextPath": "manager-website"
+    "contextPath": "board-website"
   },
   "scripts": {
     "build": "vue-cli-service build",

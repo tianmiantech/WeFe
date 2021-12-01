@@ -131,6 +131,7 @@
                 status:     {
                     created:  '已创建',
                     auditing: '等待审核中',
+                    closed:   '已关闭',
                 },
                 watchRoute: false, // When there are multiple instances, multiple requests will be issued at the same time, set to false, let the parent component listen for routing changes
             };

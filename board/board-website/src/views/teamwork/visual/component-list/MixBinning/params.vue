@@ -235,6 +235,10 @@
                         }
                     });
 
+                    if(promoters === 1) {
+                        return checked;
+                    }
+
                     vData.featureSelectTab.forEach((member, index) => {
                         if(member.member_role === 'promoter') {
                             member.$feature_list.forEach(row => {

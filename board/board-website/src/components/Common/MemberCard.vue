@@ -4,7 +4,10 @@
         :style="{ width: size[0], height: size[1] }"
     >
         <el-tooltip v-if="form && form.ext_json.real_name_auth_status === 2"  content="已通过企业认证" effect="light">
-            <i class="iconfont icon-certification" title="已通过企业认证"></i>
+            <span class="certification">
+                <i class="iconfont icon-certification" title="已通过企业认证"></i>
+                已通过企业认证
+            </span>
         </el-tooltip>
         <MemberAvatar
             :uploader="uploader"
@@ -125,12 +128,17 @@
         }
         :deep(.el-input__inner){color: #fff;}
     }
-    .icon-certification{
+    .certification{
         position: absolute;
-        top: 20px;
+        top: 15px;
         right: 20px;
-        font-size: 24px;
+        font-size: 12px;
         color: $--color-warning;
+        line-height: 20px;
+    }
+    .icon-certification{
+        position: relative;
+        top:2px;
     }
     .member-avatar{margin-top: 30px;}
     .member-content{

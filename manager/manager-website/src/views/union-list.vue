@@ -181,7 +181,9 @@
                 }
 
                 this.$confirm(params.enable ? '是否要启用该节点?' : '是否继续禁用该节点', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({
@@ -208,7 +210,9 @@
             },
             remove(event, row) {
                 this.$confirm('是否继续删除该节点?', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({

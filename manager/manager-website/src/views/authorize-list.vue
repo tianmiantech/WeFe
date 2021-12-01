@@ -186,7 +186,9 @@
             },
             remove(event, row) {
                 this.$confirm('是否继续 将移除该类型?', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({

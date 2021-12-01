@@ -99,6 +99,7 @@
     import {
         ref,
         reactive,
+        getCurrentInstance,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -120,6 +121,8 @@
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
             const CheckFeatureDialogRef = ref();
+            const { appContext } = getCurrentInstance();
+            const { $alert } = appContext.config.globalProperties;
 
             let vData = reactive({
                 inited:               false,
@@ -142,15 +145,63 @@
                 selectListIndex: 0,
             });
 
+            let methods = {
+                paramsCheck() {
+                    let promoters = 0;
+                    const checked = true;
+                    const featureMaps = {};
+
+                    vData.featureSelectTab.forEach(member => {
+                        if(member.member_role === 'promoter') {
+                            promoters++;
+                        }
+                    });
+
+                    if(promoters === 1) {
+                        return checked;
+                    }
+
+                    vData.featureSelectTab.forEach((member, index) => {
+                        if(member.member_role === 'promoter') {
+                            member.$feature_list.forEach(row => {
+                                if(row.method) {
+                                    if(!featureMaps[row.name]) {
+                                        featureMaps[row.name] = 1;
+                                    } else {
+                                        featureMaps[row.name]++;
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    for(const key in featureMaps) {
+                        const val = featureMaps[key];
+
+                        if(val !== promoters) {
+                            $alert(`所有 [发起方] 需选择共有的特征! <p class="color-danger">特征 ${key} 未被所有发起方选择, 请检查</p>`, '警告', {
+                                type:                     'warning',
+                                dangerouslyUseHTMLString: true,
+                            });
+                            return false;
+                        }
+                    }
+
+                    return checked;
+                },
+            };
+
             // merge mixin
-            const { $data, $methods: methods } = checkFeatureMixin().mixin({
+            const { $data, $methods } = checkFeatureMixin().mixin({
                 vData,
                 props,
                 context,
+                methods,
                 CheckFeatureDialogRef,
             });
 
             vData = $data;
+            methods = $methods;
 
             return {
                 vData,

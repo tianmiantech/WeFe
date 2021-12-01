@@ -6,7 +6,6 @@
         >
             <el-link
                 :type="item.highlight ? 'primary' : 'default'"
-                href="javascript:;"
                 @click="jumpto(item)"
             >{{ item.title }}</el-link>
         </li>

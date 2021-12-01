@@ -290,7 +290,8 @@
         <SelectDatasetDialog
             ref="SelectDatasetDialog"
             :data-sets="dataSets.list"
-            :contains-y="`${dataSets.role === 'promoter' ? true : ''}`"
+            :member-role="dataSets.role"
+            :contains-y="`${dataSets.role !== 'provider' ? true : ''}`"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
         />
@@ -470,7 +471,6 @@
             addDataSet(role, memberId, memberIndex, $data_set) {
                 const ref = this.$refs['SelectDatasetDialog'];
 
-                ref.show = true;
                 this.dataSets.role = role;
                 this.dataSets.index = memberIndex;
                 this.dataSets.list = $data_set.map(row => {
@@ -479,7 +479,10 @@
                         data_set_id: row.id,
                     };
                 });
-                ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                ref.show = true;
+                this.$nextTick(async _ => {
+                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                });
             },
 
             async batchDataSet(batchlist) {

@@ -123,7 +123,9 @@
         methods: {
             changeRole(event, row) {
                 this.$confirm(`确定要将该用户设为${row.admin_role ? '普通用户' : '管理员'}吗?`, '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 }).then(async () => {
                     const { code } = await this.$http.post({
                         url:  '/user/role/change',
@@ -146,7 +148,9 @@
             },
             resetPassword(event, row) {
                 this.$confirm('确定要将该用户密码重置吗?', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 }).then(async () => {
                     const { code } = await this.$http.post({
                         url:  '/user/reset/password',
