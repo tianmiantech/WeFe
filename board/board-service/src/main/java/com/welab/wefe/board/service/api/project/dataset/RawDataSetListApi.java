@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -41,7 +41,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataSetType, input.memberId, input.memberRole, input.containsY);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY);
         return success(new Output(list));
     }
 
@@ -53,7 +53,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
         private String memberId;
 
         @Check(name = "数据集类型", require = true)
-        private DataSetType dataSetType;
+        private DataResourceType dataResourceType;
 
         @Check(name = "成员角色", require = true)
         private JobMemberRole memberRole;
@@ -79,12 +79,12 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
             this.memberId = memberId;
         }
 
-        public DataSetType getDataSetType() {
-            return dataSetType;
+        public DataResourceType getDataSetType() {
+            return dataResourceType;
         }
 
-        public void setDataSetType(DataSetType dataSetType) {
-            this.dataSetType = dataSetType;
+        public void setDataSetType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
         }
 
         public JobMemberRole getMemberRole() {

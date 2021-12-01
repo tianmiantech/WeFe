@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/callback", name = "接收消息接口", rsaVerify = true
-)
+@Api(path = "fusion/callback", name = "接收消息接口", login = false, rsaVerify = true)
 public class CallbackApi extends AbstractNoneOutputApi<CallbackApi.Input> {
     @Autowired
     CallbackService callbackService;
