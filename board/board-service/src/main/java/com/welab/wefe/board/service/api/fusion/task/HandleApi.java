@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/handle", name = "任务处理", desc = "任务处理", login = true)
+@Api(path = "fusion/task/handle", name = "任务处理", desc = "任务处理", login = false)
 public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
 
     @Autowired
@@ -60,12 +60,11 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
         @Check(name = "追溯字段")
         private String traceColumn;
 
-        @Check(name = "审核字段")
-        private AuditStatus audit;
+        @Check(name = "审核字段", require = true)
+        private AuditStatus auditStatus;
 
         @Check(name = "审核评论")
-        private String comment;
-
+        private String auditComment;
 
 
         @Override
@@ -89,7 +88,6 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
         public void setId(String id) {
             this.id = id;
         }
-
 
         public List<FieldInfo> getFieldInfoList() {
             return fieldInfoList;
@@ -115,20 +113,20 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
             this.traceColumn = traceColumn;
         }
 
-        public AuditStatus getAudit() {
-            return audit;
+        public AuditStatus getAuditStatus() {
+            return auditStatus;
         }
 
-        public void setAudit(AuditStatus audit) {
-            this.audit = audit;
+        public void setAuditStatus(AuditStatus auditStatus) {
+            this.auditStatus = auditStatus;
         }
 
-        public String getComment() {
-            return comment;
+        public String getAuditComment() {
+            return auditComment;
         }
 
-        public void setComment(String comment) {
-            this.comment = comment;
+        public void setAuditComment(String auditComment) {
+            this.auditComment = auditComment;
         }
     }
 

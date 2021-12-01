@@ -63,12 +63,6 @@ public class FusionTaskService extends AbstractService {
 
     @Autowired
     DataSetService dataSetService;
-//
-//    @Autowired
-//    PartnerRepository partnerRepository;
-//
-//    @Autowired
-//    PartnerService partnerService;
 
     @Autowired
     ThirdPartyService thirdPartyService;
@@ -112,7 +106,7 @@ public class FusionTaskService extends AbstractService {
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
         //Add fieldinfo
-//        fieldInfoService.saveAll(businessId, input.getFieldInfoList());
+        fieldInfoService.saveAll(businessId, input.getFieldInfoList());
 
         //Add tasks
         FusionTaskMySqlModel task = ModelMapper.map(input, FusionTaskMySqlModel.class);
@@ -183,17 +177,19 @@ public class FusionTaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
 
-
         FusionTaskMySqlModel task = find(input.getId());
         if (task == null) {
-            throw new StatusCodeWithException("taskId error:" + input.getId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException("id error:" + input.getId(), DATA_NOT_FOUND);
         }
 
-        if (input.getAudit().equals(AuditStatus.disagree)) {
+        if (!input.getAuditStatus().equals(AuditStatus.agree)) {
             task.setStatus(FusionTaskStatus.Refuse);
-            task.setComment(input.getComment());
+            task.setComment(input.getAuditComment());
 
-            //TODO send message
+            //callback
+            thirdPartyService.callback(task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+
+            return;
         }
 
         if (ActuatorManager.size() > 0) {
@@ -207,6 +203,9 @@ public class FusionTaskService extends AbstractService {
             default:
                 throw new RuntimeException("Unexpected enumeration values");
         }
+
+        //callback
+        thirdPartyService.callback(task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
 
@@ -216,7 +215,7 @@ public class FusionTaskService extends AbstractService {
     private void psi(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
         switch (task.getPsiActuatorRole()) {
             case server:
-                psiServer(input, task);
+                psiServer(task);
                 break;
             case client:
                 psiClient(input, task);
@@ -256,20 +255,16 @@ public class FusionTaskService extends AbstractService {
         ActuatorManager.set(client);
 
         client.run();
-
-        //TODO sendmessage
-        //thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(), CallbackType.init, dataSet.getRowCount());
     }
 
 
     /**
      * psi-server
      *
-     * @param input
      * @param task
      * @throws StatusCodeWithException
      */
-    private void psiServer(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
+    private void psiServer(FusionTaskMySqlModel task) throws StatusCodeWithException {
 
         task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
@@ -302,15 +297,6 @@ public class FusionTaskService extends AbstractService {
         ActuatorManager.set(server);
 
         server.run();
-
-        //The callback
-//        thirdPartyService.callback(
-//                partner.getBaseUrl(),
-//                task.getBusinessId(),
-//                CallbackType.running,
-//                ActuatorManager.ip(),
-//                CacheObjects.getOpenSocketPort()
-//        );
     }
 
 

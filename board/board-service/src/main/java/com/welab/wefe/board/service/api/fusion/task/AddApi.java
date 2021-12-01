@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -91,9 +91,10 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
 
-//            if (DataResourceType.DataSet.equals(dataResourceType) && fieldInfoList.isEmpty()) {
-//                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
-//            }
+            if (DataResourceType.DataSet.equals(dataResourceType)
+                    && fieldInfoList.isEmpty()) {
+                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+            }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
