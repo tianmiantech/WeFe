@@ -21,7 +21,7 @@ import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
  * @author zane
  * @date 2021/12/1
  */
-public class BloomFilterMySqlModel extends DataResourceOutputModel {
+public class BloomFilterOutputModel extends DataResourceOutputModel {
     /**
      * 密钥e
      */

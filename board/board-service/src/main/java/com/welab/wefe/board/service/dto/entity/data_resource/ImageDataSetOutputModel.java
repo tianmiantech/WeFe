@@ -21,7 +21,7 @@ import com.welab.wefe.common.enums.DeepLearningJobType;
  * @author zane
  * @date 2021/12/1
  */
-public class ImageDataSetMySqlModel extends DataResourceOutputModel {
+public class ImageDataSetOutputModel extends DataResourceOutputModel {
     /**
      * 任务类型;物体检测...）
      */

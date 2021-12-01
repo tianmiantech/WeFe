@@ -22,7 +22,7 @@ import com.welab.wefe.common.enums.DataResourceUploadStatus;
  * @author zane
  * @date 2021/12/1
  */
-public class DataResourceUploadProgressMySqlModel extends AbstractBaseMySqlModel {
+public class DataResourceUploadProgressOutputModel extends AbstractBaseMySqlModel {
     /**
      * 数据资源id
      */
