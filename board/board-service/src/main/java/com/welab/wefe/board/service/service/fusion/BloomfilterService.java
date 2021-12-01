@@ -20,12 +20,12 @@ import com.welab.wefe.board.service.api.fusion.bloomfilter.DeleteApi;
 import com.welab.wefe.board.service.api.fusion.bloomfilter.QueryApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
-import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
@@ -99,7 +99,7 @@ public class BloomfilterService extends AbstractService {
      * delete bloomfilter
      */
     public void delete(DeleteApi.Input input) throws StatusCodeWithException {
-        BloomFilterMySqlModel model = repo.findById(input.getId()).orElse(null);
+        BloomFilterMysqlModel model = repo.findById(input.getId()).orElse(null);
         if (model == null) {
             return;
         }
@@ -113,7 +113,7 @@ public class BloomfilterService extends AbstractService {
      * delete bloomfilter
      */
     public void delete(String bloomfilterId) throws StatusCodeWithException {
-        BloomFilterMySqlModel model = repo.findById(bloomfilterId).orElse(null);
+        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
         if (model == null) {
             return;
         }
@@ -124,7 +124,7 @@ public class BloomfilterService extends AbstractService {
     /**
      * delete bloomfilter
      */
-    public void delete(BloomFilterMySqlModel model) throws StatusCodeWithException {
+    public void delete(BloomFilterMysqlModel model) throws StatusCodeWithException {
 
         // delete bloomfilter from database
         repo.deleteById(model.getId());
@@ -148,7 +148,7 @@ public class BloomfilterService extends AbstractService {
      */
     public PagingOutput<BloomFilterOutputModel> query(QueryApi.Input input) {
 
-        Specification<BloomFilterMySqlModel> where = Where
+        Specification<BloomFilterMysqlModel> where = Where
                 .create()
                 .equal("id", input.getId())
                 .contains("name", input.getName())
@@ -156,7 +156,7 @@ public class BloomfilterService extends AbstractService {
                 .equal("containsY", input.getContainsY())
                 .equal("createdBy", input.getCreator())
                 .equal("sourceType", null, false)
-                .build(BloomFilterMySqlModel.class);
+                .build(BloomFilterMysqlModel.class);
 
         return repo.paging(where, input, BloomFilterOutputModel.class);
     }
@@ -166,7 +166,7 @@ public class BloomfilterService extends AbstractService {
      * <p>
      * When the scene is visible to the specified members, automatically add itself is also visible.
      */
-    public void handlePublicMemberList(BloomFilterMySqlModel model) {
+    public void handlePublicMemberList(BloomFilterMysqlModel model) {
 
         // When the PublicLevel is PublicWithMemberList, if list contains yourself,
         // you will be removed, and union will handle the data that you must be visible.
@@ -216,7 +216,7 @@ public class BloomfilterService extends AbstractService {
     }
 
 
-    public BloomFilterMySqlModel findOne(String bloomfilterId) {
+    public BloomFilterMysqlModel findOne(String bloomfilterId) {
         return repo.findById(bloomfilterId).orElse(null);
 
     }
@@ -252,7 +252,7 @@ public class BloomfilterService extends AbstractService {
     public void updateUsageCountInProject(String bloomfilterId) {
 //        bloomfilterRepository.updateUsageCountInProject(bloomfilterId);
 
-        BloomFilterMySqlModel model = repo.findById(bloomfilterId).orElse(null);
+        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
         if (model == null) {
             return;
         }
@@ -267,8 +267,8 @@ public class BloomfilterService extends AbstractService {
     /**
      * Update the various usage count of the bloomfilter
      */
-    private void updateUsageCount(String bloomfilterId, Consumer<BloomFilterMySqlModel> func) throws StatusCodeWithException {
-        BloomFilterMySqlModel model = repo.findById(bloomfilterId).orElse(null);
+    private void updateUsageCount(String bloomfilterId, Consumer<BloomFilterMysqlModel> func) throws StatusCodeWithException {
+        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
         if (model == null) {
             return;
         }

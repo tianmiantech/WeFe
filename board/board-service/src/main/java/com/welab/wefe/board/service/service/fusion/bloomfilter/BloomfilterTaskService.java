@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.service.fusion.bloomfilter;
 
 
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
-import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterTaskRepository;
 import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
@@ -70,7 +70,7 @@ public class BloomfilterTaskService extends AbstractService {
         BloomFilterTaskMysqlModel bloomfilterTask = new BloomFilterTaskMysqlModel();
         bloomfilterTask.setBloomfilterName(input.getName());
         bloomfilterTask.setProgress(0);
-        bloomfilterTask.setBloomfilterId(new BloomFilterMySqlModel().getId());
+        bloomfilterTask.setBloomfilterId(new BloomFilterMysqlModel().getId());
         bloomfilterTaskRepository.save(bloomfilterTask);
         bloomfilterAddService.add(input, bloomfilterTask, CurrentAccount.get());
 

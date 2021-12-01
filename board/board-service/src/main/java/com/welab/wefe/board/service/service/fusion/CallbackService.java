@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.welab.wefe.board.service.api.fusion.actuator.CallbackApi;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.util.Date;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -177,7 +178,7 @@ public class CallbackService {
         /**
          * Find your party by task ID
          */
-        BloomFilterMySqlModel bf = bloomfilterService.findOne(task.getDataResourceId());
+        BloomFilterMysqlModel bf = bloomfilterService.findOne(task.getDataResourceId());
         if (bf == null) {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -188,10 +189,11 @@ public class CallbackService {
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
                 BloomFilterUtils.readFrom(
-                        bf.getBloomfilterPath()),
-                new BigInteger(bf.getN()),
-                new BigInteger(bf.getE()),
-                new BigInteger(bf.getD())
+                        Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
+                ),
+                new BigInteger(bf.getRsaN()),
+                new BigInteger(bf.getRsaE()),
+                new BigInteger(bf.getRsaD())
         );
 
         ActuatorManager.set(server);
