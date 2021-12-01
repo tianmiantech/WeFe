@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 超级解压，解压一切类型的压缩文件。
+ *
  * @author zane
  * @date 2021/11/29
  */

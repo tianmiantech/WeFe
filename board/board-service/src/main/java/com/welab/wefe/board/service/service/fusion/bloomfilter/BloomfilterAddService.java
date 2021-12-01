@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,6 +43,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +89,7 @@ public class BloomfilterAddService extends AbstractService {
         model.setCreatedBy("test");
         model.setTags(bloomfilterService.standardizeTags(input.getTags()));
         bloomfilterService.handlePublicMemberList(model);
-        model.setSourcePath(config.getFileUploadDir()+input.getFilename());
+        model.setSourcePath(config.getFileUploadDir() + input.getFilename());
         model.setName(input.getName());
         model.setDataSourceId(input.getDataSourceId());
         model.setUpdatedBy(CurrentAccount.id());
@@ -214,16 +215,19 @@ public class BloomfilterAddService extends AbstractService {
         // get bloomfilter headers
         List<String> rawHeaders = bloomfilterReader.getHeader();
 
-        String filterDir = config.getFilterDir();
-        String bloomfilterPath = filterDir + model.getName();
-        File outFile = new File(filterDir);
+        File outFile = Paths.get(
+                config.getFileUploadDir(),
+                "bloom_filter",
+                model.getId(),
+                model.getName()
+        ).toFile();
 
         if (!outFile.exists() && !outFile.isDirectory()) {
             outFile.mkdir();
         }
 
         // data row consumption method
-        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model.getId(), deduplication, bloomfilterReader, bloomfilterPath);
+        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model.getId(), deduplication, bloomfilterReader, outFile.getAbsolutePath());
 
         // read all data rows of the raw bloomfilter
         bloomfilterReader.readAll(dataRowConsumer);
