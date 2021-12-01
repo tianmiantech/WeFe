@@ -109,7 +109,9 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
         Map<String, Integer> sampleLabelIndexMap = new HashMap<>();
 
         for (String fileName : fileNames) {
-            File file = txtFiles.get(fileName);
+            File file = txtFiles.get(
+                    StringUtil.substringAfterLast(fileName, ".")
+            );
             if (file == null) {
                 continue;
             }
@@ -140,7 +142,9 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
      * @return index : label
      */
     private Map<Integer, String> getLabelIndexMap(Map<String, File> txtFiles) throws IOException {
-        File labelListFile = txtFiles.get(LABEL_LIST_FILE_NAME);
+        File labelListFile = txtFiles.get(
+                StringUtil.substringAfterLast(LABEL_LIST_FILE_NAME, ".")
+        );
 
         Map<Integer, String> labelIndexMap = new HashMap<>();
         if (labelListFile == null) {

@@ -16,8 +16,6 @@
 
 package com.welab.wefe.common.util;
 
-import com.welab.wefe.common.util.dto.FileDecompressionResult;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +34,23 @@ public class FileUtil {
             case "bmp":
             case "tif":
             case "gif":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * 是否是压缩包文件
+     */
+    public static boolean isArchive(File file) {
+        switch (getFileSuffix(file).toLowerCase()) {
+            case "zip":
+            case "tar":
+            case "gz":
+            case "tgz":
+            case "7z":
+            case "rar":
                 return true;
             default:
                 return false;
@@ -127,14 +142,4 @@ public class FileUtil {
     public static void deleteFileOrDir(String filePath) {
         deleteFileOrDir(new File(filePath));
     }
-
-    /**
-     * 解压文件
-     * 注意：该方法会递归解压压缩包内的压缩包
-     */
-    public static FileDecompressionResult decompression(File file, String destDirPath) {
-        FileDecompressionResult result = new FileDecompressionResult(file, destDirPath);
-        return result;
-    }
-
 }
