@@ -106,19 +106,19 @@ CREATE TABLE `table_data_set`
 DROP TABLE IF EXISTS `bloom_filter`;
 CREATE TABLE `bloom_filter`
 (
-    `id`               varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`       varchar(32) COMMENT '创建人',
-    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`       varchar(32) COMMENT '更新人',
-    `updated_time`     datetime(6) COMMENT '更新时间',
-    `rsa_e`            text COMMENT '密钥e',
-    `rsa_n`            text COMMENT '密钥n',
-    `rsa_d`            text COMMENT '密钥e',
-    `data_source_id`   varchar(32)  DEFAULT NULL COMMENT '数据源id',
-    `source_path`      varchar(255) DEFAULT NULL COMMENT '数据源地址',
-    `column_name_list` text COMMENT '选取生成过滤器的字段',
-    `add_method`       varchar(255) DEFAULT NULL COMMENT '布隆过滤器添加方式',
-    `sql_script`       varchar(255) DEFAULT NULL COMMENT 'sql语句',
+    `id`             varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`     varchar(32) COMMENT '创建人',
+    `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`     varchar(32) COMMENT '更新人',
+    `updated_time`   datetime(6) COMMENT '更新时间',
+    `rsa_e`          text COMMENT '密钥e',
+    `rsa_n`          text COMMENT '密钥n',
+    `rsa_d`          text COMMENT '密钥e',
+    `data_source_id` varchar(32)  DEFAULT NULL COMMENT '数据源id',
+    `source_path`    varchar(255) DEFAULT NULL COMMENT '数据源地址',
+    `hash_function`  text COMMENT '主键hash生成方法',
+    `add_method`     varchar(255) DEFAULT NULL COMMENT '布隆过滤器添加方式',
+    `sql_script`     varchar(255) DEFAULT NULL COMMENT 'sql语句',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='布隆过滤器';
