@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.upload_progress;
+package com.welab.wefe.board.service.api.data_resource.image_data_set;
 
-import com.welab.wefe.board.service.dto.base.PagingInput;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
-import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddOutputModel;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+
 /**
- * @author zane.luo
+ * @author Zane
  */
-@Api(path = "data_set_task/query", name = "query data set upload task list")
-public class DataResourceUploadTaskQueryApi extends AbstractApi<DataResourceUploadTaskQueryApi.Input, PagingOutput<DataSetTaskOutputModel>> {
+@Api(path = "image_data_set/add", name = "add image data set")
+public class ImageDataSetAddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
 
     @Autowired
-    private DataResourceUploadTaskService dataResourceUploadTaskService;
+    private ImageDataSetService imageDataSetService;
 
     @Override
-    protected ApiResult<PagingOutput<DataSetTaskOutputModel>> handle(Input input) throws StatusCodeWithException {
-        return success(dataResourceUploadTaskService.query(input));
-    }
-
-    public static class Input extends PagingInput {
+    protected ApiResult<ImageDataSetAddOutputModel> handle(ImageDataSetAddInputModel input) throws StatusCodeWithException, IOException {
+        ImageDataSetAddOutputModel output = imageDataSetService.add(input);
+        return success(output);
     }
 
 }

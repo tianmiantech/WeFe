@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
-import com.welab.wefe.board.service.api.data_source.table_data_set.TableDataSetDeleteApi;
-import com.welab.wefe.board.service.api.data_source.table_data_set.TableDataSetQueryApi;
+import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
+import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetQueryApi;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.table_data_set.column;
+package com.welab.wefe.board.service.api.data_resource.table_data_set.column;
 
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;

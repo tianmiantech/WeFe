@@ -14,35 +14,45 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.image_data_set;
+package com.welab.wefe.board.service.api.data_resource.image_data_set;
 
 
-import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/delete", name = "delete data set")
-public class ImageDataSetDeleteApi extends AbstractNoneOutputApi<ImageDataSetDeleteApi.Input> {
+@Api(path = "image_data_set/detail", name = "get a image data set detail")
+public class ImageDataSetDetailApi extends AbstractApi<ImageDataSetDetailApi.Input, ImageDataSetOutputModel> {
 
     @Autowired
-    private ImageDataSetService imageDataSetService;
+    ImageDataSetRepository imageDataSetRepository;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        imageDataSetService.delete(input);
-        return success();
+    protected ApiResult<ImageDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
+
+        ImageDataSetMysqlModel model = imageDataSetRepository.findById(input.id).orElse(null);
+
+        if (model == null) {
+            return success();
+        }
+
+        ImageDataSetOutputModel output = ModelMapper.map(model, ImageDataSetOutputModel.class);
+
+        return success(output);
+
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集 Id", require = true)
         private String id;
 
         //region getter/setter

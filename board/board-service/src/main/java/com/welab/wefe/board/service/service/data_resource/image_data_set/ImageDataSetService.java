@@ -15,8 +15,8 @@
  */
 package com.welab.wefe.board.service.service.data_resource.image_data_set;
 
-import com.welab.wefe.board.service.api.data_source.image_data_set.ImageDataSetDeleteApi;
-import com.welab.wefe.board.service.api.data_source.image_data_set.ImageDataSetQueryApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetDeleteApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;

@@ -14,30 +14,48 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.image_data_set;
+package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
-import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetUpdateInputModel;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/update", name = "update data set info")
-public class ImageDataSetUpdateApi extends AbstractNoneOutputApi<ImageDataSetUpdateInputModel> {
+@Api(path = "data_set/delete", name = "delete data set")
+public class TableDataSetDeleteApi extends AbstractNoneOutputApi<TableDataSetDeleteApi.Input> {
 
     @Autowired
-    private ImageDataSetService imageDataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Override
-    protected ApiResult<?> handler(ImageDataSetUpdateInputModel input) throws StatusCodeWithException {
-        imageDataSetService.update(input);
-
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+        tableDataSetService.delete(input);
         return success();
     }
 
+    public static class Input extends AbstractApiInput {
+        @Check(name = "数据集 Id", require = true)
+        private String id;
+
+        //region getter/setter
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+
+        //endregion
+    }
 }

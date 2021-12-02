@@ -15,9 +15,9 @@
  */
 package com.welab.wefe.board.service.service.data_resource.image_data_set;
 
-import com.welab.wefe.board.service.api.data_source.image_data_set.sample.ImageDataSetSampleQueryApi;
-import com.welab.wefe.board.service.api.data_source.image_data_set.sample.ImageDataSetSampleStatisticsApi;
-import com.welab.wefe.board.service.api.data_source.image_data_set.sample.ImageDataSetSampleUpdateApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.sample.ImageDataSetSampleQueryApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.sample.ImageDataSetSampleStatisticsApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.sample.ImageDataSetSampleUpdateApi;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;

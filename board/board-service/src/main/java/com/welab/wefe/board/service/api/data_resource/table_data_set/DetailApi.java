@@ -14,57 +14,55 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.table_data_set;
+package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
 
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.TreeMap;
 
 /**
  * @author Zane
  */
-@Api(path = "data_set/tags", name = "all of the data set tags")
-public class TagListApi extends AbstractApi<TagListApi.Input, TreeMap<String, Long>> {
+@Api(path = "data_set/detail", name = "get data set detail")
+public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputModel> {
 
     @Autowired
-    TableDataSetRepository repo;
+    TableDataSetRepository dataSetRepository;
 
     @Override
-    protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
-        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getTableDataSetTags().clone();
+    protected ApiResult<TableDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
 
-        // filter
-        if (StringUtil.isNotEmpty(input.tag)) {
-            for (Object tag : map.keySet().toArray()) {
-                if (!String.valueOf(tag).toLowerCase().contains(input.tag)) {
-                    map.remove(tag);
-                }
-            }
+        TableDataSetMysqlModel model = dataSetRepository.findById(input.id).orElse(null);
+
+        if (model == null) {
+            return success();
         }
 
-        return success(map);
+        TableDataSetOutputModel output = ModelMapper.map(model, TableDataSetOutputModel.class);
+
+        return success(output);
+
     }
 
     public static class Input extends AbstractApiInput {
-        private String tag;
+        private String id;
 
         //region getter/setter
 
-        public String getTag() {
-            return tag;
+        public String getId() {
+            return id;
         }
 
-        public void setTag(String tag) {
-            this.tag = tag;
+        public void setId(String id) {
+            this.id = id;
         }
 
 

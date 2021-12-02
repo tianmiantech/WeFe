@@ -14,32 +14,51 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.image_data_set;
+package com.welab.wefe.board.service.api.data_resource.image_data_set;
 
-import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputModel;
-import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddOutputModel;
+
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
+import java.io.File;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/add", name = "add image data set")
-public class ImageDataSetAddApi extends AbstractApi<ImageDataSetAddInputModel, ImageDataSetAddOutputModel> {
+@Api(path = "image_data_set/download", name = "delete data set")
+public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
     private ImageDataSetService imageDataSetService;
 
     @Override
-    protected ApiResult<ImageDataSetAddOutputModel> handle(ImageDataSetAddInputModel input) throws StatusCodeWithException, IOException {
-        ImageDataSetAddOutputModel output = imageDataSetService.add(input);
-        return success(output);
+    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
+        File file = imageDataSetService.download(input.id);
+        return file(file);
     }
 
+    public static class Input extends AbstractApiInput {
+        @Check(name = "数据集 Id", require = true)
+        private String id;
+
+        //region getter/setter
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+
+        //endregion
+    }
 }

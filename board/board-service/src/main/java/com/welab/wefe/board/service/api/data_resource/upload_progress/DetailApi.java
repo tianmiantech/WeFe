@@ -14,48 +14,35 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.table_data_set;
+package com.welab.wefe.board.service.api.data_resource.upload_progress;
 
-
-import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
-import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Zane
+ * @author lonnie
  */
-@Api(path = "data_set/detail", name = "get data set detail")
-public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputModel> {
+@Api(path = "data_set_task/detail", name = "get a data set upload task info")
+public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
-    TableDataSetRepository dataSetRepository;
+    private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<TableDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
-
-        TableDataSetMysqlModel model = dataSetRepository.findById(input.id).orElse(null);
-
-        if (model == null) {
-            return success();
-        }
-
-        TableDataSetOutputModel output = ModelMapper.map(model, TableDataSetOutputModel.class);
-
-        return success(output);
-
+    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
+        return success(dataResourceUploadTaskService.findById(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "id唯一标识", require = true)
         private String id;
-
-        //region getter/setter
 
         public String getId() {
             return id;
@@ -64,8 +51,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputMo
         public void setId(String id) {
             this.id = id;
         }
-
-
-        //endregion
     }
+
 }

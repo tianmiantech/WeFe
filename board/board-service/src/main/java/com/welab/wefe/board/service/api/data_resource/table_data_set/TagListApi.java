@@ -14,55 +14,57 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.image_data_set;
+package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
 
-import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
-import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.TreeMap;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/detail", name = "get a image data set detail")
-public class ImageDataSetDetailApi extends AbstractApi<ImageDataSetDetailApi.Input, ImageDataSetOutputModel> {
+@Api(path = "data_set/tags", name = "all of the data set tags")
+public class TagListApi extends AbstractApi<TagListApi.Input, TreeMap<String, Long>> {
 
     @Autowired
-    ImageDataSetRepository imageDataSetRepository;
+    TableDataSetRepository repo;
 
     @Override
-    protected ApiResult<ImageDataSetOutputModel> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
+        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getTableDataSetTags().clone();
 
-        ImageDataSetMysqlModel model = imageDataSetRepository.findById(input.id).orElse(null);
-
-        if (model == null) {
-            return success();
+        // filter
+        if (StringUtil.isNotEmpty(input.tag)) {
+            for (Object tag : map.keySet().toArray()) {
+                if (!String.valueOf(tag).toLowerCase().contains(input.tag)) {
+                    map.remove(tag);
+                }
+            }
         }
 
-        ImageDataSetOutputModel output = ModelMapper.map(model, ImageDataSetOutputModel.class);
-
-        return success(output);
-
+        return success(map);
     }
 
     public static class Input extends AbstractApiInput {
-        private String id;
+        private String tag;
 
         //region getter/setter
 
-        public String getId() {
-            return id;
+        public String getTag() {
+            return tag;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setTag(String tag) {
+            this.tag = tag;
         }
 
 

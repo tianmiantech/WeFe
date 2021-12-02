@@ -14,37 +14,32 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.image_data_set.sample;
+package com.welab.wefe.board.service.api.data_resource.image_data_set.sample;
 
-import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
-import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
+
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/download", name = "download image data set sample")
-public class ImageDataSetSampleDownloadApi extends AbstractApi<ImageDataSetSampleDownloadApi.Input, ResponseEntity<?>> {
+@Api(path = "image_data_set_sample/delete", name = "delete image data set sample", login = false)
+public class ImageDataSetSampleDeleteApi extends AbstractNoneOutputApi<ImageDataSetSampleDeleteApi.Input> {
 
     @Autowired
-    private ImageDataSetSampleRepository imageDataSetSampleRepository;
+    private ImageDataSetSampleService imageDataSetSampleService;
 
     @Override
-    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
-        ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
-        File file = new File(sample.getFilePath());
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+        imageDataSetSampleService.delete(input.id);
 
-        return file(file);
+        return success();
     }
 
     public static class Input extends AbstractApiInput {

@@ -14,48 +14,41 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.table_data_set;
+package com.welab.wefe.board.service.api.data_resource.image_data_set.sample;
 
-
-import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
+import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Zane
  */
-@Api(path = "data_set/delete", name = "delete data set")
-public class TableDataSetDeleteApi extends AbstractNoneOutputApi<TableDataSetDeleteApi.Input> {
+@Api(path = "image_data_set_sample/download", name = "download image data set sample")
+public class ImageDataSetSampleDownloadApi extends AbstractApi<ImageDataSetSampleDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
-    private TableDataSetService tableDataSetService;
+    private ImageDataSetSampleRepository imageDataSetSampleRepository;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        tableDataSetService.delete(input);
-        return success();
+    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
+        ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
+        File file = new File(sample.getFilePath());
+
+        return file(file);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集 Id", require = true)
-        private String id;
-
-        //region getter/setter
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-
-        //endregion
+        @Check(require = true)
+        public String id;
     }
 }

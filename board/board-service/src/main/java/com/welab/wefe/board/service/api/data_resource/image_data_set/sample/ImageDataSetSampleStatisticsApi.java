@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.api.data_source.image_data_set.sample;
+package com.welab.wefe.board.service.api.data_resource.image_data_set.sample;
 
 
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;

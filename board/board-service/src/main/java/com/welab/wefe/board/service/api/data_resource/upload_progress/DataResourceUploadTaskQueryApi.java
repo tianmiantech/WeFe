@@ -14,43 +14,33 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_source.upload_progress;
+package com.welab.wefe.board.service.api.data_resource.upload_progress;
 
-import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
+import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author lonnie
+ * @author zane.luo
  */
-@Api(path = "data_set_task/detail", name = "get a data set upload task info")
-public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
+@Api(path = "data_set_task/query", name = "query data set upload task list")
+public class DataResourceUploadTaskQueryApi extends AbstractApi<DataResourceUploadTaskQueryApi.Input, PagingOutput<DataSetTaskOutputModel>> {
 
     @Autowired
     private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
-        return success(dataResourceUploadTaskService.findById(input.getId()));
+    protected ApiResult<PagingOutput<DataSetTaskOutputModel>> handle(Input input) throws StatusCodeWithException {
+        return success(dataResourceUploadTaskService.query(input));
     }
 
-    public static class Input extends AbstractApiInput {
-        @Check(name = "id唯一标识", require = true)
-        private String id;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
+    public static class Input extends PagingInput {
     }
 
 }
