@@ -96,11 +96,11 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId) throws StatusCodeWithException {
-        if (ActuatorManager.get(businessId) == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+        if (ActuatorManager.get(businessId) != null) {
+            return;
         }
 
-        FusionTaskMySqlModel task = fusionTaskService.findByBusinessId(businessId);
+        FusionTaskMySqlModel task = fusionTaskService.findByIdAndStatus(businessId, FusionTaskStatus.Await);
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
         }
@@ -154,7 +154,8 @@ public class CallbackService {
                 task.getBusinessId(),
                 task.getDataResourceId(),
                 task.isTrace(),
-                task.getTraceColumn()
+                task.getTraceColumn(),
+                task.getMemberId()
         );
 
         ActuatorManager.set(client);
