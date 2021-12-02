@@ -30,6 +30,7 @@ from common.python.common.consts import NAMESPACE, TaskResultDataType, \
     ProjectStatus, ModelType, TaskStatus
 from common.python.common.enums import FlowQueueActionType
 from common.python.db.data_set_dao import DataSetDao
+from common.python.db.data_set_column_dao import DataSetColumnDao
 from common.python.db.db_models import *
 from common.python.db.job_member_dao import JobMemberDao
 from common.python.db.project_dao import ProjectDao
@@ -172,7 +173,7 @@ class Tracking(object):
             self.save_task_result(data_input, self._get_task_result_type(TaskResultDataType.DATA, data_name))
 
             if save_dataset:
-                self.save_dataset(data_input, header_list)
+                self.save_dataset(data_input, data_table.schema, data_table)
 
     def get_output_data_table(self, data_name: str = 'component'):
         """
@@ -577,7 +578,9 @@ class Tracking(object):
 
         self.save_task_result(result, result_type, component_name)
 
-    def save_dataset(self, data_input, header_list):
+    def save_dataset(self, data_input, schema, data_table):
+        header_list = schema.get("header")
+
         # Determine whether the task exists
         task = TaskDao.find_one_by_task_id(self.task_id)
         if not task:
@@ -636,12 +639,19 @@ class Tracking(object):
         data_set.feature_name_list = ",".join(header_list)
         data_set.y_name_list = data_set_old.y_name_list
         data_set.primary_key_column = data_set_old.primary_key_column
-        # column = feature + primary_key + y
+
+        # column = primary_key + y + feature
         if data_set.y_name_list is None:
-            data_set.column_name_list = ",".join(header_list) + "," + data_set.primary_key_column
+            data_set.column_name_list = data_set.primary_key_column + "," + ",".join(header_list)
         else:
-            data_set.column_name_list = ",".join(
-                header_list) + "," + data_set.y_name_list + "," + data_set.primary_key_column
+            data_set.column_name_list = f"{data_set.primary_key_column},{data_set.y_name_list},{','.join(header_list)}"
+
+            # y positive count
+            y_positive_count = data_table.filter(lambda k, v: int(v.label) > 0).count()
+            y_positive_ratio = round(y_positive_count / data_input['table_create_count'], 4)
+            data_set.y_positive_example_count = y_positive_count
+            data_set.y_positive_example_ratio = y_positive_ratio
+
         if len(header_list) == 0:
             data_set.column_name_list = data_set.column_name_list[1:]
         data_set.contains_y = data_set_old.contains_y
@@ -651,7 +661,7 @@ class Tracking(object):
         DataSetDao.save(data_set, force_insert=True)
 
         self.save_project_data_set(data_set.id, self.job_id, self.task_id, self.component_name)
-        self.save_data_set_column(job_member.data_set_id, data_set.id, header_list)
+        self.save_data_set_column(data_set, schema, data_set_old.id)
 
         return data_set
 
@@ -689,8 +699,54 @@ class Tracking(object):
         return project_data_set
 
     @staticmethod
-    def save_data_set_column(old_data_set_id, data_set_id, header):
-        pass
+    def get_data_set_column_type(data_set_id):
+        data_set_columns = DataSetColumnDao.list_by_data_set_id(data_set_id)
+        column_types = []
+        for item_column in data_set_columns:
+            column_types.append(item_column.data_type)
+        return column_types
+
+    @staticmethod
+    def save_data_set_column(data_set, schema, old_data_set_id):
+        column_types = schema.get("column_types")
+        header = schema.get("header")
+
+        if column_types:
+
+            def get_new_column_json(data_set_id, index, name, data_type):
+                return {
+                    "data_set_id": data_set_id,
+                    "id": get_commit_id(),
+                    "created_time": current_datetime(),
+                    "index": index,
+                    "name": name,
+                    "data_type": data_type
+                }
+
+            index = 0
+            data_set_id = data_set.id
+
+            # get old data set id column type
+            id_column = DataSetColumnDao.get(DataSetColumn.data_set_id == old_data_set_id,
+                                             DataSetColumn.name == data_set.primary_key_column)
+
+            # id column
+            id_column_type = id_column.data_type if id_column else "String"
+            column_list = [get_new_column_json(data_set_id, index, data_set.primary_key_column, id_column_type)]
+            index += 1
+
+            # label column
+            if data_set.contains_y == 1:
+                for item_y in data_set.y_name_list.split(','):
+                    column_list.append(get_new_column_json(data_set_id, index, item_y, "Integer"))
+                    index += 1
+
+            # feature column
+            for i in range(len(header)):
+                column_list.append(get_new_column_json(data_set_id, index, header[i], column_types[i]))
+                index += 1
+
+            DataSetColumnDao.batch_insert(column_list)
 
     def _calc_progress(self, model):
         """
