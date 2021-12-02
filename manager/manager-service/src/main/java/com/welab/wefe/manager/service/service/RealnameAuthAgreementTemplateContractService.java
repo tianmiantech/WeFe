@@ -61,8 +61,8 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOG.error("add UnionNode error: ", e);
-            throw new StatusCodeWithException("add UnionNode error: ", StatusCode.SYSTEM_ERROR);
+            LOG.error("add RealnameAuthAgreementTemplate error: ", e);
+            throw new StatusCodeWithException("add RealnameAuthAgreementTemplate error: ", StatusCode.SYSTEM_ERROR);
         }
     }
 
@@ -87,7 +87,6 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
         list.add(realnameAuthAgreementTemplate.getEnable());
         list.add(realnameAuthAgreementTemplate.getCreatedTime());
         list.add(realnameAuthAgreementTemplate.getUpdatedTime());
-
         return list;
     }
 
