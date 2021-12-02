@@ -27,6 +27,7 @@ import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
