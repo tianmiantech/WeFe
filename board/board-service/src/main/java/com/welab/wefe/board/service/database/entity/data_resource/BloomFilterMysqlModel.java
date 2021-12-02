@@ -18,10 +18,7 @@ package com.welab.wefe.board.service.database.entity.data_resource;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.common.enums.DataResourceType;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author zane
@@ -33,14 +30,17 @@ public class BloomFilterMysqlModel extends DataResourceMysqlModel {
     /**
      * 密钥e
      */
+    @Column(name = "rsa_e")
     private String rsaE;
     /**
      * 密钥n
      */
+    @Column(name = "rsa_n")
     private String rsaN;
     /**
      * 密钥e
      */
+    @Column(name = "rsa_d")
     private String rsaD;
     /**
      * 数据源id
