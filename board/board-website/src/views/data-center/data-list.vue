@@ -5,7 +5,7 @@
     >
         <el-form
             inline
-            class="mb20 clearfix"
+            class="mb20"
             @submit.prevent
         >
             <el-form-item
@@ -66,11 +66,8 @@
             >
                 查询
             </el-button>
-            <el-button plain type="primary" class="fr">
-                上传中的数据集 <i class="el-icon-right"></i>
-            </el-button>
         </el-form>
-        
+
         <el-tabs
             v-model="vData.activeTab"
             type="border-card"
@@ -81,25 +78,26 @@
                 :key="tab.name"
             >
                 <el-tab-pane
-                    v-if="tab.name === 'imageUnions'"
+                    v-if="tab.name === 'uploadUnions'"
                     :name="tab.name"
                     :label="tab.label"
                 >
                     <template #label>
-                        <!-- <el-badge
+                        <el-badge
                             :max="99"
                             :value="tab.count"
                             :hidden="tab.count < 1"
                             type="danger"
-                        > -->
-                        {{ tab.label }}
-                        <!-- </el-badge> -->
+                        >
+                            {{ tab.label }}
+                        </el-badge>
                     </template>
-                    <ImagesList
-                        ref="imageUnions"
-                        key="imageUnions"
+                    <UploadingList
+                        ref="uploadUnions"
+                        key="uploadUnions"
                         :table-loading="vData.loading"
                         :search-field="vData.search"
+                        :upload-list="vData.uploadList"
                     />
                 </el-tab-pane>
                 <el-tab-pane
@@ -112,7 +110,7 @@
                             {{ tab.label }}
                         </el-badge>
                     </template>
-                    <List
+                    <AllDataList
                         ref="allUnions"
                         key="allUnions"
                         :table-loading="vData.loading"
@@ -134,21 +132,21 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import List from './components/list';
-    import ImagesList from './components/images-list';
+    import UploadingList from './components/uploading-list';
+    import AllDataList from './components/all-data-list';
 
     export default {
         components: {
-            List,
-            ImagesList,
+            AllDataList,
+            UploadingList,
         },
         setup() {
-            const timer = null;
+            let timer = null;
             const route = useRoute();
             const router = useRouter();
             const { appContext } = getCurrentInstance();
             const { $http, $confirm, $message } = appContext.config.globalProperties;
-            const imageUnions = ref();
+            const uploadUnions = ref();
             const allUnions = ref();
             const vData = reactive({
                 loading: false,
@@ -169,21 +167,48 @@
                 unionTabs: [
                     {
                         name:  'allUnions',
-                        label: '结构化数据',
+                        label: '全部数据集',
                         count: 0,
                     },
                     {
-                        name:  'imageUnions',
-                        label: '图像数据',
+                        name:  'uploadUnions',
+                        label: '上传中的数据集',
                         count: 0,
                     },
                 ],
+                uploadList: [], // uploading list
             });
             const methods = {
                 async getUploadList() {
-                    const $ref = imageUnions.value;
+                    const $ref = uploadUnions.value;
 
-                    $ref.getDataList();
+                    if($ref) {
+                        const { code, data } = await $http.get($ref.getListApi, {
+                            params: {
+                                ...vData.search,
+                                page_index: $ref.pagination.page_index - 1,
+                                page_size:  $ref.pagination.page_size,
+                            },
+                        });
+
+                        if (code === 0) {
+                            const $data = vData;
+
+                            $data.unionTabs[1].count = data.total;
+                            $data.uploadList = data.list;
+                            $ref.pagination.total = data.total;
+                            $ref.loading = false;
+                        }
+
+                        clearTimeout(timer);
+                        timer = setTimeout(() => {
+                            methods.getUploadList();
+                        }, 2000);
+
+                        if (code === 10006) {
+                            clearTimeout(timer);
+                        }
+                    }
                 },
 
                 async getTags() {
@@ -276,9 +301,9 @@
                 };
             };
             const searchList = (opt = {}) => {
-                const refInstance = vData.activeTab === 'imageUnions' ? imageUnions : allUnions;
+                const refInstance = vData.activeTab === 'uploadUnions' ? uploadUnions : allUnions;
 
-                refInstance.value.getDataList(opt);
+                refInstance && refInstance.value.getDataList(opt);
             };
 
             onMounted(async () => {
@@ -310,7 +335,7 @@
                 searchList,
                 syncUrlParams,
                 tabChange,
-                imageUnions,
+                uploadUnions,
                 allUnions,
             };
         },
@@ -318,20 +343,6 @@
 </script>
 
 <style lang="scss" scoped>
-    // 清除浮动
-    .clearfix:after, .clearfix:before {
-        content: '';
-        display: table;
-    }
-    .clearfix:after {
-        clear: both;
-    }
-    .clearfix {
-        *zoom: 1;
-        .fr {
-            float: right;
-        }
-    }
     .el-tabs{
         :deep(.el-tabs__header) {height: 40px;}
         :deep(.el-tabs__nav-wrap){

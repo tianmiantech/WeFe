@@ -9,16 +9,20 @@
                         :span="20"
                     >
                         <p class="item-name">
-                            <i
+                            <el-icon
                                 v-if="status.success"
                                 class="el-icon-success"
-                                style="color:green"
-                            />
-                            <i
+                                style="color:green;"
+                            >
+                                <elicon-success-filled />
+                            </el-icon>
+                            <el-icon
                                 v-else
                                 class="el-icon-error"
-                                style="color:red"
-                            />
+                                style="color:red;"
+                            >
+                                <elicon-circle-close-filled />
+                            </el-icon>
 
                             {{ status.service }}
                         </p>

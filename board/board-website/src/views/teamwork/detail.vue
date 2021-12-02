@@ -133,7 +133,9 @@
             destroy-on-close
         >
             <div class="el-message-box__container">
-                <i class="el-message-box__status el-icon-warning" />
+                <el-icon class="el-message-box__status color-danger">
+                    <elicon-warning-filled />
+                </el-icon>
                 <div class="el-message-box__message">{{ cooperAuthDialog.flag ? '同意加入合作' : '拒绝与发起方的此次项目合作' }}</div>
             </div>
             <div class="mt20 text-r">
