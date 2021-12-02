@@ -6,6 +6,8 @@ public class RealnameAuthAgreementTemplateOutput {
     private String fileName;
     private int enable;
     private int status;
+    private String createdTime;
+    private String updatedTime;
 
     public String getTemplateFileId() {
         return templateFileId;
@@ -45,5 +47,21 @@ public class RealnameAuthAgreementTemplateOutput {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }
