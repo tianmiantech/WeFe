@@ -51,14 +51,14 @@ public class RealnameAuthAgreementTemplateContractEventParser extends AbstractPa
 
 
     private void parseUpdateEnableEvent() {
-        String templateFileId = eventBO.getEntity().get("templateFileId").toString();
+        String templateFileId = eventBO.getEntity().get("template_file_id").toString();
         String enable = eventBO.getEntity().get("enable").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         mongoRepo.updateEnable(templateFileId, enable, updatedTime);
     }
 
     private void parseUpdateExtJson() {
-        String templateFileId = eventBO.getEntity().get("templateFileId").toString();
+        String templateFileId = eventBO.getEntity().get("template_file_id").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         mongoRepo.updateExtJSONById(templateFileId, extJSON,updatedTime);
     }
