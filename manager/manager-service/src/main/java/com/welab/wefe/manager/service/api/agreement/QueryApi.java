@@ -16,19 +16,21 @@
 
 package com.welab.wefe.manager.service.api.agreement;
 
-import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.manager.service.dto.agreement.RealnameAuthAgreementTemplateOutput;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
+import com.welab.wefe.manager.service.mapper.RealnameAuthAgreementTemplateMapper;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author yuxin.zhang
  */
 @Api(path = "realname/auth/agreement/template/query", name = "realname_auth_agreement_template_query")
@@ -36,10 +38,14 @@ public class QueryApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired
     private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
+    protected RealnameAuthAgreementTemplateMapper mapper = Mappers.getMapper(RealnameAuthAgreementTemplateMapper.class);
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<RealnameAuthAgreementTemplate> list = realnameAuthAgreementTemplateMongoRepo.find();
+        List<RealnameAuthAgreementTemplateOutput> list = realnameAuthAgreementTemplateMongoRepo.find().stream()
+                .map(realnameAuthAgreementTemplate -> mapper.transfer(realnameAuthAgreementTemplate))
+                .collect(Collectors.toList());
+
         return success(JObject.create("list", JObject.toJSON(list)));
     }
 
