@@ -227,7 +227,7 @@ public class BlockChainConfig {
      */
     @Bean
     public RealnameAuthAgreementTemplateContract getLatestVersionRealnameAuthAgreementTemplateContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
+        String address = getLatestContractAddressByName(cnsService, realnameAuthAgreementTemplateContractName);
         return RealnameAuthAgreementTemplateContract.load(address, client, cryptoKeyPair);
     }
 
