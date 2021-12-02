@@ -37,7 +37,7 @@
             </el-descriptions-item>
             <template v-if="addDataType === 'img'">
                 <el-descriptions-item label="数据总量：">
-                    {{ dataInfo.sample_count }}
+                    {{ dataInfo.total_data_count }}
                 </el-descriptions-item>
                 <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
                     {{ dataInfo.label_list.split(',').length }}
@@ -52,7 +52,7 @@
                     {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
                 </el-descriptions-item>
                 <el-descriptions-item label="已标注：">
-                    {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.sample_count).toFixed(2) * 100 }}%)
+                    {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.total_data_count).toFixed(2) * 100 }}%)
                     <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
                         去标注 <i class="el-icon-right"></i>
                     </el-button>

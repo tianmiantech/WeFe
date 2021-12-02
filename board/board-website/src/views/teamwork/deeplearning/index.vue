@@ -97,7 +97,7 @@
                                         </el-form-item>
                                         <el-form-item label="数据集id："> {{ row.data_set_id }} </el-form-item>
                                         <el-form-item label="数据总量：">
-                                            {{ row.data_set.sample_count }}
+                                            {{ row.data_set.total_data_count }}
                                         </el-form-item>
                                     </el-form>
                                 </div>

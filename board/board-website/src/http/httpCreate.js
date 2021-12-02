@@ -87,7 +87,7 @@ httpInstance.interceptors.response.use(
                     });
                 } else if(data.code === 10017) {
                     window.$app.config.globalProperties.$message.error(data.message);
-                } else if (data.code === -1) {
+                } else if (data.code === -1 || data.code === 10003) {
                     window.$app.config.globalProperties.$message.error(data.message);
                 } else {
                     // window.$app.config.globalProperties.$message.error(data.message || '未知错误!');
