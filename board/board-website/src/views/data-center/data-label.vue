@@ -1,5 +1,5 @@
 <template>
-    <el-card class="page_layer_label">
+    <el-card v-loading="vData.pageLoading" class="page_layer_label">
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
@@ -107,6 +107,7 @@
                 count_by_sample_list: [],
                 labelName:            '',
                 newLabel:             '',
+                pageLoading:          false,
             });
 
             const methods = {
@@ -263,6 +264,7 @@
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
                     console.log(res);
+                    vData.pageLoading = true;
                     const params = {
                         id,
                         label_info: {
@@ -295,6 +297,7 @@
                                 }
                             }
                         }
+                        vData.pageLoading = false;
                     });
                 },
                 labelSearch(val) {
