@@ -11,7 +11,7 @@
 
 <script>
     import Konva from 'konva';
-    import { ref, reactive } from 'vue';
+    import { ref, reactive, nextTick } from 'vue';
     import { useRouter } from 'vue-router';
     import LabelModal from './label-modal.vue';
     export default {
@@ -43,6 +43,8 @@
                 // currentLabel:  {},
                 labelNowPos:   null, // 标注文字位置
                 isLabeled:     false, // 当前标注框是否已标注
+                currentRect:   null, // 当前被选中的标注框
+                currentText:   null, // 当前被选中的标注框文字
             });
 
             const labelModalRef = ref();
@@ -65,6 +67,8 @@
                     }
                 },
                 createStage() {
+                    vData.currentRect = null;
+                    vData.currentText = null;
                     vData.stage = new Konva.Stage({
                         container: 'container',
                         width:     vData.width,
@@ -90,14 +94,26 @@
                             imgW = imgW/6;
                             imgH = imgH /6;
                         }
-                        // console.log(imgW, imgH);
+                        // if (imgW > vData.width) {
+                        //     console.log(imgW);
+                        //     const scalex = vData.height / imgH;
+
+                        //     console.log(scalex);
+                        //     imgW = vData.width;
+                        //     imgH = vData.height / scalex;
+                        // }
+                        console.log(imgW, imgH);
+
                         imgOptions = {
                             // x:      vData.width/2 - imgW/2,
                             x:      0,
                             y:      0,
                             image:  imgObj,
+                            // width:  vData.width,
+                            // height: vData.height,
                             width:  imgW,
                             height: imgH,
+                            scale:  {},
                         };
                     };
                     setTimeout(() => {
@@ -151,7 +167,31 @@
                             methods.showLabelModal();
                         }
                     });
+                    // vData.stage.on('wheel', function(e) {
+                    //     const direction = e.evt.deltaY > 0 ? 'down' : 'up';
+
+                    //     if (direction === 'up') {
+                    //         nextTick(_=> {
+                    //             const i = 1;
+
+                    //             imageLayer.attrs.width += i * 100;
+                    //             imageLayer.attrs.height += i * 100;
+                    //         });
+                            
+                    //     } else {
+                    //         nextTick(_=> {
+                    //             const i = 1;
+
+                    //             imageLayer.attrs.width += i * -100;
+                    //             imageLayer.attrs.height += i * -100;
+                    //         });
+                    //     }
+                    // });
+                    vData.stage.on('mousewheel', function(e) {
+                        console.log('mousewheel');
+                    });
                 },
+                stageMouseWheel(e) {},
                 stageMousedown(e) {
                     const x = e.evt.offsetX, y = e.evt.offsetY;
 
@@ -178,6 +218,7 @@
                     vData.layer.draw();
                     vData.labelNowPos = vData.rectLayer;
                     vData.rectLayer.on('dragmove', function(e) {
+                        if (vData.currentRect && vData.currentText) console.log(vData.currentRect.attrs.traceId, vData.currentText.attrs.traceId);
                         vData.labelNowPos.setAttrs({
                             x: vData.rectLayer.x(),
                             y: vData.rectLayer.y(),
@@ -187,6 +228,14 @@
                         }
                     });
                     vData.rectLayer.on('mousedown', function(e) {
+                        if (e.target.attrs.isLabeled) {
+                            vData.stage.find('Text').forEach(item => {
+                                if (item.attrs.traceId === this.attrs.traceId) {
+                                    vData.currentRect = this;
+                                    vData.currentText = item;
+                                }
+                            });
+                        }
                         if (e.evt.button === 2) {
                             e.evt.preventDefault();
                             e.evt.returnValue = false;
@@ -216,6 +265,10 @@
                                 width:  vData.rectLayer.width(),
                                 height: vData.rectLayer.height(),
                             });
+                            vData.currentRect.setAttrs({
+                                width:  vData.rectLayer.width(),
+                                height: vData.rectLayer.height(),
+                            });
                             methods.setLabelTextPosition();
                         }
                     });
@@ -234,12 +287,19 @@
                     
                     });
                     vData.rectLayer.on('dblclick', function(e) {
-                        vData.stage.find('Transformer').destroy();
-                        this.destroy();
                         if (e.target.attrs.isLabeled) {
-                            vData.labelLayer.destroy();
-                            // vData.currentLabel = {};
+                            vData.stage.find('Text').forEach(item => {
+                                if (item.attrs.traceId === this.attrs.traceId) {
+                                    vData.stage.find('Transformer').destroy();
+                                    item.destroy();
+                                    this.destroy();
+                                }
+                            });
+                        } else {
+                            vData.stage.find('Transformer').destroy(); 
+                            this.destroy(); 
                         }
+                        vData.currentText = null;
                         vData.layer.draw();
                         labelModalRef.value.methods.hideModal();
                         vData.labelList = props.labelList;
@@ -317,34 +377,50 @@
                 },
                 // 标注
                 labelNode(data) {
-                    // vData.currentLabel = data;
-                    // vData.stage.find('Text').destroy();
-                    vData.labelLayer = new Konva.Text({
-                        x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
-                        y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
-                        text:     data.label,
-                        fontSize: 18,
-                        fill:     'rgba(255, 255, 255, .7)',
-                    });
-                    vData.labelLayer.offsetX(vData.labelLayer.width() / 2);
-                    vData.layer.add(vData.labelLayer);
-                    vData.layer.draw();
-                    // vData.currentLabel = {}; // 同一张图中有多个标注时，清除上个标注信息
-                    vData.labelLayer.on('mouseenter', function() {
-                        vData.stage.container().style.cursor = 'move';
-                    });
-                    labelModalRef.value.methods.hideModal();
-                    vData.labelList = props.labelList;
-                    vData.rectLayer.setAttrs({
-                        isLabeled: true,
-                        labelName: data.label,
-                    });
+                    if (vData.currentText) {
+                        vData.currentText.setAttrs({
+                            text: data.label,
+                        });
+                        vData.currentRect.setAttrs({
+                            labelName: data.label,
+                        });
+                        vData.layer.draw();
+                        labelModalRef.value.methods.hideModal();
+                        vData.currentText = null;
+                    } else {
+                        vData.labelLayer = new Konva.Text({
+                            x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
+                            y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
+                            text:     data.label,
+                            fontSize: 18,
+                            fill:     'rgba(255, 255, 255, .7)',
+                        });
+                        vData.labelLayer.offsetX(vData.labelLayer.width() / 2);
+                        vData.layer.add(vData.labelLayer);
+                        vData.layer.draw();
+                        // vData.currentLabel = {}; // 同一张图中有多个标注时，清除上个标注信息
+                        vData.labelLayer.on('mouseenter', function() {
+                            vData.stage.container().style.cursor = 'move';
+                        });
+                        labelModalRef.value.methods.hideModal();
+                        vData.labelList = props.labelList;
+                        const traceId = Math.random();
+
+                        vData.rectLayer.setAttrs({
+                            isLabeled: true,
+                            labelName: data.label,
+                            traceId,
+                        });
+                        vData.labelLayer.setAttrs({
+                            traceId,
+                        });
+                    }
                 },
                 setLabelTextPosition() {
                     // 需考虑用户画标注框的初始方向
-                    vData.labelLayer.setAttrs({
-                        x: vData.labelNowPos.x() + vData.labelNowPos.width() * vData.labelNowPos.scaleX() / 2,
-                        y: vData.labelNowPos.y() + vData.labelNowPos.height() * vData.labelNowPos.scaleY() / 2 - 18/2,
+                    vData.currentText.setAttrs({
+                        x: vData.currentRect.x() + vData.currentRect.width() * vData.currentRect.scaleX() / 2,
+                        y: vData.currentRect.y() + vData.currentRect.height() * vData.currentRect.scaleY() / 2 - 18/2,
                     });
                 },
                 keyCodeSearch(val) {
@@ -360,6 +436,7 @@
                 saveLabel() {
                     const labe_list = [], rect_list = vData.stage.find('Rect');
 
+                    console.log(rect_list);
                     rect_list.forEach(item => {
                         if (item.attrs.isLabeled) {
                             labe_list.push({
