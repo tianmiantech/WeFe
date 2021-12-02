@@ -28,7 +28,9 @@ public class EnableApi extends AbstractApi<RealnameAuthAgreementTemplateEnableIn
         LOG.info("RealnameAuthAgreementTemplate enable handle..");
         try {
             RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByEnable(true);
-            contractService.enable(realnameAuthAgreementTemplate.getTemplateFileId(), false);
+            if(realnameAuthAgreementTemplate != null) {
+                contractService.enable(realnameAuthAgreementTemplate.getTemplateFileId(), false);
+            }
             contractService.enable(input.getTemplateFileId(), true);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
