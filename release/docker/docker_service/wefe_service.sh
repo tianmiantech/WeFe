@@ -90,7 +90,6 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
-    cp -f ./config.properties wefe_python_gpu_service/resources/mount/
 }
 
 init(){
