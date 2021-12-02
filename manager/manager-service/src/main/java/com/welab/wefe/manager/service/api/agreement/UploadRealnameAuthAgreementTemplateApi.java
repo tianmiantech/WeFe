@@ -2,6 +2,7 @@ package com.welab.wefe.manager.service.api.agreement;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -40,7 +41,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
-        UploadFileApiOutput uploadFileApiOutput = new UploadFileApiOutput();
+
         RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
         if (realnameAuthAgreementTemplate == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
@@ -60,10 +61,11 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             realnameAuthAgreementTemplate.setEnable("0");
             contractService.add(realnameAuthAgreementTemplate);
 
+            UploadFileApiOutput uploadFileApiOutput = new UploadFileApiOutput();
             uploadFileApiOutput.setFileId(fileId);
+            return success(uploadFileApiOutput);
         } else {
-            uploadFileApiOutput.setFileId(realnameAuthAgreementTemplate.getTemplateFileId());
+            throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
         }
-        return success(uploadFileApiOutput);
     }
 }
