@@ -5,7 +5,7 @@ package com.welab.wefe.common.data.mongodb.entity.union.ext;
  * @author: yuxin.zhang
  * @date: 2021/10/29
  */
-public class RealNameAuthFileInfo {
+public class RealnameAuthFileInfo {
     private String fileId;
     private String sign;
 

@@ -17,9 +17,9 @@
 package com.welab.wefe.union.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.dto.member.RealNameAuthInfoQueryOutput;
+import com.welab.wefe.common.data.mongodb.dto.member.RealnameAuthInfoQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -38,20 +38,20 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  **/
 @Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query", rsaVerify = true, login = false)
-public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryApi.Input, RealNameAuthInfoQueryOutput> {
+public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryApi.Input, RealnameAuthInfoQueryOutput> {
     @Autowired
     protected MemberMongoReop memberMongoReop;
 
     protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
 
     @Override
-    protected ApiResult<RealNameAuthInfoQueryOutput> handle(RealNameAuthInfoQueryApi.Input input) throws StatusCodeWithException {
+    protected ApiResult<RealnameAuthInfoQueryOutput> handle(RealnameAuthInfoQueryApi.Input input) throws StatusCodeWithException {
         try {
             Member member = memberMongoReop.findMemberId(input.curMemberId);
             if (member == null) {
                 throw new StatusCodeWithException("Invalid member_id: " + input.curMemberId, StatusCode.INVALID_MEMBER);
             }
-            RealNameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealNameAuthInfoQueryOutput();
+            RealnameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealnameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
             realNameAuthInfoQueryOutput.setAuditComment(member.getExtJson().getAuditComment());
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
@@ -59,11 +59,11 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryA
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
 
             List<String> fileIdList = new ArrayList<>();
-            List<RealNameAuthFileInfo> realNameAuthFileInfoList = member.getExtJson().getRealNameAuthFileInfoList();
-            if(realNameAuthFileInfoList != null && !realNameAuthFileInfoList.isEmpty()){
-                fileIdList = realNameAuthFileInfoList
+            List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealNameAuthFileInfoList();
+            if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
+                fileIdList = realnameAuthFileInfoList
                         .stream()
-                        .map(RealNameAuthFileInfo::getFileId)
+                        .map(RealnameAuthFileInfo::getFileId)
                         .collect(Collectors.toList());
             }
 

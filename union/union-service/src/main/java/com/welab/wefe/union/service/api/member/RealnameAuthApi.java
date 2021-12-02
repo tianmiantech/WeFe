@@ -19,7 +19,7 @@ package com.welab.wefe.union.service.api.member;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealNameAuthFileInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -39,7 +39,7 @@ import java.util.List;
  * @author yuxin.zhang
  **/
 @Api(path = "member/realname/auth", name = "member_realname_auth", rsaVerify = true, login = false)
-public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, AbstractApiOutput> {
+public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, AbstractApiOutput> {
 
     @Autowired
     private MemberContractService memberContractService;
@@ -57,19 +57,19 @@ public class RealNameAuthApi extends AbstractApi<RealNameAuthApi.Input, Abstract
         extJSON.setDescription(input.description);
 
 
-        List<RealNameAuthFileInfo> realNameAuthFileInfoList = new ArrayList<>();
+        List<RealnameAuthFileInfo> realnameAuthFileInfoList = new ArrayList<>();
         for (String fileId :
                 input.fileIdList) {
-            RealNameAuthFileInfo realNameAuthFileInfo = new RealNameAuthFileInfo();
+            RealnameAuthFileInfo realNameAuthFileInfo = new RealnameAuthFileInfo();
             GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", fileId).build());
             if (gridFSFile == null) {
                 throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, fileId);
             }
             realNameAuthFileInfo.setFileId(fileId);
             realNameAuthFileInfo.setSign(gridFSFile.getMetadata().getString("sign"));
-            realNameAuthFileInfoList.add(realNameAuthFileInfo);
+            realnameAuthFileInfoList.add(realNameAuthFileInfo);
         }
-        extJSON.setRealNameAuthFileInfoList(realNameAuthFileInfoList);
+        extJSON.setRealNameAuthFileInfoList(realnameAuthFileInfoList);
         extJSON.setRealNameAuthStatus(1);
         memberContractService.updateExtJson(input.curMemberId, extJSON);
         return success();
