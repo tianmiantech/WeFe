@@ -18,7 +18,7 @@ import hashlib
 from common.python import RuntimeInstance
 from common.python import session
 
-BATCH_SIZE = 20000
+BATCH_SIZE = 10000
 
 
 def _hash(value):
@@ -59,7 +59,7 @@ def _dh_encrypt_id(data_instance, r, p, is_hash):
     import multiprocessing
     process_count = multiprocessing.cpu_count()
     with multiprocessing.Pool(processes=process_count) as pool:
-        result_iter = pool.map(_each_batch_encrypt, _generate_batch_data_iter(data_instance, r, p, is_hash))
+        result_iter = pool.imap_unordered(_each_batch_encrypt, _generate_batch_data_iter(data_instance, r, p, is_hash))
         for item_result in result_iter:
             for item in item_result:
                 yield item
