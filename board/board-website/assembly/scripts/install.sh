@@ -20,7 +20,7 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 rm -rf node_modules
 nvm use 10.16.0 || :
 yarn install
-npm run build -- $CI_DEPLOY_ENV=$CI_SERVICE_NAME
+yarn run build -- $CI_DEPLOY_ENV=$CI_SERVICE_NAME
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）
 ## JSON 中的 key 值，事先和运维约定好
