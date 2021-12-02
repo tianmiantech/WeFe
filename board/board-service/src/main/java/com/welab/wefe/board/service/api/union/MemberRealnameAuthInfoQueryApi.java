@@ -31,14 +31,14 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/3
  */
-@Api(path = "union/realname/auth/agreement/template/query", name = "realname auth agreement template query")
+@Api(path = "union/member/realname/authInfo/query", name = "realname auth agreement template query")
 public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, JSONObject> {
     @Autowired
     private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
-        JSONObject result = unionService.realnameAuthAgreementTemplateQuery();
+        JSONObject result = unionService.realnameAuthInfoQuery();
         return unionApiResultToBoardApiResult(result);
     }
 }
