@@ -30,7 +30,7 @@ contract DataSetDefaultTagContract{
         if (isExist(params[0])) {
             ret_code = -1;
             emit insertEvent(ret_code,params,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -53,7 +53,7 @@ contract DataSetDefaultTagContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -86,7 +86,7 @@ contract DataSetDefaultTagContract{
         }
 
         emit updateEvent(ret_code,tag_id,tag_name,ext_json,updated_time);
-        return count;
+        return ret_code;
     }
 
     function deleteByTagId(string tag_id) public returns (int) {
@@ -104,7 +104,7 @@ contract DataSetDefaultTagContract{
 
         emit deleteByTagIdEvent(ret_code,tag_id);
 
-        return count;
+        return ret_code;
 
     }
 

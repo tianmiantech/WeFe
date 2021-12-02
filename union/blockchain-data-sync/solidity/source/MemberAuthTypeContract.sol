@@ -30,7 +30,7 @@ contract MemberAuthTypeContract{
         if (isExist(params[0])) {
             ret_code = -1;
             emit insertEvent(ret_code,params,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -53,7 +53,7 @@ contract MemberAuthTypeContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -84,7 +84,7 @@ contract MemberAuthTypeContract{
         }
 
         emit updateEvent(ret_code,type_id,type_name,updated_time);
-        return count;
+        return ret_code;
     }
 
     function deleteByTypeId(string type_id) public returns (int) {
@@ -102,7 +102,7 @@ contract MemberAuthTypeContract{
 
         emit deleteByTypeIdEvent(ret_code,type_id);
 
-        return count;
+        return ret_code;
 
     }
 

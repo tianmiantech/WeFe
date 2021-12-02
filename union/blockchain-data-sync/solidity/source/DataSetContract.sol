@@ -69,7 +69,7 @@ contract DataSetContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -118,7 +118,7 @@ contract DataSetContract{
         }
 
         emit updateEvent(ret_code,params,ext_json);
-        return count;
+        return ret_code;
     }
 
     function deleteByDataSetId(string id) public returns (int) {
@@ -136,7 +136,7 @@ contract DataSetContract{
 
         emit deleteByDataSetIdEvent(ret_code,id);
 
-        return count;
+        return ret_code;
 
     }
 

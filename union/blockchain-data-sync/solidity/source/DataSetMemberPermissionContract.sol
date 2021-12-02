@@ -33,7 +33,7 @@ contract DataSetMemberPermissionContract{
         if (isExist(id)) {
             ret_code = -1;
             emit insertEvent(ret_code,id,data_set_id,member_id,created_time,updated_time,log_time,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -61,7 +61,7 @@ contract DataSetMemberPermissionContract{
 
         emit insertEvent(ret_code,id,data_set_id,member_id,created_time,updated_time,log_time,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -73,7 +73,7 @@ contract DataSetMemberPermissionContract{
         if (!isExist(id)) {
             ret_code = -1;
             emit updateEvent(ret_code,id,data_set_id,member_id,created_time,updated_time,log_time,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -104,7 +104,7 @@ contract DataSetMemberPermissionContract{
 
         emit updateEvent(ret_code,id,data_set_id,member_id,created_time,updated_time,log_time,ext_json);
         // 更新
-        return count;
+        return ret_code;
     }
 
 
@@ -126,7 +126,7 @@ contract DataSetMemberPermissionContract{
 
         emit deleteByDataSetIdEvent(ret_code,data_set_id);
 
-        return count;
+        return ret_code;
 
     }
 

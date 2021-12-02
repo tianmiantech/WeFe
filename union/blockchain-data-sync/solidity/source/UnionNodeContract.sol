@@ -56,7 +56,7 @@ contract UnionNodeContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
     function updateEnable(string union_node_id,string enable,string updated_time) public returns (int) {
@@ -86,7 +86,7 @@ contract UnionNodeContract{
         }
 
         emit updateEnableEvent(ret_code,union_node_id,enable,updated_time);
-        return count;
+        return ret_code;
     }
 
 
@@ -119,7 +119,7 @@ contract UnionNodeContract{
         }
 
         emit updateEvent(ret_code,union_node_id,params);
-        return count;
+        return ret_code;
     }
 
     function deleteByUnionNodeId(string union_node_id) public returns (int) {
@@ -137,7 +137,7 @@ contract UnionNodeContract{
 
         emit deleteByUnionNodeIdEvent(ret_code,union_node_id);
 
-        return count;
+        return ret_code;
 
     }
 

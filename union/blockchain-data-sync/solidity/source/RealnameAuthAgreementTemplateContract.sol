@@ -55,7 +55,7 @@ contract RealnameAuthAgreementTemplateContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
     function updateEnable(string template_file_id,string enable,string updated_time) public returns (int) {
@@ -85,7 +85,7 @@ contract RealnameAuthAgreementTemplateContract{
         }
 
         emit updateEnableEvent(ret_code,template_file_id,enable,updated_time);
-        return count;
+        return ret_code;
     }
 
     function updateExtJson(string template_file_id,string ext_json,string updated_time) public returns (int256) {
