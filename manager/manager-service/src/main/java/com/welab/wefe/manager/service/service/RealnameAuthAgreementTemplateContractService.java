@@ -80,6 +80,7 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
         List<String> list = new ArrayList<>();
         list.add(realnameAuthAgreementTemplate.getTemplateFileId());
         list.add(realnameAuthAgreementTemplate.getTemplateFileSign());
+        list.add(realnameAuthAgreementTemplate.getFileName());
         list.add(realnameAuthAgreementTemplate.getEnable());
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
