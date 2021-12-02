@@ -97,8 +97,8 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId) throws StatusCodeWithException {
-        if (ActuatorManager.get(businessId) == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+        if (ActuatorManager.get(businessId) != null) {
+            return;
         }
 
         FusionTaskMySqlModel task = fusionTaskService.findByBusinessId(businessId);
