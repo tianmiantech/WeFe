@@ -85,10 +85,10 @@ public class FusionTaskService extends AbstractService {
         return fusionTaskRepository.findOne("businessId", businessId, FusionTaskMySqlModel.class);
     }
 
-    public FusionTaskMySqlModel findPendingById(String taskId) throws StatusCodeWithException {
+    public FusionTaskMySqlModel findByIdAndStatus(String taskId, FusionTaskStatus status) throws StatusCodeWithException {
         Specification<FusionTaskMySqlModel> where = Where.create()
                 .equal("id", taskId)
-                .equal("status", FusionTaskStatus.Pending).build(FusionTaskMySqlModel.class);
+                .equal("status", status).build(FusionTaskMySqlModel.class);
         return fusionTaskRepository.findOne(where).isPresent() ? fusionTaskRepository.findOne(where).get() : null;
     }
 
@@ -185,7 +185,7 @@ public class FusionTaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
 
-        FusionTaskMySqlModel task = findPendingById(input.getId());
+        FusionTaskMySqlModel task = findByIdAndStatus(input.getId(), FusionTaskStatus.Pending);
         if (task == null) {
             throw new StatusCodeWithException("id error:" + input.getId(), DATA_NOT_FOUND);
         }
@@ -257,7 +257,8 @@ public class FusionTaskService extends AbstractService {
                 task.getBusinessId(),
                 task.getDataResourceId(),
                 input.getTrace(),
-                input.getTraceColumn()
+                input.getTraceColumn(),
+                task.getMemberId()
         );
 
         ActuatorManager.set(client);
