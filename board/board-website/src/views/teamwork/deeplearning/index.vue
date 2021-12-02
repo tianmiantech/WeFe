@@ -856,9 +856,11 @@
                         if(code === 0) {
                             if(data.job_id) {
                                 $message.success('启动成功! ');
+                                console.log(vData.flowInfo);
+                                console.log(vData.flowInfo.project_id);
                                 router.replace({
-                                    name:       'project-detail',
-                                    project_id: vData.flowInfo.project_id,
+                                    name:  'project-detail',
+                                    query: { project_id: vData.flowInfo.project_id },
                                 });
                             }
                         }
