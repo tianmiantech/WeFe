@@ -91,10 +91,10 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
 
-            if (DataResourceType.DataSet.equals(dataResourceType)
-                    && fieldInfoList.isEmpty()) {
-                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
-            }
+//            if (DataResourceType.DataSet.equals(dataResourceType)
+//                    && fieldInfoList.isEmpty()) {
+//                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+//            }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);

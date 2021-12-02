@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
-import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.common.StatusCode;
@@ -57,31 +56,24 @@ public class ThirdPartyService {
                 .put("data_resource_id", task.getPartnerDataResourceId())
                 .put("data_resource_type", task.getPartnerDataResourceType())
                 .put("partner_data_resource_id", task.getDataResourceId())
-                .put("partner_data_resource_type", task.getDataResourceType())
-//                .put("providerDataSetId", task.getProviderDataSetId())
-                ;
+                .put("partner_data_resource_type", task.getDataResourceType());
 
-        //Find Partner information
-        //PartnerMySqlModel partner = fusionTaskRepository.findByPartnerId(task.getPartnerId());
-//        if (partner == null) {
-//            throw new StatusCodeWithException("No partner information was found", StatusCode.DATA_NOT_FOUND);
-//        }
-//
-        request("task/receive", params);
+        request(task.getMemberId(), "task/receive", params);
     }
 
     /**
      * psi-callback
      */
-    public void callback(String businessId, AuditStatus auditStatus,String auditComment) throws StatusCodeWithException {
+    public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
+                .put("project_id", "test")
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 
-         request("fusion/callback", params);
+        request(dstMemberId, "fusion/callback", params);
     }
 
     /**
@@ -99,15 +91,15 @@ public class ThirdPartyService {
     }
 
 
-    private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
-        return request(api, params, true);
+    private JSONObject request(String dstMemberId, String api, JSONObject params) throws StatusCodeWithException {
+        return request(dstMemberId, api, params, true);
     }
 
-    private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+    private JSONObject request(String dstMemberId, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */
-        ApiResult<JSONObject> result = gatewayService.callOtherMemberBoard("8896e74890a5459386287ec817e8b4f3", api, params);
+        ApiResult<JSONObject> result = gatewayService.callOtherMemberBoard(dstMemberId, api, params);
 
         if (!result.success()) {
             throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);

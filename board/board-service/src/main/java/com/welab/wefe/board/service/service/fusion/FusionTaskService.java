@@ -38,14 +38,14 @@ import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
-import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -83,6 +83,13 @@ public class FusionTaskService extends AbstractService {
 
     public FusionTaskMySqlModel findByBusinessId(String businessId) throws StatusCodeWithException {
         return fusionTaskRepository.findOne("businessId", businessId, FusionTaskMySqlModel.class);
+    }
+
+    public FusionTaskMySqlModel findPendingById(String taskId) throws StatusCodeWithException {
+        Specification<FusionTaskMySqlModel> where = Where.create()
+                .equal("id", taskId)
+                .equal("status", FusionTaskStatus.Pending).build(FusionTaskMySqlModel.class);
+        return fusionTaskRepository.findOne(where).isPresent() ? fusionTaskRepository.findOne(where).get() : null;
     }
 
     public void updateByBusinessId(String businessId, FusionTaskStatus status, Integer count, long spend) throws StatusCodeWithException {
@@ -178,7 +185,7 @@ public class FusionTaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
 
-        FusionTaskMySqlModel task = find(input.getId());
+        FusionTaskMySqlModel task = findPendingById(input.getId());
         if (task == null) {
             throw new StatusCodeWithException("id error:" + input.getId(), DATA_NOT_FOUND);
         }
@@ -188,7 +195,7 @@ public class FusionTaskService extends AbstractService {
             task.setComment(input.getAuditComment());
 
             //callback
-            thirdPartyService.callback(task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+            thirdPartyService.callback(task.getMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
 
             return;
         }
@@ -206,7 +213,7 @@ public class FusionTaskService extends AbstractService {
         }
 
         //callback
-        thirdPartyService.callback(task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+        thirdPartyService.callback(task.getMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
 
@@ -231,10 +238,10 @@ public class FusionTaskService extends AbstractService {
      */
     private void psiClient(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
-        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
-        if (dataSet == null) {
-            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
-        }
+//        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
+//        if (dataSet == null) {
+//            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
+//        }
 
         //Add fieldinfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
@@ -278,7 +285,27 @@ public class FusionTaskService extends AbstractService {
         /**
          * Find your party by task ID
          */
-        BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
+//        BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
+
+        BloomFilterMysqlModel bf = new BloomFilterMysqlModel();
+        BigInteger N = new BigInteger("146167375152084793681454802679848639178224348966309619052798488909082307110902445595724341286608959925801829756525526243684536115856528805020439965613516355067753856475629524304268915399502745195831856710907661535868988721331189916736238540712398051680091965455756603260140826492895494853907634504720747245633");
+        BigInteger e = new BigInteger("65537");
+        BigInteger d = new BigInteger("19889843166551599707817170915649025194796904711560632661135799992236385779254894331792265065443622756890012020212927705588884036211735720023380435682764524449631974370220019402021038164175570368177776959055309765000696946731304849785712081220896277458221633983822452333249197209907929579769680795368625751585");
+
+        BloomFilters bf1 = new BloomFilters(0.001, 1000);
+
+        for (int i = 1; i <= 1000; i++) {
+            BigInteger h = PSIUtils.stringToBigInteger(String.valueOf(i));
+            BigInteger z = h.modPow(d, N);
+
+            bf1.add(z);
+        }
+
+        bf.setRsaD(d.toString());
+        bf.setRsaN(N.toString());
+        bf.setRsaE(e.toString());
+//        bf.setSourcePath(bf);
+
         if (bf == null) {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -288,9 +315,10 @@ public class FusionTaskService extends AbstractService {
          */
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
-                BloomFilterUtils.readFrom(
-                        Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
-                ),
+                bf1,
+//                BloomFilterUtils.readFrom(
+//                        Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
+//                ),
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
                 new BigInteger(bf.getRsaD())
