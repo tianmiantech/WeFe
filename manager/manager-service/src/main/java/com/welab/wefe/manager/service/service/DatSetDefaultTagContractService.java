@@ -65,12 +65,19 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
     public void updateByTagId(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
         try {
-            dataSetDefaultTagContract.update(
+            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.update(
                     input.getTagId(),
                     input.getTagName(),
                     JObject.toJSONString(input.getExtJson()),
                     StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis()))
             );
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_UPDATE, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("updateByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -79,7 +86,14 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
     public void deleteByTagId(String tagId) throws StatusCodeWithException {
         try {
-            dataSetDefaultTagContract.deleteByTagId(tagId);
+            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.deleteByTagId(tagId);
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_DELETEBYTAGID, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("deleteByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

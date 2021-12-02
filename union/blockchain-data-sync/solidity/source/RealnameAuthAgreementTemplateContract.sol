@@ -61,7 +61,7 @@ contract RealnameAuthAgreementTemplateContract{
     function updateEnable(string template_file_id,string enable,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(template_file_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEnableEvent(ret_code,template_file_id,enable,updated_time);
             return ret_code;
         }
@@ -89,6 +89,13 @@ contract RealnameAuthAgreementTemplateContract{
     }
 
     function updateExtJson(string template_file_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(template_file_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,template_file_id,ext_json,updated_time);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();

@@ -67,10 +67,18 @@ public class UnionNodeContractService extends AbstractContractService {
 
     public void update(UnionNodeUpdateInput input) throws StatusCodeWithException {
         try {
-            unionNodeContract.update(
+            TransactionReceipt transactionReceipt = unionNodeContract.update(
                     input.getUnionNodeId(),
                     generateUpdateParams(input)
             );
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_UPDATE, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -78,11 +86,19 @@ public class UnionNodeContractService extends AbstractContractService {
 
     public void enable(UnionNodeEnableInput input) throws StatusCodeWithException {
         try {
-            unionNodeContract.updateEnable(
+            TransactionReceipt transactionReceipt = unionNodeContract.updateEnable(
                     input.getUnionNodeId(),
                     String.valueOf(input.getEnable() ? 1 : 0),
                     toStringYYYY_MM_DD_HH_MM_SS2(new Date())
             );
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_UPDATEENABLE, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -91,7 +107,15 @@ public class UnionNodeContractService extends AbstractContractService {
 
     public void deleteByUnionNodeId(String unionNodeId) throws StatusCodeWithException {
         try {
-            unionNodeContract.deleteByUnionNodeId(unionNodeId);
+            TransactionReceipt transactionReceipt = unionNodeContract.deleteByUnionNodeId(unionNodeId);
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_DELETEBYUNIONNODEID, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("deleteByUnionNodeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

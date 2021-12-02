@@ -65,11 +65,17 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
     public void updateByTypeId(MemberAuthTypeUpdateInput input) throws StatusCodeWithException {
         try {
-            memberAuthTypeContract.update(
+            TransactionReceipt transactionReceipt = memberAuthTypeContract.update(
                     input.getTypeId(),
                     input.getTypeName(),
                     StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis()))
             );
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(MemberAuthTypeContract.ABI, MemberAuthTypeContract.FUNC_UPDATE, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("updateByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -78,7 +84,13 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
     public void deleteByTypeId(String typeId) throws StatusCodeWithException {
         try {
-            memberAuthTypeContract.deleteByTypeId(typeId);
+            TransactionReceipt transactionReceipt = memberAuthTypeContract.deleteByTypeId(typeId);
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(MemberAuthTypeContract.ABI, MemberAuthTypeContract.FUNC_DELETEBYTYPEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("deleteByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

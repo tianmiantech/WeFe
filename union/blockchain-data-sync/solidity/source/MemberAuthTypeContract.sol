@@ -61,7 +61,7 @@ contract MemberAuthTypeContract{
     function update(string type_id,string type_name,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(type_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,type_id,type_name,updated_time);
             return ret_code;
         }
@@ -88,6 +88,13 @@ contract MemberAuthTypeContract{
     }
 
     function deleteByTypeId(string type_id) public returns (int) {
+        int256 ret_code = 0;
+        if (!isExist(type_id)) {
+            ret_code = -3;
+            emit deleteByTypeIdEvent(ret_code,type_id);
+            return ret_code;
+        }
+
         int256 ret_code = 0;
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
@@ -119,6 +126,13 @@ contract MemberAuthTypeContract{
     }
 
     function updateExtJson(string type_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(type_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,type_id,ext_json,updated_time);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();

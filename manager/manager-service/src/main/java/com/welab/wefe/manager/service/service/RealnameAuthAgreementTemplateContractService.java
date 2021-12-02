@@ -65,11 +65,17 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
 
     public void enable(String template_file_id, boolean enable) throws StatusCodeWithException {
         try {
-            contract.updateEnable(
+            TransactionReceipt transactionReceipt = contract.updateEnable(
                     template_file_id,
                     String.valueOf(enable ? 1 : 0),
                     toStringYYYY_MM_DD_HH_MM_SS2(new Date())
             );
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(RealnameAuthAgreementTemplateContract.ABI, RealnameAuthAgreementTemplateContract.FUNC_UPDATEENABLE, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("enable failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

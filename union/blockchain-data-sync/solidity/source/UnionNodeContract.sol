@@ -62,7 +62,7 @@ contract UnionNodeContract{
     function updateEnable(string union_node_id,string enable,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(union_node_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEnableEvent(ret_code,union_node_id,enable,updated_time);
             return ret_code;
         }
@@ -94,7 +94,7 @@ contract UnionNodeContract{
     function update(string union_node_id,string[] params) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(union_node_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,union_node_id,params);
             return ret_code;
         }
@@ -123,6 +123,13 @@ contract UnionNodeContract{
     }
 
     function deleteByUnionNodeId(string union_node_id) public returns (int) {
+        int256 ret_code = 0;
+        if (!isExist(union_node_id)) {
+            ret_code = -3;
+            emit deleteByUnionNodeIdEvent(ret_code,union_node_id);
+            return ret_code;
+        }
+
         int256 ret_code = 0;
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
@@ -154,6 +161,13 @@ contract UnionNodeContract{
     }
 
     function updateExtJson(string union_node_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(union_node_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,union_node_id,ext_json,updated_time);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();

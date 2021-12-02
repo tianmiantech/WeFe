@@ -61,7 +61,7 @@ contract DataSetDefaultTagContract{
     function update(string tag_id,string tag_name,string ext_json,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(tag_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,tag_id,tag_name,ext_json,updated_time);
             return ret_code;
         }
@@ -90,6 +90,13 @@ contract DataSetDefaultTagContract{
     }
 
     function deleteByTagId(string tag_id) public returns (int) {
+        int256 ret_code = 0;
+        if (!isExist(tag_id)) {
+            ret_code = -3;
+            emit deleteByTagIdEvent(ret_code,tag_id);
+            return ret_code;
+        }
+
         int256 ret_code = 0;
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
@@ -121,6 +128,13 @@ contract DataSetDefaultTagContract{
     }
 
     function updateExtJson(string tag_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(tag_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,tag_id,ext_json,updated_time);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
