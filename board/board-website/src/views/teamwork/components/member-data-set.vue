@@ -200,12 +200,12 @@
                 <el-table-column label="序号" type="index" />
                 <el-table-column
                     label="数据集"
-                    width="260"
+                    width="230"
                 >
                     <template v-slot="scope">
                         <span v-if="scope.row.audit_status === 'auditing'" class="color-danger mr10">(待审核)</span>
-                        <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
-                            {{ scope.row.name }}
+                        <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: form.project_type === 'DeepLearning' ? 'img' : 'csv' } }">
+                            {{ scope.row.data_set.name }}
                         </router-link>
                         <p class="p-id pt5">{{ scope.row.data_set_id }}</p>
                     </template>
@@ -213,8 +213,8 @@
 
                 <el-table-column label="关键词">
                     <template v-slot="scope">
-                        <template v-if="scope.row.tags">
-                            <template v-for="(item, index) in scope.row.tags.split(',')">
+                        <template v-if="scope.row.data_set.tags">
+                            <template v-for="(item, index) in scope.row.data_set.tags.split(',')">
                                 <el-tag
                                     v-if="item"
                                     :key="index"
@@ -227,11 +227,32 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="数据量">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量">
                     <template v-slot="scope">
-                        特征：{{ scope.row.feature_count }}
+                        特征：{{ scope.row.data_set.feature_count }}
                         <br>
-                        行数：{{ scope.row.row_count }}
+                        行数：{{ scope.row.data_set.row_count }}
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="数据总量"
+                    width="80"
+                >
+                    <template v-slot="scope">
+                        {{ scope.row.data_set.total_data_count }}
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="标注状态"
+                    prop="label_completed"
+                    width="100"
+                >
+                    <template v-slot="scope">
+                        {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
                     </template>
                 </el-table-column>
 
@@ -240,11 +261,11 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.usage_count_in_job }}
+                        {{ scope.row.data_set.usage_count_in_job }}
                     </template>
                 </el-table-column>
 
-                <el-table-column label="是否包含 Y">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
                     <template v-slot="scope">
                         {{ scope.row.contains_y ? '是' : '否' }}
                     </template>
@@ -301,7 +322,7 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing'"
+                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
                             content="预览数据"
                             placement="top"
                         >
@@ -555,6 +576,7 @@
                 },
 
                 async batchDataSet(batchlist) {
+                    console.log(batchlist);
                     const { role, index } = vData.dataSets;
                     const row = role === 'promoter_creator' ? props.promoter : role === 'promoter' ? props.form.promoterList[index] : props.form.memberList[index];
 
@@ -563,7 +585,7 @@
                             vData.batchDataSetList.push({
                                 member_role:   row.member_role,
                                 member_id:     row.member_id,
-                                data_set_id:   item.id,
+                                data_set_id:   item.id || item.data_set_id,
                                 data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });

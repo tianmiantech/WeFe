@@ -59,6 +59,10 @@
                                 <p class="p-id f12">{{ dataset.id }}</p>
                             </el-form-item>
                             <el-form-item>
+                                <span class="f12 mr10">数据集类型:</span>
+                                <span class="p-id f12 under-line">{{ dataset.data_set_type }}</span>
+                            </el-form-item>
+                            <el-form-item>
                                 <span class="f12 mr10">是否含 Y:</span>
                                 <i
                                     v-if="dataset.contains_y "
@@ -98,6 +102,10 @@
                                 </el-form-item>
                                 <el-form-item>
                                     <p class="p-id f12">{{ dataset.id }}</p>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span class="f12 mr10">数据集类型:</span>
+                                    <span class="p-id f12">{{ dataset.data_set_type }}</span>
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">是否含 Y:</span>
@@ -151,11 +159,13 @@
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $message } = appContext.config.globalProperties;
             const promoterDataSetList = ref([]);
             const providerList = ref([]);
             const providerListMap = ref({});
             const cartList = ref(props.list);
+            const allDataSetList = ref([]);
+            const projectType = ref();
             const drawer = ref(false);
             const count = ref(0);
             const methods = {
@@ -182,15 +192,17 @@
             const addDataSet = (item) => {
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
-                    data_set_id: item.id,
+                    data_set_id: item.id ? item.id : item.data_set_id,
+                    id:          item.id ? item.id : item.data_set_id,
                     ...item,
                 };
 
                 if(item.member_id === userInfo.value.member_id) {
-                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id);
+                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_set_id);
 
                     if(index < 0) {
                         promoterDataSetList.value.push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -202,6 +214,7 @@
 
                     if(index < 0) {
                         providerListMap.value[item.member_id].push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -227,11 +240,23 @@
                     }
                 }
                 count.value--;
+                allDataSetList.value.forEach((i, idx) => {
+                    if (i.data_set_id === item.data_set_id) {
+                        allDataSetList.value.splice(idx, 1);
+                    }
+                });
             };
             const create = async () => {
                 if(loading.value) return;
                 loading = true;
 
+                // 判断是否为同一格式的数据集 ImageDataSet / TableDataSet
+                if (!isAllEqual(allDataSetList.value)) {
+                    $message.error('项目中的数据集必须为同一类型的数据');
+                    return;
+                } else {
+                    projectType.value = allDataSetList.value[0].data_set_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_set_type === 'TableDataSet' ? 'MachineLearning' : '';
+                }
                 const list = [];
 
                 providerList.value.forEach(item => {
@@ -254,6 +279,7 @@
                     data: {
                         name:                `快捷项目-${timestamp}`,
                         desc:                `创建自快捷项目, 创建时间: ${time}`,
+                        projectType:         projectType.value,
                         promoterDataSetList: promoterDataSetList.value,
                         providerList:        list,
                     },
@@ -272,6 +298,16 @@
                 });
             };
 
+            const isAllEqual = (arr) => {
+                if (arr.length > 0) {
+                    return !arr.some(function(value, index) {
+                        return value.data_set_type !== arr[0].data_set_type;
+                    });
+                } else {
+                    return true;
+                }
+            };
+
             return {
                 cartList,
                 drawer,
@@ -284,6 +320,8 @@
                 removeDataSet,
                 loading,
                 count,
+                isAllEqual,
+                projectType,
             };
         },
     };
@@ -369,6 +407,9 @@
             font-size: 18px;
             color:$--color-danger;
             cursor: pointer;
+        }
+        .under-line {
+            text-decoration: underline;
         }
     }
     .data-link{word-break: break-all;}

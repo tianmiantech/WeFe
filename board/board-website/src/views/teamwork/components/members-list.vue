@@ -51,7 +51,7 @@
                         width="260"
                     >
                         <template v-slot="scope">
-                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
+                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: projectType === 'DeepLearning' ? 'img' : 'csv' } }">
                                 {{ scope.row.data_set.name }}
                             </router-link>
                             <br>
@@ -101,7 +101,7 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_set.sample_count }}
+                            {{ scope.row.data_set.total_data_count }}
                         </template>
                     </el-table-column>
                     <el-table-column

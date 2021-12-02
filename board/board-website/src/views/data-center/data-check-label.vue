@@ -131,9 +131,9 @@
 
                     nextTick(_ => {
                         if(code === 0) {
-                            vData.tabsList[0].count = data.sample_count;
+                            vData.tabsList[0].count = data.total_data_count;
                             vData.tabsList[1].count = data.labeled_count;
-                            vData.tabsList[2].count = data.sample_count - data.labeled_count;
+                            vData.tabsList[2].count = data.total_data_count - data.labeled_count;
                         }
                     });
                 },

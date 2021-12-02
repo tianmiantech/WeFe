@@ -175,7 +175,7 @@
                     } else {
                         // search from union
                         if (this.projectType === 'DeepLearning') {
-                            url = '/union/image_data_set/query';
+                            url = `/union/image_data_set/query?member_id=${this.memberId}`;
                         } else {
                             url = `/union/data_set/query?member_id=${this.memberId}`;
                         }

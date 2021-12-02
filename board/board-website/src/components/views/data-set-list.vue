@@ -24,6 +24,7 @@
         </div>
 
         <el-table
+            v-if="list.length"
             v-loading="tableLoading"
             max-height="500"
             :data="list"
@@ -38,10 +39,8 @@
                 min-width="220"
             >
                 <template v-slot="scope">
-                    <div :title="scope.row.description">
-                        {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                        <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
-                    </div>
+                    {{ isFlow ? scope.row.data_set.name : scope.row.name }}
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -106,10 +105,10 @@
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
                 label="数据总量"
-                prop="sample_count"
+                prop="total_data_count"
             >
                 <template v-slot="scope">
-                    {{isFlow ? scope.row.data_set.sample_count : scope.row.sample_count}}
+                    {{isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count}}
                 </template>
             </el-table-column>
             <el-table-column

@@ -82,11 +82,12 @@
                 <template v-slot="scope">
                     <router-link
                         class="link mr10"
-                        :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }"
                     >
                         查看
                     </router-link>
                     <router-link
+                        v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
                         :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
                     >

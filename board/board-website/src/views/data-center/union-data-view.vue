@@ -24,26 +24,37 @@
                     </template>
                 </span>
             </el-descriptions-item>
-            <template v-if="dataInfo.contains_y">
-                <el-descriptions-item label="正例样本数量：">
-                    {{ dataInfo.y_positive_example_count }}
-                </el-descriptions-item>
-                <el-descriptions-item label="正例样本比例：">
-                    {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+            <template v-if="addDataType === 'csv'">
+                <template v-if="dataInfo.contains_y">
+                    <el-descriptions-item label="正例样本数量：">
+                        {{ dataInfo.y_positive_example_count }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="正例样本比例：">
+                        {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                    </el-descriptions-item>
+                </template>
+                <el-descriptions-item label="样本量/特征量：">
+                    {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>
             </template>
-            <el-descriptions-item label="样本量/特征量：">
-                {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
-            </el-descriptions-item>
+            <template v-if="addDataType === 'img'">
+                <el-descriptions-item label="标注状态：">
+                    {{ dataInfo.label_completed ? '已完成' : '标注中' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="样本数量：">
+                    {{ dataInfo.total_data_count }}
+                </el-descriptions-item>
+            </template>
         </el-descriptions>
 
-        <el-divider></el-divider>
-
-        <h3 class="mb10">数据信息</h3>
-        <div class="dataset-desc">
-            <EmptyData v-if="data_list.length === 0" />
-            <DataSetPreview v-else ref="DataSetFeatures" />
-        </div>
+        <template v-if="addDataType === 'csv'">
+            <el-divider></el-divider>
+            <h3 class="mb10">数据信息</h3>
+            <div class="dataset-desc">
+                <EmptyData v-if="data_list.length === 0" />
+                <DataSetPreview v-else ref="DataSetFeatures" />
+            </div>
+        </template>
     </el-card>
 </template>
 
@@ -56,46 +67,50 @@
         },
         data() {
             return {
-                loading:   false,
-                dataInfo:  {},
-                data_list: [],
+                loading:     false,
+                dataInfo:    {},
+                data_list:   [],
+                addDataType: 'csv',
             };
         },
         created() {
+            this.addDataType = this.$route.query.type || 'csv';
             this.getData();
         },
         methods: {
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    '/union/data_set/detail',
+                    url:    this.addDataType === 'csv' ? '/union/data_set/detail' : '/union/image_data_set/detail',
                     params: {
-                        id: this.$route.query.id,
+                        data_set_id: this.$route.query.id,
                     },
                 });
 
                 if(code === 0 && data) {
                     this.dataInfo = data;
+                    if (this.addDataType === 'csv') {
+                        this.data_list = data.feature_name_list.split(',').map((name, index) => {
+                            return {
+                                序号:   String(index),
+                                特征名称: name,
+                            };
+                        });
+                    
+                        this.$nextTick(_ => {
+                            const featuresRef = this.$refs['DataSetFeatures'];
 
-                    this.data_list = data.feature_name_list.split(',').map((name, index) => {
-                        return {
-                            序号:   String(index),
-                            特征名称: name,
-                        };
-                    });
-                    this.$nextTick(_ => {
-                        const featuresRef = this.$refs['DataSetFeatures'];
+                            let { length } = this.data_list;
 
-                        let { length } = this.data_list;
+                            if(length >= 15) length = 15;
 
-                        if(length >= 15) length = 15;
-
-                        featuresRef.resize(length);
-                        featuresRef.loading = true;
-                        featuresRef.table_data.header = ['序号', '特征名称'];
-                        featuresRef.table_data.rows = this.data_list;
-                        featuresRef.loading = false;
-                    });
+                            featuresRef.resize(length);
+                            featuresRef.loading = true;
+                            featuresRef.table_data.header = ['序号', '特征名称'];
+                            featuresRef.table_data.rows = this.data_list;
+                            featuresRef.loading = false;
+                        });
+                    }
                 }
                 this.loading = false;
             },

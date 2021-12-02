@@ -55,6 +55,18 @@
                             rows="4"
                         />
                     </el-form-item>
+                    <el-form-item
+                        v-if="addDataType === 'img'"
+                        prop="for_job_type"
+                        label="数据集类型："
+                        :rules="[{ required: true, message: '数据集类型必填!' }]"
+                    >
+                        <el-radio-group v-model="form.for_job_type">
+                            <el-radio v-for="item in forJobTypeList" :key="item.value" :label="item.value">
+                                {{item.label}}
+                            </el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-divider />
@@ -579,8 +591,18 @@
                     databaseType:        'Database',
                     dataSourceId:        '',
                     sql:                 '',
+                    for_job_type:        'classify',
                 },
-
+                forJobTypeList: [
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                ],
                 dataSource: {
                     loading:        false,
                     show:           false,
@@ -1050,7 +1072,7 @@
                 this.loading = true;
                 this.form.metadata_list = this.metadata_list;
 
-                const params = this.addDataType === 'img' ? Object.assign(this.form, { for_job_type: '目标检测', filename: this.http_upload_filename }) : this.form;
+                const params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 const { code, data } = await this.$http.post({
                     url:     this.addDataType === 'csv' ? '/data_set/add': '/image_data_set/add',
                     timeout: 1000 * 60 * 24 * 30,
