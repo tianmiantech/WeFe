@@ -80,7 +80,7 @@ public class UnionService extends AbstractService {
         return request("member/authtype/query", JObject.create(), true);
     }
 
-    public JSONObject realnameAuth(MemberRealNameAuthApi.Input input) throws StatusCodeWithException {
+    public JSONObject realnameAuth(MemberRealnameAuthApi.Input input) throws StatusCodeWithException {
         return request("member/realname/auth", JObject.create(input), true);
     }
 
@@ -88,6 +88,10 @@ public class UnionService extends AbstractService {
         return request("member/realname/authInfo/query", JObject.create(), true);
     }
 
+
+    public JSONObject realnameAuthAgreementTemplateQuery() throws StatusCodeWithException {
+        return request("realname/auth/agreement/template/query", JObject.create(), true);
+    }
 
     public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files,JObject params) throws StatusCodeWithException {
 
