@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.dto.entity.project;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.ProjectFlowStatus;
@@ -57,6 +58,10 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
      * 画布中编辑的图
      */
     private JSONObject graph;
+    /**
+     * 创建此流程的成员的ID
+     */
+    private String creatorMemberId;
 
     /**
      * 流程的状态
@@ -76,6 +81,10 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
         if (graph != null) {
             this.graph = JSON.parseObject(graph);
         }
+    }
+
+    public String getCreatorMemberName() {
+        return CacheObjects.getMemberName(creatorMemberId);
     }
 
 
@@ -174,5 +183,12 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
         this.projectModelingOutputModel = projectModelingOutputModel;
     }
 
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
+    }
     //endregion
 }

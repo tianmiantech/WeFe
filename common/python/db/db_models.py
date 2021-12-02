@@ -148,6 +148,8 @@ class DataSet(ModelBase):
     usage_count_in_project = IntegerField(constraints=[SQL("DEFAULT 0")])
     y_count = IntegerField()
     y_name_list = TextField(null=True)
+    y_positive_example_count = BigIntegerField(null=True)
+    y_positive_example_ratio = FloatField(null=True)
 
     class Meta:
         table_name = 'data_set'

@@ -67,7 +67,7 @@ cd $WORKSPACE
 echo 'PACK BOARD-SERVICE'
 rm -rf $WORKSPACE/board/board-service/target
 # 生成加密后的 jar 包 board/board-service/target/board-service_proguard_base.jar
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl board/board-service > /dev/null
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl board/board-service
 if [[ ! -f $WORKSPACE/board/board-service/target/wefe-board-service.jar ]]; then
     echo '文件 board-service.jar 不存在，请检查此模块打包流程是否正常'
     exit 1
@@ -77,7 +77,7 @@ echo 'FINISHED'
 echo 'PACK GATEWAY'
 # 生成加密后的 jar 包 gateway/target/gateway_proguard_base.jar
 rm -rf $WORKSPACE/gateway/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl gateway > /dev/null
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl gateway
 if [[ ! -f $WORKSPACE/gateway/target/wefe-gateway.jar ]]; then
     echo '文件 wefe-gateway.jar 不存在，请检查此模块打包流程是否正常'
     exit 1
@@ -95,7 +95,7 @@ rm -rf $WORKSPACE/board/board-website/dist
 npm i npm@6.9.0 -g > /dev/null
 npm install > /dev/null
 # board/board-website/dist
-npm run build -- prod=board-website > /dev/null
+npm run build -- prod=board-website
 sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/board-service", prefixPath: "/board-website/"};</script>' dist/board-website/index.html
 if ! $(check_dir $WORKSPACE/board/board-website/dist); then
     exit 1

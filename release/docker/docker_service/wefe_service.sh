@@ -5,7 +5,16 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
-source ./spark_cluster.sh
+
+if [ $SPARK_MODE = "STANDALONE" ]
+then
+  source ./spark_cluster.sh
+  echo '当前为集群部署'
+else
+  echo '非集群模式'
+fi
+
+
 
 export PWD=$(pwd)
 
@@ -81,7 +90,6 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
-    cp -f ./config.properties wefe_python_gpu_service/resources/mount/
 }
 
 init(){
@@ -95,10 +103,7 @@ _run_python_service(){
     if [ ${ACCELERATION,,} = "gpu" ];then
       cd $PWD/wefe_python_service
       sh wefe_python_service_start.sh gpu
-    fi
-
-    if [ $SPARK_MODE = "STANDALONE" ]
-    then
+    elif [ $SPARK_MODE = "STANDALONE" ];then
       # 集群方式启动
       start_cluster
     else

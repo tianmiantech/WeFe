@@ -110,3 +110,27 @@ class ACLR_GPU(ACLR_ABC):
                 total_result.append(batch_param_4_local[i][0].gpu_add_after(biginteger, batch_param_4_local[i][1]))
 
         return total_result
+
+    def powm_base(self, batch_param_4_gpu: list):
+        batch_param = []
+        for item in batch_param_4_gpu:
+            batch_param.append((to_bytes(item[0]), to_bytes(item[1]), to_bytes(item[2])))
+
+        total_result = []
+        start = time.time()
+
+        if batch_param:
+            gpu_result = gpu_lib.powm_2048(batch_param, len(batch_param))
+            LOGGER.debug(f"gpu powm_2048 cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
+            for i in range(len(gpu_result)):
+                biginteger = int.from_bytes(gpu_result[i], "little")
+
+                if self.check_gpu_result:
+                    cpu_result = gmpy2.powmod(batch_param_4_gpu[i][0], batch_param_4_gpu[i][1], batch_param_4_gpu[i][2])
+                    if cpu_result != biginteger:
+                        raise GPUCalcError(calc='powm_2048', param=batch_param_4_gpu[i],
+                                           result=(biginteger, cpu_result))
+
+                total_result.append(biginteger)
+
+        return total_result
