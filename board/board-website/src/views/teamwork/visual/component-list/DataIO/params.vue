@@ -2,12 +2,12 @@
     <el-form
         v-loading="vData.loading"
         :disabled="disabled"
-        @submit.prevent
     >
         <div
             v-for="(member, index) in vData.member_list"
             v-show="disabled ? member.$data_set_list.length : true"
             :key="member.id"
+            class="li"
         >
             <h3
                 v-if="index === 0"
@@ -22,13 +22,11 @@
                 协作方:
             </h3>
             <p class="member-info">
-                <span class="name f14">
-                    <el-icon
+                <span class="name f16">
+                    <i
                         v-if="member.audit_status !== 'agree'"
                         class="el-icon-warning-outline color-danger"
-                    >
-                        <elicon-warning />
-                    </el-icon>
+                    />
                     {{ member.member_name }}
                 </span>
                 <span
@@ -62,14 +60,12 @@
                         >
                             y
                         </el-tag>
-                        <el-icon
+                        <i
                             v-if="!disabled"
                             title="移除"
                             class="el-icon-circle-close f20 ml10"
                             @click="methods.removeDataSet(index)"
-                        >
-                            <elicon-circle-close />
-                        </el-icon>
+                        />
                     </el-form-item>
                     <el-form-item label="数据集id：">
                         {{ row.data_set_id }}
@@ -93,7 +89,7 @@
                             {{ row.$column_name_list.length }} / {{ row.feature_count }}
                         </el-button>
                     </el-form-item>
-                    <div class="mt5 mb10">
+                    <div class="features mt5 mb10">
                         <template v-for="(item, $index) in row.$column_name_list" :key="$index">
                             <el-tag
                                 v-if="$index < 20"
@@ -837,6 +833,8 @@
     .el-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
+        position: relative;
+        top:4px;
     }
     .data-set{
         border-top: 1px solid $border-color-base;

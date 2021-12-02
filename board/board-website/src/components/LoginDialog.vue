@@ -148,9 +148,11 @@
                     });
 
                     if(res.code === 0){
-                        const info = Object.assign(data, res.data);
-
-                        this.$store.commit('UPDATE_USERINFO', info);
+                        data.member_id = res.data.member_id;
+                        data.member_logo = res.data.member_logo;
+                        data.member_name = res.data.member_name;
+                        data.member_email = res.data.member_email;
+                        this.$store.commit('UPDATE_USERINFO', data);
                     }
                     // login and refresh whole page
                     if(this.$route.meta.loginAndRefresh) {

@@ -19,47 +19,39 @@
                     title="缺失值填充结果"
                     name="2"
                 >
-                    <template
-                        v-for="(result, index) in vData.results"
-                        :key="index"
-                    >
-                        <strong class="mb10">{{ result.title }} :
-                        </strong>
-                        <el-tabs v-model="result.tabName">
-                            <el-tab-pane
-                                v-for="(member, i) in result.members"
-                                :key="`${member.member_id}-${member.member_role}-${i}`"
-                                :name="`${member.member_id}-${member.member_role}`"
-                                :label="`${member.member_name}-${member.member_role === 'promoter' ? '发起方' : '协作方'}`"
+                    <el-tabs v-model="vData.tabName">
+                        <el-tab-pane
+                            v-for="(member, i) in vData.members"
+                            :key="`${member.member_id}-${member.member_role}-${i}`"
+                            :name="`${member.member_id}-${member.member_role}`"
+                            :label="`${member.member_name}-${member.member_role === 'promoter' ? '发起方' : '协作方'}`"
+                        >
+                            <el-table
+                                :data="member.list"
+                                border
+                                stripe
                             >
-                                <el-table
-                                    :data="member.list"
-                                    border
-                                    stripe
-                                >
-                                    <el-table-column type="index" />
-                                    <el-table-column
-                                        label="特征"
-                                        prop="feature"
-                                    />
-                                    <el-table-column
-                                        label="缺失数量"
-                                        prop="missing_count"
-                                    />
-                                    <el-table-column label="填充方式">
-                                        <template v-slot="scope">
-                                            {{ vData.methodObj[scope.row.method] }}
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                        label="填充值"
-                                        prop="value"
-                                    />
-                                </el-table>
-                            </el-tab-pane>
-                        </el-tabs>
-                        <el-divider v-if="index === 0"></el-divider>
-                    </template>
+                                <el-table-column type="index" />
+                                <el-table-column
+                                    label="特征"
+                                    prop="feature"
+                                />
+                                <el-table-column
+                                    label="缺失数量"
+                                    prop="missing_count"
+                                />
+                                <el-table-column label="填充方式">
+                                    <template v-slot="scope">
+                                        {{ vData.methodObj[scope.row.method] }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                    label="填充值"
+                                    prop="value"
+                                />
+                            </el-table>
+                        </el-tab-pane>
+                    </el-tabs>
                 </el-collapse-item>
             </el-collapse>
         </template>
@@ -87,11 +79,13 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
             let vData = reactive({
-                results:   [],
+                tabName:   '',
+                members:   {},
                 methodObj: {
                     'max':    '最大值',
                     'min':    '最小值',
@@ -103,18 +97,15 @@
             });
 
             let methods = {
-                showResult(list) {
-                    vData.results = list.map(data => {
+                showResult(data) {
+                    if(data.result) {
                         const { members } = data.result;
-                        const result = {
-                            title:   data.members.map(m => `${m.member_name} (${m.member_role})`).join(' & '),
-                            tabName: '',
-                            members: [],
-                        };
 
-                        members.forEach((member, index) => {
+                        vData.members = {};
+                        members.length && members.forEach((member, index) => {
                             const key = `${member.member_id}-${member.role}`;
-                            const res = {
+
+                            vData.members[key] = {
                                 member_id:   member.member_id,
                                 member_name: member.member_name,
                                 member_role: member.role,
@@ -136,19 +127,42 @@
                                     ...val,
                                 };
 
-                                res.list.push(row);
-                                res.allList.push(row);
+                                /* if(i < vData.members[key].pagination.page_size) {
+                                    vData.members[key].list.push(row);
+                                } */
+                                vData.members[key].list.push(row);
+                                vData.members[key].allList.push(row);
                                 i++;
                             }
-                            res.pagination.total = i;
-                            if(index === 0) {
-                                result.tabName = key;
-                            }
+                            vData.members[key].pagination.total = i;
 
-                            result.members.push(res);
+                            if(index === 0) {
+                                vData.tabName = key;
+                            }
                         });
-                        return result;
-                    });
+                    }
+                },
+                currentPageChange(val, key) {
+                    const member = vData.members[key];
+
+                    vData.members[key].list = [];
+
+                    for(let i = 0; i < val * member.pagination.page_size; i++) {
+                        if(i >= (val - 1) * member.pagination.page_size) {
+                            member.allList[i] && member.list.push(member.allList[i]);
+                        }
+                    }
+                },
+                pageSizeChange(val, key) {
+                    const member = vData.members[key];
+
+                    member.list = [];
+
+                    for(let i = 0; i < val * member.pagination.page_index; i++) {
+                        if(i >= val * (member.pagination.page_index - 1)) {
+                            member.allList[i] && member.list.push(member.allList[i]);
+                        }
+                    }
                 },
             };
 

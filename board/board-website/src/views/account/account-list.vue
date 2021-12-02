@@ -57,6 +57,9 @@
                 查询
             </el-button>
             <div>
+                <el-button @click="updateUserInfo">
+                    更新个人信息
+                </el-button>
                 <el-button
                     v-if="userInfo.super_admin_role"
                     type="danger"
@@ -104,17 +107,13 @@
                         v-if="scope.row.admin_role"
                         class="super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-check />
-                        </el-icon>
+                        <i class="el-icon-check" />
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-close />
-                        </el-icon>
+                        <i class="el-icon-close" />
                     </span>
                 </template>
             </el-table-column>
@@ -129,17 +128,13 @@
                         v-if="scope.row.super_admin_role"
                         class="super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-check />
-                        </el-icon>
+                        <i class="el-icon-check" />
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-close />
-                        </el-icon>
+                        <i class="el-icon-close" />
                     </span>
                 </template>
             </el-table-column>
@@ -169,6 +164,7 @@
                                 <el-button
                                     v-if="!scope.row.admin_role"
                                     type="primary"
+                                    plain
                                     @click="changeUserRole(scope.row)"
                                 >
                                     设为管理员
@@ -176,6 +172,7 @@
                                 <el-button
                                     v-if="scope.row.admin_role && !scope.row.super_admin_role"
                                     type="primary"
+                                    plain
                                     @click="changeUserRole(scope.row)"
                                 >
                                     设为普通用户
@@ -187,12 +184,14 @@
                             <el-button
                                 v-if="scope.row.enable"
                                 type="danger"
+                                plain
                                 @click="disableUser(scope.row)"
                             >
                                 禁用
                             </el-button>
                             <el-button
                                 v-else
+                                plain
                                 type="danger"
                                 @click="disableUser(scope.row)"
                             >
@@ -223,9 +222,8 @@
             title="用户审核"
             v-model="dialogAuditAccountVisible"
             destroy-on-close
-            width="500px"
         >
-            <el-form :model="form" inline>
+            <el-form :model="form">
                 <el-form-item
                     label="审核意见："
                     :label-width="formLabelWidth"
@@ -343,6 +341,39 @@
         </el-dialog>
 
         <el-dialog
+            width="340px"
+            title="更新个人信息"
+            v-model="updateUserInfoDialog.visible"
+            destroy-on-close
+        >
+            <el-form>
+                <el-form-item
+                    label="用户昵称"
+                    required
+                >
+                    <el-input v-model="updateUserInfoDialog.nickname" />
+                </el-form-item>
+                <el-form-item
+                    label="邮箱"
+                    required
+                >
+                    <el-input v-model="updateUserInfoDialog.email" />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button
+                    type="primary"
+                    @click="confirmUpdateUserInfo"
+                >
+                    确定
+                </el-button>
+                <el-button @click="updateUserInfoDialog.visible=false">
+                    取消
+                </el-button>
+            </template>
+        </el-dialog>
+
+        <el-dialog
             width="440px"
             title="超级管理员转移"
             v-model="transformSuperUserDialog.visible"
@@ -435,6 +466,11 @@
                     enable:   false,
                     nickname: '',
                     id:       '',
+                },
+                updateUserInfoDialog: {
+                    visible:  false,
+                    email:    '',
+                    nickname: '',
                 },
                 transformSuperUserDialog: {
                     visible: false,
@@ -541,6 +577,43 @@
                     this.getList();
                     this.disableUserDialog.visible = false;
                     this.$message.success('操作成功!');
+                }
+            },
+            updateUserInfo() {
+                this.updateUserInfoDialog.id = this.userInfo.id;
+                this.updateUserInfoDialog.nickname = this.userInfo.nickname;
+                this.updateUserInfoDialog.email = this.userInfo.email;
+                this.updateUserInfoDialog.visible = true;
+            },
+            async confirmUpdateUserInfo() {
+                if (this.updateUserInfoDialog.nickname === '') {
+                    return this.$message.error('昵称不能为空!');
+                } else if(this.updateUserInfoDialog.email === '') {
+                    return this.$message.error('邮箱不能为空!');
+                }
+
+                const nickname = this.updateUserInfoDialog.nickname;
+                const email = this.updateUserInfoDialog.email;
+                const { code } = await this.$http.post({
+                    url:  '/account/update',
+                    data: {
+                        id: this.updateUserInfoDialog.id,
+                        nickname,
+                        email,
+                    },
+                });
+
+                if(code === 0) {
+                    const user = {
+                        ...this.userInfo,
+                        nickname,
+                        email,
+                    };
+
+                    this.$store.commit('UPDATE_USERINFO', user);
+                    this.updateUserInfoDialog.visible = false;
+                    this.$message.success('操作成功!');
+                    this.refresh();
                 }
             },
 

@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <el-card>
-            <el-form :disabled="!userInfo.admin_role">
+            <el-form :model="form" :disabled="!userInfo.admin_role">
                 <el-row :gutter="30">
                     <el-col :span="12">
                         <fieldset>
@@ -70,9 +70,7 @@
                                             183.3.218.18
                                         </div>
                                     </template>
-                                    <el-icon class="el-icon-opportunity">
-                                        <elicon-opportunity />
-                                    </el-icon>
+                                    <i class="el-icon-s-opportunity" />
                                 </el-tooltip>
                             </el-form-item>
                         </fieldset>
@@ -118,13 +116,39 @@
                             <el-form-item label="邮件用户名：">
                                 <el-input v-model="config.mail_server.mail_username" />
                             </el-form-item>
-                            <el-form-item label="邮件密码：">
+                            <el-form-item v-if="visible" label="邮件密码：">
                                 <el-input
                                     v-model="config.mail_server.mail_password"
                                     type="password"
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
-                                />
+                                >
+                                    <template #suffix>
+                                        <i
+                                            title="显示密码"
+                                            style="cursor:pointer;"
+                                            class="el-icon-view iconfont icon-xianshizy"
+                                            @click="changePass('show')"
+                                        />
+                                    </template>
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item v-else label="邮件密码：">
+                                <el-input
+                                    v-model="form.mail_password"
+                                    type="text"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                >
+                                    <template #suffix>
+                                        <i
+                                            title="隐藏密码"
+                                            style="cursor:pointer;"
+                                            class="el-icon-view iconfont icon-yincangby"
+                                            @click="changePass('hide')"
+                                        />
+                                    </template>
+                                </el-input>
                             </el-form-item>
                         </fieldset>
                     </el-col>
@@ -205,25 +229,28 @@
                 }
                 this.loading = false;
             },
+            changePass(value) {
+                this.visible = !(value === 'show');
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
-    .el-icon-opportunity {
-        font-size: 16px;
-        color: $--color-warning;
-        position: absolute;
-        right: 10px;
-        top: 10px;
-    }
-    .rule-guide {
-        color: #6c757d;
-        line-height: 20px;
-        border-radius: 4px;
-        padding: 5px 10px;
-    }
-    .save-btn {
-        width: 100px;
-    }
+.el-icon-s-opportunity {
+    font-size: 16px;
+    color: $--color-warning;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.rule-guide {
+    color: #6c757d;
+    line-height: 20px;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+.save-btn {
+    width: 100px;
+}
 </style>

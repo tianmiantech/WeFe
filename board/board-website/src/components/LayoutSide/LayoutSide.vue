@@ -24,10 +24,7 @@
             @click="changeCollapsed"
         >
             {{ vData.isCollapsed ? '' : '收起' }}
-            <el-icon class="icon mr10">
-                <elicon-expand v-if="vData.isCollapsed" />
-                <elicon-fold v-else />
-            </el-icon>
+            <i :class="['icon mr10', vData.isCollapsed ? 'el-icon-s-unfold' : 'el-icon-s-fold']" />
         </div>
     </div>
 </template>
@@ -117,6 +114,10 @@
                     background: $nav-background-active;
                     width: 3px;
                 }
+                i {color: #fff;}
+                .icon {
+                    color: $nav-background-active;
+                }
             }
         }
         .el-menu-item,
@@ -125,10 +126,14 @@
             &:focus {
                 background: #4f566f;
                 color: #fff;
+                i{color: #fff;}
+            }
+            i {
+                font-size: 16px;
             }
             .icon {
                 margin-right: 10px;
-                margin-top: -2px;
+                margin-top: -4px;
             }
         }
         .el-sub-menu {
@@ -145,6 +150,7 @@
                         background: $nav-background-active;
                         width: 3px;
                     }
+                    i {color: #fff;}
                 }
                 .sub-menu-list {
                     background: $sub-menu-list_bg;

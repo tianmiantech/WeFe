@@ -73,7 +73,6 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="Public"
                             >
@@ -86,7 +85,6 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="PublicWithMemberList"
                             >
@@ -118,10 +116,7 @@
                                                 {{ item.id }}
                                             </span>
                                         </p>
-
-                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
-                                            <elicon-close />
-                                        </el-icon>
+                                        <i class="el-icon-close" @click="deleteSelectedMember(item, index)"></i>
                                     </li>
                                 </ul>
                             </div>
@@ -132,25 +127,7 @@
             </el-row>
             <el-row :gutter="30" v-if="addType === 'csv'">
                 <el-col :span="10">
-                    <h4 class="mt10 mb20">
-                        字段信息：
-                        <el-select
-                            v-model="dataTypeFillVal"
-                            class="float-right"
-                            size="mini"
-                            clearable
-                            style="width: 140px;"
-                            placeholder="数据类型缺失填充"
-                            @change="dataTypeFill"
-                        >
-                            <el-option
-                                v-for="dataType in data_type_options"
-                                :key="dataType"
-                                :label="dataType"
-                                :value="dataType"
-                            />
-                        </el-select>
-                    </h4>
+                    <h4 class="m5">字段信息：</h4>
                     <el-table
                         border
                         max-height="500"
@@ -227,10 +204,10 @@
             </el-button>
         </el-form>
 
-        <SelectMember
+        <SelectMemberDialog
             ref="SelectMemberDialog"
-            :block-my-id="true"
             :public-member-info-list="public_member_info_list"
+            :block-my-id="true"
             @select-member="selectMember"
         />
     </el-card>
@@ -239,13 +216,13 @@
 <script>
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
-    import SelectMember from './components/select-member';
+    import SelectMemberDialog from './components/select-member-dialog';
 
     export default {
         components: {
             DataSetPreview,
             DataSetPublicTips,
-            SelectMember,
+            SelectMemberDialog,
         },
         data() {
             return {
@@ -258,7 +235,6 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                dataTypeFillVal:   '',
                 // preview
                 data_type_options: ['Integer', 'Double', 'Enum', 'String'],
 
@@ -308,18 +284,6 @@
             },
             dataTypeChange(row) {
                 this.metadata_list[row.$index].data_type = row.data_type;
-            },
-            dataTypeFill(val) {
-                this.metadata_list.forEach(item => {
-                    if(!item.data_type) {
-                        item.data_type = val;
-                    }
-                });
-                this.metadata_pagination.list.forEach(item => {
-                    if(!item.data_type) {
-                        item.data_type = val;
-                    }
-                });
             },
             dataCommentChange(row) {
                 this.metadata_list[row.$index].comment = row.comment;

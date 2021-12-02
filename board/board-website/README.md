@@ -4,9 +4,9 @@ board-wesite 提供用户友好的可视化操作界面。
 
 **安装依赖**
 
-基于 nodejs v12 - v16 环境安装项目依赖，[nodejs 官方下载地址](http://nodejs.cn/download/)。
+基于 nodejs 10+ 环境安装项目依赖，[nodejs 官方下载地址](http://nodejs.cn/download/)。
 
-``` zsh
+```ssh
 # 在 board-website 目录下运行
 npm install
 ```
@@ -19,20 +19,17 @@ vue.config.js 用于开发时代理配置, target 为接口代理地址
 
 **项目启动**
 
-``` zsh
-# 复制 .env.local.example 并重命名为 .env.local, 将 env 中的配置按需更改
-# 启动服务，执行多次会开启多个端口监听， 默认从 8080 端口累加
+```
+// 复制 .env.local.example 并重命名为 .env.local, 将 env 中的配置按需更改
+// 启动服务，执行多次会开启多个端口监听， 默认从 8080 端口累加
 npm run dev
 ```
 
 **项目打包**
 
-``` zsh
-# 默认:
-npm run build
-# 等于:
-npm run build -- prod=board-website
-# prod 表示使用 /.env 文件中对应的接口地址, board-website 表示前台访问上下文地址
+```
+# default 表示使用 /.env 文件中对应的上下文地址
+npm run build -- default
 ```
 
 # 参考文档

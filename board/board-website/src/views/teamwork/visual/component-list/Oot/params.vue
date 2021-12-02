@@ -11,9 +11,7 @@
             @click="methods.checkJobDetail"
         >
             查看前置流程详情
-            <el-icon>
-                <elicon-top-right />
-            </el-icon>
+            <i class="el-icon-top-right"></i>
         </span>
 
         <div v-if="!vData.check_result" class="flex-form">
@@ -55,12 +53,10 @@
             </h3>
             <p class="member-info">
                 <span class="name f16">
-                    <el-icon
+                    <i
                         v-if="member.audit_status !== 'agree'"
                         class="el-icon-warning-outline color-danger"
-                    >
-                        <elicon-warning />
-                    </el-icon>
+                    />
                     {{ member.member_name }}
                 </span>
                 <span
@@ -98,14 +94,12 @@
                         >
                             y
                         </el-tag>
-                        <el-icon
+                        <i
                             v-if="!disabled"
                             title="移除"
                             class="el-icon-circle-close f20 ml10"
                             @click="methods.removeDataSet(index)"
-                        >
-                            <elicon-circle-close />
-                        </el-icon>
+                        />
                     </el-form-item>
                     <el-form-item label="数据集id：">
                         {{ row.data_set_id }}
@@ -739,6 +733,8 @@
     .el-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
+        position: relative;
+        top:4px;
     }
     .data-set{
         border-top: 1px solid $border-color-base;

@@ -28,12 +28,10 @@
                     content="发送失败! 点击图标进行重发"
                 >
                     <template #reference>
-                        <el-icon
-                            class="send-state"
+                        <i
+                            class="send-state el-icon-warning"
                             @click="resend(msg, index)"
-                        >
-                            <elicon-warning />
-                        </el-icon>
+                        />
                     </template>
                 </el-popover>
 

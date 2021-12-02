@@ -11,9 +11,9 @@
                     v-if="!form.closed && !form.is_exited"
                     class="ml10"
                     type="primary"
-                    @click="addFlow=true"
+                    @click="addFlowMethod"
                 >
-                    新建训练流程
+                    新增流程
                 </el-button>
             </template>
             <span v-else class="ml10 f12">(协作方无法添加流程)</span>
@@ -36,7 +36,7 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
@@ -82,11 +82,12 @@
                 <template v-slot="scope">
                     <router-link
                         class="link mr10"
-                        :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }"
                     >
                         查看
                     </router-link>
                     <router-link
+                        v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
                         :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
                     >
@@ -94,10 +95,7 @@
                     </router-link>
                     <el-dropdown v-if="scope.row.is_creator">
                         <el-button type="text">
-                            更多
-                            <el-icon>
-                                <elicon-arrow-down />
-                            </el-icon>
+                            更多<i class="el-icon-arrow-down el-icon--right" />
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -205,14 +203,10 @@
         </el-dialog>
 
         <el-dialog
+            title="选择模版:"
             v-model="addFlow"
             destroy-on-close
         >
-            <template #title>
-                选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
-            </template>
-
             <div
                 v-loading="loading"
                 class="model-list"
@@ -220,30 +214,10 @@
                 <el-button
                     type="text"
                     class="li empty-flow"
-                    @click="createFlow($event, { type: 'vertical' })"
+                    @click="createFlow"
                 >
-                    <span class="model-img f30">
-                        纵向
-                    </span>
-                    空白流程
-                </el-button>
-                <el-button
-                    type="text"
-                    class="li empty-flow"
-                    @click="createFlow($event, { type: 'horizontal' })"
-                >
-                    <span class="model-img f30">
-                        横向
-                    </span>
-                    空白流程
-                </el-button>
-                <el-button
-                    type="text"
-                    class="li empty-flow"
-                    @click="createFlow($event, { type: 'mix' })"
-                >
-                    <span class="model-img f30">
-                        混合
+                    <span class="model-img pt10">
+                        <i class="el-icon-plus" />
                     </span>
                     空白流程
                 </el-button>
@@ -420,23 +394,18 @@
                 }
             },
 
-            getDateTime() {
+            async createFlow(event, opt = { name: '', id: '', type: 'MachineLearning' }) {
+                if(this.locker) return;
+                this.locker = true;
+
                 const now = new Date();
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
                 const seconds = now.getSeconds();
-
-                return `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-            },
-
-            async createFlow(event, opt = { type: '', name: '', id: '' }) {
-                if(this.locker) return;
-                this.locker = true;
-
                 const params = {
                     project_id:            this.project_id,
-                    FederatedLearningType: opt.type,
-                    name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
+                    FederatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : 'vertical',
+                    name:                  `${opt.name || '新流程'}-${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
                     desc:                  '',
                 };
 
@@ -460,7 +429,7 @@
                 this.loading = false;
                 if(code === 0) {
                     this.$router.push({
-                        name:  'project-flow',
+                        name:  this.form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow',
                         query: {
                             flow_id: data.flow_id,
                         },
@@ -502,9 +471,9 @@
             copyFlow(row) {
                 this.thisProject = true;
                 this.copyFlowDialog.visible = true;
+                this.copyFlowDialog.flowRename = row.flow_name;
                 this.copyFlowDialog.sourceFlowId = row.flow_id;
                 this.copyFlowDialog.targetProjectId = this.project_id;
-                this.copyFlowDialog.flowRename = `${row.flow_name}-${this.getDateTime()}`;
                 this.copyFlowDialog.targetProject = '';
             },
 
@@ -552,14 +521,20 @@
                         }
                     });
             },
+
+            addFlowMethod() {
+                if (this.form.project_type === 'MachineLearning') {
+                    this.addFlow = true;
+                } else {
+                    // 创建深度学习流程
+                    this.createFlow();
+                }
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
-    .el-alert__description{
-        color: $--color-danger;
-    }
     h3{margin: 10px;}
     .model-list{
         display: flex;

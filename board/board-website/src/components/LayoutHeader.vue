@@ -1,18 +1,16 @@
 <template>
     <div class="layout-header">
-        <div class="heading-bar flexbox">
+        <div class="heading-bar">
             <span
                 v-if="vData.meta.titleParams"
-                class="heading-bar-title text-l f14"
+                class="float-left f14"
             >
                 <el-button
                     class="mr10"
                     type="text"
                     @click="backward"
                 >
-                    <el-icon class="el-icon-arrow-left">
-                        <elicon-arrow-left />
-                    </el-icon>返回{{ vData.meta.titleParams.parentTitle || vData.meta.title }}
+                    <i class="el-icon-arrow-left" />返回{{ vData.meta.titleParams.parentTitle || vData.meta.title }}
                 </el-button>
                 <span
                     v-if="vData.meta.titleParams.htmlTitle"
@@ -27,9 +25,9 @@
             <span
                 v-else
                 v-html="vData.headingTitle || vData.meta.title"
-                class="heading-bar-title text-l f14"
+                class="float-left"
             />
-            <div class="heading-tools">
+            <span class="heading-tools">
                 <el-tooltip
                     v-model="vData.videoTip"
                     popper-class="video-guide-tip"
@@ -70,32 +68,31 @@
                     :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
                     placement="bottom"
                 >
-                    <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
+                    <i
+                        class="el-icon-full-screen"
+                        @click="fullScreenSwitch"
+                    />
                 </el-tooltip>
-                <div class="heading-user ml10">
-                    你好,
-                    <el-dropdown
-                        class="ml5"
-                        @command="handleCommand"
-                    >
-                        <span class="el-dropdown-link">
-                            <strong>{{ userInfo.nickname }}</strong>
-                            <el-icon class="el-icon-arrow-left">
-                                <elicon-arrow-down />
-                            </el-icon>
-                        </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item command="logout">
-                                    <el-icon>
-                                        <elicon-switch-button />
-                                    </el-icon>
-                                    退出
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </div>
+            </span>
+            <div class="heading-user">
+                你好,
+                <el-dropdown
+                    class="ml5"
+                    @command="handleCommand"
+                >
+                    <span class="el-dropdown-link">
+                        <strong>{{ userInfo.nickname }}</strong>
+                        <i class="el-icon-arrow-down el-icon--right" />
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item command="logout">
+                                <i class="el-icon-switch-button" />
+                                退出
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
@@ -343,15 +340,6 @@
         text-align: right;
         line-height: 30px;
         padding: 10px 0 6px;
-        .heading-bar-title{
-            max-width: 50%;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-        }
         .heading-title{
             display: inline-block;
             vertical-align: middle;
@@ -361,27 +349,25 @@
             white-space: nowrap;
         }
         .heading-tools {
-            flex: 1;
+            display: inline-block;
+            vertical-align:top;
+            padding: 0 10px;
             height: 30px;
             line-height: 30px;
+            text-align: center;
             [class*="el-icon-"],
             .iconfont {
                 width: 30px;
                 height: 30px;
                 line-height: 30px;
-                text-align: center;
                 display: inline-block;
                 vertical-align:top;
                 cursor: pointer;
                 &:hover {
-                    transform: scale(1.1);
+                    transform: scale(1.15);
                 }
             }
 
-            .el-icon svg{
-                position: relative;
-                top: 4px;
-            }
             a{
                 border-bottom: 1px solid #77A1FF;
                 margin-right:8px;
@@ -391,13 +377,11 @@
         }
         .heading-user {
             display: inline-block;
+            padding-right: 10px;
             font-size: 14px;
             height: 30px;
             line-height: 30px;
             cursor: pointer;
-        }
-        .el-dropdown{
-            line-height: 30px;
         }
     }
 

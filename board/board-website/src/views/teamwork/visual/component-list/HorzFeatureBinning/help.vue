@@ -17,7 +17,9 @@
             输出分箱结果和woe编码
         </template>
 
-        <template #error-tip />
+        <template #error-tip>
+            暂无
+        </template>
     </CommonHelp>
 </template>
 

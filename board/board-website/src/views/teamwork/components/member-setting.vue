@@ -4,12 +4,10 @@
             <template #content>
                 移除当前成员
             </template>
-            <el-icon
+            <i
                 class="el-icon-delete color-danger f16"
                 @click="showDialogForMemberSetting=true"
-            >
-                <elicon-delete />
-            </el-icon>
+            />
         </el-tooltip>
 
         <el-dialog
@@ -47,7 +45,7 @@
             async removeMember() {
                 const vm = this;
 
-                vm.$confirm('确定要删除该协作方吗?', '警告', {
+                vm.$confirm('确定要删除该协作方吗', '警告', {
                     type: 'warning',
                 })
                     .then(async action => {

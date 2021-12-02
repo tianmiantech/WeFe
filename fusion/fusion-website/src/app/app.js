@@ -20,7 +20,8 @@ Vue.prototype.$http = http;
 Vue.prototype.$bus = new Vue();
 
 const context = process.env.CONTEXT_ENV && process.env.CONTEXT_ENV.replace(/\//g, '');
-const tail = process.env.NODE_ENV === 'production' && process.env.TAIL ? `-${context.substr(context.length - 2)}` : '';
+
+const tail = process.env.NODE_ENV === 'production' && context ? `-${context.substr(context.length - 2)}` : '';
 const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`API_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${tail}`;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV}`;
 

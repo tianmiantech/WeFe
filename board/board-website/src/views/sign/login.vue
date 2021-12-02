@@ -55,6 +55,7 @@
                             <el-input
                                 v-model="form.phone"
                                 placeholder="手机号"
+                                id="username"
                                 maxlength="11"
                                 type="tel"
                                 clearable
@@ -67,6 +68,7 @@
                             <el-input
                                 v-model="form.password"
                                 type="password"
+                                id="password"
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
@@ -230,9 +232,11 @@
                             });
 
                             if(res.code === 0) {
-                                const info = Object.assign(data, res.data);
-
-                                this.$store.commit('UPDATE_USERINFO', info);
+                                data.member_id = res.data.member_id;
+                                data.member_logo = res.data.member_logo;
+                                data.member_name = res.data.member_name;
+                                data.member_email = res.data.member_email;
+                                this.$store.commit('UPDATE_USERINFO', data);
                                 this.$router.replace({
                                     name: 'index',
                                 });

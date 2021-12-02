@@ -22,10 +22,7 @@
                         class="f14 mr10"
                         :to="{name: 'project-job-history', query: { flow_id: flowId, project_id }}"
                     >
-                        <el-icon>
-                            <elicon-arrow-left />
-                        </el-icon>
-                        返回执行记录页
+                        <i class="el-icon-arrow-left" />返回执行记录页
                     </router-link>
                     <br>
                 </h2>
@@ -66,12 +63,14 @@
                     </div>
                     <div class="el-col graph">
                         <div
+                            id="canvas"
                             ref="canvas"
                             style="height:100%;"
                         >
                             <em class="f12 ml10">区域内滚动鼠标滚轮缩放画布</em>
                         </div>
                         <div
+                            id="graph-minimap"
                             ref="graph-minimap"
                             class="minimap"
                         />
@@ -181,11 +180,6 @@
 </template>
 
 <script>
-    import {
-        Minimap,
-        Grid,
-        Graph,
-    } from '@antv/g6';
     import {
         componentsList,
         resultComponents,
@@ -321,50 +315,49 @@
                             this.form.status = data.job.status;
                             this.no_job = false;
 
+                            /* 实例化 g6 */
+                            const G6 = await import('@antv/g6');
+                            const canvas = this.$refs['canvas'];
+                            const minimap = new G6.Minimap({
+                                container: this.$refs['graph-minimap'],
+                                size:      [200, 100],
+                            });
+                            const grid = new G6.Grid();
+                            const plugins = [grid, minimap];
+
+                            const graph = new G6.Graph({
+                                container:   canvas,
+                                width:       canvas.offsetWidth,
+                                height:      canvas.offsetHeight,
+                                defaultNode: {
+                                    style: {
+                                        radius: 4,
+                                        fill:   '#ecf3ff',
+                                    },
+                                },
+                                modes: {
+                                    default: ['drag-canvas', 'zoom-canvas'],
+                                },
+                                layout: {
+                                    type: '',
+                                },
+                                fitCenter: true,
+                                maxZoom:   5,
+                                plugins,
+                            });
+
                             this.$nextTick(_ => {
-                                /* 实例化 g6 */
-                                const canvas = this.$refs['canvas'];
-                                const minimap = new Minimap({
-                                    container: this.$refs['graph-minimap'],
-                                    size:      [200, 100],
+                                data.job.graph.nodes.forEach(node => {
+                                    node.type = 'rect';
+                                    if(!node.labelCfg.style) {
+                                        node.labelCfg.style = {};
+                                    }
+                                    node.labelCfg.style.fill = node.id === 'start' ? '#8BC34A' : '#4483FF';
                                 });
-                                const grid = new Grid();
-                                const plugins = [grid, minimap];
-
-                                const graph = new Graph({
-                                    container:   canvas,
-                                    width:       canvas.offsetWidth,
-                                    height:      canvas.offsetHeight,
-                                    defaultNode: {
-                                        style: {
-                                            radius: 4,
-                                            fill:   '#ecf3ff',
-                                        },
-                                    },
-                                    modes: {
-                                        default: ['drag-canvas', 'zoom-canvas'],
-                                    },
-                                    layout: {
-                                        type: '',
-                                    },
-                                    fitCenter: true,
-                                    maxZoom:   5,
-                                    plugins,
-                                });
-
-                                this.$nextTick(_ => {
-                                    data.job.graph.nodes.forEach(node => {
-                                        node.type = 'rect';
-                                        if(!node.labelCfg.style) {
-                                            node.labelCfg.style = {};
-                                        }
-                                        node.labelCfg.style.fill = node.id === 'start' ? '#8BC34A' : '#4483FF';
-                                    });
-                                    graph.get('canvas').set('localRefresh', false);
-                                    graph.read(data.job.graph);
-                                    graph.fitCenter();
-                                    graph.fitView();
-                                });
+                                graph.get('canvas').set('localRefresh', false);
+                                graph.read(data.job.graph);
+                                graph.fitCenter();
+                                graph.fitView();
                             });
                         }
 

@@ -36,6 +36,7 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
             let vData = reactive({
                 role:       'promoter',
@@ -51,7 +52,7 @@
 
             let methods = {
                 showResult(data) {
-                    if(data[0].result) {
+                    if(data && data.result) {
                         vData.result = true;
                         const {
                             model_param: {
@@ -59,7 +60,7 @@
                                 weight,
                             },
                             // train_loss,
-                        } = data[0].result;
+                        } = data.result;
 
                         vData.tableData = [];
                         for(const key in weight) {
@@ -72,6 +73,13 @@
                             feature: 'b',
                             weight:  intercept,
                         });
+
+                        // vData.train_loss.rows = train_loss.data.map((value, index) => {
+                        //     return {
+                        //         x:    index,
+                        //         loss: value,
+                        //     };
+                        // });
                     } else {
                         vData.result = null;
                     }

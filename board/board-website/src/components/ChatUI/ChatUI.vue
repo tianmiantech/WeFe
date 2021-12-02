@@ -38,12 +38,10 @@
                                 >
                                     {{ item.unread_num }}
                                 </p>
-                                <el-icon
+                                <i
                                     class="el-icon-delete"
                                     @click.stop="deleteLastAccount(item, index)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
+                                />
                             </li>
                         </ul>
                         <div
@@ -193,6 +191,7 @@
 
             // hide chat room
             const hide = () => {
+                console.log('hide');
                 vData.dom.classList.add('hide');
                 vData.dom.classList.remove('show');
                 window.localStorage.removeItem(`${window.api.prefixPath}_chat`);

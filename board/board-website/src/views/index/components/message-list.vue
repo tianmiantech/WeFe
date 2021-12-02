@@ -55,9 +55,10 @@
                 <template #title>
                     <i :class="message_level_icon[item.level]" />
                     {{ item.title }}
-                    <el-icon v-if="item.unread" class="el-icon-message unread-icon">
-                        <elicon-message />
-                    </el-icon>
+                    <i
+                        v-if="item.unread"
+                        class="el-icon-message unread-icon"
+                    />
                     <span class="time">{{ dateFormat(item.created_time) }}</span>
                 </template>
                 {{ item.content }}

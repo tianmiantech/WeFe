@@ -20,6 +20,7 @@ export default () => {
             isCreator:      Boolean,
             currentObj:     Object,
         },
+        emits: ['update-task'],
         mixin({ props, methods, vData, context }) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
@@ -76,9 +77,10 @@ export default () => {
 
                     nextTick(() => {
                         if (code === 0) {
-                            if (Array.isArray(data)) {
-                                if (data[0].status) {
-                                    vData.commonResultData.task = data[0];
+                            if (data) {
+                                if (data.status) {
+                                    vData.commonResultData.task = data;
+                                    context.emit('update-task', data);
                                 }
                                 methods.showResult(data);
 
@@ -93,8 +95,8 @@ export default () => {
                     });
                 },
                 showResult(data) {
-                    if (data[0].result) {
-                        vData.result = data[0].result;
+                    if (data.result) {
+                        vData.result = data.result.result;
                     }
                 },
             };

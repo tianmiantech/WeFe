@@ -16,7 +16,7 @@
                     />
                 </el-collapse-item>
                 <el-collapse-item
-                    v-if="vData.list.length"
+                    v-if="vData.members.length"
                     title="成员信息"
                     name="2"
                 >
@@ -91,7 +91,6 @@
 
 <script>
     import {
-        ref,
         reactive,
     } from 'vue';
     import CommonResult from '../common/CommonResult';
@@ -107,9 +106,8 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
-            const activeName = ref('1');
-
             let vData = reactive({
                 tabName:     '',
                 list:        [],
@@ -118,10 +116,10 @@
 
             let methods = {
                 showResult(data) {
-                    if(data[0].result) {
+                    if(data.result) {
                         const list = [];
 
-                        data[0].result.result.forEach(member => {
+                        data.result.result.forEach(member => {
                             const { binningResult } = member;
                             const dataList = [];
 
@@ -166,7 +164,6 @@
             return {
                 vData,
                 methods,
-                activeName,
             };
         },
     };

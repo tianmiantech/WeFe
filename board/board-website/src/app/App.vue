@@ -5,9 +5,6 @@
 </template>
 
 <script>
-    import 'element-plus/theme-chalk/el-message.css';
-    import 'element-plus/theme-chalk/el-message-box.css';
-    import 'element-plus/theme-chalk/el-notification.css';
     import { ElConfigProvider } from 'element-plus';
     import zhCn from 'element-plus/lib/locale/lang/zh-cn';
 
@@ -31,7 +28,5 @@
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    position: relative;
-    z-index: 100;
   }
 </style>

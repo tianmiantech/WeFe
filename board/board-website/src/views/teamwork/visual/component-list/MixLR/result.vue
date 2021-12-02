@@ -16,40 +16,33 @@
                     />
                 </el-collapse-item>
                 <el-collapse-item
-                    v-if="vData.results.length"
+                    v-if="vData.result"
                     title="特征权重"
                     name="2"
                 >
-                    <template
-                        v-for="(result, index) in vData.results"
-                        :key="index"
+                    <el-table
+                        :data="vData.tableData"
+                        style="max-width:355px;"
+                        max-height="600px"
+                        class="mt10"
+                        stripe
+                        border
                     >
-                        <p class="mb10"><strong>{{ result.title }} :</strong></p>
-                        <el-table
-                            :data="result.tableData"
-                            style="max-width:355px;"
-                            max-height="600px"
-                            class="mb20"
-                            stripe
-                            border
-                        >
-                            <el-table-column
-                                type="index"
-                                label="序号"
-                                width="60"
-                            />
-                            <el-table-column
-                                prop="feature"
-                                label="特征"
-                                width="80"
-                            />
-                            <el-table-column
-                                prop="weight"
-                                label="权重"
-                            />
-                        </el-table>
-                        <el-divider v-if="index === 0"></el-divider>
-                    </template>
+                        <el-table-column
+                            type="index"
+                            label="序号"
+                            width="60"
+                        />
+                        <el-table-column
+                            prop="feature"
+                            label="特征"
+                            width="80"
+                        />
+                        <el-table-column
+                            prop="weight"
+                            label="权重"
+                        />
+                    </el-table>
                 </el-collapse-item>
             </el-collapse>
         </template>
@@ -79,21 +72,26 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
             let vData = reactive({
-                results:             [],
+                result:     null,
+                role:       'promoter',
+                tableData:  [],
+                train_loss: {
+                    columns: ['x', 'loss'],
+                    rows:    [],
+                },
+                resultTypes:         [],
                 pollingOnJobRunning: true,
             });
 
             let methods = {
-                showResult(list) {
-                    vData.results = list.map(data => {
-                        const result = {
-                            title:     data.members.map(m => `${m.member_name} (${m.member_role})`).join(' & '),
-                            tableData: [],
-                        };
+                showResult(data) {
+                    if(data && data.result) {
+                        vData.result = true;
                         const {
                             model_param: {
                                 intercept,
@@ -101,19 +99,20 @@
                             },
                         } = data.result;
 
+                        vData.tableData = [];
                         for(const key in weight) {
-                            result.tableData.push({
+                            vData.tableData.push({
                                 feature: key,
                                 weight:  weight[key],
                             });
                         }
-                        result.tableData.push({
+                        vData.tableData.push({
                             feature: 'b',
                             weight:  intercept,
                         });
-
-                        return result;
-                    });
+                    } else {
+                        vData.result = false;
+                    }
                 },
             };
 

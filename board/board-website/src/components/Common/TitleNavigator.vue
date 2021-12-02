@@ -11,12 +11,10 @@
         </li>
     </ul>
     <div v-if="vData.show" class="navigator">
-        <el-icon
+        <i
             class="backToTop el-icon-arrow-up"
             @click="toBack"
-        >
-            <elicon-arrow-up />
-        </el-icon>
+        />
     </div>
 </template>
 
@@ -215,7 +213,7 @@
         margin-top:5px;
         &:first-child{margin-top: 0;}
     }
-    .backToTop{
+    .el-icon-arrow-up{
         width: 42px;
         height: 42px;
         line-height: 40px;

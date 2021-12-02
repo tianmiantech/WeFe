@@ -35,12 +35,6 @@
                 >
                     搜索
                 </el-button>
-                <el-button
-                    type="primary"
-                    @click="modelCompare"
-                >
-                    模型对比
-                </el-button>
             </el-form-item>
         </el-form>
 
@@ -49,12 +43,10 @@
                 v-if="form.isPromoter"
                 class="result-panel"
             >
-                <el-icon
+                <i
                     class="el-icon-close close-result-panel-icon"
                     @click="hiddenResultPanel"
-                >
-                    <elicon-close />
-                </el-icon>
+                />
                 <ChartsWithTabs
                     v-if="show_result_panel"
                     ref="ChartsWithTabs"
@@ -384,18 +376,6 @@
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
-            },
-
-            modelCompare() {
-                const { href } = this.$router.resolve({
-                    name:  'modeling-list',
-                    query: {
-                        project_id: this.project_id,
-                        isPromoter: this.form.isPromoter,
-                    },
-                });
-
-                window.open(href, '_blank');
             },
         },
     };

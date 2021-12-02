@@ -4,12 +4,13 @@
 
 const defaultCfg = {
     jsonParams: false,  // is json string
-    autoSave:   false,
+    autoSave:   true,
 };
 
 export default {
     DataIO: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 横向LR */
     HorzLR: {
@@ -26,15 +27,16 @@ export default {
     /* 分箱 */
     Binning: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 横向分箱编码 */
     HorzFeatureBinning: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 数据切割 */
     Segment: {
         ...defaultCfg,
-        autoSave: true,
     },
     /* 模型评估 */
     Evaluation: {
@@ -47,28 +49,31 @@ export default {
     /* 特征统计 */
     FeatureStatistic: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 横向特征统计 */
     HorzStatistic: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 特征价值计算 */
     FeatureCalculation: {
         ...defaultCfg,
-        autoSave: true,
+        autoSave: false,
     },
     /* 特征选择 */
     FeatureSelection: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 样本对齐 */
     Intersection: {
         ...defaultCfg,
-        autoSave: true,
     },
     /* 缺失值填充 */
     FillMissingValue: {
         ...defaultCfg,
+        autoSave: false,
     },
     /* 横向XGBoost */
     HorzSecureBoost: {
@@ -80,26 +85,6 @@ export default {
     },
     /* 混合XGBoost */
     MixSecureBoost: {
-        ...defaultCfg,
-    },
-    /* 纵向数据行过滤 */
-    VertFilter: {
-        ...defaultCfg,
-    },
-    /* 两方纵向PCA */
-    VertPCA: {
-        ...defaultCfg,
-    },
-    /* 特征转换组件 */
-    FeatureTransform: {
-        ...defaultCfg,
-    },
-    /* 横向热编码 */
-    HorzOneHot: {
-        ...defaultCfg,
-    },
-    /* 纵向热编码 */
-    VertOneHot: {
         ...defaultCfg,
     },
 };

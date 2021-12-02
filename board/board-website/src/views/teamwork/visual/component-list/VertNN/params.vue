@@ -5,7 +5,7 @@
         <el-form
             ref="form"
             :model="vData.form"
-            :disabled="vData.disabled"
+            :disabled="disabled"
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="VertNN参数设置" name="1">
@@ -47,6 +47,15 @@
                             placeholder="learning_rate"
                         />
                     </el-form-item>
+                    <el-form-item
+                        prop="decay"
+                        label="学习速率衰减率："
+                    >
+                        <el-input
+                            v-model="vData.form.decay"
+                            placeholder="decay"
+                        />
+                    </el-form-item>
                     <el-form-item prop="optimizer" label="优化算法：">
                         <el-select
                             v-model="vData.form.optimizer"
@@ -74,11 +83,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="底层参数：">
-                        <p class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
+                        <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')"></i></p>
                         <template v-for="(item, idx) in vData.form.bottom_nn_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -128,21 +133,12 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('bottom_nn_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
+                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('bottom_nn_define', idx)"></i>
                             </div>
                         </template>
                     </el-form-item>
                     <el-form-item label="中层参数：">
-                        <p hidden class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
+                        <p hidden class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')"></i></p>
                         <template v-for="(item, idx) in vData.form.interactive_layer_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -192,21 +188,12 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('interactive_layer_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
+                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('interactive_layer_define', idx)"></i>
                             </div>
                         </template>
                     </el-form-item>
                     <el-form-item label="顶层参数：">
-                        <p class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
+                        <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')"></i></p>
                         <template v-for="(item, idx) in vData.form.top_nn_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -256,12 +243,7 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('top_nn_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
+                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('top_nn_define', idx)"></i>
                             </div>
                         </template>
                     </el-form-item>
@@ -281,6 +263,7 @@
         interactive_layer_lr: 0.15,
         batch_size:           320,
         learning_rate:        0.15,
+        decay:                0.1,
         optimizer:            'SGD',
         loss:                 'binary_crossentropy',
         bottom_nn_define:     {

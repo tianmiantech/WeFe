@@ -17,18 +17,14 @@
             @dragstart="methods.dragstart($event, data)"
             @dragend="methods.dragend"
         >
-            <el-icon
+            <i
                 v-if="vData.unfold && data.isFolder"
                 class="el-icon-caret-bottom"
-            >
-                <elicon-caret-bottom />
-            </el-icon>
-            <el-icon
+            />
+            <i
                 v-else-if="!vData.unfold && data.isFolder"
                 class="el-icon-caret-right"
-            >
-                <elicon-caret-right />
-            </el-icon>
+            />
             {{ data.name.split('·')[0] }}
             <p v-if="data.name.split('·')[1]">{{ data.name.split('·')[1] }}</p>
         </div>

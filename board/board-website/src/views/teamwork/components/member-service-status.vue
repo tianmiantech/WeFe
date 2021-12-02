@@ -4,9 +4,7 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <el-icon>
-                <elicon-loading />
-            </el-icon>
+            <i class="el-icon-loading" />
         </span>
         <i
             v-else-if="status.all_status_is_success"
@@ -26,9 +24,7 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <el-icon>
-                <elicon-loading />
-            </el-icon>
+            <i class="el-icon-loading" />
         </span>
 
         <el-tooltip

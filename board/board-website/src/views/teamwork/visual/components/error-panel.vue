@@ -7,16 +7,12 @@
             class="el-popover el-popper error-popover"
             data-popper-placement="top"
         >
-            <el-icon
+            <i
                 class="el-icon-close"
                 @click="close"
-            >
-                <elicon-close />
-            </el-icon>
-            <p class="el-popover__title color-danger">
-                <el-icon>
-                    <elicon-warning-filled />
-                </el-icon>
+            />
+            <p class="el-popover__title">
+                <i class="el-icon-warning" />
                 发生错误:
             </p>
             <i class="el-popper__arrow" />
@@ -60,6 +56,7 @@
         width: 400px;
         position: fixed;
         margin-left: -130px;
+        .el-popover__title{color: #F85564;}
         .el-popper__arrow{
             background:none;
             left:50%;

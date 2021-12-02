@@ -83,6 +83,7 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
@@ -101,7 +102,7 @@
 
             let methods = {
                 showResult(data) {
-                    if(data[0].result) {
+                    if(data && data.result) {
                         vData.result = true;
                         const {
                             model_param: {
@@ -109,7 +110,7 @@
                                 weight,
                             },
                             train_loss,
-                        } = data[0].result;
+                        } = data.result;
 
                         vData.tableData = [];
                         for(const key in weight) {

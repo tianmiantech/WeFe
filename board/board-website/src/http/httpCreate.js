@@ -48,10 +48,7 @@ httpInstance.interceptors.request.use(
         return config;
     },
     error => {
-        window.$app.config.globalProperties.$message.error({
-            message:  error,
-            grouping: true,
-        });
+        window.$app.config.globalProperties.$message.error(error);
         return {
             msg: error,
         };
@@ -68,7 +65,7 @@ httpInstance.interceptors.response.use(
 
         // global error for request
         if (config.systemError !== false) {
-            if (config.responseType !== 'blob' && data && data.code !== 0) {
+            if (data && data.code !== 0) {
 
                 // login dialog
                 if (data.code === 10006) {
@@ -76,10 +73,7 @@ httpInstance.interceptors.response.use(
 
                     if (new Date().valueOf() - lastErrorMessageTime > 2000) {
                         lastErrorMessageTime = new Date().valueOf();
-                        window.$app.config.globalProperties.$message.error({
-                            message:  data.message,
-                            grouping: true,
-                        });
+                        window.$app.config.globalProperties.$message.error(data.message);
                     }
 
                 } else if (data.code === 10000) {
@@ -96,10 +90,7 @@ httpInstance.interceptors.response.use(
                 } else if (data.code === -1) {
                     window.$app.config.globalProperties.$message.error(data.message);
                 } else {
-                    window.$app.config.globalProperties.$message.error({
-                        message:  data.message || '未知错误!',
-                        grouping: true,
-                    });
+                    // window.$app.config.globalProperties.$message.error(data.message || '未知错误!');
                 }
             }
         }
@@ -110,12 +101,8 @@ httpInstance.interceptors.response.use(
             return {
                 code: 0,
                 data,
-                response,
             };
         }
-
-        // 添加自定义字段以备用
-        data._axios_response = response;
         return data;
     },
     result => {
@@ -127,10 +114,7 @@ httpInstance.interceptors.response.use(
                 // Actively cancel pop-up prompt
                 const msg = isCancel.msg ? `请求已取消: ${isCancel.msg}` : '请求已取消';
 
-                $message.error({
-                    message:  msg,
-                    grouping: true,
-                });
+                $message.error(msg);
                 return {
                     code: 'cancelled',
                     msg,
@@ -139,10 +123,7 @@ httpInstance.interceptors.response.use(
                 // Capture error
                 const msg = '请求超时 !';
 
-                $message.error({
-                    message:  msg,
-                    grouping: true,
-                });
+                $message.error(msg);
                 return {
                     code: 'timeout',
                     msg,
@@ -154,23 +135,14 @@ httpInstance.interceptors.response.use(
                 switch (status) {
                     case 401:
                         // to login
-                        $message.error({
-                            message:  '登录已过期, 请重新登录',
-                            grouping: true,
-                        });
+                        $message.error('登录已过期, 请重新登录');
                         baseLogout();
                         break;
                     /* case 504:
-                        $message.error({
-                            message: msg,
-                            grouping: true,
-                        });
+                        $message.error(msg);
                         break; */
                     default:
-                        $message.error({
-                            message:  msg,
-                            grouping: true,
-                        });
+                        $message.error(msg);
                 }
                 return {
                     code: status,
@@ -178,10 +150,7 @@ httpInstance.interceptors.response.use(
                 };
             } else if (message) {
                 // Cross domain / network error...
-                $message.error({
-                    message,
-                    grouping: true,
-                });
+                $message.error(message);
                 return {
                     code: 1,
                     msg:  message,
@@ -208,10 +177,7 @@ const policy = {
             if (cancelToken) {
                 cancelToken.cancel();
                 if (msg) {
-                    window.$app.config.globalProperties.$message.error({
-                        message:  msg,
-                        grouping: true,
-                    });
+                    window.$app.config.globalProperties.$message.error(msg);
                 }
             }
         } else if (state === 'all') {

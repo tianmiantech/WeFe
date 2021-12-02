@@ -10,7 +10,7 @@ html, body, article, hgroup, figure, main, section, header, footer, aside, nav, 
 body {
     font-family: $font-family;
     font-size: $font-size-larger;
-    background-color: #fff;
+    background-color: $background-color-base;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: $color-text-base;

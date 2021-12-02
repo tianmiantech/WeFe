@@ -4,10 +4,7 @@
         class="result"
     >
         <template v-if="vData.commonResultData.task">
-            <el-collapse
-                v-model="activeName"
-                @change="methods.collapseChanged"
-            >
+            <el-collapse v-model="activeName">
                 <el-collapse-item
                     title="基础信息"
                     name="1"
@@ -47,15 +44,6 @@
                             />
                         </el-table>
                     </el-collapse-item>
-                    <el-collapse-item
-                        title="任务跟踪指标（LOSS）"
-                        name="3"
-                    >
-                        <LineChart
-                            v-if="vData.train_loss.show"
-                            :config="vData.train_loss"
-                        />
-                    </el-collapse-item>
                 </template>
             </el-collapse>
         </template>
@@ -83,6 +71,7 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
@@ -91,9 +80,8 @@
                 role:       'promoter',
                 tableData:  [],
                 train_loss: {
-                    show:   false,
-                    xAxis:  [],
-                    series: [[]],
+                    columns: ['x', 'loss'],
+                    rows:    [],
                 },
                 resultTypes:         [],
                 pollingOnJobRunning: true,
@@ -101,15 +89,14 @@
 
             let methods = {
                 showResult(data) {
-                    if(data[0].result) {
+                    if(data && data.result) {
                         vData.result = true;
                         const {
                             model_param: {
                                 intercept,
                                 weight,
                             },
-                            train_loss,
-                        } = data[0].result;
+                        } = data.result;
 
                         vData.tableData = [];
                         for(const key in weight) {
@@ -122,18 +109,8 @@
                             feature: 'b',
                             weight:  intercept,
                         });
-
-                        train_loss.data.forEach((item, index) => {
-                            vData.train_loss.xAxis.push(index);
-                            vData.train_loss.series[0].push(item);
-                        });
                     } else {
                         vData.result = false;
-                    }
-                },
-                collapseChanged(val) {
-                    if(val.includes('3')){
-                        vData.train_loss.show = true;
                     }
                 },
             };

@@ -68,7 +68,7 @@
                                     v-if="list[index * 5 + i - 1]"
                                     :for="`label-${index * 5 + i - 1}`"
                                     :class="['el-checkbox el-checkbox--small', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name) }]"
-                                    @click.prevent.stop="methods.checkboxChange($event, item, list[index * 5 + i - 1].name, columnListType)"
+                                    @click.prevent.stop="methods.checkboxChange($event, item.$checkedColumnsArr, list[index * 5 + i - 1].name)"
                                 >
                                     <span :class="['el-checkbox__input', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name), 'is-disabled': Boolean(!!list[index * 5 + i - 1].method && selectListId && list[index * 5 + i - 1].id && list[index * 5 + i - 1].id !== selectListId) }]">
                                         <span class="el-checkbox__inner"></span>
@@ -138,23 +138,13 @@
                     context.emit('confirmCheck', props.featureSelectTab);
                     context.emit('getCheckedFeature', props.featureSelectTab);
                 },
-                checkboxChange($event, item, name, method) {
-                    const { $checkedColumnsArr, $feature_list } = item;
-                    const index = $checkedColumnsArr.findIndex(x => x === name);
-                    const feature = $feature_list.find(x => x.name === name);
+                checkboxChange($event, checkedColumnsArr, name) {
+                    const index = checkedColumnsArr.findIndex(x => x === name);
 
                     if(~index) {
-                        $checkedColumnsArr.splice(index, 1);
-
-                        if(feature) {
-                            feature.method = '';
-                        }
+                        checkedColumnsArr.splice(index, 1);
                     } else {
-                        $checkedColumnsArr.push(name);
-
-                        if(feature) {
-                            feature.method = method;
-                        }
+                        checkedColumnsArr.push(name);
                     }
                 },
                 loadData() {

@@ -9,6 +9,7 @@
                 <li>学习率</li>
                 <li>批量大小</li>
                 <li>交互层学习率</li>
+                <li>学习率衰减</li>
                 <li>优化算法：Adadelta、Adagrad、Adam、Adamax、Nadam、RMSprop、SGD</li>
                 <li>评估指标：Hinge、accuracy、AUC</li>
                 <li>损失函数：binary_crossentropy、categorical_crossentropy</li>

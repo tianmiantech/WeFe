@@ -4,73 +4,61 @@
         :disabled="disabled"
         label-position="top"
     >
-        <el-tabs>
-            <el-tab-pane
-                v-for="(member, memberIndex) in vData.members"
+        <template v-for="(member, $index) in vData.data_set_list">
+            <el-form-item
+                v-if="member.show"
                 :key="`${member.member_id}-${member.member_role}`"
-                :label="`${member.member_name} (${member.member_role === 'promoter' ? '发起方' : '协作方'})`"
-                :name="`${memberIndex}`"
+                :label="`${member.member_name} (${member.member_role === 'promoter' ? '发起方' : '协作方'}):`"
             >
-                <el-table
-                    :data="member.features"
-                    border
-                    stripe
+                <div
+                    v-if="member.features.length"
+                    class="el-tag-list mb10"
                 >
-                    <el-table-column label="特征名称" prop="name" width="100" />
-                    <el-table-column label="特征类型转换" min-width="200">
-                        <template v-slot="scope">
-                            <div
-                                v-for="(item, index) in scope.row.transforms"
-                                :key="index"
-                                class="mb10"
-                            >
-                                <el-input
-                                    v-model="item[0]"
-                                    placeholder="枚举"
-                                    style="width:80px;"
-                                    clearable
-                                /> ：
-                                <el-input
-                                    v-model="item[1]"
-                                    placeholder="数值"
-                                    style="width:66px;"
-                                    class="ml5"
-                                    clearable
-                                    @keyup.enter="methods.addTransform($event, member, scope.$index)"
-                                />
-                                <el-icon
-                                    class="ml10 color-danger"
-                                    style="cursor: pointer;"
-                                    @click="methods.removeTransform($event, member, scope.$index, index)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
-                            </div>
-                            <el-button
-                                size="mini"
-                                type="primary"
-                                icon="eliconCirclePlus"
-                                @click="methods.addTransform($event, member, scope.$index)"
-                            >
-                                转换类型
-                            </el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </el-tab-pane>
-        </el-tabs>
+                    <el-tag
+                        v-for="(item, index) in member.features"
+                        :key="index"
+                        :label="item"
+                        :value="item"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </div>
+                <p>
+                    <el-button
+                        size="mini"
+                        @click="methods.checkColumns(member, $index)"
+                    >
+                        选择特征（{{ member.features.length }}/{{ member.columns }}）
+                    </el-button>
+                </p>
+            </el-form-item>
+        </template>
     </el-form>
+
+    <CheckFeatureDialog
+        ref="CheckFeatureDialogRef"
+        :feature-select-tab="vData.featureSelectTab"
+        revert-check-emit="revertCheck"
+        @confirmCheck="methods.confirmCheck"
+        @revertCheck="methods.revertCheck"
+    />
 </template>
 
 <script>
     import {
+        ref,
         reactive,
         nextTick,
         getCurrentInstance,
     } from 'vue';
+    import checkFeatureMixin from '../common/checkFeature';
+    import CheckFeatureDialog from '../common/checkFeatureDialog';
 
     export default {
-        name:  'FeatureTransform',
+        name:       'FeatureTransform',
+        components: {
+            CheckFeatureDialog,
+        },
         props: {
             projectId:    String,
             flowId:       String,
@@ -80,15 +68,21 @@
             jobId:        String,
             class:        String,
         },
+        emits: [...checkFeatureMixin().emits],
         setup(props, context) {
+            const CheckFeatureDialogRef = ref();
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const {
+                $http,
+                $message,
+            } = appContext.config.globalProperties;
 
-            const vData = reactive({
-                members: [],
+            let vData = reactive({
+                cross_parties:    true,
+                featureSelectTab: [],
             });
 
-            const methods = {
+            let methods = {
                 async readData (model) {
                     if(vData.loading) return;
                     vData.loading = true;
@@ -105,18 +99,19 @@
                     nextTick(_ => {
                         vData.loading = false;
                         if(code === 0) {
-                            vData.members = data.members.map(member => {
-                                const features = member.features.map(feature => {
-                                    return {
-                                        name:       feature.name,
-                                        transforms: [],
-                                    };
-                                });
+                            vData.data_set_list = [];
+                            data.members.forEach(member => {
+                                const $features = member.features.map(feature => feature.name);
 
-                                return {
-                                    ...member,
-                                    features,
-                                };
+                                vData.data_set_list.push({
+                                    member_id:   member.member_id,
+                                    member_role: member.member_role,
+                                    member_name: member.member_name,
+                                    columns:     member.features.length,
+                                    show:        true,
+                                    features:    [],
+                                    $features,
+                                });
                             });
                             methods.getNodeDetail(model);
                         }
@@ -134,68 +129,117 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0 && data && data.params) {
-                        const { params: { members } } = data;
+                    if (code === 0) {
+                        const { params } = data;
 
-                        members.forEach(item => {
-                            const member = vData.members.find(member => member.member_id === item.member_id && member.member_role === item.member_role);
+                        if(params) {
+                            const { featureMethods, members, workMode, form } = params;
 
-                            if(member) {
-                                const { features } = item;
+                            vData.form = form;
+                            vData.percentages = [];
+                            vData.typeChecked = [];
 
-                                member.features.forEach(feature => {
-                                    const target = features.find(x => x.name === feature.name);
-
-                                    if(target) {
-                                        feature.transforms = target.transforms;
-                                    }
-                                });
+                            featureMethods.forEach(row => {
+                                if(row.name !== 'percentile') {
+                                    vData.typeChecked.push(row.name);
+                                } else {
+                                    vData.percentages.push({
+                                        label:   'percentile',
+                                        number:  row.value || 50,
+                                        checked: true,
+                                    });
+                                }
+                            });
+                            if(vData.percentages.length === 0) {
+                                vData.percentages = [{
+                                    label:   'percentile',
+                                    checked: false,
+                                    number:  50,
+                                }];
                             }
-                        });
+
+                            members.forEach(member => {
+                                const item = vData.data_set_list.find(row => row.member_id === member.member_id);
+
+                                if(item) {
+                                    item.features.push(...member.features);
+                                }
+                            });
+                            vData.workMode = workMode;
+                            methods.workModeChange(workMode);
+                        }
                         vData.inited = true;
                     }
                 },
 
-                addTransform(event, member, featureIndex) {
-                    member.features[featureIndex].transforms.push(['', '']);
-                },
-
-                removeTransform(event, member, featureIndex, transformIndex) {
-                    member.features[featureIndex].transforms.splice(transformIndex, 1);
+                showColumnListDialog() {
+                    vData.featureSelectTab.forEach(row => {
+                        row.$checkedColumnsArr = [];
+                        row.$feature_list.forEach(x => {
+                            if (x.method) {
+                                row.$checkedColumnsArr.push(x.name);
+                            }
+                        });
+                    });
+                    CheckFeatureDialogRef.value.show();
                 },
 
                 checkParams() {
-                    const members = vData.members.map(member => {
-                        const features = [];
+                    if(vData.lastSelection.length === 0) {
+                        return $message.error('请先选择特征!');
+                    }
 
-                        member.features.forEach(feature => {
-                            if(feature.transforms && feature.transforms.length) {
-                                features.push(feature);
-                            }
-                        });
-
+                    const members = vData.featureSelectTab.map(member => {
                         return {
-                            ...member,
-                            features,
+                            $checkedColumnsArr: member.$checkedColumnsArr,
+                            features:           member.$feature_list,
+                            $checkedAll:        member.$checkedAll,
+                            $indeterminate:     member.$indeterminate,
+                            member_id:          member.member_id,
+                            member_name:        member.member_name,
+                            member_role:        member.member_role,
                         };
                     });
 
                     return {
                         params: {
                             members,
+                            cross_parties: vData.cross_parties,
                         },
                     };
                 },
             };
 
+            // merge mixin
+            const { $data, $methods } = checkFeatureMixin().mixin({
+                vData,
+                props,
+                context,
+                methods,
+                CheckFeatureDialogRef,
+            });
+
+            vData = $data;
+            methods = $methods;
+
             return {
                 vData,
                 methods,
+                CheckFeatureDialogRef,
             };
         },
     };
 </script>
 
 <style lang="scss" scoped>
-
+    .el-checkbox-group{
+        max-height: 500px;
+        overflow: auto;
+        font-size: 14px;
+    }
+    .el-checkbox{user-select:auto;}
+    .el-tag-list{
+        max-height: 140px;
+        overflow: auto;
+    }
 </style>

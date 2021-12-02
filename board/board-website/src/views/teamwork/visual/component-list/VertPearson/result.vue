@@ -134,7 +134,7 @@
         props: {
             ...resultMixins.props,
         },
-        emits: [...checkFeatureMixins.emits],
+        emits: [...checkFeatureMixins.emits, ...resultMixins.emits],
         setup(props, context) {
             const activeName = ref('1');
             const PromoterFeatureDialog = ref();
@@ -197,7 +197,7 @@
                     vData.providerFeatureSelectTab = [];
                     vData.localFeatureSelectTab = [];
 
-                    if(data[0].result) {
+                    if(data.result) {
                         const maxFeatureNum = 20;
                         const {
                             corr,
@@ -207,7 +207,7 @@
                             mix_feature_names,
                             corr_feature_names,
                             remote_features_names,
-                        } = data[0].result.statistics_pearson.data.corr.value;
+                        } = data.result.statistics_pearson.data.corr.value;
 
                         if(props.myRole === 'promoter') {
                             // promoter Multidimensional matrix thermodynamic diagram

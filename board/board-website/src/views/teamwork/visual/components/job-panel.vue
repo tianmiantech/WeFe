@@ -70,10 +70,7 @@
                                 class="mt10"
                                 @click="methods.toJobDetails(item)"
                             >
-                                查看更多
-                                <el-icon>
-                                    <elicon-top-right />
-                                </el-icon>
+                                查看更多 <i class="el-icon-top-right"></i>
                             </el-button>
                             <!-- TODO:
                                 <span>
@@ -120,12 +117,7 @@
                         <template #content>
                             <p>{{member.message}}</p>
                         </template>
-                        <span style="color: #222;">
-                            <el-icon class="color-danger" style="padding: 0 2px;">
-                                <elicon-warning />
-                            </el-icon>
-                            {{member.message}}
-                        </span>
+                        <span style="color: #000;"><i class="icon el-icon-warning color-danger" style="padding-left: 2px; padding-right: 2px;" />{{member.message}}</span>
                     </el-tooltip>
                 </p>
             </div>
@@ -163,17 +155,6 @@
         getCurrentInstance,
     } from 'vue';
     import { useRouter } from 'vue-router';
-    import {
-        Menu,
-        Minimap,
-        Graph,
-        Util,
-        Tooltip,
-        registerNode,
-        registerEdge,
-        registerBehavior,
-    } from '@antv/g6';
-    import g6Register from 'welabx-g6';
     import ToolBar from './toolbar';
     import toolbarMixin from '../graph/toolbar.mixin';
     import nodeStateApply from '../graph/node-state-apply';
@@ -205,8 +186,8 @@
             const {
                 $bus,
                 $http,
-                /* $confirm,
-                $message, */
+                $confirm,
+                $message,
                 dateFormat,
             } = appContext.config.globalProperties;
             const router = useRouter();
@@ -237,7 +218,8 @@
             };
 
             let jobNodes = {},
-                jobGraph;
+                jobGraph,
+                G6;
 
             const methods = {
                 excute (command) {
@@ -258,18 +240,18 @@
                 },
 
                 async initJobGraph (data = { nodes: [], edges: [], combos: [] }) {
+                    /* 动态加载 */
+                    G6 = await import('@antv/g6');
+                    const register = await import('welabx-g6');
+
                     if (jobGraphRef.value) {
-                        const minimap = new Minimap({
+                        const minimap = new G6.Minimap({
                             container: jobMinimap.value,
                             size:      [200, 100],
                         });
-                        const menu = methods.createContextMenu();
-                        const tooltip = methods.createTooltip();
-                        const config = g6Register({
-                            registerNode,
-                            registerEdge,
-                            registerBehavior,
-                        }, {
+                        const menu = methods.createContextMenu(G6);
+                        const tooltip = methods.createTooltip(G6);
+                        const config = register.default(G6, {
                             container:   jobGraphRef.value,
                             width:       props.parentCanvas.offsetWidth,
                             height:      props.parentCanvas.offsetHeight,
@@ -332,9 +314,9 @@
                         });
 
                         // Inherit built-in nodes, add node status
-                        nodeStateApply({ registerNode });
+                        nodeStateApply(G6);
 
-                        graph.instance = jobGraph = new Graph(config); // let toolbarmixin get currect graph
+                        graph.instance = jobGraph = new G6.Graph(config); // let toolbarmixin get currect graph
                         jobGraph.removeBehaviors(['drag-node', 'hover-node'], 'default');
                         jobGraph.get('canvas').set('localRefresh', false); // close local refresh
                         methods.addEvents();
@@ -347,8 +329,8 @@
                     }
                 },
 
-                createContextMenu () {
-                    return new Menu({
+                createContextMenu (G6) {
+                    return new G6.Menu({
                         offsetX: -185,
                         offsetY: -64,
                         shouldBegin (e) {
@@ -400,8 +382,8 @@
                     });
                 },
 
-                createTooltip() {
-                    return new Tooltip({
+                createTooltip(G6) {
+                    return new G6.Tooltip({
                         offsetX:   -140,
                         offsetY:   -25,
                         itemTypes: ['node'],
@@ -465,7 +447,7 @@
                                 context.emit('resetGraphState');
                             } else {
                                 // switch components
-                                context.emit('checkResult', e.item);
+                                context.emit('switchComponent', model);
                             }
                         }
                     });
@@ -706,7 +688,7 @@
                     const group = item.getContainer();
 
                     const percentage = data.data.progress_rate;
-                    const percentageSize = Util.getTextSize(`${percentage}%`, 14);
+                    const percentageSize = G6.Util.getTextSize(`${percentage}%`, 14);
 
                     // Add a progress bar
                     group.addShape('rect', {
@@ -774,13 +756,14 @@
                     window.open(href, '_blank');
                 },
 
-                /* reEdit(item) {
+                reEdit(item) {
                     $confirm('重新编辑该任务将会导致当前画布内容全部丢失, 此操作不可恢复, 请谨慎操作!', '警告', {
                         type: 'warning',
                     }).then(() => {
+                        console.log(item);
                         $message.success('操作成功! 画布已恢复到历史状态');
                     });
-                }, */
+                },
 
                 currentPageChange(val) {
                     vData.jobHistory.page_index = val;

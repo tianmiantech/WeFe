@@ -24,27 +24,21 @@
             class="window-btns"
             @mousedown.stop.prevent
         >
-            <el-icon
+            <i
                 v-if="vData.size === 'max'"
                 class="icons el-icon-minus"
                 @click="methods.min"
-            >
-                <elicon-minus />
-            </el-icon>
-            <el-icon
+            />
+            <i
                 v-if="vData.size !== 'max'"
                 class="icons el-icon-plus"
                 @click="methods.max"
-            >
-                <elicon-plus />
-            </el-icon>
-            <el-icon
+            />
+            <i
                 v-if="showHideBtn"
                 class="icons el-icon-close"
                 @click="methods.hide"
-            >
-                <elicon-close />
-            </el-icon>
+            />
         </div>
         <!-- control points -->
         <span :class="['control-points', vData.dragClass]">
@@ -159,7 +153,7 @@
                     minWidth:  '',
                     minHeight: '',
                 },
-                size:      '',
+                size:      'normal',
                 dragClass: '',
                 coord:     {
                     x: 0,
@@ -327,15 +321,17 @@
         width: 16px;
         height: 16px;
         line-height: 16px;
+        font-style: normal;
+        display: inline-block;
+        vertical-align: top;
+        text-align: center;
         border-radius: 50%;
         margin-left: 5px;
-        cursor: pointer;
         font-size: 0;
+        &:before{display: inline-block;}
         &:hover{
-            svg{
-                font-size:12px;
-                vertical-align: middle;
-            }
+            font-size:12px;
+            cursor: pointer;
         }
     }
     .el-icon-minus{background: #f1b92a;}

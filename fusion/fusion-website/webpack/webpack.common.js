@@ -5,6 +5,7 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 
@@ -135,6 +136,7 @@ const webpackConfig = {
             inject:   true,
         }),
         new FriendlyErrorsPlugin(),
+        new ManifestPlugin(),
         ...plugins,
     ],
 };

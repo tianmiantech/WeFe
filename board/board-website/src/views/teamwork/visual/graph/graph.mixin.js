@@ -1,15 +1,4 @@
 /* graph mixins */
-import {
-    Menu,
-    Minimap,
-    Graph,
-    Grid,
-    SnapLine,
-    registerNode,
-    registerEdge,
-    registerBehavior,
-} from '@antv/g6';
-import g6Register from 'welabx-g6';
 import nodeStateApply from './node-state-apply';
 import edgeStateApply from './edge-state-apply';
 
@@ -42,151 +31,148 @@ export default {
                 vData.waiting = true;
                 vData.loadingText = '加载中...';
 
+                /* 动态加载 */
+                const G6 = await import('@antv/g6');
+                const register = await import('welabx-g6');
+
                 if (Canvas.value) {
-                    const menu = methods.createContextMenu();
-                    const minimap = new Minimap({
+                    const menu = methods.createContextMenu(G6);
+                    const minimap = new G6.Minimap({
                         container:         GraphMinimap.value,
                         viewportClassName: 'graph-minimap-dom',
                         // type:              'keyShape',
                         size:              [200, 100],
                     });
-                    const snapLine = new SnapLine({
+                    const snapLine = new G6.SnapLine({
                         itemAlignType: true,
                     });
-                    const grid = new Grid();
+                    const grid = new G6.Grid();
                     const plugins = [grid, minimap, menu, snapLine];
 
-                    const config = g6Register(
-                        {
-                            registerNode,
-                            registerEdge,
-                            registerBehavior,
-                        },
-                        {
-                            container:   Canvas.value,
-                            width:       Canvas.value.offsetWidth,
-                            height:      Canvas.value.offsetHeight,
-                            defaultNode: {
-                                type:         'flow-node',
-                                anchorPoints: [
-                                    [0.5, 0],
-                                    [0.5, 1],
-                                ],
+                    const config = register.default(G6, {
+                        container:   Canvas.value,
+                        width:       Canvas.value.offsetWidth,
+                        height:      Canvas.value.offsetHeight,
+                        defaultNode: {
+                            type:         'flow-node',
+                            anchorPoints: [
+                                [0.5, 0],
+                                [0.5, 1],
+                            ],
+                            style: {
+                                fill:  '#ecf3ff',
+                                width: 100,
+                            },
+                            labelCfg: {
                                 style: {
-                                    fill:  '#ecf3ff',
-                                    width: 100,
+                                    fill: '#4483FF',
                                 },
-                                labelCfg: {
+                            },
+                        },
+                        nodeStateStyles: {
+                            'nodeState:default': {
+                                lineWidth: 1,
+                                fill:      '#ecf3ff',
+                                stroke:    '#4483FF',
+                                labelCfg:  {
                                     style: {
-                                        fill: '#4483FF',
+                                        fill:       '#4483FF',
+                                        fontWeight: 'normal',
                                     },
                                 },
                             },
-                            nodeStateStyles: {
-                                'nodeState:default': {
-                                    lineWidth: 1,
-                                    fill:      '#ecf3ff',
-                                    stroke:    '#4483FF',
-                                    labelCfg:  {
-                                        style: {
-                                            fill:       '#4483FF',
-                                            fontWeight: 'normal',
-                                        },
-                                    },
-                                },
-                                'nodeState:selected': {
-                                    lineWidth: 2,
-                                    fill:      '#4483FF',
-                                    labelCfg:  {
-                                        style: {
-                                            fill:       '#fff',
-                                            fontWeight: 'bold',
-                                        },
-                                    },
-                                },
-                                highlight: {
-                                    lineWidth: 1,
-                                    fill:      '#f85564',
-                                    stroke:    '#f85564',
-                                    labelCfg:  {
-                                        style: {
-                                            fill:       '#fff',
-                                            fontWeight: 'bold',
-                                        },
+                            'nodeState:selected': {
+                                lineWidth: 2,
+                                fill:      '#4483FF',
+                                labelCfg:  {
+                                    style: {
+                                        fill:       '#fff',
+                                        fontWeight: 'bold',
                                     },
                                 },
                             },
-                            defaultEdge: {
-                                type:  'flow-edge',
-                                style: {
-                                    stroke:          '#aab7c3',
-                                    lineAppendWidth: 20,
-                                    endArrow:        true,
+                            highlight: {
+                                lineWidth: 1,
+                                fill:      '#f85564',
+                                stroke:    '#f85564',
+                                labelCfg:  {
+                                    style: {
+                                        fill:       '#fff',
+                                        fontWeight: 'bold',
+                                    },
                                 },
                             },
-                            layout: {
-                                type: '',
-                            },
-                            modes: {
-                                default: [
-                                    // Drag and drop a single node to add a virtual node style
-                                    {
-                                        type: 'drag-shadow-node',
-                                        shouldBegin(e) {
-                                            const states = e.item.get('states');
-
-                                            if (!states.includes('selected')) {
-                                                return true;
-                                            }
-                                        },
-                                    },
-                                    // brush select node
-                                    {
-                                        type:       'brush-select',
-                                        brushStyle: {
-                                            lineWidth:   1,
-                                            fillOpacity: 0.1,
-                                            fill:        '#4088fc',
-                                            stroke:      '#4088fc',
-                                        },
-                                    },
-                                    {
-                                        type: 'drag-node',
-                                        shouldBegin(e) {
-                                            const states = e.item.get('states');
-
-                                            if (states.includes('selected')) {
-                                                return true;
-                                            }
-                                        },
-                                    },
-                                    'drag-canvas',
-                                    'scroll-canvas',
-                                    'canvas-event',
-                                    'delete-item',
-                                    'select-node',
-                                    'active-edge',
-                                    {
-                                        type: 'hover-node',
-                                        shouldBegin(e) {
-                                            const states = e.item.get('states');
-
-                                            if (!states.includes('selected')) {
-                                                return true;
-                                            }
-                                        },
-                                    },
-                                ],
-                            },
-                            plugins,
                         },
-                    );
+                        defaultEdge: {
+                            type:  'flow-edge',
+                            style: {
+                                stroke:          '#aab7c3',
+                                lineAppendWidth: 20,
+                                endArrow:        true,
+                            },
+                        },
+                        modes: {
+                            default: [
+                                // Drag and drop a single node to add a virtual node style
+                                {
+                                    type: 'drag-shadow-node',
+                                    shouldBegin(e) {
+                                        const states = e.item.get('states');
 
-                    nodeStateApply({ registerNode });
-                    edgeStateApply({ registerEdge });
+                                        if (!states.includes('selected')) {
+                                            return true;
+                                        }
+                                    },
+                                },
+                                // brush select node
+                                {
+                                    type:       'brush-select',
+                                    brushStyle: {
+                                        lineWidth:   1,
+                                        fillOpacity: 0.1,
+                                        fill:        '#4088fc',
+                                        stroke:      '#4088fc',
+                                    },
+                                },
+                                {
+                                    type: 'drag-node',
+                                    shouldBegin(e) {
+                                        const states = e.item.get('states');
+
+                                        if (states.includes('selected')) {
+                                            return true;
+                                        }
+                                    },
+                                },
+                                'drag-canvas',
+                                'scroll-canvas',
+                                'canvas-event',
+                                'delete-item',
+                                'select-node',
+                                'active-edge',
+                                {
+                                    type: 'hover-node',
+                                    shouldBegin(e) {
+                                        const states = e.item.get('states');
+
+                                        if (!states.includes('selected')) {
+                                            return true;
+                                        }
+                                    },
+                                },
+                            ],
+                        },
+                        layout: {
+                            type: '',
+                        },
+                        plugins,
+                    });
+
+                    nodeStateApply(G6);
+                    edgeStateApply(G6);
 
                     /* rewrite graph object */
-                    graph.instance = new Graph(config);
+                    graph.instance = new G6.Graph(config);
                     graph.instance.get('canvas').set('localRefresh', false);
                     if (data.nodes.length === 0) {
                         // Automatically add start node
@@ -234,8 +220,8 @@ export default {
                 });
             },
 
-            createContextMenu() {
-                return new Menu({
+            createContextMenu(G6) {
+                return new G6.Menu({
                     offsetX: 10,
                     offsetY: -14,
                     shouldBegin(e) {
@@ -270,7 +256,7 @@ export default {
                             // edges
                             return `
                             <p class="menu-item" command="deleteItem">
-                                <i class="iconfont icon-warning-outline" command="deleteItem"></i>删除
+                                <i class="icon el-icon-warning-outline" command="deleteItem"></i>删除
                             </p>`;
                         }
 
@@ -286,17 +272,17 @@ export default {
                                 name:    '查看执行结果',
                             },  */ {
                                 command: 'copyNode',
-                                icon:    'iconfont icon-plus',
+                                icon:    'icon el-icon-plus',
                                 name:    '复制节点',
                             },
                             {
                                 command: 'deleteItem',
-                                icon:    'iconfont icon-warning-outline',
+                                icon:    'icon el-icon-warning-outline',
                                 name:    '删除节点',
                             },
                             {
                                 command: 'checkHelp',
-                                icon:    'iconfont icon-help',
+                                icon:    'icon el-icon-help',
                                 name:    '帮助文档',
                             },
                         ];
@@ -681,7 +667,7 @@ export default {
 
                 if (code === 0) {
                     $notify.success({
-                        offset:   5,
+                        offset:   -10,
                         duration: 1000,
                         title:    '提示',
                         message:  '保存成功!',

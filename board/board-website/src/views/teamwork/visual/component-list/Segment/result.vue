@@ -24,15 +24,10 @@
                     v-if="vData.showCharts"
                     class="pie-wrapper"
                 >
-                    <div
-                        v-for="(result, index) in vData.results"
-                        :key="index"
-                        class="pie"
-                    >
-                        <strong>{{ result.title }} :</strong>
-                        <div class="table mb10 mt10">
+                    <div class="pie">
+                        <div class="table mb10">
                             <el-table
-                                :data="result.resultTableData"
+                                :data="vData.resultTableData"
                                 border
                                 striped
                             >
@@ -79,15 +74,14 @@
                         </div>
                         <!-- <div class="flex count"> -->
                         <PieChart
-                            :ref="result.pieCharts[0]"
-                            :config="result.trainCountConfig"
+                            ref="trainPiechartRef"
+                            :config="vData.trainCountConfig"
                         />
                         <PieChart
-                            :ref="result.pieCharts[1]"
-                            :config="result.verifyCountConfig"
+                            ref="validatePieChartRef"
+                            :config="vData.verifyCountConfig"
                         />
                         <!-- </div> -->
-                        <el-divider v-if="index === 0"></el-divider>
                     </div>
                 </div>
             </el-collapse-item>
@@ -116,92 +110,85 @@
         props: {
             ...mixin.props,
         },
+        emits: [...mixin.emits],
         setup(props, context) {
-            const activeName = ref('1');
+            const trainPiechartRef = ref();
+            const validatePieChartRef = ref();
             const { appContext } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
             let vData = reactive({
-                showCharts: false,
-                results:    [],
+                showCharts:        false,
+                trainCountConfig:  {},
+                train_count:       0,
+                eval_count:        0,
+                verifyCountConfig: {},
+                resultTableData:   [],
             });
 
             let methods = {
-                showResult(list) {
-                    vData.results = list.map((data, index) => {
-                        const result = {
-                            title:            data.members.map(m => `${m.member_name} (${m.member_role})`).join(' & '),
-                            train_count:      '',
-                            eval_count:       '',
-                            resultTableData:  [],
-                            trainCountConfig: {},
-                            pieCharts:        [ref(0), ref(1)],
+                showResult(data) {
+                    if (data.result) {
+                        vData.train_count = data.result.train_count;
+                        vData.eval_count = data.result.eval_count;
+
+                        vData.resultTableData.push(
+                            // train
+                            {
+                                example_ratio:       ((vData.train_count / (vData.train_count + vData.eval_count)) * 100).toFixed(2),
+                                example_total:       vData.train_count,
+                                example_good:        data.result.train_count - data.result.train_y_positive_example_count,
+                                example_bad:         data.result.train_y_positive_example_count,
+                                example_ratio_good:  ((1 - data.result.train_y_positive_example_ratio) * 100).toFixed(2),
+                                example_ratio_bad:   (data.result.train_y_positive_example_ratio * 100).toFixed(2),
+                                example_count_ratio: 0,
+                            },
+                            // test
+                            {
+                                example_ratio:       ((vData.eval_count / (vData.train_count + vData.eval_count)) * 100).toFixed(2),
+                                example_total:       vData.eval_count,
+                                example_good:        data.result.eval_count - data.result.eval_y_positive_example_count,
+                                example_bad:         data.result.eval_y_positive_example_count,
+                                example_ratio_good:  ((1 - data.result.eval_y_positive_example_ratio) * 100).toFixed(2),
+                                example_ratio_bad:   data.result.eval_y_positive_example_ratio * 100,
+                                example_count_ratio: 0,
+                            },
+                        );
+
+                        // train
+                        vData.trainCountConfig = {
+                            name:         `样本总数：${data.result.train_count}`,
+                            titleText:    '训练集',
+                            legend:       ['负样本数量','正样本数量'],
+                            legendLeft:   'left',
+                            legendOrient: 'vertical',
+                            labelShow:    true,
+                            series:       [{
+                                name:  '负样本数量',
+                                value: data.result.train_y_positive_example_count,
+                            },{
+                                name:  '正样本数量',
+                                value: data.result.train_count - data.result.train_y_positive_example_count,
+                            }],
                         };
 
-                        if (data.result) {
-                            result.train_count = data.result.train_count;
-                            result.eval_count = data.result.eval_count;
-
-                            result.resultTableData.push(
-                                // train
-                                {
-                                    example_ratio:       ((result.train_count / (result.train_count + result.eval_count)) * 100).toFixed(2),
-                                    example_total:       result.train_count,
-                                    example_good:        data.result.train_count - data.result.train_y_positive_example_count,
-                                    example_bad:         data.result.train_y_positive_example_count,
-                                    example_ratio_good:  ((1 - data.result.train_y_positive_example_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   (data.result.train_y_positive_example_ratio * 100).toFixed(2),
-                                    example_count_ratio: 0,
-                                },
-                                // test
-                                {
-                                    example_ratio:       ((result.eval_count / (result.train_count + result.eval_count)) * 100).toFixed(2),
-                                    example_total:       result.eval_count,
-                                    example_good:        data.result.eval_count - data.result.eval_y_positive_example_count,
-                                    example_bad:         data.result.eval_y_positive_example_count,
-                                    example_ratio_good:  ((1 - data.result.eval_y_positive_example_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   data.result.eval_y_positive_example_ratio * 100,
-                                    example_count_ratio: 0,
-                                },
-                            );
-
-                            // train
-                            result.trainCountConfig = {
-                                name:         `样本总数：${data.result.train_count}`,
-                                titleText:    '训练集',
-                                legend:       ['负样本数量','正样本数量'],
-                                legendLeft:   'left',
-                                legendOrient: 'vertical',
-                                labelShow:    true,
-                                series:       [{
-                                    name:  '负样本数量',
-                                    value: data.result.train_y_positive_example_count,
-                                },{
-                                    name:  '正样本数量',
-                                    value: data.result.train_count - data.result.train_y_positive_example_count,
-                                }],
-                            };
-
-                            // test
-                            result.verifyCountConfig = {
-                                name:         `样本总数：${data.result.eval_count}`,
-                                titleText:    '测试集',
-                                legend:       ['负样本数量','正样本数量'],
-                                legendLeft:   'left',
-                                legendOrient: 'vertical',
-                                labelShow:    true,
-                                series:       [{
-                                    name:  '负样本数量',
-                                    value: data.result.eval_y_positive_example_count,
-                                },{
-                                    name:  '正样本数量',
-                                    value: data.result.eval_count - data.result.eval_y_positive_example_count,
-                                }],
-                            };
-                        }
-
-                        return result;
-                    });
+                        // test
+                        vData.verifyCountConfig = {
+                            name:         `样本总数：${data.result.eval_count}`,
+                            titleText:    '测试集',
+                            legend:       ['负样本数量','正样本数量'],
+                            legendLeft:   'left',
+                            legendOrient: 'vertical',
+                            labelShow:    true,
+                            series:       [{
+                                name:  '负样本数量',
+                                value: data.result.eval_y_positive_example_count,
+                            },{
+                                name:  '正样本数量',
+                                value: data.result.eval_count - data.result.eval_y_positive_example_count,
+                            }],
+                        };
+                    }
                 },
                 collapseChanged(val) {
                     if(val.includes('2')){
@@ -215,19 +202,18 @@
                 context,
                 vData,
                 methods,
+                trainPiechartRef,
+                validatePieChartRef,
             });
 
             onBeforeMount(() => {
                 $bus.$on('drag-end', _ => {
-                    vData.results.forEach(result => {
-                        result.pieCharts.forEach(ref => {
-                            if (ref.value) {
-                                nextTick(_=> {
-                                    ref.value.chartResize();
-                                });
-                            }
+                    if (trainPiechartRef.value && validatePieChartRef.value) {
+                        nextTick(_=> {
+                            trainPiechartRef.value.chartResize();
+                            validatePieChartRef.value.chartResize();
                         });
-                    });
+                    }
                 });
             });
 
@@ -237,7 +223,8 @@
             return {
                 vData,
                 methods,
-                activeName,
+                trainPiechartRef,
+                validatePieChartRef,
             };
         },
     };

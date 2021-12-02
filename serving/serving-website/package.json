@@ -1,5 +1,6 @@
 {
     "name": "wefe-serving-website",
+    "version": "1.0.0",
     "welab": {
         "contextPath": "/serving-website"
     },
@@ -11,6 +12,15 @@
         "dll": "webpack -p --progress --config webpack/webpack.dll.js",
         "build": "node webpack/build.js"
     },
+    "husky": {
+        "hooks": {}
+    },
+    "lint-staged": {
+        "src/**/*.{vue,ts,js}": [
+            "prettier --write",
+            "npx lint-staged -c .lintstagedrc.js"
+        ]
+    },
     "keywords": [
         "vue",
         "vuex"
@@ -19,7 +29,7 @@
     "license": "ISC",
     "dependencies": {
         "@antv/g6": "^4.3.3",
-        "axios": "^0.21.4",
+        "axios": "0.19.2",
         "base64-url": "^2.3.3",
         "echarts": "^4.9.0",
         "element-ui": "^2.13.2",
@@ -31,7 +41,7 @@
         "vue-router": "^3.1.6",
         "vue-simple-uploader": "^0.7.4",
         "vuex": "^3.4.0",
-        "welabx-g6": "^0.6.8"
+        "welabx-g6": "^0.4.1"
     },
     "devDependencies": {
         "@babel/core": "^7.9.6",
@@ -61,7 +71,6 @@
         "husky": "^4.2.5",
         "lint-staged": "^10.2.11",
         "mime": "^2.4.5",
-        "minimist": "^1.2.5",
         "mini-css-extract-plugin": "^0.9.0",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
         "ora": "^4.0.4",

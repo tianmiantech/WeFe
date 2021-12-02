@@ -21,6 +21,20 @@
                     />
                 </el-form-item>
                 <el-form-item
+                    label="项目类型"
+                    label-width="80px"
+                    required
+                >
+                    <el-select v-model="form.projectType" placeholder="请选择项目类型" style="width:400px;" @change="changeProjectType">
+                        <el-option
+                            v-for="item in typeList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item
                     label="项目描述"
                     label-width="80px"
                     required
@@ -47,13 +61,10 @@
                         <p>5、退出参与的成员将只有看到之前参与的流程。</p>
                         6、退出参与的成员可在主页删除项目。
                     </template>
-                    <span>发起方
-                        <el-icon class="color-danger">
-                            <elicon-warning />
-                        </el-icon>
-                    </span>
+                    <span>发起方 <i class="icon el-icon-warning" /></span>
                 </el-tooltip>
                 <el-button
+                    v-if="form.projectType !== 'DeepLearning'"
                     class="ml20"
                     size="mini"
                     @click="showSelectMemberDialog('promoter')"
@@ -94,21 +105,32 @@
                                 </router-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="特征量/数据量">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
                                 {{ scope.row.feature_count }} / {{ scope.row.row_count }}
                             </template>
                         </el-table-column>
-                        <el-table-column label="是否有 Y">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="elicon-delete"
+                                    icon="el-icon-delete"
                                     @click="removeDataSet({ role: 'promoter_creator', memberIndex: 0, $index: scope.$index })"
                                 />
                             </template>
@@ -123,12 +145,10 @@
                     <h4 class="member-name mb10">
                         {{ member.member_name }}
                         <MemberServiceStatus :status="member.$serviceStatus" />
-                        <el-icon
+                        <i
                             class="el-icon-remove-outline"
                             @click="removeMember(memberIndex, 'promoter')"
-                        >
-                            <elicon-remove />
-                        </el-icon>
+                        />
                     </h4>
                     <p
                         v-if="member.$error"
@@ -171,7 +191,7 @@
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="elicon-delete"
+                                    icon="el-icon-delete"
                                     @click="removeDataSet({ role: 'promoter', memberIndex, $index: scope.$index })"
                                 />
                             </template>
@@ -205,12 +225,10 @@
                     <h4 class="member-name mb10">
                         {{ member.member_name }}
                         <MemberServiceStatus :status="member.$serviceStatus" />
-                        <el-icon
+                        <i
                             class="el-icon-remove-outline"
                             @click="removeMember(memberIndex, 'provider')"
-                        >
-                            <elicon-remove />
-                        </el-icon>
+                        />
                     </h4>
                     <p
                         v-if="member.$error"
@@ -239,21 +257,32 @@
                                 </router-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="特征量/数据量">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
                                 {{ scope.row.feature_count }} / {{ scope.row.row_count }}
                             </template>
                         </el-table-column>
-                        <el-table-column label="是否有 Y">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="elicon-delete"
+                                    icon="el-icon-delete"
                                     @click="removeDataSet({ role: 'provider', memberIndex, $index: scope.$index })"
                                 />
                             </template>
@@ -274,10 +303,7 @@
                 style="color:#6C757D;"
                 class="f12 mt10"
             >
-                <el-icon>
-                    <elicon-info-filled />
-                </el-icon>
-                只有己方成员时可进行本地建模
+                <i class="el-icon-info" /> 只有己方成员时可进行本地建模
             </p>
         </div>
 
@@ -290,8 +316,7 @@
         <SelectDatasetDialog
             ref="SelectDatasetDialog"
             :data-sets="dataSets.list"
-            :member-role="dataSets.role"
-            :contains-y="`${dataSets.role !== 'provider' ? true : ''}`"
+            :contains-y="`${dataSets.role === 'promoter' ? true : ''}`"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
         />
@@ -317,10 +342,21 @@
                 loading: false,
                 form:    {
                     name:         '',
+                    projectType:  'MachineLearning',
                     desc:         '',
                     memberList:   [],
                     promoterList: [],
                 },
+                typeList: [
+                    {
+                        label: 'MachineLearning',
+                        value: 'MachineLearning',
+                    },
+                    {
+                        label: 'DeepLearning',
+                        value: 'DeepLearning',
+                    },
+                ],
                 promoter: {
                     member_id:      '',
                     member_name:    '',
@@ -365,7 +401,7 @@
                 canLeave = false;
                 next();
             } else {
-                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗?', '警告', {
+                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗', '警告', {
                     type: 'warning',
                 }).then(async () => {
                     canLeave = false;
@@ -454,7 +490,7 @@
                     role = '协作方';
                     list = this.form.memberList;
                 }
-                this.$confirm(`确定要删除该${role}吗?`, '警告', {
+                this.$confirm(`确定要删除该${role}吗`, '警告', {
                     type: 'warning',
                 })
                     .then(action => {
@@ -471,6 +507,7 @@
             addDataSet(role, memberId, memberIndex, $data_set) {
                 const ref = this.$refs['SelectDatasetDialog'];
 
+                ref.show = true;
                 this.dataSets.role = role;
                 this.dataSets.index = memberIndex;
                 this.dataSets.list = $data_set.map(row => {
@@ -479,22 +516,22 @@
                         data_set_id: row.id,
                     };
                 });
-                ref.show = true;
-                this.$nextTick(async _ => {
-                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
-                });
+                ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list, projectType: this.form.projectType });
             },
 
             async batchDataSet(batchlist) {
+                console.log(batchlist);
                 const { role, index } = this.dataSets;
                 const row = role === 'promoter_creator' ? this.promoter : role === 'promoter' ? this.form.promoterList[index] : this.form.memberList[index];
                 const list = row.$data_set;
 
                 if (batchlist.length) {
                     batchlist.forEach(item => {
+                        item.id = item.id || item.data_set_id;
                         list.push(item);
                     });
                 }
+                console.log(this.form.memberList);
             },
 
             selectDataSet(item) {
@@ -545,9 +582,10 @@
                 if(this.promoter.$data_set.length) {
                     this.promoter.$data_set.forEach(data => {
                         promoterDataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   this.userInfo.member_id,
-                            data_set_id: data.id,
+                            member_role:   'promoter',
+                            member_id:     this.userInfo.member_id,
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                 }
@@ -561,9 +599,10 @@
 
                     item.$data_set.forEach(data => {
                         promoter.dataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   item.member_id,    // promoter Id
-                            data_set_id: data.id,
+                            member_role:   'promoter',
+                            member_id:     item.member_id,    // promoter Id
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     promoterList.push(promoter);
@@ -578,9 +617,10 @@
 
                     item.$data_set.forEach(data => {
                         provider.dataSetList.push({
-                            member_role: 'provider',
-                            member_id:   item.member_id,    // provider Id
-                            data_set_id: data.id,
+                            member_role:   'provider',
+                            member_id:     item.member_id,    // provider Id
+                            data_set_id:   data.id,
+                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     providerList.push(provider);
@@ -589,8 +629,9 @@
                 const { code, data } = await this.$http.post({
                     url:  '/project/add',
                     data: {
-                        name: this.form.name,
-                        desc: this.form.desc,
+                        name:        this.form.name,
+                        desc:        this.form.desc,
+                        projectType: this.form.projectType,
                         promoterDataSetList,
                         providerList,
                         promoterList,
@@ -607,6 +648,14 @@
                             project_id: data.project_id,
                         },
                     });
+                }
+            },
+
+            changeProjectType(val) {
+                this.form.memberList = [];
+                this.promoter.$data_set = [];
+                if (val === 'DeepLearning') {
+                    this.form.promoterList = [];
                 }
             },
         },

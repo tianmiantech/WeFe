@@ -11,9 +11,8 @@
         >
             <el-select
                 v-model="item.method"
-                class="mr10"
-                style="width:86px;"
                 placeholder="请选择类型"
+                style="width:86px;"
                 @change="methods.changeMethod(item)"
             >
                 <el-option
@@ -23,19 +22,16 @@
                     :value="option.value"
                 />
             </el-select>
-            <span v-if="item.method !== 'custom'" class="mr10">
-                <el-input-number
-                    v-model="item.count"
-                    type="number"
-                    :min="1"
-                    controls-position="right"
-                    @blur="methods.changeMethodCount(item, index)"
-                    @change="methods.changeMethodCount(item, index)"
-                />箱
-            </span>
+            <el-input-number
+                v-model="item.count"
+                type="number"
+                :min="1"
+                controls-position="right"
+                @blur="methods.changeMethodCount(item, index)"
+                @change="methods.changeMethodCount(item, index)"
+            />箱
             <el-button
                 size="mini"
-                style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog(item, index)"
             >
@@ -43,14 +39,10 @@
             </el-button>
             <el-button
                 type="text"
-                class="color-danger f14"
+                class="el-icon-delete"
+                style="color:#F85564;font-size: 14px;"
                 @click="methods.removeRow(item, index)"
-            >
-                <el-icon>
-                    <elicon-delete></elicon-delete>
-                </el-icon>
-            </el-button>
-            <p v-if="item.method === 'custom'" class="f12 pl10 pr10 color-danger">请按格式在下面填写特征分割点, 支持小数和整数, 如: 0.1, 0.2, 0.3, 0.4 或 1, 2, 3, 4</p>
+            />
         </el-form-item>
 
         <el-button
@@ -84,17 +76,7 @@
                     />
                     <el-table-column label="分箱策略">
                         <template v-slot="scope">
-                            <template v-if="scope.row.method === 'custom'">
-                                自定义分箱:
-                                <el-input
-                                    v-model.trim="scope.row.points"
-                                    style="width:160px;"
-                                    clearable
-                                />
-                            </template>
-                            <template v-else-if="scope.row.method">
-                                {{ `${vData.methodObj[scope.row.method]} ${scope.row.count}箱` }}
-                            </template>
+                            {{ scope.row.method ? `${vData.methodObj[scope.row.method]} ${scope.row.count}箱` : '' }}
                         </template>
                     </el-table-column>
                 </el-table>
@@ -158,13 +140,11 @@
                     { value: 'quantile', label: '等频' },
                     { value: 'bucket', label: '等宽' },
                     { value: 'optimal', label: '卡方' },
-                    { value: 'custom', label: '自定义' },
                 ],
                 methodObj: {
-                    quantile: '等频',
-                    bucket:   '等宽',
-                    optimal:  '卡方',
-                    custom:   '自定义',
+                    'quantile': '等频',
+                    'bucket':   '等宽',
+                    'optimal':  '卡方',
                 },
                 columnListType:   'quantile',
                 selectListIndex:  0,
@@ -178,20 +158,6 @@
                         method:               'quantile',
                         feature_column_count: 0,
                         count:                1,
-                        points:               '',
-                    });
-                },
-
-                changeMethod (item) {
-                    vData.featureSelectTab.forEach(member => {
-                        member.$feature_list.forEach(row => {
-                            if (row.id === item.id) {
-                                row.method = item.method;
-                                if(row.method !== 'custom') {
-                                    row.points = '';
-                                }
-                            }
-                        });
                     });
                 },
 
@@ -280,7 +246,7 @@
 <style lang="scss" scoped>
     .el-input-number{
         width: 104px;
-        margin-right:10px;
+        margin:0 10px;
         :deep(.el-input__inner){
             padding-left:5px;
             padding-right: 40px;

@@ -156,6 +156,7 @@
                 });
 
                 websocket.addEventListener('close', ev => {
+                    console.log('close');
                     clearTimeout(heartbeat);
                     chatui.value.socketOnClose(ev);
                     vData.ws = null;
@@ -190,7 +191,7 @@
                 });
 
                 // check last state
-                if (window.localStorage.getItem(`${prefixPath}_chat`) === 'connect') {
+                if (window.localStorage.getItem(`${prefixPath}chat`) === 'connect') {
                     startChart();
                 }
             });

@@ -19,13 +19,11 @@
             >
                 <img :src="img">
             </div>
-            <el-icon
+            <i
                 v-else
                 class="el-icon-plus avatar-uploader-icon"
                 :style="{ width: `${width}px`, height: `${width}px`, 'line-height': `${width}px` }"
-            >
-                <elicon-plus />
-            </el-icon>
+            />
         </el-upload>
         <div
             v-else

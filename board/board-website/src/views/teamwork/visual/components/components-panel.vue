@@ -34,16 +34,16 @@
                         :disabled="myRole !== 'promoter' || !isCreator"
                         @submit.prevent
                     >
-                        <div v-if="!isCreator" class="mb10">
-                            <el-alert
-                                title="!!! 仅允许查看"
-                                style="width:250px;"
-                                :closable="false"
-                                type="warning"
-                                effect="dark"
-                                show-icon
-                            />
-                        </div>
+                        <el-alert
+                            v-if="!isCreator"
+                            title="!!! 仅允许查看"
+                            style="width:250px;"
+                            :closable="false"
+                            type="warning"
+                            effect="dark"
+                            class="mb10"
+                            show-icon
+                        />
                         <el-form-item
                             label="流程名称："
                             required
@@ -62,15 +62,21 @@
                             />
                         </el-form-item>
                         <el-form-item label="训练类型：">
-                            <template v-if="learningType === 'vertical'">
-                                纵向
-                            </template>
-                            <template v-if="learningType === 'horizontal'">
-                                横向
-                            </template>
-                            <template v-if="learningType === 'mix'">
-                                混合
-                            </template>
+                            <el-radio-group
+                                v-model="learningType"
+                                :disabled="!!ootJobId"
+                                @change="changeLearningType"
+                            >
+                                <el-radio label="vertical">
+                                    纵向
+                                </el-radio>
+                                <el-radio label="horizontal">
+                                    横向
+                                </el-radio>
+                                <el-radio label="mix">
+                                    混合
+                                </el-radio>
+                            </el-radio-group>
                         </el-form-item>
                         <p style="color:#fff;">{{ jobId }}</p>
                     </el-form>
@@ -94,16 +100,16 @@
                                 name="params"
                             >
                                 <el-scrollbar height="100%">
-                                    <div v-if="!isCreator" class="mb10">
-                                        <el-alert
-                                            title="!!! 仅允许查看"
-                                            style="width:250px;"
-                                            :closable="false"
-                                            type="warning"
-                                            effect="dark"
-                                            show-icon
-                                        />
-                                    </div>
+                                    <el-alert
+                                        v-if="!isCreator"
+                                        title="!!! 仅允许查看"
+                                        style="width:250px;"
+                                        :closable="false"
+                                        type="warning"
+                                        effect="dark"
+                                        class="mb10"
+                                        show-icon
+                                    />
                                     <el-popover
                                         title="参数说明"
                                         :offset="15"
@@ -262,6 +268,12 @@
                 this.$emit('component-panel-change-size', this.maxSize);
             },
 
+            changeLearningType() {
+                this.saveFlowInfo(null, () => {
+                    this.$emit('getComponents');
+                });
+            },
+
             tabChange({ paneName }) {
                 const child = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
 
@@ -338,7 +350,7 @@
                 }
             },
 
-            async saveFlowInfo($event) {
+            async saveFlowInfo($event, callback) {
                 if(this.locker) return;
                 this.locker = true;
 
@@ -370,11 +382,13 @@
                     });
                     this.$emit('changeHeaderTitle');
                     this.$notify.success({
-                        offset:   5,
+                        offset:   -10,
                         duration: 1500,
                         title:    '提示',
                         message:  '保存成功!',
                     });
+
+                    callback && callback();
 
                     if(!flowId) {
                         this.$router.replace({
@@ -440,7 +454,7 @@
                     }
                     if($event !== 'node-update') {
                         this.$notify.success({
-                            offset:   5,
+                            offset:   -10,
                             duration: 1000,
                             title:    '提示',
                             message:  '保存成功!',

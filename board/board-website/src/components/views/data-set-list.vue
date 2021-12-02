@@ -17,12 +17,7 @@
                         :to="{ name: 'data-add' }"
                         target="_blank"
                     >
-                        <el-button style="display:block;" type="primary" size="mini">
-                            上传数据集
-                            <el-icon>
-                                <elicon-arrow-right />
-                            </el-icon>
-                        </el-button>
+                        <el-button type="primary">上传数据集<i class="el-icon-right" /></el-button>
                     </router-link>
                 </div>
             </slot>
@@ -169,9 +164,7 @@
                                     type="info"
                                     @click="showDataSetPreview(scope.row)"
                                 >
-                                    <el-icon>
-                                        <elicon-view />
-                                    </el-icon>
+                                    <i class="el-icon-view" />
                                 </el-button>
                             </el-tooltip>
                             <el-switch
@@ -442,11 +435,14 @@
 <style lang="scss" scoped>
     .data-add{
         width:200px;
+        height:34px;
+        line-height:34px;
         text-align:right;
     }
     .el-alert{
         width: auto;
-        height: 30px;
+        padding: 4px;
+        height: 34px;
         min-width: 300px;
     }
     .pagination{

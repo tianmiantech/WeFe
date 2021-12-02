@@ -8,17 +8,10 @@
             v-for="(member, $index) in vData.data_set_list"
             :key="`${member.member_id}-${member.member_role}`"
         >
-            <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item v-if="member.show">
-                <div class="el-form-item__label">
-                    <span class="mr10">{{ member.member_name }}</span>
-                    <el-button
-                        size="mini"
-                        @click="methods.checkColumns(member, $index)"
-                    >
-                        选择特征（{{ member.features.length }}/{{ member.columns }}）
-                    </el-button>
-                </div>
+            <el-form-item
+                v-if="member.show"
+                :label="`${member.member_name} (${member.member_role === 'promoter' ? '发起方' : '协作方'}):`"
+            >
                 <div
                     v-if="member.features.length"
                     class="el-tag-list mb10"
@@ -44,6 +37,14 @@
                         查看更多
                     </el-button>
                 </div>
+                <p>
+                    <el-button
+                        size="mini"
+                        @click="methods.checkColumns(member, $index)"
+                    >
+                        选择特征（{{ member.features.length }}/{{ member.columns }}）
+                    </el-button>
+                </p>
             </el-form-item>
         </template>
 
@@ -280,7 +281,7 @@
                     if (code === 0) {
                         const { params } = data;
 
-                        if(params.members) {
+                        if(params) {
                             const { featureMethods, members, workMode, form } = params;
 
                             vData.form = form;
@@ -339,6 +340,24 @@
                     }
                     vData.percentages.forEach(each => each.checked = val);
                     vData.form.isIndeterminate = false;
+                },
+
+                handleItemChange(item) {
+                    if(props.disabled) return;
+                    item.checked = !item.checked;
+                    vData.form.isIndeterminate = true;
+                },
+
+                addPercent() {
+                    vData.percentages.push({
+                        label:   'percentile',
+                        checked: false,
+                        number:  50,
+                    });
+                },
+
+                removePercentages(index) {
+                    vData.percentages.splice(index, 1);
                 },
 
                 typeCheckListChange() {
@@ -530,11 +549,6 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
-            line-height: 28px !important;
-        }
-    }
     .el-checkbox-group{
         max-height: 500px;
         overflow: auto;

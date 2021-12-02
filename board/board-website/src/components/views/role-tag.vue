@@ -6,10 +6,7 @@
         effect="dark"
         size="mini"
     >
-        <el-icon>
-            <elicon-star />
-        </el-icon>
-        promoter
+        <i class="el-icon-star-off" /> promoter
     </el-tag>
     <el-tag
         v-else-if="role === 'provider'"
@@ -17,10 +14,7 @@
         effect="dark"
         size="mini"
     >
-        <el-icon>
-            <elicon-medal />
-        </el-icon>
-        provider
+        <i class="el-icon-medal" /> provider
     </el-tag>
     <el-tag
         v-else
@@ -28,10 +22,7 @@
         effect="dark"
         size="mini"
     >
-        <el-icon>
-            <elicon-connection />
-        </el-icon>
-        arbiter
+        <i class="el-icon-connection" /> arbiter
     </el-tag>
 </template>
 

@@ -2,53 +2,38 @@
     <el-form
         v-loading="vData.loading"
         :disabled="disabled"
-        label-position="top"
         @submit.prevent
     >
-        <template
-            v-for="(member, $index) in vData.data_set_list"
-            :key="`${member.member_id}-${member.member_role}`"
-        >
-            <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item>
-                <div class="el-form-item__label">
-                    <span class="mr10">{{ member.member_name }}</span>
+        <template v-for="(member, $index) in vData.data_set_list">
+            <el-form-item
+                v-if="member.show"
+                :key="`${member.member_id}-${member.member_role}`"
+                :label="`${member.member_name} (${member.member_role === 'promoter' ? '发起方' : '协作方'}):`"
+            >
+                <div
+                    v-if="member.features.length"
+                    class="el-tag-list mb10"
+                >
+                    <el-tag
+                        v-for="(item, index) in member.features"
+                        :key="index"
+                        :label="item"
+                        :value="item"
+                        style="margin-left: 4px;"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </div>
+                <p>
                     <el-button
                         size="mini"
                         @click="methods.checkColumns(member, $index)"
                     >
                         选择特征（{{ member.features.length }}/{{ member.columns }}）
                     </el-button>
-                </div>
-                <div
-                    v-if="member.features.length"
-                    class="el-tag-list mb10"
-                >
-                    <template
-                        v-for="(item, index) in member.features"
-                        :key="index"
-                    >
-                        <el-tag
-                            v-if="index < 20"
-                            :label="item"
-                            :value="item"
-                        >
-                            {{ item }}
-                        </el-tag>
-                    </template>
-                    <el-button
-                        v-if="member.features.length > 20"
-                        type="primary"
-                        class="check-features"
-                        @click="methods.checkFeatures(member.features)"
-                    >
-                        查看更多
-                    </el-button>
-                </div>
+                </p>
             </el-form-item>
         </template>
-
-        <el-alert v-if="!vData.colChecked" :title="`请选出所有 [发起方] 共有的特征! ${vData.colUnCheckedMsg}`" type="error" effect="dark" show-icon :closable="false" style="width: 260px;" />
 
         <el-dialog
             width="70%"
@@ -141,6 +126,7 @@
         reactive,
         nextTick,
         getCurrentInstance,
+        watch,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
 
@@ -158,22 +144,28 @@
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $alert, $http } = appContext.config.globalProperties;
+            const { $http } = appContext.config.globalProperties;
 
             let vData = reactive({
-                inited:            false,
-                loading:           false,
-                row_index:         0,
-                data_set_list:     [],
-                column_list:       [],
-                checkedColumns:    '',
-                checkedColumnsArr: [],
-                showColumnList:    false,
-                columnListLoading: false,
-                indeterminate:     false,
-                checkedAll:        false,
-                colChecked:        true,
-                colUnCheckedMsg:   '',
+                inited:               false,
+                loading:              false,
+                data_set_list:        [],
+                feature_column_count: 0,
+                total_column_count:   0,
+                checkedColumnsArr:    [],
+                showColumnList:       false,
+                columnListLoading:    false,
+                selectList:           [{
+                    id:                   Math.round(Math.random()*10e12),
+                    method:               'quantile',
+                    count:                1,
+                    feature_column_count: 0,
+                }],
+                columnListType:   'quantile',
+                selectListIndex:  0,
+                featureSelectTab: [],
+                col_names:        [],
+                formMembers:      [],
             });
 
             let methods = {
@@ -198,9 +190,12 @@
                                 const $features = member.features.map(feature => feature.name);
 
                                 vData.data_set_list.push({
-                                    ...member,
-                                    columns:  member.features.length,
-                                    features: [],
+                                    member_id:   member.member_id,
+                                    member_role: member.member_role,
+                                    member_name: member.member_name,
+                                    columns:     member.features.length,
+                                    show:        true,
+                                    features:    [],
                                     $features,
                                 });
                             });
@@ -210,6 +205,7 @@
                 },
 
                 async getNodeDetail(model) {
+                    if (vData.loading) return;
                     vData.loading = true;
 
                     const { code, data } = await $http.get({
@@ -220,23 +216,25 @@
                         },
                     });
 
-                    vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data || {};
+                    nextTick(_ => {
+                        vData.loading = false;
+                        if (code === 0) {
+                            const { params } = data || {};
 
-                        if(params) {
-                            const { members } = params;
+                            if (params) {
+                                const { members } = params;
 
-                            members.forEach(member => {
-                                const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
+                                members.forEach(member => {
+                                    const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
 
-                                if(item) {
-                                    item.features.push(...member.features);
-                                }
-                            });
+                                    if(item) {
+                                        item.features.push(...member.features);
+                                    }
+                                });
+                            }
+                            vData.inited = true;
                         }
-                        vData.inited = true;
-                    }
+                    });
                 },
 
                 checkColumns(row, index) {
@@ -245,20 +243,10 @@
                     vData.indeterminate = false;
                     vData.showColumnList = true;
                     vData.column_list = row.$features;
-                    vData.checkedColumnsArr = [];
-                    vData.checkedColumns = '';
                     if(row.$features.length) {
                         vData.checkedColumns = row.features.join(',');
                         methods.autoCheck();
                     }
-                },
-
-                checkFeatures(arr) {
-                    $alert('已选特征:', {
-                        title:                    '已选特征:',
-                        message:                  `<div style="max-height: 80vh;overflow:auto;">${arr.join(',')}</div>`,
-                        dangerouslyUseHTMLString: true,
-                    });
                 },
 
                 autoCheck() {
@@ -343,6 +331,7 @@
 
                 checkboxChange($event, item) {
                     if(props.disabled) return;
+                    // item.checked = !item.checked;
 
                     const index = vData.checkedColumnsArr.findIndex(x => x === item);
 
@@ -367,65 +356,38 @@
                         features: vData.checkedColumnsArr,
                     };
                     vData.showColumnList = false;
-                    vData.colChecked = true;
                 },
 
-                paramsCheck() {
-                    let promoters = 0;
-                    const checked = true;
-                    const featureMaps = {};
+                getCheckedFeature(list) {
+                    const feature = [];
 
-                    vData.data_set_list.forEach(member => {
-                        if(member.member_role === 'promoter') {
-                            promoters++;
+                    list.forEach(item => {
+                        if (item.member_role === 'promoter') {
+                            feature.push(item.features);
                         }
                     });
-
-                    if(promoters === 1) {
-                        return checked;
-                    }
-
-                    vData.data_set_list.forEach((member, memberIndex) => {
-                        if(member.member_role === 'promoter') {
-                            member.features.forEach(name => {
-                                if(!featureMaps[name]) {
-                                    featureMaps[name] = 1;
-                                } else {
-                                    featureMaps[name] += 1;
-                                }
-                            });
+                    list.forEach(item => {
+                        if (item.member_role === 'promoter') {
+                            item.features = methods.getTheSame(feature);
                         }
                     });
+                    vData.formMembers = list;
+                },
 
-                    for(const key in featureMaps) {
-                        const val = featureMaps[key];
-
-                        if(val !== promoters) {
-                            vData.colUnCheckedMsg = `特征 ${key} 未被所有发起方选择, 请检查`;
-                            return false;
-                        }
-                    }
-
-                    return checked;
+                getTheSame(arr) {
+                    return arr.reduce(function(a, b) {
+                        return a.filter(function(item) {
+                            return b.includes(item);
+                        });
+                    });
                 },
 
                 checkParams() {
-                    if(!methods.paramsCheck()) {
-                        vData.colChecked = false;
-                        return false;
-                    }
-
-                    const members = vData.data_set_list.map(member => {
-                        return {
-                            features:    member.features,
-                            member_id:   member.member_id,
-                            member_role: member.member_role,
-                        };
-                    });
-
+                    methods.getCheckedFeature(vData.data_set_list);
                     return {
                         params: {
-                            members,
+                            // col_names: vData.col_names,
+                            members: vData.formMembers,
                         },
                     };
                 },
@@ -442,6 +404,15 @@
             vData = $data;
             methods = $methods;
 
+            watch(
+                () => vData.showColumnList, 
+                (newVal) => {
+                    if (!newVal) {
+                        vData.checkedColumnsArr = [];
+                    }
+                },
+            );
+
             return {
                 vData,
                 methods,
@@ -451,24 +422,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
-            line-height: 28px !important;
+    .el-input-number{
+        width: 104px;
+        margin:0 10px;
+        :deep(.el-input__inner){
+            padding-left:5px;
+            padding-right: 40px;
         }
-    }
-    .el-checkbox-group{
-        max-height: 500px;
-        overflow: auto;
-        font-size: 14px;
-    }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
-        max-height: 140px;
-        overflow: auto;
-    }
-    .check-features{
-        padding:0 10px;
-        min-height: 24px;
-        margin-left: 5px;
     }
 </style>
