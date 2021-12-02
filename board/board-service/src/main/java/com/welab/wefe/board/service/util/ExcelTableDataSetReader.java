@@ -30,14 +30,14 @@ import java.util.List;
  *
  * @author zane.luo
  */
-public class ExcelDataSetReader extends AbstractDataSetReader {
+public class ExcelTableDataSetReader extends AbstractTableDataSetReader {
     private final ExcelReader reader;
 
-    public ExcelDataSetReader(File file) throws IOException {
+    public ExcelTableDataSetReader(File file) throws IOException {
         this(null, file);
     }
 
-    public ExcelDataSetReader(List<DataSetColumnInputModel> metadataList, File file) throws IOException {
+    public ExcelTableDataSetReader(List<DataSetColumnInputModel> metadataList, File file) throws IOException {
         super(metadataList);
         reader = new ExcelReader(file);
     }

@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.enums;
+package com.welab.wefe.board.service.dto.globalconfig;
 
 /**
  * @author zane
- * @date 2021/11/10
+ * @date 2021/10/29
  */
-public enum DataSetStorageType {
-    /**
-     * local file system
-     */
-    LocalFileSystem,
-    StorageService
+public class DeepLearningConfigModel {
+    public String device = "cpu";
+    public String paddleVisualDlBaseUrl;
 }

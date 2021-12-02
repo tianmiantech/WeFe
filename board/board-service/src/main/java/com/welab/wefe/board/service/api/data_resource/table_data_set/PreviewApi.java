@@ -20,9 +20,9 @@ import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
-import com.welab.wefe.board.service.util.AbstractDataSetReader;
-import com.welab.wefe.board.service.util.CsvDataSetReader;
-import com.welab.wefe.board.service.util.ExcelDataSetReader;
+import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
+import com.welab.wefe.board.service.util.CsvTableDataSetReader;
+import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.ColumnDataType;
@@ -115,9 +115,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
 
         try (
-                AbstractDataSetReader reader = file.getName().endsWith("csv")
-                        ? new CsvDataSetReader(file)
-                        : new ExcelDataSetReader(file)
+                AbstractTableDataSetReader reader = file.getName().endsWith("csv")
+                        ? new CsvTableDataSetReader(file)
+                        : new ExcelTableDataSetReader(file)
         ) {
             // Get column header
             headRowConsumer.accept(reader.getHeader());
@@ -186,7 +186,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
          * Infer data type
          */
         private ColumnDataType inferDataType(String value) {
-            if (AbstractDataSetReader.isEmptyValue(value)) {
+            if (AbstractTableDataSetReader.isEmptyValue(value)) {
                 return null;
             }
 
