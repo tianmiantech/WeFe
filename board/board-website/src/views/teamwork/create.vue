@@ -115,7 +115,7 @@
                                 {{ scope.row.contains_y ? '是' : '否' }}
                             </template>
                         </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
                             label="标注状态"
@@ -267,7 +267,7 @@
                                 {{ scope.row.contains_y ? '是' : '否' }}
                             </template>
                         </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
                             label="标注状态"

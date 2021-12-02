@@ -365,11 +365,21 @@
                 },
                 // emit 删除标注框
                 destroyNode() {
-                    vData.layer.find('Transformer').destroy();
-                    vData.layer.find('Rect').destroy();
-                    if (vData.rectLayer.attrs.isLabeled) {
-                        // vData.labelLayer.destroy();
-                        vData.layer.find('Text').destroy();
+                    if (vData.currentRect && vData.currentRect.attrs.isLabeled) {
+                        vData.stage.find('Text').forEach(item => {
+                            if (item.attrs.traceId === vData.currentRect.attrs.traceId) {
+                                vData.stage.find('Transformer').destroy();
+                                item.destroy();
+                                vData.currentRect.destroy();
+                            }
+                        });
+                    } else {
+                        vData.stage.find('Transformer').destroy();
+                        if (vData.currentRect) {
+                            vData.currentRect.destroy();
+                        } else {
+                            vData.rectLayer.destroy();
+                        }
                     }
                     vData.layer.draw();
                     labelModalRef.value.methods.hideModal();

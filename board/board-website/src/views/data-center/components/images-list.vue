@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
             label="数据总量"
-            prop="sample_count"
+            prop="total_data_count"
             width="140"
         ></el-table-column>
         <el-table-column

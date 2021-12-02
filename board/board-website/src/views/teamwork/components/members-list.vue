@@ -101,7 +101,7 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_set.sample_count }}
+                            {{ scope.row.data_set.total_data_count }}
                         </template>
                     </el-table-column>
                     <el-table-column

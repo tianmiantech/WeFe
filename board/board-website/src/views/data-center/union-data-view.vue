@@ -42,7 +42,7 @@
                     {{ dataInfo.label_completed ? '已完成' : '标注中' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="样本数量：">
-                    {{ dataInfo.sample_count }}
+                    {{ dataInfo.total_data_count }}
                 </el-descriptions-item>
             </template>
         </el-descriptions>

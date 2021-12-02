@@ -105,10 +105,10 @@
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
                 label="数据总量"
-                prop="sample_count"
+                prop="total_data_count"
             >
                 <template v-slot="scope">
-                    {{isFlow ? scope.row.data_set.sample_count : scope.row.sample_count}}
+                    {{isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count}}
                 </template>
             </el-table-column>
             <el-table-column
