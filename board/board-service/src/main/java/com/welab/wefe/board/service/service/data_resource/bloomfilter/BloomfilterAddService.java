@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -73,8 +74,8 @@ public class BloomfilterAddService extends AbstractService {
      *                 the CurrentAccount information cannot be obtained, so it needs to be passed.
      */
     @Async
-    public void add(BloomfilterAddInputModel input, BloomFilterTaskMysqlModel bloomfilterTask, CurrentAccount.Info userInfo) {
-
+    public void add(AbstractDataResourceUpdateInputModel in, BloomFilterTaskMysqlModel bloomfilterTask, CurrentAccount.Info userInfo) {
+        BloomfilterAddInputModel input = (BloomfilterAddInputModel) in;
         BloomFilterMysqlModel model = new ModelMapper().map(input, BloomFilterMysqlModel.class);
         model.setId(bloomfilterTask.getBloomfilterId());
         model.setCreatedBy("test");

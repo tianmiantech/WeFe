@@ -20,7 +20,7 @@ import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilt
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterColumnRepository;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterColumnInputModel;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.data.mysql.Where;

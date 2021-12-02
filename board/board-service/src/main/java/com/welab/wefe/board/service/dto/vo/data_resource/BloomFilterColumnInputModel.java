@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.fusion;
+package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.common.enums.ColumnDataType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
