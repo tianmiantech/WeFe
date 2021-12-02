@@ -2,14 +2,10 @@ package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.manager.service.contract.RealnameAuthAgreementTemplateContract;
-import com.welab.wefe.manager.service.contract.UnionNodeContract;
-import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
-import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -85,8 +81,8 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
         list.add(realnameAuthAgreementTemplate.getTemplateFileId());
         list.add(realnameAuthAgreementTemplate.getTemplateFileSign());
         list.add(realnameAuthAgreementTemplate.getEnable());
-        list.add(realnameAuthAgreementTemplate.getCreatedTime());
-        list.add(realnameAuthAgreementTemplate.getUpdatedTime());
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }
 
