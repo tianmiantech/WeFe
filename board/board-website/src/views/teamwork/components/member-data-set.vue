@@ -183,7 +183,6 @@
              -->
             <el-button
                 v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
-                plain
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >

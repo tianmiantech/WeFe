@@ -31,7 +31,6 @@
 
                 <el-button
                     v-if="form.isCreator && !form.closed"
-                    plain
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >

@@ -130,7 +130,7 @@
                     </fieldset>
                 </el-col>
             </el-row>
-            <el-row :gutter="30">
+            <el-row :gutter="30" v-if="addType === 'csv'">
                 <el-col :span="10">
                     <h4 class="mt10 mb20">
                         字段信息：
@@ -279,14 +279,18 @@
                     page_size:  20,
                     page_index: 1,
                 },
+                addType: 'csv',
             };
         },
         created() {
+            this.addType = this.$route.query.type || 'csv';
             this.getData();
         },
         mounted() {
-            this.loadDataSetColumnList();
-            this.$refs['DataSetPreview'].loadData(this.id);
+            if (this.addType === 'csv') {
+                this.loadDataSetColumnList();
+                this.$refs['DataSetPreview'].loadData(this.id);
+            }
         },
         methods: {
             metadataPageChange(val) {
@@ -371,8 +375,9 @@
 
             async getData() {
                 this.loading = true;
+                const url = this.addType === 'csv' ? '/data_set/detail' : '/image_data_set/detail';
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/detail?id=' + this.id,
+                    url: `${url}?id=` + this.id,
                 });
 
                 if (code === 0) {
@@ -432,9 +437,8 @@
                 }
 
                 this.loading = true;
-
                 const { code } = await this.$http.post({
-                    url:     '/data_set/update',
+                    url:     this.addType === 'csv' ? '/data_set/update' : '/image_data_set/update',
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,
@@ -446,7 +450,7 @@
                     this.$message.success('保存成功!');
                     this.$router.push({
                         name:  'data-view',
-                        query: { id: this.id },
+                        query: { id: this.id, type: this.addType },
                     });
                 }
                 this.loading = false;

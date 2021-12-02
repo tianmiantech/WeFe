@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -34,7 +35,6 @@ import com.welab.wefe.serving.service.predicter.single.ProviderPredicter;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.PredictLogService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 import java.util.List;
 import java.util.Map;

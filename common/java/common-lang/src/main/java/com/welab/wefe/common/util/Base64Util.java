@@ -68,7 +68,7 @@ public class Base64Util {
         if (!StringUtil.isEmpty(zipType)) {
             switch (zipType.toLowerCase()) {
                 case ZipType.ZIP:
-                    bytes = ZipUtil.zip(bytes);
+                    bytes = ZipUtil.zipBytes(bytes);
                     break;
                 case ZipType.GZIP:
                     bytes = GzipUtil.zip(bytes);
@@ -119,7 +119,7 @@ public class Base64Util {
         if (!StringUtil.isEmpty(unZipType)) {
             switch (unZipType.toLowerCase()) {
                 case ZipType.ZIP:
-                    bytes = ZipUtil.unzip(bytes);
+                    bytes = ZipUtil.unzipBytes(bytes);
                     break;
                 case ZipType.GZIP:
                     bytes = GzipUtil.unzip(bytes);

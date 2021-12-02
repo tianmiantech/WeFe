@@ -48,7 +48,10 @@ httpInstance.interceptors.request.use(
         return config;
     },
     error => {
-        window.$app.config.globalProperties.$message.error(error);
+        window.$app.config.globalProperties.$message.error({
+            message:  error,
+            grouping: true,
+        });
         return {
             msg: error,
         };
@@ -73,7 +76,10 @@ httpInstance.interceptors.response.use(
 
                     if (new Date().valueOf() - lastErrorMessageTime > 2000) {
                         lastErrorMessageTime = new Date().valueOf();
-                        window.$app.config.globalProperties.$message.error(data.message);
+                        window.$app.config.globalProperties.$message.error({
+                            message:  data.message,
+                            grouping: true,
+                        });
                     }
 
                 } else if (data.code === 10000) {
@@ -86,7 +92,10 @@ httpInstance.interceptors.response.use(
                         message: data.message,
                     });
                 } else {
-                    window.$app.config.globalProperties.$message.error(data.message || '未知错误!');
+                    window.$app.config.globalProperties.$message.error({
+                        message:  data.message || '未知错误!',
+                        grouping: true,
+                    });
                 }
             }
         }
@@ -114,7 +123,10 @@ httpInstance.interceptors.response.use(
                 // Actively cancel pop-up prompt
                 const msg = isCancel.msg ? `请求已取消: ${isCancel.msg}` : '请求已取消';
 
-                $message.error(msg);
+                $message.error({
+                    message:  msg,
+                    grouping: true,
+                });
                 return {
                     code: 'cancelled',
                     msg,
@@ -135,14 +147,23 @@ httpInstance.interceptors.response.use(
                 switch (status) {
                     case 401:
                         // to login
-                        $message.error('登录已过期, 请重新登录');
+                        $message.error({
+                            message:  '登录已过期, 请重新登录',
+                            grouping: true,
+                        });
                         baseLogout();
                         break;
                     /* case 504:
-                        $message.error(msg);
+                        $message.error({
+                            message: msg,
+                            grouping: true,
+                        });
                         break; */
                     default:
-                        $message.error(msg);
+                        $message.error({
+                            message:  msg,
+                            grouping: true,
+                        });
                 }
                 return {
                     code: status,
@@ -150,7 +171,10 @@ httpInstance.interceptors.response.use(
                 };
             } else if (message) {
                 // Cross domain / network error...
-                $message.error(message);
+                $message.error({
+                    message,
+                    grouping: true,
+                });
                 return {
                     code: 1,
                     msg:  message,
@@ -177,7 +201,10 @@ const policy = {
             if (cancelToken) {
                 cancelToken.cancel();
                 if (msg) {
-                    window.$app.config.globalProperties.$message.error(msg);
+                    window.$app.config.globalProperties.$message.error({
+                        message:  msg,
+                        grouping: true,
+                    });
                 }
             }
         } else if (state === 'all') {

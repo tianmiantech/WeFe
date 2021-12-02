@@ -18,9 +18,9 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.database.entity.FieldInfoMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.FieldInfoRepository;
-import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;

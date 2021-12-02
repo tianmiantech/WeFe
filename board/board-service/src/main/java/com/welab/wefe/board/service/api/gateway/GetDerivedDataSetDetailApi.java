@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.gateway;
 
-import com.welab.wefe.board.service.dto.entity.project.DerivedProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;

@@ -87,8 +87,6 @@ class HorzOneHotEncoder(OneHotEncoder):
         return combined_all_cols
 
     def fit(self, data_instances):
-        abnormal_detection.empty_table_detection(data_instances)
-
         self._init_params(data_instances)
 
         f1 = functools.partial(self.record_new_header,

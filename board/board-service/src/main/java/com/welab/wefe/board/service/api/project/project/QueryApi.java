@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.service.ProjectService;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -71,6 +72,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ProjectQu
 
         @Check(name = "是否已关闭")
         private Boolean closed;
+
+        @Check(name = "项目类型")
+        private ProjectType projectType;
 
         public String getName() {
             return name;
@@ -142,6 +146,14 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ProjectQu
 
         public void setClosed(Boolean closed) {
             this.closed = closed;
+        }
+
+        public ProjectType getProjectType() {
+            return projectType;
+        }
+
+        public void setProjectType(ProjectType projectType) {
+            this.projectType = projectType;
         }
     }
 }

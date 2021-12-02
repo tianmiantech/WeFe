@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,55 +16,38 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author eval
  **/
 public class OperationLogOutputModel extends AbstractOutputModel {
-    /**
-     * 请求接口
-     */
+    @Check(name = "请求接口")
     private String logInterface;
 
-    /**
-     * 请求接口名称
-     */
+    @Check(name = "请求接口名称")
     private String interfaceName;
 
-    /**
-     * 请求IP
-     */
+    @Check(name = "请求IP")
     private String requestIp;
 
-    /**
-     * 操作人员编号
-     */
+    @Check(name = "操作人员编号")
     private String operatorId;
 
-    /**
-     * 操作人员手机号
-     */
+    @Check(name = "操作人员手机号")
     private String operatorPhone;
 
-    /**
-     * 请求token
-     */
+    @Check(name = "请求token")
     private String token;
 
-    /**
-     * 操作行为
-     */
+    @Check(name = "操作行为")
     private String logAction;
 
-    /**
-     * 请求结果编码
-     */
+    @Check(name = "请求结果编码")
     private int resultCode;
 
-    /**
-     * 请求结果
-     */
+    @Check(name = "请求结果")
     private String resultMessage;
 
     /**

@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.api.dataset;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
-import com.welab.wefe.board.service.service.DataSetService;
+import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.board.service.util.AbstractDataSetReader;
 import com.welab.wefe.board.service.util.CsvDataSetReader;
 import com.welab.wefe.board.service.util.ExcelDataSetReader;
@@ -29,7 +29,6 @@ import com.welab.wefe.common.enums.ColumnDataType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.ListUtil;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -79,7 +78,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 output = readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
         }
 

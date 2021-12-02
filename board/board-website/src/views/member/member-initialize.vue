@@ -76,7 +76,6 @@
                     >
                         <template slot="append">
                             <el-button
-                                plain
                                 type="primary"
                                 :disabled="!form.gateway_uri"
                                 @click="check"

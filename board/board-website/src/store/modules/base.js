@@ -1,4 +1,3 @@
-
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -73,16 +73,12 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
             return null;
         }
 
-        JSONObject taskParam = new JSONObject();
-
         // Reassembly parameters
-        JObject evaluationParam = JObject.create();
-        evaluationParam.append("eval_type", params.getEvalType())
+        JObject output = JObject.create();
+        output.append("eval_type", params.getEvalType())
                 .append("pos_label", params.getPosLabel());
 
-        taskParam.put("params", evaluationParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override
@@ -91,7 +87,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     }
 
     @Override
-    protected TaskResultMySqlModel getResult(String taskId, String type) {
+    protected TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException {
 
         TaskResultMySqlModel trainTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train.name());
         TaskResultMySqlModel validateTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
@@ -114,68 +110,65 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
         JObject result = JObject.create();
 
-        try {
-            // Find out all the same branch nodes with the evaluation node
-            // and find the modeling node from them
-            // (this method solves the problem of null pointer when the evaluation node is deleted in the original editing process again)
-            List<TaskMySqlModel> homologousBranchTaskList = taskService.findHomologousBranchByJobId(taskResultMySqlModel.getJobId(), trainTaskResult.getRole(), taskResultMySqlModel.getTaskId());
-            TaskMySqlModel modelingTask = homologousBranchTaskList.stream().filter(x -> MODEL_COMPONENT_TYPE_LIST.contains(x.getTaskType())).findFirst().orElse(null);
 
-            String modelComponentType = modelingTask.getTaskType().toString();
-            String modelNodeId = modelingTask.getFlowNodeId();
-            String suffix = "";
-            if (!taskId.endsWith(taskResultMySqlModel.getFlowNodeId())) {
-                suffix = "_" + taskId.split("_")[taskId.split("_").length - 1];
-            }
-            // Start parsing the required result data
-            String normalName = modelComponentType + "_" + modelNodeId + suffix;
-            String preValidateName = "validate_" + modelComponentType + "_" + modelNodeId + suffix;
-            String preTrainName = "train_" + modelComponentType + "_" + modelNodeId + suffix;
+        // Find out all the same branch nodes with the evaluation node
+        // and find the modeling node from them
+        // (this method solves the problem of null pointer when the evaluation node is deleted in the original editing process again)
+        List<TaskMySqlModel> homologousBranchTaskList = taskService.findHomologousBranchByJobId(taskResultMySqlModel.getJobId(), trainTaskResult.getRole(), taskResultMySqlModel.getTaskId());
+        TaskMySqlModel modelingTask = homologousBranchTaskList.stream().filter(x -> MODEL_COMPONENT_TYPE_LIST.contains(x.getTaskType())).findFirst().orElse(null);
 
-            JObject validate = validateObj.getJObject(preValidateName);
-            JObject train = trainObj.getJObject(preTrainName);
+        String modelComponentType = modelingTask.getTaskType().toString();
+        String modelNodeId = modelingTask.getFlowNodeId();
+        String suffix = "";
+        if (!taskId.endsWith(taskResultMySqlModel.getFlowNodeId())) {
+            suffix = "_" + taskId.split("_")[taskId.split("_").length - 1];
+        }
+        // Start parsing the required result data
+        String normalName = modelComponentType + "_" + modelNodeId + suffix;
+        String preValidateName = "validate_" + modelComponentType + "_" + modelNodeId + suffix;
+        String preTrainName = "train_" + modelComponentType + "_" + modelNodeId + suffix;
 
-            result.append("validate", validate)
-                    .append("train", train);
+        JObject validate = validateObj.getJObject(preValidateName);
+        JObject train = trainObj.getJObject(preTrainName);
 
-            switch (type) {
-                case "ks":
-                    result.putAll(parserTrainCurveData(trainObj, "ks_fpr", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "ks_fpr", normalName));
-                    result.putAll(parserTrainCurveData(trainObj, "ks_tpr", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "ks_tpr", normalName));
-                    break;
-                case "lift":
-                    result.putAll(parserTrainCurveData(trainObj, "lift", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "lift", normalName));
-                    break;
-                case "gain":
-                    result.putAll(parserTrainCurveData(trainObj, "gain", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "gain", normalName));
-                    break;
-                case "accuracy":
-                    result.putAll(parserTrainCurveData(trainObj, "accuracy", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "accuracy", normalName));
-                    break;
-                case "precision_recall":
-                    result.putAll(parserTrainCurveData(trainObj, "precision", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "precision", normalName));
-                    result.putAll(parserTrainCurveData(trainObj, "recall", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "recall", normalName));
-                    break;
-                case "roc":
-                    result.putAll(parserTrainCurveData(trainObj, "roc", normalName));
-                    result.putAll(parserValidateCurveData(validateObj, "roc", normalName));
-                    break;
-                case "topn":
-                    result.putAll(parserTopN(trainObj, normalName, "train"));
-                    result.putAll(parserTopN(validateObj, normalName, "validate"));
-                default:
-                    break;
+        result.append("validate", validate)
+                .append("train", train);
 
-            }
-        } catch (StatusCodeWithException e) {
-            e.printStackTrace();
+        switch (type) {
+            case "ks":
+                result.putAll(parserTrainCurveData(trainObj, "ks_fpr", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "ks_fpr", normalName));
+                result.putAll(parserTrainCurveData(trainObj, "ks_tpr", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "ks_tpr", normalName));
+                break;
+            case "lift":
+                result.putAll(parserTrainCurveData(trainObj, "lift", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "lift", normalName));
+                break;
+            case "gain":
+                result.putAll(parserTrainCurveData(trainObj, "gain", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "gain", normalName));
+                break;
+            case "accuracy":
+                result.putAll(parserTrainCurveData(trainObj, "accuracy", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "accuracy", normalName));
+                break;
+            case "precision_recall":
+                result.putAll(parserTrainCurveData(trainObj, "precision", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "precision", normalName));
+                result.putAll(parserTrainCurveData(trainObj, "recall", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "recall", normalName));
+                break;
+            case "roc":
+                result.putAll(parserTrainCurveData(trainObj, "roc", normalName));
+                result.putAll(parserValidateCurveData(validateObj, "roc", normalName));
+                break;
+            case "topn":
+                result.putAll(parserTopN(trainObj, normalName, "train"));
+                result.putAll(parserTopN(validateObj, normalName, "validate"));
+            default:
+                break;
+
         }
 
         taskResultMySqlModel.setResult(result.toJSONString());

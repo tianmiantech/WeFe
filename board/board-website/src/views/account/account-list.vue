@@ -169,7 +169,6 @@
                                 <el-button
                                     v-if="!scope.row.admin_role"
                                     type="primary"
-                                    plain
                                     @click="changeUserRole(scope.row)"
                                 >
                                     设为管理员
@@ -177,7 +176,6 @@
                                 <el-button
                                     v-if="scope.row.admin_role && !scope.row.super_admin_role"
                                     type="primary"
-                                    plain
                                     @click="changeUserRole(scope.row)"
                                 >
                                     设为普通用户
@@ -189,14 +187,12 @@
                             <el-button
                                 v-if="scope.row.enable"
                                 type="danger"
-                                plain
                                 @click="disableUser(scope.row)"
                             >
                                 禁用
                             </el-button>
                             <el-button
                                 v-else
-                                plain
                                 type="danger"
                                 @click="disableUser(scope.row)"
                             >

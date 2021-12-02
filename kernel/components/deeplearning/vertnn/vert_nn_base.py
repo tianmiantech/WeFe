@@ -73,6 +73,8 @@ class VertNNBase(ModelBase):
         self.selector_param = None
 
         self.floating_point_precision = None
+        self.is_serving_model = True
+
 
     def _init_model(self, vert_nn_param):
         self.interactive_layer_lr = vert_nn_param.interactive_layer_lr
@@ -98,6 +100,8 @@ class VertNNBase(ModelBase):
             self.batch_generator.register_batch_generator(self.transfer_variable, has_arbiter=False)
         else:
             self.batch_generator.register_batch_generator(self.transfer_variable)
+
+        self.tracker.init_task_progress(vert_nn_param.epochs)
 
     def reset_flowid(self):
         new_flowid = ".".join([self.flowid, "evaluate"])

@@ -1,0 +1,14 @@
+
+### 修改数据集
+POST http://localhost:8080/board-service/image_data_set/update
+Content-Type: application/json
+
+{
+  "id": "112362bda1434045a893f2f09a9525c9",
+  "name": "Euler图学习开源数据集",
+  "tags": [
+    "图"
+  ],
+  "description": "Euler图学习平台自研算法对应的开源图数据与样本数据",
+  "publicLevel": "Public"
+}

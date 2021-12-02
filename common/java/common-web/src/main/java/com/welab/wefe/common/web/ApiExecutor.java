@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -101,19 +103,47 @@ public class ApiExecutor {
 
             result.spend = System.currentTimeMillis() - start;
 
-            switch (annotation.logLevel()) {
-                case "debug":
-                    LOG.debug("response({}):{}", apiPath, JSON.toJSONString(result));
-                    break;
-                default:
-                    LOG.info("response({}):{}", apiPath, JSON.toJSONString(result));
-            }
+            logResponse(annotation, result);
+
             MDC.clear();
         }
 
         result.spend = System.currentTimeMillis() - start;
 
         return result;
+    }
+
+    private static void logResponse(Api annotation, ApiResult<?> result) {
+
+        String content = "";
+        /**
+         * 警告 ⚠️:
+         * 当响应内容为 ResponseEntity<FileSystemResource> 时
+         * JSON.toJSONString(result) 序列化时会导致文件被置空
+         * 所以这里写日志时需要进行检查，避免对 FileSystemResource 进行 json 序列化。
+         */
+        if (result.data instanceof ResponseEntity) {
+            Object body = ((ResponseEntity) result.data).getBody();
+            if (body instanceof FileSystemResource) {
+                FileSystemResource fileSystemResource = (FileSystemResource) body;
+                content = "File:" + fileSystemResource.getPath();
+            }
+        } else if (result.data instanceof byte[]) {
+            byte[] bytes = (byte[]) result.data;
+            content = "bytes(length " + bytes.length + ")";
+        } else {
+            content = JSON.toJSONString(result);
+        }
+
+
+        switch (annotation.logLevel()) {
+            case "debug":
+                LOG.debug("response({}):{}", annotation.path(), content);
+                break;
+            default:
+                LOG.info("response({}):{}", annotation.path(), content);
+
+        }
     }
 
     /**

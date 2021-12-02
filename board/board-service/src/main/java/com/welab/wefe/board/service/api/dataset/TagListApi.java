@@ -39,7 +39,7 @@ public class TagListApi extends AbstractApi<TagListApi.Input, TreeMap<String, Lo
 
     @Override
     protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
-        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getDataSetTags().clone();
+        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getTableDataSetTags().clone();
 
         // filter
         if (StringUtil.isNotEmpty(input.tag)) {

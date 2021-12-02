@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,17 +16,51 @@
 
 package com.welab.wefe.common.util;
 
-import net.coobird.thumbnailator.Thumbnails;
+import com.welab.wefe.common.util.dto.FileDecompressionResult;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author zane.luo
  */
 public class FileUtil {
+
+    public static boolean isImage(File file) {
+        switch (getFileSuffix(file).toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+            case "png":
+            case "webp":
+            case "bmp":
+            case "tif":
+            case "gif":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * get file suffix
+     */
+    public static String getFileSuffix(File file) {
+        if (file.isDirectory()) {
+            return null;
+        }
+        return StringUtil.substringAfterLast(file.getName(), ".");
+    }
+
+    /**
+     * get file name without suffix
+     */
+    public static String getFileNameWithoutSuffix(File file) {
+        if (file.isDirectory()) {
+            return "";
+        }
+        return StringUtil.substringBeforeLast(file.getName(), ".");
+    }
 
     /**
      * Create a directory
@@ -40,41 +74,27 @@ public class FileUtil {
         }
     }
 
-
-    public static String readAll(String path) throws IOException {
-        StringBuilder content = new StringBuilder(32);
-        BufferedReader in = null;
-        try {
-            FileInputStream fis = new FileInputStream(path);
-            InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
-            in = new BufferedReader(isr);
-            String line;
-            while ((line = in.readLine()) != null) {
-                content.append(line.trim());
-            }
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            in.close();
-        }
-        return content.toString();
+    public static String readAllText(String path) throws IOException {
+        return readAllText(new File(path), StandardCharsets.UTF_8);
     }
 
-    /**
-     * Reading file contents
-     *
-     * @return String
-     */
-    public static String readAll(String path, String encoding) throws IOException {
-        StringBuilder content = new StringBuilder(32);
+    public static String readAllText(File file) throws IOException {
+        return readAllText(file, StandardCharsets.UTF_8);
+    }
+
+
+    public static String readAllText(File file, Charset charset) throws IOException {
+        StringBuilder content = new StringBuilder(512);
         BufferedReader in = null;
         try {
-            FileInputStream fis = new FileInputStream(path);
-            InputStreamReader isr = new InputStreamReader(fis, encoding);
+            FileInputStream fis = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fis, charset);
             in = new BufferedReader(isr);
             String line;
             while ((line = in.readLine()) != null) {
-                content.append(line + "\n");
+                content
+                        .append(line)
+                        .append(System.lineSeparator());
             }
         } catch (IOException e) {
             throw e;
@@ -89,7 +109,7 @@ public class FileUtil {
      *
      * @param file File or folder
      */
-    public static void deleteFile(File file) {
+    public static void deleteFileOrDir(File file) {
         if (null == file) {
             return;
         }
@@ -99,68 +119,22 @@ public class FileUtil {
         }
         File[] subFile = file.listFiles();
         for (File f : subFile) {
-            deleteFile(f);
+            deleteFileOrDir(f);
         }
         file.delete();
     }
 
-    public static void deleteFile(String filePath) {
-        deleteFile(new File(filePath));
+    public static void deleteFileOrDir(String filePath) {
+        deleteFileOrDir(new File(filePath));
     }
 
     /**
-     * Compresses the image with the specified size and precision
-     *
-     * @param base64Image The source image base64
-     * @param desFileSize Specifies the image size, in KB
-     * @param accuracy    Accuracy, recursive compression ratio, recommended to be less than 0.9
-     * @return Compressed image base64
+     * 解压文件
+     * 注意：该方法会递归解压压缩包内的压缩包
      */
-    public static String compressPicForScale(String base64Image, long desFileSize, double accuracy) {
-        try {
-            byte[] srcBase = Base64Util.base64ToByteArray(base64Image);
-            ByteArrayInputStream stream = new ByteArrayInputStream(srcBase);
-            BufferedImage image = ImageIO.read(stream);
-
-            //Get picture information
-            int srcWidth = image.getWidth();
-            int srcHeight = image.getHeight();
-
-            //Convert to PNG first
-            Thumbnails.Builder builder = Thumbnails.of(image).imageType(BufferedImage.TYPE_INT_ARGB).outputFormat("png");
-            builder.size(srcWidth, srcHeight);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            builder.toOutputStream(baos);
-
-            byte[] bytes = commpressPicCycle(baos.toByteArray(), desFileSize, accuracy);
-
-            String desBase64String = Base64Util.encode(bytes);
-            return desBase64String;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static FileDecompressionResult decompression(File file, String destDirPath) {
+        FileDecompressionResult result = new FileDecompressionResult(file, destDirPath);
+        return result;
     }
 
-    private static byte[] commpressPicCycle(byte[] bytes, long desFileSize, double accuracy) throws IOException {
-
-        long srcFileSizeJpg = bytes.length;
-        // Determine the size to reach the compression target return
-        if (srcFileSizeJpg <= desFileSize * 1024) {
-            return bytes;
-        }
-        // Calculate wide high
-        BufferedImage bim = ImageIO.read(new ByteArrayInputStream(bytes));
-        int srcWidth = bim.getWidth();
-        int srcHeight = bim.getHeight();
-        int desWidth = new BigDecimal(srcWidth).multiply(
-                new BigDecimal(accuracy)).intValue();
-        int desHeight = new BigDecimal(srcHeight).multiply(
-                new BigDecimal(accuracy)).intValue();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Thumbnails.of(new ByteArrayInputStream(bytes)).size(desWidth, desHeight).outputQuality(accuracy).imageType(BufferedImage.TYPE_INT_ARGB).outputFormat("jpg").toOutputStream(baos);
-        return commpressPicCycle(baos.toByteArray(), desFileSize, accuracy);
-    }
 }

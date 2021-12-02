@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.ImageUtil;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -76,7 +76,7 @@ public class SystemInitializeService extends AbstractService {
         unionService.initializeSystem(globalConfigService.getMemberInfo());
 
         for (DataSetMysqlModel model : dataSetRepository.findAll()) {
-            unionService.uploadDataSet(model);
+            unionService.uploadTableDataSet(model);
         }
     }
 
@@ -115,7 +115,6 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPrivateKey(pair.privateKey);
             model.setRsaPublicKey(pair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
@@ -144,7 +143,7 @@ public class SystemInitializeService extends AbstractService {
         if (StringUtil.isNotEmpty(input.getMemberLogo()) && input.getMemberLogo().contains(",")) {
             LOG.info("压缩前：" + input.getMemberLogo().length());
             String[] strs = input.getMemberLogo().split(",");
-            model.setMemberLogo(strs[0] + "," + FileUtil.compressPicForScale(strs[1], 200, 0.7));
+            model.setMemberLogo(strs[0] + "," + ImageUtil.compressPicForScale(strs[1], 200, 0.7));
             LOG.info("压缩后：" + model.getMemberLogo().length());
         }
         model.setMemberHidden(input.getMemberHidden());
@@ -174,7 +173,6 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPrivateKey(pair.privateKey);
             model.setRsaPublicKey(pair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 

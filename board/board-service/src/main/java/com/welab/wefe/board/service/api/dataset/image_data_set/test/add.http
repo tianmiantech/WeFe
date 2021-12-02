@@ -1,0 +1,18 @@
+
+### 添加图片数据集
+POST localhost:8080/board-service/image_data_set/add
+Content-Type: application/json
+token: {{token}}
+
+{
+  "publicLevel": "Public",
+  "name": "zane test9",
+  "tags": [
+    "12321"
+  ],
+  "description": "",
+  "public_member_list": "",
+  "filename": "fl_fruit.zip",
+  "for_job_type": "detection"
+}
+

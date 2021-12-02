@@ -728,27 +728,21 @@ class MultivariateStatistical(object):
         -------
 
         """
-        temp_modes = {}
+        col_dict = {}
+        # init col_dict
+        for col_name, col_index in cols_dict.items():
+            col_dict[col_name] = {}
         for data_instance in self.data_instances.collect():
             features = data_instance[1].features
             for col_name, col_index in cols_dict.items():
-                if col_name not in temp_modes:
-                    temp_modes[col_name] = (0, 0)
+                if features[col_index] not in col_dict[col_name].keys():
+                    col_dict[col_name][features[col_index]] = 1
                 else:
-                    major = temp_modes[col_name][0]
-                    count = temp_modes[col_name][1]
-                    n = features[col_index]
-                    if count == 0:
-                        major = n
-                    if n == major:
-                        count = count + 1
-                    else:
-                        count = count - 1
-                    temp_modes[col_name] = (major, count)
+                    col_dict[col_name][features[col_index]] += 1
 
         mode = {}
-        for col_name in temp_modes.keys():
-            mode[col_name] = temp_modes[col_name][0]
+        for col_name in col_dict.keys():
+            mode[col_name] = max(col_dict[col_name], key=col_dict[col_name].get)
 
         return mode
 
@@ -762,7 +756,7 @@ class MultivariateStatistical(object):
             cols_index.append(idx)
         return cols_index
 
-    def get_percentile(self, cols_dict=None, percentage=50, unique_num=None):
+    def get_percentile(self, percentage_list, cols_dict=None, unique_num=None):
         """
 
         Args:
@@ -772,34 +766,36 @@ class MultivariateStatistical(object):
                    'x1': 1,
                    'x3': 3
                }
-            percentage: default value = 50 ,means calculate the 50th percentile
 
         Returns: dict of percentiles result
+        :param unique_num:
 
         """
-        percentiles = {}
-        if cols_dict is None:
-            cols_dict = self.cols_dict
+        # percentiles = {}
+        # if cols_dict is None:
+        #     cols_dict = self.cols_dict
 
-        self.percentiles = self._get_percentile(percentage)
+        percentiles_dict = self._get_percentile(percentage_list)
 
-        for col_name in cols_dict:
-            if col_name not in self.percentiles:
-                LOGGER.warning("The column {}, has not set in selection parameters."
-                               "percentile values is not available".format(col_name))
-                continue
-            percentiles[col_name] = self.percentiles[col_name]
+        # for col_name in cols_dict:
+        #     if col_name not in self.percentiles:
+        #         LOGGER.warning("The column {}, has not set in selection parameters."
+        #                        "percentile values is not available".format(col_name))
+        #         continue
+        #     percentiles[col_name] = self.percentiles[col_name]
 
-        return percentiles
+        return percentiles_dict
 
-    def _get_percentile(self, percentage):
+
+    def _get_percentile(self, percentage_list):
         """
         Percentile index: continuous characteristic index
         :param percentage:
         :return:
         """
-        if percentage > 100 or percentage < 1:
-            raise ValueError("percentage must in 1-100, but value is: {}".format(percentage))
+        for p in percentage_list:
+            if p > 100 or p < 1:
+                raise ValueError("percentage must in 1-100, but value is: {}".format(p))
         """
 
         Args:
@@ -814,27 +810,32 @@ class MultivariateStatistical(object):
         bin_param = FeatureBinningParam(bin_num=100, bin_indexes=cols_index)
         binning_obj = QuantileBinning(bin_param, abnormal_list=self.abnormal_list)
         split_points = binning_obj.fit_split_points(self.data_instances)
-        percentiles = {}
+        percentiles_dict = {}
         log_utils.get_logger().info('分箱点' + ','.join(list(map(str, split_points))))
-        for col_name, split_point in split_points.items():
-            if len(split_point) < 100:
-                percentiles[col_name] = np.NAN
-            else:
-                percentiles[col_name] = split_point[percentage - 1]
 
-        return percentiles
+        for col_name, split_point in split_points.items():
+            percentiles = {}
+            for p in percentage_list:
+                if len(split_point) < 100:
+                    percentiles[p] = np.NAN
+                else:
+                    percentiles[p] = split_point[p - 1]
+                percentiles_dict[col_name] = percentiles
+
+        return percentiles_dict
 
     def get_percentile_dict(self, percentage_list):
-        percentile_dict = {}
-        for p in percentage_list:
-            percentile_dict[p] = self.get_percentile(percentage=p)
-        header_dict = percentile_dict[percentage_list[0]].keys()
-        cache_dict = {}
-        for header_name in header_dict:
-            cache_dict[header_name] = {}
-            for p in percentage_list:
-                cache_dict[header_name].update({p: percentile_dict[p][header_name]})
-        percentile_dict = cache_dict
+        percentile_dict = self.get_percentile(percentage_list=percentage_list)
+        # percentile_dict = {}
+        # for p in percentage_list:
+        #     percentile_dict[p] = self.get_percentile(percentage=p)
+        # header_dict = percentile_dict[percentage_list[0]].keys()
+        # cache_dict = {}
+        # for header_name in header_dict:
+        #     cache_dict[header_name] = {}
+        #     for p in percentage_list:
+        #         cache_dict[header_name].update({p: percentile_dict[p][header_name]})
+        # percentile_dict = cache_dict
         return percentile_dict
 
 

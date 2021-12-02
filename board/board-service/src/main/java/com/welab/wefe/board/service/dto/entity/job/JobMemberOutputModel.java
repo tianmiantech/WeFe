@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,34 +19,23 @@ package com.welab.wefe.board.service.dto.entity.job;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author seven.zeng
  */
 public class JobMemberOutputModel extends AbstractOutputModel {
-    /**
-     * 项目Id
-     */
+    @Check(name = "项目Id")
     private String projectId;
-    /**
-     * 流程Id
-     */
+    @Check(name = "流程Id")
     private String flowId;
-    /**
-     * 任务Id
-     */
+    @Check(name = "任务Id")
     private String jobId;
-    /**
-     * 在任务中的角色 枚举（promoter/provider/arbiter）
-     */
+    @Check(name = "在任务中的角色 枚举（promoter/provider/arbiter）")
     private JobMemberRole jobRole;
-    /**
-     * 成员 Id
-     */
+    @Check(name = "成员 Id")
     private String memberId;
-    /**
-     * 数据集 Id
-     */
+    @Check(name = "数据集 Id")
     private String dataSetId;
 
     public String getMemberName() {

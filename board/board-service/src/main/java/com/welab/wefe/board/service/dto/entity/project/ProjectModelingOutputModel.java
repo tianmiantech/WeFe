@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,35 +18,26 @@ package com.welab.wefe.board.service.dto.entity.project;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author lonnie
  */
 public class ProjectModelingOutputModel extends AbstractOutputModel {
 
-    /**
-     * 流程id
-     */
+    @Check(name = "流程id")
     private String flowId;
 
-    /**
-     * job_id
-     */
+    @Check(name = "job_id")
     private String jobId;
 
-    /**
-     * job名字
-     */
+    @Check(name = "job名字")
     private String jobName;
 
-    /**
-     * 模型评估任务id
-     */
+    @Check(name = "模型评估任务id")
     private String evaluationTaskId;
 
-    /**
-     * 模型类型
-     */
+    @Check(name = "模型类型")
     private ComponentType modelingType;
 
     public String getFlowId() {

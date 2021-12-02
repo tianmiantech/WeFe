@@ -9,11 +9,13 @@ nas_upload(){
   s_config=`s config get -l`
   if [[ $s_config =~ 's-config' ]]
   then
-    echo "already init s-config"
+    echo "already init s-config, update s-config"
+    s config delete -a s-config
   else
     echo "does not init s-config, now start to init ..."
-    s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
   fi
+
+  s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
 
   # init project
   s nas init
@@ -30,7 +32,7 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload -r -n .s/build/artifacts/wefe-fc/index/.s/python nas:///mnt/auto/python --debug
+      s nas upload -r -n /data/environment/.s/python nas:///mnt/auto/python --debug
     fi
 
   fi
@@ -51,19 +53,13 @@ nas_upload(){
 
   cd common/python/calculation/fc/function/wefe-fc
   s nas upload ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ --debug
-  s nas upload -r -n ../../../../../../build nas:///mnt/auto/$nas_env/pythonCode --debug
+  s nas upload -r -n ../../../../../../build/ /mnt/auto/$nas_env/pythonCode --debug
 
   rm -rf ../../../../../../build
 
 }
 
-
 fc_deploy(){
-  # function dir
-  if [ ! ${wefe_code_path} ]; then
-    echo "wefe_code_path is null"
-    wefe_code_path=/opt/welab/wefe
-  fi
 
   fc_dir=${wefe_code_path}/common/python/calculation/fc/function/wefe-fc
   cd $fc_dir
@@ -94,10 +90,23 @@ fc_deploy(){
   security_group_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.security_group_id=*")
   security_group_id=${security_group_id##*=}
 
+  account_type=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_type=*")
+  account_type=${account_type##*=}
+
   if [ ! ${account_id} ]; then
     echo "account_id is null"
   else
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
+  fi
+
+  if [ ${account_type,,} == "admin" ]; then
+    echo "account_type is admin, auto to create fc role"
+    sed -i '9s/^/#/' s.yaml
+  elif [ ${account_type,,} == "api" ]; then
+    echo "account_type is api, create fc role manually"
+    sed -i '9s/^#*//' s.yaml
+  else
+    echo "not support type: ${account_type}, please check again !"
   fi
 
   if [ ! ${vpc_id} -o ${vpc_id} == "" ]; then
@@ -126,10 +135,18 @@ fc_deploy(){
 
 
 if_fc(){
-  backend=$(grep -v "^#" ../../../../../../config.properties | grep "wefe.job.backend=*")
+
+  # function dir
+  if [ ! ${wefe_code_path} ]; then
+    echo "wefe_code_path is null"
+    wefe_code_path=/opt/welab/wefe
+  fi
+
+  backend=$(grep -v "^#" ${wefe_code_path}/config.properties | grep "wefe.job.backend=*")
   backend=${backend##*=}
 
-  if [ "$backend" == "FC" ]; then
+  if [ "$backend" == "FC" -o "$backend" == "fc" ]; then
+    echo "use Function Computing, now deploy Functions ... "
     fc_deploy
   fi
 }
