@@ -16,10 +16,12 @@
 
 package com.welab.wefe.board.service.api.fusion.task;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.AuditStatus;
+import com.welab.wefe.common.enums.Options;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
@@ -27,6 +29,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -46,7 +49,18 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
         return success();
     }
 
+    public static void main(String[] args) {
+       List<FieldInfo> fieldInfoList = Lists.newArrayList();
+        FieldInfo fieldInfo = new FieldInfo();
+        fieldInfo.setColumns("id");
+        fieldInfo.setOptions(Options.NONE);
+        fieldInfo.setPosition(0);
 
+        fieldInfoList.add(fieldInfo);
+
+
+        System.out.println(JSON.toJSONString(fieldInfoList));
+    }
     public static class Input extends AbstractApiInput {
         @Check(name = "任务Id", require = true)
         private String id;
