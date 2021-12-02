@@ -45,10 +45,6 @@ echo 'SEND RESOURCES TO DOCKER IMAGE'
 cp -f $WORKSPACE/deploy_package_resource/html.tar $IMAGE_WORK_DIR/app/wefe_board_website
 cp -f $WORKSPACE/deploy_package_resource/board-service.jar $IMAGE_WORK_DIR/app/wefe_board_service
 cp -f $WORKSPACE/deploy_package_resource/gateway.jar $IMAGE_WORK_DIR/app/wefe_gateway_service
-
-cp -f $WORKSPACE/deploy_package_resource/board-service.jar $SERVICE_WORK_DIR/wefe_board_service/resources/mount/
-cp -f $WORKSPACE/deploy_package_resource/gateway.jar $SERVICE_WORK_DIR/wefe_gateway_service/resources/mount/
-
 cp -rf $WORKSPACE/deploy_package_resource/python_project $IMAGE_WORK_DIR/app/wefe_python_service
 cp -rf $WORKSPACE/deploy_package_resource/python_project $IMAGE_WORK_DIR/app/wefe_python_gpu_service
 echo 'SEND RESOURCES TO DOCKER IMAGE FINISHED'
@@ -56,6 +52,8 @@ echo 'SEND RESOURCES TO DOCKER IMAGE FINISHED'
 # 分发文件到相应的 docker_service 的 resources 目录下，挂载支持动态更新
 echo 'SEND RESOURCES TO MOUNT DIR'
 cp -rf $WORKSPACE/deploy_package_resource/html $SERVICE_WORK_DIR/wefe_board_website/resources/mount/
+cp -f $WORKSPACE/deploy_package_resource/board-service.jar $SERVICE_WORK_DIR/wefe_board_service/resources/mount/
+cp -f $WORKSPACE/deploy_package_resource/gateway.jar $SERVICE_WORK_DIR/wefe_gateway_service/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/python_project $SERVICE_WORK_DIR/wefe_python_service/resources/mount/
 #cp -rf $WORKSPACE/deploy_package_resource/python_project $SERVICE_WORK_DIR/wefe_python_gpu_service/resources/mount/
 echo 'SEND RESOURCES TO MOUNT DIR FINISHED'
