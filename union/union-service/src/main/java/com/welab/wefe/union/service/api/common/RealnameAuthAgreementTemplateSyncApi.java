@@ -14,97 +14,74 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.member;
+package com.welab.wefe.union.service.api.common;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
+import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
-import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload", name = "member_file_upload", rsaVerify = true, login = false)
-public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
+@Api(path = "realname/auth/agreement/template/sync", name = "realname auth agreement template sync")
+public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAuthAgreementTemplateSyncApi.Input, UploadFileApiOutput> {
     @Autowired
-    private UnionNodeMongoRepo unionNodeMongoRepo;
-
+    private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
+    @Autowired
+    private GridFSBucket gridFSBucket;
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
-    @Autowired
-    private GridFSBucket gridFSBucket;
-
-
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        LOG.info("FileUploadApi handle..");
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
-        //根据文件id查询文件
+
+        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
+        if (realnameAuthAgreementTemplate == null) {
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+        }
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)
-                        .append("metadata.memberId", input.getMemberId())
                         .build()
         );
-
-        String fileId;
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
+
             Document metadata = new Document();
             metadata.append("contentType", contentType);
             metadata.append("sign", sign);
-            metadata.append("memberId", input.getMemberId());
-
             options.metadata(metadata);
 
-            fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-            syncDataToOtherUnionNode(input);
+            String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
+
+            return success(new UploadFileApiOutput(fileId));
         } else {
-            fileId = gridFSFile.getObjectId().toString();
+            return success(new UploadFileApiOutput(gridFSFile.getObjectId().toString()));
         }
 
-        return success(new UploadFileApiOutput(fileId));
-
-    }
-
-    private void syncDataToOtherUnionNode(Input input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findAll(true);
-        for (UnionNode unionNode :
-                unionNodeList) {
-            new UploadFileSyncToUnionTask(
-                    unionNode.getUnionBaseUrl(),
-                    "realname/auth/agreement/template/sync",
-                    JObject.create("filename", input.getFilename()).append("memberId", input.getMemberId()),
-                    input.files
-            ).start();
-        }
     }
 
 
     public static class Input extends AbstractWithFilesApiInput {
-        @Check(require = true)
-        private String memberId;
         private String filename;
 
         public String getFilename() {
@@ -113,14 +90,6 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
         public void setFilename(String filename) {
             this.filename = filename;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
         }
 
     }

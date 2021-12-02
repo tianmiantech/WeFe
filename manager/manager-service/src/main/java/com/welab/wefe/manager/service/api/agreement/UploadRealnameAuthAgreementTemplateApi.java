@@ -4,8 +4,11 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -13,11 +16,12 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import com.welab.wefe.manager.service.service.RealnameAuthAgreementTemplateContractService;
+import com.welab.wefe.manager.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @Description:
@@ -33,8 +37,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
     @Autowired
     private GridFSBucket gridFSBucket;
     @Autowired
-    private GridFsTemplate gridFsTemplate;
-
+    private UnionNodeMongoRepo unionNodeMongoRepo;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
@@ -61,11 +64,24 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             realnameAuthAgreementTemplate.setEnable("0");
             contractService.add(realnameAuthAgreementTemplate);
 
-            UploadFileApiOutput uploadFileApiOutput = new UploadFileApiOutput();
-            uploadFileApiOutput.setFileId(fileId);
-            return success(uploadFileApiOutput);
+            syncFileToUnion(input);
+
+            return success(new UploadFileApiOutput(fileId));
         } else {
             throw new StatusCodeWithException("请勿重复上传相同文件", StatusCode.DUPLICATE_RESOURCE_ERROR);
+        }
+    }
+
+    private void syncFileToUnion(UploadFileInput input) {
+        List<UnionNode> unionNodeList = unionNodeMongoRepo.findAll(true);
+        for (UnionNode unionNode :
+                unionNodeList) {
+            new UploadFileSyncToUnionTask(
+                    unionNode.getUnionBaseUrl(),
+                    "realname/auth/agreement/template/sync",
+                    JObject.create("filename", input.getFilename()),
+                    input.files
+            ).start();
         }
     }
 }

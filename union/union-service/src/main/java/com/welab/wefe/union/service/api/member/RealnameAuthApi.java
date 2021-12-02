@@ -69,7 +69,7 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
             realNameAuthFileInfo.setSign(gridFSFile.getMetadata().getString("sign"));
             realnameAuthFileInfoList.add(realNameAuthFileInfo);
         }
-        extJSON.setRealNameAuthFileInfoList(realnameAuthFileInfoList);
+        extJSON.setRealnameAuthFileInfoList(realnameAuthFileInfoList);
         extJSON.setRealNameAuthStatus(1);
         memberContractService.updateExtJson(input.curMemberId, extJSON);
         return success();

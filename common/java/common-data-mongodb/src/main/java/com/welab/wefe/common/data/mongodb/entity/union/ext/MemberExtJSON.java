@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class MemberExtJSON {
     private int realNameAuthStatus;
+    private String reporter;
     private String principalName;
     private String authType;
     private String auditComment;
@@ -48,13 +49,6 @@ public class MemberExtJSON {
         this.description = description;
     }
 
-    public List<RealnameAuthFileInfo> getRealNameAuthFileInfoList() {
-        return realnameAuthFileInfoList;
-    }
-
-    public void setRealNameAuthFileInfoList(List<RealnameAuthFileInfo> realnameAuthFileInfoList) {
-        this.realnameAuthFileInfoList = realnameAuthFileInfoList;
-    }
 
     public String getAuditComment() {
         return auditComment;
@@ -62,5 +56,22 @@ public class MemberExtJSON {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+
+    public List<RealnameAuthFileInfo> getRealnameAuthFileInfoList() {
+        return realnameAuthFileInfoList;
+    }
+
+    public void setRealnameAuthFileInfoList(List<RealnameAuthFileInfo> realnameAuthFileInfoList) {
+        this.realnameAuthFileInfoList = realnameAuthFileInfoList;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.member;
+package com.welab.wefe.union.service.api.common;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -42,11 +42,8 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload", name = "member_file_upload", rsaVerify = true, login = false)
-public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
-    @Autowired
-    private UnionNodeMongoRepo unionNodeMongoRepo;
-
+@Api(path = "member/file/upload", name = "member_file_upload")
+public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi.Input, UploadFileApiOutput> {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
@@ -56,11 +53,10 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        LOG.info("FileUploadApi handle..");
+        LOG.info("MemberFileUploadSyncApi handle..");
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
-        //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)
@@ -79,26 +75,13 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             options.metadata(metadata);
 
             fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-            syncDataToOtherUnionNode(input);
+
         } else {
             fileId = gridFSFile.getObjectId().toString();
         }
 
         return success(new UploadFileApiOutput(fileId));
 
-    }
-
-    private void syncDataToOtherUnionNode(Input input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findAll(true);
-        for (UnionNode unionNode :
-                unionNodeList) {
-            new UploadFileSyncToUnionTask(
-                    unionNode.getUnionBaseUrl(),
-                    "realname/auth/agreement/template/sync",
-                    JObject.create("filename", input.getFilename()).append("memberId", input.getMemberId()),
-                    input.files
-            ).start();
-        }
     }
 
 

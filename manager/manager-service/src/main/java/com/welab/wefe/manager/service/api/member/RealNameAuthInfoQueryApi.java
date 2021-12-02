@@ -59,7 +59,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
 
             List<String> fileIdList = new ArrayList<>();
-            List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealNameAuthFileInfoList();
+            List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
             if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
                 fileIdList = realnameAuthFileInfoList
                         .stream()
