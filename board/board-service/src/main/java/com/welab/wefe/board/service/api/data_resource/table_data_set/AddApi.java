@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetAddInputModel;
-import com.welab.wefe.board.service.service.data_resource.table_data_set.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;

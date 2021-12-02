@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion;
+package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterColumnMysqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterColumnRepository;

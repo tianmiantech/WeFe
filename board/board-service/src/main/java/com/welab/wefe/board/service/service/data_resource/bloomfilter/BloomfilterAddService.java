@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
-import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.fusion.BloomfilterColumnService;
-import com.welab.wefe.board.service.service.fusion.BloomfilterService;
-import com.welab.wefe.board.service.service.fusion.BloomfilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;

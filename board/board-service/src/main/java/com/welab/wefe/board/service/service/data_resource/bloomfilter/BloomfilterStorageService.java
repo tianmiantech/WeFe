@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion;
+package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloomfilter;
 
-import com.welab.wefe.board.service.service.fusion.BloomfilterService;
+
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -29,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author jacky.jiang
  */
 @Api(path = "bloomfilter/delete", name = "delete bloomfilter")
-public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
+public class BloomfilterDeleteApi extends AbstractNoneOutputApi<BloomfilterDeleteApi.Input> {
 
     @Autowired
     private BloomfilterService bloomfilterService;
@@ -41,7 +42,7 @@ public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "过滤器 Id", require = true)
+        @Check(name = "数据集 Id", require = true)
         private String id;
 
         //region getter/setter
