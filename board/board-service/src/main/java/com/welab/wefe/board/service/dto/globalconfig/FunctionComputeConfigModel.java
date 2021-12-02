@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.board.service.dto.globalconfig;
 
 /**
- * @author zane.luo
+ * @author zane
+ * @date 2021/10/29
  */
-public class FlowConfigModel {
-    /***
-     * Flow service intranet base uri
-     */
-    public String intranetBaseUri;
+public class FunctionComputeConfigModel {
+    public int maxCostInDay = 500;
+    public int maxCostInMonth = 1000;
 }

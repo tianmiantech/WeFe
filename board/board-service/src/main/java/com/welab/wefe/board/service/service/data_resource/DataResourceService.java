@@ -61,7 +61,7 @@ public class DataResourceService extends AbstractDataResourceService {
      * Update the number of data sets used in the project
      */
     public void updateUsageCountInProject(String dataSetId) {
-        updateUsageCountInProject(dataSetId);
+        dataResourceRepository.updateUsageCountInProject(dataSetId);
 
         DataResourceMysqlModel model = (DataResourceMysqlModel) dataResourceRepository.findById(dataSetId).orElse(null);
         if (model == null) {

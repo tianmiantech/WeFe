@@ -17,10 +17,6 @@
 package com.welab.wefe.board.service.dto.globalconfig;
 
 /**
- * @author Zane
- */
-
-/**
  * @author zane.luo
  */
 public class GatewayConfigModel {

@@ -50,6 +50,7 @@ COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
 
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
 COMM_CONF_KEY_FC_REGION = "fc.region"
+COMM_CONF_KEY_FC_ACCOUNT_ID = "fc.account_id"
 COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
 COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
 COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = "fc.cloud_store.temp_auth_internal_end_point"

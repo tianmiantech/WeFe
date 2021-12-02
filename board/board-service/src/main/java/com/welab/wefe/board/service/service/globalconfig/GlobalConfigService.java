@@ -127,6 +127,11 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             setServingConfig(new ServingConfigModel());
         }
 
+        FunctionComputeConfigModel functionComputeConfig = getFunctionComputeConfig();
+        if (functionComputeConfig == null) {
+            setFunctionComputeConfig(new FunctionComputeConfigModel());
+        }
+
         LOG.info("init global config success!");
     }
 
@@ -186,6 +191,14 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
     public ServingConfigModel getServingConfig() {
         return getModel(Group.WEFE_SERVING, ServingConfigModel.class);
+    }
+
+    public FunctionComputeConfigModel getFunctionComputeConfig() {
+        return getModel(Group.FC_CONFIG, FunctionComputeConfigModel.class);
+    }
+
+    public void setFunctionComputeConfig(FunctionComputeConfigModel model) throws StatusCodeWithException {
+        put(Group.FC_CONFIG, model);
     }
 
 }
