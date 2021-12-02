@@ -35,7 +35,7 @@ public class MongodbTable {
         public static final String BLOCK_SYNC_DETAIL_INFO = "BlockSyncDetailInfo";
         public static final String BLOCK_SYNC_CONTRACT_HEIGHT = "BlockSyncContractHeight";
         public static final String UNION_NODE = "UnionNode";
-        public static final String AUTH_AGREEMENT_TEMPLATE = "AuthAgreementTemplate";
+        public static final String REALNAME_AUTH_AGREEMENT_TEMPLATE = "RealnameAuthAgreementTemplate";
     }
 
     public static final class Sms {

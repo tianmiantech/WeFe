@@ -1,18 +1,16 @@
 package com.welab.wefe.manager.service.api.agreement;
 
 import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
-import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import com.welab.wefe.manager.service.service.RealnameAuthAgreementTemplateContractService;
 import org.bson.Document;
@@ -27,7 +25,7 @@ import java.io.IOException;
  * @date: 2021/10/28
  */
 @Api(path = "realname/auth/agreement/template/upload", name = "realname_auth_agreement_template_upload")
-public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFileInput, AbstractApiOutput> {
+public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFileInput, UploadFileApiOutput> {
     @Autowired
     private RealnameAuthAgreementTemplateContractService contractService;
     @Autowired
@@ -39,13 +37,13 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
 
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
+    protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
         RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
-        if(realnameAuthAgreementTemplate == null){
+        if (realnameAuthAgreementTemplate == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
 
             Document metadata = new Document();
@@ -62,9 +60,12 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             realnameAuthAgreementTemplate.setFileName(fileName);
             realnameAuthAgreementTemplate.setEnable("0");
             contractService.add(realnameAuthAgreementTemplate);
+
+            UploadFileApiOutput uploadFileApiOutput = new UploadFileApiOutput();
+            uploadFileApiOutput.setFileId(fileId);
+            return success(uploadFileApiOutput);
         } else {
             throw new StatusCodeWithException("Do not upload the same file repeatedly", StatusCode.DUPLICATE_RESOURCE_ERROR);
         }
-        return success();
     }
 }

@@ -32,6 +32,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.union.service.dto.member.RealNameAuthFileUploadOutput;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ import java.util.List;
  * @author yuxin.zhang
  **/
 @Api(path = "member/file/upload", name = "member_file_upload", rsaVerify = true, login = false)
-public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuthFileUploadOutput> {
+public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
 
@@ -55,7 +56,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
     private GridFSBucket gridFSBucket;
 
     @Override
-    protected ApiResult<RealNameAuthFileUploadOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
@@ -67,7 +68,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
                         .append("metadata.memberId", input.getMemberId())
                         .build()
         );
-        RealNameAuthFileUploadOutput realNameAuthFileUploadOutput = new RealNameAuthFileUploadOutput();
+        UploadFileApiOutput uploadFileApiOutput = new UploadFileApiOutput();
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
             Document metadata = new Document();
@@ -78,13 +79,13 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, RealNameAuth
             options.metadata(metadata);
 
             String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-            realNameAuthFileUploadOutput.setFileId(fileId);
+            uploadFileApiOutput.setFileId(fileId);
 
         } else {
-            realNameAuthFileUploadOutput.setFileId(gridFSFile.getObjectId().toString());
+            uploadFileApiOutput.setFileId(gridFSFile.getObjectId().toString());
         }
 
-        return success(realNameAuthFileUploadOutput);
+        return success(uploadFileApiOutput);
 
     }
 

@@ -18,17 +18,13 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
-import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthAgreementTemplateExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.UUID;
 
 /**
  * @author yuxin.zhang
  **/
-@Document(collection = MongodbTable.Union.AUTH_AGREEMENT_TEMPLATE)
+@Document(collection = MongodbTable.Union.REALNAME_AUTH_AGREEMENT_TEMPLATE)
 public class RealnameAuthAgreementTemplate extends AbstractBlockChainBusinessModel {
     private String templateFileId;
     private String templateFileSign;
