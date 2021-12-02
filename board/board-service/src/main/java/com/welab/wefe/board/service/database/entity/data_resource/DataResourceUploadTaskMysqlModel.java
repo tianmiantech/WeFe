@@ -21,12 +21,14 @@ import com.welab.wefe.common.enums.DataResourceUploadStatus;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 @Entity(name = "data_resource_upload_task")
+@Table(name = "data_resource_upload_task")
 public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 数据资源id

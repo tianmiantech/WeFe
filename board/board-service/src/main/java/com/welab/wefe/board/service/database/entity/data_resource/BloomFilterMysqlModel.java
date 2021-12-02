@@ -21,12 +21,14 @@ import com.welab.wefe.common.enums.DataResourceType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 @Entity(name = "bloom_filter")
+@Table(name = "bloom_filter")
 public class BloomFilterMysqlModel extends DataResourceMysqlModel {
     /**
      * 密钥e

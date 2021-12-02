@@ -32,6 +32,7 @@ import javax.persistence.*;
  * @date 2021/12/1
  */
 @Entity(name = "data_resource")
+@Table(name = "data_resource")
 @Inheritance(strategy = InheritanceType.JOINED)
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 public class DataResourceMysqlModel extends AbstractBaseMySqlModel {

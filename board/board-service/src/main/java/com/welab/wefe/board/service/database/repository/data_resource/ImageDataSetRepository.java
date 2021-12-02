@@ -22,6 +22,6 @@ import org.springframework.stereotype.Repository;
  * @author zane
  * @date 2021/12/1
  */
-@Repository
+@Repository("imageDataSetRepository")
 public interface ImageDataSetRepository extends DataResourceRepository<ImageDataSetMysqlModel> {
 }

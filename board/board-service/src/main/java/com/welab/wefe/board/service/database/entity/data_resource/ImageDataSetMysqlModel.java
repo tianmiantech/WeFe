@@ -21,12 +21,14 @@ import com.welab.wefe.common.enums.DeepLearningJobType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 @Entity(name = "image_data_set")
+@Table(name = "image_data_set")
 public class ImageDataSetMysqlModel extends DataResourceMysqlModel {
     /**
      * 任务类型;物体检测...）

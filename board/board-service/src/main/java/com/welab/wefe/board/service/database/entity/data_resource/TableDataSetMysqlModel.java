@@ -17,13 +17,16 @@ package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.welab.wefe.common.enums.DataResourceType;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 @Entity(name = "table_data_set")
+@Table(name = "table_data_set")
 public class TableDataSetMysqlModel extends DataResourceMysqlModel {
     /**
      * 数据集字段列表
@@ -48,6 +51,7 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
     /**
      * 是否包含;Y 值
      */
+    @Column(name = "contains_y")
     private boolean containsY;
     /**
      * y列名称列表

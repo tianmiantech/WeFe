@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.database.repository.data_resource;
 
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,11 +29,12 @@ import java.util.List;
 /**
  * @author Zane
  */
-@Repository
+@Primary
+@Repository("dataResourceRepository")
 public interface DataResourceRepository<T extends DataResourceMysqlModel> extends BaseRepository<T, String> {
 
-    @Query(value = "select tags,count(tags) as count from #{#entityName} where tags<>'' group by tags;", nativeQuery = true)
-    List<Object[]> listAllTags();
+    @Query(value = "select tags,count(tags) as count from #{#entityName} where resource_type=?1 and tags<>'' group by tags;", nativeQuery = true)
+    List<Object[]> listAllTags(String resourceType);
 
     @Query(value = "select count(*) from #{#entityName} where name=?1", nativeQuery = true)
     int countByName(String name);

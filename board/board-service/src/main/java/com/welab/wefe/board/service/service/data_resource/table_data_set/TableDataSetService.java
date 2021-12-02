@@ -105,7 +105,7 @@ public class TableDataSetService extends DataResourceService {
                 .containsItem("tags", input.getTag())
                 .equal("containsY", input.getContainsY())
                 .equal("createdBy", input.getCreator())
-                .equal("sourceType", null, false)
+                .equal("derivedResource", false)
                 .build(TableDataSetMysqlModel.class);
 
         return tableDataSetRepository.paging(where, input, TableDataSetOutputModel.class);
