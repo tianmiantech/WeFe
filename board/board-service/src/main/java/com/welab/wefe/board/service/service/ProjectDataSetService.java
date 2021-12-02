@@ -94,7 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
-                .equal("dataSetType", input.getDataSetType())
+                .equal("dataResourceType", input.getDataSetType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -192,7 +192,7 @@ public class ProjectDataSetService extends AbstractService {
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataResourceType)
+                .equal("dataResourceType", dataResourceType)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -258,7 +258,7 @@ public class ProjectDataSetService extends AbstractService {
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataResourceType)
+                .equal("dataResourceType", dataResourceType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 

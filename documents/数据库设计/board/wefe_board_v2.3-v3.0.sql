@@ -126,6 +126,98 @@ CREATE TABLE `bloom_filter`
 
 
 -- -------------------------------------
+-- 将 data_set 数据迁移到新表
+-- author: zane.luo
+-- -------------------------------------
+INSERT INTO data_resource
+(`id`,
+ `created_by`,
+ `created_time`,
+ `updated_by`,
+ `updated_time`,
+ `name`,
+ `resource_type`,
+ `description`,
+ `tags`,
+ `storage_type`,
+ `storage_namespace`,
+ `storage_resource_name`,
+ `total_data_count`,
+ `public_level`,
+ `public_member_list`,
+ `usage_count_in_job`,
+ `usage_count_in_flow`,
+ `usage_count_in_project`,
+ `usage_count_in_member`,
+ `derived_resource`,
+ `derived_from`,
+ `derived_from_flow_id`,
+ `derived_from_job_id`,
+ `derived_from_task_id`,
+ `statistical_information`)
+SELECT `id`,
+       `created_by`,
+       `created_time`,
+       `updated_by`,
+       `updated_time`,
+       `name`,
+       'TableDataSet',
+       `description`,
+       `tags`,
+       `storage_type`,
+       `namespace`,
+       `table_name`,
+       `row_count`,
+       `public_level`,
+       `public_member_list`,
+       `usage_count_in_job`,
+       `usage_count_in_flow`,
+       `usage_count_in_project`,
+       0,
+       `source_type` is null,
+       `source_type`,
+       `source_flow_id`,
+       `source_job_id`,
+       `source_task_id`,
+       null
+FROM data_set;
+
+INSERT INTO table_data_set
+(`id`,
+ `created_by`,
+ `created_time`,
+ `updated_by`,
+ `updated_time`,
+ `column_name_list`,
+ `column_count`,
+ `primary_key_column`,
+ `feature_name_list`,
+ `feature_count`,
+ `contains_y`,
+ `y_name_list`,
+ `y_count`,
+ `positive_sample_value`,
+ `y_positive_sample_count`,
+ `y_positive_sample_ratio`)
+SELECT `id`,
+       `created_by`,
+       `created_time`,
+       `updated_by`,
+       `updated_time`,
+       `column_name_list`,
+       `column_count`,
+       `primary_key_column`,
+       `feature_name_list`,
+       `feature_count`,
+       `contains_y`,
+       `y_name_list`,
+       `y_count`,
+       '1',
+       `y_positive_example_count`,
+       `y_positive_example_ratio`
+FROM data_set;
+
+-- -------------------------------------
 -- project 表增加字段
 -- author: zane.luo
 -- -------------------------------------

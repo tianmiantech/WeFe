@@ -16,12 +16,14 @@
 package com.welab.wefe.board.service.database.repository.data_resource;
 
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
+@Primary
 @Repository("imageDataSetRepository")
 public interface ImageDataSetRepository extends DataResourceRepository<ImageDataSetMysqlModel> {
 }
