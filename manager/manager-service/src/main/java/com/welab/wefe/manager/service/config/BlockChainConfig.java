@@ -368,4 +368,13 @@ public class BlockChainConfig {
     public void setUnionNodeContractName(String unionNodeContractName) {
         this.unionNodeContractName = unionNodeContractName;
     }
+
+
+    public String getRealnameAuthAgreementTemplateContractName() {
+        return realnameAuthAgreementTemplateContractName;
+    }
+
+    public void setRealnameAuthAgreementTemplateContractName(String realnameAuthAgreementTemplateContractName) {
+        this.realnameAuthAgreementTemplateContractName = realnameAuthAgreementTemplateContractName;
+    }
 }
