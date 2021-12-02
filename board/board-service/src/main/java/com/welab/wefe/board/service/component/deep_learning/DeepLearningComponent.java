@@ -100,7 +100,7 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
     }
 
     private String buildDataSetDownloadUrl(String id) {
-        return Launcher.CONTEXT.getBean(GlobalConfigService.class)
+        return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
                 + "/image_data_set/download?id=" + id;

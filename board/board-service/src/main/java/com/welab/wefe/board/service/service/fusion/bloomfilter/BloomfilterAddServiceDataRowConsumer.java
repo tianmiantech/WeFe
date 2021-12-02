@@ -126,10 +126,10 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
             uniqueFilter = createUniqueFilter(bloomfilterReader.getTotalDataRowCount());
         }
 
-        this.bloomfilterStorageService = Launcher.CONTEXT.getBean(BloomfilterStorageService.class);
-        this.bloomfilterTaskService = Launcher.CONTEXT.getBean(BloomfilterTaskService.class);
-        this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
-        FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
+        this.bloomfilterStorageService = Launcher.getBean(BloomfilterStorageService.class);
+        this.bloomfilterTaskService = Launcher.getBean(BloomfilterTaskService.class);
+        this.bloomFilterRepository = Launcher.getBean(BloomFilterRepository.class);
+        FieldInfoService service = Launcher.getBean(FieldInfoService.class);
         this.fieldInfoList = service.fieldInfoList(bloomfilterId);
         this.bloomfilterPath = bloomfilterPath;
 

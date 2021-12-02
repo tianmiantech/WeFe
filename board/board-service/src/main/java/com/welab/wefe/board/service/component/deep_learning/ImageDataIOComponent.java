@@ -141,7 +141,7 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
         public void fillDataSetDetail() throws StatusCodeWithException {
 
-            ImageDataSetService imageDataSetService = Launcher.CONTEXT.getBean(ImageDataSetService.class);
+            ImageDataSetService imageDataSetService = Launcher.getBean(ImageDataSetService.class);
 
             for (ImageDataIOComponent.DataSetItem dataSetItem : dataSetList) {
                 dataSetItem.dataSet = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);

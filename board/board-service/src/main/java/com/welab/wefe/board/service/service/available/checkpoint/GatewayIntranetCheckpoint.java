@@ -36,7 +36,7 @@ public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck() throws Exception {
-        GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
         // Since the gateway does not currently have an alive interface,
         // temporarily adjust a method to test the connectivity between the board and the gateway.

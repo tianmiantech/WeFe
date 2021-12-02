@@ -112,8 +112,8 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<
         this.containsY = headers.contains("y");
         this.yIndex = headers.indexOf("y");
 
-        this.dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
-        this.dataResourceUploadTaskService = Launcher.CONTEXT.getBean(DataResourceUploadTaskService.class);
+        this.dataSetStorageService = Launcher.getBean(DataSetStorageService.class);
+        this.dataResourceUploadTaskService = Launcher.getBean(DataResourceUploadTaskService.class);
 
         batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
 

@@ -103,7 +103,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
             // Project name cannot be repeated
             if (!super.fromGateway()) {
-                List<ProjectMySqlModel> allByName = Launcher.CONTEXT.getBean(ProjectRepository.class).findAllByName(name);
+                List<ProjectMySqlModel> allByName = Launcher.getBean(ProjectRepository.class).findAllByName(name);
                 if (!allByName.isEmpty()) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException(
                             "这个项目名称已经被用过了哟~ 再想一个吧~"

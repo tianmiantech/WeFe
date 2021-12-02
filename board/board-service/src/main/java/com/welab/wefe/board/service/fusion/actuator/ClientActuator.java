@@ -60,7 +60,7 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public void init() throws StatusCodeWithException {
-        FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
+        FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
 
@@ -164,7 +164,7 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("downloadBloomFilter start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JObject result = null;
         try {
             result = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JObject.class);
@@ -185,7 +185,7 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("qureyFusionData start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JObject result = null;
         try {
             result = gatewayService.callOtherMemberBoard(memberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs), JObject.class);

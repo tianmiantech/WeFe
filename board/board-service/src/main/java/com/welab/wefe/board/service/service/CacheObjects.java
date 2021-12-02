@@ -96,7 +96,7 @@ public class CacheObjects {
     }
 
     public synchronized static void refreshMemberBlacklist() {
-        BlacklistRepository repository = Launcher.CONTEXT.getBean(BlacklistRepository.class);
+        BlacklistRepository repository = Launcher.getBean(BlacklistRepository.class);
         MEMBER_BLACKLIST.clear();
         repository.findAll().forEach(x -> MEMBER_BLACKLIST.add(x.getBlacklistMemberId()));
     }
@@ -185,7 +185,11 @@ public class CacheObjects {
      * Check if an id is member_id
      */
     public static boolean isMemberId(String memberId) {
-        return getMemberName(memberId) != null;
+        try {
+            return getMemberMap().get(memberId) != null;
+        } catch (StatusCodeWithException e) {
+            return false;
+        }
     }
 
     public static synchronized String getMemberName(String memberId) {
@@ -211,7 +215,7 @@ public class CacheObjects {
      * Reload member information
      */
     public static synchronized void refreshMemberInfo() {
-        GlobalConfigService service = Launcher.CONTEXT.getBean(GlobalConfigService.class);
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         MemberInfoModel model = service.getMemberInfo();
 
         if (model == null) {
@@ -245,14 +249,14 @@ public class CacheObjects {
 
     public static synchronized void refreshTableDataSetTags() {
         // Query all tags from the database
-        DataResourceRepository repo = Launcher.CONTEXT.getBean(DataResourceRepository.class);
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
         List<Object[]> rows = repo.listAllTags(DataResourceType.TableDataSet.name());
         refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
 
     public static synchronized void refreshImageDataSetTags() {
         // Query all tags from the database
-        DataResourceRepository repo = Launcher.CONTEXT.getBean(DataResourceRepository.class);
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
         List<Object[]> rows = repo.listAllTags(DataResourceType.ImageDataSet.name());
         refreshDataSetTags(rows, IMAGE_DATA_SET_TAGS);
     }
@@ -261,7 +265,7 @@ public class CacheObjects {
      * Reload account list
      */
     public static synchronized void refreshAccountMap() {
-        AccountRepository repo = Launcher.CONTEXT.getBean(AccountRepository.class);
+        AccountRepository repo = Launcher.getBean(AccountRepository.class);
         List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
         ACCOUNT_MAP.clear();
@@ -283,7 +287,7 @@ public class CacheObjects {
         }
         LAST_REFRESH_MEMBER_MAP_TIME = System.currentTimeMillis();
 
-        AbstractUnionService service = Launcher.CONTEXT.getBean(AbstractUnionService.class);
+        AbstractUnionService service = Launcher.getBean(AbstractUnionService.class);
         MEMBER_MAP.clear();
         MemberListApi.Input input = new MemberListApi.Input();
         while (true) {
