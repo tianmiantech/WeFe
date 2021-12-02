@@ -51,6 +51,7 @@ public class RealnameAuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
                 RealnameAuthAgreementTemplate.class);
     }
 
+
     public RealnameAuthAgreementTemplate findByEnable(boolean enable) {
         return mongoUnionTemplate.findOne(
                 new QueryBuilder().append("enable", String.valueOf(enable ? 1 : 0)).notRemoved().build(),

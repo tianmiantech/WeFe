@@ -20,5 +20,22 @@ package com.welab.wefe.union.service.dto.common;
  * @author yuxin.zhang
  */
 public class RealnameAuthAgreementTemplateOutput {
+    private String templateFileId;
+    private String fileName;
 
+    public String getTemplateFileId() {
+        return templateFileId;
+    }
+
+    public void setTemplateFileId(String templateFileId) {
+        this.templateFileId = templateFileId;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 }
