@@ -19,15 +19,15 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -245,16 +245,16 @@ public class CacheObjects {
 
     public static synchronized void refreshTableDataSetTags() {
         // Query all tags from the database
-        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
+        DataResourceRepository repo = Launcher.CONTEXT.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.TableDataSet.name());
         refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
 
     public static synchronized void refreshImageDataSetTags() {
         // Query all tags from the database
-        ImageDataSetRepository repo = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
-        refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
+        DataResourceRepository repo = Launcher.CONTEXT.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.ImageDataSet.name());
+        refreshDataSetTags(rows, IMAGE_DATA_SET_TAGS);
     }
 
     /**
@@ -262,11 +262,11 @@ public class CacheObjects {
      */
     public static synchronized void refreshAccountMap() {
         AccountRepository repo = Launcher.CONTEXT.getBean(AccountRepository.class);
-        List<AccountMySqlModel> list = repo.findAll(Sort.by("nickname"));
+        List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
         ACCOUNT_MAP.clear();
         ACCOUNT_ID_LIST.clear();
-        for (AccountMySqlModel item : list) {
+        for (AccountMysqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
             ACCOUNT_ID_LIST.add(item.getId());
         }

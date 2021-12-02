@@ -20,7 +20,6 @@ import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.service.ProjectFlowNodeService;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -40,9 +39,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ProjectFlowNodeOutpu
 
     @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
-    @Autowired
-    private ImageDataSetService imageDataSetService;
-
 
     @Override
     protected ApiResult<ProjectFlowNodeOutputModel> handle(Input input) throws StatusCodeWithException {

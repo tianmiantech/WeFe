@@ -16,14 +16,12 @@
 
 package com.welab.wefe.board.service.service.fusion.bloomfilter;
 
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
-import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
-import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.fusion.BloomfilterColumnService;
@@ -66,13 +64,9 @@ public class BloomfilterAddService extends AbstractService {
     @Autowired
     protected BloomfilterColumnService bloomfilterColumnService;
     @Autowired
-    protected UnionService unionService;
-    @Autowired
     protected BloomfilterTaskService bloomfilterTaskService;
     @Autowired
     protected FieldInfoService fieldInfoService;
-    @Autowired
-    private Config config;
 
 
     /**
@@ -84,7 +78,7 @@ public class BloomfilterAddService extends AbstractService {
     @Async
     public void add(BloomfilterAddInputModel input, BloomFilterTaskMysqlModel bloomfilterTask, CurrentAccount.Info userInfo) {
 
-        BloomFilterMySqlModel model = new ModelMapper().map(input, BloomFilterMySqlModel.class);
+        BloomFilterMysqlModel model = new ModelMapper().map(input, BloomFilterMysqlModel.class);
         model.setId(bloomfilterTask.getBloomfilterId());
         model.setCreatedBy("test");
         model.setTags(bloomfilterService.standardizeTags(input.getTags()));
@@ -95,11 +89,10 @@ public class BloomfilterAddService extends AbstractService {
         model.setUpdatedBy(CurrentAccount.id());
         model.setCreatedBy(CurrentAccount.id());
         model.setDescription(input.getDescription());
-        model.setBloomfilterAddMethod(input.getBloomfilterAddMethod());
-        model.setColumnNameList(StringUtil.join(input.getRows(), ','));
+        model.setAddMethod(input.getBloomfilterAddMethod());
+        model.setHashFunction(StringUtil.join(input.getRows(), ','));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
-        model.setUsageCount(0);
         model.setUpdatedTime(new Date());
         repo.save(model);
 
@@ -184,7 +177,7 @@ public class BloomfilterAddService extends AbstractService {
      * create SqlDataSetReader
      */
     private SqlBloomfilterReader createSqlBloomfilterReader(BloomfilterAddInputModel input) throws StatusCodeWithException {
-        DataSourceMySqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
+        DataSourceMysqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
@@ -205,7 +198,7 @@ public class BloomfilterAddService extends AbstractService {
      *
      * @param deduplication Do you need to de-duplicate the bloomfilter
      */
-    private void readAllToFilterFile(BloomFilterMySqlModel model, AbstractBloomfilterReader bloomfilterReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToFilterFile(BloomFilterMysqlModel model, AbstractBloomfilterReader bloomfilterReader, boolean deduplication) throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         LOG.info("开始解析过滤器：" + model.getId());
 

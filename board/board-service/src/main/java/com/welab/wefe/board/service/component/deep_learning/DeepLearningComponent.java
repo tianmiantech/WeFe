@@ -22,15 +22,15 @@ import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
-import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -88,7 +88,7 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         job.memberId = CacheObjects.getMemberId();
         job.env = new Env(imageDataIoParam);
 
-        AbstractDataSetOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
+        DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
         dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
 

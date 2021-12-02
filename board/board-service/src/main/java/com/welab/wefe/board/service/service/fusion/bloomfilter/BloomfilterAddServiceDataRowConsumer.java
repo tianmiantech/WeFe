@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.service.fusion.bloomfilter;
 
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
-import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.service.fusion.BloomfilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.AbstractBloomfilterReader;
@@ -39,8 +39,8 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
@@ -55,6 +55,7 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
     private final Logger LOG = LoggerFactory.getLogger(BloomfilterAddServiceDataRowConsumer.class);
 
     //region construction parameters
+    @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
     /**
@@ -132,13 +133,13 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.fieldInfoList = service.fieldInfoList(bloomfilterId);
         this.bloomfilterPath = bloomfilterPath;
 
-        this.bloomFilterRepository.updateById(bloomfilterId, "process", BloomfilterProgressType.Running, BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "d", this.d, BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "n", this.N.toString(), BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "e", this.e.toString(), BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "bloomfilterPath", this.bloomfilterPath, BloomFilterMySqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", totalDataRowCount, BloomFilterMySqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "process", BloomfilterProgressType.Running, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "d", this.d, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "n", this.N.toString(), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "e", this.e.toString(), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "bloomfilterPath", this.bloomfilterPath, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", totalDataRowCount, BloomFilterMysqlModel.class);
 
         batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
             try {
@@ -170,16 +171,17 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
 
         }
 
-        BloomFilterMySqlModel bloomfilterMySqlModel = bloomFilterRepository.findOne("id", bloomfilterId, BloomFilterMySqlModel.class);
-        int count = bloomfilterMySqlModel.getProcessCount();
-        if (processCount > count) {
-            bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMySqlModel.class);
-            bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", this.totalDataRowCount, BloomFilterMySqlModel.class);
-
-            FileOutputStream outputStream = new FileOutputStream(this.bloomfilterPath);
-            this.bf.writeTo(outputStream);
-            outputStream.close();
-        }
+        BloomFilterMysqlModel bloomfilterMySqlModel = bloomFilterRepository.findOne("id", bloomfilterId, BloomFilterMysqlModel.class);
+        // TODO: Jacky 基于 DataResourceUploadTask 重构
+//        int count = bloomfilterMySqlModel.getProcessCount();
+//        if (processCount > count) {
+//            bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMysqlModel.class);
+//            bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", this.totalDataRowCount, BloomFilterMysqlModel.class);
+//
+//            FileOutputStream outputStream = new FileOutputStream(this.bloomfilterPath);
+//            this.bf.writeTo(outputStream);
+//            outputStream.close();
+//        }
     }
 
 

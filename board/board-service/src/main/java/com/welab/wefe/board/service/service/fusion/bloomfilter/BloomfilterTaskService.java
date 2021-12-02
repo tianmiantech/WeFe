@@ -16,24 +16,19 @@
 
 package com.welab.wefe.board.service.service.fusion.bloomfilter;
 
-import com.welab.wefe.board.service.api.dataset_task.QueryApi;
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterMySqlModel;
+
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
-import com.welab.wefe.board.service.database.repository.fusion.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterTaskRepository;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.fusion.BloomFilterTaskOutputModel;
 import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -51,8 +46,6 @@ import java.util.function.Consumer;
 public class BloomfilterTaskService extends AbstractService {
 
     private static final Object LOCKER = new Object();
-    @Autowired
-    private Config config;
     @Autowired
     private BloomfilterAddService bloomfilterAddService;
     @Autowired
@@ -77,7 +70,7 @@ public class BloomfilterTaskService extends AbstractService {
         BloomFilterTaskMysqlModel bloomfilterTask = new BloomFilterTaskMysqlModel();
         bloomfilterTask.setBloomfilterName(input.getName());
         bloomfilterTask.setProgress(0);
-        bloomfilterTask.setBloomfilterId(new BloomFilterMySqlModel().getId());
+        bloomfilterTask.setBloomfilterId(new BloomFilterMysqlModel().getId());
         bloomfilterTaskRepository.save(bloomfilterTask);
         bloomfilterAddService.add(input, bloomfilterTask, CurrentAccount.get());
 
@@ -172,16 +165,16 @@ public class BloomfilterTaskService extends AbstractService {
         bloomfilterTaskRepository.save(bloomfilterTask);
     }
 
-    public PagingOutput<BloomFilterTaskOutputModel> query(QueryApi.Input input) {
-        Specification<BloomFilterTaskMysqlModel> where = Where
-                .create()
-                .greaterThan("progress", 0)
-                .lessThan("progress", 100)
-                .greaterThan("updatedTime", DateUtil.getDate(System.currentTimeMillis() - TimeSpan.fromMinute(10).toMs()))
-                .build(BloomFilterTaskMysqlModel.class);
-
-        return bloomfilterTaskRepository.paging(where, input, BloomFilterTaskOutputModel.class);
-    }
+//    public PagingOutput<BloomFilterTaskOutputModel> query(QueryApi.Input input) {
+//        Specification<BloomFilterTaskMysqlModel> where = Where
+//                .create()
+//                .greaterThan("progress", 0)
+//                .lessThan("progress", 100)
+//                .greaterThan("updatedTime", DateUtil.getDate(System.currentTimeMillis() - TimeSpan.fromMinute(10).toMs()))
+//                .build(BloomFilterTaskMysqlModel.class);
+//
+//        return bloomfilterTaskRepository.paging(where, input, BloomFilterTaskOutputModel.class);
+//    }
 
     /**
      * An exception occurred while saving the bloomfilter

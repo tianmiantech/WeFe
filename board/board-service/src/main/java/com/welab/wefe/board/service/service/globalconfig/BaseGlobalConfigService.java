@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.welab.wefe.board.service.database.entity.GlobalConfigMySqlModel;
+import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigInput;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -85,9 +85,9 @@ public class BaseGlobalConfigService extends AbstractService {
      * Add or update a record
      */
     protected synchronized void put(String group, String name, String value, String comment) throws StatusCodeWithException {
-        GlobalConfigMySqlModel one = findOne(group, name);
+        GlobalConfigMysqlModel one = findOne(group, name);
         if (one == null) {
-            one = new GlobalConfigMySqlModel();
+            one = new GlobalConfigMysqlModel();
             one.setGroup(group);
             one.setName(name);
             one.setCreatedBy(CurrentAccount.id());
@@ -115,12 +115,12 @@ public class BaseGlobalConfigService extends AbstractService {
         globalConfigRepository.save(one);
     }
 
-    public GlobalConfigMySqlModel findOne(String group, String name) {
-        Specification<GlobalConfigMySqlModel> where = Where
+    public GlobalConfigMysqlModel findOne(String group, String name) {
+        Specification<GlobalConfigMysqlModel> where = Where
                 .create()
                 .equal("group", group)
                 .equal("name", name)
-                .build(GlobalConfigMySqlModel.class);
+                .build(GlobalConfigMysqlModel.class);
 
         return globalConfigRepository.findOne(where).orElse(null);
     }
@@ -128,7 +128,7 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Query list according to group
      */
-    public List<GlobalConfigMySqlModel> list(String group) {
+    public List<GlobalConfigMysqlModel> list(String group) {
         return globalConfigRepository.findByGroup(group);
     }
 
@@ -136,20 +136,20 @@ public class BaseGlobalConfigService extends AbstractService {
      * Get the entity corresponding to the specified group
      */
     protected <T> T getModel(String group, Class<T> clazz) {
-        List<GlobalConfigMySqlModel> list = list(group);
+        List<GlobalConfigMysqlModel> list = list(group);
         return toModel(list, clazz);
     }
 
     /**
      * Turn the list of configuration items into entities
      */
-    private <T> T toModel(List<GlobalConfigMySqlModel> list, Class<T> clazz) {
+    private <T> T toModel(List<GlobalConfigMysqlModel> list, Class<T> clazz) {
         if (list == null || list.isEmpty()) {
             return null;
         }
 
         JSONObject json = new JSONObject();
-        for (GlobalConfigMySqlModel item : list) {
+        for (GlobalConfigMysqlModel item : list) {
             json.put(item.getName(), item.getValue());
         }
         return json.toJavaObject(clazz);

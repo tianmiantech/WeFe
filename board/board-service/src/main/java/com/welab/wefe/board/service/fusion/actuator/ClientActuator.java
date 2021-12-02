@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.GatewayService;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
@@ -93,7 +92,6 @@ public class ClientActuator extends PsiClientActuator {
 
         long start = System.currentTimeMillis();
 
-        DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
         List<JObject> curList = Lists.newArrayList();
 //        try {
 //            curList = service.paging(columnList, dataSetId, current_index, shard_size);
@@ -150,7 +148,6 @@ public class ClientActuator extends PsiClientActuator {
     @Override
     public Boolean hasNext() {
 
-        DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
         List<JObject> curList = Lists.newArrayList();
 //        try {
 //      //      curList = service.paging(columnList, dataSetId, current_index, shard_size);

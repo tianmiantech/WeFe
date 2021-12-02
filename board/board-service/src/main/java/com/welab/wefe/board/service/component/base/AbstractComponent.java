@@ -23,7 +23,7 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -677,13 +677,13 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
             if (x.getComponentType() == ComponentType.DataIO) {
                 DataIOComponent.Params dataIOParams = (DataIOComponent.Params) x.getParamsModel();
-                DataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
+                TableDataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
 
                 // If it is not a derived data set, it must have been misaligned.
-                if (myDataSet != null && myDataSet.getSourceType() != null) {
+                if (myDataSet != null && myDataSet.isDerivedResource()) {
 
                     // If the derived data set comes from alignment
-                    if (myDataSet.getSourceType() == ComponentType.Intersection) {
+                    if (myDataSet.getDerivedFrom() == ComponentType.Intersection) {
                         return true;
                     }
 

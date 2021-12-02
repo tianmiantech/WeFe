@@ -42,9 +42,9 @@ public interface ImageDataSetSampleRepository extends BaseRepository<ImageDataSe
 
 
     @Query(value = "select count(*) from #{#entityName} where data_set_id=?1 and labeled=true", nativeQuery = true)
-    int getLabelCount(String dataSetId);
+    long getLabeledCount(String dataSetId);
 
     @Query(value = "select count(*) from #{#entityName} where data_set_id=?1", nativeQuery = true)
-    int getSampleCount(String dataSetId);
+    long getSampleCount(String dataSetId);
 
 }
