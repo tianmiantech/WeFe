@@ -78,14 +78,14 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * Update upload progress
      */
-    public void updateProgress(DataResourceMysqlModel model, long completedDataCount, long invalidDataCount) {
+    public void updateProgress(String dataResourceId, long totalDataRowCount, long completedDataCount, long invalidDataCount) {
         // Since storing data sets into storage is a concurrent operation, onerror, updateprogress, complete and other operations may occur simultaneously to update the same task.
         // In order to avoid disordered update sequence, lock operation is required here.
         synchronized (LOCKER) {
-            DataResourceUploadTaskMysqlModel task = findByDataResourceId(model.getId());
+            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
 
             // Calculate progress
-            int progress = Convert.toInt(completedDataCount * 100L / model.getTotalDataCount());
+            int progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
 
             // When the early reading speed is slow, force progress++
             if (task.getProgressRatio() < 5
@@ -113,6 +113,7 @@ public class DataResourceUploadTaskService extends AbstractService {
                 estimateTime = spend / progress * (100 - progress);
             }
 
+            task.setTotalDataCount(totalDataRowCount);
             task.setInvalidDataCount(invalidDataCount);
             task.setCompletedDataCount(completedDataCount);
             task.setEstimateRemainingTime(estimateTime);
@@ -121,7 +122,7 @@ public class DataResourceUploadTaskService extends AbstractService {
 
             dataResourceUploadTaskRepository.save(task);
 
-            LOG.info("资源上传任务进度：" + task.getProgressRatio() + " , " + completedDataCount + "/" + model.getTotalDataCount());
+            LOG.info("资源上传任务进度：" + task.getProgressRatio() + " , " + completedDataCount + "/" + totalDataRowCount);
         }
     }
 

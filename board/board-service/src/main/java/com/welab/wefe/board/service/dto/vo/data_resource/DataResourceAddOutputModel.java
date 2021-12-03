@@ -15,17 +15,21 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
+import com.welab.wefe.board.service.service.AbstractService;
+
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/12/3
  */
-public class ImageDataSetAddOutputModel {
-    public String dataSetId;
+public class DataResourceAddOutputModel extends AbstractService {
+    public String dataResourceId;
+    public String uploadTaskId;
 
-    public ImageDataSetAddOutputModel() {
+    public DataResourceAddOutputModel() {
     }
 
-    public ImageDataSetAddOutputModel(String dataSetId) {
-        this.dataSetId = dataSetId;
+    public DataResourceAddOutputModel(String dataResourceId, String uploadTaskId) {
+        this.dataResourceId = dataResourceId;
+        this.uploadTaskId = uploadTaskId;
     }
 }
