@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.add;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
-import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.AbstractBloomfilterReader;
 import com.welab.wefe.board.service.util.CryptoUtils;

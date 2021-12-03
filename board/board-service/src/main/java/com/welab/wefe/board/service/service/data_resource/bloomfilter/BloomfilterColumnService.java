@@ -57,7 +57,7 @@ public class BloomfilterColumnService extends AbstractService {
         );
     }
 
-    public void update(String dataSetId, List<BloomFilterColumnInputModel> list, CurrentAccount.Info userInfo) {
+    public void update(String dataSetId, List<BloomFilterColumnInputModel> list) {
         // clear data set columns
         bloomfilterColumnRepository.deleteByBloomfilterId(dataSetId);
 

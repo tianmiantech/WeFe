@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputMode
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
+import com.welab.wefe.board.service.service.data_resource.add.BloomfilterAddService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
