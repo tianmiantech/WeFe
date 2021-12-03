@@ -36,6 +36,7 @@ import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import java.util.TreeSet;
  * @author zane
  * @date 2021/12/2
  */
+@Service
 public class ImageDataSetAddService extends AbstractDataResourceAddService {
 
     @Autowired
@@ -69,7 +71,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
             fileDecompressionResult = SuperDecompressor.decompression(dataSetFile, true);
-            dataResourceUploadTaskService.updateProgress(model, 1, 0);
+            dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
             AbstractImageDataSetParser dataSetParser = null;
             switch (input.forJobType) {
                 case classify:
@@ -83,7 +85,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
             }
             sampleList = dataSetParser.parseFilesToSamples(model, fileDecompressionResult.files);
             setImageDataSetModel(input, model, sampleList);
-            dataResourceUploadTaskService.updateProgress(model, 2, 0);
+            dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
         } catch (Exception e) {
             super.log(e);
             StatusCode.FILE_IO_ERROR.throwException(e);
@@ -97,7 +99,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
             imageDataSetSampleRepository.save(sample);
 
             if (i % 50 == 0) {
-                dataResourceUploadTaskService.updateProgress(model, i + 1, 0);
+                dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), i + 1, 0);
             }
         }
 

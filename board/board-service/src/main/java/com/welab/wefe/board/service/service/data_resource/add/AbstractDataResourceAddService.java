@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUp
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
@@ -61,7 +62,12 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
     // endregion
 
 
-    public void add(AbstractDataResourceUpdateInputModel input) throws StatusCodeWithException {
+    /**
+     * 添加资源的公共方法
+     *
+     * @return 资源Id
+     */
+    public DataResourceAddOutputModel add(AbstractDataResourceUpdateInputModel input) throws StatusCodeWithException {
         DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(input);
 
         DataResourceMysqlModel model = new ModelMapper().map(input, getMysqlModelClass());
@@ -84,6 +90,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             }
         });
 
+        return new DataResourceAddOutputModel(task.getDataResourceId(), task.getId());
     }
 
     /**

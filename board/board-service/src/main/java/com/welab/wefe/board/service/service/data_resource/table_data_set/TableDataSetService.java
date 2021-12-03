@@ -39,7 +39,6 @@ import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -211,6 +210,6 @@ public class TableDataSetService extends DataResourceService {
     protected void beforeUpdate(DataResourceMysqlModel m, AbstractDataResourceUpdateInputModel in) {
         TableDataSetUpdateInputModel input = (TableDataSetUpdateInputModel) in;
         // save data set column info to database
-        dataSetColumnService.update(in.getId(), input.getMetadataList(), CurrentAccount.get());
+        dataSetColumnService.update(in.getId(), input.getMetadataList());
     }
 }
