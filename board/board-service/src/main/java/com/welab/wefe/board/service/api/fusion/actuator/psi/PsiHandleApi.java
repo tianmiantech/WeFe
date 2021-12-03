@@ -31,7 +31,12 @@ import java.io.IOException;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/psi/handle", name = "psi handle", desc = "psi handle")
+@Api(
+        path = "fusion/psi/handle",
+        name = "psi handle",
+        desc = "psi handle",
+        login = false,
+        rsaVerify = true)
 public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
 
 
