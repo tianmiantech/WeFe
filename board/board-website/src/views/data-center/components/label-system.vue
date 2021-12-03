@@ -2,7 +2,7 @@
     <div class="label_system">
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
-        <div v-if="currentImage.item && currentImage.item.labeled" class="show_label_info">{{currentImage.item.label_list}}</div>
+        <!-- <div v-if="currentImage.item && currentImage.item.labeled" class="show_label_info">{{currentImage.item.label_list}}</div> -->
         <el-button type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
@@ -25,28 +25,35 @@
         setup(props, context) {
             const router = useRouter();
             const vData = reactive({
-                stage:         null, // 导致无法在图片以外的区域画框 Proxy
-                layer:         null,
-                graphNow:      null,
-                trLayer:       null,
-                labelLayer:    null,
-                groupLayer:    null,
-                rectLayer:     null,
-                width:         800,
-                height:        528,
-                pointStart:    [],
-                graphColor:    '#1A73E8',
-                drawing:       false,
-                labelList:     props.labelList,
+                stage:          null, // 导致无法在图片以外的区域画框 Proxy
+                layer:          null,
+                graphNow:       null,
+                trLayer:        null,
+                labelLayer:     null,
+                groupLayer:     null,
+                rectLayer:      null,
+                width:          800,
+                height:         528,
+                pointStart:     [],
+                graphColor:     '#1A73E8',
+                drawing:        false,
+                labelList:      props.labelList,
                 // oldLabelList:  props.labelList,
-                labelPosition: '',
+                labelPosition:  '',
                 // currentLabel:  {},
-                labelNowPos:   null, // 标注文字位置
-                isLabeled:     false, // 当前标注框是否已标注
-                currentRect:   null, // 当前被选中的标注框
-                currentText:   null, // 当前被选中的标注框文字
+                labelNowPos:    null, // 标注文字位置
+                isLabeled:      false, // 当前标注框是否已标注
+                currentRect:    null, // 当前被选中的标注框
+                currentText:    null, // 当前被选中的标注框文字
+                imgScaleConfig: {
+                    x:      0,
+                    y:      0,
+                    scaleX: 1,
+                    scaleY: 1,
+                },
             });
 
+            let imageLayer = null;
             const labelModalRef = ref();
             const methods = {
                 editLabelStage() {
@@ -79,21 +86,21 @@
                     vData.stage.add(vData.layer);
                     const imgObj = new Image();
 
-                    let imgOptions = {}, imageLayer = {};
+                    let imgOptions = {};
 
                     imgObj.onload = () => {
-                        let imgW= imgObj.width, imgH = imgObj.height;
+                        const imgW= imgObj.width, imgH = imgObj.height;
 
-                        if (imgW >= 999) {
-                            imgW = imgW / 2;
-                            imgH = imgH /2;
-                        } else if(999>imgW > 1500) {
-                            imgW = imgW/3;
-                            imgH = imgH /3;
-                        } else if (imgW > 3000) {
-                            imgW = imgW/6;
-                            imgH = imgH /6;
-                        }
+                        // if (imgW >= 999) {
+                        //     imgW = imgW / 2;
+                        //     imgH = imgH /2;
+                        // } else if(999>imgW > 1500) {
+                        //     imgW = imgW/3;
+                        //     imgH = imgH /3;
+                        // } else if (imgW > 3000) {
+                        //     imgW = imgW/6;
+                        //     imgH = imgH /6;
+                        // }
                         // if (imgW > vData.width) {
                         //     console.log(imgW);
                         //     const scalex = vData.height / imgH;
@@ -102,7 +109,8 @@
                         //     imgW = vData.width;
                         //     imgH = vData.height / scalex;
                         // }
-                        console.log(imgW, imgH);
+                        console.log(imgW, imgH, vData.width, vData.height);
+                        const scale = imgW < imgH ? vData.width / imgW : imgW > imgH ? vData.height / imgH : 1;
 
                         imgOptions = {
                             // x:      vData.width/2 - imgW/2,
@@ -113,7 +121,9 @@
                             // height: vData.height,
                             width:  imgW,
                             height: imgH,
-                            scale:  {},
+                            // scale:  {},
+                            scaleX: scale,
+                            scaleY: scale,
                         };
                     };
                     setTimeout(() => {
@@ -167,29 +177,54 @@
                             methods.showLabelModal();
                         }
                     });
-                    // vData.stage.on('wheel', function(e) {
-                    //     const direction = e.evt.deltaY > 0 ? 'down' : 'up';
+                    /* 后续再加
+                    vData.stage.on('wheel', function(e) {
+                        const bgx = imageLayer.x(), bgy = imageLayer.y();
+                        const scaleBy = 1.2;
+                        // 这里用鼠标位置减去图片的位置，然后除以缩放的比例
+                        const mousePointTo = {
+                            x: (e.evt.x - bgx) / vData.imgScaleConfig.scaleX,
+                            y: (e.evt.y - bgy) / vData.imgScaleConfig.scaleY,
+                        };
 
-                    //     if (direction === 'up') {
-                    //         nextTick(_=> {
-                    //             const i = 1;
-
-                    //             imageLayer.attrs.width += i * 100;
-                    //             imageLayer.attrs.height += i * 100;
-                    //         });
-                            
-                    //     } else {
-                    //         nextTick(_=> {
-                    //             const i = 1;
-
-                    //             imageLayer.attrs.width += i * -100;
-                    //             imageLayer.attrs.height += i * -100;
-                    //         });
-                    //     }
-                    // });
-                    vData.stage.on('mousewheel', function(e) {
-                        console.log('mousewheel');
+                        if (e.evt.deltaY > 0) {
+                            // 缩小
+                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX / scaleBy;
+                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY / scaleBy;
+                            if (vData.imgScaleConfig.scaleX < 1) vData.imgScaleConfig.scaleX = 1;
+                            if (vData.imgScaleConfig.scaleY < 1) vData.imgScaleConfig.scaleY = 1;
+                            vData.stage.container().style.cursor = 'move';
+                        } else {
+                            // 放大
+                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX * scaleBy;
+                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY * scaleBy;
+                            if (vData.imgScaleConfig.scaleX > 1) {
+                                imageLayer.setAttrs({
+                                    draggable: true,
+                                });
+                                vData.stage.container().style.cursor = 'move';
+                            }
+                            if (vData.imgScaleConfig.scaleX > 1.6) vData.imgScaleConfig.scaleX = 1.6;
+                            if (vData.imgScaleConfig.scaleY > 1.6) vData.imgScaleConfig.scaleY = 1.6;
+                        }
+                    
+                        // vData.imgScaleConfig.x = e.evt.x - mousePointTo.x * vData.imgScaleConfig.scaleX;
+                        // vData.imgScaleConfig.y = e.evt.y - mousePointTo.y * vData.imgScaleConfig.scaleY;
+                        imageLayer.setAttrs({
+                            x:      vData.imgScaleConfig.x,
+                            y:      vData.imgScaleConfig.y,
+                            scaleX: vData.imgScaleConfig.scaleX,
+                            scaleY: vData.imgScaleConfig.scaleY,
+                        });
+                        vData.layer.draw();
                     });
+                    vData.stage.on('click', function() {
+                        vData.stage.container().style.cursor = 'crosshair';
+                        imageLayer.setAttrs({
+                            draggable: false,
+                        });
+                    });
+                    */
                 },
                 stageMouseWheel(e) {},
                 stageMousedown(e) {

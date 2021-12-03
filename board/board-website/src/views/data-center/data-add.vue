@@ -1093,7 +1093,7 @@
                         canLeave = true;
                         this.$router.push({
                             name:  'data-view',
-                            query: { id: data.data_set_id, type: this.addDataType },
+                            query: { id: data.data_resource_id, type: this.addDataType },
                         });
                     }
                 }
