@@ -44,11 +44,16 @@ public class UnionNodeContractEventParser extends AbstractParser {
     private void parseInsertEvent() {
         UnionNode unionNode = new UnionNode();
         unionNode.setNodeId(StringUtil.strTrim2(params.getString(0)));
-        unionNode.setBaseUrl(StringUtil.strTrim2(params.getString(1)));
-        unionNode.setOrganizationName(StringUtil.strTrim2(params.getString(2)));
-        unionNode.setEnable(StringUtil.strTrim2(params.getString(3)));
-        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(4)));
-        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(5)));
+        unionNode.setBlockchainNodeId(StringUtil.strTrim2(params.getString(1)));
+        unionNode.setBaseUrl(StringUtil.strTrim2(params.getString(2)));
+        unionNode.setOrganizationName(StringUtil.strTrim2(params.getString(3)));
+        unionNode.setLostContact(StringUtil.strTrim2(params.getString(4)));
+        unionNode.setContactEmail(StringUtil.strTrim2(params.getString(5)));
+        unionNode.setPriorityLevel(StringUtil.strTrim2(params.getString(6)));
+        unionNode.setEnable(StringUtil.strTrim2(params.getString(7)));
+        unionNode.setVersion(StringUtil.strTrim2(params.getString(8)));
+        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(9)));
+        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
         unionNode.setExtJson(extJSON);
 
         unionNodeMongoRepo.save(unionNode);
@@ -56,27 +61,30 @@ public class UnionNodeContractEventParser extends AbstractParser {
     }
 
     private void parseUpdateEvent() {
-        String unionNodeId = eventBO.getEntity().get("union_node_id").toString();
-        String unionBaseUrl = StringUtil.strTrim2(params.getString(0));
-        String organizationName = StringUtil.strTrim2(params.getString(1));
-        String updatedTime = StringUtil.strTrim2(params.getString(2));
-        unionNodeMongoRepo.update(unionNodeId, unionBaseUrl, organizationName, updatedTime);
+        String nodeId = eventBO.getEntity().get("node_id").toString();
+        String blockchainNodeId = StringUtil.strTrim2(params.getString(0));
+        String baseUrl = StringUtil.strTrim2(params.getString(1));
+        String organizationName = StringUtil.strTrim2(params.getString(2));
+        String contactEmail = StringUtil.strTrim2(params.getString(3));
+        String version = StringUtil.strTrim2(params.getString(4));
+        String updatedTime = StringUtil.strTrim2(params.getString(5));
+        unionNodeMongoRepo.update(nodeId,blockchainNodeId,baseUrl,organizationName,contactEmail,version,updatedTime);
     }
 
     private void parseUpdateEnableEvent() {
-        String unionNodeId = eventBO.getEntity().get("union_node_id").toString();
+        String unionNodeId = eventBO.getEntity().get("node_id").toString();
         String enable = eventBO.getEntity().get("enable").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         unionNodeMongoRepo.updateEnable(unionNodeId, enable, updatedTime);
     }
 
     private void parseDeleteByUnionNodeIdEvent() {
-        String unionNodeId = eventBO.getEntity().get("union_node_id").toString();
+        String unionNodeId = eventBO.getEntity().get("node_id").toString();
         unionNodeMongoRepo.deleteByUnionNodeId(unionNodeId);
     }
 
     private void parseUpdateExtJson() {
-        String unionNodeId = eventBO.getEntity().get("unionNodeId").toString();
+        String unionNodeId = eventBO.getEntity().get("node_id").toString();
         unionNodeMongoRepo.updateExtJSONById(unionNodeId, extJSON);
     }
 

@@ -76,14 +76,26 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean update(String unionNodeId, String unionBaseUrl, String organizationName, String updatedTime) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean update(
+            String nodeId,
+            String blockchainNodeId,
+            String baseUrl,
+            String organizationName,
+            String contactEmail,
+            String version,
+            String updatedTime
+
+    ) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder()
-                .append("unionBaseUrl", unionBaseUrl)
+                .append("blockchainNodeId", blockchainNodeId)
+                .append("baseUrl", baseUrl)
                 .append("organizationName", organizationName)
+                .append("contactEmail", contactEmail)
+                .append("version", version)
                 .append("updatedTime", updatedTime)
                 .build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
