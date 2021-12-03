@@ -110,7 +110,6 @@ contract MemberFileInfoContract{
 
         int count = table.update(FIX_ID, entry, condition);
 
-        int256 ret_code = 0;
         if(count >= 1){
             ret_code = 0;
         } else {

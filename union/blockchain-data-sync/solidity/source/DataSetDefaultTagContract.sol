@@ -97,7 +97,6 @@ contract DataSetDefaultTagContract{
             return ret_code;
         }
 
-        int256 ret_code = 0;
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("tag_id", tag_id);
@@ -146,7 +145,6 @@ contract DataSetDefaultTagContract{
 
         int count = table.update(FIX_ID, entry, condition);
 
-        int256 ret_code = 0;
         if(count >= 1){
             ret_code = 0;
         } else {

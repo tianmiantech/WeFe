@@ -66,7 +66,7 @@ contract UnionNodeContract{
 
     function updateEnable(string node_id,string enable,string updated_time) public returns (int) {
         int256 ret_code = 0;
-        if (!isExist(union_node_id)) {
+        if (!isExist(node_id)) {
             ret_code = -3;
             emit updateEnableEvent(ret_code,node_id,enable,updated_time);
             return ret_code;
@@ -137,7 +137,6 @@ contract UnionNodeContract{
             return ret_code;
         }
 
-        int256 ret_code = 0;
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("node_id", node_id);
