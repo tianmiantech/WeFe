@@ -21,12 +21,14 @@ import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusiness
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.UUID;
+
 /**
  * @author yuxin.zhang
  **/
 @Document(collection = MongodbTable.Union.UNION_NODE)
 public class UnionNode extends AbstractBlockChainBusinessModel {
-    private String nodeId;
+    private String nodeId = UUID.randomUUID().toString().replaceAll("-", "");
     private String blockchainNodeId;
     private String baseUrl;
     private String organizationName;

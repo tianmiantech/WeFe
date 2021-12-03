@@ -10,13 +10,13 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
  */
 public class UnionNodeDeleteInput extends BaseInput {
     @Check(require = true)
-    private String unionNodeId;
+    private String nodeId;
 
-    public String getUnionNodeId() {
-        return unionNodeId;
+    public String getNodeId() {
+        return nodeId;
     }
 
-    public void setUnionNodeId(String unionNodeId) {
-        this.unionNodeId = unionNodeId;
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 }

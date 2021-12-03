@@ -18,7 +18,8 @@ public interface UnionNodeMapper {
      * UnionNodeAddInput conversion UnionNode
      */
     @Mappings({
-            @Mapping(target = "enable",expression = "java(String.valueOf(input.isEnable() ? 1 : 0))"),
+            @Mapping(target = "enable",expression = "java(String.valueOf(1))"),
+            @Mapping(target = "lostContact",expression = "java(String.valueOf(1))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })
@@ -29,7 +30,8 @@ public interface UnionNodeMapper {
      * UnionNode conversion UnionNodeQueryOutput
      */
     @Mappings({
-            @Mapping(target = "enable", expression = "java(Integer.parseInt(unionNode.getEnable()))")
+            @Mapping(target = "enable", expression = "java(Integer.parseInt(unionNode.getEnable()))"),
+            @Mapping(target = "lostContact", expression = "java(Integer.parseInt(unionNode.getLostContact()))")
     })
     UnionNodeQueryOutput transfer(UnionNode unionNode);
 }

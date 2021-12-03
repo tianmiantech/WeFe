@@ -42,12 +42,12 @@ contract UnionNodeContract{
         entry.set("base_url", params[2]);
         entry.set("organization_name", params[3]);
         entry.set("lost_contact", params[4]);
-        entry.set("contact_email", params[4]);
-        entry.set("priority_level", params[5]);
-        entry.set("enable", params[6]);
-        entry.set("version", params[7]);
-        entry.set("created_time", params[8]);
-        entry.set("updated_time", params[9]);
+        entry.set("contact_email", params[5]);
+        entry.set("priority_level", params[6]);
+        entry.set("enable", params[7]);
+        entry.set("version", params[8]);
+        entry.set("created_time", params[9]);
+        entry.set("updated_time", params[10]);
         entry.set("ext_json", ext_json);
 
 
@@ -185,7 +185,6 @@ contract UnionNodeContract{
 
         int count = table.update(FIX_ID, entry, condition);
 
-        int256 ret_code = 0;
         if(count >= 1){
             ret_code = 0;
         } else {
@@ -229,6 +228,8 @@ contract UnionNodeContract{
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("priority_level")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("enable")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("version")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

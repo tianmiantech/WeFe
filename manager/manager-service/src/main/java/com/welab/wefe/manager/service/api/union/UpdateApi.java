@@ -25,7 +25,7 @@ public class UpdateApi extends AbstractApi<UnionNodeUpdateInput, AbstractApiOutp
     protected ApiResult<AbstractApiOutput> handle(UnionNodeUpdateInput input) throws StatusCodeWithException {
         LOG.info("UpdateApi handle..");
         try {
-            boolean isValid = HttpRequest.create(input.getUnionBaseUrl()).get().success();
+            boolean isValid = HttpRequest.create(input.getBaseUrl()).get().success();
             if (!isValid) {
                 throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "unionBaseUrl");
             }

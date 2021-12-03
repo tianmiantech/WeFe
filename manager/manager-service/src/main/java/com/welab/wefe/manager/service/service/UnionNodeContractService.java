@@ -4,7 +4,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.manager.service.contract.UnionNodeContract;
 import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
 import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
@@ -68,7 +67,7 @@ public class UnionNodeContractService extends AbstractContractService {
     public void update(UnionNodeUpdateInput input) throws StatusCodeWithException {
         try {
             TransactionReceipt transactionReceipt = unionNodeContract.update(
-                    input.getUnionNodeId(),
+                    input.getNodeId(),
                     generateUpdateParams(input)
             );
 
@@ -87,7 +86,7 @@ public class UnionNodeContractService extends AbstractContractService {
     public void enable(UnionNodeEnableInput input) throws StatusCodeWithException {
         try {
             TransactionReceipt transactionReceipt = unionNodeContract.updateEnable(
-                    input.getUnionNodeId(),
+                    input.getNodeId(),
                     String.valueOf(input.getEnable() ? 1 : 0),
                     toStringYYYY_MM_DD_HH_MM_SS2(new Date())
             );
@@ -105,9 +104,9 @@ public class UnionNodeContractService extends AbstractContractService {
     }
 
 
-    public void deleteByUnionNodeId(String unionNodeId) throws StatusCodeWithException {
+    public void deleteByUnionNodeId(String nodeId) throws StatusCodeWithException {
         try {
-            TransactionReceipt transactionReceipt = unionNodeContract.deleteByUnionNodeId(unionNodeId);
+            TransactionReceipt transactionReceipt = unionNodeContract.deleteByUnionNodeId(nodeId);
 
 
             // get receipt result
@@ -125,8 +124,12 @@ public class UnionNodeContractService extends AbstractContractService {
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
         list.add(unionNode.getNodeId());
+        list.add(unionNode.getBlockchainNodeId());
         list.add(unionNode.getBaseUrl());
         list.add(unionNode.getOrganizationName());
+        list.add(unionNode.getLostContact());
+        list.add(unionNode.getContactEmail());
+        list.add(unionNode.getPriorityLevel());
         list.add(unionNode.getEnable());
         list.add(unionNode.getCreatedTime());
         list.add(unionNode.getUpdatedTime());
@@ -136,8 +139,11 @@ public class UnionNodeContractService extends AbstractContractService {
 
     private List<String> generateUpdateParams(UnionNodeUpdateInput input) {
         List<String> list = new ArrayList<>();
-        list.add(input.getUnionBaseUrl());
+        list.add(input.getBlockchainNodeId());
+        list.add(input.getBaseUrl());
         list.add(input.getOrganizationName());
+        list.add(input.getContactEmail());
+        list.add(input.getVersion());
         list.add(toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }

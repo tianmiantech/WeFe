@@ -9,26 +9,38 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
  * @date: 2021/10/19
  */
 public class UnionNodeUpdateInput extends BaseInput {
+
     @Check(require = true)
-    private String unionNodeId;
-    @Check(require = true)
-    private String unionBaseUrl;
+    private String nodeId;
+    private String blockchainNodeId;
+    private String baseUrl;
     private String organizationName;
+    private String contactEmail;
+    private String version;
 
-    public String getUnionNodeId() {
-        return unionNodeId;
+
+    public String getNodeId() {
+        return nodeId;
     }
 
-    public void setUnionNodeId(String unionNodeId) {
-        this.unionNodeId = unionNodeId;
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
     }
 
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getOrganizationName() {
@@ -39,4 +51,19 @@ public class UnionNodeUpdateInput extends BaseInput {
         this.organizationName = organizationName;
     }
 
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

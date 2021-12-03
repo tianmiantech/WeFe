@@ -31,14 +31,14 @@ public class AddApi extends AbstractApi<UnionNodeAddInput, AbstractApiOutput> {
     protected ApiResult<AbstractApiOutput> handle(UnionNodeAddInput input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
         try {
-            boolean isValid = HttpRequest.create(input.getUnionBaseUrl()).get().success();
+            boolean isValid = HttpRequest.create(input.getBaseUrl()).get().success();
             if (!isValid) {
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "unionBaseUrl");
+                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "baseUrl");
             }
 
-            UnionNode unionNode = unionNodeMongoRepo.findByUnionBaseUrl(input.getUnionBaseUrl());
+            UnionNode unionNode = unionNodeMongoRepo.findByUnionBaseUrl(input.getBaseUrl());
             if (unionNode != null) {
-                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "unionBaseUrl", input.getUnionBaseUrl());
+                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "baseUrl", input.getBaseUrl());
             }
 
             unionNodeContractService.add(unionNodeMapper.transferAddInput(input));
