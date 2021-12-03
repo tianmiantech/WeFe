@@ -30,9 +30,9 @@ import java.util.List;
 /**
  * @author jacky.jiang
  */
-public class BloomfilterAddInputModel extends AbstractDataResourceUpdateInputModel {
+public class BloomfilterAddInputModel extends BloomfilterUpdateInputModel {
 
-    @Check(messageOnEmpty = "请指定数据集文件")
+    @Check(messageOnEmpty = "请指定过滤器文件")
     private String filename;
 
     @Check(require = true)

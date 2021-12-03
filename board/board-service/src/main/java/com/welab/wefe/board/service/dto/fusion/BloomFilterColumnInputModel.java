@@ -14,29 +14,41 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.vo.data_resource;
+package com.welab.wefe.board.service.dto.fusion;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.ColumnDataType;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author jacky.jiang
  */
-public class BloomFilterColumnInputModel {
+public class BloomFilterColumnInputModel extends AbstractCheckModel {
 
-    /**
-     * 字段名称
-     */
+    @Check(name = "字段名称")
     private String name;
-    /**
-     * 数据类型
-     */
+    @Check(name = "数据类型")
     private ColumnDataType dataType;
     /**
      * 注释
      */
     @Check(regex = "^.{0,250}$", messageOnInvalid = "注释太长啦~")
     private String comment;
+
+    @Override
+    public void checkAndStandardize() throws StatusCodeWithException {
+        super.checkAndStandardize();
+
+        if (getDataType() == null) {
+            throw new StatusCodeWithException("请给字段【" + getName() + "】设置数据类型", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        if (getDataType() == ColumnDataType.String || getDataType() == ColumnDataType.Enum) {
+            throw new StatusCodeWithException("目前暂不支持 String/Enum 数据类型，如有需要，请将该特征进行编码后使用。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+    }
 
     //region getter/setter
 

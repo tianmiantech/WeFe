@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.util;
 
-import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterColumnInputModel;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import de.siegmar.fastcsv.reader.CsvParser;

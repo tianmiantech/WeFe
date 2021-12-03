@@ -16,8 +16,8 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 
-import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -28,8 +28,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.List;
 
 /**
- * @author zane
- * @date 2021/11/8
+ * @author jacky.jiang
+ * @date 2021/12/2
  */
 public class BloomfilterUpdateInputModel extends AbstractDataResourceUpdateInputModel {
     @Check(require = true)
@@ -40,15 +40,15 @@ public class BloomfilterUpdateInputModel extends AbstractDataResourceUpdateInput
         super.checkAndStandardize();
 
         if (CollectionUtils.isEmpty(metadataList)) {
-            throw new StatusCodeWithException("请设置该数据集的元数据", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("请设置该过滤器的元数据", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        for (DataSetColumnInputModel item : metadataList) {
+        for (BloomFilterColumnInputModel item : metadataList) {
             item.checkAndStandardize();
         }
 
         int countByName = 0;
-        TableDataSetRepository repository = Launcher.CONTEXT.getBean(TableDataSetRepository.class);
+        BloomFilterRepository repository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         if (StringUtil.isEmpty(super.getId())) {
             countByName = repository.countByName(super.getName());
         } else {
@@ -56,17 +56,17 @@ public class BloomfilterUpdateInputModel extends AbstractDataResourceUpdateInput
         }
 
         if (countByName > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("此过滤器名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
         }
     }
 
     // region getter/setter
 
-    public List<DataSetColumnInputModel> getMetadataList() {
+    public List<BloomFilterColumnInputModel> getMetadataList() {
         return metadataList;
     }
 
-    public void setMetadataList(List<DataSetColumnInputModel> metadataList) {
+    public void setMetadataList(List<BloomFilterColumnInputModel> metadataList) {
         this.metadataList = metadataList;
     }
 

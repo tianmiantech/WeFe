@@ -54,7 +54,7 @@ import java.util.List;
 public class BloomfilterAddService extends AbstractService {
 
     @Autowired
-    protected BloomFilterRepository repo;
+    protected BloomFilterRepository bloomFilterRepository;
     @Autowired
     protected BloomfilterService bloomfilterService;
     @Autowired
@@ -92,7 +92,7 @@ public class BloomfilterAddService extends AbstractService {
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         model.setUpdatedTime(new Date());
-        repo.save(model);
+        bloomFilterRepository.save(model);
 
         // Parse and save the original data
         try {
@@ -206,6 +206,7 @@ public class BloomfilterAddService extends AbstractService {
         // get bloomfilter headers
         List<String> rawHeaders = bloomfilterReader.getHeader();
 
+        String storageNamespace = config.getFileUploadDir();
         File outFile = Paths.get(
                 config.getFileUploadDir(),
                 "bloom_filter",
@@ -217,8 +218,9 @@ public class BloomfilterAddService extends AbstractService {
             outFile.mkdir();
         }
 
+
         // data row consumption method
-        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model.getId(), deduplication, bloomfilterReader, outFile.getAbsolutePath());
+        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model, deduplication, bloomfilterReader);
 
         // read all data rows of the raw bloomfilter
         bloomfilterReader.readAll(dataRowConsumer);

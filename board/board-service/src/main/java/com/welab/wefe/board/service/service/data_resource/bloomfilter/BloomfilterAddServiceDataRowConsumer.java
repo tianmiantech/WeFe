@@ -16,8 +16,11 @@
 
 package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
+import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.AbstractBloomfilterReader;
 import com.welab.wefe.board.service.util.CryptoUtils;
@@ -29,7 +32,6 @@ import com.welab.wefe.board.service.util.unique.AbstractDataSetUniqueFilter;
 import com.welab.wefe.board.service.util.unique.DataSetBloomUniqueFilter;
 import com.welab.wefe.board.service.util.unique.DataSetMemoryUniqueFilter;
 import com.welab.wefe.common.BatchConsumer;
-import com.welab.wefe.common.enums.BloomfilterProgressType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -40,8 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
@@ -53,6 +58,8 @@ import java.util.function.Consumer;
 public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
     private final Logger LOG = LoggerFactory.getLogger(BloomfilterAddServiceDataRowConsumer.class);
 
+    @Autowired
+    protected Config config;
     //region construction parameters
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
@@ -60,31 +67,31 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
     /**
      * bloomfilter id
      */
-    private final String bloomfilterId;
+    private String bloomfilterId;
     /**
      * Do you need to de-duplicate
      */
-    private final boolean deduplication;
+    private boolean deduplication;
 
     private AsymmetricCipherKeyPair keyPair;
 
     private BloomFilters bf;
 
-    private RSAKeyParameters pk;
+    private RSAKeyParameters rsaPK;
 
-    private BigInteger e;
+    private BigInteger rsaE;
 
-    private BigInteger N;
+    private BigInteger rsaN;
 
-    private RSAPrivateCrtKeyParameters sk;
+    private RSAPrivateCrtKeyParameters rsaSK;
 
-    private BigInteger d;
+    private BigInteger rsaD;
 
     public List<FieldInfo> fieldInfoList;
 
     private Integer processCount = 0;
 
-    private Integer totalDataRowCount = 0;
+    private Integer totalDataCount = 0;
 
     private String bloomfilterPath;
 
@@ -99,53 +106,69 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
      * deduplication filter
      */
     private AbstractDataSetUniqueFilter uniqueFilter;
-    private final BloomfilterStorageService bloomfilterStorageService;
-    private final BloomfilterTaskService bloomfilterTaskService;
-    private final AbstractBloomfilterReader bloomfilterReader;
+    private BloomfilterStorageService bloomfilterStorageService;
+    private DataResourceUploadTaskService dataResourceUploadTaskService;
+    private AbstractBloomfilterReader bloomfilterReader;
 
     /**
      * The number of duplicate data in the primary key
      */
     private final LongAdder repeatDataCount = new LongAdder();
 
-    public BloomfilterAddServiceDataRowConsumer(String bloomfilterId, boolean deduplication, AbstractBloomfilterReader bloomfilterReader, String bloomfilterPath) throws StatusCodeWithException {
-        this.bloomfilterId = bloomfilterId;
+    public BloomfilterAddServiceDataRowConsumer(BloomFilterMysqlModel model, boolean deduplication, AbstractBloomfilterReader bloomfilterReader) throws StatusCodeWithException {
+        this.bloomfilterId = model.getId();
         this.deduplication = deduplication;
         this.bloomfilterReader = bloomfilterReader;
         this.keyPair = CryptoUtils.generateKeys(1024);
-        this.totalDataRowCount = (int) bloomfilterReader.getTotalDataRowCount();
-        this.bf = new BloomFilters(0.001, totalDataRowCount);
-        this.pk = (RSAKeyParameters) keyPair.getPublic();
-        this.e = pk.getExponent();
-        this.N = pk.getModulus();
-        this.sk = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();
-        this.d = sk.getExponent();
+        this.totalDataCount = (int) bloomfilterReader.getTotalDataRowCount();
+        this.bf = new BloomFilters(0.001, totalDataCount);
+        this.rsaPK = (RSAKeyParameters) keyPair.getPublic();
+        this.rsaE = rsaPK.getExponent();
+        this.rsaN = rsaPK.getModulus();
+        this.rsaSK = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();
+        this.rsaD = rsaSK.getExponent();
 
         if (deduplication) {
-            uniqueFilter = createUniqueFilter(bloomfilterReader.getTotalDataRowCount());
+            this.uniqueFilter = createUniqueFilter(bloomfilterReader.getTotalDataRowCount());
         }
-
         this.bloomfilterStorageService = Launcher.CONTEXT.getBean(BloomfilterStorageService.class);
-        this.bloomfilterTaskService = Launcher.CONTEXT.getBean(BloomfilterTaskService.class);
+        this.dataResourceUploadTaskService = Launcher.CONTEXT.getBean(DataResourceUploadTaskService.class);
         this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
         this.fieldInfoList = service.fieldInfoList(bloomfilterId);
-        this.bloomfilterPath = bloomfilterPath;
 
-        this.bloomFilterRepository.updateById(bloomfilterId, "process", BloomfilterProgressType.Running, BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "d", this.d, BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "n", this.N.toString(), BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "e", this.e.toString(), BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "bloomfilterPath", this.bloomfilterPath, BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", totalDataRowCount, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "rsaD", this.rsaD, BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "rsaN", this.rsaN.toString(), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "rsaE", this.rsaE.toString(), BloomFilterMysqlModel.class);
 
+        //
+        File outFile = Paths.get(
+                config.getFileUploadDir(),
+                "bloom_filter",
+                model.getId(),
+                model.getName()
+        ).toFile();
+
+        if (!outFile.exists() && !outFile.isDirectory()) {
+            outFile.mkdir();
+        }
+
+        this.bloomfilterPath = outFile.getAbsolutePath();
+        this.bloomFilterRepository.updateById(bloomfilterId, "storageNamespace", this.bloomfilterPath.replace(model.getName(),""), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId,"storageResourceName", model.getName(), BloomFilterMysqlModel.class);
         batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
             try {
                 generateFilter(bloomfilterId, rows);
+                // update bloomfilter upload progress
+                dataResourceUploadTaskService.updateProgress(
+                        bloomfilterId,
+                        bloomfilterReader.getTotalDataRowCount(),
+                        bloomfilterReader.getReadDataRows(),
+                        getRepeatDataCount()
+                );
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
-                bloomfilterTaskService.onError(bloomfilterId, e);
+                dataResourceUploadTaskService.onError(bloomfilterId, e);
             }
 
         });
@@ -161,7 +184,7 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
             try {
                 String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                 BigInteger h = PSIUtils.stringToBigInteger(key);
-                BigInteger z = h.modPow(d, N);
+                BigInteger z = h.modPow(rsaD, rsaN);
                 this.bf.add(z);
                 this.processCount = this.processCount + 1;
             } catch (Exception e) {
@@ -170,17 +193,10 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
 
         }
 
-        BloomFilterMysqlModel bloomfilterMySqlModel = bloomFilterRepository.findOne("id", bloomfilterId, BloomFilterMysqlModel.class);
-        // TODO: Jacky 基于 DataResourceUploadTask 重构
-//        int count = bloomfilterMySqlModel.getProcessCount();
-//        if (processCount > count) {
-//            bloomFilterRepository.updateById(bloomfilterId, "processCount", this.processCount, BloomFilterMysqlModel.class);
-//            bloomFilterRepository.updateById(bloomfilterId, "totalDataRowCount", this.totalDataRowCount, BloomFilterMysqlModel.class);
-//
-//            FileOutputStream outputStream = new FileOutputStream(this.bloomfilterPath);
-//            this.bf.writeTo(outputStream);
-//            outputStream.close();
-//        }
+        FileOutputStream outputStream = new FileOutputStream(this.bloomfilterPath);
+        this.bf.writeTo(outputStream);
+        outputStream.close();
+
     }
 
 
