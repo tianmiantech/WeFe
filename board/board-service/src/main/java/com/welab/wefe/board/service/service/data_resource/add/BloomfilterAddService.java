@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.add;
 
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
-import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.fusion.BloomfilterColumnService;
-import com.welab.wefe.board.service.service.fusion.BloomfilterService;
-import com.welab.wefe.board.service.service.fusion.BloomfilterStorageService;
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.*;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -53,10 +53,10 @@ import java.util.List;
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterAddService extends AbstractService {
+public class BloomfilterAddService extends AbstractDataResourceAddService {
 
     @Autowired
-    protected BloomFilterRepository repo;
+    protected BloomFilterRepository bloomFilterRepository;
     @Autowired
     protected BloomfilterService bloomfilterService;
     @Autowired
@@ -69,17 +69,11 @@ public class BloomfilterAddService extends AbstractService {
     protected FieldInfoService fieldInfoService;
 
 
-    /**
-     * Asynchronous execution of data writing
-     *
-     * @param userInfo Since this method is executed in an asynchronous thread,
-     *                 the CurrentAccount information cannot be obtained, so it needs to be passed.
-     */
-    @Async
-    public void add(BloomfilterAddInputModel input, BloomFilterTaskMysqlModel bloomfilterTask, CurrentAccount.Info userInfo) {
-
+    @Override
+    protected void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
+        BloomfilterAddInputModel input = (BloomfilterAddInputModel) in;
         BloomFilterMysqlModel model = new ModelMapper().map(input, BloomFilterMysqlModel.class);
-        model.setId(bloomfilterTask.getBloomfilterId());
+        model.setId(task.getId());
         model.setCreatedBy("test");
         model.setTags(bloomfilterService.standardizeTags(input.getTags()));
         bloomfilterService.handlePublicMemberList(model);
@@ -94,7 +88,7 @@ public class BloomfilterAddService extends AbstractService {
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         model.setUpdatedTime(new Date());
-        repo.save(model);
+        bloomFilterRepository.save(model);
 
         // Parse and save the original data
         try {
@@ -102,7 +96,7 @@ public class BloomfilterAddService extends AbstractService {
             readAllToFilterFile(model, bloomfilterReader, input.isDeduplication());
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            bloomfilterTaskService.onError(bloomfilterTask.getBloomfilterId(), e);
+            bloomfilterTaskService.onError(task.getId(), e);
             return;
         }
 
@@ -110,10 +104,10 @@ public class BloomfilterAddService extends AbstractService {
 //        repo.save(model);
 
         // save bloomfilter column info to database
-        bloomfilterColumnService.update(model.getId(), input.getMetadataList(), userInfo);
+        bloomfilterColumnService.update(model.getId(), input.getMetadataList());
 
         // Mark upload task completed
-        bloomfilterTaskService.complete(bloomfilterTask.getBloomfilterId());
+        bloomfilterTaskService.complete(task.getId());
 
         // Delete files uploaded by HttpUpload
         try {
@@ -134,7 +128,6 @@ public class BloomfilterAddService extends AbstractService {
 
         // Refresh the bloomfilter tag list
         CacheObjects.refreshTableDataSetTags();
-
     }
 
     /**
@@ -208,6 +201,7 @@ public class BloomfilterAddService extends AbstractService {
         // get bloomfilter headers
         List<String> rawHeaders = bloomfilterReader.getHeader();
 
+        String storageNamespace = config.getFileUploadDir();
         File outFile = Paths.get(
                 config.getFileUploadDir(),
                 "bloom_filter",
@@ -219,8 +213,9 @@ public class BloomfilterAddService extends AbstractService {
             outFile.mkdir();
         }
 
+
         // data row consumption method
-        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model.getId(), deduplication, bloomfilterReader, outFile.getAbsolutePath());
+        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model, deduplication, bloomfilterReader);
 
         // read all data rows of the raw bloomfilter
         bloomfilterReader.readAll(dataRowConsumer);
@@ -253,4 +248,14 @@ public class BloomfilterAddService extends AbstractService {
         return list;
     }
 
+
+    @Override
+    protected Class<? extends DataResourceMysqlModel> getMysqlModelClass() {
+        return null;
+    }
+
+    @Override
+    protected DataResourceType getDataResourceType() {
+        return null;
+    }
 }

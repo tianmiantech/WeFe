@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloomfilter;
 
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
-import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.service.fusion.bloomfilter.BloomfilterTaskService;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
+import com.welab.wefe.board.service.service.data_resource.add.BloomfilterAddService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -31,14 +31,14 @@ import java.io.IOException;
  * @author jacky.jiang
  */
 @Api(path = "bloomfilter/add", name = "add bloomfilter")
-public class AddApi extends AbstractApi<BloomfilterAddInputModel, BloomFilterTaskMysqlModel> {
+public class BloomfilterAddApi extends AbstractApi<BloomfilterAddInputModel, DataResourceAddOutputModel> {
 
     @Autowired
-    private BloomfilterTaskService bloomfilterTaskService;
+    private BloomfilterAddService bloomfilterAddService;
 
     @Override
-    protected ApiResult<BloomFilterTaskMysqlModel> handle(BloomfilterAddInputModel input) throws StatusCodeWithException, IOException {
-        BloomFilterTaskMysqlModel bloomfilterTaskMysqlModel = bloomfilterTaskService.add(input);
+    protected ApiResult<DataResourceAddOutputModel> handle(BloomfilterAddInputModel input) throws StatusCodeWithException, IOException {
+        DataResourceAddOutputModel bloomfilterTaskMysqlModel = bloomfilterAddService.add(input);
         return success(bloomfilterTaskMysqlModel);
     }
 

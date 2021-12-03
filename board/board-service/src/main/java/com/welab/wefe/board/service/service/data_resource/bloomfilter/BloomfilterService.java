@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion;
+package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
-import com.welab.wefe.board.service.api.fusion.bloomfilter.DeleteApi;
-import com.welab.wefe.board.service.api.fusion.bloomfilter.QueryApi;
+import com.welab.wefe.board.service.api.data_resource.bloomfilter.BloomfilterDeleteApi;
+import com.welab.wefe.board.service.api.data_resource.bloomfilter.BloomfilterQueryApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -98,7 +98,7 @@ public class BloomfilterService extends AbstractService {
     /**
      * delete bloomfilter
      */
-    public void delete(DeleteApi.Input input) throws StatusCodeWithException {
+    public void delete(BloomfilterDeleteApi.Input input) throws StatusCodeWithException {
         BloomFilterMysqlModel model = repo.findById(input.getId()).orElse(null);
         if (model == null) {
             return;
@@ -146,7 +146,7 @@ public class BloomfilterService extends AbstractService {
     /**
      * Paging query bloomfilter
      */
-    public PagingOutput<BloomFilterOutputModel> query(QueryApi.Input input) {
+    public PagingOutput<BloomFilterOutputModel> query(BloomfilterQueryApi.Input input) {
 
         Specification<BloomFilterMysqlModel> where = Where
                 .create()
