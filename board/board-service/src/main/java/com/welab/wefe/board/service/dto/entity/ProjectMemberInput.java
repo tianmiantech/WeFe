@@ -28,7 +28,7 @@ import java.util.List;
 public class ProjectMemberInput extends AbstractCheckModel {
     @Check(name = "成员Id", require = true, messageOnEmpty = "请选择项目合作方")
     private String memberId;
-    @Check(name = "成员角色", hiddenForFrontEnd = true)
+    @Check(name = "成员角色", donotShow = true)
     private JobMemberRole memberRole;
 
     @Check(name = "数据集列表")

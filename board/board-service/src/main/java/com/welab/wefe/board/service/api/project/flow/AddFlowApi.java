@@ -57,7 +57,7 @@ public class AddFlowApi extends AbstractApi<AddFlowApi.Input, AddFlowApi.Output>
         @Check(name = "模板Id", desc = "如果是基于模板创建流程，则指定模板Id")
         private String templateId;
 
-        @Check(name = "流程Id", hiddenForFrontEnd = true)
+        @Check(name = "流程Id", donotShow = true)
         private String flowId;
         /**
          * is oot model
