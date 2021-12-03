@@ -93,7 +93,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         for (UnionNode unionNode :
                 unionNodeList) {
             new UploadFileSyncToUnionTask(
-                    unionNode.getUnionBaseUrl(),
+                    unionNode.getBaseUrl(),
                     "member/file/upload/sync",
                     JObject.create("filename", input.getFilename()).append("memberId", input.getMemberId()),
                     input.files

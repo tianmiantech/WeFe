@@ -51,7 +51,7 @@ public class UnionNodeContractService extends AbstractContractService {
                     .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_INSERT, transactionReceipt);
 
 
-            LOG.info("UnionNode contract insert transaction, unionBaseUrl: {},  receipt response: {}", unionNode.getUnionBaseUrl(), JObject.toJSON(transactionResponse).toString());
+            LOG.info("UnionNode contract insert transaction, unionBaseUrl: {},  receipt response: {}", unionNode.getBaseUrl(), JObject.toJSON(transactionResponse).toString());
 
             transactionIsSuccess(transactionResponse);
 
@@ -124,8 +124,8 @@ public class UnionNodeContractService extends AbstractContractService {
 
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
-        list.add(unionNode.getUnionNodeId());
-        list.add(unionNode.getUnionBaseUrl());
+        list.add(unionNode.getNodeId());
+        list.add(unionNode.getBaseUrl());
         list.add(unionNode.getOrganizationName());
         list.add(unionNode.getEnable());
         list.add(unionNode.getCreatedTime());

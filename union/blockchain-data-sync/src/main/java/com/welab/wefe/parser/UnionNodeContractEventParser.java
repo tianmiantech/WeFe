@@ -43,8 +43,8 @@ public class UnionNodeContractEventParser extends AbstractParser {
 
     private void parseInsertEvent() {
         UnionNode unionNode = new UnionNode();
-        unionNode.setUnionNodeId(StringUtil.strTrim2(params.getString(0)));
-        unionNode.setUnionBaseUrl(StringUtil.strTrim2(params.getString(1)));
+        unionNode.setNodeId(StringUtil.strTrim2(params.getString(0)));
+        unionNode.setBaseUrl(StringUtil.strTrim2(params.getString(1)));
         unionNode.setOrganizationName(StringUtil.strTrim2(params.getString(2)));
         unionNode.setEnable(StringUtil.strTrim2(params.getString(3)));
         unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(4)));

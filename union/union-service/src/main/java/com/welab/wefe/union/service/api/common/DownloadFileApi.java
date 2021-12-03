@@ -19,6 +19,7 @@ package com.welab.wefe.union.service.api.common;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -46,11 +47,15 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     private GridFSBucket gridFSBucket;
     @Autowired
     private GridFsTemplate gridFsTemplate;
+    @Autowired
+    private UnionNodeMongoRepo unionNodeMongoRepo;
 
     @Override
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws IOException {
         //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
+        if (gridFSFile == null) {
+        }
         //使用GridFsBucket打开一个下载流对象
         GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
         //创建GridFsResource对象，获取流
@@ -60,7 +65,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
-        headers.add("filename",URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
+        headers.add("filename", URLEncoder.encode(gridFSFile.getFilename(), "UTF-8"));
         headers.add("Pragma", "no-cache");
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
         ResponseEntity<byte[]> response = ResponseEntity
