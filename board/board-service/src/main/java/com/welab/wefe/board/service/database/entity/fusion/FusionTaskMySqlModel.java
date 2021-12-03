@@ -44,7 +44,7 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     String error;
 
-    String memberId;
+    String dstMemberId;
 
     String dataResourceId;
 
@@ -150,12 +150,12 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
         this.error = error;
     }
 
-    public String getMemberId() {
-        return memberId;
+    public String getDstMemberId() {
+        return dstMemberId;
     }
 
-    public void setMemberId(String partnerId) {
-        this.memberId = partnerId;
+    public void setDstMemberId(String dstMemberId) {
+        this.dstMemberId = dstMemberId;
     }
 
     public String getDataResourceId() {

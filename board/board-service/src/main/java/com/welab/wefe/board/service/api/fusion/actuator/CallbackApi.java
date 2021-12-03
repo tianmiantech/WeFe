@@ -43,14 +43,8 @@ public class CallbackApi extends AbstractNoneOutputApi<CallbackApi.Input> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "指定操作的projectId", require = true)
-        private String projectId;
-
         @Check(name = "指定操作的businessId", require = true)
         private String businessId;
-
-//        @Check(name = "消息类型", require = true)
-//        private CallbackType type;
 
         @Check(name = "审核字段", require = true)
         private AuditStatus auditStatus;
@@ -64,14 +58,6 @@ public class CallbackApi extends AbstractNoneOutputApi<CallbackApi.Input> {
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public String getProjectId() {
-            return projectId;
-        }
-
-        public void setProjectId(String projectId) {
-            this.projectId = projectId;
         }
 
         public AuditStatus getAuditStatus() {

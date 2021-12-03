@@ -58,7 +58,7 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         private String description;
 
         @Check(name = "合作方id", require = true)
-        private String memberId;
+        private String dstMemberId;
 
         @Check(name = "数据资源id", require = true)
         private String dataResourceId;
@@ -118,12 +118,12 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
             this.name = name;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public String getDstMemberId() {
+            return dstMemberId;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setDstMemberId(String dstMemberId) {
+            this.dstMemberId = dstMemberId;
         }
 
         public String getDataResourceId() {
