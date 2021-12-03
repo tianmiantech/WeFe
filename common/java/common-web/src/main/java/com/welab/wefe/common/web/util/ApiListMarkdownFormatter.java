@@ -29,10 +29,8 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -51,16 +49,6 @@ public class ApiListMarkdownFormatter {
 
         list
                 .stream()
-                .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                .filter(x -> {
-                    for (String key : Arrays.asList("derived_data_set", "chat", "online_demo", "serving", "tianmiantech", "test/")) {
-                        if (x.getAnnotation(Api.class).path().contains(key)) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                })
                 .sorted(Comparator.comparing(x -> StringUtil.trim(x.getAnnotation(Api.class).path(), '/')))
                 .forEach(x -> getApiInfo(str, x));
 

@@ -18,8 +18,6 @@ package com.welab.wefe.common.web.api.dev;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.ReflectionsUtil;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -30,9 +28,7 @@ import com.welab.wefe.common.web.util.ApiListMarkdownFormatter;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -43,11 +39,7 @@ public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
-        List<Class<?>> list = ReflectionsUtil
-                .getClassesWithAnnotation(Launcher.API_PACKAGE_PATH, Api.class)
-                .stream()
-                .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                .collect(Collectors.toList());
+
 
         switch (input.format) {
             case "json":
@@ -59,6 +51,12 @@ public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
 
                 return success(response1);
 
+            case "markdown":
+                String markdown = ApiListMarkdownFormatter.format(list);
+                ResponseEntity<String> response2 = ResponseEntity
+                        .ok()
+                        .header("content-type", "text/markdown; charset=utf-8")
+                        .body(markdown);
             default:
                 String markdown = ApiListMarkdownFormatter.format(list);
                 ResponseEntity<String> response2 = ResponseEntity
