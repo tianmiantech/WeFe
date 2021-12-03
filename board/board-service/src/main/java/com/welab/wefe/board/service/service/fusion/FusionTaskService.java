@@ -86,9 +86,9 @@ public class FusionTaskService extends AbstractService {
         return fusionTaskRepository.findOne("businessId", businessId, FusionTaskMySqlModel.class);
     }
 
-    public FusionTaskMySqlModel findByBusinessIdAndStatus(String taskId, FusionTaskStatus status) throws StatusCodeWithException {
+    public FusionTaskMySqlModel findByBusinessIdAndStatus(String businessId, FusionTaskStatus status) throws StatusCodeWithException {
         Specification<FusionTaskMySqlModel> where = Where.create()
-                .equal("id", taskId)
+                .equal("businessId", businessId)
                 .equal("status", status).build(FusionTaskMySqlModel.class);
         return fusionTaskRepository.findOne(where).isPresent() ? fusionTaskRepository.findOne(where).get() : null;
     }
