@@ -31,6 +31,7 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
     private String fileName;
     private String memberId;
     private String reporter;
+    private String purpose;
     private String enable;
     private MemberFileInfoExtJSON extJson;
 
@@ -73,6 +74,14 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
 
     public void setReporter(String reporter) {
         this.reporter = reporter;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
     public String getEnable() {

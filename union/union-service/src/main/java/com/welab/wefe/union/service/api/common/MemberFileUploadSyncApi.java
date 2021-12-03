@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload", name = "member_file_upload")
+@Api(path = "member/file/upload/sync", name = "member file upload sync")
 public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi.Input, UploadFileApiOutput> {
     @Autowired
     private GridFsTemplate gridFsTemplate;
