@@ -128,6 +128,8 @@ class FCStorage(object):
             ]
         }
 
+        print("fc_policy: ", fc_policy)
+
         # build an Alibaba Cloud client to initiate requests.
         client = AcsClient(access_key_id, access_key_secret, region_id)
         request = AssumeRoleRequest()
