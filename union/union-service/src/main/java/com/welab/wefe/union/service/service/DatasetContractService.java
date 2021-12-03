@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,10 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.DataSetContract;
@@ -44,11 +46,16 @@ public class DatasetContractService extends AbstractContractService {
     @Autowired
     private MemberContractService memberContractService;
     @Autowired
+    private DataSetMongoReop dataSetMongoReop;
+    @Autowired
     private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
 
     public void upsert(DataSet dataset) throws StatusCodeWithException {
         try {
             String extJson = " ";
+            if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
+                extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
+            }
             if (!memberContractService.isExist(dataset.getMemberId())) {
                 throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
             }

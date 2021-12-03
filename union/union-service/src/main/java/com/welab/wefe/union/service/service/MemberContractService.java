@@ -97,14 +97,13 @@ public class MemberContractService extends AbstractContractService {
      */
     public void upsert(Member member) throws StatusCodeWithException {
         try {
-            String extJson = " ";
             MemberContract memberContract = getContract();
 
             LOG.info("MemberContractService upsert: {}" + member.getId());
             // Send transaction
             TransactionReceipt transactionReceipt = memberContract.updateExcludePublicKey(
                     generateParams(member, false),
-                    extJson
+                    member.getExtJson()
             );
 
             // Get receipt result
@@ -133,7 +132,7 @@ public class MemberContractService extends AbstractContractService {
      */
     public void updateExcludeLogo(UpdateExcludeLogoApi.Input input) throws StatusCodeWithException {
         try {
-            String extJson = " ";
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.curMemberId).getExtJson());
             MemberContract memberContract = getContract();
 
             List<String> params = new ArrayList<>();
@@ -153,7 +152,7 @@ public class MemberContractService extends AbstractContractService {
 
             LOG.info("MemberContractService updateExcludeLogo: {}" + input.getId());
             // Send transaction
-            TransactionReceipt transactionReceipt = memberContract.updateExcludeLogo(params, extJson);
+            TransactionReceipt transactionReceipt = memberContract.updateExcludeLogo(params, extJson.toString());
 
             TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXCLUDELOGO, transactionReceipt);
@@ -366,6 +365,7 @@ public class MemberContractService extends AbstractContractService {
         member.setUpdatedTime(DateUtil.stringToDate(StringUtil.strTrim(dataStrArray[12]), DateUtil.YYYY_MM_DD_HH_MM_SS2));
         member.setLastActivityTime(Long.parseLong(dataStrArray[13]));
         member.setLogTime(Long.parseLong(dataStrArray[14]));
+        member.setExtJson(StringUtil.strTrim(dataStrArray[15]));
         return member;
     }
 

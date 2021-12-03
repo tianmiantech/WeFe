@@ -36,7 +36,7 @@ public class UpdateLogoByIdApi extends AbstractApi<UpdateLogoByIdApi.Input, Memb
 
     @Override
     protected ApiResult<MemberOutput> handle(Input input) throws StatusCodeWithException {
-        memberContractService.updateLogoById(input.id, input.logo);
+        memberContractService.updateLogoById(input.curMemberId, input.logo);
         return success();
     }
 
