@@ -92,7 +92,7 @@ Apache 2.0
 
 # 联系我们
 
-欢迎扫码添加 WeFe 小助手；
+欢迎扫码添加 WeFe 小助手（微信号：tianmiantech001）；
 
 <div align=left>
   <img src="./images/WeFeWechatQR03.png" style="zoom:50%;" />
