@@ -47,12 +47,13 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public byte[][] compute(byte[][] value) {
+    public byte[][] compute(List<byte[]> value) {
         LOG.info("align start...");
 
         long start = System.currentTimeMillis();
 
         try {
+
             //Encrypted again
             return CryptoUtils.sign(N, d, value);
         } catch (Exception e) {

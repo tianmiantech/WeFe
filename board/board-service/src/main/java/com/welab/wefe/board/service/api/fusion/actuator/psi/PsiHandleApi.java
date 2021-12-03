@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -35,8 +36,9 @@ import java.io.IOException;
         path = "fusion/psi/handle",
         name = "psi handle",
         desc = "psi handle",
-        login = false,
-        rsaVerify = true)
+        login = false
+//        rsaVerify = true
+)
 public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
 
 
@@ -51,9 +53,9 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        byte[][] bs;
+        List<byte[]> bs;
 
-        public Input(String businessId, byte[][] bs) {
+        public Input(String businessId, List<byte[]> bs) {
             this.businessId = businessId;
             this.bs = bs;
         }
@@ -66,11 +68,11 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
             this.businessId = businessId;
         }
 
-        public byte[][] getBs() {
+        public List<byte[]> getBs() {
             return bs;
         }
 
-        public void setBs(byte[][] bs) {
+        public void setBs(List<byte[]> bs) {
             this.bs = bs;
         }
     }
