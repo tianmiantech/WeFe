@@ -21,17 +21,18 @@ import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusiness
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.UUID;
-
 /**
  * @author yuxin.zhang
  **/
 @Document(collection = MongodbTable.Union.UNION_NODE)
 public class UnionNode extends AbstractBlockChainBusinessModel {
     private String nodeId;
+    private String blockchainNodeId;
     private String baseUrl;
     private String organizationName;
     private String lostContact;
+    private String contactEmail;
+    private String priorityLevel;
     private String version;
     private String enable;
     private UnionNodeExtJSON extJson;
@@ -42,6 +43,14 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
+    }
+
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
     }
 
     public String getBaseUrl() {
@@ -66,6 +75,22 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setLostContact(String lostContact) {
         this.lostContact = lostContact;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(String priorityLevel) {
+        this.priorityLevel = priorityLevel;
     }
 
     public String getVersion() {
