@@ -16,9 +16,9 @@
 
 package com.welab.wefe.board.service.api.data_resource.bloomfilter;
 
-import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
+import com.welab.wefe.board.service.service.data_resource.add.BloomfilterAddService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -31,16 +31,15 @@ import java.io.IOException;
  * @author jacky.jiang
  */
 @Api(path = "bloomfilter/add", name = "add bloomfilter")
-public class BloomfilterAddApi extends AbstractApi<BloomfilterAddInputModel, DataResourceUploadTaskMysqlModel> {
+public class BloomfilterAddApi extends AbstractApi<BloomfilterAddInputModel, DataResourceAddOutputModel> {
 
     @Autowired
-    private DataResourceUploadTaskService dataResourceUploadTaskService;
-
+    private BloomfilterAddService bloomfilterAddService;
 
     @Override
-    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(BloomfilterAddInputModel input) throws StatusCodeWithException, IOException {
-        DataResourceUploadTaskMysqlModel dataResourceUploadTaskMysqlModel = dataResourceUploadTaskService.add(input);
-        return success(dataResourceUploadTaskMysqlModel);
+    protected ApiResult<DataResourceAddOutputModel> handle(BloomfilterAddInputModel input) throws StatusCodeWithException, IOException {
+        DataResourceAddOutputModel bloomfilterTaskMysqlModel = bloomfilterAddService.add(input);
+        return success(bloomfilterTaskMysqlModel);
     }
 
 }

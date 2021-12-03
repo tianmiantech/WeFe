@@ -154,8 +154,8 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         }
 
         this.bloomfilterPath = outFile.getAbsolutePath();
-        this.bloomFilterRepository.updateById(bloomfilterId, "storageNamespace", this.bloomfilterPath.replace(model.getName(),""), BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId,"storageResourceName", model.getName(), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "storageNamespace", this.bloomfilterPath.replace(model.getName(), ""), BloomFilterMysqlModel.class);
+        this.bloomFilterRepository.updateById(bloomfilterId, "storageResourceName", model.getName(), BloomFilterMysqlModel.class);
         batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
             try {
                 generateFilter(bloomfilterId, rows);
