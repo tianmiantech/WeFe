@@ -114,5 +114,13 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
         public void setDescription(String description) {
             this.description = description;
         }
+
+		public String getFederatedLearningType() {
+			return federatedLearningType;
+		}
+
+		public void setFederatedLearningType(String federatedLearningType) {
+			this.federatedLearningType = federatedLearningType;
+		}
     }
 }
