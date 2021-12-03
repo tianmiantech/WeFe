@@ -247,7 +247,7 @@ public class FusionTaskService extends AbstractService {
         //Add fieldinfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
-        task.setStatus(FusionTaskStatus.Ready);
+        task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());

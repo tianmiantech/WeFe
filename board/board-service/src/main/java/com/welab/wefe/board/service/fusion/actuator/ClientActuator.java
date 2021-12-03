@@ -19,19 +19,24 @@ package com.welab.wefe.board.service.fusion.actuator;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.common.data.storage.common.Constant;
+import com.welab.wefe.common.data.storage.model.DataItemModel;
+import com.welab.wefe.common.data.storage.model.PageInputModel;
+import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
-import org.apache.commons.compress.utils.Lists;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +57,9 @@ public class ClientActuator extends PsiClientActuator {
     private int current_index = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
+    DataSetStorageService dataSetStorageService;
+
+    private String[] headers;
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
         super(businessId, dataSetId, isTrace, traceColumn);
@@ -81,6 +89,14 @@ public class ClientActuator extends PsiClientActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
+
+        dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
+        DataItemModel model = dataSetStorageService.getByKey(
+                Constant.DBName.WEFE_DATA,
+                dataSetStorageService.createRawDataSetTableName(dataSetId) + ".meta",
+                "header"
+        );
+        headers = model.getV().toString().split(",");
     }
 
     @Override
@@ -89,24 +105,34 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public List<JObject> next() {
-
         long start = System.currentTimeMillis();
+        synchronized (dataSetStorageService) {
 
-        List<JObject> curList = Lists.newArrayList();
-//        try {
-//            curList = service.paging(columnList, dataSetId, current_index, shard_size);
-//
-//        } catch (StatusCodeWithException e) {
-//        }
+            PageOutputModel model = dataSetStorageService.getListByPage(
+                    Constant.DBName.WEFE_DATA,
+                    dataSetStorageService.createRawDataSetTableName(dataSetId),
+                    new PageInputModel(current_index, shard_size)
+            );
 
-        LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
+            List<DataItemModel> list = model.getData();
 
-        current_index++;
+            List<JObject> curList = Lists.newArrayList();
+            list.forEach(x -> {
+                String[] values = x.getV().toString().split(",");
+                JObject jObject = JObject.create();
+                for (int i = 0; i < headers.length; i++) {
+                    jObject.put(headers[i], values[i]);
+                }
+                curList.add(jObject);
+            });
 
-        return curList;
 
-        //TODO ck取数
+            LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
 
+            current_index++;
+
+            return curList;
+        }
     }
 
     @Override
@@ -147,15 +173,18 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public Boolean hasNext() {
+        if (dataSetStorageService == null) {
+            dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
+        }
 
-        List<JObject> curList = Lists.newArrayList();
-//        try {
-//      //      curList = service.paging(columnList, dataSetId, current_index, shard_size);
-//
-//        } catch (StatusCodeWithException e) {
-//        }
-
-        return curList.size() > 0;
+        synchronized (dataSetStorageService) {
+            PageOutputModel model = dataSetStorageService.getListByPage(
+                    Constant.DBName.WEFE_DATA,
+                    dataSetStorageService.createRawDataSetTableName(dataSetId),
+                    new PageInputModel(current_index, shard_size)
+            );
+            return model.getData().size() > 0;
+        }
     }
 
     @Override
@@ -165,18 +194,16 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
-        JObject result = null;
+        JSONObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JSONObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
 
-        LOG.info("downloadBloomFilter end {} ", result.get("data"));
+        LOG.info("downloadBloomFilter end {} ", result);
 
-        return JObject.toJavaObject((JSONObject) result.get("data"), PsiActuatorMeta.class);
-
-        //return null;
+        return JObject.toJavaObject(result, PsiActuatorMeta.class);
     }
 
     @Override
