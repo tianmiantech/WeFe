@@ -112,7 +112,7 @@
                             {{ tab.label }}
                         </el-badge>
                     </template>
-                    <List
+                    <AllDataList
                         ref="allUnions"
                         key="allUnions"
                         :table-loading="vData.loading"
@@ -134,12 +134,12 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import List from './components/list';
+    import AllDataList from './components/list';
     import ImagesList from './components/images-list';
 
     export default {
         components: {
-            List,
+            AllDataList,
             ImagesList,
         },
         setup() {
@@ -278,7 +278,7 @@
             const searchList = (opt = {}) => {
                 const refInstance = vData.activeTab === 'imageUnions' ? imageUnions : allUnions;
 
-                refInstance.value.getDataList(opt);
+                refInstance && refInstance.value.getDataList(opt);
             };
 
             onMounted(async () => {

@@ -79,6 +79,7 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="Public"
                             >
@@ -91,6 +92,7 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="PublicWithMemberList"
                             >
@@ -121,7 +123,9 @@
                                                 {{ item.id }}
                                             </span>
                                         </p>
-                                        <i class="el-icon-close" @click="deleteSelectedMember(item, index)"></i>
+                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                            <elicon-close />
+                                        </el-icon>
                                     </li>
                                 </ul>
                             </div>
@@ -199,10 +203,12 @@
                                         class="f12"
                                     >
                                         [{{item.database_type}}] {{ item.name }} ({{ item.host }}:{{ item.port }})
-                                        <i
-                                            class="el-icon-close ml5 f16"
+                                        <el-icon
+                                            class="color-danger ml5 f16"
                                             @click.prevent.stop="removeDataSource($event, item)"
-                                        />
+                                        >
+                                            <elicon-close />
+                                        </el-icon>
                                     </el-option>
                                 </el-select>
                                 <el-button
@@ -273,6 +279,7 @@
                             class="float-right"
                             size="mini"
                             clearable
+                            style="width: 140px;"
                             placeholder="数据类型缺失填充"
                             @change="dataTypeFill"
                         >
@@ -393,7 +400,7 @@
             </el-row>
         </el-form>
 
-        <SelectMemberDialog
+        <SelectMember
             ref="SelectMemberDialog"
             :block-my-id="true"
             :public-member-info-list="public_member_info_list"
@@ -416,8 +423,8 @@
                 />
                 <p class="mb10">正在存储数据集...</p>
                 <div class="upload-info">
-                    <p class="mb5">总数据行数：<span>{{uploadTask.total_row_count}}</span></p>
-                    <p class="mb5">已处理数据行数：<span>{{uploadTask.added_row_count}}</span></p>
+                    <p class="mb5">样本总量：<span>{{uploadTask.total_row_count}}</span></p>
+                    <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
                     <p class="mb10">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
                     <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
                     <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据集上传效率会急剧下降，建议在本地去重后执行上传。</strong>
@@ -509,14 +516,14 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import DataSetPublicTips from './components/data-set-public-tips';
-    import SelectMemberDialog from './components/select-member-dialog';
+    import SelectMember from './components/select-member';
 
     let canLeave = false;
 
     export default {
         components: {
             DataSetPublicTips,
-            SelectMemberDialog,
+            SelectMember,
         },
         mixins: [table],
         data() {
@@ -552,7 +559,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -692,6 +699,9 @@
         },
         created() {
             this.addDataType = this.$route.query.type || 'csv';
+            if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
+                this.form.publicLevel = 'OnlyMyself';
+            }
             this.getDataSouceList();
             this.checkStorage();
 
@@ -705,7 +715,7 @@
                 canLeave = false;
                 next();
             } else {
-                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗', '警告', {
+                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗?', '警告', {
                     type: 'warning',
                 }).then(async () => {
                     canLeave = false;
@@ -719,7 +729,8 @@
                 const { code, data } = await this.$http.post({
                     url:  '/member/service_status_check',
                     data: {
-                        member_id: this.userInfo.member_id,
+                        requestFromRefresh: true,
+                        member_id:          this.userInfo.member_id,
                     },
                 });
 
@@ -981,7 +992,7 @@
                     },
                 })
                     .catch(err => {
-                        console.log(err);
+
                     });
 
                 this.loading = false;
@@ -1105,6 +1116,7 @@
                     url:    '/data_set_task/detail',
                     params: {
                         id,
+                        requestFromRefresh: true,
                     },
                 });
 

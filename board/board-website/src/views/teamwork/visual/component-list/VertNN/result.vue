@@ -34,7 +34,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             let vData = reactive({
                 result:     null,
@@ -50,14 +49,14 @@
 
             let methods = {
                 showResult(data) {
-                    if(data && data.result) {
+                    if(data[0].result) {
                         vData.result = true;
                         const {
                             model_param: {
                                 intercept,
                                 weight,
                             },
-                        } = data.result;
+                        } = data[0].result;
 
                         vData.tableData = [];
                         for(const key in weight) {
@@ -73,7 +72,6 @@
                     } else {
                         vData.result = false;
                     }
-                    console.log(vData.tableData);
                 },
             };
 

@@ -5,7 +5,25 @@
         <el-descriptions :column="2">
             <template #extra>
                 <p class="data-set-meta">
-                    <strong class="strong">{{ dataInfo.creator_nickname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在 <strong class="strong">{{ dataInfo.usage_count_in_project > 0 ? dataInfo.usage_count_in_project : 0 }}</strong> 个合作项目中，
+                    <strong class="strong">{{ dataInfo.creator_nickname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在
+                    <el-popover
+                        v-if="dataInfo.usage_count_in_project"
+                        trigger="hover"
+                    >
+                        <template #reference>
+                            <el-link class="strong" type="primary">{{ dataInfo.usage_count_in_project }}</el-link>
+                        </template>
+                        <p class="f12">参与的合作:</p>
+                        <p v-for="item in projects" :key="item.project_id">
+                            <el-link type="primary" :underline="false">
+                                {{ item.name }}
+                                <el-icon>
+                                    <elicon-right />
+                                </el-icon>
+                            </el-link>
+                        </p>
+                    </el-popover>
+                    <strong v-else class="strong">0</strong> 个合作项目中，
                     参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
                 </p>
             </template>
@@ -77,7 +95,7 @@
             </el-tab-pane>
 
             <el-tab-pane name="preview" label="数据预览">
-                <h4 class="mb10">主键已被 hash</h4>
+                <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
                 <DataSetPreview ref="DataSetPreview" />
             </el-tab-pane>
         </el-tabs>
@@ -99,6 +117,7 @@
                 data_list:   [],
                 dataInfo:    {},
                 addDataType: 'csv',
+                projects:    [],
             };
         },
         computed: {
@@ -111,8 +130,21 @@
         created() {
             this.addDataType = this.$route.query.type || 'csv';
             this.getData();
+            this.getRelativeProjects();
         },
         methods: {
+            async getRelativeProjects() {
+                const { code, data } = await this.$http.get({
+                    url:    '/data_set/usage_detail',
+                    params: {
+                        dataSetId: this.id,
+                    },
+                });
+
+                if(code === 0 && data && data.length) {
+                    this.projects = data;
+                }
+            },
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({

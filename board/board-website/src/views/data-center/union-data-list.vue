@@ -169,14 +169,12 @@
                             width="100"
                         >
                             <template v-slot="scope">
-                                <i
-                                    v-if="scope.row.contains_y "
-                                    class="el-icon-check"
-                                />
-                                <i
-                                    v-else
-                                    class="el-icon-close"
-                                />
+                                <el-icon v-if="scope.row.contains_y" class="el-icon-check">
+                                    <elicon-check />
+                                </el-icon>
+                                <el-icon v-else class="el-icon-close">
+                                    <elicon-close />
+                                </el-icon>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -235,7 +233,9 @@
                         left: `${ball.x}px`,
                     }"
                 >
-                    <i class="ball-icon el-icon-folder-add" />
+                    <el-icon class="ball-icon">
+                        <elicon-folder-add />
+                    </el-icon>
                 </i>
             </transition>
         </template>
@@ -319,8 +319,9 @@
                     const { code, data } = await $http.post({
                         url:  '/union/member/query',
                         data: {
-                            page_size: 100,
-                            name:      keyward,
+                            page_size:          100,
+                            name:               keyward,
+                            requestFromRefresh: true,
                         },
                     });
 
@@ -331,7 +332,10 @@
                 async checkCard(member_id) {
                     const res = await $http.post({
                         url:  '/union/member/query',
-                        data: { id: member_id },
+                        data: {
+                            id:                 member_id,
+                            requestFromRefresh: true,
+                        },
                     });
 
                     if(res.code === 0){
@@ -483,7 +487,5 @@
         z-index: 11;
         transition: 0.7s all linear;
     }
-    .ball-icon{
-        transition: 0.7s all cubic-bezier(0.49, -0.29, 0.75, 0.41);
-    }
+    .ball-icon{transition: 0.7s all cubic-bezier(0.49, -0.29, 0.75, 0.41);}
 </style>

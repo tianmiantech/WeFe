@@ -140,6 +140,9 @@
                 }, {
                     label: '等待审核',
                     value: 'auditing',
+                }, {
+                    label: '已关闭',
+                    value: 'closed',
                 }],
                 projectTabs: [{
                     name:   'allProjects',

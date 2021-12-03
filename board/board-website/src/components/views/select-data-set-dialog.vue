@@ -1,35 +1,49 @@
 <template>
     <el-dialog
         v-model="show"
-        custom-class="dataset-dialog"
+        custom-class="mid-min-width"
         title="请选择数据集"
         destroy-on-close
         width="70%"
     >
         <el-form
             inline
+            size="mini"
             @submit.prevent
         >
             <el-form-item
-                label="名称："
-                label-width="60px"
+                v-if="memberRole !== 'provider'"
+                label="上传者："
             >
+                <el-input
+                    v-model="search.creator"
+                    clearable
+                />
+            </el-form-item>
+            <el-form-item label="名称：">
                 <el-input
                     v-model="search.name"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="ID："
-                label-width="60px"
-            >
+            <el-form-item label="ID：">
                 <el-input
                     v-model="search.id"
                     clearable
                 />
             </el-form-item>
+            <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
+                <el-select
+                    v-model="search.contains_y"
+                    style="width:80px;"
+                    clearable
+                >
+                    <el-option label="是" value="true"></el-option>
+                    <el-option label="否" value="false"></el-option>
+                </el-select>
+            </el-form-item>
             <el-button
-                class="mb20"
+                class="ml10 mb10"
                 type="primary"
                 @click="loadDataList({ memberId, resetPagination: true })"
             >
@@ -40,12 +54,12 @@
         <DataSetList
             ref="raw"
             source-type="Raw"
+            :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
             :contains-y="containsY"
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
-            :is-show="isShow"
             :project-type="projectType"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
@@ -62,6 +76,7 @@
             DataSetList,
         },
         props: {
+            memberRole:   String,
             dataSets:     Array,
             containsY:    String,
             callbackFunc: {
@@ -84,8 +99,10 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:   '',
-                    name: '',
+                    id:         '',
+                    name:       '',
+                    creator:    '',
+                    contains_y: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
@@ -111,20 +128,23 @@
 
             resetSearch() {
                 this.$nextTick(() => {
-                    const ref = this.$refs['raw'];
+                    const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:   '',
-                        name: '',
+                        id:         '',
+                        name:       '',
+                        creator:    '',
+                        contains_y: '',
                     };
 
                     if(this.containsY) {
                         this.search.source_type = 'Raw';
+                        this.search.contains_y = true;
                     }
 
-                    ref.list = [];
-                    ref.pagination.page_index = 1;
-                    ref.pagination.page_size = 20;
+                    $ref.list = [];
+                    $ref.pagination.page_index = 1;
+                    $ref.pagination.page_size = 20;
                 });
             },
 
@@ -170,7 +190,7 @@
                         if (this.projectType === 'DeepLearning') {
                             url = '/image_data_set/query';
                         } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
+                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
                         }
                     } else {
                         // search from union
@@ -182,9 +202,9 @@
                     }
                 }
 
-                const ref = this.$refs['raw'];
+                const $ref = this.$refs['raw'];
 
-                ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
             },
 
             selectDataSet(item) {
@@ -201,5 +221,10 @@
 <style lang="scss" scoped>
     .dataset-dialog {
         min-width: 800px;
+    }
+    .el-form{
+        .el-form-item{
+            margin-bottom: 10px;
+        }
     }
 </style>
