@@ -80,6 +80,8 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
         private String description;
 
         private String enname;
+        
+        private String federatedLearningType;
 
         public String getId() {
             return id;
