@@ -110,8 +110,15 @@ class FCStorage(object):
             "Statement": [
                 {
                     "Effect": "Allow",
-                    "Action": ["oss:ListObjects", "oss:Get*"],
-                    "Resource": ["acs:oss:*:*:" + self._bucket_name],
+                    "Action": "oss:Get*",
+                    "Resource": [
+                        "acs:oss:*:*:wefe-fc/" + self._namespace + "/*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": "oss:ListObjects",
+                    "Resource": "acs:oss:*:*:wefe-fc",
                     "Condition": {
                         "StringLike": {
                             "oss:Prefix": self._namespace + "/" + self._name + "/*"
@@ -129,7 +136,7 @@ class FCStorage(object):
         request.set_RoleSessionName(role_session_name)
         request.set_DurationSeconds(temp_auth_duration_seconds)
         # set policy
-        request.set_Policy(fc_policy)
+        request.set_Policy(json.dumps(fc_policy))
 
         response = client.do_action_with_exception(request)
         result = json.loads(str(response, encoding='utf-8'))
