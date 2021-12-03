@@ -101,7 +101,7 @@ public class CallbackService {
             return;
         }
 
-        FusionTaskMySqlModel task = fusionTaskService.findByIdAndStatus(businessId, FusionTaskStatus.Await);
+        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
         }
@@ -156,7 +156,7 @@ public class CallbackService {
                 task.getDataResourceId(),
                 task.isTrace(),
                 task.getTraceColumn(),
-                task.getMemberId()
+                task.getDstMemberId()
         );
 
         ActuatorManager.set(client);

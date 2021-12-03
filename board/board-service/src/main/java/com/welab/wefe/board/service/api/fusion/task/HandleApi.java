@@ -49,21 +49,9 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
         return success();
     }
 
-    public static void main(String[] args) {
-       List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        FieldInfo fieldInfo = new FieldInfo();
-        fieldInfo.setColumns("id");
-        fieldInfo.setOptions(Options.NONE);
-        fieldInfo.setPosition(0);
-
-        fieldInfoList.add(fieldInfo);
-
-
-        System.out.println(JSON.toJSONString(fieldInfoList));
-    }
     public static class Input extends AbstractApiInput {
-        @Check(name = "任务Id", require = true)
-        private String id;
+        @Check(name = "businessId", require = true)
+        private String businessId;
 
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
@@ -95,12 +83,12 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
 
         }
 
-        public String getId() {
-            return id;
+        public String getBusinessId() {
+            return businessId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setBusinessId(String businessId) {
+            this.businessId = businessId;
         }
 
         public List<FieldInfo> getFieldInfoList() {

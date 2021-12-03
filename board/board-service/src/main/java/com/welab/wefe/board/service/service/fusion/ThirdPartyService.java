@@ -46,7 +46,7 @@ public class ThirdPartyService {
         JObject params = JObject
                 .create()
                 .put("project_id", task.getBusinessId())
-                .put("member_id", CacheObjects.getMemberId())
+                .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
                 .put("row_count", task.getRowCount())
@@ -58,7 +58,7 @@ public class ThirdPartyService {
                 .put("partner_data_resource_id", task.getDataResourceId())
                 .put("partner_data_resource_type", task.getDataResourceType());
 
-        request(task.getMemberId(), "task/receive", params);
+        request(task.getDstMemberId(), "task/receive", params);
     }
 
     /**

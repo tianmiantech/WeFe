@@ -86,7 +86,7 @@ public class FusionTaskService extends AbstractService {
         return fusionTaskRepository.findOne("businessId", businessId, FusionTaskMySqlModel.class);
     }
 
-    public FusionTaskMySqlModel findByIdAndStatus(String taskId, FusionTaskStatus status) throws StatusCodeWithException {
+    public FusionTaskMySqlModel findByBusinessIdAndStatus(String taskId, FusionTaskStatus status) throws StatusCodeWithException {
         Specification<FusionTaskMySqlModel> where = Where.create()
                 .equal("id", taskId)
                 .equal("status", status).build(FusionTaskMySqlModel.class);
@@ -160,7 +160,7 @@ public class FusionTaskService extends AbstractService {
         task.setName(input.getName());
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
-        task.setMemberId(input.getPartnerId());
+        task.setDstMemberId(input.getDstMemberId());
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -186,9 +186,9 @@ public class FusionTaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
 
-        FusionTaskMySqlModel task = findByIdAndStatus(input.getId(), FusionTaskStatus.Pending);
+        FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
-            throw new StatusCodeWithException("id error:" + input.getId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
         }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
@@ -196,7 +196,7 @@ public class FusionTaskService extends AbstractService {
             task.setComment(input.getAuditComment());
 
             //callback
-            thirdPartyService.callback(task.getMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+            thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
 
             return;
         }
@@ -205,6 +205,9 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
         }
 
+        //callback
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+
         switch (task.getAlgorithm()) {
             case RSA_PSI:
                 psi(input, task);
@@ -212,9 +215,6 @@ public class FusionTaskService extends AbstractService {
             default:
                 throw new RuntimeException("Unexpected enumeration values");
         }
-
-        //callback
-        thirdPartyService.callback(task.getMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
 
@@ -259,7 +259,7 @@ public class FusionTaskService extends AbstractService {
                 task.getDataResourceId(),
                 input.getTrace(),
                 input.getTraceColumn(),
-                task.getMemberId()
+                task.getDstMemberId()
         );
 
         ActuatorManager.set(client);
