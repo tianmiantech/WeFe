@@ -16,19 +16,24 @@
 
 package com.welab.wefe.board.service.api.project.flow;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.board.service.api.project.flow.QueryFlowTemplateApi.TemplateListOutput;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.service.FlowTemplateService;
 import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author winter.zou
@@ -81,7 +86,8 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
 
         private String enname;
         
-        private String federatedLearningType;
+        @Enumerated(EnumType.STRING)
+        private FederatedLearningType federatedLearningType;
 
         public String getId() {
             return id;
@@ -115,11 +121,11 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
             this.description = description;
         }
 
-		public String getFederatedLearningType() {
+		public FederatedLearningType getFederatedLearningType() {
 			return federatedLearningType;
 		}
 
-		public void setFederatedLearningType(String federatedLearningType) {
+		public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
 			this.federatedLearningType = federatedLearningType;
 		}
     }
