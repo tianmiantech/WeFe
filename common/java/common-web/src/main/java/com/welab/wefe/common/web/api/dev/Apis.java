@@ -18,21 +18,19 @@ package com.welab.wefe.common.web.api.dev;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.ReflectionsUtil;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api_document.AbstractApiDocumentFormatter;
+import com.welab.wefe.common.web.api_document.HtmlFormatter;
+import com.welab.wefe.common.web.api_document.JsonFormatter;
+import com.welab.wefe.common.web.api_document.MarkdownFormatter;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ApiListJsonFormatter;
-import com.welab.wefe.common.web.util.ApiListMarkdownFormatter;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -43,31 +41,27 @@ public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
-        List<Class<?>> list = ReflectionsUtil
-                .getClassesWithAnnotation(Launcher.API_PACKAGE_PATH, Api.class)
-                .stream()
-                .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                .collect(Collectors.toList());
 
-        switch (input.format) {
+        AbstractApiDocumentFormatter formatter;
+        switch (input.format.toLowerCase().trim()) {
             case "json":
-                List<JObject> apiList = ApiListJsonFormatter.format(list);
-                ResponseEntity<ApiResult<Object>> response1 = ResponseEntity
-                        .ok()
-                        .header("content-type", "application/json; charset=utf-8")
-                        .body(ApiResult.ofSuccess(Output.of(apiList.size(), apiList)));
+                formatter = new JsonFormatter();
+                break;
 
-                return success(response1);
+            case "markdown":
+                formatter = new MarkdownFormatter();
+                break;
 
             default:
-                String markdown = ApiListMarkdownFormatter.format(list);
-                ResponseEntity<String> response2 = ResponseEntity
-                        .ok()
-                        .header("content-type", "text/markdown; charset=utf-8")
-                        .body(markdown);
-
-                return success(response2);
+                formatter = new HtmlFormatter();
         }
+
+        ResponseEntity<Object> response = ResponseEntity
+                .ok()
+                .header("content-type", formatter.contentType() + "; charset=utf-8")
+                .body(formatter.format());
+
+        return success(response);
     }
 
 

@@ -33,22 +33,22 @@ public class ClassUtils {
     /**
      * build a readable type name for field
      */
-    public static String getFieldTypeName(Field field) {
-        Class<?> type = field.getType();
+    public static String getTypeSimpleName(Class<?> type) {
         String name = type.getCanonicalName();
-
-        if (field.getType().equals(List.class)) {
-
-            Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-            String genericTypeName = genericType.getTypeName();
-            genericTypeName = genericTypeName.contains(".") ? StringUtil.substringAfterLast(genericTypeName, ".") : genericTypeName;
-            genericTypeName = genericTypeName.replace("$", ".");
-            name = "List<" + genericTypeName + ">";
-
-        } else if (name.contains(".")) {
-            name = StringUtil.substringAfterLast(field.getType().getCanonicalName(), ".");
-        }
+        name = name.contains(".") ? StringUtil.substringAfterLast(name, ".") : name;
+        name = name.replace("$", ".");
         return name;
+    }
+
+    public static Type getListFieldGenericType(Field field) {
+        Class<?> type = field.getType();
+
+        if (!type.equals(List.class)) {
+            throw new UnsupportedOperationException();
+        }
+
+        Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        return genericType;
     }
 
     /**
