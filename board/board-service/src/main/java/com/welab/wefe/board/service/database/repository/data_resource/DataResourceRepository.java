@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.database.repository.data_resource;
 
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,7 +28,6 @@ import java.util.List;
 /**
  * @author Zane
  */
-@Primary
 @Repository("dataResourceRepository")
 public interface DataResourceRepository<T extends DataResourceMysqlModel> extends BaseRepository<T, String> {
 

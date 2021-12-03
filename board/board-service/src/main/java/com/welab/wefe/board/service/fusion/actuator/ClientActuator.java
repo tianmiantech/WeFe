@@ -51,16 +51,16 @@ public class ClientActuator extends PsiClientActuator {
     private int shard_size = 1000;
     private int current_index = 0;
     public List<FieldInfo> fieldInfoList;
+    public String dstMemberId;
 
-    public String memberId;
-
-    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
+    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
         super(businessId, dataSetId, isTrace, traceColumn);
+        this.dstMemberId = dstMemberId;
     }
 
     @Override
     public void init() throws StatusCodeWithException {
-        FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
+        FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
 
@@ -164,10 +164,10 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("downloadBloomFilter start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(memberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
@@ -185,10 +185,10 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("qureyFusionData start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.CONTEXT.getBean(GatewayService.class);
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(memberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs), JObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, bs), JObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@ import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
@@ -55,13 +56,14 @@ public class DataResourceService extends AbstractDataResourceService {
     private ProjectRepository projectRepository;
     @Autowired
     private DataResourceRepository dataResourceRepository;
-
+    @Autowired
+    private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
 
     /**
      * Update the number of data sets used in the project
      */
     public void updateUsageCountInProject(String dataSetId) {
-        updateUsageCountInProject(dataSetId);
+        dataResourceRepository.updateUsageCountInProject(dataSetId);
 
         DataResourceMysqlModel model = (DataResourceMysqlModel) dataResourceRepository.findById(dataSetId).orElse(null);
         if (model == null) {
@@ -180,28 +182,6 @@ public class DataResourceService extends AbstractDataResourceService {
     }
 
     /**
-     * Standardize the tag list
-     */
-    public String standardizeTags(List<String> tags) {
-        if (tags == null) {
-            return "";
-        }
-
-        tags = tags.stream()
-                // Remove comma(,，)
-                .map(x -> x.replace(",", "").replace("，", ""))
-                // Remove empty elements
-                .filter(x -> !StringUtil.isEmpty(x))
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
-
-        // Concatenate into a string, add a comma before and after it to facilitate like query.
-        return "," + StringUtil.join(tags, ',') + ",";
-
-    }
-
-    /**
      * Process the list of visible members
      * <p>
      * When the scene is visible to the specified members, automatically add itself is also visible.
@@ -222,6 +202,28 @@ public class DataResourceService extends AbstractDataResourceService {
                 model.setPublicMemberList(list);
             }
         }
+
+    }
+
+    /**
+     * Standardize the tag list
+     */
+    public String standardizeTags(List<String> tags) {
+        if (tags == null) {
+            return "";
+        }
+
+        tags = tags.stream()
+                // Remove comma(,，)
+                .map(x -> x.replace(",", "").replace("，", ""))
+                // Remove empty elements
+                .filter(x -> !StringUtil.isEmpty(x))
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        // Concatenate into a string, add a comma before and after it to facilitate like query.
+        return "," + StringUtil.join(tags, ',') + ",";
 
     }
 

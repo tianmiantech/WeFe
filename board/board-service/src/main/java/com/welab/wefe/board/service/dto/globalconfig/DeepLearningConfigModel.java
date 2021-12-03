@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.board.service.dto.globalconfig;
 
 /**
- * @author zane.luo
+ * @author zane
+ * @date 2021/10/29
  */
-public class FlowConfigModel {
-    /***
-     * Flow service intranet base uri
-     */
-    public String intranetBaseUri;
+public class DeepLearningConfigModel {
+    public String device = "cpu";
+    public String paddleVisualDlBaseUrl;
 }

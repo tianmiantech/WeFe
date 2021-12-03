@@ -48,7 +48,7 @@ public class UnionService extends AbstractUnionService {
         // TODO: Zane 待补充
     }
 
-    public void uploadDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
+    public void uploadDataResource(DataResourceMysqlModel model) {
         JObject params = JObject
                 .create(model);
 
@@ -58,20 +58,16 @@ public class UnionService extends AbstractUnionService {
             return;
         }
 
-        // If this data set is not publicly available to anyone
-        if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
-            // Notify union to remove the data set
-            dontPublicDataSet(model);
-            return;
-        }
-
-
         CommonThreadPool.run(() -> {
-
-            String api = "data_resource/put";
-
             try {
-                request(api, params);
+                // If this data set is not publicly available to anyone
+                if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
+                    // Notify union to remove the data set
+                    dontPublicDataSet(model);
+                    return;
+                }
+
+                request("data_resource/put", params);
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }

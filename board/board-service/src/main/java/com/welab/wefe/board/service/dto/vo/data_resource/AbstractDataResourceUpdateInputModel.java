@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -71,7 +71,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         }
 
         int countByName = 0;
-        ImageDataSetRepository repository = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
+        DataResourceRepository repository = Launcher.getBean(DataResourceRepository.class);
         if (StringUtil.isEmpty(id)) {
             countByName = repository.countByName(id);
         } else {

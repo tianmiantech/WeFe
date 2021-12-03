@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.table_data_set;
+package com.welab.wefe.board.service.service.data_resource.add;
 
 
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
-import com.welab.wefe.board.service.util.AbstractDataSetReader;
+import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.unique.AbstractDataSetUniqueFilter;
 import com.welab.wefe.board.service.util.unique.ContainResult;
 import com.welab.wefe.board.service.util.unique.DataSetBloomUniqueFilter;
@@ -74,7 +74,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<
     private AbstractDataSetUniqueFilter uniqueFilter;
     private final DataSetStorageService dataSetStorageService;
     private final DataResourceUploadTaskService dataResourceUploadTaskService;
-    private final AbstractDataSetReader dataSetReader;
+    private final AbstractTableDataSetReader dataSetReader;
 
     /**
      * first column name in headers
@@ -99,7 +99,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<
      */
     private final LongAdder repeatDataCount = new LongAdder();
 
-    public DataSetAddServiceDataRowConsumer(String dataSetId, boolean deduplication, AbstractDataSetReader dataSetReader) throws StatusCodeWithException {
+    public DataSetAddServiceDataRowConsumer(String dataSetId, boolean deduplication, AbstractTableDataSetReader dataSetReader) throws StatusCodeWithException {
         this.dataSetId = dataSetId;
         this.deduplication = deduplication;
         this.dataSetReader = dataSetReader;
@@ -113,8 +113,8 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<
         this.containsY = headers.contains("y");
         this.yIndex = headers.indexOf("y");
 
-        this.dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
-        this.dataResourceUploadTaskService = Launcher.CONTEXT.getBean(DataResourceUploadTaskService.class);
+        this.dataSetStorageService = Launcher.getBean(DataSetStorageService.class);
+        this.dataResourceUploadTaskService = Launcher.getBean(DataResourceUploadTaskService.class);
 
         batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
 

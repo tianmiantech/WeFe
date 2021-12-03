@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * @author zane.luo
  */
-public abstract class AbstractDataSetReader implements Closeable {
+public abstract class AbstractTableDataSetReader implements Closeable {
 
     private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
 
@@ -51,7 +51,7 @@ public abstract class AbstractDataSetReader implements Closeable {
     protected int readDataRows = 0;
     private Map<String, DataSetColumnInputModel> metadataMap;
 
-    public AbstractDataSetReader(List<DataSetColumnInputModel> metadataList) {
+    public AbstractTableDataSetReader(List<DataSetColumnInputModel> metadataList) {
         if (metadataList != null) {
             this.metadataMap = metadataList.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
         }

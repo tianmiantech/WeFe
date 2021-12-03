@@ -48,7 +48,7 @@ public class TableDataSetUpdateInputModel extends AbstractDataResourceUpdateInpu
         }
 
         int countByName = 0;
-        TableDataSetRepository repository = Launcher.CONTEXT.getBean(TableDataSetRepository.class);
+        TableDataSetRepository repository = Launcher.getBean(TableDataSetRepository.class);
         if (StringUtil.isEmpty(super.getId())) {
             countByName = repository.countByName(super.getName());
         } else {

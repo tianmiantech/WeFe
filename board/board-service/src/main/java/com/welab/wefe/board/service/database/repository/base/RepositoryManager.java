@@ -48,6 +48,6 @@ public class RepositoryManager {
                 MAP.put(entityClass, repoClass);
             }
         }
-        return (T) Launcher.CONTEXT.getBean(MAP.get(mysqlModelClass));
+        return (T) Launcher.getBean(MAP.get(mysqlModelClass));
     }
 }

@@ -49,3 +49,8 @@ class MailServerModel(object):
     mail_port: int
     mail_username: str
     mail_password: str
+
+
+class FunctionComputeConfig(object):
+    max_cost_in_day: int
+    max_cost_in_month: int

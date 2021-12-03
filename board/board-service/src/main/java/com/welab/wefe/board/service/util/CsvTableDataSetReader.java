@@ -38,17 +38,17 @@ import java.util.List;
  *
  * @author zane.luo
  */
-public class CsvDataSetReader extends AbstractDataSetReader {
+public class CsvTableDataSetReader extends AbstractTableDataSetReader {
 
     private final CsvParser parser;
     private long totalRowCount;
     private final File file;
 
-    public CsvDataSetReader(File file) throws IOException {
+    public CsvTableDataSetReader(File file) throws IOException {
         this(null, file);
     }
 
-    public CsvDataSetReader(List<DataSetColumnInputModel> metadataList, File file) throws IOException {
+    public CsvTableDataSetReader(List<DataSetColumnInputModel> metadataList, File file) throws IOException {
         super(metadataList);
         this.file = file;
 

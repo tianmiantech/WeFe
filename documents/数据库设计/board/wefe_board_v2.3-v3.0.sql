@@ -20,7 +20,7 @@ CREATE TABLE `data_resource`
     `tags`                    varchar(128) COMMENT '标签',
     `storage_type`            varchar(32) COMMENT '存储类型',
     `storage_namespace`       varchar(1000) NOT NULL COMMENT '资源在存储中的命名空间（库名、目录路径）',
-    `storage_resource_name`   varchar(1000) NOT NULL COMMENT '资源在存储中的名称（表名、文件名）',
+    `storage_resource_name`   varchar(1000) COMMENT '资源在存储中的名称（表名、文件名）',
     `total_data_count`        bigint(20) NOT NULL COMMENT '总数据量',
     `public_level`            varchar(32) COMMENT '资源的可见性',
     `public_member_list`      varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该资源的基本信息',

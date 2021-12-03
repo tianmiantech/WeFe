@@ -35,7 +35,7 @@
 //
 //
 //    static {
-//        dataStorageService = Launcher.CONTEXT.getBean(DataStorageService.class);
+//        dataStorageService = Launcher.getBean(DataStorageService.class);
 //    }
 //
 //    /**
