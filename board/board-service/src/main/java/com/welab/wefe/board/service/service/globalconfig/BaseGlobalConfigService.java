@@ -50,6 +50,8 @@ public class BaseGlobalConfigService extends AbstractService {
         public static String WEFE_SERVING = "wefe_serving";
         public static String FC_CONFIG = "function_compute_config";
         public static String DEEP_LEARNING_CONFIG = "deep_learning_config";
+        public static String CALCULATION_ENGINE_CONFIG = "calculation_engine_config";
+
     }
 
 

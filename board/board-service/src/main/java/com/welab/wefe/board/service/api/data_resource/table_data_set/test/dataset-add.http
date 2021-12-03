@@ -2,7 +2,7 @@
 ### 添加数据集-xlsx
 POST http://localhost:8080/board-service/data_set/add
 Content-Type: application/json
-token: ac266310-0c98-46ac-b9d0-d7d8ff9ff888
+token: {{token}}
 
 {
   "publicLevel": "Public",
@@ -12,7 +12,7 @@ token: ac266310-0c98-46ac-b9d0-d7d8ff9ff888
   ],
   "description": "",
   "public_member_list": "",
-  "filename": "db359e88-99a4-4998-a7f2-8ab6bdf0d688-test-01-1600-15.xls",
+  "filename": "afc512de-2625-4f9b-9ebd-385fd05eaeb2-data0 - 缺失.csv",
   "data_set_add_method": "HttpUpload",
   "metadata_list": [
     {

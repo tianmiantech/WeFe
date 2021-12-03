@@ -52,20 +52,26 @@ public class TableDataSetAddInputModel extends TableDataSetUpdateInputModel {
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
 
-        // 如果来源是数据库，则要求dataSourceId、sql不能为空
-        if (DataSetAddMethod.Database.equals(dataSetAddMethod)) {
-            if (StringUtils.isEmpty(dataSourceId)) {
-                throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
-            }
+        switch (dataSetAddMethod) {
+            case Database:
+                if (StringUtils.isEmpty(dataSourceId)) {
+                    throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                }
 
-            if (StringUtils.isEmpty(sql)) {
-                throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
-            }
-        } else {
-            if (StringUtils.isEmpty(filename)) {
-                throw new StatusCodeWithException("请指定数据集文件", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
-            }
+                if (StringUtils.isEmpty(sql)) {
+                    throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                }
+                break;
+            case HttpUpload:
+            case LocalFile:
+                if (StringUtils.isEmpty(filename)) {
+                    throw new StatusCodeWithException("请指定数据集文件", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                }
+                break;
+            default:
         }
+
+
     }
 
     //region getter/setter
