@@ -13,43 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
+import com.welab.wefe.board.service.service.AbstractService;
+
 /**
- * @author Zane
+ * @author zane
+ * @date 2021/12/3
  */
-public class TableDataSetAddOutput {
-    private String id;
-    private long repeatDataCount;
+public class DataResourceAddOutputModel extends AbstractService {
+    public String dataResourceId;
+    public String uploadTaskId;
 
-
-    public TableDataSetAddOutput() {
+    public DataResourceAddOutputModel() {
     }
 
-    public TableDataSetAddOutput(String id, int repeatDataCount) {
-        this.id = id;
-        this.repeatDataCount = repeatDataCount;
+    public DataResourceAddOutputModel(String dataResourceId, String uploadTaskId) {
+        this.dataResourceId = dataResourceId;
+        this.uploadTaskId = uploadTaskId;
     }
-
-
-    //region getter/setter
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public long getRepeatDataCount() {
-        return repeatDataCount;
-    }
-
-    public void setRepeatDataCount(long repeatDataCount) {
-        this.repeatDataCount = repeatDataCount;
-    }
-
-    //endregion
 }

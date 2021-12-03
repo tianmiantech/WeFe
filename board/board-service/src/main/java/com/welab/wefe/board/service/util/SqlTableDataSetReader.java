@@ -33,8 +33,8 @@ import java.util.List;
  *
  * @author jacky.jiang
  */
-public class SqlDataSetReader extends AbstractDataSetReader {
-    private static final Logger log = Logger.getLogger(SqlDataSetReader.class);
+public class SqlTableDataSetReader extends AbstractTableDataSetReader {
+    private static final Logger log = Logger.getLogger(SqlTableDataSetReader.class);
     private long totalRowCount;
     private List<String> headers;
     private final Connection conn;
@@ -44,11 +44,11 @@ public class SqlDataSetReader extends AbstractDataSetReader {
     private ResultSetMetaData metaData;
     private int columnCount;
 
-    public SqlDataSetReader(Connection conn, String sql) throws StatusCodeWithException {
+    public SqlTableDataSetReader(Connection conn, String sql) throws StatusCodeWithException {
         this(null, conn, sql);
     }
 
-    public SqlDataSetReader(List<DataSetColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
+    public SqlTableDataSetReader(List<DataSetColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
         super(metadataList);
         this.conn = conn;
         this.sql = sql;

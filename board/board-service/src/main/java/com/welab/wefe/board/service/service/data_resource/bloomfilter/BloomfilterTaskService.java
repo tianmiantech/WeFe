@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.fusion.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloomfilter;
 
 
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterTaskRepository;
-import com.welab.wefe.board.service.dto.vo.BloomfilterAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
+import com.welab.wefe.board.service.service.data_resource.add.BloomfilterAddService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -55,27 +56,6 @@ public class BloomfilterTaskService extends AbstractService {
     @Autowired
     private BloomFilterTaskRepository bloomfilterTaskRepository;
 
-    public BloomFilterTaskMysqlModel add(BloomfilterAddInputModel input) throws StatusCodeWithException, IOException {
-
-        // Check database connection
-        MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
-        if (!storageServiceStatus.isSuccess()) {
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
-        }
-
-        if (bloomfilterRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("此过滤器名称已存在，请换一个过滤器名称", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        BloomFilterTaskMysqlModel bloomfilterTask = new BloomFilterTaskMysqlModel();
-        bloomfilterTask.setBloomfilterName(input.getName());
-        bloomfilterTask.setProgress(0);
-        bloomfilterTask.setBloomfilterId(new BloomFilterMysqlModel().getId());
-        bloomfilterTaskRepository.save(bloomfilterTask);
-        bloomfilterAddService.add(input, bloomfilterTask, CurrentAccount.get());
-
-        return bloomfilterTask;
-    }
 
     public BloomFilterTaskMysqlModel findByBloomfilterId(String bloomfilterId) {
         Specification<BloomFilterTaskMysqlModel> where = Where

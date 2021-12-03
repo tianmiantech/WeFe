@@ -23,23 +23,18 @@ import com.welab.wefe.board.service.database.repository.data_resource.DataResour
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
-import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetAddService;
+import com.welab.wefe.board.service.service.data_resource.add.TableDataSetAddService;
 import com.welab.wefe.common.Convert;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.function.Consumer;
 
@@ -59,23 +54,16 @@ public class DataResourceUploadTaskService extends AbstractService {
     @Autowired
     private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
 
-    public DataResourceUploadTaskMysqlModel add(AbstractDataResourceUpdateInputModel input) throws StatusCodeWithException, IOException {
+    /**
+     * 创建一个新的上传任务
+     */
+    public DataResourceUploadTaskMysqlModel newTask(AbstractDataResourceUpdateInputModel input) {
 
-        // Check database connection
-        MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
-        if (!storageServiceStatus.isSuccess()) {
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
-        }
-
-        DataResourceUploadTaskMysqlModel progress = new DataResourceUploadTaskMysqlModel();
-        progress.setDataResourceName(input.getName());
-        progress.setProgressRatio(0);
-        progress.setDataResourceId(new DataResourceMysqlModel().getId());
-        dataResourceUploadTaskRepository.save(progress);
-
-        tableDataSetAddService.add(input, progress, CurrentAccount.get());
-
-        return progress;
+        DataResourceUploadTaskMysqlModel task = new DataResourceUploadTaskMysqlModel();
+        task.setDataResourceName(input.getName());
+        task.setProgressRatio(0);
+        task.setDataResourceId(new DataResourceMysqlModel().getId());
+        return task;
     }
 
     public DataResourceUploadTaskMysqlModel findByDataResourceId(String dataResource) {
@@ -90,22 +78,22 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * Update upload progress
      */
-    public void updateProgress(String dataSetId, long totalDataRowCount, long readedDataRows, long repeatDataCount) {
+    public void updateProgress(String dataResourceId, long totalDataRowCount, long completedDataCount, long invalidDataCount) {
         // Since storing data sets into storage is a concurrent operation, onerror, updateprogress, complete and other operations may occur simultaneously to update the same task.
         // In order to avoid disordered update sequence, lock operation is required here.
         synchronized (LOCKER) {
-            DataResourceUploadTaskMysqlModel dataSetTask = findByDataResourceId(dataSetId);
+            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
 
             // Calculate progress
-            int progress = Convert.toInt(readedDataRows * 100L / totalDataRowCount);
+            int progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
 
             // When the early reading speed is slow, force progress++
-            if (dataSetTask.getProgressRatio() < 5
-                    && readedDataRows < 10000
-                    && readedDataRows > dataSetTask.getCompletedDataCount()
-                    && progress <= dataSetTask.getProgressRatio()
+            if (task.getProgressRatio() < 5
+                    && completedDataCount < 10000
+                    && completedDataCount > task.getCompletedDataCount()
+                    && progress <= task.getProgressRatio()
             ) {
-                progress = dataSetTask.getProgressRatio() + 1;
+                progress = task.getProgressRatio() + 1;
             }
 
             // Avoid dividing by 0
@@ -121,19 +109,20 @@ public class DataResourceUploadTaskService extends AbstractService {
             // Calculate estimated time
             long estimateTime = 0;
             if (progress < 100) {
-                long spend = System.currentTimeMillis() - dataSetTask.getCreatedTime().getTime();
+                long spend = System.currentTimeMillis() - task.getCreatedTime().getTime();
                 estimateTime = spend / progress * (100 - progress);
             }
 
-            dataSetTask.setInvalidDataCount(repeatDataCount);
-            dataSetTask.setCompletedDataCount(readedDataRows);
-            dataSetTask.setEstimateRemainingTime(estimateTime);
-            dataSetTask.setProgressRatio(progress);
-            dataSetTask.setUpdatedTime(new Date());
+            task.setTotalDataCount(totalDataRowCount);
+            task.setInvalidDataCount(invalidDataCount);
+            task.setCompletedDataCount(completedDataCount);
+            task.setEstimateRemainingTime(estimateTime);
+            task.setProgressRatio(progress);
+            task.setUpdatedTime(new Date());
 
-            dataResourceUploadTaskRepository.save(dataSetTask);
+            dataResourceUploadTaskRepository.save(task);
 
-            LOG.info("数据集任务进度：" + dataSetTask.getProgressRatio() + " , " + readedDataRows + "/" + totalDataRowCount);
+            LOG.info("资源上传任务进度：" + task.getProgressRatio() + " , " + completedDataCount + "/" + totalDataRowCount);
         }
     }
 

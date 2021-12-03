@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.vo.data_resource;
+package com.welab.wefe.board.service.dto.globalconfig;
 
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/10/29
  */
-public class ImageDataSetAddOutputModel {
-    public String dataSetId;
-
-    public ImageDataSetAddOutputModel() {
-    }
-
-    public ImageDataSetAddOutputModel(String dataSetId) {
-        this.dataSetId = dataSetId;
-    }
+public class DeepLearningConfigModel {
+    public String device = "cpu";
+    public String paddleVisualDlBaseUrl;
 }

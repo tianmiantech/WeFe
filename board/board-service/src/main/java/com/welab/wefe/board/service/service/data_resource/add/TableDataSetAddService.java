@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.table_data_set;
+package com.welab.wefe.board.service.service.data_resource.add;
 
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetAddInputModel;
-import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
  * @author Zane
  */
 @Service
-public class TableDataSetAddService extends AbstractService {
+public class TableDataSetAddService extends AbstractDataResourceAddService {
 
     @Autowired
     protected TableDataSetRepository tableDataSetRepository;
@@ -65,43 +64,21 @@ public class TableDataSetAddService extends AbstractService {
     @Autowired
     protected DataResourceUploadTaskService dataResourceUploadTaskService;
 
-    /**
-     * Asynchronous execution of data writing
-     *
-     * @param userInfo Since this method is executed in an asynchronous thread,
-     *                 the CurrentAccount information cannot be obtained, so it needs to be passed.
-     */
-    @Async
-    public void add(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel uploadProgress, CurrentAccount.Info userInfo) {
+
+    @Override
+    public void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
         TableDataSetAddInputModel input = (TableDataSetAddInputModel) in;
-        TableDataSetMysqlModel model = new ModelMapper().map(input, TableDataSetMysqlModel.class);
-        model.setId(uploadProgress.getId());
-        model.setCreatedBy(userInfo.id);
-        model.setTags(tableDataSetService.standardizeTags(input.getTags()));
-        tableDataSetService.handlePublicMemberList(model);
+        TableDataSetMysqlModel model = (TableDataSetMysqlModel) m;
 
         // Parse and save the original data set
-        try {
-            AbstractDataSetReader dataSetReader = createDataSetReader(input);
-            readAllToStorage(model, dataSetReader, input.isDeduplication());
-        } catch (Exception e) {
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            dataResourceUploadTaskService.onError(uploadProgress.getId(), e);
-            return;
-        }
-
-
-        model.setStorageNamespace(DataSetStorageService.DATABASE_NAME);
-        model.setStorageResourceName(dataSetStorageService.createRawDataSetTableName(model.getId()));
+        AbstractTableDataSetReader dataSetReader = createDataSetReader(input);
+        readAllToStorage(model, dataSetReader, input.isDeduplication());
 
         // save data set info to database
         tableDataSetRepository.save(model);
 
         // save data set column info to database
-        dataSetColumnService.update(model.getId(), input.getMetadataList(), userInfo);
-
-        // Mark upload task completed
-        dataResourceUploadTaskService.complete(uploadProgress.getId());
+        dataSetColumnService.update(model.getId(), input.getMetadataList());
 
         // Delete files uploaded by HttpUpload
         try {
@@ -113,22 +90,25 @@ public class TableDataSetAddService extends AbstractService {
             super.log(e);
         }
 
-        // Synchronize information to union
-        try {
-            unionService.uploadDataResource(model);
-        } catch (StatusCodeWithException e) {
-            super.log(e);
-        }
-
         // Refresh the data set tag list
         CacheObjects.refreshTableDataSetTags();
 
     }
 
+    @Override
+    protected Class<? extends DataResourceMysqlModel> getMysqlModelClass() {
+        return TableDataSetMysqlModel.class;
+    }
+
+    @Override
+    protected DataResourceType getDataResourceType() {
+        return DataResourceType.TableDataSet;
+    }
+
     /**
      * create AbstractDataSetReader
      */
-    private AbstractDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractTableDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         switch (input.getDataSetAddMethod()) {
             case Database:
                 return createSqlDataSetReader(input);
@@ -147,13 +127,13 @@ public class TableDataSetAddService extends AbstractService {
     /**
      * create CsvDataSetReader/ExcelDataSetReader
      */
-    private AbstractDataSetReader createFileDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractTableDataSetReader createFileDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         try {
             File file = tableDataSetService.getDataSetFile(input.getDataSetAddMethod(), input.getFilename());
             boolean isCsv = file.getName().endsWith("csv");
             return isCsv
-                    ? new CsvDataSetReader(input.getMetadataList(), file)
-                    : new ExcelDataSetReader(input.getMetadataList(), file);
+                    ? new CsvTableDataSetReader(input.getMetadataList(), file)
+                    : new ExcelTableDataSetReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
             StatusCode.FILE_IO_ERROR.throwException(e);
@@ -164,7 +144,7 @@ public class TableDataSetAddService extends AbstractService {
     /**
      * create SqlDataSetReader
      */
-    private SqlDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
         DataSourceMysqlModel dataSource = tableDataSetService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
@@ -178,7 +158,7 @@ public class TableDataSetAddService extends AbstractService {
                 dataSource.getDatabaseName()
         );
 
-        return new SqlDataSetReader(input.getMetadataList(), conn, input.getSql());
+        return new SqlTableDataSetReader(input.getMetadataList(), conn, input.getSql());
     }
 
     /**
@@ -186,7 +166,7 @@ public class TableDataSetAddService extends AbstractService {
      *
      * @param deduplication Do you need to de-duplicate the data set
      */
-    private void readAllToStorage(TableDataSetMysqlModel model, AbstractDataSetReader dataSetReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToStorage(TableDataSetMysqlModel model, AbstractTableDataSetReader dataSetReader, boolean deduplication) throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         LOG.info("开始解析数据集：" + model.getId());
 
@@ -246,4 +226,5 @@ public class TableDataSetAddService extends AbstractService {
         list.add(1, "y");
         return list;
     }
+
 }

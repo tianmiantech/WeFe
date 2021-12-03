@@ -120,7 +120,6 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
 
             //dump
             dump(fruit);
-
         }
 
         status = PSIActuatorStatus.success;

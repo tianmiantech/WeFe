@@ -49,7 +49,9 @@ public class BaseGlobalConfigService extends AbstractService {
         public static String WEFE_FLOW = "wefe_flow";
         public static String WEFE_SERVING = "wefe_serving";
         public static String FC_CONFIG = "function_compute_config";
+        public static String DEEP_LEARNING_CONFIG = "deep_learning_config";
     }
+
 
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
@@ -93,7 +95,6 @@ public class BaseGlobalConfigService extends AbstractService {
             one.setName(name);
             one.setCreatedBy(CurrentAccount.id());
         } else {
-
             if (one.getValue() != null && value == null) {
                 StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
             }

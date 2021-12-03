@@ -131,6 +131,11 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         if (functionComputeConfig == null) {
             setFunctionComputeConfig(new FunctionComputeConfigModel());
         }
+        DeepLearningConfigModel deepLearningConfig = getDeepLearningConfig();
+        if (deepLearningConfig == null) {
+            setDeepLearningConfig(new DeepLearningConfigModel());
+        }
+
 
         LOG.info("init global config success!");
     }
@@ -199,6 +204,14 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
     public void setFunctionComputeConfig(FunctionComputeConfigModel model) throws StatusCodeWithException {
         put(Group.FC_CONFIG, model);
+    }
+
+    public DeepLearningConfigModel getDeepLearningConfig() {
+        return getModel(Group.DEEP_LEARNING_CONFIG, DeepLearningConfigModel.class);
+    }
+
+    public void setDeepLearningConfig(DeepLearningConfigModel model) throws StatusCodeWithException {
+        put(Group.DEEP_LEARNING_CONFIG, model);
     }
 
 }

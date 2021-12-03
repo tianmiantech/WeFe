@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.TaskResultService;
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -246,7 +247,7 @@ public class FusionTaskService extends AbstractService {
         //Add fieldinfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
-        task.setStatus(FusionTaskStatus.Ready);
+        task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());

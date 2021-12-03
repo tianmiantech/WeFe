@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.vo;
+package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
@@ -29,17 +29,9 @@ import java.util.List;
 /**
  * @author jacky.jiang
  */
-public class BloomfilterAddInputModel extends BloomfilterBaseInputModel {
-    @Check(name = "过滤器名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "过滤器名称长度不能少于4，不能大于30")
-    private String name;
+public class BloomfilterAddInputModel extends BloomfilterUpdateInputModel {
 
-    @Check(name = "关键词", require = true, regex = "^.{1,128}$", messageOnInvalid = "关键词太多了啦~")
-    private List<String> tags;
-
-    @Check(name = "描述", regex = "^.{0,3072}$", messageOnInvalid = "你写的描述太多了~")
-    private String description;
-
-    @Check(messageOnEmpty = "请指定数据集文件")
+    @Check(messageOnEmpty = "请指定过滤器文件")
     private String filename;
 
     @Check(require = true)
@@ -90,29 +82,6 @@ public class BloomfilterAddInputModel extends BloomfilterBaseInputModel {
 
     //region getter/setter
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public String getFilename() {
         return filename;

@@ -24,5 +24,5 @@ public enum DataSetStorageType {
      * local file system
      */
     LocalFileSystem,
-    Clickhouse
+    StorageService
 }

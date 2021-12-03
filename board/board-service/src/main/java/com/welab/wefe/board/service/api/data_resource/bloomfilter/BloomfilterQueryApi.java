@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloomfilter;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
-import com.welab.wefe.board.service.service.fusion.BloomfilterService;
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author jacky.jiang
  */
 @Api(path = "bloomfilter/query", name = "query bloomfilter")
-public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
+public class BloomfilterQueryApi extends AbstractApi<BloomfilterQueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
 
     @Autowired
     private BloomfilterService bloomfilterService;
