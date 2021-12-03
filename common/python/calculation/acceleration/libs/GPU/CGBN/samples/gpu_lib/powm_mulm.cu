@@ -457,9 +457,9 @@ public:
       char *x, *p, *modulus;
 
       Py_ssize_t len;
-      PyBytes_AsStringAndSize(arrs[index], &x, &len);
-      PyBytes_AsStringAndSize(p_byte, &p, &len);
-      PyBytes_AsStringAndSize(m_byte, &modulus, &len);
+      PyBytes_AsStringAndSize(arrs[index].ptr(), &x, &len);
+      PyBytes_AsStringAndSize(p_byte.ptr(), &p, &len);
+      PyBytes_AsStringAndSize(m_byte.ptr(), &modulus, &len);
 
       memcpy(&(instances[index].x._limbs), x, len);
       memcpy(&(instances[index].power._limbs), p, len);
