@@ -16,35 +16,57 @@
 package com.welab.wefe.common.web.api_document;
 
 import com.welab.wefe.common.util.ReflectionsUtil;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api_document.model.ApiItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author zane
  * @date 2021/12/3
  */
 public abstract class AbstractApiDocumentFormatter {
-    private static TreeMap<String, Class<?>> APIS_MAP = new TreeMap<>();
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
+    private static final List<ApiItem> LIST = new ArrayList<>();
 
     static {
         ReflectionsUtil
                 .getClassesWithAnnotation(Launcher.API_PACKAGE_PATH, Api.class)
                 .stream()
                 .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                .forEach(x -> {
-                    Api annotation = x.getAnnotation(Api.class);
-                    String key = StringUtil
-                            .trim(annotation.path(), '/', '\\')
-                            .toLowerCase();
-                    APIS_MAP.put(key, x);
-                });
+                .map(ApiItem::new)
+                .sorted(Comparator.comparing(x -> x.path))
+                .forEach(LIST::add);
     }
 
-    public String format() {
+    public abstract String contentType();
 
+    protected abstract void formatApiItem(ApiItem item);
+
+    protected abstract void formatGroupItem(String name);
+
+    protected abstract Object getOutput();
+
+    public Object format() {
+
+
+        String group = null;
+        for (ApiItem item : LIST) {
+            if (!item.group().equals(group)) {
+                group = item.group();
+                formatGroupItem(group);
+            }
+
+            formatApiItem(item);
+        }
+
+        return getOutput();
     }
 }

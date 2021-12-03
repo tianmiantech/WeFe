@@ -71,9 +71,9 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "业务层面的项目ID", hiddenForFrontEnd = true)
+        @Check(name = "业务层面的项目ID", donotShow = true)
         private String projectId;
-        @Check(name = "所有成员列表", hiddenForFrontEnd = true)
+        @Check(name = "所有成员列表", donotShow = true)
         private List<ProjectMemberInput> members;
 
         @Check(name = "项目名称", require = true)

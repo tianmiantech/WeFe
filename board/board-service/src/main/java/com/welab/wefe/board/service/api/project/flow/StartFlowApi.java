@@ -49,7 +49,7 @@ public class StartFlowApi extends AbstractApi<StartFlowApi.Input, StartFlowApi.O
         @Check(name = "终止节点", desc = "为空时表示执行全流程")
         private String endNodeId;
 
-        @Check(name = "jobId", hiddenForFrontEnd = true)
+        @Check(name = "jobId", donotShow = true)
         private String jobId;
 
         @Check(name = "arbiterMemberId", desc = "arbiter成员id")

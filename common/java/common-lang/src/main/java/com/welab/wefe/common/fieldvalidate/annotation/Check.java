@@ -71,5 +71,5 @@ public @interface Check {
     /**
      * Declare that this parameter is hidden from the front end
      */
-    boolean hiddenForFrontEnd() default false;
+    boolean donotShow() default false;
 }

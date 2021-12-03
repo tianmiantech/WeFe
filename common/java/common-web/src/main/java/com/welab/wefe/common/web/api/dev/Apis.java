@@ -20,11 +20,13 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api_document.AbstractApiDocumentFormatter;
+import com.welab.wefe.common.web.api_document.HtmlFormatter;
+import com.welab.wefe.common.web.api_document.JsonFormatter;
+import com.welab.wefe.common.web.api_document.MarkdownFormatter;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ApiListJsonFormatter;
-import com.welab.wefe.common.web.util.ApiListMarkdownFormatter;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -40,32 +42,26 @@ public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
 
-
-        switch (input.format) {
+        AbstractApiDocumentFormatter formatter;
+        switch (input.format.toLowerCase().trim()) {
             case "json":
-                List<JObject> apiList = ApiListJsonFormatter.format(list);
-                ResponseEntity<ApiResult<Object>> response1 = ResponseEntity
-                        .ok()
-                        .header("content-type", "application/json; charset=utf-8")
-                        .body(ApiResult.ofSuccess(Output.of(apiList.size(), apiList)));
-
-                return success(response1);
+                formatter = new JsonFormatter();
+                break;
 
             case "markdown":
-                String markdown = ApiListMarkdownFormatter.format(list);
-                ResponseEntity<String> response2 = ResponseEntity
-                        .ok()
-                        .header("content-type", "text/markdown; charset=utf-8")
-                        .body(markdown);
-            default:
-                String markdown = ApiListMarkdownFormatter.format(list);
-                ResponseEntity<String> response2 = ResponseEntity
-                        .ok()
-                        .header("content-type", "text/markdown; charset=utf-8")
-                        .body(markdown);
+                formatter = new MarkdownFormatter();
+                break;
 
-                return success(response2);
+            default:
+                formatter = new HtmlFormatter();
         }
+
+        ResponseEntity<Object> response = ResponseEntity
+                .ok()
+                .header("content-type", formatter.contentType() + "; charset=utf-8")
+                .body(formatter.format());
+
+        return success(response);
     }
 
 

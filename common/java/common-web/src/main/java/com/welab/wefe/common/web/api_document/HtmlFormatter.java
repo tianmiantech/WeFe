@@ -15,21 +15,30 @@
  */
 package com.welab.wefe.common.web.api_document;
 
-import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api_document.model.ApiItem;
 
 /**
  * @author zane
  * @date 2021/12/3
  */
-public class ApiItem {
-    public Api annotation;
-    public Class<?> apiClass;
-    public String path;
-    private String group;
+public class HtmlFormatter extends AbstractApiDocumentFormatter {
+    @Override
+    public String contentType() {
+        return null;
+    }
 
-    public ApiItem(Class<?> apiClass) {
-        this.apiClass = apiClass;
-        this.annotation = apiClass.getAnnotation(Api.class);
+    @Override
+    protected void formatApiItem(ApiItem item) {
 
+    }
+
+    @Override
+    protected void formatGroupItem(String name) {
+
+    }
+
+    @Override
+    protected String getOutput() {
+        return null;
     }
 }
