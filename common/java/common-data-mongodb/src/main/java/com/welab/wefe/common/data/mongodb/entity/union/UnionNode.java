@@ -37,7 +37,7 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
     private String priorityLevel;
     private String version;
     private String enable;
-    private UnionNodeExtJSON extJson;
+    private UnionNodeExtJSON extJson = new UnionNodeExtJSON();
 
     public String getNodeId() {
         return nodeId;

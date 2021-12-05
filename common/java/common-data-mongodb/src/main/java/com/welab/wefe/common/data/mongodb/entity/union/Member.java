@@ -40,7 +40,7 @@ public class Member extends AbstractBlockChainBusinessModel {
     private String lastActivityTime;
 
 
-    private MemberExtJSON extJson;
+    private MemberExtJSON extJson = new MemberExtJSON();
 
 
 

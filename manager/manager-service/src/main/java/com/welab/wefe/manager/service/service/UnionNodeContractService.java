@@ -3,7 +3,9 @@ package com.welab.wefe.manager.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.UnionNodeContract;
 import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
 import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
@@ -126,14 +128,13 @@ public class UnionNodeContractService extends AbstractContractService {
         list.add(unionNode.getNodeId());
         list.add(unionNode.getBlockchainNodeId());
         list.add(unionNode.getBaseUrl());
-        list.add(unionNode.getOrganizationName());
-        list.add(unionNode.getLostContact());
-        list.add(unionNode.getContactEmail());
-        list.add(unionNode.getPriorityLevel());
-        list.add(unionNode.getVersion());
+        list.add(StringUtil.isEmptyToBlank(unionNode.getOrganizationName()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getLostContact()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getContactEmail()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getPriorityLevel()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getVersion()));
         list.add(unionNode.getCreatedTime());
         list.add(unionNode.getUpdatedTime());
-
         return list;
     }
 

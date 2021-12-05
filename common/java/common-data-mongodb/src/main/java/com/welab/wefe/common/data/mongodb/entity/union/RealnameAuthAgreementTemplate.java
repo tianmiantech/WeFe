@@ -30,7 +30,7 @@ public class RealnameAuthAgreementTemplate extends AbstractBlockChainBusinessMod
     private String templateFileSign;
     private String fileName;
     private String enable;
-    private RealnameAuthAgreementTemplateExtJSON extJson;
+    private RealnameAuthAgreementTemplateExtJSON extJson = new RealnameAuthAgreementTemplateExtJSON();
 
     public String getTemplateFileId() {
         return templateFileId;

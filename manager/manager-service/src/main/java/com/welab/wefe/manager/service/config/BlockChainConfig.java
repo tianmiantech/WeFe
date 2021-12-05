@@ -158,13 +158,13 @@ public class BlockChainConfig {
 
 
     @Bean
-    public CnsService getCnsService(Client client,CryptoKeyPair cryptoKeyPair) {
+    public CnsService getCnsService(Client client, CryptoKeyPair cryptoKeyPair) {
         CnsService cnsService = new CnsService(client, cryptoKeyPair);
         return cnsService;
     }
 
     @Bean
-    public String getCurrentNodeId(Client client) throws StatusCodeWithException {
+    public String getCurrentNodeId(Client client) {
         String nodeId = client.getNodeIDList().getResult().get(0);
         return nodeId;
     }

@@ -30,7 +30,7 @@ import java.util.UUID;
 public class DataSetDefaultTag extends AbstractBlockChainBusinessModel {
     private String tagId = UUID.randomUUID().toString().replaceAll("-", "");
     private String tagName;
-    private DataSetDefaultTagExtJSON extJson;
+    private DataSetDefaultTagExtJSON extJson = new DataSetDefaultTagExtJSON();
 
 
     public String getTagName() {

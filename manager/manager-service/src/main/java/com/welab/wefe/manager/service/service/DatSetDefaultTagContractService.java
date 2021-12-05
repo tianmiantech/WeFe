@@ -105,8 +105,8 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
         list.add(dataSetDefaultTag.getTagId());
         list.add(dataSetDefaultTag.getTagName());
 
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }
 

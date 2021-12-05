@@ -35,7 +35,7 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
     private static final Logger LOG = LoggerFactory.getLogger(RegisterNodeInfoListener.class);
 
     @Autowired
-    private NodeInfo currentNodeInfo;
+    private String currentNodeId;
     @Autowired
     private UnionNodeContractService unionNodeContractService;
 
@@ -47,7 +47,7 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
 
     private void registerUnionNode() {
         UnionNode unionNode = new UnionNode();
-        unionNode.setBlockchainNodeId(currentNodeInfo.getNodeInfo().getNodeID());
+        unionNode.setBlockchainNodeId(currentNodeId);
         try {
             unionNodeContractService.add(unionNode);
         } catch (StatusCodeWithException e) {

@@ -43,7 +43,7 @@ public class DataSet extends AbstractBlockChainBusinessModel {
     private String description;
     private String tags;
 
-    private DataSetExtJSON extJson;
+    private DataSetExtJSON extJson = new DataSetExtJSON();
 
 
     public String getDataSetId() {

@@ -21,7 +21,6 @@ import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
@@ -157,7 +156,7 @@ public class BlockChainConfig {
 
 
     @Bean
-    public CnsService getCnsService(Client client,CryptoKeyPair cryptoKeyPair) {
+    public CnsService getCnsService(Client client, CryptoKeyPair cryptoKeyPair) {
         CnsService cnsService = new CnsService(client, cryptoKeyPair);
         return cnsService;
     }
@@ -166,7 +165,7 @@ public class BlockChainConfig {
      * 获取最新版的DataSetMemberPermission（数据集权限）合约
      */
     @Bean
-    public String getCurrentNodeId(Client client) throws StatusCodeWithException {
+    public String getCurrentNodeId(Client client) {
         String nodeId = client.getNodeIDList().getResult().get(0);
         return nodeId;
     }
@@ -197,9 +196,6 @@ public class BlockChainConfig {
         String address = getLatestContractAddressByName(cnsService, dataSetMemberPermissionContractName);
         return DataSetMemberPermissionContract.load(address, client, cryptoKeyPair);
     }
-
-
-
 
 
     /**

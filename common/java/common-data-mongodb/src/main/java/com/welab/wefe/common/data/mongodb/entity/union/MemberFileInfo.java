@@ -35,7 +35,7 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
     private String purpose;
     private String describe;
     private String enable;
-    private MemberFileInfoExtJSON extJson;
+    private MemberFileInfoExtJSON extJson = new MemberFileInfoExtJSON();
 
     public String getFileId() {
         return fileId;
