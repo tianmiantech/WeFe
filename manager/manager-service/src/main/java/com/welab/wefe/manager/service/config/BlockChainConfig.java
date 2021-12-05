@@ -163,7 +163,11 @@ public class BlockChainConfig {
         return cnsService;
     }
 
-
+    @Bean
+    public String getCurrentNodeId(Client client) throws StatusCodeWithException {
+        String nodeId = client.getNodeIDList().getResult().get(0);
+        return nodeId;
+    }
 
     /**
      * 获取新最版的Member（成员）合约

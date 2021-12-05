@@ -43,6 +43,15 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
+    public List<UnionNode> findAll(boolean status) {
+        return mongoUnionTemplate.find(
+                new QueryBuilder()
+                        .append("status", String.valueOf(status ? 1 : 0))
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
 
     public List<UnionNode> findExcludeCurrentNode(String blockchainNodeId) {
         return mongoUnionTemplate.find(

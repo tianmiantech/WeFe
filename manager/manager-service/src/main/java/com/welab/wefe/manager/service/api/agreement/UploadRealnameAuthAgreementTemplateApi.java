@@ -38,6 +38,8 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
     private GridFSBucket gridFSBucket;
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
+    @Autowired
+    private String currentNodeId;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
@@ -73,7 +75,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
     }
 
     private void syncFileToUnion(UploadFileInput input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findAll(true);
+        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeId);
         for (UnionNode unionNode :
                 unionNodeList) {
             new UploadFileSyncToUnionTask(

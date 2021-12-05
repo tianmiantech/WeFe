@@ -166,8 +166,9 @@ public class BlockChainConfig {
      * 获取最新版的DataSetMemberPermission（数据集权限）合约
      */
     @Bean
-    public NodeInfo getCurrentNodeInfo(Client client) throws StatusCodeWithException {
-        return client.getNodeInfo(ip + ":" + channelPort);
+    public String getCurrentNodeId(Client client) throws StatusCodeWithException {
+        String nodeId = client.getNodeIDList().getResult().get(0);
+        return nodeId;
     }
 
     /**

@@ -62,7 +62,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     private MemberFileInfoContractService memberFileInfoContractService;
 
     @Autowired
-    private NodeInfo currentNodeInfo;
+    private String currentNodeId;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
@@ -122,14 +122,14 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         memberFileInfo.setFileName(fileName);
         memberFileInfo.setFileSign(fileSign);
         memberFileInfo.setFileSize(String.valueOf(fileSize));
-        memberFileInfo.setBlockchainNodeId(currentNodeInfo.getNodeInfo().getNodeID());
+        memberFileInfo.setBlockchainNodeId(currentNodeId);
         memberFileInfo.setPurpose(purpose);
         memberFileInfo.setDescribe(describe);
         memberFileInfoContractService.add(memberFileInfo);
     }
 
     private void syncDataToOtherUnionNode(Input input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeInfo.getNodeInfo().getNodeID());
+        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeId);
         for (UnionNode unionNode :
                 unionNodeList) {
             new UploadFileSyncToUnionTask(
