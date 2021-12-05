@@ -19,9 +19,12 @@ package com.welab.wefe.union.service.api.member;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.enums.FileRurpose;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -31,6 +34,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
+import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +57,19 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     @Autowired
     private GridFSBucket gridFSBucket;
 
+    @Autowired
+    private MemberFileInfoContractService memberFileInfoContractService;
+
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
+
+        if(!FileRurpose.RealnameAuth.name().equals(input.getPurpose())){
+            throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER,"purpose");
+        }
+
+
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
@@ -79,6 +92,16 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             options.metadata(metadata);
 
             fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
+
+            saveFileInfoToBlockchain(
+                    fileId,
+                    fileName,
+                    sign,
+                    input.getFirstFile().getSize(),
+                    input.purpose,
+                    input.describe
+            );
+
             syncDataToOtherUnionNode(input);
         } else {
             fileId = gridFSFile.getObjectId().toString();
@@ -86,6 +109,18 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
         return success(new UploadFileApiOutput(fileId));
 
+    }
+
+
+    private void saveFileInfoToBlockchain(String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
+        MemberFileInfo memberFileInfo = new MemberFileInfo();
+        memberFileInfo.setFileId(fileId);
+        memberFileInfo.setFileName(fileName);
+        memberFileInfo.setFileSign(fileSign);
+        memberFileInfo.setFileSize(String.valueOf(fileSize));
+        memberFileInfo.setPurpose(purpose);
+        memberFileInfo.setDescribe(describe);
+        memberFileInfoContractService.add(memberFileInfo);
     }
 
     private void syncDataToOtherUnionNode(Input input) {
@@ -101,11 +136,14 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         }
     }
 
-
     public static class Input extends AbstractWithFilesApiInput {
         @Check(require = true)
         private String memberId;
+        @Check(require = true)
         private String filename;
+        @Check(require = true)
+        private String purpose;
+        private String describe;
 
         public String getFilename() {
             return filename;
@@ -123,5 +161,20 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             this.memberId = memberId;
         }
 
+        public String getPurpose() {
+            return purpose;
+        }
+
+        public void setPurpose(String purpose) {
+            this.purpose = purpose;
+        }
+
+        public String getDescribe() {
+            return describe;
+        }
+
+        public void setDescribe(String describe) {
+            this.describe = describe;
+        }
     }
 }

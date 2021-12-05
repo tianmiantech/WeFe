@@ -36,13 +36,18 @@ public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, 
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
-        JSONObject result = unionService.uploadFile(input.files, JObject.create("filename",input.filename));
+        JSONObject result = unionService.uploadFile(
+                input.files,
+                JObject.create("filename", input.filename).append("purpose", input.purpose)
+        );
+
         return super.unionApiResultToBoardApiResult(result);
 
     }
 
     public static class Input extends AbstractWithFilesApiInput {
         private String filename;
+        private String purpose;
 
         public String getFilename() {
             return filename;
@@ -50,6 +55,14 @@ public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, 
 
         public void setFilename(String filename) {
             this.filename = filename;
+        }
+
+        public String getPurpose() {
+            return purpose;
+        }
+
+        public void setPurpose(String purpose) {
+            this.purpose = purpose;
         }
     }
 

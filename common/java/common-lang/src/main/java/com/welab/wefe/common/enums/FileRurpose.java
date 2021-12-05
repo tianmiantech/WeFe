@@ -6,4 +6,5 @@ package com.welab.wefe.common.enums;
  */
 public enum FileRurpose {
     RealnameAuth
+
 }

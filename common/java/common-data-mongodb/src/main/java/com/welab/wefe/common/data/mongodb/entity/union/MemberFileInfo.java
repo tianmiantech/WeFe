@@ -29,12 +29,13 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
     private String fileId;
     private String fileSign;
     private String fileName;
+    private String fileSize;
     private String memberId;
     private String reporter;
     private String purpose;
+    private String describe;
     private String enable;
     private MemberFileInfoExtJSON extJson;
-
 
     public String getFileId() {
         return fileId;
@@ -60,6 +61,14 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
         this.fileName = fileName;
     }
 
+    public String getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
+    }
+
     public String getMemberId() {
         return memberId;
     }
@@ -82,6 +91,14 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
 
     public void setPurpose(String purpose) {
         this.purpose = purpose;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 
     public String getEnable() {
