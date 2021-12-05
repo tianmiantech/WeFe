@@ -19,7 +19,7 @@ contract MemberFileInfoContract{
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "file_id,file_sign,file_name,file_size,member_id,reporter,purpose,describe,enable,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "file_id,file_sign,file_name,file_size,member_id,blockchain_node_id,purpose,describe,enable,created_time,updated_time,ext_json");
     }
 
 
@@ -41,7 +41,7 @@ contract MemberFileInfoContract{
         entry.set("file_name", params[2]);
         entry.set("file_size", params[3]);
         entry.set("member_id", params[4]);
-        entry.set("reporter", params[5]);
+        entry.set("blockchain_node_id", params[5]);
         entry.set("purpose", params[6]);
         entry.set("describe", params[7]);
         entry.set("enable", params[8]);
@@ -167,7 +167,7 @@ contract MemberFileInfoContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("member_id")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("reporter")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("blockchain_node_id")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("purpose")));
             dataStr = strConcat(dataStr, "|");

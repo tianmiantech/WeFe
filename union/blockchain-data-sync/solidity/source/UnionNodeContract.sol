@@ -44,10 +44,10 @@ contract UnionNodeContract{
         entry.set("lost_contact", params[4]);
         entry.set("contact_email", params[5]);
         entry.set("priority_level", params[6]);
-        entry.set("enable", params[7]);
-        entry.set("version", params[8]);
-        entry.set("created_time", params[9]);
-        entry.set("updated_time", params[10]);
+        entry.set("enable", "0");
+        entry.set("version", params[7]);
+        entry.set("created_time", params[8]);
+        entry.set("updated_time", params[9]);
         entry.set("ext_json", ext_json);
 
 

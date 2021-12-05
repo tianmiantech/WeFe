@@ -31,7 +31,7 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
     private String fileName;
     private String fileSize;
     private String memberId;
-    private String reporter;
+    private String blockchainNodeId;
     private String purpose;
     private String describe;
     private String enable;
@@ -77,12 +77,12 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
         this.memberId = memberId;
     }
 
-    public String getReporter() {
-        return reporter;
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
     }
 
-    public void setReporter(String reporter) {
-        this.reporter = reporter;
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
     }
 
     public String getPurpose() {

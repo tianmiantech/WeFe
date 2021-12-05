@@ -130,7 +130,7 @@ public class UnionNodeContractService extends AbstractContractService {
         list.add(unionNode.getLostContact());
         list.add(unionNode.getContactEmail());
         list.add(unionNode.getPriorityLevel());
-        list.add(unionNode.getEnable());
+        list.add(unionNode.getVersion());
         list.add(unionNode.getCreatedTime());
         list.add(unionNode.getUpdatedTime());
 

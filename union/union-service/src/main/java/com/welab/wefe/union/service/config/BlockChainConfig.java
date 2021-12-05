@@ -11,16 +11,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.welab.wefe.manager.service.config;
+package com.welab.wefe.union.service.config;
 
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.manager.service.contract.*;
+import com.welab.wefe.union.service.contract.*;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.model.ConfigProperty;
 import org.fisco.bcos.sdk.contract.precompiled.cns.CnsInfo;
@@ -61,10 +62,8 @@ public class BlockChainConfig {
     private String memberContractName;
     private String dataSetContractName;
     private String dataSetMemberPermissionContractName;
-    private String dataSetDefaultTagContractName;
-    private String memberAuthTypeContractName;
     private String unionNodeContractName;
-    private String realnameAuthAgreementTemplateContractName;
+    private String memberFileInfoContractName;
 
 
     // add channel disconnect
@@ -163,7 +162,13 @@ public class BlockChainConfig {
         return cnsService;
     }
 
-
+    /**
+     * 获取最新版的DataSetMemberPermission（数据集权限）合约
+     */
+    @Bean
+    public NodeInfo getCurrentNodeInfo(Client client) throws StatusCodeWithException {
+        return client.getNodeInfo(ip + ":" + channelPort);
+    }
 
     /**
      * 获取新最版的Member（成员）合约
@@ -192,24 +197,9 @@ public class BlockChainConfig {
         return DataSetMemberPermissionContract.load(address, client, cryptoKeyPair);
     }
 
-    /**
-     * 获取最新版的DataSetDefaultTagContract（数据集权限）合约
-     */
-    @Bean
-    public DataSetDefaultTagContract getLatestVersionDataSetDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetDefaultTagContractName);
-        return DataSetDefaultTagContract.load(address, client, cryptoKeyPair);
-    }
 
 
-    /**
-     * MemberAuthTypeContract（成员实名认证类型）合约
-     */
-    @Bean
-    public MemberAuthTypeContract getLatestVersionMemberAuthTypeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberAuthTypeContractName);
-        return MemberAuthTypeContract.load(address, client, cryptoKeyPair);
-    }
+
 
     /**
      * UnionNodeContract（union节点信息）合约
@@ -222,12 +212,12 @@ public class BlockChainConfig {
 
 
     /**
-     * RealnameAuthAgreementTemplateContract（实名认证协议模板）合约
+     * UnionNodeContract（union节点信息）合约
      */
     @Bean
-    public RealnameAuthAgreementTemplateContract getLatestVersionRealnameAuthAgreementTemplateContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, realnameAuthAgreementTemplateContractName);
-        return RealnameAuthAgreementTemplateContract.load(address, client, cryptoKeyPair);
+    public MemberFileInfoContract getLatestVersionMemberFileInfoContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, memberFileInfoContractName);
+        return MemberFileInfoContract.load(address, client, cryptoKeyPair);
     }
 
 
@@ -335,23 +325,6 @@ public class BlockChainConfig {
         this.channelPort = channelPort;
     }
 
-    public String getDataSetDefaultTagContractName() {
-        return dataSetDefaultTagContractName;
-    }
-
-    public void setDataSetDefaultTagContractName(String dataSetDefaultTagContractName) {
-        this.dataSetDefaultTagContractName = dataSetDefaultTagContractName;
-    }
-
-
-    public String getMemberAuthTypeContractName() {
-        return memberAuthTypeContractName;
-    }
-
-    public void setMemberAuthTypeContractName(String memberAuthTypeContractName) {
-        this.memberAuthTypeContractName = memberAuthTypeContractName;
-    }
-
     public String getUnionNodeContractName() {
         return unionNodeContractName;
     }
@@ -360,12 +333,11 @@ public class BlockChainConfig {
         this.unionNodeContractName = unionNodeContractName;
     }
 
-
-    public String getRealnameAuthAgreementTemplateContractName() {
-        return realnameAuthAgreementTemplateContractName;
+    public String getMemberFileInfoContractName() {
+        return memberFileInfoContractName;
     }
 
-    public void setRealnameAuthAgreementTemplateContractName(String realnameAuthAgreementTemplateContractName) {
-        this.realnameAuthAgreementTemplateContractName = realnameAuthAgreementTemplateContractName;
+    public void setMemberFileInfoContractName(String memberFileInfoContractName) {
+        this.memberFileInfoContractName = memberFileInfoContractName;
     }
 }

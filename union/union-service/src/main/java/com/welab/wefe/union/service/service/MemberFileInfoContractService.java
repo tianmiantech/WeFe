@@ -22,13 +22,15 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.MemberContract;
 import com.welab.wefe.union.service.contract.MemberFileInfoContract;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,21 +44,24 @@ import java.util.List;
 public class MemberFileInfoContractService extends AbstractContractService {
     private static final Logger LOG = LoggerFactory.getLogger(MemberFileInfoContractService.class);
 
+    @Autowired
+    private CryptoSuite cryptoSuite;
+    @Autowired
+    private MemberFileInfoContract memberFileInfoContract;
+
     /**
      * add memberFileInfo
      */
     public void add(MemberFileInfo memberFileInfo) throws StatusCodeWithException {
         try {
-            // get contract
-            MemberFileInfoContract memberContract = getContract();
             // send transaction
-            TransactionReceipt transactionReceipt = memberContract.insert(
+            TransactionReceipt transactionReceipt = memberFileInfoContract.insert(
                     generateParams(memberFileInfo),
                     JObject.create(memberFileInfo.getExtJson()).toJSONString()
             );
 
             // get receipt result
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_INSERT, transactionReceipt);
 
             LOG.info("MemberFileInfo contract insert transaction, memberFileInfo id: {},  receipt response: {}", memberFileInfo.getId(), JObject.toJSON(transactionResponse).toString());
@@ -80,22 +85,12 @@ public class MemberFileInfoContractService extends AbstractContractService {
      */
     public boolean isExist(String id) throws StatusCodeWithException {
         try {
-            MemberFileInfoContract memberContract = getContract();
-            Boolean ret = memberContract.isExist(id);
+            Boolean ret = memberFileInfoContract.isExist(id);
             return (null != ret && ret);
         } catch (Exception e) {
             LOG.error("Check if the member file information exists failed: ", e);
             throw new StatusCodeWithException("Check if the member file information exists failed: ", StatusCode.SYSTEM_ERROR);
         }
-    }
-
-
-    /**
-     * get contract
-     */
-    private MemberFileInfoContract getContract() throws StatusCodeWithException {
-        BlockChainContext blockChainContext = BlockChainContext.getInstance();
-        return blockChainContext.getLatestVersionMemberFileInfoContract();
     }
 
 
@@ -106,7 +101,7 @@ public class MemberFileInfoContractService extends AbstractContractService {
         list.add(memberFileInfo.getFileName());
         list.add(memberFileInfo.getFileSize());
         list.add(memberFileInfo.getMemberId());
-        list.add(memberFileInfo.getReporter());
+        list.add(memberFileInfo.getBlockchainNodeId());
         list.add(memberFileInfo.getPurpose());
         list.add(memberFileInfo.getDescribe());
         list.add(memberFileInfo.getEnable());

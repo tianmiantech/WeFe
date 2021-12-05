@@ -43,34 +43,43 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public List<UnionNode> findAll() {
-        return findAll(false);
-    }
 
-    public List<UnionNode> findAll(boolean status) {
+    public List<UnionNode> findExcludeCurrentNode(String blockchainNodeId) {
         return mongoUnionTemplate.find(
                 new QueryBuilder()
-                        .append("status", status ? 1 : 0)
-                        .build()
-                ,
-                UnionNode.class);
-    }
-
-    public UnionNode findByUnionBaseUrl(String unionBaseUrl) {
-        return mongoUnionTemplate.findOne(
-                new QueryBuilder()
-                        .append("unionBaseUrl", unionBaseUrl)
+                        .notEq("blockchainNodeId", blockchainNodeId)
                         .notRemoved()
                         .build()
                 ,
                 UnionNode.class);
     }
 
-    public boolean deleteByUnionNodeId(String unionNodeId) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+
+    public UnionNode findByUnionBaseUrl(String unionBaseUrl) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("baseUrl", unionBaseUrl)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public UnionNode findByBlockchainNodeId(String blockchainNodeId) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("blockchainNodeId", blockchainNodeId)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public boolean deleteByUnionNodeId(String nodeId) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
@@ -102,11 +111,11 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateEnable(String unionNodeId, String enable, String updatedTime) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean updateEnable(String nodeId, String enable, String updatedTime) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder()
                 .append("enable", enable)
                 .append("updatedTime", updatedTime)
@@ -115,11 +124,11 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateExtJSONById(String unionNodeId, UnionNodeExtJSON extJSON) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean updateExtJSONById(String nodeId, UnionNodeExtJSON extJSON) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, UnionNode.class);
         return updateResult.wasAcknowledged();

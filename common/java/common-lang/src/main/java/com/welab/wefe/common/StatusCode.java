@@ -73,7 +73,7 @@ public enum StatusCode {
     DUPLICATE_RESOURCE_ERROR(10037, "Duplicate resource"),
 
 
-    FILE_DOES_NOT_EXIST(10038, "file does not exist error fileId: (%s)"),
+    FILE_DOES_NOT_EXIST(10038, "file does not exist, error fileId: (%s)"),
     INVALID_PARAMETER(10039, "Invalid parameter (%s)"),
     /**
      * Database related error status code

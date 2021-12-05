@@ -63,6 +63,7 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
                         .append("metadata.sign", sign)
                         .build()
         );
+        String fileId;
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
 
@@ -71,12 +72,13 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
             metadata.append("sign", sign);
             options.metadata(metadata);
 
-            String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
+            fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
 
-            return success(new UploadFileApiOutput(fileId));
         } else {
-            return success(new UploadFileApiOutput(gridFSFile.getObjectId().toString()));
+            fileId = gridFSFile.getObjectId().toString();
         }
+
+        return success(new UploadFileApiOutput(fileId));
 
     }
 

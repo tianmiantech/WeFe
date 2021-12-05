@@ -19,21 +19,33 @@ package com.welab.wefe.union.service.api.common;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.gridfs.model.GridFSUploadOptions;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.UrlUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.common.web.dto.SignedApiInput;
 import org.apache.commons.io.IOUtils;
+import org.bson.BsonObjectId;
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 
@@ -49,16 +61,35 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     private GridFsTemplate gridFsTemplate;
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
+    @Autowired
+    private MemberFileInfoMongoRepo memberFileInfoMongoRepo;
 
     @Override
-    protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws IOException {
-        //根据文件id查询文件
+    protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws IOException, StatusCodeWithException {
+        MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileId(input.fileId);
+        if (memberFileInfo == null) {
+            throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.fileId);
+        }
+
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
         if (gridFSFile == null) {
+            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(memberFileInfo.getBlockchainNodeId());
+            String url = unionNode.getBaseUrl() + "/download/file";
+            url = UrlUtil.appendQueryParameters(url, JObject.create(input));
+            RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<byte[]> response = restTemplate.exchange(requestEntity, byte[].class);
+
+            new Thread(()->{
+                saveFileToCurrentNode(memberFileInfo,response);
+            }).start();
+
+            return success(response);
+
         }
-        //使用GridFsBucket打开一个下载流对象
+        //Open a download stream object using gridfsbucket
         GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
-        //创建GridFsResource对象，获取流
+        //Create a gridfsresource object and get the stream
         GridFsResource gridFsResource = new GridFsResource(gridFSFile, gridFSDownloadStream);
         String contentType = gridFSFile.getMetadata().getString("contentType");
 
@@ -77,7 +108,25 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
         return success(response);
     }
 
-    public static class Input extends BaseInput {
+    private void saveFileToCurrentNode(MemberFileInfo memberFileInfo, ResponseEntity<byte[]> response) {
+        GridFSUploadOptions options = new GridFSUploadOptions();
+        Document metadata = new Document();
+        metadata.append("contentType", response.getHeaders().getFirst("Content-Type"));
+        metadata.append("sign", memberFileInfo.getFileSign());
+        metadata.append("memberId", memberFileInfo.getMemberId());
+
+        options.metadata(metadata);
+        BsonValue fileId = new BsonObjectId(new ObjectId(memberFileInfo.getFileId()));
+        gridFSBucket.uploadFromStream(
+                fileId,
+                memberFileInfo.getFileName(),
+                new ByteArrayInputStream(response.getBody()),
+                options);
+
+    }
+
+
+    public static class Input extends SignedApiInput {
         @Check(require = true)
         private String fileId;
 

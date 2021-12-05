@@ -37,6 +37,7 @@ import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
+import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
@@ -60,19 +61,22 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     @Autowired
     private MemberFileInfoContractService memberFileInfoContractService;
 
+    @Autowired
+    private NodeInfo currentNodeInfo;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
 
-        if(!FileRurpose.RealnameAuth.name().equals(input.getPurpose())){
-            throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER,"purpose");
+        if (!FileRurpose.RealnameAuth.name().equals(input.getPurpose())) {
+            throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "purpose");
         }
 
 
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
+
 
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
@@ -103,11 +107,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             );
 
             syncDataToOtherUnionNode(input);
-        } else {
-            fileId = gridFSFile.getObjectId().toString();
-        }
 
-        return success(new UploadFileApiOutput(fileId));
+            return success(new UploadFileApiOutput(fileId));
+        } else {
+            throw new StatusCodeWithException("请勿重复上传相同文件", StatusCode.DUPLICATE_RESOURCE_ERROR);
+        }
 
     }
 
@@ -124,13 +128,13 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     }
 
     private void syncDataToOtherUnionNode(Input input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findAll(true);
+        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeInfo.getNodeInfo().getNodeID());
         for (UnionNode unionNode :
                 unionNodeList) {
             new UploadFileSyncToUnionTask(
                     unionNode.getBaseUrl(),
                     "member/file/upload/sync",
-                    JObject.create("filename", input.getFilename()).append("memberId", input.getMemberId()),
+                    JObject.create("filename", input.filename).append("memberId", input.memberId).append("purpose", input.purpose),
                     input.files
             ).start();
         }

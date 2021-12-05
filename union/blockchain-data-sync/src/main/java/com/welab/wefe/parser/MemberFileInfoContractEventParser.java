@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberFileInfoExtJSON;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -43,7 +42,7 @@ public class MemberFileInfoContractEventParser extends AbstractParser {
         memberFileInfo.setFileName(StringUtil.strTrim2(params.getString(2)));
         memberFileInfo.setFileSize(StringUtil.strTrim2(params.getString(3)));
         memberFileInfo.setMemberId(StringUtil.strTrim2(params.getString(4)));
-        memberFileInfo.setReporter(StringUtil.strTrim2(params.getString(5)));
+        memberFileInfo.setBlockchainNodeId(StringUtil.strTrim2(params.getString(5)));
         memberFileInfo.setPurpose(StringUtil.strTrim2(params.getString(6)));
         memberFileInfo.setDescribe(StringUtil.strTrim2(params.getString(7)));
         memberFileInfo.setEnable(StringUtil.strTrim2(params.getString(8)));

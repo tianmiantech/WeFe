@@ -22,10 +22,11 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.entity.DataSet;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,10 @@ import java.util.List;
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class DatasetContractService extends AbstractContractService {
 
-    private final BlockChainContext blockChainContext = BlockChainContext.getInstance();
-
+    @Autowired
+    private DataSetContract dataSetContract;
+    @Autowired
+    private CryptoSuite cryptoSuite;
     @Autowired
     private MemberContractService memberContractService;
     @Autowired
@@ -60,12 +63,11 @@ public class DatasetContractService extends AbstractContractService {
                 throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
             }
 
-            DataSetContract dataSetContract = blockChainContext.getLatestVersionDataSetContract();
             TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
                     extJson);
 
             // Get receipt result
-            TransactionResponse insertResponse = blockChainContext.getUnionTransactionDecoder()
+            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_INSERT, insertTransactionReceipt);
 
             // Transaction execution failed
@@ -75,7 +77,7 @@ public class DatasetContractService extends AbstractContractService {
                         extJson);
 
                 // Get receipt result
-                TransactionResponse updateResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
                 if (!transactionIsSuccess(updateResponse.getValues())) {
                     throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
@@ -91,12 +93,11 @@ public class DatasetContractService extends AbstractContractService {
 
     public void deleteById(String dataSetId) throws StatusCodeWithException {
         try {
-            DataSetContract dataSetContract = blockChainContext.getLatestVersionDataSetContract();
             boolean isExist = dataSetContract.isExist(dataSetId);
             if (isExist) {
                 TransactionReceipt transactionReceipt = dataSetContract.deleteByDataSetId(dataSetId);
                 // Get receipt result
-                TransactionResponse deleteResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
                     throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);

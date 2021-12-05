@@ -19,25 +19,23 @@ package com.welab.wefe.union.service.api.common;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
+import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
-import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -50,6 +48,9 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
     @Autowired
     private GridFSBucket gridFSBucket;
 
+    @Autowired
+    private MemberFileInfoMongoRepo memberFileInfoMongoRepo;
+
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
@@ -57,6 +58,13 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
+
+        MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileSign(sign);
+        if (memberFileInfo == null) {
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+        }
+
+
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)

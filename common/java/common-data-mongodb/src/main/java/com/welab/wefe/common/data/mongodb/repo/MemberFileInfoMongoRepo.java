@@ -41,6 +41,7 @@ public class MemberFileInfoMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
+
     public MemberFileInfo findByMemberId(String memberId) {
         return mongoUnionTemplate.findOne(
                 new QueryBuilder()

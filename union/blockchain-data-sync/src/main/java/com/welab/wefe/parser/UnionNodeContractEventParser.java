@@ -50,10 +50,10 @@ public class UnionNodeContractEventParser extends AbstractParser {
         unionNode.setLostContact(StringUtil.strTrim2(params.getString(4)));
         unionNode.setContactEmail(StringUtil.strTrim2(params.getString(5)));
         unionNode.setPriorityLevel(StringUtil.strTrim2(params.getString(6)));
-        unionNode.setEnable(StringUtil.strTrim2(params.getString(7)));
-        unionNode.setVersion(StringUtil.strTrim2(params.getString(8)));
-        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(9)));
-        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
+        unionNode.setEnable("0");
+        unionNode.setVersion(StringUtil.strTrim2(params.getString(7)));
+        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(8)));
+        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(9)));
         unionNode.setExtJson(extJSON);
 
         unionNodeMongoRepo.save(unionNode);
