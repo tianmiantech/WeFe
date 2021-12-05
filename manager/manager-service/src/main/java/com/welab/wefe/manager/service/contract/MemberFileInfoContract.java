@@ -1,4 +1,4 @@
-package com.welab.wefe.union.service.contract;
+package com.welab.wefe.manager.service.contract;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
