@@ -73,7 +73,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
-        //根据文件id查询文件
+
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)
