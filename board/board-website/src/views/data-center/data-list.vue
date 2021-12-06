@@ -66,7 +66,7 @@
             >
                 查询
             </el-button>
-            <el-button plain type="primary" class="fr">
+            <el-button plain native-type="submit" class="fr">
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>

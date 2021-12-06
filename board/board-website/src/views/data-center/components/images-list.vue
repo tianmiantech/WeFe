@@ -141,7 +141,7 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain type="primary">
+                    <el-button plain>
                         查看与标注
                     </el-button>
                 </router-link>
