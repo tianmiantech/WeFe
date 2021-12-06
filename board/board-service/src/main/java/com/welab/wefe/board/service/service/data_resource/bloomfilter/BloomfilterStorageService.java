@@ -23,6 +23,7 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -217,4 +218,5 @@ public class BloomfilterStorageService extends AbstractService {
     public int getAddBatchSize(int columns) {
         return storageService.getAddBatchSize(columns);
     }
+
 }

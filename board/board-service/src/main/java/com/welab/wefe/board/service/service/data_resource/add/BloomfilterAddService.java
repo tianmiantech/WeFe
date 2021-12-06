@@ -72,18 +72,9 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
     @Override
     protected void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
         BloomfilterAddInputModel input = (BloomfilterAddInputModel) in;
-        BloomFilterMysqlModel model = new ModelMapper().map(input, BloomFilterMysqlModel.class);
-        model.setId(task.getId());
-        model.setCreatedBy("test");
-        model.setTags(bloomfilterService.standardizeTags(input.getTags()));
-        bloomfilterService.handlePublicMemberList(model);
+        BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
         model.setSourcePath(config.getFileUploadDir() + input.getFilename());
-        model.setName(input.getName());
         model.setDataSourceId(input.getDataSourceId());
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setCreatedBy(CurrentAccount.id());
-        model.setDescription(input.getDescription());
-        model.setAddMethod(input.getBloomfilterAddMethod());
         model.setHashFunction(StringUtil.join(input.getRows(), ','));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
@@ -251,11 +242,11 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
 
     @Override
     protected Class<? extends DataResourceMysqlModel> getMysqlModelClass() {
-        return null;
+        return BloomFilterMysqlModel.class;
     }
 
     @Override
     protected DataResourceType getDataResourceType() {
-        return null;
+        return DataResourceType.BloomFilter;
     }
 }
