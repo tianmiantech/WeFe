@@ -82,8 +82,8 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             try {
                 doAdd(input, task, model);
-                dataResourceUploadTaskService.complete(task.getId());
                 unionService.uploadDataResource(model);
+                dataResourceUploadTaskService.complete(task.getDataResourceId());
             } catch (StatusCodeWithException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 dataResourceUploadTaskService.onError(model.getId(), e);

@@ -37,20 +37,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTa
 
     @Override
     protected ApiResult<DataResourceUploadTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
-        return success(dataResourceUploadTaskService.findById(input.getId()));
+        return success(dataResourceUploadTaskService.findByDataResourceId(input.dataResourceId));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "id唯一标识", require = true)
-        private String id;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
+        @Check(require = true)
+        public String dataResourceId;
     }
 
 }

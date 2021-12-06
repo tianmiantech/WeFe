@@ -29,9 +29,11 @@ import java.util.List;
  */
 public class ApiParamField {
     public String name;
-    public String typeName;
-    public String comment;
-    public Boolean require;
+    public String desc = "";
+    public String regex = "";
+    public String typeName = "";
+    public String comment = "";
+    public String require = "";
     public boolean isList;
 
     public ApiParamField(Field field) {
@@ -50,8 +52,10 @@ public class ApiParamField {
         }
 
 
-        comment = annotation.name();
-        require = annotation.require();
+        comment = annotation.name() + "";
+        require = annotation.require() + "";
+        desc = annotation.desc() + "";
+        regex = annotation.regex() + "";
     }
 
 }

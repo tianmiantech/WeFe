@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/column/list", name = "list of data set fields")
+@Api(path = "table_data_set/column/list", name = "list of data set fields")
 public class ListApi extends AbstractApi<ListApi.Input, PagingOutput<DataSetColumnOutputModel>> {
 
     @Autowired
@@ -40,7 +40,6 @@ public class ListApi extends AbstractApi<ListApi.Input, PagingOutput<DataSetColu
     protected ApiResult<PagingOutput<DataSetColumnOutputModel>> handle(Input input) throws StatusCodeWithException {
         return success(service.list(input.getDataSetId()));
     }
-
 
     public static class Input extends AbstractApiInput {
 

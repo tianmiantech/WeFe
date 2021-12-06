@@ -78,6 +78,15 @@ public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
     }
 
     public static class Input extends AbstractApiInput {
-        public String format = "json";
+        public String format;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+
+            if (format == null) {
+                format = "";
+            }
+        }
     }
 }

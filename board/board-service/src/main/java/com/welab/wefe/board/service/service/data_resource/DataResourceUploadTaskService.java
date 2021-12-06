@@ -25,8 +25,6 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.ServiceCheckService;
-import com.welab.wefe.board.service.service.data_resource.add.TableDataSetAddService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.data.mysql.Where;
@@ -46,10 +44,6 @@ import java.util.function.Consumer;
 public class DataResourceUploadTaskService extends AbstractService {
 
     private static final Object LOCKER = new Object();
-    @Autowired
-    private TableDataSetAddService tableDataSetAddService;
-    @Autowired
-    private ServiceCheckService serviceCheckService;
     @Autowired
     protected DataResourceRepository dataResourceRepository;
     @Autowired
@@ -132,9 +126,9 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * Upload complete
      */
-    public void complete(String dataSetId) {
+    public void complete(String dataResourceId) {
         synchronized (LOCKER) {
-            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataSetId);
+            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
             task.setCompletedDataCount(task.getTotalDataCount());
             task.setEstimateRemainingTime(0);
             task.setProgressRatio(100);
