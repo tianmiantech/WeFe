@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/update", name = "update data set info")
+@Api(path = "table_data_set/update", name = "update data set info")
 public class UpdateApi extends AbstractNoneOutputApi<TableDataSetUpdateInputModel> {
 
     @Autowired

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.data_resource;
 
-import com.welab.wefe.board.service.api.data_resource.upload_progress.DataResourceUploadTaskQueryApi;
+import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
@@ -25,11 +25,10 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.ServiceCheckService;
-import com.welab.wefe.board.service.service.data_resource.add.TableDataSetAddService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.DataResourceUploadStatus;
 import com.welab.wefe.common.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,10 +45,6 @@ public class DataResourceUploadTaskService extends AbstractService {
 
     private static final Object LOCKER = new Object();
     @Autowired
-    private TableDataSetAddService tableDataSetAddService;
-    @Autowired
-    private ServiceCheckService serviceCheckService;
-    @Autowired
     protected DataResourceRepository dataResourceRepository;
     @Autowired
     private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
@@ -63,6 +58,8 @@ public class DataResourceUploadTaskService extends AbstractService {
         task.setDataResourceName(input.getName());
         task.setProgressRatio(0);
         task.setDataResourceId(new DataResourceMysqlModel().getId());
+        task.setStatus(DataResourceUploadStatus.uploading);
+        dataResourceUploadTaskRepository.save(task);
         return task;
     }
 
@@ -129,15 +126,15 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * Upload complete
      */
-    public void complete(String dataSetId) {
+    public void complete(String dataResourceId) {
         synchronized (LOCKER) {
-            DataResourceUploadTaskMysqlModel dataSetTask = findByDataResourceId(dataSetId);
-            dataSetTask.setCompletedDataCount(dataSetTask.getTotalDataCount());
-            dataSetTask.setEstimateRemainingTime(0);
-            dataSetTask.setProgressRatio(100);
-            dataSetTask.setUpdatedTime(new Date());
-
-            dataResourceUploadTaskRepository.save(dataSetTask);
+            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
+            task.setCompletedDataCount(task.getTotalDataCount());
+            task.setEstimateRemainingTime(0);
+            task.setProgressRatio(100);
+            task.setUpdatedTime(new Date());
+            task.setStatus(DataResourceUploadStatus.completed);
+            dataResourceUploadTaskRepository.save(task);
         }
     }
 
@@ -169,18 +166,17 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * An exception occurred while saving the dataset
      */
-    public void onError(String dataSetId, Exception e) {
+    public void onError(String dataResourceId, Exception e) {
         synchronized (LOCKER) {
-            DataResourceUploadTaskMysqlModel dataSetTask = findByDataResourceId(dataSetId);
-            if (dataSetTask == null) {
+            DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
+            if (task == null) {
                 return;
             }
 
-            dataSetTask = findByDataResourceId(dataSetTask.getDataResourceId());
-            dataSetTask.setErrorMessage(e.getMessage());
-            dataSetTask.setUpdatedTime(new Date());
-
-            dataResourceUploadTaskRepository.save(dataSetTask);
+            task.setErrorMessage(e.getMessage());
+            task.setUpdatedTime(new Date());
+            task.setStatus(DataResourceUploadStatus.failed);
+            dataResourceUploadTaskRepository.save(task);
         }
     }
 }

@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * @author Zane
  */
-@Api(path = "storage/data_set/preview", name = "View data sets in storage")
+@Api(path = "storage/table_data_set/preview", name = "View data sets in storage")
 public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, PreviewDataSetApi.Output> {
 
     @Autowired

@@ -131,11 +131,16 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         if (functionComputeConfig == null) {
             setFunctionComputeConfig(new FunctionComputeConfigModel());
         }
+
         DeepLearningConfigModel deepLearningConfig = getDeepLearningConfig();
         if (deepLearningConfig == null) {
             setDeepLearningConfig(new DeepLearningConfigModel());
         }
 
+        CalculationEngineConfigModel calculationEngineConfig = getCalculationEngineConfig();
+        if (calculationEngineConfig == null) {
+            setCalculationEngineConfig(new CalculationEngineConfigModel());
+        }
 
         LOG.info("init global config success!");
     }
@@ -213,5 +218,14 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public void setDeepLearningConfig(DeepLearningConfigModel model) throws StatusCodeWithException {
         put(Group.DEEP_LEARNING_CONFIG, model);
     }
+
+    public CalculationEngineConfigModel getCalculationEngineConfig() {
+        return getModel(Group.CALCULATION_ENGINE_CONFIG, CalculationEngineConfigModel.class);
+    }
+
+    public void setCalculationEngineConfig(CalculationEngineConfigModel model) throws StatusCodeWithException {
+        put(Group.CALCULATION_ENGINE_CONFIG, model);
+    }
+
 
 }

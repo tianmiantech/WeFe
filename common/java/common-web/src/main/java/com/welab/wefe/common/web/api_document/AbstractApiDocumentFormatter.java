@@ -34,7 +34,7 @@ import java.util.List;
 public abstract class AbstractApiDocumentFormatter {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    private static final List<ApiItem> LIST = new ArrayList<>();
+    protected static final List<ApiItem> API_LIST = new ArrayList<>();
 
     static {
         ReflectionsUtil
@@ -43,7 +43,7 @@ public abstract class AbstractApiDocumentFormatter {
                 .filter(x -> !Modifier.isAbstract(x.getModifiers()))
                 .map(ApiItem::new)
                 .sorted(Comparator.comparing(x -> x.path))
-                .forEach(LIST::add);
+                .forEach(API_LIST::add);
     }
 
     public abstract String contentType();
@@ -58,7 +58,7 @@ public abstract class AbstractApiDocumentFormatter {
 
 
         String group = null;
-        for (ApiItem item : LIST) {
+        for (ApiItem item : API_LIST) {
             if (!item.group().equals(group)) {
                 group = item.group();
                 formatGroupItem(group);

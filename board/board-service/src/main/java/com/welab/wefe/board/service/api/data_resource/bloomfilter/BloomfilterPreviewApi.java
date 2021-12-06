@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.table_data_set;
+package com.welab.wefe.board.service.api.data_resource.bloomfilter;
 
+import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
-import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.CsvTableDataSetReader;
 import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
@@ -48,32 +49,32 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * @author Zane
+ * @author Jacky.jiang
  */
-@Api(path = "table_data_set/preview", name = "preview data set rows")
-public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output> {
+@Api(path = "bloomfilter/preview", name = "preview bloomfilter rows")
+public class BloomfilterPreviewApi extends AbstractApi<BloomfilterPreviewApi.Input, BloomfilterPreviewApi.Output> {
 
     private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d{1,9}$");
     private static final Pattern MATCH_LONG_PATTERN = Pattern.compile("^-?\\d{10,}$");
     private static final Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^-?\\d+\\.\\d+$");
 
     @Autowired
-    TableDataSetService tableDataSetService;
+    BloomfilterService bloomfilterService;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         Output output = new Output();
         // Read data from the database for preview
-        if (DataSetAddMethod.Database.equals(input.getDataSetAddMethod())) {
+        if (BloomfilterAddMethod.Database.equals(input.getBloomfilterAddMethod())) {
             // Test whether SQL can be queried normally
-            boolean result = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
+            boolean result = bloomfilterService.testSqlQuery(input.getDataSourceId(), input.getSql());
             if (result) {
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
             }
         } else {
 
-            File file = tableDataSetService.getDataSetFile(input.getDataSetAddMethod(), input.getFilename());
+            File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), input.getFilename());
             try {
                 output = readFile(file);
             } catch (IOException e) {
@@ -207,7 +208,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     }
 
     private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
-        DataSourceMysqlModel model = tableDataSetService.getDataSourceById(dataSourceId);
+        DataSourceMysqlModel model = bloomfilterService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
@@ -264,11 +265,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
     public static class Input extends AbstractApiInput {
 
-        @Check(require = true, name = "文件名", messageOnEmpty = "请指定数据集文件")
+        @Check(require = true, name = "文件名", messageOnEmpty = "请指定过滤器文件")
         private String filename;
 
         @Check(require = true, name = "数据集添加方法")
-        private DataSetAddMethod dataSetAddMethod;
+        private BloomfilterAddMethod bloomfilterAddMethod;
 
         @Check(name = "数据源id")
         private String dataSourceId;
@@ -279,7 +280,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             // If the source is a database, dataSourceId and sql must not be empty.
-            if (DataSetAddMethod.Database.equals(dataSetAddMethod)) {
+            if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {
                 if (StringUtils.isEmpty(dataSourceId)) {
                     throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
                 }
@@ -298,12 +299,12 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             this.filename = filename;
         }
 
-        public DataSetAddMethod getDataSetAddMethod() {
-            return dataSetAddMethod;
+        public BloomfilterAddMethod getBloomfilterAddMethod() {
+            return bloomfilterAddMethod;
         }
 
-        public void setDataSetAddMethod(DataSetAddMethod dataSetAddMethod) {
-            this.dataSetAddMethod = dataSetAddMethod;
+        public void setBloomfilterAddMethod(BloomfilterAddMethod bloomfilterAddMethod) {
+            this.bloomfilterAddMethod = bloomfilterAddMethod;
         }
 
         public String getDataSourceId() {

@@ -34,6 +34,9 @@ public class ApiItem {
     public Api annotation;
     public Class<?> apiClass;
     public String path;
+    public String id;
+    public String name;
+    public String desc;
     private final String group;
     public ApiParam input;
     public ApiParam output;
@@ -45,6 +48,9 @@ public class ApiItem {
                 .trim(annotation.path(), '/', '\\')
                 .replace("\\", "/")
                 .toLowerCase();
+        this.id = this.path.replace("/", "-");
+        this.name = annotation.name();
+        this.desc = annotation.desc();
         this.group = StringUtil.substringBefore(path, "/");
 
         // Gets a list of generic types for the API

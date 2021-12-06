@@ -560,10 +560,10 @@ public class ProjectFlowJobService extends AbstractService {
         project.setProjectId(job.getProjectId());
 
         Env env = new Env();
-        env.setBackend(config.getBackend());
-        env.setDbType(config.getDbType());
-        env.setWorkMode(config.getWorkMode());
-        env.setName(config.getEnvName());
+        env.setBackend(super.config.getBackend());
+        env.setDbType(super.config.getDbType());
+        env.setWorkMode(super.config.getWorkMode());
+        env.setName(super.config.getEnvName());
 
         List<JobDataSet> dataSets = listJobDataSets(job, nodes);
 

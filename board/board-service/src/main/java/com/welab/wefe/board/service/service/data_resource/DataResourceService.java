@@ -135,22 +135,22 @@ public class DataResourceService extends AbstractDataResourceService {
     /**
      * Query the project information used by the dataset in the project
      */
-    public List<ProjectUsageDetailOutputModel> queryUsageInProject(String dataSetId) {
-        List<ProjectUsageDetailOutputModel> ProjectUsageDetailOutputModelList = new ArrayList<>();
-        List<ProjectDataSetMySqlModel> usageInProjectList = projectDataSetRepository.queryUsageInProject(dataSetId);
+    public List<ProjectUsageDetailOutputModel> queryUsageInProject(String dataResourceId) {
+        List<ProjectUsageDetailOutputModel> result = new ArrayList<>();
+
+        // 查询资源的引用记录
+        List<ProjectDataSetMySqlModel> usageInProjectList = projectDataSetRepository.queryUsageInProject(dataResourceId);
         if (usageInProjectList == null || usageInProjectList.isEmpty()) {
-            return ProjectUsageDetailOutputModelList;
+            return result;
         }
 
+        // 查询引用资源的项目详情
         for (ProjectDataSetMySqlModel usageInProject : usageInProjectList) {
-            ProjectMySqlModel projectMySqlModel = projectRepository.findOneById(usageInProject.getProjectId());
-            ProjectUsageDetailOutputModel projectUsageDetailOutputModel = new ProjectUsageDetailOutputModel();
-            projectUsageDetailOutputModel.setName(projectMySqlModel.getName());
-            projectUsageDetailOutputModel.setProjectId(projectMySqlModel.getProjectId());
-            ProjectUsageDetailOutputModelList.add(projectUsageDetailOutputModel);
+            ProjectMySqlModel project = projectRepository.findOneById(usageInProject.getProjectId());
+            result.add(ModelMapper.map(project, ProjectUsageDetailOutputModel.class));
         }
 
-        return ProjectUsageDetailOutputModelList;
+        return result;
     }
 
     /**

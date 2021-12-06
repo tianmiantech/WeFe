@@ -2,7 +2,8 @@
 ### 查询单个数据集
 POST http://localhost:8080/board-service/image_data_set/detail
 Content-Type: application/json
+token: {{token}}
 
 {
-  "id": "112362bda1434045a893f2f09a9525c9"
+  "id": "37faca29272b462c95c29d631dffb342"
 }

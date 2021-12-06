@@ -45,7 +45,7 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 已写入数据行数
      */
-    private Long completedDataCount;
+    private long completedDataCount;
     /**
      * 任务进度百分比
      */
@@ -94,11 +94,11 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
         this.totalDataCount = totalDataCount;
     }
 
-    public Long getCompletedDataCount() {
+    public long getCompletedDataCount() {
         return completedDataCount;
     }
 
-    public void setCompletedDataCount(Long completedDataCount) {
+    public void setCompletedDataCount(long completedDataCount) {
         this.completedDataCount = completedDataCount;
     }
 

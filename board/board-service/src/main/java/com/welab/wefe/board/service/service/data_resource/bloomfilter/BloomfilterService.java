@@ -153,7 +153,6 @@ public class BloomfilterService extends AbstractService {
                 .equal("id", input.getId())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
-                .equal("containsY", input.getContainsY())
                 .equal("createdBy", input.getCreator())
                 .equal("sourceType", null, false)
                 .build(BloomFilterMysqlModel.class);

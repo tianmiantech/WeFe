@@ -16,13 +16,10 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 
-import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -41,22 +38,6 @@ public class TableDataSetUpdateInputModel extends AbstractDataResourceUpdateInpu
 
         if (CollectionUtils.isEmpty(metadataList)) {
             throw new StatusCodeWithException("请设置该数据集的元数据", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        for (DataSetColumnInputModel item : metadataList) {
-            item.checkAndStandardize();
-        }
-
-        int countByName = 0;
-        TableDataSetRepository repository = Launcher.getBean(TableDataSetRepository.class);
-        if (StringUtil.isEmpty(super.getId())) {
-            countByName = repository.countByName(super.getName());
-        } else {
-            countByName = repository.countByName(super.getName(), super.getId());
-        }
-
-        if (countByName > 0) {
-            throw new StatusCodeWithException("此数据集名称已存在，请换一个数据集名称", StatusCode.PARAMETER_VALUE_INVALID);
         }
     }
 

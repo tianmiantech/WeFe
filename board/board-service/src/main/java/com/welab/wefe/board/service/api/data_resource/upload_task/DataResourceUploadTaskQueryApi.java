@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.upload_progress;
+package com.welab.wefe.board.service.api.data_resource.upload_task;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author zane.luo
  */
-@Api(path = "data_set_task/query", name = "query data set upload task list")
+@Api(path = "data_resource/upload_task/query", name = "query data set upload task list")
 public class DataResourceUploadTaskQueryApi extends AbstractApi<DataResourceUploadTaskQueryApi.Input, PagingOutput<DataSetTaskOutputModel>> {
 
     @Autowired
