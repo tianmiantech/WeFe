@@ -2,9 +2,10 @@
 ### 修改数据集
 POST http://localhost:8080/board-service/image_data_set/update
 Content-Type: application/json
+token: {{token}}
 
 {
-  "id": "112362bda1434045a893f2f09a9525c9",
+  "id": "154c6d6d69124b14adeb8d148de425e7",
   "name": "Euler图学习开源数据集",
   "tags": [
     "图"

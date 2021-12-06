@@ -33,7 +33,7 @@ import java.util.List;
  * @author Jacky.jiang
  */
 @Api(path = "data_resource/usage_in_project_list", name = "list usage_detail")
-public class UsageDetailApi extends AbstractApi<UsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
+public class UsageInProjectListApi extends AbstractApi<UsageInProjectListApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
     private DataResourceService dataResourceService;
 

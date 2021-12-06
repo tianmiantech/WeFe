@@ -100,7 +100,6 @@ public class ImageDataSetService extends DataResourceService {
     protected void beforeUpdate(DataResourceMysqlModel m, AbstractDataResourceUpdateInputModel in) {
         ImageDataSetMysqlModel model = (ImageDataSetMysqlModel) m;
         ImageDataSetUpdateInputModel input = (ImageDataSetUpdateInputModel) in;
-        model.setForJobType(input.getForJobType());
     }
 
     /**
