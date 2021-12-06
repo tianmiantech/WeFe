@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * @author Zane
  */
-@Api(path = "data_set/add", name = "add data set")
+@Api(path = "table_data_set/add", name = "add data set")
 public class AddApi extends AbstractApi<TableDataSetAddInputModel, DataResourceAddOutputModel> {
 
     @Autowired

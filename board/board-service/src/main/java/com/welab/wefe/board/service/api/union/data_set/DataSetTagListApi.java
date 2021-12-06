@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "union/data_set/tag/query", name = "Query the tags of the data set from the union")
+@Api(path = "union/table_data_set/tag/query", name = "Query the tags of the data set from the union")
 public class DataSetTagListApi extends AbstractApi<DataSetTagListApi.Input, JSONObject> {
 
     @Autowired

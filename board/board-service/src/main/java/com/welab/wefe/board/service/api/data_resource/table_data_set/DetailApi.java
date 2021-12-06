@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/detail", name = "get data set detail")
+@Api(path = "table_data_set/detail", name = "get data set detail")
 public class DetailApi extends AbstractApi<DetailApi.Input, TableDataSetOutputModel> {
 
     @Autowired

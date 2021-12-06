@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * @author Zane
  */
-@Api(path = "data_set/preview", name = "preview data set rows")
+@Api(path = "table_data_set/preview", name = "preview data set rows")
 public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output> {
 
     private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d{1,9}$");

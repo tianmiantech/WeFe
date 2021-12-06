@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/delete", name = "delete data set")
+@Api(path = "table_data_set/delete", name = "delete data set")
 public class TableDataSetDeleteApi extends AbstractNoneOutputApi<TableDataSetDeleteApi.Input> {
 
     @Autowired

@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "data_set/query", name = "query data set")
+@Api(path = "table_data_set/query", name = "query data set")
 public class TableDataSetQueryApi extends AbstractApi<TableDataSetQueryApi.Input, PagingOutput<TableDataSetOutputModel>> {
 
     @Autowired

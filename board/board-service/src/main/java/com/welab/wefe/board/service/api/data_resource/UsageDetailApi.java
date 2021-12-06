@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.table_data_set;
+package com.welab.wefe.board.service.api.data_resource;
 
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * @author Jacky.jiang
  */
-@Api(path = "data_set/usage_detail", name = "list usage_detail")
+@Api(path = "data_resource/usage_in_project_list", name = "list usage_detail")
 public class UsageDetailApi extends AbstractApi<UsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
     private DataResourceService dataResourceService;

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 /**
  * @author Zane
  */
-@Api(path = "union/data_set/query", name = "Query data set from union")
+@Api(path = "union/table_data_set/query", name = "Query data set from union")
 public class QueryDataSetApi extends AbstractApi<QueryDataSetApi.Input, JSONObject> {
 
     @Autowired
