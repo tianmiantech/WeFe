@@ -70,7 +70,7 @@
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
-        
+
         <el-tabs
             v-model="vData.activeTab"
             type="border-card"
@@ -134,7 +134,7 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import AllDataList from './components/list';
+    import AllDataList from './components/all-data-list';
     import ImagesList from './components/images-list';
 
     export default {
