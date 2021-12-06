@@ -556,7 +556,7 @@
                     result.then(async ({ action, value }) => {
                         if(flag || action === 'confirm') {
                             const { code } = await $http.post({
-                                url:  '/project/data_set/audit',
+                                url:  '/project/data_resource/audit',
                                 data: {
                                     project_id:    props.form.project_id,
                                     audit_status:  flag ? 'agree' : 'disagree',
@@ -592,7 +592,7 @@
                             });
                         });
                         const { code } = await $http.post({
-                            url:  '/project/data_set/add',
+                            url:  '/project/data_resource/add',
                             data: {
                                 project_id:  props.form.project_id,
                                 dataSetList: vData.batchDataSetList,
@@ -614,7 +614,7 @@
 
                     if(!has) {
                         const { code } = await $http.post({
-                            url:  '/project/data_set/add',
+                            url:  '/project/data_resource/add',
                             data: {
                                 project_id:  props.form.project_id,
                                 dataSetList: [
@@ -644,7 +644,7 @@
                         .then(async action => {
                             if(action === 'confirm') {
                                 const { code } = await $http.post({
-                                    url:  '/project/data_set/remove',
+                                    url:  '/project/data_resource/remove',
                                     data: {
                                         project_id:  props.form.project_id,
                                         data_set_id: row.data_set_id,

@@ -91,7 +91,7 @@
         },
         data() {
             return {
-                getListApi: '/data_set_task/query',
+                getListApi: '/data_resource/upload_task/query',
                 search:     {
                     requestFromRefresh: true,
                 },

@@ -464,7 +464,7 @@
                         });
                     });
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: this.batchDataSetList,
@@ -486,7 +486,7 @@
 
                 if(!has) {
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: [
@@ -516,7 +516,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,

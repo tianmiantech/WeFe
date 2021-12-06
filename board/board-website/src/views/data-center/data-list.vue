@@ -187,7 +187,7 @@
                 },
 
                 async getTags() {
-                    const { code, data } = await $http.get('/data_set/tags');
+                    const { code, data } = await $http.get('/table_data_set/all_tags');
 
                     if (code === 0) {
                         vData.tagList = data;
@@ -207,7 +207,7 @@
                     let message = '此操作将永久删除该条目, 是否继续?';
 
                     const res = await this.$http.get({
-                        url:    '/data_set/usage_detail',
+                        url:    '/data_resource/usage_in_project_list',
                         params: {
                             dataSetId: row.id,
                         },
@@ -237,7 +237,7 @@
                             message,
                         }).then(async () => {
                             const { code } = await $http.post({
-                                url:  '/data_set/delete',
+                                url:  '/table_data_set/delete',
                                 data: {
                                     id: row.id,
                                 },

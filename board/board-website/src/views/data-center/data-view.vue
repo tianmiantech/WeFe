@@ -135,7 +135,7 @@
         methods: {
             async getRelativeProjects() {
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set/usage_detail',
+                    url:    '/data_resource/usage_in_project_list',
                     params: {
                         dataSetId: this.id,
                     },
@@ -148,7 +148,7 @@
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set/column/list',
+                    url:    '/table_data_set/column/list',
                     params: {
                         data_set_id: this.id,
                     },
@@ -192,7 +192,7 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    this.addDataType === 'csv' ? '/data_set/detail' : '/image_data_set/detail',
+                    url:    this.addDataType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail',
                     params: {
                         id: this.id,
                     },

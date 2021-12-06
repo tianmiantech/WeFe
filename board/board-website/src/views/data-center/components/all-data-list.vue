@@ -166,7 +166,7 @@
         },
         data() {
             return {
-                getListApi:    '/data_set/query',
+                getListApi:    '/table_data_set/query',
                 defaultSearch: false,
                 watchRoute:    false,
             };
@@ -182,7 +182,7 @@
                 let message = '此操作将永久删除该条目, 是否继续?';
 
                 const res = await this.$http.get({
-                    url:    '/data_set/usage_detail',
+                    url:    '/data_resource/usage_in_project_list',
                     params: {
                         dataSetId: row.id,
                     },
@@ -212,7 +212,7 @@
                         message,
                     }).then(async () => {
                         const { code } = await this.$http.post({
-                            url:  '/data_set/delete',
+                            url:  '/table_data_set/delete',
                             data: {
                                 id: row.id,
                             },

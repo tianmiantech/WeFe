@@ -281,7 +281,7 @@
                     member_id:   '',
                     tag:         '',
                 },
-                getListApi:     '/union/data_set/query',
+                getListApi:     '/union/table_data_set/query',
                 member_list:    [],
                 tag_list:       [],
                 viewDataDialog: {
@@ -308,7 +308,7 @@
             });
             const methods = {
                 async loadTags() {
-                    const { code, data } = await $http.get('/union/data_set/tag/query');
+                    const { code, data } = await $http.get('/union/table_data_set/tag/query');
 
                     if (code === 0) {
                         vData.tag_list = data.tag_list;
@@ -419,7 +419,7 @@
                     },
                 });
                 if (refInstance.paneName === 'allUnions') {
-                    vData.getListApi = '/union/data_set/query';
+                    vData.getListApi = '/union/table_data_set/query';
                     ctx.getList();
                 } else {
                     imageUnionsRef.value.search = vData.search;

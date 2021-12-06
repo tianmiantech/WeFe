@@ -328,7 +328,7 @@
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/column/list?data_set_id=' + this.id,
+                    url: '/table_data_set/column/list?data_set_id=' + this.id,
                 });
 
                 if (code === 0) {
@@ -375,7 +375,7 @@
 
             async getData() {
                 this.loading = true;
-                const url = this.addType === 'csv' ? '/data_set/detail' : '/image_data_set/detail';
+                const url = this.addType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail';
                 const { code, data } = await this.$http.get({
                     url: `${url}?id=` + this.id,
                 });
@@ -438,7 +438,7 @@
 
                 this.loading = true;
                 const { code } = await this.$http.post({
-                    url:     this.addType === 'csv' ? '/data_set/update' : '/image_data_set/update',
+                    url:     this.addType === 'csv' ? '/table_data_set/update' : '/image_data_set/update',
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,
@@ -461,7 +461,7 @@
                 if (keyword) {
                     this.loading = true;
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },

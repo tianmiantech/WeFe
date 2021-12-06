@@ -190,14 +190,14 @@
                         if (this.projectType === 'DeepLearning') {
                             url = '/image_data_set/query';
                         } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
+                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/table_data_set/query?member_id=${this.memberId}` : '/table_data_set/query';
                         }
                     } else {
                         // search from union
                         if (this.projectType === 'DeepLearning') {
                             url = `/union/image_data_set/query?member_id=${this.memberId}`;
                         } else {
-                            url = `/union/data_set/query?member_id=${this.memberId}`;
+                            url = `/union/table_data_set/query?member_id=${this.memberId}`;
                         }
                     }
                 }
