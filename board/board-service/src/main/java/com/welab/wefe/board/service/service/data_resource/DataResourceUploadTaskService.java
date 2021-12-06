@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.data_resource;
 
-import com.welab.wefe.board.service.api.data_resource.upload_progress.DataResourceUploadTaskQueryApi;
+import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;

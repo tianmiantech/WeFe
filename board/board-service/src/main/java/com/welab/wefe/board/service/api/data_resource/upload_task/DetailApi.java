@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.upload_progress;
+package com.welab.wefe.board.service.api.data_resource.upload_task;
 
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author lonnie
  */
-@Api(path = "data_set_task/detail", name = "get a data set upload task info")
+@Api(path = "data_resource/upload_task/detail", name = "get a data set upload task info")
 public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
