@@ -11,7 +11,7 @@
 
 <script>
     import Konva from 'konva';
-    import { ref, reactive, nextTick } from 'vue';
+    import { ref, reactive } from 'vue';
     import { useRouter } from 'vue-router';
     import LabelModal from './label-modal.vue';
     export default {
@@ -147,12 +147,12 @@
                             return;
                         }
                         lastEvent = e.evt;
-                    
+
                         // 如果没有匹配到就终止往下执行
                         if (!e.target.hasName('rect')) {
                             return;
                         }
-                    
+
                         // 移除图形选择框
                         vData.stage.find('Transformer').destroy();
 
@@ -207,7 +207,7 @@
                             if (vData.imgScaleConfig.scaleX > 1.6) vData.imgScaleConfig.scaleX = 1.6;
                             if (vData.imgScaleConfig.scaleY > 1.6) vData.imgScaleConfig.scaleY = 1.6;
                         }
-                    
+
                         // vData.imgScaleConfig.x = e.evt.x - mousePointTo.x * vData.imgScaleConfig.scaleX;
                         // vData.imgScaleConfig.y = e.evt.y - mousePointTo.y * vData.imgScaleConfig.scaleY;
                         imageLayer.setAttrs({
@@ -319,7 +319,7 @@
                         } else {
                         // 可删除已标注
                         }
-                    
+
                     });
                     vData.rectLayer.on('dblclick', function(e) {
                         if (e.target.attrs.isLabeled) {
@@ -331,8 +331,8 @@
                                 }
                             });
                         } else {
-                            vData.stage.find('Transformer').destroy(); 
-                            this.destroy(); 
+                            vData.stage.find('Transformer').destroy();
+                            this.destroy();
                         }
                         vData.currentText = null;
                         vData.layer.draw();
@@ -346,7 +346,7 @@
                         borderStroke:       '#fff',
                         keepRatio:          false, // 不等比缩放
                         anchorCornerRadius: 10,
-                        anchorSize:         10, // 
+                        anchorSize:         10, //
                         rotateEnabled:      false, // 是否可调节框选区域角度
                         resizeEnabled:      true, // 是否可调节框选区域大小
                         anchorFill:         '#fff',
@@ -376,7 +376,7 @@
                         labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 10;
                         labelY = vData.graphNow.attrs.y;
                     }
-                
+
                     // 2、width>0, height<0
                     if (vData.graphNow.width() > 0 && vData.graphNow.height() < 0) {
                         labelX = vData.graphNow.attrs.x + vData.graphNow.attrs.width * vData.graphNow.attrs.scaleX + 10;

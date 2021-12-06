@@ -300,6 +300,7 @@
 
                 formData.append('file', file);
                 formData.append('filename', file.name);
+                formData.append('purpose', 'RealnameAuth');
 
                 const { code, data } = await this.$http.post({
                     url:  '/union/member/file/upload',

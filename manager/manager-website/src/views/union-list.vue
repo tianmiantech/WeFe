@@ -19,15 +19,6 @@
             </el-button>
         </el-form> -->
 
-        <div class="mb20">
-            <el-button
-                type="primary"
-                @click="editDialog = true; editName = ''; editURL = '';"
-            >
-                添加
-            </el-button>
-        </div>
-
         <el-table
             v-loading="loading"
             class="card-list"
@@ -237,14 +228,11 @@
                 const params = {
                     organizationName: this.editName,
                     unionBaseUrl:     this.editURL,
+                    unionNodeId:      this.editId,
                 };
 
-                if(this.editId) {
-                    params.unionNodeId = this.editId;
-                }
-
                 const { code } = await this.$http.post({
-                    url:      this.editId ? '/union/node/update' : '/union/node/add',
+                    url:      '/union/node/update',
                     data:     params,
                     btnState: {
                         target: event,
