@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -70,7 +70,7 @@ public class FusionTaskService extends AbstractService {
     ThirdPartyService thirdPartyService;
 
     @Autowired
-    BloomfilterService bloomFilterService;
+    BloomFilterService bloomFilterService;
 
     @Autowired
     TaskResultService taskResultService;

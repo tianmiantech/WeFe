@@ -72,6 +72,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(input);
 
         DataResourceMysqlModel model = new ModelMapper().map(input, getMysqlModelClass());
+        model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
         model.setResourceType(getDataResourceType());

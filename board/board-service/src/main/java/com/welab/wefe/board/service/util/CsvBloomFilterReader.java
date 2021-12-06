@@ -32,23 +32,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Used to read bloomfilter files in csv format
+ * Used to read bloom_filter files in csv format
  * <p>
  * https://github.com/osiegmar/FastCSV
  *
  * @author jacky.jiang
  */
-public class CsvBloomfilterReader extends AbstractBloomfilterReader {
+public class CsvBloomFilterReader extends AbstractBloomFilterReader {
 
     private final CsvParser parser;
     private long totalRowCount;
     private final File file;
 
-    public CsvBloomfilterReader(File file) throws IOException {
+    public CsvBloomFilterReader(File file) throws IOException {
         this(null, file);
     }
 
-    public CsvBloomfilterReader(List<BloomFilterColumnInputModel> metadataList, File file) throws IOException {
+    public CsvBloomFilterReader(List<BloomFilterColumnInputModel> metadataList, File file) throws IOException {
         super(metadataList);
         this.file = file;
 

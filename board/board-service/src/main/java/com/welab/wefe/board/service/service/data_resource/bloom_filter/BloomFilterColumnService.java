@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterColumnMysqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterColumnRepository;
@@ -36,9 +36,9 @@ import java.util.List;
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterColumnService extends AbstractService {
+public class BloomFilterColumnService extends AbstractService {
     @Autowired
-    BloomFilterColumnRepository bloomfilterColumnRepository;
+    BloomFilterColumnRepository bloomFilterColumnRepository;
 
     public PagingOutput<BloomFilterColumnOutputModel> list(String dataSetId) {
         Specification<BloomFilterColumnMysqlModel> where = Where
@@ -50,7 +50,7 @@ public class BloomfilterColumnService extends AbstractService {
         // The front end does not do paging,
         // but considering that there may be a data set with a particularly large number of fields,
         // the paging method is used to query here.
-        return bloomfilterColumnRepository.paging(
+        return bloomFilterColumnRepository.paging(
                 where,
                 new PagingInput(0, 10000), BloomFilterColumnOutputModel.class
         );
@@ -58,7 +58,7 @@ public class BloomfilterColumnService extends AbstractService {
 
     public void update(String dataSetId, List<BloomFilterColumnInputModel> list) {
         // clear data set columns
-        bloomfilterColumnRepository.deleteByBloomfilterId(dataSetId);
+        bloomFilterColumnRepository.deleteByBloomFilterId(dataSetId);
 
         // save data set columns
         for (int i = 0; i < list.size(); i++) {
@@ -66,10 +66,10 @@ public class BloomfilterColumnService extends AbstractService {
 
             BloomFilterColumnMysqlModel column = new ModelMapper().map(item, BloomFilterColumnMysqlModel.class);
             column.setCreatedBy("test");
-            column.setBloomfilterId(dataSetId);
+            column.setBloomFilterId(dataSetId);
             column.setIndex(i);
 
-            bloomfilterColumnRepository.save(column);
+            bloomFilterColumnRepository.save(column);
         }
     }
 }

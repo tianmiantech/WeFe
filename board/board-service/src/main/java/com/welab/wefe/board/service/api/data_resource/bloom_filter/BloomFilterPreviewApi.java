@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.CsvTableDataSetReader;
 import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
@@ -51,15 +51,15 @@ import java.util.stream.Collectors;
 /**
  * @author Jacky.jiang
  */
-@Api(path = "bloomfilter/preview", name = "preview bloomfilter rows")
-public class BloomfilterPreviewApi extends AbstractApi<BloomfilterPreviewApi.Input, BloomfilterPreviewApi.Output> {
+@Api(path = "bloom_filter/preview", name = "preview bloom_filter rows")
+public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Input, BloomFilterPreviewApi.Output> {
 
     private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d{1,9}$");
     private static final Pattern MATCH_LONG_PATTERN = Pattern.compile("^-?\\d{10,}$");
     private static final Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^-?\\d+\\.\\d+$");
 
     @Autowired
-    BloomfilterService bloomfilterService;
+    BloomFilterService bloomfilterService;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
