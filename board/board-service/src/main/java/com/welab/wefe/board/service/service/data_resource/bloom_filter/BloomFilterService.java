@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
-import com.welab.wefe.board.service.api.data_resource.bloomfilter.BloomfilterDeleteApi;
-import com.welab.wefe.board.service.api.data_resource.bloomfilter.BloomfilterQueryApi;
+import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
+import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterQueryApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -52,12 +52,12 @@ import java.util.stream.Collectors;
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterService extends AbstractService {
+public class BloomFilterService extends AbstractService {
 
     @Autowired
     protected BloomFilterRepository repo;
     @Autowired
-    protected BloomfilterStorageService bloomfilterStorageService;
+    protected BloomFilterStorageService bloomfilterStorageService;
     @Autowired
     protected JobRepository jobRepository;
     @Autowired
@@ -96,9 +96,9 @@ public class BloomfilterService extends AbstractService {
     }
 
     /**
-     * delete bloomfilter
+     * delete bloom_filter
      */
-    public void delete(BloomfilterDeleteApi.Input input) throws StatusCodeWithException {
+    public void delete(BloomFilterDeleteApi.Input input) throws StatusCodeWithException {
         BloomFilterMysqlModel model = repo.findById(input.getId()).orElse(null);
         if (model == null) {
             return;
@@ -110,7 +110,7 @@ public class BloomfilterService extends AbstractService {
     }
 
     /**
-     * delete bloomfilter
+     * delete bloom_filter
      */
     public void delete(String bloomfilterId) throws StatusCodeWithException {
         BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
@@ -122,31 +122,31 @@ public class BloomfilterService extends AbstractService {
     }
 
     /**
-     * delete bloomfilter
+     * delete bloom_filter
      */
     public void delete(BloomFilterMysqlModel model) throws StatusCodeWithException {
 
-        // delete bloomfilter from database
+        // delete bloom_filter from database
         repo.deleteById(model.getId());
 
-        // delete bloomfilter from folder
+        // delete bloom_filter from folder
         bloomfilterStorageService.deleteBloomfilter(model.getId());
 
-        // TODO is raw bloomfilter
+        // TODO is raw bloom_filter
 //        if (model.getSourceType() == null) {
-//            // Notify the union to do not public the bloomfilter
+//            // Notify the union to do not public the bloom_filter
 //            unionService.dontPublicDataSet(model.getId());
 //
-//            // Refresh the bloomfilter tag list
+//            // Refresh the bloom_filter tag list
 //            CacheObjects.refreshDataSetTags();
 //        }
 
     }
 
     /**
-     * Paging query bloomfilter
+     * Paging query bloom_filter
      */
-    public PagingOutput<BloomFilterOutputModel> query(BloomfilterQueryApi.Input input) {
+    public PagingOutput<BloomFilterOutputModel> query(BloomFilterQueryApi.Input input) {
 
         Specification<BloomFilterMysqlModel> where = Where
                 .create()
@@ -264,7 +264,7 @@ public class BloomfilterService extends AbstractService {
     }
 
     /**
-     * Update the various usage count of the bloomfilter
+     * Update the various usage count of the bloom_filter
      */
     private void updateUsageCount(String bloomfilterId, Consumer<BloomFilterMysqlModel> func) throws StatusCodeWithException {
         BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);

@@ -133,11 +133,11 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
      * 获取资源文件对象
      */
     @JSONField(serialize = false)
-    public File file(DataResourceMysqlModel model) {
+    public File file() {
         return Paths.get(
-                        model.getStorageNamespace(),
-                        model.getStorageResourceName()
-                )
+                this.getStorageNamespace(),
+                this.getStorageResourceName()
+        )
                 .toFile();
     }
 
@@ -145,9 +145,9 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
      * 获取资源所在目录
      */
     @JSONField(serialize = false)
-    public Path dir(DataResourceMysqlModel model) {
+    public Path dir() {
         return Paths.get(
-                model.getStorageNamespace()
+                this.getStorageNamespace()
         );
     }
 

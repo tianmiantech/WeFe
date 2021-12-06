@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -23,7 +23,6 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,13 +33,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * bloomfilter storage service read and write class
+ * bloom_filter storage service read and write class
  * <p>
  *
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterStorageService extends AbstractService {
+public class BloomFilterStorageService extends AbstractService {
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
 
     @Autowired
@@ -56,7 +55,7 @@ public class BloomfilterStorageService extends AbstractService {
     }
 
     /**
-     * remove bloomfilter from storage
+     * remove bloom_filter from storage
      */
     public void deleteBloomfilter(String bloomfilterId) {
         String table = createRawBloomfilterTableName(bloomfilterId);
@@ -132,7 +131,7 @@ public class BloomfilterStorageService extends AbstractService {
 
 
     /**
-     * view the bloomfilter data rows
+     * view the bloom_filter data rows
      */
     public List<List<String>> previewBloomfilter(String dbName, String tableName, int limit) {
         PageOutputModel<?, ?> page = storageService.getPage(dbName, tableName, new PageInputModel(0, limit));
@@ -192,7 +191,7 @@ public class BloomfilterStorageService extends AbstractService {
     }
 
     /**
-     * Generate the raw bloomfilter table name
+     * Generate the raw bloom_filter table name
      */
     public String createRawBloomfilterTableName(String bloomfilterId) {
         return "blommfilter_" + bloomfilterId;

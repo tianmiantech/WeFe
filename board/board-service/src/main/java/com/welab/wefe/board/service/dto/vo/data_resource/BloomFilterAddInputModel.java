@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author jacky.jiang
  */
-public class BloomfilterAddInputModel extends BloomfilterUpdateInputModel {
+public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
 
     @Check(messageOnEmpty = "请指定过滤器文件")
     private String filename;
@@ -51,10 +51,10 @@ public class BloomfilterAddInputModel extends BloomfilterUpdateInputModel {
     @Check(name = "主键处理")
     private List<FieldInfo> fieldInfoList;
 
-    public BloomfilterAddInputModel() {
+    public BloomFilterAddInputModel() {
     }
 
-    public BloomfilterAddInputModel(String dataSourceId, String sql) {
+    public BloomFilterAddInputModel(String dataSourceId, String sql) {
         this.dataSourceId = dataSourceId;
         this.sql = sql;
     }

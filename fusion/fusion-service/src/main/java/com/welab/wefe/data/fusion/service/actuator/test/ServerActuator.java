@@ -193,7 +193,7 @@ public class ServerActuator extends PsiServerActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("server send bloomfilter data...");
+        LOG.info("server send bloom_filter data...");
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
 

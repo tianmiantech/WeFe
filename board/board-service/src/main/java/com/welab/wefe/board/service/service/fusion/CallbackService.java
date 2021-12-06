@@ -24,7 +24,7 @@ import com.welab.wefe.board.service.database.repository.fusion.FusionTaskReposit
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -53,7 +53,7 @@ public class CallbackService {
     private FusionTaskRepository fusionTaskRepository;
 
     @Autowired
-    private BloomfilterService bloomfilterService;
+    private BloomFilterService bloomfilterService;
     @Autowired
     private TableDataSetService tableDataSetService;
 

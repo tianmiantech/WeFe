@@ -14,45 +14,46 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
-
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
+import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author jacky.jiang
- */
-@Api(path = "bloomfilter/delete", name = "delete bloomfilter")
-public class BloomfilterDeleteApi extends AbstractNoneOutputApi<BloomfilterDeleteApi.Input> {
+import java.io.IOException;
+import java.util.List;
 
+/**
+ * @author Jacky.jiang
+ */
+@Api(path = "bloom_filter/usage_detail", name = "list usage_detail")
+public class BloomFilterUsageDetailApi extends AbstractApi<BloomFilterUsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
-    private BloomfilterService bloomfilterService;
+    private DataResourceService dataResourceService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        bloomfilterService.delete(input);
-        return success();
+    protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
+        return success(dataResourceService.queryUsageInProject(input.getBloomfilterId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集 Id", require = true)
-        private String id;
+        @Check(name = "过滤器ID", require = true)
+        private String bloomfilterId;
 
         //region getter/setter
 
-        public String getId() {
-            return id;
+        public String getBloomfilterId() {
+            return bloomfilterId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setBloomfilterId(String bloomfilterId) {
+            this.bloomfilterId = bloomfilterId;
         }
 
 

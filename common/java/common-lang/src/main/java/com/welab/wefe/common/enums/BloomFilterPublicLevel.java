@@ -17,19 +17,21 @@
 package com.welab.wefe.common.enums;
 
 /**
- * @author jacky.jiang
+ * The exposure level of the dataset
+ *
+ * @author zane.luo
  */
-public enum BloomfilterProgressType {
-    Pending,
-
-    Await,
-
-    Ready,
-
-    Running,
-
-    Success,
-
-    Failure,
-
+public enum BloomFilterPublicLevel {
+    /**
+     * Visible to all
+     */
+    Public,
+    /**
+     * Visible to specified members
+     */
+    PublicWithMemberList,
+    /**
+     * Visible only to yourself
+     */
+    OnlyMyself
 }

@@ -26,12 +26,12 @@ public class BloomFilterTaskOutputModel extends AbstractOutputModel {
     /**
      * 过滤器名
      */
-    private String bloomfilterName;
+    private String bloomFilterName;
 
     /**
      * 过滤器id
      */
-    private String bloomfilterId;
+    private String bloomFilterId;
 
     /**
      * 总数据行数
@@ -64,20 +64,20 @@ public class BloomFilterTaskOutputModel extends AbstractOutputModel {
     // region getter/setter
 
 
-    public String getBloomfilterName() {
-        return bloomfilterName;
+    public String getBloomFilterName() {
+        return bloomFilterName;
     }
 
-    public void setBloomfilterName(String bloomfilterName) {
-        this.bloomfilterName = bloomfilterName;
+    public void setBloomFilterName(String bloomFilterName) {
+        this.bloomFilterName = bloomFilterName;
     }
 
-    public String getBloomfilterId() {
-        return bloomfilterId;
+    public String getBloomFilterId() {
+        return bloomFilterId;
     }
 
-    public void setBloomfilterId(String bloomfilterId) {
-        this.bloomfilterId = bloomfilterId;
+    public void setBloomFilterId(String bloomFilterId) {
+        this.bloomFilterId = bloomFilterId;
     }
 
     public long getTotalRowCount() {

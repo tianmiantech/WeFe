@@ -14,46 +14,57 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
-import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
-import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author Jacky.jiang
  */
-@Api(path = "bloomfilter/usage_detail", name = "list usage_detail")
-public class BloomfilterUsageDetailApi extends AbstractApi<BloomfilterUsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
+@Api(path = "bloom_filter/tags", name = "all of the data set tags")
+public class BloomFilterTagListApi extends AbstractApi<BloomFilterTagListApi.Input, TreeMap<String, Long>> {
+
     @Autowired
-    private DataResourceService dataResourceService;
+    TableDataSetRepository repo;
 
     @Override
-    protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataResourceService.queryUsageInProject(input.getBloomfilterId()));
+    protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
+        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getTableDataSetTags().clone();
+
+        // filter
+        if (StringUtil.isNotEmpty(input.tag)) {
+            for (Object tag : map.keySet().toArray()) {
+                if (!String.valueOf(tag).toLowerCase().contains(input.tag)) {
+                    map.remove(tag);
+                }
+            }
+        }
+
+        return success(map);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "过滤器ID", require = true)
-        private String bloomfilterId;
+        private String tag;
 
         //region getter/setter
 
-        public String getBloomfilterId() {
-            return bloomfilterId;
+        public String getTag() {
+            return tag;
         }
 
-        public void setBloomfilterId(String bloomfilterId) {
-            this.bloomfilterId = bloomfilterId;
+        public void setTag(String tag) {
+            this.tag = tag;
         }
 
 

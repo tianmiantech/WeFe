@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.data_resource.bloomfilter;
+package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 
-import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterTaskRepository;
-import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
-import com.welab.wefe.board.service.service.data_resource.add.BloomfilterAddService;
+import com.welab.wefe.board.service.service.data_resource.add.BloomFilterAddService;
 import com.welab.wefe.common.Convert;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.function.Consumer;
 
@@ -44,11 +37,11 @@ import java.util.function.Consumer;
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterTaskService extends AbstractService {
+public class BloomFilterTaskService extends AbstractService {
 
     private static final Object LOCKER = new Object();
     @Autowired
-    private BloomfilterAddService bloomfilterAddService;
+    private BloomFilterAddService bloomfilterAddService;
     @Autowired
     private ServiceCheckService serviceCheckService;
     @Autowired
@@ -57,10 +50,10 @@ public class BloomfilterTaskService extends AbstractService {
     private BloomFilterTaskRepository bloomfilterTaskRepository;
 
 
-    public BloomFilterTaskMysqlModel findByBloomfilterId(String bloomfilterId) {
+    public BloomFilterTaskMysqlModel findByBloomfilterId(String bloomFilterId) {
         Specification<BloomFilterTaskMysqlModel> where = Where
                 .create()
-                .equal("bloomfilterId", bloomfilterId)
+                .equal("bloomFilterId", bloomFilterId)
                 .build(BloomFilterTaskMysqlModel.class);
 
         return bloomfilterTaskRepository.findOne(where).orElse(null);
@@ -92,7 +85,7 @@ public class BloomfilterTaskService extends AbstractService {
                 progress = 1;
             }
 
-            // Because  the bloomfilter has not been updated yet. The progress cannot be set to 100 temporarily, otherwise the front end will jump in advance.
+            // Because  the bloom_filter has not been updated yet. The progress cannot be set to 100 temporarily, otherwise the front end will jump in advance.
             if (progress == 100) {
                 progress = 99;
             }
@@ -119,9 +112,9 @@ public class BloomfilterTaskService extends AbstractService {
     /**
      * Upload complete
      */
-    public void complete(String bloomfilterId) {
+    public void complete(String bloomFilterId) {
         synchronized (LOCKER) {
-            BloomFilterTaskMysqlModel bloomfilterTask = findByBloomfilterId(bloomfilterId);
+            BloomFilterTaskMysqlModel bloomfilterTask = findByBloomfilterId(bloomFilterId);
             bloomfilterTask.setAddedRowCount(bloomfilterTask.getTotalRowCount());
             bloomfilterTask.setEstimateTime(0);
             bloomfilterTask.setProgress(100);
@@ -157,7 +150,7 @@ public class BloomfilterTaskService extends AbstractService {
 //    }
 
     /**
-     * An exception occurred while saving the bloomfilter
+     * An exception occurred while saving the bloom_filter
      */
     public void onError(String bloomfilterId, Exception e) {
         synchronized (LOCKER) {
@@ -166,7 +159,7 @@ public class BloomfilterTaskService extends AbstractService {
                 return;
             }
 
-            bloomfilterTask = findByBloomfilterId(bloomfilterTask.getBloomfilterId());
+            bloomfilterTask = findByBloomfilterId(bloomfilterTask.getBloomFilterId());
             bloomfilterTask.setErrorMessage(e.getMessage());
             bloomfilterTask.setUpdatedTime(new Date());
 
