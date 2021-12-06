@@ -12,11 +12,9 @@ public class UnionNodeUpdateInput extends BaseInput {
 
     @Check(require = true)
     private String nodeId;
-    private String blockchainNodeId;
     private String baseUrl;
     private String organizationName;
     private String contactEmail;
-    private String version;
 
 
     public String getNodeId() {
@@ -25,14 +23,6 @@ public class UnionNodeUpdateInput extends BaseInput {
 
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
-    }
-
-    public String getBlockchainNodeId() {
-        return blockchainNodeId;
-    }
-
-    public void setBlockchainNodeId(String blockchainNodeId) {
-        this.blockchainNodeId = blockchainNodeId;
     }
 
     public String getBaseUrl() {
@@ -59,11 +49,4 @@ public class UnionNodeUpdateInput extends BaseInput {
         this.contactEmail = contactEmail;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
 }

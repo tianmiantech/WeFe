@@ -110,12 +110,10 @@ contract UnionNodeContract{
         condition.EQ("node_id", node_id);
 
         Entry entry = table.newEntry();
-        entry.set("blockchain_node_id", params[0]);
-        entry.set("base_url", params[1]);
-        entry.set("organization_name", params[2]);
-        entry.set("contact_email", params[3]);
-        entry.set("version", params[4]);
-        entry.set("updated_time", params[5]);
+        entry.set("base_url", params[0]);
+        entry.set("organization_name", params[1]);
+        entry.set("contact_email", params[2]);
+        entry.set("updated_time", params[3]);
 
         int count = table.update(FIX_ID, entry, condition);
 

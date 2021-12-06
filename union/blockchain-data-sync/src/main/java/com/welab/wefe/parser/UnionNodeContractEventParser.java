@@ -62,13 +62,11 @@ public class UnionNodeContractEventParser extends AbstractParser {
 
     private void parseUpdateEvent() {
         String nodeId = eventBO.getEntity().get("node_id").toString();
-        String blockchainNodeId = StringUtil.strTrim2(params.getString(0));
-        String baseUrl = StringUtil.strTrim2(params.getString(1));
-        String organizationName = StringUtil.strTrim2(params.getString(2));
-        String contactEmail = StringUtil.strTrim2(params.getString(3));
-        String version = StringUtil.strTrim2(params.getString(4));
-        String updatedTime = StringUtil.strTrim2(params.getString(5));
-        unionNodeMongoRepo.update(nodeId,blockchainNodeId,baseUrl,organizationName,contactEmail,version,updatedTime);
+        String baseUrl = StringUtil.strTrim2(params.getString(0));
+        String organizationName = StringUtil.strTrim2(params.getString(1));
+        String contactEmail = StringUtil.strTrim2(params.getString(2));
+        String updatedTime = StringUtil.strTrim2(params.getString(3));
+        unionNodeMongoRepo.update(nodeId,baseUrl,organizationName,contactEmail,updatedTime);
     }
 
     private void parseUpdateEnableEvent() {

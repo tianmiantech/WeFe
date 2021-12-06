@@ -106,11 +106,9 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
 
     public boolean update(
             String nodeId,
-            String blockchainNodeId,
             String baseUrl,
             String organizationName,
             String contactEmail,
-            String version,
             String updatedTime
 
     ) {
@@ -119,11 +117,9 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder()
-                .append("blockchainNodeId", blockchainNodeId)
                 .append("baseUrl", baseUrl)
                 .append("organizationName", organizationName)
                 .append("contactEmail", contactEmail)
-                .append("version", version)
                 .append("updatedTime", updatedTime)
                 .build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
