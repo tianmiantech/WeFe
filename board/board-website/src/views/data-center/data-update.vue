@@ -237,6 +237,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
     import SelectMember from './components/select-member';
@@ -281,6 +282,9 @@
                 },
                 addType: 'csv',
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.addType = this.$route.query.type || 'csv';
