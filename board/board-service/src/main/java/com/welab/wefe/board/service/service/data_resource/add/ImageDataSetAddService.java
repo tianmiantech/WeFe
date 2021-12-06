@@ -98,13 +98,10 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
             ImageDataSetSampleMysqlModel sample = sampleList.get(i);
             imageDataSetSampleRepository.save(sample);
 
-            if (i % 50 == 0) {
+            if (i % 20 == 0) {
                 dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), i + 1, 0);
             }
         }
-
-        // Synchronize information to union
-
 
         // delete source images
         FileUtil.deleteFileOrDir(inputFile);

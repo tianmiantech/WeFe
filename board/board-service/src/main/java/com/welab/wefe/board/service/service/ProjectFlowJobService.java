@@ -188,7 +188,7 @@ public class ProjectFlowJobService extends AbstractService {
 
     public boolean isCreator(ProjectFlowMySqlModel flow, ProjectMySqlModel project) {
         return JobMemberRole.promoter == project.getMyRole()
-                && CacheObjects.isCurrentMember(flow.getCreatedBy());
+                && CacheObjects.isCurrentMemberAccount(flow.getCreatedBy());
     }
 
     public JobArbiterInfo calcArbiterInfo(ProjectFlowMySqlModel flow, StartFlowApi.Input input,

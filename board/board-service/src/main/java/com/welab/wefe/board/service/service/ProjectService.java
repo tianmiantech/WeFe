@@ -202,7 +202,7 @@ public class ProjectService extends AbstractService {
                 projectDataSetRepo.save(dataSet);
 
                 // Update the usage count of the dataset in the project
-                if (auditStatus == AuditStatus.agree) {
+                if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
                     dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
                 }
             }

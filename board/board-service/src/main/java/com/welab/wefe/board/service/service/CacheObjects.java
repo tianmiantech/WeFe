@@ -108,6 +108,13 @@ public class CacheObjects {
         return MEMBER_ID;
     }
 
+    /**
+     * 判断指定的 member_id 是属于当前本地成员
+     */
+    public static boolean isCurrentMember(String memberId) {
+        return getMemberId().equals(memberId);
+    }
+
     public static String getRsaPrivateKey() {
         if (RSA_PRIVATE_KEY == null) {
             refreshMemberInfo();
@@ -170,7 +177,7 @@ public class CacheObjects {
     /**
      * Determine whether accountId belongs to the current member
      */
-    public static synchronized boolean isCurrentMember(String accountId) {
+    public static synchronized boolean isCurrentMemberAccount(String accountId) {
         return getAccountIdList().contains(accountId);
     }
 
