@@ -137,9 +137,10 @@ public class BloomfilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
         this.fieldInfoList = service.fieldInfoList(bloomfilterId);
 
-        this.bloomFilterRepository.updateById(bloomfilterId, "rsaD", this.rsaD, BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "rsaN", this.rsaN.toString(), BloomFilterMysqlModel.class);
-        this.bloomFilterRepository.updateById(bloomfilterId, "rsaE", this.rsaE.toString(), BloomFilterMysqlModel.class);
+        model.setRsaD(this.rsaD + "");
+        model.setRsaN(this.rsaN + "");
+        model.setRsaE(this.rsaE + "");
+        this.bloomFilterRepository.save(model);
 
         //
         File outFile = Paths.get(
