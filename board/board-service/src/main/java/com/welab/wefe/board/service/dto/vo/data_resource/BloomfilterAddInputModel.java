@@ -33,7 +33,6 @@ public class BloomfilterAddInputModel extends BloomfilterUpdateInputModel {
 
     @Check(messageOnEmpty = "请指定过滤器文件")
     private String filename;
-
     @Check(require = true)
     private BloomfilterAddMethod bloomfilterAddMethod;
 

@@ -52,9 +52,6 @@ public class BloomfilterQueryApi extends AbstractApi<BloomfilterQueryApi.Input, 
         @Check(name = "标签")
         private String tag;
 
-        @Check(name = "是否包含 Y 值")
-        private Boolean containsY;
-
         @Check(name = "上传者")
         private String creator;
 
@@ -83,14 +80,6 @@ public class BloomfilterQueryApi extends AbstractApi<BloomfilterQueryApi.Input, 
 
         public void setTag(String tag) {
             this.tag = tag;
-        }
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
         }
 
         public String getCreator() {
