@@ -65,12 +65,12 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         ImageDataSetAddInputModel input = (ImageDataSetAddInputModel) in;
         ImageDataSetMysqlModel model = (ImageDataSetMysqlModel) m;
 
-        File dataSetFile = new File(config.getFileUploadDir(), input.getFilename());
+        File inputFile = new File(config.getFileUploadDir(), input.getFilename());
 
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
-            fileDecompressionResult = SuperDecompressor.decompression(dataSetFile, true);
+            fileDecompressionResult = SuperDecompressor.decompression(inputFile, true);
             dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
             AbstractImageDataSetParser dataSetParser = null;
             switch (input.forJobType) {
@@ -107,7 +107,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
 
 
         // delete source images
-        FileUtil.deleteFileOrDir(dataSetFile);
+        FileUtil.deleteFileOrDir(inputFile);
         fileDecompressionResult.deleteAllDirAndFiles();
 
         // Refresh the data set tag list

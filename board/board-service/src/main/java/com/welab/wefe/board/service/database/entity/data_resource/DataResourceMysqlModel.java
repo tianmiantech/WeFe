@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.enums.ComponentType;
@@ -26,6 +27,9 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author zane
@@ -122,6 +126,33 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JSONObject statisticalInformation;
+
+    // region custom method
+
+    /**
+     * 获取资源文件对象
+     */
+    @JSONField(serialize = false)
+    public File file(DataResourceMysqlModel model) {
+        return Paths.get(
+                        model.getStorageNamespace(),
+                        model.getStorageResourceName()
+                )
+                .toFile();
+    }
+
+    /**
+     * 获取资源所在目录
+     */
+    @JSONField(serialize = false)
+    public Path dir(DataResourceMysqlModel model) {
+        return Paths.get(
+                model.getStorageNamespace()
+        );
+    }
+
+    // endregion
+
 
     // region getter/setter
 
