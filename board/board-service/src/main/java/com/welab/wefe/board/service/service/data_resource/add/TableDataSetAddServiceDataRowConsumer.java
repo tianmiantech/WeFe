@@ -47,8 +47,8 @@ import java.util.function.Consumer;
 /**
  * @author zane.luo
  */
-public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
-    private final Logger LOG = LoggerFactory.getLogger(DataSetAddServiceDataRowConsumer.class);
+public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
+    private final Logger LOG = LoggerFactory.getLogger(TableDataSetAddServiceDataRowConsumer.class);
 
     //region construction parameters
 
@@ -99,7 +99,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<
      */
     private final LongAdder repeatDataCount = new LongAdder();
 
-    public DataSetAddServiceDataRowConsumer(String dataSetId, boolean deduplication, AbstractTableDataSetReader dataSetReader) throws StatusCodeWithException {
+    public TableDataSetAddServiceDataRowConsumer(String dataSetId, boolean deduplication, AbstractTableDataSetReader dataSetReader) throws StatusCodeWithException {
         this.dataSetId = dataSetId;
         this.deduplication = deduplication;
         this.dataSetReader = dataSetReader;
