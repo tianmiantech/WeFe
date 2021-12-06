@@ -40,7 +40,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload/sync", name = "member file upload sync")
+@Api(path = "member/file/upload/sync", name = "member file upload sync", login = false)
 public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi.Input, UploadFileApiOutput> {
     @Autowired
     private GridFsTemplate gridFsTemplate;
