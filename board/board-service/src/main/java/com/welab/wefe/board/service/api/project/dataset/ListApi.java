@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "project/data_set/list", name = "list all of the project data sets")
+@Api(path = "project/data_resource/list", name = "list all of the project data sets")
 public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
     @Autowired

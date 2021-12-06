@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union.data_set;
+package com.welab.wefe.board.service.api.data_resource.upload_task;
 
-
-import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
+import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -28,33 +27,30 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Zane
+ * @author lonnie
  */
-@Api(path = "union/data_set/detail", name = "Get data set details from union")
-public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, TableDataSetOutputModel> {
+@Api(path = "data_resource/upload_task/detail", name = "get a data set upload task info")
+public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
-    private UnionService unionService;
+    private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<TableDataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
-        return success(unionService.getDataResourceDetail(input.getDataSetId(), TableDataSetOutputModel.class));
+    protected ApiResult<DataResourceUploadTaskMysqlModel> handle(Input input) throws StatusCodeWithException {
+        return success(dataResourceUploadTaskService.findById(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集 Id", require = true)
-        private String dataSetId;
+        @Check(name = "id唯一标识", require = true)
+        private String id;
 
-        //region getter/setter
-
-        public String getDataSetId() {
-            return dataSetId;
+        public String getId() {
+            return id;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setId(String id) {
+            this.id = id;
         }
-
-        //endregion
     }
+
 }

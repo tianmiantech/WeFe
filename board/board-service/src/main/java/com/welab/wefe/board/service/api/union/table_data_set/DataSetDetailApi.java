@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.table_data_set;
+package com.welab.wefe.board.service.api.union.table_data_set;
 
-import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
-import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -26,24 +27,22 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
- * @author Jacky.jiang
+ * @author Zane
  */
-@Api(path = "data_set/usage_detail", name = "list usage_detail")
-public class UsageDetailApi extends AbstractApi<UsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
+@Api(path = "union/table_data_set/detail", name = "Get data set details from union")
+public class DataSetDetailApi extends AbstractApi<DataSetDetailApi.Input, TableDataSetOutputModel> {
+
     @Autowired
-    private DataResourceService dataResourceService;
+    private UnionService unionService;
 
     @Override
-    protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataResourceService.queryUsageInProject(input.getDataSetId()));
+    protected ApiResult<TableDataSetOutputModel> handle(DataSetDetailApi.Input input) throws StatusCodeWithException {
+        return success(unionService.getDataResourceDetail(input.getDataSetId(), TableDataSetOutputModel.class));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集ID", require = true)
+        @Check(name = "数据集 Id", require = true)
         private String dataSetId;
 
         //region getter/setter

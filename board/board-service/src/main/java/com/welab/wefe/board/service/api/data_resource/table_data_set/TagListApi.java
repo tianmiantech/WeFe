@@ -32,7 +32,7 @@ import java.util.TreeMap;
 /**
  * @author Zane
  */
-@Api(path = "data_set/tags", name = "all of the data set tags")
+@Api(path = "table_data_set/all_tags", name = "all of the table data set tags")
 public class TagListApi extends AbstractApi<TagListApi.Input, TreeMap<String, Long>> {
 
     @Autowired
