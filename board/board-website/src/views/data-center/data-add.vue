@@ -79,6 +79,7 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="Public"
                             >
@@ -91,6 +92,7 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="PublicWithMemberList"
                             >
@@ -121,7 +123,9 @@
                                                 {{ item.id }}
                                             </span>
                                         </p>
-                                        <i class="el-icon-close" @click="deleteSelectedMember(item, index)"></i>
+                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                            <elicon-close />
+                                        </el-icon>
                                     </li>
                                 </ul>
                             </div>
@@ -199,10 +203,12 @@
                                         class="f12"
                                     >
                                         [{{item.database_type}}] {{ item.name }} ({{ item.host }}:{{ item.port }})
-                                        <i
-                                            class="el-icon-close ml5 f16"
+                                        <el-icon
+                                            class="color-danger ml5 f16"
                                             @click.prevent.stop="removeDataSource($event, item)"
-                                        />
+                                        >
+                                            <elicon-close />
+                                        </el-icon>
                                     </el-option>
                                 </el-select>
                                 <el-button
@@ -273,6 +279,7 @@
                             class="float-right"
                             size="mini"
                             clearable
+                            style="width: 140px;"
                             placeholder="数据类型缺失填充"
                             @change="dataTypeFill"
                         >
@@ -393,7 +400,7 @@
             </el-row>
         </el-form>
 
-        <SelectMemberDialog
+        <SelectMember
             ref="SelectMemberDialog"
             :block-my-id="true"
             :public-member-info-list="public_member_info_list"
@@ -416,9 +423,10 @@
                 />
                 <p class="mb10">正在存储数据集...</p>
                 <div class="upload-info">
-                    <p class="mb5">总数据行数：<span>{{uploadTask.total_row_count}}</span></p>
-                    <p class="mb5">已处理数据行数：<span>{{uploadTask.added_row_count}}</span></p>
-                    <p class="mb10">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
+                    <p class="mb5">样本总量：<span>{{uploadTask.total_row_count}}</span></p>
+                    <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
+                    <p class="mb10" v-if="uploadTask.repeat_id_row_count">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
+                    <p class="mb10" v-if="uploadTask.invalid_data_count">错误条数：<span>{{uploadTask.invalid_data_count}}</span></p>
                     <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
                     <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据集上传效率会急剧下降，建议在本地去重后执行上传。</strong>
                 </div>
@@ -509,14 +517,14 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import DataSetPublicTips from './components/data-set-public-tips';
-    import SelectMemberDialog from './components/select-member-dialog';
+    import SelectMember from './components/select-member';
 
     let canLeave = false;
 
     export default {
         components: {
             DataSetPublicTips,
-            SelectMemberDialog,
+            SelectMember,
         },
         mixins: [table],
         data() {
@@ -528,7 +536,7 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                getListApi:    '/union/tag/query',
+                getListApi:    '/union/table_data_set/default_tags',
                 fillUrlQuery:  false,
                 defaultSearch: true,
                 watchRoute:    false,
@@ -552,7 +560,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -692,6 +700,9 @@
         },
         created() {
             this.addDataType = this.$route.query.type || 'csv';
+            if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
+                this.form.publicLevel = 'OnlyMyself';
+            }
             this.getDataSouceList();
             this.checkStorage();
 
@@ -705,7 +716,7 @@
                 canLeave = false;
                 next();
             } else {
-                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗', '警告', {
+                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗?', '警告', {
                     type: 'warning',
                 }).then(async () => {
                     canLeave = false;
@@ -719,7 +730,8 @@
                 const { code, data } = await this.$http.post({
                     url:  '/member/service_status_check',
                     data: {
-                        member_id: this.userInfo.member_id,
+                        requestFromRefresh: true,
+                        member_id:          this.userInfo.member_id,
                     },
                 });
 
@@ -895,7 +907,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/preview',
+                    url: '/table_data_set/preview',
                     params,
                 });
 
@@ -981,7 +993,7 @@
                     },
                 })
                     .catch(err => {
-                        console.log(err);
+
                     });
 
                 this.loading = false;
@@ -1014,7 +1026,7 @@
                 this.options_tags = [];
                 if (keyword) {
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },
@@ -1074,51 +1086,53 @@
 
                 const params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 const { code, data } = await this.$http.post({
-                    url:     this.addDataType === 'csv' ? '/data_set/add': '/image_data_set/add',
+                    url:     this.addDataType === 'csv' ? '/table_data_set/add': '/image_data_set/add',
                     timeout: 1000 * 60 * 24 * 30,
                     data:    params,
                 });
 
                 if (code === 0) {
-                    if (this.addDataType === 'csv') {
-                        if (data.repeat_data_count > 0) {
-                            this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
-                        } else {
-                            this.$message.success('保存成功!');
-                        }
-                        setTimeout(() => {
-                            this.getAddTask(data.id);
-                        }, 500);
+                    // if (this.addDataType === 'csv') {
+                    if (data.repeat_data_count > 0) {
+                        this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
-                        canLeave = true;
-                        this.$router.push({
-                            name:  'data-view',
-                            query: { id: data.data_set_id, type: this.addDataType },
-                        });
+                        this.$message.success('保存成功!');
                     }
+                    setTimeout(() => {
+                        this.getAddTask(data.data_resource_id);
+                    }, 500);
+                    // } else {
+                    //     canLeave = true;
+                    //     this.$router.push({
+                    //         name:  'data-view',
+                    //         query: { id: data.data_resource_id, type: this.addDataType },
+                    //     });
+                    // }
                 }
                 this.loading = false;
             },
 
             async getAddTask(id) {
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set_task/detail',
+                    url:    '/data_resource/upload_task/detail',
                     params: {
-                        id,
+                        data_resource_id:   id,
+                        requestFromRefresh: true,
                     },
                 });
 
                 if(code === 0) {
                     if(data) {
-                        const { estimate_time, name, data_set_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message } = data;
+                        const { estimate_time, name, data_resource_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message, status, completed_data_count, total_data_count, estimate_remaining_time, invalid_data_count, progress_ratio } = data;
 
                         this.uploadTask.name = name;
-                        this.uploadTask.progress = progress;
-                        this.uploadTask.estimate_time = estimate_time / 1000;
+                        this.uploadTask.progress = progress || progress_ratio;
+                        this.uploadTask.estimate_time = (estimate_time || estimate_remaining_time) / 1000;
                         this.uploadTask.visible = true;
-                        this.uploadTask.total_row_count = total_row_count;
-                        this.uploadTask.added_row_count = added_row_count;
+                        this.uploadTask.total_row_count = total_row_count || total_data_count;
+                        this.uploadTask.added_row_count = added_row_count || completed_data_count;
                         this.uploadTask.repeat_id_row_count = repeat_id_row_count;
+                        this.uploadTask.invalid_data_count = invalid_data_count;
                         this.uploadTask.error_message = error_message;
 
                         // error in uploading, stop refreshing the interface
@@ -1131,10 +1145,10 @@
 
                         if(this.uploadTask.visible) {
                             setTimeout(() => {
-                                if(progress < 100) {
+                                if(status === 'uploading') {
                                     // uploading
                                     this.getAddTask(id);
-                                } else {
+                                } else if(status === 'completed') {
                                     // upload completed
                                     this.uploadTask.visible = false;
 
@@ -1142,8 +1156,10 @@
 
                                     this.$router.push({
                                         name:  'data-view',
-                                        query: { id: data_set_id, type: this.addDataType },
+                                        query: { id: data_resource_id, type: this.addDataType },
                                     });
+                                } else {
+                                    this.$message.error(error_message);
                                 }
                             }, 1000);
                         }

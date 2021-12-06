@@ -156,7 +156,6 @@
                 });
 
                 websocket.addEventListener('close', ev => {
-                    console.log('close');
                     clearTimeout(heartbeat);
                     chatui.value.socketOnClose(ev);
                     vData.ws = null;
@@ -191,7 +190,7 @@
                 });
 
                 // check last state
-                if (window.localStorage.getItem(`${prefixPath}chat`) === 'connect') {
+                if (window.localStorage.getItem(`${prefixPath}_chat`) === 'connect') {
                     startChart();
                 }
             });
@@ -212,7 +211,7 @@
         position: relative;
         background: $header-background;
         border-bottom: 1px solid $border-color-base;
-        z-index: 200;
+        z-index: 6;
     }
     .layout-main {
         padding: 20px;

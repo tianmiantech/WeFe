@@ -2,7 +2,7 @@
     <el-form
         ref="form"
         :model="vData.form"
-        :disabled="disabled"
+        :disabled="vData.disabled"
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -33,15 +33,6 @@
                         placeholder="learning_rate"
                     />
                 </el-form-item>
-                <el-form-item
-                    prop="decay"
-                    label="学习速率的衰减率："
-                >
-                    <el-input
-                        v-model="vData.form.decay"
-                        placeholder="decay"
-                    />
-                </el-form-item>
                 <el-form-item prop="optimizer" label="优化算法：">
                     <el-select
                         v-model="vData.form.optimizer"
@@ -69,7 +60,11 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="每层参数：" :index="idx">
-                    <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup"></i></p>
+                    <p class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
                     <template v-for="(item, idx) in vData.form.nn_define.layers" :key="item">
                         <div class="single-box" :index="idx">
                             <div class="single-left">
@@ -118,7 +113,13 @@
                                     </el-select>
                                 </div>
                             </div>
-                            <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup(idx)"></i>
+                            <el-icon
+                                v-if="idx !== 0"
+                                class="el-icon-delete"
+                                @click="methods.deleteOneGroup(idx)"
+                            >
+                                <elicon-delete />
+                            </el-icon>
                         </div>
                     </template>
                 </el-form-item>
@@ -136,7 +137,6 @@
         max_iter:      10,
         batch_size:    320,
         learning_rate: 0.1,
-        decay:         0.1,
         optimizer:     'Adam',
         loss:          'binary_crossentropy',
         nn_define:     {

@@ -4,7 +4,9 @@
         class="card-count el-card"
         @click="changeDrawer"
     >
-        <i class="el-icon-files" />
+        <el-icon>
+            <elicon-files />
+        </el-icon>
         <span v-if="count" class="num">{{ count }}</span>
     </div>
 
@@ -17,7 +19,7 @@
     >
         <template #title>
             <h4>
-                快捷创建项目
+                <strong>快捷创建项目</strong>
                 <el-tooltip
                     class="item"
                     effect="light"
@@ -27,10 +29,22 @@
                         <p>1, 添加数据集到此处可快速创建项目</p>
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
-                    <i class="el-icon-s-opportunity"></i>
+
+                    <el-icon class="el-icon-opportunity">
+                        <elicon-opportunity />
+                    </el-icon>
                 </el-tooltip>
             </h4>
         </template>
+
+        <el-form class="flex-form">
+            <el-form-item label="项目名称:" label-width="74px">
+                <el-input v-model.trim="vData.name" clearable />
+            </el-form-item>
+            <el-form-item label="项目简介:" label-width="74px">
+                <el-input v-model.trim="vData.desc" clearable />
+            </el-form-item>
+        </el-form>
 
         <div class="member-wrapper">
             <div class="member-list f14">
@@ -64,19 +78,16 @@
                             </el-form-item>
                             <el-form-item>
                                 <span class="f12 mr10">是否含 Y:</span>
-                                <i
-                                    v-if="dataset.contains_y "
-                                    class="el-icon-check"
-                                />
-                                <i
-                                    v-else
-                                    class="el-icon-close"
-                                />
+                                <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                    <elicon-check />
+                                </el-icon>
+                                <el-icon v-else class="el-icon-close">
+                                    <elicon-close />
+                                </el-icon>
                             </el-form-item>
-                            <i
-                                class="el-icon-circle-close"
-                                @click="removeDataSet(index, dataset)"
-                            />
+                            <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                                <elicon-circle-close />
+                            </el-icon>
                         </el-form>
                     </li>
                 </ul>
@@ -109,19 +120,16 @@
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">是否含 Y:</span>
-                                    <i
-                                        v-if="dataset.contains_y "
-                                        class="el-icon-check"
-                                    />
-                                    <i
-                                        v-else
-                                        class="el-icon-close"
-                                    />
+                                    <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                        <elicon-check />
+                                    </el-icon>
+                                    <el-icon v-else class="el-icon-close">
+                                        <elicon-close />
+                                    </el-icon>
                                 </el-form-item>
-                                <i
-                                    class="el-icon-circle-close"
-                                    @click="removeDataSet(index, dataset)"
-                                />
+                                <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                                    <elicon-circle-close />
+                                </el-icon>
                             </el-form>
                         </li>
                     </ul>
@@ -133,7 +141,10 @@
                 :disabled="promoterDataSetList.length === 0 &&  providerList.length === 0"
                 @click="create"
             >
-                创建 <i class="el-icon-right"></i>
+                创建
+                <el-icon>
+                    <elicon-right />
+                </el-icon>
             </el-button>
         </div>
     </el-drawer>
@@ -142,6 +153,7 @@
 <script>
     import {
         ref,
+        reactive,
         getCurrentInstance,
         computed,
         nextTick,
@@ -157,9 +169,9 @@
             let loading = ref(false);
             const router = useRouter();
             const store = useStore();
-            const userInfo = computed(() => store.state.base.userInfo);
             const { appContext } = getCurrentInstance();
             const { $http, $message } = appContext.config.globalProperties;
+            const userInfo = computed(() => store.state.base.userInfo);
             const promoterDataSetList = ref([]);
             const providerList = ref([]);
             const providerListMap = ref({});
@@ -185,8 +197,23 @@
                     }
                 },
             };
+            const vData = reactive({
+                name: '',
+                desc: '',
+            });
+            const initDesc = () => {
+                const timestamp = methods.dateFormat();
+                const time = methods.dateFormat(true);
+
+                vData.name = `快捷项目-${timestamp}`;
+                vData.desc = `创建自快捷项目, 创建时间: ${time}`;
+            };
             const changeDrawer = () => {
                 drawer.value = !drawer.value;
+
+                if(!vData.name) {
+                    initDesc();
+                }
             };
 
             const addDataSet = (item) => {
@@ -257,9 +284,8 @@
                 } else {
                     projectType.value = allDataSetList.value[0].data_set_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_set_type === 'TableDataSet' ? 'MachineLearning' : '';
                 }
-                const list = [];
 
-                providerList.value.forEach(item => {
+                const list = providerList.value.map(item => {
                     const provider = {
                         member_id:   item.member_id,
                         dataSetList: [],
@@ -269,8 +295,9 @@
                         provider.dataSetList.push(dataset);
                     });
 
-                    list.push(provider);
+                    return provider;
                 });
+
 
                 const timestamp = methods.dateFormat();
                 const time = methods.dateFormat(true);
@@ -309,6 +336,7 @@
             };
 
             return {
+                vData,
                 cartList,
                 drawer,
                 create,
@@ -365,10 +393,10 @@
             color:#fff;
         }
     }
-    .el-icon-s-opportunity{color:$--color-warning;}
+    .el-icon-opportunity{color:$--color-warning;}
     .member-wrapper{
-        height:100%;
-        padding: 20px 20px 70px;
+        height:calc(100vh - 160px);
+        padding: 0 0 70px;
         position: relative;
         .el-button{
             position: absolute;

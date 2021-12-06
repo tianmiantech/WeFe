@@ -16,6 +16,7 @@
             </el-button>
         </el-form>
 
+        <el-alert title="我方网关会拒绝来自黑名单中成员的所有消息" type="error" effect="dark" />
         <el-table
             v-loading="loading"
             :data="list"
@@ -80,7 +81,7 @@
             />
         </div>
 
-        <SelectMemberDialog
+        <SelectMember
             ref="SelectMemberDialog"
             @select-member="selectMember"
         />
@@ -89,11 +90,11 @@
 
 <script>
     import table from '@src/mixins/table.js';
-    import SelectMemberDialog from './components/select-member-dialog';
+    import SelectMember from './select-member';
 
     export default {
         components: {
-            SelectMemberDialog,
+            SelectMember,
         },
         mixins: [table],
         data() {

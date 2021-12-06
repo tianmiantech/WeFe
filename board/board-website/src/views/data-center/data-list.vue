@@ -70,7 +70,7 @@
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
-        
+
         <el-tabs
             v-model="vData.activeTab"
             type="border-card"
@@ -112,7 +112,7 @@
                             {{ tab.label }}
                         </el-badge>
                     </template>
-                    <List
+                    <AllDataList
                         ref="allUnions"
                         key="allUnions"
                         :table-loading="vData.loading"
@@ -134,12 +134,12 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import List from './components/list';
+    import AllDataList from './components/all-data-list';
     import ImagesList from './components/images-list';
 
     export default {
         components: {
-            List,
+            AllDataList,
             ImagesList,
         },
         setup() {
@@ -187,7 +187,7 @@
                 },
 
                 async getTags() {
-                    const { code, data } = await $http.get('/data_set/tags');
+                    const { code, data } = await $http.get('/table_data_set/all_tags');
 
                     if (code === 0) {
                         vData.tagList = data;
@@ -207,7 +207,7 @@
                     let message = '此操作将永久删除该条目, 是否继续?';
 
                     const res = await this.$http.get({
-                        url:    '/data_set/usage_detail',
+                        url:    '/data_resource/usage_in_project_list',
                         params: {
                             dataSetId: row.id,
                         },
@@ -237,7 +237,7 @@
                             message,
                         }).then(async () => {
                             const { code } = await $http.post({
-                                url:  '/data_set/delete',
+                                url:  '/table_data_set/delete',
                                 data: {
                                     id: row.id,
                                 },
@@ -278,7 +278,7 @@
             const searchList = (opt = {}) => {
                 const refInstance = vData.activeTab === 'imageUnions' ? imageUnions : allUnions;
 
-                refInstance.value.getDataList(opt);
+                refInstance && refInstance.value.getDataList(opt);
             };
 
             onMounted(async () => {

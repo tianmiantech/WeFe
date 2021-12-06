@@ -81,7 +81,7 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    this.addDataType === 'csv' ? '/union/data_set/detail' : '/union/image_data_set/detail',
+                    url:    this.addDataType === 'csv' ? '/union/table_data_set/detail' : '/union/image_data_set/detail',
                     params: {
                         data_set_id: this.$route.query.id,
                     },

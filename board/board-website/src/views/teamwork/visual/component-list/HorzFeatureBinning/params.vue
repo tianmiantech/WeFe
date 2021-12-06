@@ -1,10 +1,10 @@
 <template>
     <el-form
-        ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
         @submit.prevent
     >
+        <p class="f12 color-danger mb10">tips: 所有成员需选择共有的特征!</p>
         <el-form-item
             v-for="(item, index) in vData.selectList"
             :key="item.id"
@@ -40,6 +40,47 @@
             </el-button>
         </el-form-item>
 
+        <el-tabs
+            type="card"
+            class="mt20"
+        >
+            <el-tab-pane
+                v-for="(item, index) in vData.featureSelectTab"
+                :key="`${item.member_id}-${item.member_role}`"
+                :label="`${item.member_name} (${item.member_role === 'provider' ? '协作方' : '发起方'})`"
+                :name="`${index}`"
+            >
+                <el-table
+                    :data="item.$feature_list"
+                    style="width:402px"
+                    max-height="500px"
+                    stripe
+                    border
+                >
+                    <el-table-column
+                        prop="name"
+                        label="特征"
+                        width="150"
+                    />
+                    <el-table-column label="分箱策略">
+                        <template v-slot="scope">
+                            <template v-if="scope.row.method === 'custom'">
+                                自定义分箱:
+                                <el-input
+                                    v-model.trim="scope.row.points"
+                                    style="width:160px;"
+                                    clearable
+                                />
+                            </template>
+                            <template v-else-if="scope.row.method">
+                                {{ `${vData.methodObj[scope.row.method]} ${scope.row.count}箱` }}
+                            </template>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-tab-pane>
+        </el-tabs>
+
         <CheckFeatureDialog
             ref="CheckFeatureDialogRef"
             :select-list-id="vData.selectList[vData.selectListIndex] ? vData.selectList[vData.selectListIndex].id : 0"
@@ -59,6 +100,7 @@
     import {
         ref,
         reactive,
+        getCurrentInstance,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -80,6 +122,8 @@
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
             const CheckFeatureDialogRef = ref();
+            const { appContext } = getCurrentInstance();
+            const { $alert } = appContext.config.globalProperties;
 
             let vData = reactive({
                 inited:               false,
@@ -98,27 +142,41 @@
                 methodObj: {
                     'quantile': '等频',
                 },
-                columnListType:   'quantile',
-                selectListIndex:  0,
-                featureSelectTab: [],
+                columnListType:  'quantile',
+                selectListIndex: 0,
             });
 
             let methods = {
-                checkParams () {
-                    const strategies = [];
+                paramsCheck() {
+                    const members = vData.featureSelectTab.length;
+                    const checked = true;
+                    const featureMaps = {};
 
-                    vData.selectList.forEach(row => {
-                        strategies.push({
-                            ...row,
-                            strategy_id: row.id,
+                    vData.featureSelectTab.forEach((member, index) => {
+                        member.$feature_list.forEach(row => {
+                            if(row.method) {
+                                if(!featureMaps[row.name]) {
+                                    featureMaps[row.name] = 1;
+                                } else {
+                                    featureMaps[row.name]++;
+                                }
+                            }
                         });
                     });
 
-                    return {
-                        params: {
-                            strategies,
-                        },
-                    };
+                    for(const key in featureMaps) {
+                        const val = featureMaps[key];
+
+                        if(val !== members) {
+                            $alert(`所有成员需选择共有的特征! <p class="color-danger">特征 ${key} 未被所有发起方选择, 请检查</p>`, '警告', {
+                                type:                     'warning',
+                                dangerouslyUseHTMLString: true,
+                            });
+                            return false;
+                        }
+                    }
+
+                    return checked;
                 },
             };
 

@@ -1,9 +1,12 @@
 <template>
-    <el-card class="page_layer_label">
+    <el-card v-loading="vData.pageLoading" class="page_layer_label">
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
-                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" @save-label="methods.saveCurrentLabel" />
+                    <label-system v-show="vData.sampleList.length" ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" @save-label="methods.saveCurrentLabel" />
+                    <div v-if="vData.sampleList.length === 0" class="empty_box">
+                        <EmptyData />
+                    </div>
                     <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" @select-image="methods.selectImage" />
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name"></el-tab-pane>
@@ -99,7 +102,6 @@
                     },
                 ],
                 sampleList:           [],
-                imgLoading:           false,
                 currentImage:         {},
                 timer:                null,
                 count_by_label:       [],
@@ -107,6 +109,7 @@
                 count_by_sample_list: [],
                 labelName:            '',
                 newLabel:             '',
+                pageLoading:          false,
             });
 
             const methods = {
@@ -125,7 +128,7 @@
                     });
                 },
                 async getSampleList() {
-                    vData.imgLoading = true;
+                    vData.pageLoading = true;
                     const params = {
                         page_index:  vData.search.page_index - 1,
                         page_size:   vData.search.page_size,
@@ -151,7 +154,7 @@
                             } else {
                                 vData.search.total = data.total;
                                 vData.sampleList = data.list;
-                                vData.imgLoading = false;
+                                vData.pageLoading = false;
                             }
                         }
                     });
@@ -180,7 +183,7 @@
                                     labelSystemRef.value.methods.createStage();
                                 }
                             });
-                            vData.imgLoading = false;
+                            vData.pageLoading = false;
                             
                         }
                     });
@@ -263,6 +266,7 @@
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
                     console.log(res);
+                    vData.pageLoading = true;
                     const params = {
                         id,
                         label_info: {
@@ -295,6 +299,7 @@
                                 }
                             }
                         }
+                        vData.pageLoading = false;
                     });
                 },
                 labelSearch(val) {
@@ -421,6 +426,9 @@
             .label_content {
                 flex: 1;
                 overflow-y: auto;
+                .empty_box {
+                    width: calc(100% - 280px);
+                }
             }
         }
         
