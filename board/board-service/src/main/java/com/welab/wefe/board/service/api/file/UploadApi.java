@@ -96,6 +96,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
 
         Path outputDir = Paths.get(config.getFileUploadDir(), input.getIdentifier());
         FileUtil.createDir(outputDir.toString());
+        LOG.info("创建目录 " + outputDir.toFile().exists() + " ：" + outputDir);
 
         File outFile = outputDir.resolve(chunkNumber + ".part").toFile();
 
@@ -103,6 +104,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
             InputStream inputStream = inputFile.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
