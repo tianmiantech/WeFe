@@ -63,8 +63,7 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
                 unionNode.setBlockchainNodeId(currentNodeId);
                 unionNode.setOrganizationName(organizationName);
                 unionNode.setLostContact("0");
-                if (unionNode == null)
-                    unionNodeContractService.add(unionNode);
+                unionNodeContractService.add(unionNode);
             }
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);
