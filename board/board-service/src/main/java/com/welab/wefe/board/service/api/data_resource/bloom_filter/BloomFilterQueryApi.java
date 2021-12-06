@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.BloomfilterService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,11 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author jacky.jiang
  */
-@Api(path = "bloomfilter/query", name = "query bloomfilter")
-public class BloomfilterQueryApi extends AbstractApi<BloomfilterQueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
+@Api(path = "bloom_filter/query", name = "query bloom_filter")
+public class BloomFilterQueryApi extends AbstractApi<BloomFilterQueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
 
     @Autowired
-    private BloomfilterService bloomfilterService;
+    private BloomFilterService bloomfilterService;
 
     @Override
     protected ApiResult<PagingOutput<BloomFilterOutputModel>> handle(Input input) throws StatusCodeWithException {

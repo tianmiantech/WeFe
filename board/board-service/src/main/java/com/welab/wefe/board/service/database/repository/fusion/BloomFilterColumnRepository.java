@@ -30,5 +30,5 @@ public interface BloomFilterColumnRepository extends BaseRepository<BloomFilterC
 
     @Modifying
     @Transactional
-    void deleteByBloomfilterId(String bloomfilterId);
+    void deleteByBloomFilterId(String bloomFilterId);
 }

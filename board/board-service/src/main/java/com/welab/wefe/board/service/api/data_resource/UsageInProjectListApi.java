@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource;
 
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
@@ -32,30 +32,29 @@ import java.util.List;
 /**
  * @author Jacky.jiang
  */
-@Api(path = "bloomfilter/usage_detail", name = "list usage_detail")
-public class BloomfilterUsageDetailApi extends AbstractApi<BloomfilterUsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
+@Api(path = "data_resource/usage_in_project_list", name = "list usage_detail")
+public class UsageInProjectListApi extends AbstractApi<UsageInProjectListApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
     private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataResourceService.queryUsageInProject(input.getBloomfilterId()));
+        return success(dataResourceService.queryUsageInProject(input.getDataSetId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "过滤器ID", require = true)
-        private String bloomfilterId;
+        @Check(name = "数据集ID", require = true)
+        private String dataSetId;
 
         //region getter/setter
 
-        public String getBloomfilterId() {
-            return bloomfilterId;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setBloomfilterId(String bloomfilterId) {
-            this.bloomfilterId = bloomfilterId;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
-
 
         //endregion
     }

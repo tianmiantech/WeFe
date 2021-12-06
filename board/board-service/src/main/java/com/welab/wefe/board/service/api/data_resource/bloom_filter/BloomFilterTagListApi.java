@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloomfilter;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
@@ -32,8 +32,8 @@ import java.util.TreeMap;
 /**
  * @author Jacky.jiang
  */
-@Api(path = "bloomfilter/tags", name = "all of the data set tags")
-public class BloomfilterTagListApi extends AbstractApi<BloomfilterTagListApi.Input, TreeMap<String, Long>> {
+@Api(path = "bloom_filter/tags", name = "all of the data set tags")
+public class BloomFilterTagListApi extends AbstractApi<BloomFilterTagListApi.Input, TreeMap<String, Long>> {
 
     @Autowired
     TableDataSetRepository repo;

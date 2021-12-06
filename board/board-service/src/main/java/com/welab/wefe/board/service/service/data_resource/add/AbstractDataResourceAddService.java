@@ -31,6 +31,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(input);
 
         DataResourceMysqlModel model = new ModelMapper().map(input, getMysqlModelClass());
+        model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
         model.setResourceType(getDataResourceType());
@@ -122,6 +124,8 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
                             .toAbsolutePath()
                             .toString()
             );
+
+            FileUtil.createDir(model.getStorageNamespace());
         }
 
     }

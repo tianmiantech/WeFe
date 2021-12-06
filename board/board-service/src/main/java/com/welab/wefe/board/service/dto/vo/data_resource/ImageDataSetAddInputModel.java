@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -24,7 +25,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
     @Check(require = true, messageOnEmpty = "请指定数据集文件")
     public String filename;
-
+    @Check(name = "数据集应用的任务类型", require = true)
+    public DeepLearningJobType forJobType;
 
     // region getter/setter
 
@@ -34,6 +36,14 @@ public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public DeepLearningJobType getForJobType() {
+        return forJobType;
+    }
+
+    public void setForJobType(DeepLearningJobType forJobType) {
+        this.forJobType = forJobType;
     }
 
     // endregion

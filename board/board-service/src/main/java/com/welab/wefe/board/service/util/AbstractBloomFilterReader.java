@@ -30,11 +30,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * bloomfilter reader
+ * bloom_filter reader
  *
  * @author jacky.jiang
  */
-public abstract class AbstractBloomfilterReader implements Closeable {
+public abstract class AbstractBloomFilterReader implements Closeable {
 
     private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
 
@@ -51,7 +51,7 @@ public abstract class AbstractBloomfilterReader implements Closeable {
     protected int readDataRows = 0;
     private Map<String, BloomFilterColumnInputModel> metadataMap;
 
-    public AbstractBloomfilterReader(List<BloomFilterColumnInputModel> metadataList) {
+    public AbstractBloomFilterReader(List<BloomFilterColumnInputModel> metadataList) {
         if (metadataList != null) {
             this.metadataMap = metadataList.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
         }

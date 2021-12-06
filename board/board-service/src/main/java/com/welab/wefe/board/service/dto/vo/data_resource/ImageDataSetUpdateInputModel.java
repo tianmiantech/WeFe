@@ -15,32 +15,10 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.common.enums.DeepLearningJobType;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-
 /**
  * @author zane
  * @date 2021/11/8
  */
 public class ImageDataSetUpdateInputModel extends AbstractDataResourceUpdateInputModel {
-    @Check(name = "数据集应用的任务类型", require = true)
-    public DeepLearningJobType forJobType;
 
-    @Override
-    public void checkAndStandardize() throws StatusCodeWithException {
-        super.checkAndStandardize();
-    }
-
-    // region getter/setter
-
-    public DeepLearningJobType getForJobType() {
-        return forJobType;
-    }
-
-    public void setForJobType(DeepLearningJobType forJobType) {
-        this.forJobType = forJobType;
-    }
-
-    // endregion
 }

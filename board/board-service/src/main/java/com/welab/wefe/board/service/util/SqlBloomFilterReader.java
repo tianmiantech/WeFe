@@ -29,12 +29,12 @@ import java.util.List;
 
 
 /**
- * Used to read bloomfilter in Sql format
+ * Used to read bloom_filter in Sql format
  *
  * @author jacky.jiang
  */
-public class SqlBloomfilterReader extends AbstractBloomfilterReader {
-    private static final Logger log = Logger.getLogger(SqlBloomfilterReader.class);
+public class SqlBloomFilterReader extends AbstractBloomFilterReader {
+    private static final Logger log = Logger.getLogger(SqlBloomFilterReader.class);
     private long totalRowCount;
     private List<String> headers;
     private final Connection conn;
@@ -44,11 +44,11 @@ public class SqlBloomfilterReader extends AbstractBloomfilterReader {
     private ResultSetMetaData metaData;
     private int columnCount;
 
-    public SqlBloomfilterReader(Connection conn, String sql) throws StatusCodeWithException {
+    public SqlBloomFilterReader(Connection conn, String sql) throws StatusCodeWithException {
         this(null, conn, sql);
     }
 
-    public SqlBloomfilterReader(List<BloomFilterColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
+    public SqlBloomFilterReader(List<BloomFilterColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
         super(metadataList);
         this.conn = conn;
         this.sql = sql;

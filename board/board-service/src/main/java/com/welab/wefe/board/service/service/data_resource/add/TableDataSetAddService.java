@@ -182,7 +182,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         // save headers info to storage
         dataSetStorageService.saveHeaderRow(model.getId(), sortedHeaders);
         // data row consumption method
-        DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model.getId(), deduplication, dataSetReader);
+        TableDataSetAddServiceDataRowConsumer dataRowConsumer = new TableDataSetAddServiceDataRowConsumer(model.getId(), deduplication, dataSetReader);
 
         // read all data rows of the raw data set
         dataSetReader.readAll(dataRowConsumer);

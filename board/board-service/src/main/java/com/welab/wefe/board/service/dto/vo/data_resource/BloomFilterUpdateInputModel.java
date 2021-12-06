@@ -28,7 +28,7 @@ import java.util.List;
  * @author jacky.jiang
  * @date 2021/12/2
  */
-public class BloomfilterUpdateInputModel extends AbstractDataResourceUpdateInputModel {
+public class BloomFilterUpdateInputModel extends AbstractDataResourceUpdateInputModel {
     @Check(require = true)
     private List<BloomFilterColumnInputModel> metadataList;
 

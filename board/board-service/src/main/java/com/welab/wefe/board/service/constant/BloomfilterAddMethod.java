@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.constant;
 
 /**
- * How to add bloomfilter
+ * How to add bloom_filter
  *
  * @author jacky.jiang
  */

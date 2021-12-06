@@ -14,47 +14,47 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource;
+package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
-import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
-import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
- * @author Jacky.jiang
+ * @author jacky.jiang
  */
-@Api(path = "data_resource/usage_in_project_list", name = "list usage_detail")
-public class UsageDetailApi extends AbstractApi<UsageDetailApi.Input, List<ProjectUsageDetailOutputModel>> {
+@Api(path = "bloom_filter/delete", name = "delete bloom_filter")
+public class BloomFilterDeleteApi extends AbstractNoneOutputApi<BloomFilterDeleteApi.Input> {
+
     @Autowired
-    private DataResourceService dataResourceService;
+    private BloomFilterService bloomfilterService;
 
     @Override
-    protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataResourceService.queryUsageInProject(input.getDataSetId()));
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+        bloomfilterService.delete(input);
+        return success();
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集ID", require = true)
-        private String dataSetId;
+        @Check(name = "数据集 Id", require = true)
+        private String id;
 
         //region getter/setter
 
-        public String getDataSetId() {
-            return dataSetId;
+        public String getId() {
+            return id;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setId(String id) {
+            this.id = id;
         }
+
 
         //endregion
     }

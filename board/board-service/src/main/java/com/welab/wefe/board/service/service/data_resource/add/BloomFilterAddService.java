@@ -24,54 +24,52 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUp
 import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
-import com.welab.wefe.board.service.dto.vo.data_resource.BloomfilterAddInputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterAddInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.data_resource.bloomfilter.*;
+import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.*;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
- * The service class for add bloomfilter
+ * The service class for add bloom_filter
  *
  * @author jacky.jiang
  */
 @Service
-public class BloomfilterAddService extends AbstractDataResourceAddService {
+public class BloomFilterAddService extends AbstractDataResourceAddService {
 
     @Autowired
     protected BloomFilterRepository bloomFilterRepository;
     @Autowired
-    protected BloomfilterService bloomfilterService;
+    protected BloomFilterService bloomfilterService;
     @Autowired
-    protected BloomfilterStorageService bloomfilterStorageService;
+    protected BloomFilterStorageService bloomfilterStorageService;
     @Autowired
-    protected BloomfilterColumnService bloomfilterColumnService;
+    protected BloomFilterColumnService bloomfilterColumnService;
     @Autowired
-    protected BloomfilterTaskService bloomfilterTaskService;
+    protected DataResourceUploadTaskService dataResourceUploadTaskService1;
     @Autowired
     protected FieldInfoService fieldInfoService;
 
 
     @Override
     protected void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
-        BloomfilterAddInputModel input = (BloomfilterAddInputModel) in;
+        BloomFilterAddInputModel input = (BloomFilterAddInputModel) in;
         BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
         model.setSourcePath(config.getFileUploadDir() + input.getFilename());
         model.setDataSourceId(input.getDataSourceId());
@@ -83,22 +81,22 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
 
         // Parse and save the original data
         try {
-            AbstractBloomfilterReader bloomfilterReader = createBloomfilterReader(input);
+            AbstractBloomFilterReader bloomfilterReader = createBloomfilterReader(input);
             readAllToFilterFile(model, bloomfilterReader, input.isDeduplication());
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            bloomfilterTaskService.onError(task.getId(), e);
+            dataResourceUploadTaskService1.onError(task.getId(), e);
             return;
         }
 
-        // save bloomfilter info to file
+        // save bloom_filter info to file
 //        repo.save(model);
 
-        // save bloomfilter column info to database
+        // save bloom_filter column info to database
         bloomfilterColumnService.update(model.getId(), input.getMetadataList());
 
         // Mark upload task completed
-        bloomfilterTaskService.complete(task.getId());
+        dataResourceUploadTaskService1.complete(task.getId());
 
         // Delete files uploaded by HttpUpload
         try {
@@ -117,14 +115,14 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
 //            super.log(e);
 //        }
 
-        // Refresh the bloomfilter tag list
+        // Refresh the bloom_filter tag list
         CacheObjects.refreshTableDataSetTags();
     }
 
     /**
      * create AbstractDataSetReader
      */
-    private AbstractBloomfilterReader createBloomfilterReader(BloomfilterAddInputModel input) throws StatusCodeWithException {
+    private AbstractBloomFilterReader createBloomfilterReader(BloomFilterAddInputModel input) throws StatusCodeWithException {
         switch (input.getBloomfilterAddMethod()) {
             case Database:
                 return createSqlBloomfilterReader(input);
@@ -141,14 +139,14 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
     }
 
     /**
-     * create CsvBloomfilterReader/ExcelBloomfilterReader
+     * create CsvBloomFilterReader/ExcelBloomfilterReader
      */
-    private AbstractBloomfilterReader createFileBloomfilterReader(BloomfilterAddInputModel input) throws StatusCodeWithException {
+    private AbstractBloomFilterReader createFileBloomfilterReader(BloomFilterAddInputModel input) throws StatusCodeWithException {
         try {
             File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), input.getFilename());
             boolean isCsv = file.getName().endsWith("csv");
             return isCsv
-                    ? new CsvBloomfilterReader(input.getMetadataList(), file)
+                    ? new CsvBloomFilterReader(input.getMetadataList(), file)
                     : new ExcelBloomfilterReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
@@ -160,7 +158,7 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
     /**
      * create SqlDataSetReader
      */
-    private SqlBloomfilterReader createSqlBloomfilterReader(BloomfilterAddInputModel input) throws StatusCodeWithException {
+    private SqlBloomFilterReader createSqlBloomfilterReader(BloomFilterAddInputModel input) throws StatusCodeWithException {
         DataSourceMysqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
@@ -174,49 +172,35 @@ public class BloomfilterAddService extends AbstractDataResourceAddService {
                 dataSource.getDatabaseName()
         );
 
-        return new SqlBloomfilterReader(input.getMetadataList(), conn, input.getSql());
+        return new SqlBloomFilterReader(input.getMetadataList(), conn, input.getSql());
     }
 
     /**
-     * Parse the bloomfilter file and save it to filter file
+     * Parse the bloom_filter file and save it to filter file
      *
-     * @param deduplication Do you need to de-duplicate the bloomfilter
+     * @param deduplication Do you need to de-duplicate the bloom_filter
      */
-    private void readAllToFilterFile(BloomFilterMysqlModel model, AbstractBloomfilterReader bloomfilterReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToFilterFile(BloomFilterMysqlModel model, AbstractBloomFilterReader bloomfilterReader, boolean deduplication) throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         LOG.info("开始解析过滤器：" + model.getId());
 
-        // update bloomfilter upload task info
-        BloomFilterTaskMysqlModel bloomfilterTask = bloomfilterTaskService.findByBloomfilterId(model.getId());
-        bloomfilterTaskService.update(bloomfilterTask, x -> x.setTotalRowCount(bloomfilterReader.getTotalDataRowCount()));
-        // get bloomfilter headers
+        // update data set upload task info
+        DataResourceUploadTaskMysqlModel uploadProgress = dataResourceUploadTaskService.findByDataResourceId(model.getId());
+        dataResourceUploadTaskService.update(uploadProgress, x -> x.setTotalDataCount(bloomfilterReader.getTotalDataRowCount()));
+
+        // get bloom_filter headers
         List<String> rawHeaders = bloomfilterReader.getHeader();
 
-        String storageNamespace = config.getFileUploadDir();
-        File outFile = Paths.get(
-                config.getFileUploadDir(),
-                "bloom_filter",
-                model.getId(),
-                model.getName()
-        ).toFile();
-
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
-
-
         // data row consumption method
-        BloomfilterAddServiceDataRowConsumer dataRowConsumer = new BloomfilterAddServiceDataRowConsumer(model, deduplication, bloomfilterReader);
+        BloomFilterAddServiceDataRowConsumer dataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, bloomfilterReader);
 
-        // read all data rows of the raw bloomfilter
+        // read all data rows of the raw bloom_filter
         bloomfilterReader.readAll(dataRowConsumer);
 
         // wait for the consumption queue to finish
         dataRowConsumer.waitForFinishAndClose();
 
         LOG.info("过滤器解析完毕：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
-
-
     }
 
     /**

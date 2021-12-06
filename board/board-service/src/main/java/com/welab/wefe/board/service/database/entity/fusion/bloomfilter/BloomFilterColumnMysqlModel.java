@@ -31,14 +31,14 @@ import javax.persistence.Enumerated;
 /**
  * @author jacky.jiang
  */
-@Entity(name = "bloomfilter_column")
+@Entity(name = "bloom_filter_column")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 public class BloomFilterColumnMysqlModel extends AbstractBaseMySqlModel {
 
     /**
      * 过滤器Id
      */
-    private String bloomfilterId;
+    private String bloomFilterId;
     /**
      * 字段序号
      */
@@ -71,12 +71,12 @@ public class BloomFilterColumnMysqlModel extends AbstractBaseMySqlModel {
     //region getter/setter
 
 
-    public String getBloomfilterId() {
-        return bloomfilterId;
+    public String getBloomFilterId() {
+        return bloomFilterId;
     }
 
-    public void setBloomfilterId(String bloomfilterId) {
-        this.bloomfilterId = bloomfilterId;
+    public void setBloomFilterId(String bloomFilterId) {
+        this.bloomFilterId = bloomFilterId;
     }
 
     public Integer getIndex() {

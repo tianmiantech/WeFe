@@ -364,7 +364,7 @@ public class ProjectFlowService extends AbstractService {
                     if (lastJob != null) {
                         x.setJobProgress(lastJob.getProgress());
                     }
-                    x.setIsCreator(CacheObjects.isCurrentMember(x.getCreatedBy()));
+                    x.setIsCreator(CacheObjects.isCurrentMemberAccount(x.getCreatedBy()));
                 });
         return page;
     }
