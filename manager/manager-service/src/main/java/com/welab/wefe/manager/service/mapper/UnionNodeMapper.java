@@ -19,7 +19,7 @@ public interface UnionNodeMapper {
      */
     @Mappings({
             @Mapping(target = "enable",expression = "java(String.valueOf(1))"),
-            @Mapping(target = "lostContact",expression = "java(String.valueOf(1))"),
+            @Mapping(target = "lostContact",expression = "java(String.valueOf(0))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })

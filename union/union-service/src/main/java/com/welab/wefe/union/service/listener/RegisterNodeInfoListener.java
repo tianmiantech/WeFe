@@ -17,9 +17,9 @@
 package com.welab.wefe.union.service.listener;
 
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.union.service.service.UnionNodeContractService;
-import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +38,8 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
     private String currentNodeId;
     @Autowired
     private UnionNodeContractService unionNodeContractService;
+    @Autowired
+    private UnionNodeMongoRepo unionNodeMongoRepo;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
@@ -46,10 +48,15 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
 
 
     private void registerUnionNode() {
-        UnionNode unionNode = new UnionNode();
-        unionNode.setBlockchainNodeId(currentNodeId);
         try {
-            unionNodeContractService.add(unionNode);
+            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(currentNodeId);
+            if (unionNode == null) {
+                unionNode = new UnionNode();
+                unionNode.setBlockchainNodeId(currentNodeId);
+                unionNode.setLostContact("0");
+                if (unionNode == null)
+                    unionNodeContractService.add(unionNode);
+                }
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);
             System.exit(1);
