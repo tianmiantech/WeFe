@@ -14,32 +14,49 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union.data_set;
+package com.welab.wefe.board.service.api.union.table_data_set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author lonnie
+ * @author Zane
  */
-@Api(path = "union/table_data_set/default_tags", name = "Get the default dataset tags from union")
-public class DefaultTagListApi extends AbstractApi<DefaultTagListApi.Input, JSONObject> {
+@Api(path = "union/table_data_set/tag/query", name = "Query the tags of the data set from the union")
+public class DataSetTagListApi extends AbstractApi<DataSetTagListApi.Input, JSONObject> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
-        JSONObject result = unionService.queryTags(input);
+        JSONObject result = unionService.queryDataSetTags(input);
         return unionApiResultToBoardApiResult(result);
     }
 
     public static class Input extends PagingInput {
+        @Check(name = "tag 名称")
+        private String tag;
+
+        //region getter/setter
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
+        }
+
+
+        //endregion
+
     }
 }

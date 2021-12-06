@@ -19,10 +19,10 @@ package com.welab.wefe.board.service.sdk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.data_set.DataSetTagListApi;
-import com.welab.wefe.board.service.api.union.data_set.DefaultTagListApi;
-import com.welab.wefe.board.service.api.union.data_set.QueryDataSetApi;
 import com.welab.wefe.board.service.api.union.image_data_set.QueryImageDataSetApi;
+import com.welab.wefe.board.service.api.union.table_data_set.DataSetTagListApi;
+import com.welab.wefe.board.service.api.union.table_data_set.DefaultTagListApi;
+import com.welab.wefe.board.service.api.union.table_data_set.QueryDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;

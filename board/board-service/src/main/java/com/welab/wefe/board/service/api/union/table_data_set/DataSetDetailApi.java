@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union.data_set;
+package com.welab.wefe.board.service.api.union.table_data_set;
 
 
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
