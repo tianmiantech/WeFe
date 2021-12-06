@@ -530,7 +530,7 @@
                 });
                 ref.show = true;
                 this.$nextTick(async _ => {
-                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list, projectType: this.form.projectType });
                 });
             },
 
