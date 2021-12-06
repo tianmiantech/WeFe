@@ -24,23 +24,28 @@ import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemp
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
+import org.bson.BsonObjectId;
+import org.bson.BsonValue;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
  * @author yuxin.zhang
  **/
 @Api(path = "realname/auth/agreement/template/sync", name = "realname auth agreement template sync", login = false)
-public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAuthAgreementTemplateSyncApi.Input, UploadFileApiOutput> {
+public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<AbstractWithFilesApiInput, UploadFileApiOutput> {
     @Autowired
     private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
     @Autowired
@@ -49,8 +54,7 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
     private GridFsTemplate gridFsTemplate;
 
     @Override
-    protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        String fileName = input.getFilename();
+    protected ApiResult<UploadFileApiOutput> handle(AbstractWithFilesApiInput input) throws StatusCodeWithException, IOException {
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
@@ -63,7 +67,7 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
                         .append("metadata.sign", sign)
                         .build()
         );
-        String fileId;
+        String fileId = realnameAuthAgreementTemplate.getTemplateFileId();
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
 
@@ -72,8 +76,12 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
             metadata.append("sign", sign);
             options.metadata(metadata);
 
-            fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
 
+            gridFSBucket.uploadFromStream(
+                    new BsonObjectId(new ObjectId(fileId)),
+                    realnameAuthAgreementTemplate.getFileName(),
+                    input.getFirstFile().getInputStream(),
+                    options);
         } else {
             fileId = gridFSFile.getObjectId().toString();
         }
@@ -82,17 +90,4 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<RealnameAu
 
     }
 
-
-    public static class Input extends AbstractWithFilesApiInput {
-        private String filename;
-
-        public String getFilename() {
-            return filename;
-        }
-
-        public void setFilename(String filename) {
-            this.filename = filename;
-        }
-
-    }
 }

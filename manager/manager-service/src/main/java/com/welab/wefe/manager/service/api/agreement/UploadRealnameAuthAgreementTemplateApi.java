@@ -81,7 +81,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             new UploadFileSyncToUnionTask(
                     unionNode.getBaseUrl(),
                     "realname/auth/agreement/template/sync",
-                    JObject.create("filename", input.getFilename()),
+                    JObject.create(),
                     input.files
             ).start();
         }

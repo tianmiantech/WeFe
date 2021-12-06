@@ -31,7 +31,9 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
+import org.bson.BsonObjectId;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
@@ -55,7 +57,6 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("MemberFileUploadSyncApi handle..");
-        String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
@@ -72,7 +73,7 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
                         .build()
         );
 
-        String fileId;
+        String fileId = memberFileInfo.getFileId();
         if (gridFSFile == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
             Document metadata = new Document();
@@ -82,8 +83,11 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
 
             options.metadata(metadata);
 
-            fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-
+            gridFSBucket.uploadFromStream(
+                    new BsonObjectId(new ObjectId(fileId)),
+                    memberFileInfo.getFileName(),
+                    input.getFirstFile().getInputStream(),
+                    options);
         } else {
             fileId = gridFSFile.getObjectId().toString();
         }
@@ -96,15 +100,6 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
     public static class Input extends AbstractWithFilesApiInput {
         @Check(require = true)
         private String memberId;
-        private String filename;
-
-        public String getFilename() {
-            return filename;
-        }
-
-        public void setFilename(String filename) {
-            this.filename = filename;
-        }
 
         public String getMemberId() {
             return memberId;
