@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
@@ -31,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * The front end uses the simple-uploader component
@@ -84,24 +87,26 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
      * save chunk
      */
     private ApiResult<Output> saveChunk(Input input) throws StatusCodeWithException {
-        MultipartFile file = input.getFirstFile();
+        MultipartFile inputFile = input.getFirstFile();
 
         Integer chunkNumber = input.getChunkNumber();
         if (chunkNumber == null) {
             chunkNumber = 0;
         }
 
-        File outFile = new File(config.getFileUploadDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
+        Path outputDir = Paths.get(config.getFileUploadDir(), input.getIdentifier());
+        FileUtil.createDir(outputDir.toString());
 
+        File outFile = outputDir.resolve(chunkNumber + ".part").toFile();
 
         try {
-            InputStream inputStream = file.getInputStream();
+            InputStream inputStream = inputFile.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (IOException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        return success(new Output(file.getSize()));
+        return success(new Output(inputFile.getSize()));
     }
 
     public static class Output {
