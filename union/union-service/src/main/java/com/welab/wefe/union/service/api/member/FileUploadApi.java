@@ -124,6 +124,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         memberFileInfo.setFileSize(String.valueOf(fileSize));
         memberFileInfo.setBlockchainNodeId(currentNodeId);
         memberFileInfo.setPurpose(purpose);
+        memberFileInfo.setEnable("1");
         memberFileInfo.setDescribe(describe);
         memberFileInfoContractService.add(memberFileInfo);
     }

@@ -64,8 +64,8 @@ public class UnionNodeContractService extends AbstractContractService {
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
         list.add(unionNode.getNodeId());
-        list.add(unionNode.getBlockchainNodeId());
-        list.add(unionNode.getBaseUrl());
+        list.add(StringUtil.isEmptyToBlank(unionNode.getBlockchainNodeId()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getBaseUrl()));
         list.add(StringUtil.isEmptyToBlank(unionNode.getOrganizationName()));
         list.add(StringUtil.isEmptyToBlank(unionNode.getLostContact()));
         list.add(StringUtil.isEmptyToBlank(unionNode.getContactEmail()));
