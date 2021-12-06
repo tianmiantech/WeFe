@@ -1,6 +1,7 @@
 package com.welab.wefe.manager.service.api.union;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,8 +28,9 @@ public class UpdateApi extends AbstractApi<UnionNodeUpdateInput, AbstractApiOutp
         try {
             boolean isValid = HttpRequest.create(input.getBaseUrl()).get().success();
             if (!isValid) {
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "unionBaseUrl");
+                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "baseUrl");
             }
+
             unionNodeContractService.update(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

@@ -19,10 +19,12 @@ package com.welab.wefe.union.service.listener;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.service.UnionNodeContractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,8 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
     private UnionNodeContractService unionNodeContractService;
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
+    @Value("${organization.name}")
+    private String organizationName;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
@@ -49,14 +53,19 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
 
     private void registerUnionNode() {
         try {
+            if (StringUtil.isEmpty(organizationName)) {
+                LOG.error("registerUnionNode to blockchain failed,Please configure organizationname");
+                System.exit(1);
+            }
             UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(currentNodeId);
             if (unionNode == null) {
                 unionNode = new UnionNode();
                 unionNode.setBlockchainNodeId(currentNodeId);
+                unionNode.setOrganizationName(organizationName);
                 unionNode.setLostContact("0");
                 if (unionNode == null)
                     unionNodeContractService.add(unionNode);
-                }
+            }
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);
             System.exit(1);

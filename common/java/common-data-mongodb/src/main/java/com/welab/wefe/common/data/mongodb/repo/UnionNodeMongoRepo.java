@@ -84,6 +84,16 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
                 UnionNode.class);
     }
 
+    public UnionNode findByNodeId(String nodeId) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("nodeId", nodeId)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
     public boolean deleteByUnionNodeId(String nodeId) {
         if (StringUtils.isEmpty(nodeId)) {
             return false;

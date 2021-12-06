@@ -79,4 +79,5 @@ public class ConfigProperties {
     public void setSmsAliyunMemberRegisterVerificationCodeTemplateCode(String smsAliyunMemberRegisterVerificationCodeTemplateCode) {
         this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
     }
+
 }
