@@ -140,11 +140,11 @@ public class UnionNodeContractService extends AbstractContractService {
 
     private List<String> generateUpdateParams(UnionNodeUpdateInput input) {
         List<String> list = new ArrayList<>();
-        list.add(input.getBlockchainNodeId());
-        list.add(input.getBaseUrl());
-        list.add(input.getOrganizationName());
-        list.add(input.getContactEmail());
-        list.add(input.getVersion());
+        list.add(StringUtil.isEmptyToBlank(input.getBlockchainNodeId()));
+        list.add(StringUtil.isEmptyToBlank(input.getBaseUrl()));
+        list.add(StringUtil.isEmptyToBlank(input.getOrganizationName()));
+        list.add(StringUtil.isEmptyToBlank(input.getContactEmail()));
+        list.add(StringUtil.isEmptyToBlank(input.getVersion()));
         list.add(toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }

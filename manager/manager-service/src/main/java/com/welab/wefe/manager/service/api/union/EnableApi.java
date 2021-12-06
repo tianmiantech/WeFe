@@ -11,7 +11,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
-import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
 import com.welab.wefe.manager.service.service.UnionNodeContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,12 +35,12 @@ public class EnableApi extends AbstractApi<UnionNodeEnableInput, AbstractApiOutp
             }
 
             if (StringUtil.isEmpty(node.getBaseUrl())) {
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "请设置union base url");
+                throw new StatusCodeWithException("请设置union base url", StatusCode.MISSING_DATA);
             }
 
             boolean isValid = HttpRequest.create(node.getBaseUrl()).get().success();
             if (!isValid) {
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "无效的union base url");
+                throw new StatusCodeWithException("无效的union base url", StatusCode.MISSING_DATA);
             }
 
             unionNodeContractService.enable(input);
