@@ -251,7 +251,6 @@
                     vData.layer.draw();
                     vData.labelNowPos = vData.rectLayer;
                     vData.rectLayer.on('dragmove', function(e) {
-                        if (vData.currentRect && vData.currentText) console.log(vData.currentRect.attrs.traceId, vData.currentText.attrs.traceId);
                         vData.labelNowPos.setAttrs({
                             x: vData.rectLayer.x(),
                             y: vData.rectLayer.y(),
@@ -299,10 +298,21 @@
                                 height: vData.rectLayer.height(),
                             });
                             vData.currentRect.setAttrs({
-                                width:  vData.rectLayer.width(),
-                                height: vData.rectLayer.height(),
+                                width:  vData.rectLayer.width() * vData.rectLayer.scaleX(),
+                                height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
                             });
                             methods.setLabelTextPosition();
+                        } else {
+                            vData.labelNowPos.setAttrs({
+                                x:      vData.rectLayer.x(),
+                                y:      vData.rectLayer.y(),
+                                width:  vData.rectLayer.width() * vData.rectLayer.scaleX(),
+                                height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
+                            });
+                            this.setAttrs({
+                                scaleX: 1,
+                                scaleY: 1,
+                            });
                         }
                     });
                     vData.rectLayer.on('mouseenter', function() {
@@ -317,7 +327,6 @@
                         } else {
                         // 可删除已标注
                         }
-
                     });
                     vData.rectLayer.on('dblclick', function(e) {
                         if (e.target.attrs.isLabeled) {
@@ -479,7 +488,6 @@
                 saveLabel() {
                     const labe_list = [], rect_list = vData.stage.find('Rect');
 
-                    console.log(rect_list);
                     rect_list.forEach(item => {
                         if (item.attrs.isLabeled) {
                             labe_list.push({
@@ -491,6 +499,7 @@
                             });
                         }
                     });
+                    console.log(labe_list);
                     context.emit('save-label', labe_list, props.currentImage.item.id);
                     vData.stage.find('Transformer').destroy();
                     vData.stage.find('Rect').destroy();
