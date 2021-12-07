@@ -267,11 +267,7 @@ class FCSource(Table):
         source = self._get_json_source(self.fcs().get_name(), self.fcs().get_namespace(), self.fcs().get_partitions(),
                                        self.fcs().get_cloud_store_temp_auth())
 
-        if need_send:
-            # The calculated results need to be stored in the transfer director
-            dest = self._get_json_source(self.generate_name(), NAMESPACE.TRANSFER, self.fcs().get_partitions())
-        else:
-            dest = self._get_json_source(self.generate_name(), NAMESPACE.PROCESS, self.fcs().get_partitions())
+        dest = self._get_json_source(self.generate_name(), NAMESPACE.PROCESS, self.fcs().get_partitions())
         partition_list = [i for i in range(self.fcs().get_partitions())]
         param = {"partition_lists": [partition_list[i:i + 100] for i in range(0, len(partition_list), 100)],
                  "source": source, "dest": dest,
