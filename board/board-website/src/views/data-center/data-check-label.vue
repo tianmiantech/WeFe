@@ -69,7 +69,7 @@
             const route = useRoute();
             // const router = useRouter();
             const { appContext } = getCurrentInstance();
-            const { $http, $message } = appContext.config.globalProperties;
+            const { $http, $message, $confirm } = appContext.config.globalProperties;
             const imgListRef = ref();
             const vData = reactive({
                 activeName: '',
@@ -210,7 +210,19 @@
                     vData.sampleList = [];
                     methods.getSampleList();
                 },
-                async deleteEvent(id, idx) {
+                deleteEvent(id, idx) {
+                    $confirm('确定要删除当前样本吗?', '警告', {
+                        type: 'warning',
+                        beforeClose(action, instance, done) {
+                            if (action === 'confirm') {
+                                methods.confirmDelete(id, idx);
+                            }
+                            done();
+                        },
+                    });
+                    
+                },
+                async confirmDelete(id, idx) {
                     const { code } = await $http.get({
                         url:    '/image_data_set_sample/delete',
                         params: { id },
