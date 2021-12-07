@@ -16,8 +16,14 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
+import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DeepLearningJobType;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.Launcher;
+
+import java.io.File;
 
 /**
  * @author zane.luo
@@ -27,6 +33,18 @@ public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
     public String filename;
     @Check(name = "数据集应用的任务类型", require = true)
     public DeepLearningJobType forJobType;
+
+    @Override
+    public void checkAndStandardize() throws StatusCodeWithException {
+        super.checkAndStandardize();
+        String fileUploadDir = Launcher.getBean(Config.class).getFileUploadDir();
+
+        if (!new File(fileUploadDir, filename).exists()) {
+            StatusCode
+                    .FILE_IO_ERROR
+                    .throwException("未找到文件：" + filename + "，请重试刷新页面后重新上传。");
+        }
+    }
 
     // region getter/setter
 
