@@ -154,7 +154,6 @@ public class BloomFilterService extends AbstractService {
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
-                .equal("sourceType", null, false)
                 .build(BloomFilterMysqlModel.class);
 
         return repo.paging(where, input, BloomFilterOutputModel.class);
