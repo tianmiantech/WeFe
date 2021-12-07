@@ -62,7 +62,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
     @Autowired
     protected BloomFilterColumnService bloomfilterColumnService;
     @Autowired
-    protected DataResourceUploadTaskService dataResourceUploadTaskService1;
+    protected DataResourceUploadTaskService dataResourceUploadTaskService;
     @Autowired
     protected FieldInfoService fieldInfoService;
 
@@ -76,6 +76,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         model.setHashFunction(StringUtil.join(input.getRows(), ','));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
+        // save bloom_filter info to file
         model.setUpdatedTime(new Date());
         bloomFilterRepository.save(model);
 
@@ -85,18 +86,15 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
             readAllToFilterFile(model, bloomfilterReader, input.isDeduplication());
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            dataResourceUploadTaskService1.onError(task.getId(), e);
+            dataResourceUploadTaskService.onError(task.getId(), e);
             return;
         }
-
-        // save bloom_filter info to file
-//        repo.save(model);
 
         // save bloom_filter column info to database
         bloomfilterColumnService.update(model.getId(), input.getMetadataList());
 
-        // Mark upload task completed
-        dataResourceUploadTaskService1.complete(task.getId());
+//        // Mark upload task completed
+//        dataResourceUploadTaskService1.complete(task.getId());
 
         // Delete files uploaded by HttpUpload
         try {
