@@ -1,6 +1,7 @@
 <template>
     <div class="label_system">
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
+        <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none', width: vData.width + 'px'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
         <!-- <div v-if="currentImage.item && currentImage.item.labeled" class="show_label_info">{{currentImage.item.label_list}}</div> -->
         <el-button type="primary" class="save_label" @click="methods.saveLabel">
@@ -51,6 +52,7 @@
                     scaleX: 1,
                     scaleY: 1,
                 },
+                imgLoading: false,
             });
 
             let imageLayer = null;
@@ -109,21 +111,16 @@
                         //     imgW = vData.width;
                         //     imgH = vData.height / scalex;
                         // }
-                        console.log(imgW, imgH, vData.width, vData.height);
-                        const scale = imgW < imgH ? vData.width / imgW : imgW > imgH ? vData.height / imgH : 1;
-
+                        // const scale = imgW < imgH ? vData.width / imgW : imgW > imgH ? vData.height / imgH : 1;
+                        // const scaleX = imgW > vData.width ? vData.width / imgW : imgW < vData.width ? imgW / vData.width : 1;
+                        // const scaleY = imgH > vData.height ? vData.height / imgH : imgH < vData.height ? imgH / vData.height : 1;
                         imgOptions = {
-                            // x:      vData.width/2 - imgW/2,
+                            // x:      imgW > vData.width ? imgW/2 - vData.width/2 : vData.width/2 - imgW/2, // 显示在画布中间，标注框跟随图片
                             x:      0,
                             y:      0,
                             image:  imgObj,
-                            // width:  vData.width,
-                            // height: vData.height,
-                            width:  imgW,
-                            height: imgH,
-                            // scale:  {},
-                            scaleX: scale,
-                            scaleY: scale,
+                            width:  vData.width > imgW ? imgW : vData.width,
+                            height: vData.height > imgH ? imgH : vData.height,
                         };
                     };
                     setTimeout(() => {
@@ -133,6 +130,7 @@
                         methods.editLabelStage();
                     }, 100);
                     if(props.currentImage.item) imgObj.src = props.currentImage.item.img_src;
+                    vData.imgLoading = !(props.currentImage.item && props.currentImage.item.img_src);
 
                     vData.stage.on('mousedown', function(e) {
                         // labelModalRef.value.methods.hideModal();
@@ -562,9 +560,28 @@
     position: relative;
     border: 1px solid #eee;
     background: #f0f0f0;
+    position: relative;
     .container {
         canvas {
             background: #f0f0f0!important;
+        }
+    }
+    .loading_layer {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, .85);
+        position: absolute;
+        top: 0;
+        z-index: 3;
+        i {
+            display: block;
+            font-size: 28px;
+            color: #438bff;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%);
+            z-index: 5;
         }
     }
     .save_label {

@@ -13,7 +13,7 @@
                     <div class="l_tips">{{item.labeled ? '已标注' : '未标注'}}</div>
                     <div class="r_btn">
                         <!-- <i class="el-icon-edit-outline" /> -->
-                        <i class="el-icon-delete" @click="methods.deleteEvent(item.id, index)" />
+                        <el-icon class="el-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
                     </div>
                 </div>
             </div>
