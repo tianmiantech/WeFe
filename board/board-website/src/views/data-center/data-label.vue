@@ -13,10 +13,13 @@
                 <div class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
-                        <el-button plain type="primary">添加标签</el-button>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search" @input="methods.labelSearch"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" @input="methods.labelSearch">
+                            <template #suffix>
+                                <el-icon class="el-input__icon"><elicon-search /></el-icon>
+                            </template>
+                        </el-input>
                     </div>
                     <div class="label_info">
                         <template v-if="vData.count_by_sample_list.length>0">
@@ -110,6 +113,7 @@
                 labelName:            '',
                 newLabel:             '',
                 pageLoading:          false,
+                pageSamplelength:     0, // 当前页图片数量
             });
 
             const methods = {
@@ -145,6 +149,7 @@
                         if(code === 0) {
                             if (data && data.list.length>0) {
                                 vData.search.total = data.total;
+                                vData.pageSamplelength = data.list.length;
                                 data.list.forEach((item, idx) => {
                                     methods.downloadImage(item.id, idx, item);
                                 });
@@ -179,7 +184,11 @@
                             vData.currentImage = { item: vData.sampleList[0], idx: 0 };
                             nextTick(_=> {
                                 // When the last picture is obtained, call the interface to update the current label information
-                                if (idx === vData.search.page_size - 1) {
+                                if (idx === vData.search.page_size - 1 && vData.pageSamplelength === vData.search.page_size) {
+                                    labelSystemRef.value.methods.createStage();
+                                }
+                                // When the number of data items on this page is less than the current page number, store the total number of samples on the current page for comparison
+                                else if (vData.pageSamplelength === idx + 1 && vData.pageSamplelength < vData.search.page_size) {
                                     labelSystemRef.value.methods.createStage();
                                 }
                             });
@@ -265,7 +274,6 @@
                 },
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
-                    console.log(res);
                     vData.pageLoading = true;
                     const params = {
                         id,
@@ -375,6 +383,10 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
+                    .el-input__suffix {
+                        position: absolute;
+                        top: 5px;
+                    }
                 }
                 .label_info {
                     padding: 0 10px;

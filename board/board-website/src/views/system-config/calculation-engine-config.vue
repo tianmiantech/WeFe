@@ -12,10 +12,10 @@
                                     <el-radio label="FC"></el-radio>
                                 </el-radio-group>
                             </el-form-item>
-                                <el-card :style="{border: vData.form.calculation_engine_config.backend === 'SPARK' ? '1px solid #438bff' : '', boxShadow: '2px 2px 2px insert rgba(67,139,255, .2)', height: '230px'}">
-                                    SPARK：
-                                    显示一些信息～
-                                </el-card>
+                            <el-card :style="{border: vData.form.calculation_engine_config.backend === 'SPARK' ? '1px solid #438bff' : '', boxShadow: '2px 2px 2px insert rgba(67,139,255, .2)', height: '230px'}">
+                                SPARK：
+                                显示一些信息～
+                            </el-card>
                         </el-col>
                         <el-col :span="12">
                             <el-card :style="{marginTop: 88+'px', border: vData.form.calculation_engine_config.backend === 'FC' ? '1px solid #438bff' : ''}">
@@ -33,18 +33,18 @@
                 <el-row :gutter="24">
                     <el-col :span="24">
                         <el-divider content-position="left">深度学习相关配置</el-divider>
-                            <div style="width: 50%">
-                                <el-form-item label="芯片：">
-                                    <el-select v-model="vData.form.deep_learning_config.device" placeholder="请选择芯片">
-                                        <el-option label="CPU" value="cpu"></el-option>
-                                        <el-option label="GPU" value="gpu"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="飞浆可视化服务地址：">
-                                    <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 86%; margin-right: 5px;" placeholder="请输入地址" clearable />
-                                    <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button>
-                                </el-form-item>
-                            </div>
+                        <div style="width: 50%">
+                            <el-form-item label="芯片：">
+                                <el-select v-model="vData.form.deep_learning_config.device" placeholder="请选择芯片">
+                                    <el-option label="CPU" value="cpu"></el-option>
+                                    <el-option label="GPU" value="gpu"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="飞浆可视化服务地址：">
+                                <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 86%; margin-right: 5px;" placeholder="请输入地址" clearable />
+                                <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button>
+                            </el-form-item>
+                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -106,7 +106,6 @@
                     vData.loading = false;
                 },
                 async update() {
-                    console.log(vData.form);
                     vData.loading = true;
                     const { code } = await $http.post({
                         url:  '/global_config/update',
@@ -125,7 +124,6 @@
                 },
             };
 
-            console.log(vData.userInfo);
             onBeforeMount(()=> {
                 methods.getData();
             });
