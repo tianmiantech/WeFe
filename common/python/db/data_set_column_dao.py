@@ -13,17 +13,30 @@
 # limitations under the License.
 
 
-from common.python.db.db_models import DB, DataSet
+from common.python.db.db_models import DB, DataSetColumn
 
 
-class DataSetDao(object):
+class DataSetColumnDao(object):
+
+    @staticmethod
+    def list_by_data_set_id(data_set_id):
+        with DB.connection_context():
+            return DataSetColumn.select().where(
+                DataSetColumn.data_set_id == data_set_id).order_by(
+                DataSetColumn.index.asc())
+
+    @staticmethod
+    def batch_insert(data_set_column_list):
+        with DB.atomic():
+            for i in range(0, len(data_set_column_list), 1000):
+                DataSetColumn.insert_many(data_set_column_list[i:i + 1000]).execute()
 
     @staticmethod
     def get(*query, **filters):
         with DB.connection_context():
-            return DataSet.get_or_none(*query, **filters)
+            return DataSetColumn.get_or_none(*query, **filters)
 
     @staticmethod
-    def save(model: DataSet, force_insert=False):
+    def save(model: DataSetColumn, force_insert=False):
         with DB.connection_context():
             model.save(force_insert=force_insert)
