@@ -112,13 +112,13 @@ class FCStorage(object):
                     "Effect": "Allow",
                     "Action": "oss:Get*",
                     "Resource": [
-                        "acs:oss:*:*:wefe-fc/" + self._namespace + "/*"
+                        "acs:oss:*:*:" + self._bucket_name + "/" + self._namespace + "/*"
                     ]
                 },
                 {
                     "Effect": "Allow",
                     "Action": "oss:ListObjects",
-                    "Resource": "acs:oss:*:*:wefe-fc",
+                    "Resource": "acs:oss:*:*:" + self._bucket_name,
                     "Condition": {
                         "StringLike": {
                             "oss:Prefix": self._namespace + "/" + self._name + "/*"
@@ -127,8 +127,6 @@ class FCStorage(object):
                 }
             ]
         }
-
-        print("fc_policy: ", fc_policy)
 
         # build an Alibaba Cloud client to initiate requests.
         client = AcsClient(access_key_id, access_key_secret, region_id)

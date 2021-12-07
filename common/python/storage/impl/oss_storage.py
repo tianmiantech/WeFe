@@ -288,7 +288,6 @@ class OssStorage(FCStorage):
         # get the data of the specified partition
         if partition is not None:
             prefix = self._get_file_dir(partition) + "/"
-            log_utils.get_logger().debug(f"prefix: {prefix}")
             for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
                 for item in self.read_each_object(obj.key):
                     yield item
@@ -306,9 +305,7 @@ class OssStorage(FCStorage):
 
             # group by partition
             # [[obj_name1,obj_name2],[obj_name3,obj_nameN]]
-            log_utils.get_logger().debug(f"prefix: {prefix}")
             for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
-                log_utils.get_logger().debug(f"obj.key: {obj.key}")
                 object_key_list[self._get_partition_by_file_path(obj.key)].append(obj.key)
 
             if self._is_fc_env():
