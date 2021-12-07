@@ -292,7 +292,7 @@ class PadsCipher(Encrypt):
         f = functools.partial(
             _pad, seeds=self._seeds, amplify_factor=self._amplify_factor
         )
-        return table.map(f)
+        return table.map(f, need_send=True)
 
     def decrypt(self, value):
         return value
