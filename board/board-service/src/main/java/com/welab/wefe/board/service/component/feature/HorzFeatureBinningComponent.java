@@ -119,7 +119,6 @@ public class HorzFeatureBinningComponent extends AbstractComponent<HorzFeatureBi
                 .filter(x -> x.getType().equals(TaskResultType.model_binning))
                 .collect(Collectors.toList());
 
-        //将重新组装的数据放进去
         list.add(getResult(taskId, TaskResultType.model_binning.name()));
 
         return list;
