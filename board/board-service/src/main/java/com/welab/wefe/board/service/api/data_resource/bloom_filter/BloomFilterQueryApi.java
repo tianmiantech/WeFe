@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;

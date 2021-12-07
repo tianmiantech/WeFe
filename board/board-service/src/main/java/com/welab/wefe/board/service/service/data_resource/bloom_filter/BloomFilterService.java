@@ -27,7 +27,7 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.fusion.BloomFilterOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
