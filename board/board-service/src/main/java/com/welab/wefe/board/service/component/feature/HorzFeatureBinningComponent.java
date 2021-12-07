@@ -46,10 +46,6 @@ import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 
-/**
- * @author lonnie
- * @date 2020-12-24
- */
 @Service
 public class HorzFeatureBinningComponent extends AbstractComponent<HorzFeatureBinningComponent.Params> {
 

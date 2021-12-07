@@ -43,12 +43,6 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 
-/**
- * 特征统计组件
- *
- * @author lonnie
- * @date 2020-12-24
- */
 @Service
 public class HorzStatisticComponent extends AbstractComponent<HorzStatisticComponent.Params> {
 
@@ -87,7 +81,6 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
         List<TaskResultMySqlModel> list = taskResultService.listAllResult(taskId).stream()
                 .filter(x -> x.getType().equals(TaskResultType.data_feature_statistic)).collect(Collectors.toList());
 
-        // 将重新组装的数据放进去
         list.add(getResult(taskId, TaskResultType.data_feature_statistic.name()));
 
         return list;
