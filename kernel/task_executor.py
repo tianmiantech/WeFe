@@ -369,7 +369,9 @@ class TaskExecutor(object):
             e = NoneTypeError()
         elif "NaN" in message:
             e = NaNTypeError()
-        elif "spark" in message or "Py4J" in message:
+        elif "Py4J" in message:
+        	e = SparkError(message)
+        elif "spark" in message
             if "ValueError" in message:
                 e = SparkError(message = e.message)
             else:
