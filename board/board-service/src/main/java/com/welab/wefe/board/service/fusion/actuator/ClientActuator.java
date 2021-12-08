@@ -26,6 +26,7 @@ import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
+import com.welab.wefe.board.service.service.fusion.FusionResultStorageService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.data.storage.common.Constant;
@@ -59,6 +60,7 @@ public class ClientActuator extends PsiClientActuator {
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
+    FusionResultStorageService fusionResultStorageService;
 
     private String[] headers;
 
@@ -146,9 +148,10 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("fruit inserting...");
 
+
         //Build table
         //  createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
-
+       // fusionResultStorageService.saveDataRow(businessId,fruit);
         /**
          * Fruit Standard formatting
          */
