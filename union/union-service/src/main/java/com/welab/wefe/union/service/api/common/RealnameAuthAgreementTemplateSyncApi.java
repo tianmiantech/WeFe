@@ -44,7 +44,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "realname/auth/agreement/template/sync", name = "realname auth agreement template sync", login = false)
+@Api(path = "realname/auth/agreement/template/sync", name = "realname auth agreement template sync", sm2Verify = true, login = false)
 public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<AbstractWithFilesApiInput, UploadFileApiOutput> {
     @Autowired
     private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;

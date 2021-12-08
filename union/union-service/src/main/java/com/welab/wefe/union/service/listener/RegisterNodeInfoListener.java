@@ -17,9 +17,13 @@
 package com.welab.wefe.union.service.listener;
 
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeConfig;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeConfigMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.constant.UnionNodeConfigType;
 import com.welab.wefe.union.service.service.UnionNodeContractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +46,8 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
     private UnionNodeContractService unionNodeContractService;
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
+    @Autowired
+    private UnionNodeConfigMongoRepo unionNodeConfigMongoRepo;
     @Value("${organization.name}")
     private String organizationName;
 
@@ -57,13 +63,39 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
                 LOG.error("registerUnionNode to blockchain failed,Please configure organizationname");
                 System.exit(1);
             }
+            UnionNodeConfig unionNodeConfig = unionNodeConfigMongoRepo.findAll();
+
             UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(currentNodeId);
             if (unionNode == null) {
+                if (unionNodeConfig == null) {
+                    unionNodeConfig = new UnionNodeConfig(UnionNodeConfigType.SM2.name());
+                    SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
+                    unionNodeConfig.setPrivateKey(sm2KeyPair.privateKey);
+                    unionNodeConfig.setPublicKey(sm2KeyPair.publicKey);
+                    unionNodeConfigMongoRepo.save(unionNodeConfig);
+                }
                 unionNode = new UnionNode();
+                unionNode.setNodeId(unionNodeConfig.getNodeId());
+                unionNode.setPublicKey(unionNodeConfig.getPublicKey());
                 unionNode.setBlockchainNodeId(currentNodeId);
                 unionNode.setOrganizationName(organizationName);
                 unionNode.setLostContact("0");
                 unionNodeContractService.add(unionNode);
+            } else {
+                if (unionNodeConfig == null) {
+                    unionNodeConfig = new UnionNodeConfig(UnionNodeConfigType.SM2.name());
+                    SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
+                    unionNodeConfig.setNodeId(unionNode.getNodeId());
+                    unionNodeConfig.setPrivateKey(sm2KeyPair.privateKey);
+                    unionNodeConfig.setPublicKey(sm2KeyPair.publicKey);
+                    unionNodeConfigMongoRepo.save(unionNodeConfig);
+                    unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeConfig.getPublicKey());
+                } else {
+                    if (!unionNodeConfig.getPublicKey().equals(unionNode.getPublicKey())) {
+                        unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeConfig.getPublicKey());
+                    }
+                }
+
             }
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);

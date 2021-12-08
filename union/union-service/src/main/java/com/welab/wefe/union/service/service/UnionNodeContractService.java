@@ -61,6 +61,34 @@ public class UnionNodeContractService extends AbstractContractService {
         }
     }
 
+
+    public void updatePublicKey(String nodeId, String publicKey) throws StatusCodeWithException {
+        try {
+            // send transaction
+            TransactionReceipt transactionReceipt = unionNodeContract.updatePublicKey(
+                    nodeId,
+                    publicKey,
+                    DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())
+            );
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_UPDATEPUBLICKEY, transactionReceipt);
+
+
+            LOG.info("UnionNode contract updatePublicKey transaction, nodeId: {},  receipt response: {}", nodeId, JObject.toJSON(transactionResponse).toString());
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (StatusCodeWithException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOG.error("UnionNode updatePublicKey error: ", e);
+            throw new StatusCodeWithException("UnionNode updatePublicKey error: ", StatusCode.SYSTEM_ERROR);
+        }
+    }
+
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
         list.add(unionNode.getNodeId());

@@ -15,12 +15,13 @@ contract UnionNodeContract{
     event insertEvent(int256 ret_code,string[] params,string ext_json);
     event updateEvent(int256 ret_code,string node_id,string[] params);
     event updateEnableEvent(int256 ret_code,string node_id,string enable,string updated_time);
+    event updatePublicKeyEvent(int256 ret_code,string node_id,string public_key,string updated_time);
     event deleteByUnionNodeIdEvent(int256 ret_code,string node_id);
     event updateExtJsonEvent(int256 ret_code,string node_id, string ext_json,string updated_time);
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "node_id,blockchain_node_id,base_url,organization_name,lost_contact,contact_email,priority_level,enable,version,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "node_id,blockchain_node_id,base_url,organization_name,lost_contact,contact_email,priority_level,enable,version,public_key,created_time,updated_time,ext_json");
     }
 
 
@@ -46,8 +47,9 @@ contract UnionNodeContract{
         entry.set("priority_level", params[6]);
         entry.set("enable", "0");
         entry.set("version", params[7]);
-        entry.set("created_time", params[8]);
-        entry.set("updated_time", params[9]);
+        entry.set("public_key", params[8]);
+        entry.set("created_time", params[9]);
+        entry.set("updated_time", params[10]);
         entry.set("ext_json", ext_json);
 
 
@@ -91,6 +93,36 @@ contract UnionNodeContract{
         }
 
         emit updateEnableEvent(ret_code,node_id,enable,updated_time);
+        return ret_code;
+    }
+
+    function updatePublicKey(string node_id,string public_key,string updated_time) public returns (int) {
+        int256 ret_code = 0;
+        if (!isExist(node_id)) {
+            ret_code = -3;
+            emit updatePublicKeyEvent(ret_code,node_id,public_key,updated_time);
+            return ret_code;
+        }
+
+        Table table = tableFactory.openTable(TABLE_NAME);
+
+        Condition condition = table.newCondition();
+        condition.EQ("node_id", node_id);
+
+        Entry entry = table.newEntry();
+        entry.set("public_key", public_key);
+        entry.set("updated_time", updated_time);
+
+
+        int count = table.update(FIX_ID, entry, condition);
+
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
+
+        emit updatePublicKeyEvent(ret_code,node_id,public_key,updated_time);
         return ret_code;
     }
 
@@ -228,6 +260,8 @@ contract UnionNodeContract{
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("enable")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("version")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("public_key")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

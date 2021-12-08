@@ -28,7 +28,7 @@ import java.util.UUID;
  **/
 @Document(collection = MongodbTable.Union.UNION_NODE)
 public class UnionNode extends AbstractBlockChainBusinessModel {
-    private String nodeId = UUID.randomUUID().toString().replaceAll("-", "");
+    private String nodeId;
     private String blockchainNodeId;
     private String baseUrl;
     private String organizationName;
@@ -36,6 +36,7 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
     private String contactEmail;
     private String priorityLevel;
     private String version;
+    private String publicKey;
     private String enable;
     private UnionNodeExtJSON extJson = new UnionNodeExtJSON();
 
@@ -117,5 +118,13 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setExtJson(UnionNodeExtJSON extJson) {
         this.extJson = extJson;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }

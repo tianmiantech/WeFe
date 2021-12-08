@@ -47,7 +47,6 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate.find(
                 new QueryBuilder()
                         .append("status", String.valueOf(status ? 1 : 0))
-                        .notRemoved()
                         .build()
                 ,
                 UnionNode.class);
