@@ -19,9 +19,7 @@ package com.welab.wefe.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 
 /**
  * @author zane.luo
@@ -161,13 +159,32 @@ public class FileUtil {
      * @param append 是否追加，如果不追加，会覆盖已有文件。
      */
     public static void writeTextToFile(String text, Path path, boolean append) throws IOException {
+        createDir(path.getParent().toString());
         if (!append) {
             File file = path.toFile();
             if (file.exists()) {
                 file.delete();
             }
         }
+        Files.write(
+                path,
+                text.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND,
+                StandardOpenOption.CREATE
+        );
+    }
 
-        Files.write(path, text.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+    public static void copy(Path source, Path target, CopyOption... options) throws IOException {
+        createDir(target.getParent().toString());
+        Files.copy(source, target, options);
+    }
+
+    public static void main(String[] args) throws IOException {
+        Files.write(
+                Paths.get("/Users/zane/data/wefe_file_upload_dir/zane test1.txt"),
+                "text".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND,
+                StandardOpenOption.CREATE
+        );
     }
 }

@@ -31,7 +31,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -106,7 +105,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
      * 拷贝图片文件到输出目录
      */
     private void emitImageFile(Path outputDir, ImageDataSetSampleMysqlModel sample) throws IOException {
-        Files.copy(
+        FileUtil.copy(
                 Paths.get(sample.getFilePath()),
                 Paths.get(outputDir.toString(), "images", sample.getFileName())
         );

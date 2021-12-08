@@ -101,8 +101,6 @@ public class ProjectFlowJobService extends AbstractService {
 
     /**
      * start flow
-     *
-     * @return jobId
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized String startFlow(StartFlowApi.Input input) throws StatusCodeWithException {
@@ -507,7 +505,7 @@ public class ProjectFlowJobService extends AbstractService {
             } catch (FlowNodeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new FlowNodeException(node, e.getMessage());
+                throw new FlowNodeException(node, e.getClass() + " " + e.getMessage());
             }
         }
 
