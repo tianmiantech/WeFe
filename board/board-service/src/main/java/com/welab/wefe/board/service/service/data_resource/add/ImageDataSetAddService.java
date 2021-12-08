@@ -40,6 +40,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author zane
@@ -81,14 +82,18 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         // save models to database
         imageDataSetRepository.save(model);
 
-        for (int i = 0; i < sampleList.size(); i++) {
-            ImageDataSetSampleMysqlModel sample = sampleList.get(i);
-            imageDataSetSampleRepository.save(sample);
+        AtomicInteger count = new AtomicInteger();
+        int totalCount = sampleList.size();
+        sampleList
+                .parallelStream()
+                .forEach(sample -> {
+                    imageDataSetSampleRepository.save(sample);
+                    count.incrementAndGet();
+                    if (count.get() % 20 == 0) {
+                        dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
+                    }
+                });
 
-            if (i % 20 == 0) {
-                dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), i + 1, 0);
-            }
-        }
 
         // delete source images
         FileUtil.deleteFileOrDir(inputFile);
