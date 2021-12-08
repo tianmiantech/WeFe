@@ -21,8 +21,6 @@ import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilt
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.fusion.BloomFilterTaskRepository;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.ServiceCheckService;
-import com.welab.wefe.board.service.service.data_resource.add.BloomFilterAddService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.data.mysql.Where;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +38,6 @@ import java.util.function.Consumer;
 public class BloomFilterTaskService extends AbstractService {
 
     private static final Object LOCKER = new Object();
-    @Autowired
-    private BloomFilterAddService bloomfilterAddService;
-    @Autowired
-    private ServiceCheckService serviceCheckService;
     @Autowired
     protected BloomFilterRepository bloomfilterRepository;
     @Autowired

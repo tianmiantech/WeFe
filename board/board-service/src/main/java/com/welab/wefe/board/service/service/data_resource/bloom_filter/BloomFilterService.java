@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMys
 import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
-import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
@@ -45,7 +44,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.sql.Connection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -66,10 +64,6 @@ public class BloomFilterService extends AbstractService {
     protected JobRepository featureJobRepository;
     @Autowired
     DataSourceRepository dataSourceRepo;
-    @Autowired
-    private BloomFilterRepository bloomfilterRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
 
     /**
      * Get uploaded file
@@ -132,14 +126,14 @@ public class BloomFilterService extends AbstractService {
         // delete bloom_filter from folder
         bloomfilterStorageService.deleteBloomfilter(model.getId());
 
-        // TODO is raw bloom_filter
-//        if (model.getSourceType() == null) {
-//            // Notify the union to do not public the bloom_filter
-//            unionService.dontPublicDataSet(model.getId());
-//
-//            // Refresh the bloom_filter tag list
-//            CacheObjects.refreshDataSetTags();
-//        }
+        // is raw bloom_filter
+        if (model.isDerivedResource()) {
+            // Notify the union to do not public the bloom_filter
+            unionService.dontPublicDataSet(model);
+
+            // Refresh the bloom_filter tag list
+            CacheObjects.refreshBloomFilterTags();
+        }
 
     }
 
@@ -216,7 +210,6 @@ public class BloomFilterService extends AbstractService {
 
     public BloomFilterMysqlModel findOne(String bloomfilterId) {
         return repo.findById(bloomfilterId).orElse(null);
-
     }
 
     /**
@@ -244,36 +237,4 @@ public class BloomFilterService extends AbstractService {
         return JdbcManager.testQuery(conn, sql, true);
     }
 
-    /**
-     * Update the number of Bloomfilter used in the project
-     */
-    public void updateUsageCountInProject(String bloomfilterId) {
-//        bloomfilterRepository.updateUsageCountInProject(bloomfilterId);
-
-        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
-        if (model == null) {
-            return;
-        }
-
-//        try {
-//            unionService.uploadDataSet(model);
-//        } catch (StatusCodeWithException e) {
-//            super.log(e);
-//        }
-    }
-
-    /**
-     * Update the various usage count of the bloom_filter
-     */
-    private void updateUsageCount(String bloomfilterId, Consumer<BloomFilterMysqlModel> func) throws StatusCodeWithException {
-        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
-        if (model == null) {
-            return;
-        }
-
-        func.accept(model);
-        repo.save(model);
-
-//        unionService.uploadDataSet(model);
-    }
 }
