@@ -21,7 +21,7 @@
                     <div class="label_info">
                         <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
                         <template v-if="vData.count_by_label_list.length">
-                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item">
+                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
                                 <span class="span_label">{{item.label}}</span>
                                 <span class="span_count">{{item.count}}</span>
                             </div>
@@ -173,6 +173,7 @@
                     });
                 },
                 async downloadImage(id, idx, item) {
+                    vData.sampleList = [];
                     const { code, data } = await $http.get({
                         url:          '/image_data_set_sample/download',
                         params:       { id },
@@ -192,6 +193,10 @@
                             }, 200);
                         }
                     });
+                },
+                searchLabeledList(text) {
+                    vData.search.label = text;
+                    methods.getSampleList();
                 },
                 currentPageChange (val) {
                     vData.search.page_index = val;
@@ -343,8 +348,12 @@
                         margin-bottom: 10px;
                         padding: 0 10px;
                         font-size: 14px;
+                        cursor: pointer;
                         .span_count {
                             color: #999;
+                        }
+                        &:hover {
+                            border: 1px solid #438bff;
                         }
                     }
                 }
