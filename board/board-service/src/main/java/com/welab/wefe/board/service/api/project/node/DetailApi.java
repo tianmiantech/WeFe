@@ -49,6 +49,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ProjectFlowNodeOutpu
         }
 
         ProjectFlowNodeOutputModel output = ModelMapper.map(one, ProjectFlowNodeOutputModel.class);
+        output.setParams(one.getParams());
 
         // ImageDataIO 节点顺带输出数据集信息。
         if (one.getComponentType() == ComponentType.ImageDataIO) {
@@ -58,7 +59,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ProjectFlowNodeOutpu
                 output.setParams(JObject.create(params));
             }
         }
-
 
         return success(output);
     }

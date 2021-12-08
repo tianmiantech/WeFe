@@ -122,7 +122,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
      * 拷贝图片文件到输出目录
      */
     private void emitImageFile(Path outputDir, ImageDataSetSampleMysqlModel sample) throws IOException {
-        Files.copy(
+        FileUtil.copy(
                 Paths.get(sample.getFilePath()),
                 Paths.get(outputDir.toString(), IMAGE_DIR_NAME, sample.getFileName())
         );

@@ -236,7 +236,7 @@ public class StringUtil extends StringUtils {
 
         // The hump is underlined
         str = camelCaseToUnderLineCase(str);
-
+        str = trim(str, '_');
         return str;
     }
 
