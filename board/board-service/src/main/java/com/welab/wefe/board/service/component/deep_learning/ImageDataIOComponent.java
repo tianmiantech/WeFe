@@ -34,8 +34,6 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.ClassifyImageDataSetParser;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.DetectionImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
@@ -59,10 +57,6 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
     private ImageDataSetService imageDataSetService;
     @Autowired
     private ImageDataSetSampleService imageDataSetSampleService;
-    @Autowired
-    private DetectionImageDataSetParser detectionImageDataSetParser;
-    @Autowired
-    private ClassifyImageDataSetParser classifyImageDataSetParser;
 
     @Override
     public ComponentType taskType() {

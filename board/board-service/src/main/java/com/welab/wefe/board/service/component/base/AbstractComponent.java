@@ -39,6 +39,7 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.enums.ProjectType;
@@ -98,6 +99,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     protected TaskResultService taskResultService;
     @Autowired
     protected TaskRepository taskRepository;
+    @Autowired
+    protected GlobalConfigService globalConfigService;
 
     /**
      * create mix flow task

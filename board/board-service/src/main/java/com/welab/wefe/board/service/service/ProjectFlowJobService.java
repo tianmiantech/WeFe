@@ -31,6 +31,7 @@ import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
@@ -218,6 +219,18 @@ public class ProjectFlowJobService extends AbstractService {
      * Check the effectiveness of the task before starting the task.
      */
     private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project, boolean isOotMode) throws StatusCodeWithException {
+
+        // 深度学习项目独有的检查
+        if (ProjectType.DeepLearning.equals(project.getProjectType())) {
+            DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+            if (StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException("请在 [全局设置 - 计算引擎设置] 中为深度学习设置飞桨可视化服务地址。");
+            }
+        }
+
+
         if (CollectionUtils.isEmpty(graph.getStartNodes())) {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
