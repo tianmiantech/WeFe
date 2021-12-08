@@ -32,7 +32,7 @@ import java.io.File;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/download", name = "delete data set")
+@Api(path = "image_data_set/download", name = "delete data set", login = false)
 public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
