@@ -28,6 +28,8 @@ import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetUpdateInput
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
@@ -140,12 +142,16 @@ public class ImageDataSetService extends DataResourceService {
     }
 
 
+    public File download(String dataSetId, String jobId) throws StatusCodeWithException {
+        ImageDataSetMysqlModel dataSet = findOneById(dataSetId);
 
+        File file = AbstractImageDataSetParser.getDataSetFile(dataSet, jobId);
+        if (!file.exists()) {
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("该 job 尚未生成数据集文件：" + jobId);
+        }
+        return file;
 
-    public File download(String id) {
-        ImageDataSetMysqlModel dataSet = findOneById(id);
-
-
-        return null;
     }
 }

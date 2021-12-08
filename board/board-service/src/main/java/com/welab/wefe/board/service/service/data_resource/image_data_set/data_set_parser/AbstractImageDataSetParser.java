@@ -19,19 +19,20 @@ package com.welab.wefe.board.service.service.data_resource.image_data_set.data_s
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.file.compression.impl.Zip;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +44,81 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
      * 解析文件列表，获取样本信息。
      */
     protected abstract List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, Map<String, File> imageFiles, Map<String, File> xmlFiles, Map<String, File> txtFiles) throws Exception;
+
+    /**
+     * 将数据集样本输出到数据集文件输出目录，为打包为数据集文件做好准备。
+     */
+    protected abstract void emitSamplesToDataSetFileDir(ImageDataSetMysqlModel dataSet, final List<ImageDataSetSampleMysqlModel> trainSamples, final List<ImageDataSetSampleMysqlModel> testSamples, Path outputDir) throws Exception;
+
+    public static AbstractImageDataSetParser getParser(DeepLearningJobType type) {
+        switch (type) {
+            case classify:
+                return new ClassifyImageDataSetParser();
+            case detection:
+                return new DetectionImageDataSetParser();
+            default:
+                return null;
+        }
+    }
+
+    public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String jobId) {
+        return Paths.get(
+                dataSet.getStorageNamespace(),
+                "output",
+                jobId + ".zip"
+        ).toFile();
+    }
+
+    /**
+     * 将数据集样本打包为数据集文件
+     */
+    public File parseSamplesToDataSetFile(String jobId, ImageDataSetMysqlModel dataSet, final List<ImageDataSetSampleMysqlModel> samples, int trainTestSplitRatio) throws Exception {
+        // 根据切割比例计算训练集和测试集样本的数量
+        int trainCount = Convert.toInt(trainTestSplitRatio / 100D * samples.size());
+        if (trainCount < 1) {
+            trainCount = 1;
+        }
+        int testCount = samples.size() - trainCount;
+
+        // 将全部样本切割为训练集和测试集
+        Random rand = new Random();
+        List<ImageDataSetSampleMysqlModel> trainList = new ArrayList<>();
+        List<ImageDataSetSampleMysqlModel> testList = new ArrayList<>();
+        for (ImageDataSetSampleMysqlModel sample : samples) {
+            // 该样本是否判定为 train
+            boolean isTrainSample = false;
+            // train 数量还没凑够
+            if (trainList.size() < trainCount) {
+                // test 已经凑够了，或者命运选择这条样本为 train
+                if (testList.size() >= testCount || rand.nextBoolean()) {
+                    isTrainSample = true;
+                }
+            }
+
+            if (isTrainSample) {
+                trainList.add(sample);
+            } else {
+                testList.add(sample);
+            }
+        }
+
+        // 生成打包路径
+        Path outputDir = Paths.get(
+                dataSet.getStorageNamespace(),
+                "output",
+                jobId
+        );
+
+        // 删除已存在的文件
+        FileUtil.deleteFileOrDir(outputDir.toString());
+        // 将样本内容输出到打包目录
+        emitSamplesToDataSetFileDir(dataSet, trainList, testList, outputDir);
+        return new Zip().compression(
+                outputDir.toString(),
+                getDataSetFile(dataSet, jobId).getAbsolutePath()
+        );
+
+    }
 
     public List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, final Set<File> allFiles) throws Exception {
         // 过滤掉操作系统临时目录中的文件

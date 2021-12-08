@@ -50,6 +50,20 @@ public class ImageDataSetSampleService extends AbstractService {
     @Autowired
     private ImageDataSetService imageDataSetService;
 
+    /**
+     * 获取所有已标注的样本
+     */
+    public List<ImageDataSetSampleMysqlModel> allLabeled(String dataSetId) {
+        Specification<ImageDataSetSampleMysqlModel> where = Where
+                .create()
+                .equal("dataSetId", dataSetId)
+                .equal("labeled", true)
+                .build(ImageDataSetSampleMysqlModel.class);
+
+        List<ImageDataSetSampleMysqlModel> all = imageDataSetSampleRepository.findAll(where);
+        return all;
+    }
+
     public PagingOutput<ImageDataSetSampleOutputModel> query(ImageDataSetSampleQueryApi.Input input) {
 
         Specification<ImageDataSetSampleMysqlModel> where = Where

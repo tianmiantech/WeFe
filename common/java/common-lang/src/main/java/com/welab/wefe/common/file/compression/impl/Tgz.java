@@ -34,7 +34,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class Tgz extends AbstractCompression {
     @Override
-    protected File doCompression(Path srcDir, String destFileName) throws IOException {
+    protected void doCompression(Path srcDir, String destFileName) throws IOException {
 
         Path destPath = Paths.get(destFileName);
         try (
@@ -81,7 +81,6 @@ public class Tgz extends AbstractCompression {
             tOut.finish();
         }
 
-        return destPath.toFile();
     }
 
     @Override

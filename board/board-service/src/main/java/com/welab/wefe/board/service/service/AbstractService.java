@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class AbstractService {
     protected UnionService unionService;
     @Autowired
     protected Config config;
+    @Autowired
+    protected GlobalConfigService globalConfigService;
 
     protected void log(Exception e) {
         LOG.error(e.getClass() + " " + e.getMessage(), e);
