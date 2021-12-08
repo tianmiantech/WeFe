@@ -73,7 +73,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
         model.setSourcePath(config.getFileUploadDir() + input.getFilename());
         model.setDataSourceId(input.getDataSourceId());
-        model.setHashFunction(StringUtil.join(input.getRows(), ','));
+        model.setHashFunction(StringUtil.join(input.getFieldInfoList()));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         // save bloom_filter info to file
@@ -93,9 +93,6 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         // save bloom_filter column info to database
         bloomfilterColumnService.update(model.getId(), input.getMetadataList());
 
-//        // Mark upload task completed
-//        dataResourceUploadTaskService1.complete(task.getId());
-
         // Delete files uploaded by HttpUpload
         try {
             if (input.getBloomfilterAddMethod().equals(DataSetAddMethod.HttpUpload)) {
@@ -105,13 +102,6 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
-
-        // Synchronize information to union
-//        try {
-//            unionService.uploadDataSet(model);
-//        } catch (StatusCodeWithException e) {
-//            super.log(e);
-//        }
 
         // Refresh the bloom_filter tag list
         CacheObjects.refreshTableDataSetTags();
