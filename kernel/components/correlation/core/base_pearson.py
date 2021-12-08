@@ -41,6 +41,7 @@ LOGGER = log_utils.get_logger()
 def select_columns(self, data_instance):
     col_names = data_instance.schema["header"]
     if self.model_param.column_indexes == -1:
+
         self.names = col_names
         name_set = set(self.names)
         for name in self.model_param.column_names:
