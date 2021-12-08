@@ -48,7 +48,7 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
     protected ApiResult<byte[][]> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
-            Log.error("Actuator not found,businessId is {}", input.getBusinessId());
+            LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
         return success(actuator.compute(input.getBs()));
