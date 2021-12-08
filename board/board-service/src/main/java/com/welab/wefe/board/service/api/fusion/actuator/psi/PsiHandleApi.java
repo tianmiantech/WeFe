@@ -29,6 +29,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import jline.internal.Log;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,13 +55,14 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
         return success(actuator.compute(input.getBs()));
     }
 
+
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        List<byte[]> bs;
+        List<String> bs;
 
-        public Input(String businessId, List<byte[]> bs) {
+        public Input(String businessId, List<String> bs) {
             this.businessId = businessId;
             this.bs = bs;
         }
@@ -73,11 +75,11 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
             this.businessId = businessId;
         }
 
-        public List<byte[]> getBs() {
+        public List<String> getBs() {
             return bs;
         }
 
-        public void setBs(List<byte[]> bs) {
+        public void setBs(List<String> bs) {
             this.bs = bs;
         }
     }
