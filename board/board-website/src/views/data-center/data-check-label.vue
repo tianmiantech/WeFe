@@ -2,7 +2,7 @@
     <el-card class="page_layer">
         <div class="check_label">
             <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType }}">
                     <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
@@ -21,7 +21,7 @@
                     <div class="label_info">
                         <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
                         <template v-if="vData.count_by_label_list.length">
-                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item">
+                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
                                 <span class="span_label">{{item.label}}</span>
                                 <span class="span_count">{{item.count}}</span>
                             </div>
@@ -103,6 +103,7 @@
                 count_by_label:      [],
                 count_by_sample:     [],
                 count_by_label_list: [],
+                forJobType:          '',
             });
 
             const methods = {
@@ -138,6 +139,7 @@
                             vData.tabsList[0].count = data.total_data_count;
                             vData.tabsList[1].count = data.labeled_count;
                             vData.tabsList[2].count = data.total_data_count - data.labeled_count;
+                            vData.forJobType = data.for_job_type;
                         }
                     });
                 },
@@ -171,6 +173,7 @@
                     });
                 },
                 async downloadImage(id, idx, item) {
+                    vData.sampleList = [];
                     const { code, data } = await $http.get({
                         url:          '/image_data_set_sample/download',
                         params:       { id },
@@ -190,6 +193,10 @@
                             }, 200);
                         }
                     });
+                },
+                searchLabeledList(text) {
+                    vData.search.label = text;
+                    methods.getSampleList();
                 },
                 currentPageChange (val) {
                     vData.search.page_index = val;
@@ -341,8 +348,12 @@
                         margin-bottom: 10px;
                         padding: 0 10px;
                         font-size: 14px;
+                        cursor: pointer;
                         .span_count {
                             color: #999;
+                        }
+                        &:hover {
+                            border: 1px solid #438bff;
                         }
                     }
                 }

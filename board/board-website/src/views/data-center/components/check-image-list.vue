@@ -10,7 +10,7 @@
                     </template>
                 </el-image>
                 <div class="btns">
-                    <div class="l_tips">{{item.labeled ? '已标注' : '未标注'}}</div>
+                    <div class="l_tips">{{item.labeled ? item.label_list.split(',')[0] : '未标注'}}</div>
                     <div class="r_btn">
                         <!-- <i class="el-icon-edit-outline" /> -->
                         <el-icon class="el-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
