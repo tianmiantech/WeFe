@@ -99,9 +99,9 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId) throws StatusCodeWithException {
-        if (ActuatorManager.get(businessId) != null) {
-            return;
-        }
+//        if (ActuatorManager.get(businessId) != null) {
+//            return;
+//        }
 
         FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
         if (task == null) {
