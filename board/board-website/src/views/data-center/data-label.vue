@@ -3,7 +3,7 @@
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
-                    <label-system v-show="vData.sampleList.length" ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" @save-label="methods.saveCurrentLabel" />
+                    <label-system v-show="vData.sampleList.length" ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
                     <div v-if="vData.sampleList.length === 0" class="empty_box">
                         <EmptyData />
                     </div>
@@ -25,10 +25,10 @@
                         <template v-if="vData.count_by_sample_list.length>0">
                             <div class="label_title"><span>标签名称</span><span>快捷键</span></div>
                             <div class="label_info_list">
-                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
+                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">
                                     <span class="span_label">{{item.label}}</span>
                                     <span v-if="item.keycode !== ''" class="span_count">{{item.keycode}}</span>
-                                    <i v-if="item.iscustomized" class="el-icon-error label_close" @click="methods.deleteLabel(index)" />
+                                    <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close /></el-icon>
                                 </div>
                             </div>
                         </template>
@@ -80,6 +80,7 @@
             const vData = reactive({
                 activeName: '',
                 sampleId:   route.query.id,
+                forJobType: route.query.for_job_type,
                 search:     {
                     page_index: 1,
                     page_size:  20,
@@ -282,6 +283,7 @@
                         },
                     };
 
+                    console.log(params);
                     const { code } = await $http.post({
                         url:  '/image_data_set_sample/update',
                         data: params,
@@ -318,6 +320,16 @@
                             );
                         });
                     });
+                },
+                // label classify sample
+                labelSampleEvent(text) {
+                    const res = [];
+
+                    res.push({
+                        label:  text,
+                        points: [],
+                    });
+                    methods.saveCurrentLabel(res, vData.currentImage.item.id);
                 },
             };
 
@@ -432,6 +444,14 @@
                             cursor: pointer;
                             z-index: 3;
                         }
+                        &:hover {
+                            border: 1px solid #438bff;
+                        }
+                    }
+                    .fixed_box {
+                        position: absolute;
+                        bottom: 5px;
+                        width: 93%;
                     }
                 }
             }

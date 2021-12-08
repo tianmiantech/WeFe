@@ -3,7 +3,11 @@
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
         <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none', width: vData.width + 'px'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
-        <!-- <div v-if="currentImage.item && currentImage.item.labeled" class="show_label_info">{{currentImage.item.label_list}}</div> -->
+        <div class="show_label_info">
+            <h3 v-if="forJobType === 'classify'">标注结果</h3>
+            <div v-if="currentImage.item && currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">{{currentImage.item.label_list}}</div>
+            <div v-else-if="currentImage.item && !currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">请在右侧选择标签</div>
+        </div>
         <el-button type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
@@ -22,6 +26,7 @@
         props: {
             currentImage: Object,
             labelList:    Array,
+            forJobType:   String,
         },
         setup(props, context) {
             const router = useRouter();
@@ -39,9 +44,7 @@
                 graphColor:     '#1A73E8',
                 drawing:        false,
                 labelList:      props.labelList,
-                // oldLabelList:  props.labelList,
                 labelPosition:  '',
-                // currentLabel:  {},
                 labelNowPos:    null, // 标注文字位置
                 isLabeled:      false, // 当前标注框是否已标注
                 currentRect:    null, // 当前被选中的标注框
@@ -83,7 +86,7 @@
                         width:     vData.width,
                         height:    vData.height,
                     });
-                    vData.stage.container().style.cursor = 'crosshair';
+                    vData.stage.container().style.cursor = props.forJobType === 'detection' ? 'crosshair' : 'default';
                     vData.layer = new Konva.Layer();
                     vData.stage.add(vData.layer);
                     const imgObj = new Image();
@@ -93,24 +96,6 @@
                     imgObj.onload = () => {
                         const imgW= imgObj.width, imgH = imgObj.height;
 
-                        // if (imgW >= 999) {
-                        //     imgW = imgW / 2;
-                        //     imgH = imgH /2;
-                        // } else if(999>imgW > 1500) {
-                        //     imgW = imgW/3;
-                        //     imgH = imgH /3;
-                        // } else if (imgW > 3000) {
-                        //     imgW = imgW/6;
-                        //     imgH = imgH /6;
-                        // }
-                        // if (imgW > vData.width) {
-                        //     console.log(imgW);
-                        //     const scalex = vData.height / imgH;
-
-                        //     console.log(scalex);
-                        //     imgW = vData.width;
-                        //     imgH = vData.height / scalex;
-                        // }
                         // const scale = imgW < imgH ? vData.width / imgW : imgW > imgH ? vData.height / imgH : 1;
                         // const scaleX = imgW > vData.width ? vData.width / imgW : imgW < vData.width ? imgW / vData.width : 1;
                         // const scaleY = imgH > vData.height ? vData.height / imgH : imgH < vData.height ? imgH / vData.height : 1;
@@ -127,54 +112,55 @@
                         imageLayer = new Konva.Image(imgOptions);
                         vData.layer.add(imageLayer);
                         vData.layer.batchDraw();
-                        methods.editLabelStage();
+                        if (props.forJobType === 'detection') methods.editLabelStage();
                     }, 100);
                     if(props.currentImage.item) imgObj.src = props.currentImage.item.img_src;
                     vData.imgLoading = !(props.currentImage.item && props.currentImage.item.img_src);
 
-                    vData.stage.on('mousedown', function(e) {
-                        // labelModalRef.value.methods.hideModal();
-                        vData.labelList = props.labelList;
-                        let lastEvent = null;
-                        // 如果点击空白处 移除图形选择框
+                    if (props.forJobType === 'detection') {
+                        vData.stage.on('mousedown', function(e) {
+                            // labelModalRef.value.methods.hideModal();
+                            vData.labelList = props.labelList;
+                            let lastEvent = null;
+                            // 如果点击空白处 移除图形选择框
 
-                        if ((e.target === vData.stage || e.target === imageLayer) && lastEvent !== e.evt) {
-                            methods.stageMousedown(e);
+                            if ((e.target === vData.stage || e.target === imageLayer) && lastEvent !== e.evt) {
+                                methods.stageMousedown(e);
+                                vData.stage.find('Transformer').destroy();
+                                vData.layer.draw();
+                                return;
+                            }
+                            lastEvent = e.evt;
+
+                            // 如果没有匹配到就终止往下执行
+                            if (!e.target.hasName('rect')) {
+                                return;
+                            }
+
+                            // 移除图形选择框
                             vData.stage.find('Transformer').destroy();
-                            vData.layer.draw();
-                            return;
-                        }
-                        lastEvent = e.evt;
 
-                        // 如果没有匹配到就终止往下执行
-                        if (!e.target.hasName('rect')) {
-                            return;
-                        }
-
-                        // 移除图形选择框
-                        vData.stage.find('Transformer').destroy();
-
-                        // 当前点击的对象赋值给graphNow
-                        vData.graphNow = e.target;
-                        if (e.target.attrs.isLabeled) {
-                        // 可删除已标注的选框
-                        } else {
-                            // 创建图形选框事件
-                            methods.createTransformer(e);
-                        }
-                    });
-                    vData.stage.on('mousemove', function(e) {
-                        if (vData.graphNow && vData.drawing) {
-                            methods.stageMousemove(e);
-                        }
-                    });
-                    vData.stage.on('mouseup', function () {
-                        vData.drawing = false;
-                        // 画框宽高大于10时显示标签选框
-                        if (vData.graphNow && (Math.abs(vData.graphNow.width()) >= 10 && Math.abs(vData.graphNow.height()) >= 10) && !vData.rectLayer.attrs.isLabeled) {
-                            methods.showLabelModal();
-                        }
-                    });
+                            // 当前点击的对象赋值给graphNow
+                            vData.graphNow = e.target;
+                            if (e.target.attrs.isLabeled) {
+                                // 可删除已标注的选框
+                            } else {
+                                // 创建图形选框事件
+                                methods.createTransformer(e);
+                            }
+                        });
+                        vData.stage.on('mousemove', function(e) {
+                            if (vData.graphNow && vData.drawing) {
+                                methods.stageMousemove(e);
+                            }
+                        });
+                        vData.stage.on('mouseup', function () {
+                            vData.drawing = false;
+                            // 画框宽高大于10时显示标签选框
+                            if (vData.graphNow && (Math.abs(vData.graphNow.width()) >= 10 && Math.abs(vData.graphNow.height()) >= 10) && !vData.rectLayer.attrs.isLabeled) {
+                                methods.showLabelModal();
+                            }
+                        });
                     /* 后续再加
                     vData.stage.on('wheel', function(e) {
                         const bgx = imageLayer.x(), bgy = imageLayer.y();
@@ -223,6 +209,7 @@
                         });
                     });
                     */
+                    }
                 },
                 stageMouseWheel(e) {},
                 stageMousedown(e) {
@@ -597,6 +584,20 @@
         position: fixed;
         right: 330px;
         top: 185px;
+    }
+    .show_label_info {
+        position: fixed;
+        right: 330px;
+        top: 245px;
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+        .show_label_txt {
+            font-size: 14px;
+            color: #666;
+        }
     }
 }
 </style>

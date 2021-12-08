@@ -2,7 +2,7 @@
     <el-card class="page_layer">
         <div class="check_label">
             <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType }}">
                     <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
@@ -103,6 +103,7 @@
                 count_by_label:      [],
                 count_by_sample:     [],
                 count_by_label_list: [],
+                forJobType:          '',
             });
 
             const methods = {
@@ -138,6 +139,7 @@
                             vData.tabsList[0].count = data.total_data_count;
                             vData.tabsList[1].count = data.labeled_count;
                             vData.tabsList[2].count = data.total_data_count - data.labeled_count;
+                            vData.forJobType = data.for_job_type;
                         }
                     });
                 },
