@@ -76,6 +76,11 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
     }
 
     @Override
+    public boolean canSelectFeatures() {
+        return true;
+    }
+    
+    @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
         return null;
     }

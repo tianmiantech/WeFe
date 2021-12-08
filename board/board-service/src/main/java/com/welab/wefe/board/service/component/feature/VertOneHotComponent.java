@@ -86,6 +86,11 @@ public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.P
     }
 
     @Override
+    public boolean canSelectFeatures() {
+        return true;
+    }
+    
+    @Override
     protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
         return Arrays.asList(
                 InputMatcher.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance)
