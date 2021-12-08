@@ -251,7 +251,7 @@
                         >
                             <uploader-unsupport />
                             <uploader-drop v-if="img_upload_options.files.length === 0">
-                                <p class="mb10">将文件 (.zip .tar .rar .7z) 拖到此处</p>或
+                                <p class="mb10">将文件 (.zip .tar .tgz .7z) 拖到此处</p>或
                                 <uploader-btn
                                     :attrs="img_upload_attrs"
                                     :single="true"
@@ -262,7 +262,7 @@
                             <uploader-list :file-list="img_upload_options.files.length" />
                         </uploader>
                         <ul class="data-set-upload-tip">
-                            <li>仅限压缩文件 .zip .tar .rar等</li>
+                            <li>仅限压缩文件 .zip .tar .tgz .7z等</li>
                         </ul>
                     </fieldset>
                 </el-col>

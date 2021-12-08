@@ -217,6 +217,12 @@
                     <DataSetPreview ref="DataSetPreview" />
                 </el-col>
             </el-row>
+            <el-row v-if="addType === 'img'" :gutter="30">
+                <div v-loading="imgLoading">
+                    <h4>数据集预览</h4>
+                    <preview-image-list :sampleList="sampleList" />
+                </div>
+            </el-row>
             <el-button
                 class="save-btn mt20"
                 type="primary"
@@ -241,12 +247,14 @@
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
     import SelectMember from './components/select-member';
+    import PreviewImageList from './components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
             DataSetPublicTips,
             SelectMember,
+            PreviewImageList,
         },
         data() {
             return {
@@ -281,6 +289,15 @@
                     page_index: 1,
                 },
                 addType: 'csv',
+                search:  {
+                    page_index: 1,
+                    page_size:  20,
+                    label:      '',
+                    labeled:    '',
+                    total:      1,
+                },
+                imgLoading: false,
+                sampleList: [],
             };
         },
         computed: {
@@ -289,6 +306,7 @@
         created() {
             this.addType = this.$route.query.type || 'csv';
             this.getData();
+            this.getSampleList();
         },
         mounted() {
             if (this.addType === 'csv') {
@@ -480,6 +498,53 @@
                 }
 
                 cb(this.options_tags);
+            },
+            async getSampleList() {
+                this.imgLoading = true;
+                const params = {
+                    page_index:  this.search.page_index - 1,
+                    page_size:   this.search.page_size,
+                    label:       this.search.label,
+                    data_set_id: this.id,
+                    labeled:     this.search.labeled,
+                };
+                const { code, data } = await this.$http.post({
+                    url:  '/image_data_set_sample/query',
+                    data: params,
+                });
+                    
+                if(code === 0) {
+                    if (data && data.list.length>0) {
+                        this.search.total = data.total;
+                        data.list.forEach((item, idx) => {
+                            this.downloadImage(item.id, idx, item);
+                        });
+                    } else {
+                        this.search.total = data.total;
+                        this.sampleList = data.list;
+                        this.imgLoading = false;
+                    }
+                }
+            },
+            async downloadImage(id, idx, item) {
+                this.sampleList = [];
+                const { code, data } = await this.$http.get({
+                    url:          '/image_data_set_sample/download',
+                    params:       { id },
+                    responseType: 'blob',
+                });
+
+                if(code === 0) {
+                    const url = window.URL.createObjectURL(data);
+
+                    if (id === item.id) {
+                        item.img_src = url;
+                    }
+                    this.sampleList.push(item);
+                    setTimeout(_=> {
+                        this.imgLoading = false;
+                    }, 200);
+                }
             },
         },
     };

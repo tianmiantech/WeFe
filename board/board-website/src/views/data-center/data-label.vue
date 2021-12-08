@@ -61,7 +61,7 @@
 </template>
 
 <script>
-    import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
+    import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick, onUnmounted } from 'vue';
     import { useRoute } from 'vue-router';
     import LabelSystem from './components/label-system.vue';
     import ImageThumbnailList from './components/image-thumbnail-list.vue';
@@ -108,6 +108,7 @@
                 sampleList:           [],
                 currentImage:         {},
                 timer:                null,
+                timer2:               null,
                 count_by_label:       [],
                 count_by_sample:      [],
                 count_by_sample_list: [],
@@ -337,13 +338,19 @@
                 methods.getSampleInfo();
                 methods.getLabelInfo();
                 // 注意清除定时器
-                setTimeout(_=> {
+                if (vData.timer2) clearTimeout(vData.timer2);
+                vData.timer2 = setTimeout(_=> {
                     methods.getSampleList();
                     methods.resetWidth();
                 }, 200);
                 window.onresize = () => {
                     methods.debounce();
                 };
+            });
+
+            onUnmounted(()=>{
+                clearTimeout(vData.timer);
+                clearTimeout(vData.timer2);
             });
 
             return {

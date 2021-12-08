@@ -1,6 +1,8 @@
 <template>
     <el-card v-loading="loading">
-        <h4 class="mb10">数据集简介</h4>
+        <el-divider content-position="left">
+            数据集简介
+        </el-divider>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <el-descriptions :column="2">
             <template #extra>
@@ -30,7 +32,7 @@
             <el-descriptions-item v-if="dataInfo.description" label="描述：">
                 {{ dataInfo.description }}
             </el-descriptions-item>
-            <el-descriptions-item label="标签：">
+            <el-descriptions-item label="关键字：">
                 <span v-if="dataInfo.tags">
                     <template v-for="(tag, index) in dataInfo.tags.split(',')">
                         <el-tag
@@ -60,16 +62,21 @@
                 <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
                     {{ dataInfo.label_list.split(',').length }}
                 </el-descriptions-item>
+                <el-descriptions-item v-if="dataInfo.label_list" label="标签分布：">
+                    <template v-for="item in dataInfo.$label_list" :key="item.name">
+                        {{item.name}} ( {{item.count}} )
+                    </template>
+                </el-descriptions-item>
                 <el-descriptions-item label="标注状态：">
                     {{ completedStatus(dataInfo.label_completed) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="标注类型：">
-                    {{ dataInfo.for_job_type }}
+                    {{ dataInfo.for_job_type === 'detection' ? '目标检测' : dataInfo.for_job_type === 'classify' ? '图像分类' : '-' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="数据大小：">
                     {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
                 </el-descriptions-item>
-                <el-descriptions-item label="已标注：">
+                <el-descriptions-item label="标注进度：">
                     {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.total_data_count).toFixed(2) * 100 }}%)
                     <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
                         去标注 <i class="el-icon-right"></i>
@@ -80,6 +87,13 @@
                 </el-descriptions-item>
             </template>
         </el-descriptions>
+
+        <el-divider content-position="left">
+            数据集信息
+        </el-divider>
+        <div v-if="addDataType === 'img'" class="img_info" v-loading="imgLoading">
+            <preview-image-list :sampleList="sampleList" />
+        </div>
 
         <el-tabs
             v-if="addDataType === 'csv'"
@@ -104,10 +118,12 @@
 
 <script>
     import DataSetPreview from '@comp/views/data_set-preview';
+    import PreviewImageList from './components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
+            PreviewImageList,
         },
         data() {
             return {
@@ -118,6 +134,15 @@
                 dataInfo:    {},
                 addDataType: 'csv',
                 projects:    [],
+                sampleList:  [],
+                imgLoading:  false,
+                search:      {
+                    page_index: 1,
+                    page_size:  30,
+                    label:      '',
+                    labeled:    '',
+                    total:      1,
+                },
             };
         },
         computed: {
@@ -131,6 +156,7 @@
             this.addDataType = this.$route.query.type || 'csv';
             this.getData();
             this.getRelativeProjects();
+            this.getSampleList();
         },
         methods: {
             async getRelativeProjects() {
@@ -199,10 +225,48 @@
                 });
 
                 if(code === 0) {
-                    data && (this.dataInfo = data);
+                    if (data) {
+                        if (this.addDataType === 'img') {
+                            const labelList = [];
+
+                            data.label_list.split(',').forEach(item => {
+                                labelList.push({
+                                    name:  item,
+                                    count: 0,
+                                });
+                                this.getLabelListDistributed(item);
+                            });
+                            data.$label_list = labelList;
+                        }
+                        this.dataInfo = data;
+                    }
+                    
                 }
                 this.loading = false;
                 if (this.addDataType === 'csv') this.loadDataSetColumnList();
+            },
+            async getLabelListDistributed(label) {
+                const params = {
+                    page_index:  this.search.page_index - 1,
+                    page_size:   this.search.page_size,
+                    label,
+                    data_set_id: this.id,
+                    labeled:     this.search.labeled,
+                };
+                const { code, data } = await this.$http.post({
+                    url:  '/image_data_set_sample/query',
+                    data: params,
+                });
+
+                if(code === 0) {
+                    if (data && data.list) {
+                        this.dataInfo.$label_list.forEach(item => {
+                            if (item.name === label) {
+                                item.count = data.total;
+                            }
+                        });
+                    }
+                }
             },
 
             tabChange(ref) {
@@ -218,22 +282,72 @@
                     query: { id: this.id },
                 });
             },
+            async getSampleList() {
+                this.imgLoading = true;
+                const params = {
+                    page_index:  this.search.page_index - 1,
+                    page_size:   this.search.page_size,
+                    label:       this.search.label,
+                    data_set_id: this.id,
+                    labeled:     this.search.labeled,
+                };
+                const { code, data } = await this.$http.post({
+                    url:  '/image_data_set_sample/query',
+                    data: params,
+                });
+                    
+                if(code === 0) {
+                    if (data && data.list.length>0) {
+                        this.search.total = data.total;
+                        data.list.forEach((item, idx) => {
+                            this.downloadImage(item.id, idx, item);
+                        });
+                    } else {
+                        this.search.total = data.total;
+                        this.sampleList = data.list;
+                        this.imgLoading = false;
+                    }
+                }
+            },
+            async downloadImage(id, idx, item) {
+                this.sampleList = [];
+                const { code, data } = await this.$http.get({
+                    url:          '/image_data_set_sample/download',
+                    params:       { id },
+                    responseType: 'blob',
+                });
+
+                if(code === 0) {
+                    const url = window.URL.createObjectURL(data);
+
+                    if (id === item.id) {
+                        item.img_src = url;
+                    }
+                    this.sampleList.push(item);
+                    setTimeout(_=> {
+                        this.imgLoading = false;
+                    }, 200);
+                }
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
-    .el-tab-pane{min-height: 500px;}
-    .el-tag {margin-right: 10px;}
-    .strong{font-weight: bold;}
-    .data-set-meta{
-        font-family: Menlo,Monaco,Consolas,Courier,monospace;
-        font-size: 14px;
-        margin-top: 15px;
-    }
-    .el-descriptions{
-        max-width: 700px;
-        :deep(.el-descriptions__header) {display: block;}
-        :deep(.is-bordered-label){width: 30px;}
-    }
+@mixin flex_box {
+    display: flex;
+}
+.el-tab-pane{min-height: 500px;}
+.el-tag {margin-right: 10px;}
+.strong{font-weight: bold;}
+.data-set-meta{
+    font-family: Menlo,Monaco,Consolas,Courier,monospace;
+    font-size: 14px;
+    margin-top: 15px;
+}
+.el-descriptions{
+    max-width: 700px;
+    :deep(.el-descriptions__header) {display: block;}
+    :deep(.is-bordered-label){width: 30px;}
+}
 </style>
