@@ -67,6 +67,7 @@ public class CacheObjects {
      */
     private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
     private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Long> IMAGE_BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -260,6 +261,14 @@ public class CacheObjects {
         List<Object[]> rows = repo.listAllTags(DataResourceType.TableDataSet.name());
         refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
+
+    public static synchronized void refreshBloomFilterTags() {
+        // Query all tags from the database
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.BloomFilter.name());
+        refreshDataSetTags(rows, IMAGE_BLOOM_FILTER_TAGS);
+    }
+
 
     public static synchronized void refreshImageDataSetTags() {
         // Query all tags from the database
