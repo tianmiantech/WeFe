@@ -37,6 +37,8 @@ from kernel.components.lr.base_lr_model import BaseLRModel
 from kernel.components.lr.lr_model_weight import LRModelWeights
 from kernel.components.lr.one_vs_rest import one_vs_rest_factory
 from kernel.components.lr.param import LogisticParam
+from kernel.components.lr.vertlr.sync import iter_sync
+from kernel.protobuf.generated import lr_model_meta_pb2
 from kernel.security import PaillierEncrypt, EncryptModeCalculator
 from kernel.security.fixedpoint import FixedPointEndec
 from kernel.security.protol.spdz import SPDZ
@@ -65,17 +67,15 @@ class VertLRBase(BaseLRModel, ABC):
         self.secure_matrix_obj: SecureMatrix
         self._set_parties()
         self.cipher_tool = None
+        self.iter_transfer = None
+        self.max_rand = 1 << 32
 
     def _transfer_q_field(self):
         if self.role == consts.PROMOTER:
             q_field = self.cipher.public_key.n
-            LOGGER.info(f'q_field = {q_field}')
             self.transfer_variable.q_field.remote(q_field, role=consts.PROVIDER, suffix=("q_field",))
-            LOGGER.info(f'send q_field={q_field} finish')
         else:
-            LOGGER.info('get q_field')
             q_field = self.transfer_variable.q_field.get(idx=0, suffix=("q_field",))
-            LOGGER.info(f'get q_field = {q_field}')
 
         return q_field
 
@@ -84,9 +84,14 @@ class VertLRBase(BaseLRModel, ABC):
         self.encrypted_mode_calculator_param = params.encrypted_mode_calculator_param
         if self.role == consts.PROVIDER:
             self.init_param_obj.fit_intercept = False
+            self.iter_transfer = iter_sync.Provider()
+        else:
+            self.iter_transfer = iter_sync.Promoter()
+
         self.cipher = PaillierEncrypt()
         self.cipher.generate_key(self.model_param.encrypt_param.key_length)
         self.transfer_variable = SSHEModelTransferVariable()
+        self.iter_transfer.register_iter_transfer(self.transfer_variable)
         self.one_vs_rest_obj = one_vs_rest_factory(self, role=self.role, mode=self.mode, has_arbiter=False)
 
         self.converge_func_name = params.early_stop
@@ -136,10 +141,12 @@ class VertLRBase(BaseLRModel, ABC):
             wb, wa = (
                 fixedpoint_numpy.FixedPointTensor.from_source(f"wb_{suffix}", source[0],
                                                               encoder=self.fixedpoint_encoder,
-                                                              q_field=self.q_field),
+                                                              q_field=self.q_field,
+                                                              max_rand=self.max_rand),
                 fixedpoint_numpy.FixedPointTensor.from_source(f"wa_{suffix}", source[1],
                                                               encoder=self.fixedpoint_encoder,
-                                                              q_field=self.q_field),
+                                                              q_field=self.q_field,
+                                                              max_rand=self.max_rand),
             )
             return wb, wa
         else:
@@ -183,16 +190,31 @@ class VertLRBase(BaseLRModel, ABC):
 
     def fit_binary(self, data_instances, validate_data=None):
         LOGGER.info("Starting to hetero_sshe_logistic_regression")
-        self.callback_list.on_train_begin(data_instances, validate_data)
+        self.validation_strategy = self.init_validation_strategy(data_instances, validate_data)
 
         model_shape = self.get_features_shape(data_instances)
         instances_count = data_instances.count()
 
         w = self._init_weights(model_shape)
+        LOGGER.debug(f'w={w}')
         self.model_weights = LRModelWeights(w=w,
                                             fit_intercept=self.model_param.init_param.fit_intercept)
+
+        cur_best_model = self.tracker.get_training_best_model()
+        if cur_best_model is not None:
+            LOGGER.debug(f'cur_best_model={cur_best_model}')
+            model_param = cur_best_model["Model_Param"]
+            self.load_single_model(model_param)
+            if self.role == consts.PROMOTER:
+                iteration = model_param['iters']
+                self.n_iter_ = iteration + 1
+                self.iter_transfer.sync_cur_iter(self.n_iter_)
+            else:
+                self.n_iter_ = self.iter_transfer.get_cur_iter()
+            self.tracker.set_task_progress(self.n_iter_)
+            w = self.model_weights.unboxed
+
         last_models = copy.deepcopy(self.model_weights)
-        # self.callback_warm_start_init_iter(self.n_iter_)
         LOGGER.info(f'batch_size={self.batch_size}')
         self.batch_generator.initialize_batch_generator(data_instances, batch_size=self.batch_size)
 
@@ -233,9 +255,8 @@ class VertLRBase(BaseLRModel, ABC):
                                                               self.encrypted_mode_calculator_param.re_encrypted_rate))
 
             while self.n_iter_ < self.max_iter:
-                self.callback_list.on_epoch_begin(self.n_iter_)
+                # self.callback_list.on_epoch_begin(self.n_iter_)
                 LOGGER.info(f"start to n_iter: {self.n_iter_}")
-
                 loss_list = []
 
                 self.optimizer.set_iters(self.n_iter_)
@@ -269,6 +290,8 @@ class VertLRBase(BaseLRModel, ABC):
                                                          features=batch_data,
                                                          suffix=current_suffix,
                                                          cipher=self.cipher_tool[batch_idx])
+
+                    LOGGER.debug(f'self_g={self_g}, remote_g={remote_g}')
 
                     # loss computing;
                     suffix = ("loss",) + current_suffix
@@ -318,7 +341,10 @@ class VertLRBase(BaseLRModel, ABC):
                 if self.role == consts.PROMOTER:
                     loss = np.sum(loss_list) / instances_count
                     self.loss_history.append(loss)
-                    if self.need_call_back_loss:
+                    # if self.need_call_back_loss:
+                    LOGGER.debug(f'iter={self.n_iter_}, loss={loss}')
+                    if not self.in_one_vs_rest:
+                        LOGGER.debug("save loss....")
                         self.callback_loss(self.n_iter_, loss)
                 else:
                     loss = None
@@ -341,12 +367,17 @@ class VertLRBase(BaseLRModel, ABC):
                 else:
                     raise ValueError(f"Cannot recognize early_stop function: {self.converge_func_name}")
 
-                LOGGER.info("iter: {},  is_converged: {}".format(self.n_iter_, self.is_converged))
-                self.callback_list.on_epoch_end(self.n_iter_)
-                self.n_iter_ += 1
+                if self.validation_strategy:
+                    LOGGER.debug('LR provider running validation')
+                    self.validation_strategy.validate(self, self.n_iter_)
+                    if self.validation_strategy.need_stop():
+                        LOGGER.debug('early stopping triggered')
+                        break
 
-                if self.stop_training:
-                    break
+                LOGGER.info("iter: {},  is_converged: {}".format(self.n_iter_, self.is_converged))
+                self.tracker.save_training_best_model(self.export_model())
+                self.tracker.add_task_progress(1)
+                self.n_iter_ += 1
 
                 if self.is_converged:
                     break
@@ -354,12 +385,18 @@ class VertLRBase(BaseLRModel, ABC):
             # Finally reconstruct
             if not self.reveal_every_iter:
                 new_w = self.reveal_models(w_self, w_remote, suffix=("final",))
+                LOGGER.debug(f'new_w={new_w}')
                 if new_w is not None:
                     self.model_weights = LRModelWeights(w=new_w,
                                                         fit_intercept=self.model_param.init_param.fit_intercept)
+                    LOGGER.debug(f'model_weights={self.model_weights}')
+
+        if self.validation_strategy and self.validation_strategy.has_saved_best_model():
+            self.load_model(self.validation_strategy.cur_best_model)
 
         LOGGER.debug(f"loss_history: {self.loss_history}")
         self.set_summary(self.get_model_summary())
+        LOGGER.debug(f'summary:{self.summary()}')
 
     def reveal_models(self, w_self, w_remote, suffix=None):
         if suffix is None:
@@ -449,18 +486,17 @@ class VertLRBase(BaseLRModel, ABC):
         return is_converge
 
     def _get_meta(self):
-        # meta_protobuf_obj = lr_model_meta_pb2.LRModelMeta(penalty=self.model_param.penalty,
-        #                                                   tol=self.model_param.tol,
-        #                                                   alpha=self.alpha,
-        #                                                   optimizer=self.model_param.optimizer,
-        #                                                   batch_size=self.batch_size,
-        #                                                   learning_rate=self.model_param.learning_rate,
-        #                                                   max_iter=self.max_iter,
-        #                                                   early_stop=self.model_param.early_stop,
-        #                                                   fit_intercept=self.fit_intercept,
-        #                                                   need_one_vs_rest=self.need_one_vs_rest,
-        #                                                   reveal_strategy=self.model_param.reveal_strategy)
-        return None
+        meta_protobuf_obj = lr_model_meta_pb2.LRModelMeta(penalty=self.model_param.penalty,
+                                                          tol=self.model_param.tol,
+                                                          alpha=self.alpha,
+                                                          optimizer=self.model_param.optimizer,
+                                                          batch_size=self.batch_size,
+                                                          learning_rate=self.model_param.learning_rate,
+                                                          max_iter=self.max_iter,
+                                                          early_stop=self.model_param.early_stop,
+                                                          fit_intercept=self.fit_intercept,
+                                                          need_one_vs_rest=self.need_one_vs_rest)
+        return meta_protobuf_obj
 
     def get_single_model_param(self, model_weights=None, header=None):
         header = header if header else self.header
@@ -532,20 +568,20 @@ class VertLRBase(BaseLRModel, ABC):
             self.load_single_model(result_obj)
             self.need_one_vs_rest = False
 
-    def load_single_model(self, single_model_obj):
-        LOGGER.info("It's a binary task, start to load single model")
-
-        if self.role == consts.PROMOTER or self.is_respectively_reveal:
-            feature_shape = len(self.header)
-            tmp_vars = np.zeros(feature_shape)
-            weight_dict = dict(single_model_obj.weight)
-
-            for idx, header_name in enumerate(self.header):
-                tmp_vars[idx] = weight_dict.get(header_name)
-
-            if self.fit_intercept:
-                tmp_vars = np.append(tmp_vars, single_model_obj.intercept)
-            self.model_weights = LRModelWeights(tmp_vars, fit_intercept=self.fit_intercept)
-
-        self.n_iter_ = single_model_obj.iters
-        return self
+    # def load_single_model(self, single_model_obj):
+    #     LOGGER.info("It's a binary task, start to load single model")
+    #
+    #     if self.role == consts.PROMOTER or self.is_respectively_reveal:
+    #         feature_shape = len(self.header)
+    #         tmp_vars = np.zeros(feature_shape)
+    #         weight_dict = dict(single_model_obj.weight)
+    #
+    #         for idx, header_name in enumerate(self.header):
+    #             tmp_vars[idx] = weight_dict.get(header_name)
+    #
+    #         if self.fit_intercept:
+    #             tmp_vars = np.append(tmp_vars, single_model_obj.intercept)
+    #         self.model_weights = LRModelWeights(tmp_vars, fit_intercept=self.fit_intercept)
+    #
+    #     self.n_iter_ = single_model_obj.iters
+    #     return self

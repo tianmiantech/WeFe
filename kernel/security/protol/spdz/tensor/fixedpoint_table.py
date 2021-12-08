@@ -170,12 +170,13 @@ class FixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
+        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if is_table(source):
             source = encoder.encode(source)
-            _pre = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
+            _pre = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
             spdz.communicator.remote_share(share=_pre, tensor_name=tensor_name, party=spdz.other_parties[0])
             for _party in spdz.other_parties[1:]:
-                r = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
+                r = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
                 spdz.communicator.remote_share(share=_table_binary_mod_op(r, _pre, q_field, operator.sub),
                                                tensor_name=tensor_name, party=_party)
                 _pre = r
@@ -377,9 +378,9 @@ class PaillierFixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-        q_field_int = q_field // 2 - 1
+        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if is_table(source):
-            _pre = urand_tensor(q_field_int, source, use_mix=spdz.use_mix_rand)
+            _pre = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
 
             share = _pre
 

@@ -81,9 +81,8 @@ class SecureMatrix(object):
             return share_tensor
 
         else:
-            share = self.transfer_variable.encrypted_share_matrix.get(role=dst_role,
-                                                                      idx=0,
-                                                                      suffix=current_suffix)
+            share = self.transfer_variable.encrypted_share_matrix.get_parties(parties=self.other_party,
+                                                                              suffix=current_suffix)[0]
 
             if is_table(share):
                 share = fixedpoint_table.PaillierFixedPointTensor(share)

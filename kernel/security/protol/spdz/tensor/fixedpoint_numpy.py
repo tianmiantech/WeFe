@@ -36,7 +36,7 @@ from kernel.security.protol.spdz.tensor import fixedpoint_table
 from kernel.security.protol.spdz.tensor.base import TensorBase
 # from kernel.security.protol.spdz.tensor.fixedpoint_endec import FixedPointEndec
 from kernel.security.protol.spdz.utils.random_utils import urand_tensor
-from kernel.utils import LOGGER
+from kernel.utils import LOGGER, consts
 
 
 class FixedPointTensor(TensorBase):
@@ -98,13 +98,13 @@ class FixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-        q_field = q_field // 2 - 1
+        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if isinstance(source, np.ndarray):
             source = encoder.encode(source)
-            _pre = urand_tensor(q_field, source)
+            _pre = urand_tensor(max_rand, source)
             spdz.communicator.remote_share(share=_pre, tensor_name=tensor_name, party=spdz.other_parties[0])
             for _party in spdz.other_parties[1:]:
-                r = urand_tensor(q_field, source)
+                r = urand_tensor(max_rand, source)
                 spdz.communicator.remote_share(share=(r - _pre) % q_field, tensor_name=tensor_name, party=_party)
                 _pre = r
             share = (source - _pre) % q_field
@@ -354,12 +354,13 @@ class PaillierFixedPointTensor(TensorBase):
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
 
+        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if isinstance(source, np.ndarray):
-            _pre = urand_tensor(q_field // 2 - 1, source)
+            _pre = urand_tensor(max_rand, source)
 
             share = _pre
 
-            spdz.communicator.remote_share(share=source - encoder.decode(_pre),
+            spdz.communicator.remote_share(share=source - encoder.decode(_pre) % q_field,
                                            tensor_name=tensor_name,
                                            party=spdz.other_parties[-1])
 

@@ -62,7 +62,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
 
     # initialize handler
     job_id = "job_" + time.strftime("%Y%m%d%H%M%S")
-    job_id = 'job_20211201085309'
+    # job_id = 'job_20211201085309'
     handler = Handler(job_id=job_id, backend=backend, work_mode=work_mode,
                       db_type=db_type, fl_type='vertical')
     handler.set_initiator(role='promoter', member_id=promoter)

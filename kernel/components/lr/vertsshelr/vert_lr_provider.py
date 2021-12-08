@@ -33,6 +33,7 @@ import numpy as np
 
 from kernel.components.lr.lr_model_weight import LRModelWeights
 from kernel.components.lr.vertsshelr.vert_lr_base import VertLRBase
+from kernel.protobuf.generated import lr_model_param_pb2
 from kernel.security.paillier import PaillierPublicKey, PaillierEncryptedNumber
 from kernel.security.protol.spdz.secure_matrix.secure_matrix import SecureMatrix
 from kernel.security.protol.spdz.tensor import fixedpoint_table, fixedpoint_numpy
@@ -94,7 +95,7 @@ class VertLRProvider(VertLRBase):
         batch_num = self.batch_num[int(suffix[1])]
 
         ga = features.dot_local(error)
-        # LOGGER.debug(f"ga: {ga}, batch_num: {batch_num}")
+        LOGGER.debug(f"ga: {ga}, batch_num: {batch_num}")
         ga = ga * (1 / batch_num)
 
         zb_suffix = ("ga2",) + suffix
@@ -103,7 +104,7 @@ class VertLRProvider(VertLRBase):
                                                          cipher=None,
                                                          suffix=zb_suffix)
 
-        # LOGGER.debug(f"ga2_1: {ga2_1}")
+        LOGGER.debug(f"ga2_1: {ga2_1}")
 
         ga_new = ga + ga2_1
 
@@ -115,7 +116,7 @@ class VertLRProvider(VertLRBase):
                                        self.fixedpoint_encoder,
                                        is_fixedpoint_table=False)
 
-        # LOGGER.debug(f"gb1: {gb1}")
+        LOGGER.debug(f"gb1: {gb1}")
 
         return ga_new, gb1
 
@@ -177,7 +178,7 @@ class VertLRProvider(VertLRBase):
 
     def _reveal_every_iter_weights_check(self, last_w, new_w, suffix):
         square_sum = np.sum((last_w - new_w) ** 2)
-        self.converge_transfer_variable.square_sum.remote(square_sum, role=consts.GUEST, idx=0, suffix=suffix)
+        self.converge_transfer_variable.square_sum.remote(square_sum, role=consts.PROMOTER, idx=0, suffix=suffix)
         return self.converge_transfer_variable.converge_info.get(idx=0, suffix=suffix)
 
     def predict(self, data_instances):
@@ -197,56 +198,54 @@ class VertLRProvider(VertLRBase):
         f = functools.partial(_vec_dot,
                               coef=self.model_weights.coef_,
                               intercept=self.model_weights.intercept_)
-        prob_host = data_instances.mapValues(f)
-        self.transfer_variable.host_prob.remote(prob_host, role=consts.GUEST, idx=0)
-        LOGGER.info("Remote probability to Guest")
+        provider_prob = data_instances.mapValues(f)
+        self.transfer_variable.provider_prob.remote(provider_prob, role=consts.PROMOTER, idx=0)
+        LOGGER.info("Remote probability to Promoter")
 
     def get_single_model_param(self, model_weights=None, header=None):
         pass
-        # todo
-        # result = super().get_single_model_param(model_weights, header)
-        # if not self.is_respectively_reveal:
-        #     weight_dict = {}
-        #     model_weights = model_weights if model_weights else self.model_weights
-        #     header = header if header else self.header
-        #     for idx, header_name in enumerate(header):
-        #         coef_i = model_weights.coef_[idx]
-        #
-        #         is_obfuscator = False
-        #         if hasattr(coef_i, "__is_obfuscator"):
-        #             is_obfuscator = getattr(coef_i, "__is_obfuscator")
-        #
-        #         public_key = lr_model_param_pb2.CipherPublicKey(n=str(coef_i.public_key.n))
-        #         weight_dict[header_name] = lr_model_param_pb2.CipherText(public_key=public_key,
-        #                                                                  cipher_text=str(coef_i.ciphertext()),
-        #                                                                  exponent=str(coef_i.exponent),
-        #                                                                  is_obfuscator=is_obfuscator)
-        #     result["encrypted_weight"] = weight_dict
-        #
-        # return result
+        result = super().get_single_model_param(model_weights, header)
+        if not self.is_respectively_reveal:
+            weight_dict = {}
+            model_weights = model_weights if model_weights else self.model_weights
+            header = header if header else self.header
+            for idx, header_name in enumerate(header):
+                coef_i = model_weights.coef_[idx]
+
+                is_obfuscator = False
+                if hasattr(coef_i, "__is_obfuscator"):
+                    is_obfuscator = getattr(coef_i, "__is_obfuscator")
+
+                public_key = lr_model_param_pb2.CipherPublicKey(n=str(coef_i.public_key.n))
+                weight_dict[header_name] = lr_model_param_pb2.CipherText(public_key=public_key,
+                                                                         cipher_text=str(coef_i.ciphertext()),
+                                                                         exponent=str(coef_i.exponent),
+                                                                         is_obfuscator=is_obfuscator)
+            result["encrypted_weight"] = weight_dict
+
+        return result
 
     def _get_param(self):
         pass
-        # todo
-        # if self.need_cv:
-        #     param_protobuf_obj = lr_model_param_pb2.LRModelParam()
-        #     return param_protobuf_obj
-        #
-        # self.header = self.header if self.header else []
-        # LOGGER.debug("In get_param, self.need_one_vs_rest: {}".format(self.need_one_vs_rest))
-        #
-        # if self.need_one_vs_rest:
-        #     one_vs_rest_result = self.one_vs_rest_obj.save(lr_model_param_pb2.SingleModel)
-        #     single_result = {'header': self.header, 'need_one_vs_rest': True, "best_iteration": -1}
-        # else:
-        #     one_vs_rest_result = None
-        #     single_result = self.get_single_model_param()
-        #     single_result['need_one_vs_rest'] = False
-        # single_result['one_vs_rest_result'] = one_vs_rest_result
-        #
-        # param_protobuf_obj = lr_model_param_pb2.LRModelParam(**single_result)
-        #
-        # return param_protobuf_obj
+        if self.need_cv:
+            param_protobuf_obj = lr_model_param_pb2.LRModelParam()
+            return param_protobuf_obj
+
+        self.header = self.header if self.header else []
+        LOGGER.debug("In get_param, self.need_one_vs_rest: {}".format(self.need_one_vs_rest))
+
+        if self.need_one_vs_rest:
+            one_vs_rest_result = self.one_vs_rest_obj.save(lr_model_param_pb2.SingleModel)
+            single_result = {'header': self.header, 'need_one_vs_rest': True, "best_iteration": -1}
+        else:
+            one_vs_rest_result = None
+            single_result = self.get_single_model_param()
+            single_result['need_one_vs_rest'] = False
+        single_result['one_vs_rest_result'] = one_vs_rest_result
+
+        param_protobuf_obj = lr_model_param_pb2.LRModelParam(**single_result)
+
+        return param_protobuf_obj
 
     def load_single_model(self, single_model_obj):
         super(VertLRProvider, self).load_single_model(single_model_obj)

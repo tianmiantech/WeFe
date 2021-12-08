@@ -33,6 +33,7 @@ import numpy as np
 
 from kernel.components.lr.vertsshelr.vert_lr_base import VertLRBase
 from kernel.optimizer import activation
+from kernel.protobuf.generated import lr_model_param_pb2
 from kernel.security import PaillierEncrypt
 from kernel.security.paillier import PaillierPublicKey, PaillierPrivateKey
 from kernel.security.protol.spdz.secure_matrix.secure_matrix import SecureMatrix
@@ -207,15 +208,15 @@ class VertLRPromoter(VertLRBase):
 
     def _reveal_every_iter_weights_check(self, last_w, new_w, suffix):
         square_sum = np.sum((last_w - new_w) ** 2)
-        host_sums = self.converge_transfer_variable.square_sum.get(suffix=suffix)
-        for hs in host_sums:
+        provider_sums = self.converge_transfer_variable.square_sum.get(suffix=suffix)
+        for hs in provider_sums:
             square_sum += hs
         weight_diff = np.sqrt(square_sum)
         is_converge = False
         if weight_diff < self.model_param.tol:
             is_converge = True
         LOGGER.info(f"n_iter: {self.n_iter_}, weight_diff: {weight_diff}")
-        self.converge_transfer_variable.converge_info.remote(is_converge, role=consts.HOST, suffix=suffix)
+        self.converge_transfer_variable.converge_info.remote(is_converge, role=consts.PROVIDER, suffix=suffix)
         return is_converge
 
     @assert_io_num_rows_equal
@@ -247,15 +248,15 @@ class VertLRPromoter(VertLRBase):
                               intercept=self.model_weights.intercept_)
 
         pred_prob = data_instances.mapValues(f)
-        host_probs = self.transfer_variable.host_prob.get(idx=-1)
+        provider_probs = self.transfer_variable.provider_prob.get(idx=-1)
 
-        LOGGER.info("Get probability from Host")
+        LOGGER.info("Get probability from Provider")
 
-        # guest probability
-        for host_prob in host_probs:
+        # Promoter probability
+        for provider_prob in provider_probs:
             if not self.is_respectively_reveal:
-                host_prob = self.cipher.distribute_decrypt(host_prob)
-            pred_prob = pred_prob.join(host_prob, lambda g, h: g + h)
+                provider_prob = self.cipher.distribute_decrypt(provider_prob)
+            pred_prob = pred_prob.join(provider_prob, lambda g, h: g + h)
         pred_prob = pred_prob.mapValues(lambda p: activation.sigmoid(p))
         threshold = self.model_param.predict_param.threshold
         predict_result = self.predict_score_to_output(data_instances, pred_prob, classes=[0, 1], threshold=threshold)
@@ -264,23 +265,22 @@ class VertLRPromoter(VertLRBase):
 
     def _get_param(self):
         pass
-        # todo
-        # if self.need_cv:
-        #     param_protobuf_obj = lr_model_param_pb2.LRModelParam()
-        #     return param_protobuf_obj
-        #
-        # if self.need_one_vs_rest:
-        #     one_vs_rest_result = self.one_vs_rest_obj.save(lr_model_param_pb2.SingleModel)
-        #     single_result = {'header': self.header, 'need_one_vs_rest': True, "best_iteration": -1}
-        # else:
-        #     one_vs_rest_result = None
-        #     single_result = self.get_single_model_param()
-        #
-        #     single_result['need_one_vs_rest'] = False
-        # single_result['one_vs_rest_result'] = one_vs_rest_result
-        # LOGGER.debug(f"saved_model: {single_result}")
-        # param_protobuf_obj = lr_model_param_pb2.LRModelParam(**single_result)
-        # return param_protobuf_obj
+        if self.need_cv:
+            param_protobuf_obj = lr_model_param_pb2.LRModelParam()
+            return param_protobuf_obj
+
+        if self.need_one_vs_rest:
+            one_vs_rest_result = self.one_vs_rest_obj.save(lr_model_param_pb2.SingleModel)
+            single_result = {'header': self.header, 'need_one_vs_rest': True, "best_iteration": -1}
+        else:
+            one_vs_rest_result = None
+            single_result = self.get_single_model_param()
+
+            single_result['need_one_vs_rest'] = False
+        single_result['one_vs_rest_result'] = one_vs_rest_result
+        LOGGER.debug(f"saved_model: {single_result}")
+        param_protobuf_obj = lr_model_param_pb2.LRModelParam(**single_result)
+        return param_protobuf_obj
 
     def get_single_model_param(self, model_weights=None, header=None):
         result = super().get_single_model_param(model_weights, header)

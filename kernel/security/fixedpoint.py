@@ -49,8 +49,6 @@ import sys
 
 import numpy as np
 
-from kernel.utils import LOGGER
-
 
 class FixedPointNumber(object):
     """Represents a float or int fixedpoint encoding;.
@@ -106,23 +104,22 @@ class FixedPointNumber(object):
                 flt_exponent = math.frexp(scalar)[1]
                 lsb_exponent = cls.FLOAT_MANTISSA_BITS - flt_exponent
                 exponent = math.floor(lsb_exponent / cls.LOG2_BASE)
-                LOGGER.debug(
-                    f'flt_exponent={flt_exponent},lsb_exponent={lsb_exponent}, exponent={exponent}, max_exponent={max_exponent}')
             else:
                 raise TypeError("Don't know the precision of type %s."
                                 % type(scalar))
         else:
             exponent = cls.calculate_exponent_from_precision(precision)
 
+        old_exponent = exponent
         if max_exponent is not None:
             exponent = max(max_exponent, exponent)
 
         int_fixpoint = int(round(scalar * pow(cls.BASE, exponent)))
 
-        # if abs(int_fixpoint) > max_int:
-        #     raise ValueError(f"Integer needs to be within +/- {max_int}, n={n},but got {int_fixpoint},"
-        #                      f"basic info, scalar={scalar}, base={cls.BASE}, exponent={exponent}, precision={precision}"
-        #                      )
+        if abs(int_fixpoint) > max_int:
+            raise ValueError(f"Integer needs to be within +/- {max_int}, n={n},but got {int_fixpoint},"
+                             f"basic info, scalar={scalar}, base={cls.BASE}, exponent={exponent}, old_exponent={old_exponent}, precision={precision}, max_exponent={max_exponent}"
+                             )
 
         return cls(int_fixpoint % n, exponent, n, max_int)
 
@@ -154,8 +151,6 @@ class FixedPointNumber(object):
 
         factor = pow(self.BASE, new_exponent - self.exponent)
         new_encoding = self.encoding * factor % self.n
-        if new_encoding > self.max_int:
-            LOGGER.debug(f'new_encoding={new_encoding},new_exponent={new_exponent},encoding={self.encoding},self.max_int={self.max_int}')
 
         return FixedPointNumber(new_encoding, new_exponent, self.n, self.max_int)
 
@@ -403,3 +398,13 @@ class FixedPointEndec(object):
 
     def truncate(self, integer_tensor, *args, **kwargs):
         return self._transform_op(integer_tensor, op=self._truncate)
+
+
+if __name__ == '__main__':
+    endec = FixedPointEndec()
+    x = [endec.encode(0.1), endec.encode(0.2), endec.encode(0.5)]
+    y = [10, 20, 30]
+
+    value = np.dot(x, y) % endec.n
+    ret = endec.truncate(value)
+    print(endec.decode(ret))

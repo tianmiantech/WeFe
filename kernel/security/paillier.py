@@ -30,11 +30,8 @@
 
 import random
 
-from common.python.utils import log_utils
 from kernel.security import gmpy_math
 from kernel.security.fixedpoint import FixedPointNumber
-
-LOGGER = log_utils.get_logger()
 
 
 class PaillierKeypair(object):
@@ -47,6 +44,7 @@ class PaillierKeypair(object):
         """
         p = q = n = None
         n_len = 0
+
         while n_len != n_length:
             p = gmpy_math.getprimeover(n_length // 2)
             q = p
@@ -112,9 +110,8 @@ class PaillierPublicKey(object):
         """Encode and Paillier encrypt a real number value.
         """
         if isinstance(value, FixedPointNumber):
-            encoding = value
-        else:
-            encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
+            value = value.decode()
+        encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
         obfuscator = random_value or 1
         ciphertext = self.raw_encrypt(encoding.encoding, random_value=obfuscator)
         encryptednumber = PaillierEncryptedNumber(self, ciphertext, encoding.exponent)
@@ -269,7 +266,8 @@ class PaillierEncryptedNumber(object):
     def __mul__(self, scalar, in_gpu=False):
         """return Multiply by an scalar(such as int, float)
         """
-
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encode = FixedPointNumber.encode(scalar, self.public_key.n, self.public_key.max_int)
         plaintext = encode.encoding
 
@@ -326,6 +324,11 @@ class PaillierEncryptedNumber(object):
     def __add_scalar(self, scalar, in_gpu=False):
         """return PaillierEncryptedNumber: z = E(x) + y
         """
+        if isinstance(scalar, FixedPointNumber):
+            from kernel.utils import LOGGER
+            LOGGER.debug(
+                f'bbbbb-scalar:{scalar.n},{scalar.max_int},public_key:{self.public_key.n},{self.public_key.max_int}')
+            scalar = scalar.decode()
         encoded = FixedPointNumber.encode(scalar,
                                           self.public_key.n,
                                           self.public_key.max_int,
@@ -373,9 +376,9 @@ class PaillierEncryptedNumber(object):
     def __raw_add(self, e_x, e_y, exponent):
         """return the integer E(x + y) given ints E(x) and E(y).
         """
-        ciphertext = e_x * e_y % self.public_key.nsquare
+        ciphertext = gmpy_math.mpz(e_x) * gmpy_math.mpz(e_y) % self.public_key.nsquare
 
-        return PaillierEncryptedNumber(self.public_key, ciphertext, exponent)
+        return PaillierEncryptedNumber(self.public_key, int(ciphertext), exponent)
 
     """
         gpu support

@@ -8,12 +8,18 @@
         "provider"
       ]
     },
-    "host_prob": {
+    "provider_prob": {
       "src": [
         "provider"
       ],
       "dst": [
         "promoter"
+      ]
+    },
+    "begin_iter": {
+      "src": "promoter",
+      "dst": [
+        "provider"
       ]
     },
     "loss": {
