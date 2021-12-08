@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.decompression;
+package com.welab.wefe.common.file.decompression;
 
-import com.welab.wefe.common.decompression.dto.DecompressionResult;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.log4j.Logger;
 

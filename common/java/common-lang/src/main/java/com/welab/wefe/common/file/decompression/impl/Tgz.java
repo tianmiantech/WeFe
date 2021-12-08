@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.decompression.impl;
+package com.welab.wefe.common.file.decompression.impl;
 
-import com.welab.wefe.common.decompression.AbstractDecompression;
-import com.welab.wefe.common.decompression.dto.DecompressionResult;
+import com.welab.wefe.common.file.decompression.AbstractDecompression;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
