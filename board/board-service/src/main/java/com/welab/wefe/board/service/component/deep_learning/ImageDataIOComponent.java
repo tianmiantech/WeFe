@@ -31,7 +31,12 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.ClassifyImageDataSetParser;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.DetectionImageDataSetParser;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -52,6 +57,12 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
     @Autowired
     private ImageDataSetService imageDataSetService;
+    @Autowired
+    private ImageDataSetSampleService imageDataSetSampleService;
+    @Autowired
+    private DetectionImageDataSetParser detectionImageDataSetParser;
+    @Autowired
+    private ClassifyImageDataSetParser classifyImageDataSetParser;
 
     @Override
     public ComponentType taskType() {
@@ -98,7 +109,7 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws Exception {
         DataSetItem myDataSetConfig = params.getDataSetList()
                 .stream()
                 .filter(x ->
@@ -111,6 +122,18 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         ImageDataSetMysqlModel myDataSet = imageDataSetService.findOneById(myDataSetConfig.dataSetId);
 
         JObject output = JObject.create(myDataSet);
+
+
+        // 生成数据集文件
+        AbstractImageDataSetParser
+                .getParser(myDataSet.getForJobType())
+                .parseSamplesToDataSetFile(
+                        graph.getJob().getJobId(),
+                        myDataSet,
+                        imageDataSetSampleService.allLabeled(myDataSetConfig.dataSetId),
+                        params.trainTestSplitRatio
+                );
+
 
         return output;
     }
@@ -138,6 +161,15 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
     public static class Params extends AbstractDataIOParam<DataSetItem> {
         @Check(name = "数据集切割比例", desc = "取值1-99，该值为训练集的百分比。", require = true)
         public int trainTestSplitRatio;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+
+            if (trainTestSplitRatio < 1 || trainTestSplitRatio > 99) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("数据集切割比例(训练:测试)，取值必须在 1-99 之间，当前取值：" + trainTestSplitRatio);
+            }
+        }
 
         public void fillDataSetDetail() throws StatusCodeWithException {
 

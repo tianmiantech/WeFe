@@ -78,6 +78,17 @@ public class LabelInfo extends AbstractCheckModel {
             this.points.add(new Point(minX, minY));
             this.points.add(new Point(maxX, maxY));
         }
+
+        public Object toLabelObject() {
+            Object object = new Object();
+            LabelInfo.Point point1 = points.get(0);
+            LabelInfo.Point point2 = points.get(1);
+            object.bndbox = new Bndbox(point1.x, point1.y, point2.x, point2.y);
+            object.name = label;
+            object.difficult = difficult ? 1 : 0;
+            object.truncated = truncated ? 1 : 0;
+            return object;
+        }
     }
 
     public static class Point extends AbstractCheckModel {

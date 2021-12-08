@@ -40,25 +40,14 @@ public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
-        File file = imageDataSetService.download(input.id);
+        File file = imageDataSetService.download(input.dataSetId, input.jobId);
         return file(file);
     }
 
     public static class Input extends AbstractApiInput {
         @Check(name = "数据集 Id", require = true)
-        private String id;
+        public String dataSetId;
+        public String jobId;
 
-        //region getter/setter
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-
-        //endregion
     }
 }

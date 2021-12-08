@@ -25,8 +25,6 @@ import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpd
 import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.ClassifyImageDataSetParser;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.DetectionImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -54,10 +52,6 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private ImageDataSetSampleRepository imageDataSetSampleRepository;
-    @Autowired
-    private DetectionImageDataSetParser detectionImageDataSetParser;
-    @Autowired
-    private ClassifyImageDataSetParser classifyImageDataSetParser;
 
     @Override
     protected void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
@@ -72,18 +66,11 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         try {
             fileDecompressionResult = SuperDecompressor.decompression(inputFile, true);
             dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
-            AbstractImageDataSetParser dataSetParser = null;
-            switch (input.forJobType) {
-                case classify:
-                    dataSetParser = classifyImageDataSetParser;
-                    break;
-                case detection:
-                    dataSetParser = detectionImageDataSetParser;
-                    break;
-                default:
-                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
-            }
-            sampleList = dataSetParser.parseFilesToSamples(model, fileDecompressionResult.files);
+
+            sampleList = AbstractImageDataSetParser
+                    .getParser(input.forJobType)
+                    .parseFilesToSamples(model, fileDecompressionResult.files);
+
             setImageDataSetModel(input, model, sampleList);
             dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
         } catch (Exception e) {

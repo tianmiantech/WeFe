@@ -20,17 +20,17 @@ import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMy
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.file.compression.impl.Tgz;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
  * @author zane
  * @date 2021/11/26
  */
-@Service
 public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
 
     /**
@@ -61,7 +60,100 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
     private static final String TRAIN_LIST_FILE_NAME = "train_list.txt";
     private static final String VAL_LIST_FILE_NAME = "val_list.txt";
     private static final Pattern SAMPLE_LABEL_PATTERN = Pattern.compile("^(?<sample>.+)\\s+(?<index>\\d+)\\s*$");
+    private static final String IMAGE_DIR_NAME = "jpg";
 
+    /********** ↓ 导出数据集 ↓ **********/
+
+    /**
+     * 目录结构：
+     * image.tgz
+     * ****jpg/
+     * ********name1.jpg
+     * ********name2.jpg
+     * label_list.txt
+     * train_list.txt
+     * val_list.txt
+     */
+    @Override
+    protected void emitSamplesToDataSetFileDir(ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> trainSamples, List<ImageDataSetSampleMysqlModel> testSamples, Path outputDir) throws Exception {
+        List<String> labelList = emitLabelListFile(dataSet, outputDir);
+
+        emitSamples(true, trainSamples, outputDir, labelList);
+        emitSamples(false, testSamples, outputDir, labelList);
+
+        // 将 jpg 目录压缩为 image.tgz
+        Path imageDir = Paths.get(outputDir.toString(), IMAGE_DIR_NAME);
+        Path imageTgzPath = Paths.get(outputDir.toString(), IMAGE_DIR_NAME, "image.tgz");
+        new Tgz().compression(
+                imageDir.toString(),
+                imageTgzPath.toString()
+        );
+        // 删除 jpg 目录
+        FileUtil.deleteFileOrDir(imageDir.toString());
+
+    }
+
+    private void emitSamples(boolean isTrain, List<ImageDataSetSampleMysqlModel> samples, Path outputDir, List<String> labelList) throws IOException {
+        StringBuilder labeledListString = new StringBuilder();
+        for (ImageDataSetSampleMysqlModel sample : samples) {
+            // 拷贝图片到输出目录
+            emitImageFile(outputDir, sample);
+
+            // 输出标注信息
+            int index = labelList.indexOf(sample.getLabelList());
+            labeledListString
+                    .append(sample.getFileName())
+                    .append(" ")
+                    .append(index)
+                    .append(System.lineSeparator());
+        }
+        // 标注信息写文件
+        FileUtil.writeTextToFile(
+                labeledListString.toString(),
+                Paths.get(
+                        outputDir.toString(),
+                        isTrain ? TRAIN_LIST_FILE_NAME : VAL_LIST_FILE_NAME
+                ),
+                false
+        );
+    }
+
+    /**
+     * 拷贝图片文件到输出目录
+     */
+    private void emitImageFile(Path outputDir, ImageDataSetSampleMysqlModel sample) throws IOException {
+        Files.copy(
+                Paths.get(sample.getFilePath()),
+                Paths.get(outputDir.toString(), IMAGE_DIR_NAME, sample.getFileName())
+        );
+    }
+
+    private List<String> emitLabelListFile(ImageDataSetMysqlModel dataSet, Path outputDir) throws IOException {
+        Set<String> labelSet = new TreeSet<>();
+        for (String label : dataSet.getLabelList().split(",")) {
+            labelSet.add(label);
+        }
+        List<String> labelList = new ArrayList<>();
+        labelList.addAll(labelSet);
+
+        String labelListStr = "";
+        for (int i = 0; i < labelList.size(); i++) {
+            String label = labelList.get(i);
+            labelListStr += label + " " + i + System.lineSeparator();
+        }
+        FileUtil.writeTextToFile(
+                labelListStr.trim(),
+                Paths.get(
+                        outputDir.toString(),
+                        LABEL_LIST_FILE_NAME
+                ),
+                false
+        );
+        return labelList;
+    }
+
+
+    /********** ↓ 导入数据集 ↓ **********/
     @Override
     protected List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, Map<String, File> imageFiles, Map<String, File> xmlFiles, Map<String, File> txtFiles) throws Exception {
 
@@ -93,6 +185,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
 
         return result;
     }
+
 
     /**
      * 解析标注文件，生成样本与 label 需要的映射表。

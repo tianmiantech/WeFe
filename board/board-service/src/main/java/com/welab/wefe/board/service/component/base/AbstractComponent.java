@@ -106,7 +106,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -241,7 +241,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -715,7 +715,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Assemble the input parameters of the task according to the component configuration
      */
-    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws StatusCodeWithException;
+    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws Exception;
 
     public abstract ComponentType taskType();
 

@@ -90,7 +90,7 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
 
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
-        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
+        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId));
 
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
@@ -99,11 +99,13 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         return output;
     }
 
-    private String buildDataSetDownloadUrl(String id) {
+    private String buildDataSetDownloadUrl(String dataSetId, String jobId) {
         return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
-                + "/image_data_set/download?id=" + id;
+                + "/image_data_set/download?"
+                + "data_set_id=" + dataSetId
+                + "&job_id=" + jobId;
 
     }
 

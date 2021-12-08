@@ -35,7 +35,7 @@ public abstract class AbstractCompression {
     /**
      * 压缩文件夹至指定目录
      */
-    protected abstract File doCompression(Path srcDir, String destFileName) throws IOException;
+    protected abstract void doCompression(Path srcDir, String destFileName) throws IOException;
 
     protected abstract CompressionType getCompressionType();
 
@@ -65,6 +65,9 @@ public abstract class AbstractCompression {
             ).toString();
         }
 
-        return doCompression(srcPath, destFileName);
+        // 执行压缩
+        doCompression(srcPath, destFileName);
+
+        return new File(destFileName);
     }
 }
