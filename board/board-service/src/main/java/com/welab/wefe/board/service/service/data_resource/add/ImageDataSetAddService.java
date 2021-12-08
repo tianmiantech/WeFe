@@ -28,10 +28,10 @@ import com.welab.wefe.board.service.service.data_resource.image_data_set.data_se
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.ClassifyImageDataSetParser;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.DetectionImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.decompression.SuperDecompressor;
-import com.welab.wefe.common.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.file.decompression.SuperDecompressor;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;

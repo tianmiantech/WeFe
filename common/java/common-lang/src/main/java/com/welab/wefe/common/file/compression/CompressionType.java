@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.test;
-
-import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
-import com.welab.wefe.common.util.ZipUtil;
-
-import java.io.IOException;
+package com.welab.wefe.common.file.compression;
 
 /**
  * @author zane
- * @date 2021/11/8
+ * @date 2021/12/8
  */
-public class ZipUtilTest {
-    public static void main(String[] args) throws IOException {
-        DecompressionResult result = ZipUtil.unzipFile("/Users/zane/data/wefe_file_upload_dir/fl_fruit.zip");
+public enum CompressionType {
+    /**
+     *
+     */
+    Zip(".zip"),
+    Tgz(".tgz");
 
-        System.out.println(result);
+    private String suffix;
+
+    CompressionType(String suffix) {
+        this.suffix = suffix;
+    }
+
+    public String getSuffix() {
+        return suffix;
     }
 }

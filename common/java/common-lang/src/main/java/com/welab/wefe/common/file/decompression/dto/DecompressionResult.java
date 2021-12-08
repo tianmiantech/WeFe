@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.decompression.dto;
+package com.welab.wefe.common.file.decompression.dto;
 
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;

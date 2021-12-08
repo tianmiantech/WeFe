@@ -19,12 +19,14 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
 
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import jline.internal.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,7 +47,10 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
     @Override
     protected ApiResult<byte[][]> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
-
+        if (actuator == null) {
+            Log.error("Actuator not found,businessId is {}", input.getBusinessId());
+            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+        }
         return success(actuator.compute(input.getBs()));
     }
 
