@@ -46,7 +46,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
     public List<UnionNode> findAll(boolean status) {
         return mongoUnionTemplate.find(
                 new QueryBuilder()
-                        .append("status", String.valueOf(status ? 1 : 0))
+                        .append("status", status ? 1 : 0)
                         .build()
                 ,
                 UnionNode.class);

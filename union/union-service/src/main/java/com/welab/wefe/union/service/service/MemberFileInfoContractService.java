@@ -62,7 +62,7 @@ public class MemberFileInfoContractService extends AbstractContractService {
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_INSERT, transactionReceipt);
+                    .decodeReceiptWithValues(MemberFileInfoContract.ABI, MemberFileInfoContract.FUNC_INSERT, transactionReceipt);
 
             LOG.info("MemberFileInfo contract insert transaction, memberFileInfo id: {},  receipt response: {}", memberFileInfo.getId(), JObject.toJSON(transactionResponse).toString());
 
@@ -101,7 +101,7 @@ public class MemberFileInfoContractService extends AbstractContractService {
         list.add(memberFileInfo.getFileName());
         list.add(memberFileInfo.getFileSize());
         list.add(memberFileInfo.getMemberId());
-        list.add(memberFileInfo.getBlockchainNodeId());
+        list.add(StringUtil.isEmptyToBlank(memberFileInfo.getBlockchainNodeId()));
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getPurpose()));
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getDescribe()));
         list.add(memberFileInfo.getEnable());
