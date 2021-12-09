@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -292,6 +293,9 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+        LOG.info("bf is {}", JSON.toJSONString(      BloomFilterUtils.readFrom(
+                Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
+        )));
         /**
          * Generate the corresponding task handler
          */
