@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.fusion.actuator;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
@@ -232,11 +233,11 @@ public class ClientActuator extends PsiClientActuator {
         }
 
         LOG.info("qureyFusionData end,{}", JSON.toJSONString(result));
-        List<String> response = (List) result.data.get("data");
+        JSONArray response = result.data.getJSONArray("data");
 
         byte[][] ss = new byte[response.size()][];
         for (int i = 0; i < response.size(); i++) {
-            ss[i] = Base64Util.base64ToByteArray(response.get(i));
+            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
         }
 
         return ss;
