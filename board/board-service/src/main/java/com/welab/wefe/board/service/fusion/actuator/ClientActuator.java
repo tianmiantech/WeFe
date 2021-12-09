@@ -226,6 +226,7 @@ public class ClientActuator extends PsiClientActuator {
         try {
             result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, value), Object.class);
         } catch (MemberGatewayException e) {
+            LOG.info("error: {}",e);
             e.printStackTrace();
         }
 
