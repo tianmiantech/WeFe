@@ -116,6 +116,7 @@ public class DataSetOutputModel extends AbstractOutputModel {
      * 来源类型，枚举（原始、对齐、分箱）
      */
     private ComponentType sourceType;
+    
     /**
      * 来源任务id
      */
@@ -168,12 +169,16 @@ public class DataSetOutputModel extends AbstractOutputModel {
 
 
     //region getter/setter
-
+    
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public String getSourceTypeCn() {
+		return sourceType.getLabel();
+	}
+
+	public void setName(String name) {
         this.name = name;
     }
 
