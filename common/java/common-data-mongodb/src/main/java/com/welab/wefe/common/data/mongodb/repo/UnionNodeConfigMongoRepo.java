@@ -16,20 +16,11 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeConfig;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeSm2Config;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
-import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -44,12 +35,12 @@ public class UnionNodeConfigMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public UnionNodeConfig findAll() {
+    public UnionNodeSm2Config find() {
         return mongoUnionTemplate.findOne(
                 new QueryBuilder()
                         .sort("updateTime")
                         .build()
                 ,
-                UnionNodeConfig.class);
+                UnionNodeSm2Config.class);
     }
 }

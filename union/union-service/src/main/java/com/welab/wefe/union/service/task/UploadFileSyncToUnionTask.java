@@ -6,9 +6,10 @@ import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
-import com.welab.wefe.common.util.UrlUtil;
+import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.slf4j.Logger;
@@ -39,11 +40,26 @@ public class UploadFileSyncToUnionTask extends Thread {
             long retryInterval = 300 * i;
             HttpResponse response;
             String url = baseUrl + "/" + api;
+            String data = params.toJSONString();
 
-            url = UrlUtil.appendQueryParameters(url, params);
+            String sign;
+            try {
+                sign = SM2Util.sign(data, UnionNodeConfigCache.getSm2PrivateKey());
+            } catch (Exception e) {
+                LOG.error("sign error", e);
+                continue;
+            }
+
+            JObject reqeustBody = JObject.create();
+            reqeustBody.append("data", data);
+            reqeustBody.append("sign", sign);
+            reqeustBody.append("currentBlockchainNodeId", UnionNodeConfigCache.currentBlockchainNodeId);
+
             HttpRequest request = HttpRequest
                     .create(url)
                     .setContentType(HttpContentType.MULTIPART);
+
+            request.appendParameters(reqeustBody);
 
             for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
                 try {

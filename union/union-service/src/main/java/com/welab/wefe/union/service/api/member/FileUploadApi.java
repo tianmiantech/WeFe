@@ -34,10 +34,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
+import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
 import org.bson.Document;
-import org.fisco.bcos.sdk.client.protocol.response.NodeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
@@ -61,8 +61,6 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     @Autowired
     private MemberFileInfoContractService memberFileInfoContractService;
 
-    @Autowired
-    private String currentNodeId;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
@@ -122,7 +120,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         memberFileInfo.setFileName(fileName);
         memberFileInfo.setFileSign(fileSign);
         memberFileInfo.setFileSize(String.valueOf(fileSize));
-        memberFileInfo.setBlockchainNodeId(currentNodeId);
+        memberFileInfo.setBlockchainNodeId(UnionNodeConfigCache.currentBlockchainNodeId);
         memberFileInfo.setPurpose(purpose);
         memberFileInfo.setEnable("1");
         memberFileInfo.setDescribe(describe);
@@ -130,13 +128,18 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     }
 
     private void syncDataToOtherUnionNode(Input input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeId);
+        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(UnionNodeConfigCache.currentBlockchainNodeId);
         for (UnionNode unionNode :
                 unionNodeList) {
+            JObject params = JObject.create("filename", input.filename);
+            params.append("memberId", input.memberId);
+            params.append("purpose", input.purpose);
+
+
             new UploadFileSyncToUnionTask(
                     unionNode.getBaseUrl(),
                     "member/file/upload/sync",
-                    JObject.create("filename", input.filename).append("memberId", input.memberId).append("purpose", input.purpose),
+                    params,
                     input.files
             ).start();
         }

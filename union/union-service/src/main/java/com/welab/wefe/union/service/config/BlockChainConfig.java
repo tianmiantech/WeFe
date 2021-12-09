@@ -161,36 +161,28 @@ public class BlockChainConfig {
         return cnsService;
     }
 
-    /**
-     * 获取最新版的DataSetMemberPermission（数据集权限）合约
-     */
+
     @Bean
-    public String getCurrentNodeId(Client client) {
+    public String getCurrentBlockchainNodeId(Client client) {
         String nodeId = client.getNodeIDList().getResult().get(0);
         return nodeId;
     }
 
-    /**
-     * 获取新最版的Member（成员）合约
-     */
+
     @Bean
     public MemberContract getLatestVersionMemberContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, memberContractName);
         return MemberContract.load(address, client, cryptoKeyPair);
     }
 
-    /**
-     * 获取新最版的DataSet（数据集）合约
-     */
+
     @Bean
     public DataSetContract getLatestVersionDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, dataSetContractName);
         return DataSetContract.load(address, client, cryptoKeyPair);
     }
 
-    /**
-     * 获取最新版的DataSetMemberPermission（数据集权限）合约
-     */
+
     @Bean
     public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, dataSetMemberPermissionContractName);
@@ -198,9 +190,7 @@ public class BlockChainConfig {
     }
 
 
-    /**
-     * UnionNodeContract（union节点信息）合约
-     */
+
     @Bean
     public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
@@ -208,9 +198,7 @@ public class BlockChainConfig {
     }
 
 
-    /**
-     * UnionNodeContract（union节点信息）合约
-     */
+
     @Bean
     public MemberFileInfoContract getLatestVersionMemberFileInfoContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, memberFileInfoContractName);

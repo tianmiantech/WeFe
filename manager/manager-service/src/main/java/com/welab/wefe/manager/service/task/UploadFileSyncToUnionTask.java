@@ -6,9 +6,9 @@ import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
-import com.welab.wefe.common.util.UrlUtil;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.slf4j.Logger;
@@ -40,10 +40,11 @@ public class UploadFileSyncToUnionTask extends Thread {
             HttpResponse response;
             String url = baseUrl + "/" + api;
 
-            url = UrlUtil.appendQueryParameters(url, params);
             HttpRequest request = HttpRequest
                     .create(url)
                     .setContentType(HttpContentType.MULTIPART);
+
+            request.appendParameters(params);
 
             for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
                 try {

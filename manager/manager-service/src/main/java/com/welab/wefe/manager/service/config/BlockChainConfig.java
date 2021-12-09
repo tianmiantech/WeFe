@@ -164,7 +164,7 @@ public class BlockChainConfig {
     }
 
     @Bean
-    public String getCurrentNodeId(Client client) {
+    public String getCurrentBlockchainNodeId(Client client) {
         String nodeId = client.getNodeIDList().getResult().get(0);
         return nodeId;
     }

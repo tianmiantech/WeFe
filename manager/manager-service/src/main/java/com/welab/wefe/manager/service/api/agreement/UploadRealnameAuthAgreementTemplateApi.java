@@ -5,11 +5,14 @@ import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeSm2Config;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeConfigMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -39,7 +42,10 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;
     @Autowired
-    private String currentNodeId;
+    private String currentBlockchainNodeId;
+
+    @Autowired
+    private UnionNodeConfigMongoRepo unionNodeConfigMongoRepo;
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
@@ -66,7 +72,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             realnameAuthAgreementTemplate.setEnable("0");
             contractService.add(realnameAuthAgreementTemplate);
 
-            syncFileToUnion(input);
+            syncFileToUnion(input, fileId);
 
             return success(new UploadFileApiOutput(fileId));
         } else {
@@ -74,16 +80,36 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
         }
     }
 
-    private void syncFileToUnion(UploadFileInput input) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentNodeId);
-        for (UnionNode unionNode :
-                unionNodeList) {
-            new UploadFileSyncToUnionTask(
-                    unionNode.getBaseUrl(),
-                    "realname/auth/agreement/template/sync",
-                    JObject.create(),
-                    input.files
-            ).start();
+    private void syncFileToUnion(UploadFileInput input, String fileId) {
+        UnionNodeSm2Config unionNodeSm2Config = unionNodeConfigMongoRepo.find();
+        try {
+
+            List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentBlockchainNodeId);
+            for (UnionNode unionNode :
+                    unionNodeList) {
+                String data = JObject.create("fileId", fileId).toJSONString();
+                String sign;
+                try {
+                    sign = SM2Util.sign(data, unionNodeSm2Config.getPrivateKey());
+                } catch (Exception e) {
+                    LOG.error("sign error", e);
+                    continue;
+                }
+
+                JObject reqeustBody = JObject.create();
+                reqeustBody.append("data", data);
+                reqeustBody.append("sign", sign);
+                reqeustBody.append("currentBlockchainNodeId", currentBlockchainNodeId);
+
+                new UploadFileSyncToUnionTask(
+                        unionNode.getBaseUrl(),
+                        "realname/auth/agreement/template/sync",
+                        reqeustBody,
+                        input.files
+                ).start();
+            }
+        } catch (Exception e) {
+            LOG.error("UploadRealnameAuthAgreementTemplateApi syncFileToUnion fail,currentNodeId:" + currentBlockchainNodeId + ",fileId:" + fileId, e);
         }
     }
 }

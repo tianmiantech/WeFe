@@ -17,12 +17,13 @@
 package com.welab.wefe.union.service.listener;
 
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeConfig;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeSm2Config;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeConfigMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.constant.UnionNodeConfigType;
 import com.welab.wefe.union.service.service.UnionNodeContractService;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
     private static final Logger LOG = LoggerFactory.getLogger(RegisterNodeInfoListener.class);
 
     @Autowired
-    private String currentNodeId;
+    private String currentBlockchainNodeId;
     @Autowired
     private UnionNodeContractService unionNodeContractService;
     @Autowired
@@ -63,40 +64,42 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
                 LOG.error("registerUnionNode to blockchain failed,Please configure organizationname");
                 System.exit(1);
             }
-            UnionNodeConfig unionNodeConfig = unionNodeConfigMongoRepo.findAll();
+            UnionNodeSm2Config unionNodeSm2Config = unionNodeConfigMongoRepo.find();
 
-            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(currentNodeId);
+            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(currentBlockchainNodeId);
             if (unionNode == null) {
-                if (unionNodeConfig == null) {
-                    unionNodeConfig = new UnionNodeConfig(UnionNodeConfigType.SM2.name());
+                if (unionNodeSm2Config == null) {
+                    unionNodeSm2Config = new UnionNodeSm2Config(UnionNodeConfigType.SM2.name());
                     SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
-                    unionNodeConfig.setPrivateKey(sm2KeyPair.privateKey);
-                    unionNodeConfig.setPublicKey(sm2KeyPair.publicKey);
-                    unionNodeConfigMongoRepo.save(unionNodeConfig);
+                    unionNodeSm2Config.setPrivateKey(sm2KeyPair.privateKey);
+                    unionNodeSm2Config.setPublicKey(sm2KeyPair.publicKey);
+                    unionNodeConfigMongoRepo.save(unionNodeSm2Config);
                 }
                 unionNode = new UnionNode();
-                unionNode.setNodeId(unionNodeConfig.getNodeId());
-                unionNode.setPublicKey(unionNodeConfig.getPublicKey());
-                unionNode.setBlockchainNodeId(currentNodeId);
+                unionNode.setNodeId(unionNodeSm2Config.getNodeId());
+                unionNode.setPublicKey(unionNodeSm2Config.getPublicKey());
+                unionNode.setBlockchainNodeId(currentBlockchainNodeId);
                 unionNode.setOrganizationName(organizationName);
                 unionNode.setLostContact("0");
                 unionNodeContractService.add(unionNode);
             } else {
-                if (unionNodeConfig == null) {
-                    unionNodeConfig = new UnionNodeConfig(UnionNodeConfigType.SM2.name());
+                if (unionNodeSm2Config == null) {
+                    unionNodeSm2Config = new UnionNodeSm2Config(UnionNodeConfigType.SM2.name());
                     SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
-                    unionNodeConfig.setNodeId(unionNode.getNodeId());
-                    unionNodeConfig.setPrivateKey(sm2KeyPair.privateKey);
-                    unionNodeConfig.setPublicKey(sm2KeyPair.publicKey);
-                    unionNodeConfigMongoRepo.save(unionNodeConfig);
-                    unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeConfig.getPublicKey());
+                    unionNodeSm2Config.setNodeId(unionNode.getNodeId());
+                    unionNodeSm2Config.setPrivateKey(sm2KeyPair.privateKey);
+                    unionNodeSm2Config.setPublicKey(sm2KeyPair.publicKey);
+                    unionNodeConfigMongoRepo.save(unionNodeSm2Config);
+                    unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeSm2Config.getPublicKey());
                 } else {
-                    if (!unionNodeConfig.getPublicKey().equals(unionNode.getPublicKey())) {
-                        unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeConfig.getPublicKey());
+                    if (!unionNodeSm2Config.getPublicKey().equals(unionNode.getPublicKey())) {
+                        unionNodeContractService.updatePublicKey(unionNode.getNodeId(), unionNodeSm2Config.getPublicKey());
                     }
                 }
 
             }
+
+            UnionNodeConfigCache.currentBlockchainNodeId = currentBlockchainNodeId;
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);
             System.exit(1);
