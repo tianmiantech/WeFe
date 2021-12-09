@@ -73,9 +73,9 @@
                 <br>
                 样本量：{{ scope.row.row_count }}
                 <br>
-                正例样本数量：{{ scope.row.y_positive_example_count }}
+                正例样本数量：{{ scope.row.y_positive_sample_count }}
                 <br>
-                正例样本比例：{{(scope.row.y_positive_example_ratio * 100).toFixed(1)}}%
+                正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
             </template>
         </el-table-column>
         <el-table-column

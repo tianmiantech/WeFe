@@ -1,5 +1,5 @@
 <template>
-    <el-card class="page_layer">
+    <el-card class="page_layer" v-loading="vData.startLoading">
         <div class="deep_flow">
             <div class="left_content">
                 <h3 class="flow_title">
@@ -11,7 +11,6 @@
                     <div v-show="vData.active === 0" class="item base_setting">
                         <el-form
                             @submit.prevent
-                            v-loading="vData.loading"
                         >
                             <el-form-item
                                 label="流程名称："
@@ -296,7 +295,6 @@
             const router = useRouter();
             const rawDataSetListRef = ref();
             const vData = reactive({
-                loading: false,
                 active:  0,
                 flow_id: route.query.flow_id,
                 form:    {
@@ -415,12 +413,13 @@
                     training_ratio:     70,
                     verification_ratio: 30,
                 },
-                prevActive: 0,
-                graphNodes: {},
+                prevActive:   0,
+                graphNodes:   {},
+                startLoading: false,
             });
             const methods = {
                 async getFlowInfo() {
-                    vData.loading = true;
+                    vData.startLoading = true;
                     const { code, data } = await $http.get({
                         url:    '/project/flow/detail',
                         params: {
@@ -509,7 +508,7 @@
                             methods.getDataIONodeDetail(vData.graphNodes.graph.nodes[1].id);
                             methods.getDeeplearningNodeDetail(vData.graphNodes.graph.nodes[2].id);
                         }
-                        vData.loading = false;
+                        vData.startLoading = false;
                     });
                 },
                 prev() {
@@ -750,7 +749,7 @@
                                 }
                             }
                         }
-                        vData.loading = false;
+                        vData.startLoading = false;
                     });
                 },
                 async getDeeplearningNodeDetail (nodeId) {
@@ -775,7 +774,7 @@
                                 vData.deepLearnParams = params;
                             }
                         }
-                        vData.loading = false;
+                        vData.startLoading = false;
                     });
                 },
                 formatter(params) {
@@ -823,7 +822,7 @@
                         params:        vData.deepLearnParams,
                     };
 
-                    vData.loading = true;
+                    vData.startLoading = true;
                     const { code } = await $http.post({
                         url:  '/project/flow/node/update',
                         data: params,
@@ -846,6 +845,7 @@
                     }
                 },
                 async startFlow() {
+                    vData.startLoading = true;
                     const { code, data } = await $http.post({
                         url:     '/flow/start',
                         timeout: 1000 * 30,
@@ -864,7 +864,7 @@
                                 });
                             }
                         }
-                        vData.loading = false;
+                        vData.startLoading = false;
                     });
                 },
             };

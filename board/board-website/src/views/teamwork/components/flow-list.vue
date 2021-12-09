@@ -1,11 +1,11 @@
 <template>
     <el-card
-        name="流程列表"
+        name="训练列表"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            流程列表
+            训练列表
             <template v-if="form.isPromoter">
                 <el-button
                     v-if="!form.closed && !form.is_exited"
@@ -26,7 +26,7 @@
             stripe
         >
             <el-table-column
-                label="流程"
+                label="训练"
                 min-width="220px"
             >
                 <template v-slot="scope">
@@ -68,7 +68,7 @@
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
                     <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
