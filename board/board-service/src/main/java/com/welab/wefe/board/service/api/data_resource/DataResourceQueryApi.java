@@ -16,52 +16,92 @@
 
 package com.welab.wefe.board.service.api.data_resource;
 
-import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-
 /**
  * @author Zane
  */
-@Api(path = "data_resource/query", name = "query all kinds of data resource", login = false)
+@Api(path = "data_resource/query", name = "query all kinds of data resource")
 public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, String> {
 
     @Autowired
     private ImageDataSetService imageDataSetService;
     @Autowired
     private ImageDataSetSampleService imageDataSetSampleService;
+    @Autowired
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
-        ImageDataSetMysqlModel dataSet = imageDataSetService.findOneById(input.dataSetId);
-        // 生成数据集文件
-        File file = null;
-        try {
-            file = AbstractImageDataSetParser
-                    .getParser(dataSet.getForJobType())
-                    .parseSamplesToDataSetFile(
-                            "a_zane_test_job",
-                            dataSet,
-                            imageDataSetSampleService.allLabeled(input.dataSetId),
-                            50
-                    );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//        return success(imageDataSetService.query(input));
-        return success(file.getAbsolutePath());
+        return null;
+
     }
 
     public static class Input extends PagingInput {
-        public String dataSetId;
+        @Check(name = "资源Id")
+        private String id;
+        @Check(name = "过滤器名称")
+        private String name;
+        @Check(name = "标签")
+        private String tag;
+        @Check(name = "上传者")
+        private String creator;
+        @Check(name = "资源类型")
+        private DataResourceType dataResourceType;
+
+        // region getter/setter
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
+        }
+
+        public String getCreator() {
+            return creator;
+        }
+
+        public void setCreator(String creator) {
+            this.creator = creator;
+        }
+
+        public DataResourceType getDataResourceType() {
+            return dataResourceType;
+        }
+
+        public void setDataResourceType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
+        }
+
+
+        // endregion
     }
 }
