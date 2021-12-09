@@ -30,6 +30,7 @@ import numpy as np
 from google.protobuf import json_format
 
 from common.python.utils import log_utils
+from kernel.base.params.init_model_param import InitParam
 from kernel.base.sparse_vector import SparseVector
 from kernel.components.lr.lr_model_weight import LRModelWeights as LogisticRegressionWeights
 from kernel.components.lr.one_vs_rest import one_vs_rest_factory
@@ -187,7 +188,50 @@ class BaseLRModel(ModelBase):
     #     param_protobuf_obj = lr_model_param_pb2.LRModelParam(**rs)
     #     json_result = json_format.MessageToJson(param_protobuf_obj)
     #     print(json_result)
+    def load_model(self, model_dict):
+        LOGGER.debug("Start Loading model")
 
+        for _, value in model_dict["model"].items():
+            for model in value:
+                if type(model) == str:
+                    if model.endswith("Meta"):
+                        meta_obj = value[model]
+                    if model.endswith("Param"):
+                        result_obj = value[model]
+                else:
+                    for obj in model.items():
+                        key = obj[0]
+                        if key.endswith("Meta"):
+                            meta_obj = obj[1]
+                        if key.endswith("Param"):
+                            result_obj = obj[1]
+
+        LOGGER.info("load model")
+
+        # result_obj = list(model_dict.get('model').values())[0].get(self.model_param_name)
+        # meta_obj = list(model_dict.get('model').values())[0].get(self.model_meta_name)
+        # self.fit_intercept = meta_obj.fit_intercept
+        if self.init_param_obj is None:
+            self.init_param_obj = InitParam()
+        self.init_param_obj.fit_intercept = meta_obj["fitIntercept"] if type(
+            meta_obj) is dict else meta_obj.fit_intercept
+        self.header = list(result_obj["header"]) if type(result_obj) is dict else list(result_obj.header)
+        # For vert-lr arbiter predict function
+        if self.header is None:
+            return
+
+        need_one_vs_rest = result_obj["needOneVsRest"] if type(result_obj) is dict else result_obj.need_one_vs_rest
+        LOGGER.debug("in _load_model need_one_vs_rest: {}".format(need_one_vs_rest))
+        if need_one_vs_rest:
+            one_vs_rest_result = result_obj["oneVsRestResult"] if type(
+                result_obj) is dict else result_obj.one_vs_rest_result
+            self.one_vs_rest_obj = one_vs_rest_factory(classifier=self, role=self.role,
+                                                       mode=self.mode, has_arbiter=True)
+            self.one_vs_rest_obj.load_model(one_vs_rest_result)
+            self.need_one_vs_rest = True
+        else:
+            self.load_single_model(result_obj)
+            self.need_one_vs_rest = False
 
     def load_single_model(self, single_model_obj):
         LOGGER.info("It's a binary task, start to load single model")
