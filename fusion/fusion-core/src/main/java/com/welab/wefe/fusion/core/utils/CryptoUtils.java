@@ -74,22 +74,6 @@ public class CryptoUtils {
         return (new byte[1][1]);
     }
 
-    public static byte[][] sign(BigInteger N, BigInteger d, List<byte[]> query) {
-        try {
-            byte[][] bs = new byte[query.size()][];
-            for (int i = 0; i < query.size(); i++) {
-                BigInteger x = PSIUtils.bytesToBigInteger(query.get(i), 0, query.get(i).length);
-                BigInteger y = x.modPow(d, N);
-                bs[i] = PSIUtils.bigIntegerToBytes(y, false);
-            }
-
-            return bs;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return (new byte[1][1]);
-    }
-
     public static byte[] sign(BigInteger N, BigInteger d, byte[] query) {
         try {
             BigInteger x = PSIUtils.bytesToBigInteger(query, 0, query.length);

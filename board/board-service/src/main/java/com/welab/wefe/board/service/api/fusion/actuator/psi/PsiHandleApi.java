@@ -42,11 +42,11 @@ import java.util.List;
         login = false,
         rsaVerify = true
 )
-public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
+public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, List<String>> {
 
 
     @Override
-    protected ApiResult<byte[][]> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<List<String>> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());

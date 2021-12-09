@@ -23,6 +23,7 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
+import org.apache.commons.compress.utils.Lists;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public byte[][] compute(List<String> value) {
+    public List<String> compute(List<String> value) {
         LOG.info("align start...");
 
         //String 转为二进制
@@ -66,7 +67,14 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         try {
 
             //Encrypted again
-            return CryptoUtils.sign(N, d, bs);
+            byte[][] result = CryptoUtils.sign(N, d, bs);
+
+            List<String> resultStr = Lists.newArrayList();
+            for (int i = 0; i < result.length; i++) {
+                resultStr.add(Base64Util.encode(bs[i]));
+            }
+
+            return resultStr;
         } catch (Exception e) {
             e.printStackTrace();
         }
