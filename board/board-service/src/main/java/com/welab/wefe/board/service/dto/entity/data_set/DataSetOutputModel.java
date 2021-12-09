@@ -118,6 +118,11 @@ public class DataSetOutputModel extends AbstractOutputModel {
     private ComponentType sourceType;
     
     /**
+     * 来源类型，枚举（原始、对齐、分箱）
+     */
+    private String sourceTypeCn;
+    
+    /**
      * 来源任务id
      */
     private String sourceJobId;
@@ -173,9 +178,13 @@ public class DataSetOutputModel extends AbstractOutputModel {
     public String getName() {
         return name;
     }
+    
+	public String getSourceTypeCn() {
+		return sourceTypeCn;
+	}
 
-    public String getSourceTypeCn() {
-		return sourceType.getLabel();
+	public void setSourceTypeCn(String sourceTypeCn) {
+		this.sourceTypeCn = sourceTypeCn;
 	}
 
 	public void setName(String name) {
