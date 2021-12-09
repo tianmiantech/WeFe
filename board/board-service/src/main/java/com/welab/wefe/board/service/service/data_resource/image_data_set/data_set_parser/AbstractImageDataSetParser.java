@@ -121,9 +121,10 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
     }
 
     public List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, final Set<File> allFiles) throws Exception {
-        // 过滤掉操作系统临时目录中的文件
+        // 过滤掉隐藏文件和操作系统临时目录中的文件
         List<File> files = allFiles.stream()
                 .filter(x -> !x.getAbsolutePath().contains("/__MACOSX/"))
+                .filter(x -> !x.isHidden())
                 .collect(Collectors.toList());
 
         Set<String> fileNameSet = new HashSet<>();
