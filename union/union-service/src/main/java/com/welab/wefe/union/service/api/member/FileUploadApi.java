@@ -96,6 +96,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
 
             saveFileInfoToBlockchain(
+                    input.memberId,
                     fileId,
                     fileName,
                     sign,
@@ -114,9 +115,10 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     }
 
 
-    private void saveFileInfoToBlockchain(String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
+    private void saveFileInfoToBlockchain(String memberId,String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
         MemberFileInfo memberFileInfo = new MemberFileInfo();
         memberFileInfo.setFileId(fileId);
+        memberFileInfo.setMemberId(memberId);
         memberFileInfo.setFileName(fileName);
         memberFileInfo.setFileSign(fileSign);
         memberFileInfo.setFileSize(String.valueOf(fileSize));
