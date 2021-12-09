@@ -231,12 +231,15 @@ public class ClientActuator extends PsiClientActuator {
             e.printStackTrace();
         }
 
-        LOG.info("qureyFusionData end,{}", result);
-//        List<String> response = result("data");
+        LOG.info("qureyFusionData end,{}", JSON.toJSONString(result));
+        List<String> response = (List) result.data.get("data");
 
-        //  return ([]) result.get("data");
+        byte[][] ss = new byte[response.size()][];
+        for (int i = 0; i < response.size(); i++) {
+            ss[i] = Base64Util.base64ToByteArray(response.get(i));
+        }
 
-        return null;
+        return ss;
     }
 
     @Override
