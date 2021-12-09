@@ -37,6 +37,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 
@@ -222,11 +223,11 @@ public class ClientActuator extends PsiClientActuator {
             value.add(Base64Util.encode(bs[i]));
         }
 
-        Object result = null;
+        ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, value), Object.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, value)));
         } catch (MemberGatewayException e) {
-            LOG.info("error: {}",e);
+            LOG.info("error: {}", e);
             e.printStackTrace();
         }
 
