@@ -119,6 +119,16 @@
                                 {{ scope.row.contains_y ? '是' : '否' }}
                             </template>
                         </el-table-column>
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
+                        </el-table-column>
                         <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
@@ -273,6 +283,16 @@
                         <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
                             </template>
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />

@@ -96,6 +96,16 @@
                     </el-table-column>
                     <el-table-column
                         v-if="projectType === 'DeepLearning'"
+                        label="样本分类"
+                        prop="for_job_type"
+                        width="100"
+                    >
+                        <template v-slot="scope">
+                            {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
                         label="数据总量"
                         width="80"
                     >

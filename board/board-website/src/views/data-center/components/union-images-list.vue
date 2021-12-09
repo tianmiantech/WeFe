@@ -60,6 +60,15 @@
             width="100"
         />
         <el-table-column
+            label="样本分类"
+            prop="for_job_type"
+            width="100"
+        >
+            <template v-slot="scope">
+                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+            </template>
+        </el-table-column>
+        <el-table-column
             label="标注状态"
             prop="label_completed"
         >

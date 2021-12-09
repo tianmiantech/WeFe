@@ -70,7 +70,7 @@
                 <el-descriptions-item label="标注状态：">
                     {{ completedStatus(dataInfo.label_completed) }}
                 </el-descriptions-item>
-                <el-descriptions-item label="标注类型：">
+                <el-descriptions-item label="样本分类：">
                     {{ dataInfo.for_job_type === 'detection' ? '目标检测' : dataInfo.for_job_type === 'classify' ? '图像分类' : '-' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="数据大小：">
