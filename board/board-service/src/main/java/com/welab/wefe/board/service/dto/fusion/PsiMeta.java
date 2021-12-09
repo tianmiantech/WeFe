@@ -23,13 +23,13 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class PsiMeta {
-    List<String> bytes;
+    byte[][] bytes;
 
-    public List<String> getBytes() {
+    public byte[][] getBytes() {
         return bytes;
     }
 
-    public void setBytes(List<String> bytes) {
+    public void setBytes(byte[][] bytes) {
         this.bytes = bytes;
     }
 }

@@ -17,12 +17,10 @@
 package com.welab.wefe.fusion.core.actuator.psi;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
-import org.apache.commons.compress.utils.Lists;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -49,31 +47,20 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public List<String> compute(List<String> value) {
+    public byte[][] compute(List<byte[]> bsList) {
         LOG.info("align start...");
 
-        //String 转为二进制
-        byte[][] bs = new byte[value.size()][];
+        byte[][] bs = new byte[bsList.size()][];
 
         //加密
-        for (int i = 0; i < value.size(); i++) {
-            byte[] b = Base64Util.base64ToByteArray(value.get(i));
-            bs[i] = b;
+        for (int i = 0; i < bsList.size(); i++) {
+            bs[i] = bsList.get(i);
         }
-
-        long start = System.currentTimeMillis();
 
         try {
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, bs);
-
-            List<String> resultStr = Lists.newArrayList();
-            for (int i = 0; i < result.length; i++) {
-                resultStr.add(Base64Util.encode(bs[i]));
-            }
-
-            return resultStr;
+            return CryptoUtils.sign(N, d, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }
