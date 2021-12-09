@@ -489,7 +489,6 @@
                     vData.graphNodes.graph.edges[0].target = vData.graphNodes.graph.nodes[1].id;
                     vData.graphNodes.graph.edges[1].source = vData.graphNodes.graph.nodes[1].id;
                     vData.graphNodes.graph.edges[1].target = vData.graphNodes.graph.nodes[2].id;
-                    console.log(vData.graphNodes);
                     const { code } = await $http.post({
                         url:  '/project/flow/update/graph',
                         data: vData.graphNodes,
@@ -895,6 +894,9 @@
 </script>
 
 <style lang="scss" scoped>
+.page_layer {
+    overflow-y: auto;
+}
 .deep_flow {
     width: 100%;
     min-height: calc(100vh - 180px);
