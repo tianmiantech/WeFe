@@ -38,6 +38,9 @@
                 </el-descriptions-item>
             </template>
             <template v-if="addDataType === 'img'">
+                <el-descriptions-item label="样本分类：">
+                    {{ dataInfo.for_job_type === 'classify' ? '图像分类' : dataInfo.for_job_type === 'detection' ? '目标检测' : '-' }}
+                </el-descriptions-item>
                 <el-descriptions-item label="标注状态：">
                     {{ dataInfo.label_completed ? '已完成' : '标注中' }}
                 </el-descriptions-item>
