@@ -216,7 +216,7 @@ public class FusionTaskService extends AbstractService {
         }
 
         //callback
-//        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
 
