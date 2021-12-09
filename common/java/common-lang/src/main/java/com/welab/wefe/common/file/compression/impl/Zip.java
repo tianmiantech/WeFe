@@ -82,8 +82,7 @@ public class Zip extends AbstractCompression {
     public static void main(String[] args) throws IOException {
         Zip zip = new Zip();
         File file = zip.compression(
-                "/Users/zane/data/wefe_file_upload_dir/flowers",
-                "/Users/zane/data/wefe_file_upload_dir/flowers_test.zip"
+                "/Users/zane/data/wefe_file_upload_dir/flowers 2"
         );
         System.out.println(file.getAbsolutePath());
         System.out.println((file.length() / 1024) + "MB");

@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
@@ -50,6 +51,8 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
     private DataResourceType dataResourceType;
     @Check(name = "数据集详情")
     private DataResourceOutputModel dataSet;
+    @Check(name = "任务类型;物体检测...")
+    private DeepLearningJobType forJobType;
 
     //region getter/setter
 
@@ -118,14 +121,6 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
         this.statusUpdatedTime = statusUpdatedTime;
     }
 
-    public DataResourceType getDataSetType() {
-        return dataResourceType;
-    }
-
-    public void setDataSetType(DataResourceType dataResourceType) {
-        this.dataResourceType = dataResourceType;
-    }
-
     public DataResourceOutputModel getDataSet() {
         return dataSet;
     }
@@ -134,6 +129,21 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
         this.dataSet = dataSet;
     }
 
+    public DeepLearningJobType getForJobType() {
+        return forJobType;
+    }
+
+    public void setForJobType(DeepLearningJobType forJobType) {
+        this.forJobType = forJobType;
+    }
+
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
+    }
+
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
+    }
     //endregion
 
 }
