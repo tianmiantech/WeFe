@@ -195,7 +195,7 @@
                     });
                 },
                 searchLabeledList(text) {
-                    vData.search.label = text;
+                    vData.search.label = vData.search.label ? '' : text;
                     methods.getSampleList();
                 },
                 currentPageChange (val) {
@@ -213,6 +213,7 @@
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
                     vData.search.labeled = label_type;
+                    vData.search.label = '';
                     vData.search.page_index = 1;
                     vData.sampleList = [];
                     methods.getSampleList();
