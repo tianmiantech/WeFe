@@ -99,6 +99,7 @@ public class UnionNodeContractService extends AbstractContractService {
         list.add(StringUtil.isEmptyToBlank(unionNode.getContactEmail()));
         list.add(StringUtil.isEmptyToBlank(unionNode.getPriorityLevel()));
         list.add(StringUtil.isEmptyToBlank(unionNode.getVersion()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getPublicKey()));
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;

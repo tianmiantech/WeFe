@@ -138,6 +138,20 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
+    public boolean updatePublicKey(String nodeId, String publicKey, String updatedTime) {
+        if (StringUtils.isEmpty(nodeId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Update udpate = new UpdateBuilder()
+                .append("publicKey", publicKey)
+                .append("updatedTime", updatedTime)
+                .build();
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
+        return updateResult.wasAcknowledged();
+    }
+
+
     public boolean updateExtJSONById(String nodeId, UnionNodeExtJSON extJSON) {
         if (StringUtils.isEmpty(nodeId)) {
             return false;

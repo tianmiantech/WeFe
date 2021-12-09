@@ -30,6 +30,9 @@ public class UnionNodeContractEventParser extends AbstractParser {
             case EventConstant.UnionNode.UPDATE_ENABLE_EVENT:
                 parseUpdateEnableEvent();
                 break;
+            case EventConstant.UnionNode.UPDATE_PUBLIC_KEY_EVENT:
+                parseUpdatePublicKeyEvent();
+                break;
             case EventConstant.UnionNode.DELETE_BY_UNIONNODEID_EVENT:
                 parseDeleteByUnionNodeIdEvent();
                 break;
@@ -52,8 +55,9 @@ public class UnionNodeContractEventParser extends AbstractParser {
         unionNode.setPriorityLevel(StringUtil.strTrim2(params.getString(6)));
         unionNode.setEnable("0");
         unionNode.setVersion(StringUtil.strTrim2(params.getString(7)));
-        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(8)));
-        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(9)));
+        unionNode.setPublicKey(StringUtil.strTrim2(params.getString(8)));
+        unionNode.setCreatedTime(StringUtil.strTrim2(params.getString(9)));
+        unionNode.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
         unionNode.setExtJson(extJSON);
 
         unionNodeMongoRepo.save(unionNode);
@@ -74,6 +78,13 @@ public class UnionNodeContractEventParser extends AbstractParser {
         String enable = eventBO.getEntity().get("enable").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         unionNodeMongoRepo.updateEnable(unionNodeId, enable, updatedTime);
+    }
+
+    private void parseUpdatePublicKeyEvent() {
+        String unionNodeId = eventBO.getEntity().get("node_id").toString();
+        String publicKey = eventBO.getEntity().get("public_key").toString();
+        String updatedTime = eventBO.getEntity().get("updated_time").toString();
+        unionNodeMongoRepo.updatePublicKey(unionNodeId, publicKey, updatedTime);
     }
 
     private void parseDeleteByUnionNodeIdEvent() {
