@@ -1,11 +1,11 @@
 <template>
     <el-card
-        name="流程列表"
+        name="训练列表"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            流程列表
+            训练列表
             <template v-if="form.isPromoter">
                 <el-button
                     v-if="!form.closed && !form.is_exited"
@@ -26,7 +26,7 @@
             stripe
         >
             <el-table-column
-                label="流程"
+                label="训练"
                 min-width="220px"
             >
                 <template v-slot="scope">
@@ -68,7 +68,7 @@
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
                     <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
@@ -80,12 +80,9 @@
                 fixed="right"
             >
                 <template v-slot="scope">
-                    <router-link
-                        class="link mr10"
-                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }"
-                    >
+                    <el-button type="text" @click="checkDetail(scope.row.flow_id)" style="margin-right: 4px;">
                         查看
-                    </router-link>
+                    </el-button>
                     <router-link
                         v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
@@ -328,6 +325,7 @@
                     horz_xgb: require('@assets/images/horz_xgb.png'),
                 },
                 flowTimer: null,
+                config:    {}, // deeplearning config
             };
         },
         computed: {
@@ -347,6 +345,7 @@
             this.project_id = this.$route.query.project_id;
             this.getFlowList();
             this.getTemplateList();
+            this.getConfigInfo();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
@@ -561,6 +560,29 @@
                 } else {
                     // 创建深度学习流程
                     this.createFlow();
+                }
+            },
+
+            async getConfigInfo() {
+                const { code, data } = await this.$http.post({
+                    url:  '/global_config/get',
+                    data: { groups: ['deep_learning_config'] },
+                });
+
+                if (code === 0) {
+                    this.config = data;
+                }
+            },
+            checkDetail(flow_id) {
+                if (this.form.project_type === 'DeepLearning') {
+                    const url = this.config.deep_learning_config.paddle_visual_dl_base_url;
+
+                    window.open(`${url}?id=${flow_id}`, '_blank');
+                } else {
+                    this.$router.replace({
+                        name:  'project-flow',
+                        query: { flow_id },
+                    });
                 }
             },
         },

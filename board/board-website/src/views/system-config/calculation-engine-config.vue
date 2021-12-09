@@ -120,7 +120,9 @@
                     vData.loading = false;
                 },
                 jumpToNewPage() {
-                    window.location.href = vData.form.deep_learning_config.paddle_visual_dl_base_url;
+                    const url = vData.form.deep_learning_config.paddle_visual_dl_base_url;
+
+                    window.open(url, '_blank');
                 },
             };
 
