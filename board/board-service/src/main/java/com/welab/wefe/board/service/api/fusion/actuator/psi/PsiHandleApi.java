@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
+import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
@@ -41,17 +42,20 @@ import java.util.List;
         login = false,
         rsaVerify = true
 )
-public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, List<String>> {
+public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
 
 
     @Override
-    protected ApiResult<List<String>> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
-        return success(actuator.compute(input.getBs()));
+
+        PsiMeta meta = new PsiMeta();
+        meta.setBytes(actuator.compute(input.getBs()));
+        return success(meta);
     }
 
     public static class Input extends AbstractApiInput {
