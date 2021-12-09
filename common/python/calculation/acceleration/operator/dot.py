@@ -27,7 +27,7 @@ from kernel.security.paillier import PaillierEncryptedNumber
 BATCH_SIZE = 20000
 
 
-def table_dot(it):
+def table_dot(it, bits):
     """
     table dot
 
@@ -65,7 +65,7 @@ def table_dot(it):
             batch_y.append(y)
             current_batch_count = current_batch_count + len(x) * len(y)
             if current_batch_count >= BATCH_SIZE:
-                batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y)
+                batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y, bits)
 
                 for item_batch in batch_result:
                     if ret is None:
@@ -76,7 +76,7 @@ def table_dot(it):
                 batch_x, batch_y, current_batch_count = [], [], 0
 
     if batch_x:
-        batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y)
+        batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y, bits)
 
         for item_batch in batch_result:
             if ret is None:
@@ -87,7 +87,7 @@ def table_dot(it):
     return ret
 
 
-def dot(value, w):
+def dot(value, w, bits):
     """
 
     dot
@@ -98,9 +98,11 @@ def dot(value, w):
     ----------
     value
     w
+    bits: 1024 or 2048
 
     Returns
     -------
+
 
     """
     if isinstance(value, Instance):
@@ -131,7 +133,7 @@ def dot(value, w):
             for i in range(process_count):
                 x = X[i * each_size:(i + 1) * each_size]
                 if len(x) > 0:
-                    process_list.append(pool.apply_async(_gpu_dot_4_batch, args=(x, w)))
+                    process_list.append(pool.apply_async(_gpu_dot_4_batch, args=(x, w, bits)))
             pool.close()
             pool.join()
 
@@ -146,7 +148,8 @@ def dot(value, w):
 
     return res
 
-def _gpu_dot_4_batch(X, w):
+
+def _gpu_dot_4_batch(X, w, bits):
     res = []
     batch_w = []
     batch_x = []
@@ -164,7 +167,7 @@ def _gpu_dot_4_batch(X, w):
             batch_x.append(x[j])
             if len(batch_w) >= BATCH_SIZE:
                 # submit to gpu calc
-                batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
+                batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
                 batch_w = []
                 batch_x = []
                 # _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
@@ -172,7 +175,7 @@ def _gpu_dot_4_batch(X, w):
 
     # submit residue to gpu
     if len(batch_w) > 0:
-        batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
+        batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
     _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
 
     print(f'start:{datetime.datetime.now()}')
@@ -188,6 +191,7 @@ def _gpu_dot_4_batch(X, w):
 
     return res
     # return np.array(res)
+
 
 def _restore_batch_result_2_array(x_length_to_restore: list, batch_result: list, result_array: list):
     """
@@ -342,7 +346,7 @@ def _one_dimension_dot(X, w):
     return res
 
 
-def _gpu_powm_batch(w_batch: list, x_batch: list):
+def _gpu_powm_batch(w_batch: list, x_batch: list, bits):
     """
     Do batch modular exponentiation operations on wx
 
@@ -366,12 +370,12 @@ def _gpu_powm_batch(w_batch: list, x_batch: list):
             param_4_local.append((w_batch[i], param[1]))
 
         aclr_client = RuntimeInstance.get_alcr_ins()
-        return aclr_client.powm(param_4_gpu, param_4_local)
+        return aclr_client.powm(param_4_gpu, param_4_local, bits)
     else:
         raise NotSupportTypeError(w=first_w)
 
 
-def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list):
+def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list, bits):
     """
     Batch submission of homomorphic multiplication operations
 
@@ -415,7 +419,7 @@ def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list):
 
         # Submit to GPU calculation
         if len(batch_param_4_gpu) > 0:
-            result.extend(aclr_client.powm(batch_param_4_gpu, batch_param_4_local))
+            result.extend(aclr_client.powm(batch_param_4_gpu, batch_param_4_local, bits))
 
             while len(batch_data_shape) > 0:
                 item_shape = batch_data_shape[0]
