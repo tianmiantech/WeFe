@@ -58,9 +58,9 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        List<byte[]> bs;
+        List<String> bs;
 
-        public Input(String businessId, List<byte[]> bs) {
+        public Input(String businessId, List<String> bs) {
             this.businessId = businessId;
             this.bs = bs;
         }
@@ -73,11 +73,11 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, byte[][]> {
             this.businessId = businessId;
         }
 
-        public List<byte[]> getBs() {
+        public List<String> getBs() {
             return bs;
         }
 
-        public void setBs(List<byte[]> bs) {
+        public void setBs(List<String> bs) {
             this.bs = bs;
         }
     }

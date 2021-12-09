@@ -17,6 +17,7 @@
 package com.welab.wefe.fusion.core.actuator.psi;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
@@ -47,15 +48,24 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public byte[][] compute(List<byte[]> value) {
+    public byte[][] compute(List<String> value) {
         LOG.info("align start...");
+
+        //String 转为二进制
+        byte[][] bs = new byte[value.size()][];
+
+        //加密
+        for (int i = 0; i < value.size(); i++) {
+            byte[] b = Base64Util.base64ToByteArray(value.get(i));
+            bs[i] = b;
+        }
 
         long start = System.currentTimeMillis();
 
         try {
 
             //Encrypted again
-            return CryptoUtils.sign(N, d, value);
+            return CryptoUtils.sign(N, d, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }
