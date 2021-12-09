@@ -53,7 +53,7 @@
                 </el-descriptions-item>
             </template>
             <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
-                {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
+                {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
             </el-descriptions-item>
             <template v-if="addDataType === 'img'">
                 <el-descriptions-item label="数据总量：">
