@@ -16,12 +16,11 @@
 
 package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
-import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -42,54 +41,7 @@ public class BloomFilterQueryApi extends AbstractApi<BloomFilterQueryApi.Input, 
     }
 
 
-    public static class Input extends PagingInput {
+    public static class Input extends DataResourceQueryApi.Input {
 
-        private String id;
-
-        @Check(name = "过滤器名称")
-        private String name;
-
-        @Check(name = "标签")
-        private String tag;
-
-        @Check(name = "上传者")
-        private String creator;
-
-        //region getter/setter
-
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        public String getCreator() {
-            return creator;
-        }
-
-        public void setCreator(String creator) {
-            this.creator = creator;
-        }
-
-        //endregion
     }
 }

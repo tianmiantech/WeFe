@@ -42,7 +42,6 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,12 +219,13 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
-//        List<byte[]> value = Lists.newArrayList();
-        List<byte[]> value = Arrays.asList(bs);
-
+        List<String> stringList = Lists.newArrayList();
+        for (int i = 0; i < bs.length; i++) {
+            stringList.add(Base64Util.encode(bs[i]));
+        }
         ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, value)));
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
             LOG.info("error: {}", e);
             e.printStackTrace();
@@ -241,6 +241,7 @@ public class ClientActuator extends PsiClientActuator {
 
         return ss;
     }
+
 
     @Override
     public void sendFusionData(List<byte[]> rs) {

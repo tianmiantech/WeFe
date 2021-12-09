@@ -17,8 +17,6 @@ package com.welab.wefe.board.service.dto.fusion;
  */
 
 
-import java.util.List;
-
 /**
  * @author hunter.zhao
  */
@@ -31,5 +29,11 @@ public class PsiMeta {
 
     public void setBytes(byte[][] bytes) {
         this.bytes = bytes;
+    }
+
+    public static PsiMeta of(byte[][] bs) {
+        PsiMeta psiMeta = new PsiMeta();
+        psiMeta.bytes = bs;
+        return psiMeta;
     }
 }

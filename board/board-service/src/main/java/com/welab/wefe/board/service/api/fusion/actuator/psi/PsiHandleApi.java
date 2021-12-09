@@ -53,9 +53,7 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        PsiMeta meta = new PsiMeta();
-        meta.setBytes(actuator.compute(input.getBs()));
-        return success(meta);
+        return success(PsiMeta.of(actuator.compute(input.getBs())));
     }
 
 
@@ -63,9 +61,9 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        List<byte[]> bs;
+        List<String> bs;
 
-        public Input(String businessId, List<byte[]> bs) {
+        public Input(String businessId, List<String> bs) {
             this.businessId = businessId;
             this.bs = bs;
         }
@@ -78,11 +76,11 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
             this.businessId = businessId;
         }
 
-        public List<byte[]> getBs() {
+        public List<String> getBs() {
             return bs;
         }
 
-        public void setBs(List<byte[]> bs) {
+        public void setBs(List<String> bs) {
             this.bs = bs;
         }
     }

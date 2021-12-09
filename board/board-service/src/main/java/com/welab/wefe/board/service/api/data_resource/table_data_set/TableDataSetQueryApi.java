@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
-import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
@@ -42,48 +42,12 @@ public class TableDataSetQueryApi extends AbstractApi<TableDataSetQueryApi.Input
     }
 
 
-    public static class Input extends PagingInput {
-
-        private String id;
-
-        @Check(name = "数据集名称")
-        private String name;
-
-        @Check(name = "标签")
-        private String tag;
+    public static class Input extends DataResourceQueryApi.Input {
 
         @Check(name = "是否包含 Y 值")
         private Boolean containsY;
 
-        @Check(name = "上传者")
-        private String creator;
-
         //region getter/setter
-
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
 
         public Boolean getContainsY() {
             return containsY;
@@ -93,13 +57,6 @@ public class TableDataSetQueryApi extends AbstractApi<TableDataSetQueryApi.Input
             this.containsY = containsY;
         }
 
-        public String getCreator() {
-            return creator;
-        }
-
-        public void setCreator(String creator) {
-            this.creator = creator;
-        }
 
         //endregion
     }

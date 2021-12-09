@@ -83,7 +83,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
 
         // 将 jpg 目录压缩为 image.tgz
         Path imageDir = Paths.get(outputDir.toString(), IMAGE_DIR_NAME);
-        Path imageTgzPath = Paths.get(outputDir.toString(), IMAGE_DIR_NAME, "image.tgz");
+        Path imageTgzPath = Paths.get(outputDir.toString(), "image.tgz");
         new Tgz().compression(
                 imageDir.toString(),
                 imageTgzPath.toString()
