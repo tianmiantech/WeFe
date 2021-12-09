@@ -222,15 +222,19 @@ public class ClientActuator extends PsiClientActuator {
             value.add(Base64Util.encode(bs[i]));
         }
 
-        JSONObject result = null;
+        Object result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, value), JSONObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, value), Object.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
 
-        LOG.info("qureyFusionData start");
-        return (byte[][]) result.get("data");
+        LOG.info("qureyFusionData end,{}", result);
+//        List<String> response = result("data");
+
+        //  return ([]) result.get("data");
+
+        return null;
     }
 
     @Override
