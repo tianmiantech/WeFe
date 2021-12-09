@@ -47,31 +47,20 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public byte[][] compute(List<byte[]> bs) {
+    public byte[][] compute(List<byte[]> bsList) {
         LOG.info("align start...");
 
-//        //String 转为二进制
-//        byte[][] bs = new byte[value.size()][];
-//
-//        //加密
-//        for (int i = 0; i < value.size(); i++) {
-//            byte[] b = Base64Util.base64ToByteArray(value.get(i));
-//            bs[i] = b;
-//        }
+        byte[][] bs = new byte[bsList.size()][];
 
-        long start = System.currentTimeMillis();
+        //加密
+        for (int i = 0; i < bsList.size(); i++) {
+            bs[i] = bsList.get(i);
+        }
 
         try {
 
             //Encrypted again
             return CryptoUtils.sign(N, d, bs);
-
-//            List<String> resultStr = Lists.newArrayList();
-//            for (int i = 0; i < result.length; i++) {
-//                resultStr.add(Base64Util.encode(bs[i]));
-//            }
-//
-//            return resultStr;
         } catch (Exception e) {
             e.printStackTrace();
         }
