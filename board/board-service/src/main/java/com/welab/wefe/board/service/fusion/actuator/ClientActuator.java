@@ -34,12 +34,13 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +152,7 @@ public class ClientActuator extends PsiClientActuator {
 
         //Build table
         //  createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
-       // fusionResultStorageService.saveDataRow(businessId,fruit);
+        // fusionResultStorageService.saveDataRow(businessId,fruit);
         /**
          * Fruit Standard formatting
          */
@@ -217,17 +218,25 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
-        List<byte[]> s = Lists.newArrayList();
-        s.addAll(Arrays.asList(bs));
-        JSONObject result = null;
+        List<String> value = Lists.newArrayList();
+        for (int i = 0; i < bs.length; i++) {
+            value.add(Base64Util.encode(bs[i]));
+        }
+
+        ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, PsiHandleApi.class, new PsiHandleApi.Input(businessId, s), JSONObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, value)));
         } catch (MemberGatewayException e) {
+            LOG.info("error: {}", e);
             e.printStackTrace();
         }
 
-        LOG.info("qureyFusionData start");
-        return (byte[][]) result.get("data");
+        LOG.info("qureyFusionData end,{}", result);
+//        List<String> response = result("data");
+
+        //  return ([]) result.get("data");
+
+        return null;
     }
 
     @Override
