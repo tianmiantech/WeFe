@@ -231,7 +231,6 @@ public class ClientActuator extends PsiClientActuator {
             e.printStackTrace();
         }
 
-        LOG.info("qureyFusionData end,{}", JSON.toJSONString(result));
         JSONArray response = result.data.getJSONArray("bytes");
 
         byte[][] ss = new byte[response.size()][];
@@ -239,7 +238,25 @@ public class ClientActuator extends PsiClientActuator {
             ss[i] = Base64Util.base64ToByteArray(response.getString(i));
         }
 
+        LOG.info("qureyFusionData end,{}", JSON.toJSONString(ss));
         return ss;
+    }
+
+    public static void main(String[] args) {
+        String code ="{\"code\":0,\"data\":{\"bytes\":[\"dSIFQYDQ2abHrr/1m4Txtj\n" +
+                "yQFkyIV7h0dqpVH2bwkSJw/R/Sd6WlZIvc7Zt8SvWlCbqMw20ilEQpmEpdAY=\",\"Y8AX01gY7XKLs64aIpAXxHnWW8UE/q2S0o5VH+INm4wyj8mXPo9AVQiWN+7erbjobbxIS9JgCYlFU\n" +
+                "kXJ9ohumqsmYl5xhgepAAuE46\"]}}";
+
+        ApiResult<JSONObject> s = JObject.create(code).toJavaObject(ApiResult.class);
+
+        System.out.println(JSON.toJSONString(s));
+
+        JSONArray response = s.data.getJSONArray("bytes");
+
+        byte[][] ss = new byte[response.size()][];
+        for (int i = 0; i < response.size(); i++) {
+            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
+        }
     }
 
 
