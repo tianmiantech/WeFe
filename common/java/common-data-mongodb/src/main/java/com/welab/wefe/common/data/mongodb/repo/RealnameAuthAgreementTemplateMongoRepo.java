@@ -17,11 +17,8 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthAgreementTemplateExtJSON;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +39,7 @@ public class RealnameAuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
     protected MongoTemplate mongoUnionTemplate;
 
     public List<RealnameAuthAgreementTemplate> find() {
-        return mongoUnionTemplate.findAll(RealnameAuthAgreementTemplate.class);
+        return mongoUnionTemplate.find(new QueryBuilder().sort("createdTime").build(), RealnameAuthAgreementTemplate.class);
     }
 
     public RealnameAuthAgreementTemplate findByTemplateFileSign(String templateFileSign) {
@@ -71,7 +68,7 @@ public class RealnameAuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateExtJSONById(String templateFileId, RealnameAuthAgreementTemplateExtJSON extJSON,String updatedTime) {
+    public boolean updateExtJSONById(String templateFileId, RealnameAuthAgreementTemplateExtJSON extJSON, String updatedTime) {
         if (StringUtils.isEmpty(templateFileId)) {
             return false;
         }
