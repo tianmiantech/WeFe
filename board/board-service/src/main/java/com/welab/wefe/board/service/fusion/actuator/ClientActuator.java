@@ -42,6 +42,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -219,10 +220,8 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
-        List<String> value = Lists.newArrayList();
-        for (int i = 0; i < bs.length; i++) {
-            value.add(Base64Util.encode(bs[i]));
-        }
+//        List<byte[]> value = Lists.newArrayList();
+        List<byte[]> value = Arrays.asList(bs);
 
         ApiResult<JSONObject> result = null;
         try {
@@ -233,7 +232,7 @@ public class ClientActuator extends PsiClientActuator {
         }
 
         LOG.info("qureyFusionData end,{}", JSON.toJSONString(result));
-        JSONArray response = result.data.getJSONArray("data");
+        JSONArray response = result.data.getJSONArray("bytes");
 
         byte[][] ss = new byte[response.size()][];
         for (int i = 0; i < response.size(); i++) {
