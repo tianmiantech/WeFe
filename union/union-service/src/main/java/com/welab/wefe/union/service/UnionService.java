@@ -20,13 +20,17 @@ import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
+import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByMobileService;
 import org.springframework.beans.BeansException;
@@ -73,6 +77,9 @@ public class UnionService implements ApplicationContextAware {
                     if (annotation.rsaVerify()) {
                         rsaVerify(params);
                     }
+                    if (annotation.sm2Verify()) {
+                        sm2Verify(params);
+                    }
                 })
                 .flowLimitByIpFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByIpService(httpServletRequest, api, params).check())
                 .flowLimitByMobileFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByMobileService(httpServletRequest, api, params).check())
@@ -115,6 +122,34 @@ public class UnionService implements ApplicationContextAware {
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_member_id", signedApiInput.getMemberId());
+    }
+
+
+    /**
+     * SM2 Signature verify
+     */
+    private static void sm2Verify(JSONObject params) throws Exception {
+        SM2SignedApiInput signedApiInput = params.toJavaObject(SM2SignedApiInput.class);
+        UnionNodeMongoRepo unionNodeMongoRepo = CONTEXT.getBean(UnionNodeMongoRepo.class);
+        UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(signedApiInput.getCurrentBlockchainNodeId());
+        if (unionNode == null) {
+            throw new StatusCodeWithException("UnionNode not registered blockchainNodeId: " + signedApiInput.getCurrentBlockchainNodeId(), StatusCode.INVALID_MEMBER);
+        }
+
+        if ("1".equals(unionNode.getEnable())) {
+            throw new StatusCodeWithException("UnionNode has been disabled nodeId: " + unionNode.getNodeId(), StatusCode.INVALID_MEMBER);
+        }
+
+
+        String publicKey = unionNode.getPublicKey();
+
+        boolean verified = SM2Util.verify(signedApiInput.getData().getBytes("UTF-8"), SM2Util.getPublicKey(publicKey), signedApiInput.getSign());
+        if (!verified) {
+            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+        params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }
 
 }
