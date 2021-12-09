@@ -31,6 +31,7 @@
             >
                 <template v-slot="scope">
                     <FlowStatusTag
+                        v-if="form.project_type === 'MachineLearning'"
                         :key="scope.row.updated_time"
                         :status="scope.row.flow_status"
                         :disable-transitions="true"
@@ -42,6 +43,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.project_type === 'MachineLearning'"
                 label="进度"
                 min-width="130px"
             >
@@ -62,7 +64,7 @@
             />
             <el-table-column
                 label="创建时间"
-                width="160px"
+                max-width="160px"
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>

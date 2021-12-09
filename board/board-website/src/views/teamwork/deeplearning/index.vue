@@ -11,6 +11,7 @@
                     <div v-show="vData.active === 0" class="item base_setting">
                         <el-form
                             @submit.prevent
+                            :disabled="vData.flowInfo.my_role !=='promoter'"
                         >
                             <el-form-item
                                 label="流程名称："
@@ -71,6 +72,7 @@
                                         type="text"
                                         class="ml10"
                                         @click="methods.checkDataSet(member, index)"
+                                        :disabled="vData.flowInfo.my_role !=='promoter'"
                                     >
                                         选择数据集
                                     </el-button>
@@ -155,6 +157,7 @@
                                 ref="form"
                                 :model="vData.dataCutForm"
                                 @submit.prevent
+                                :disabled="vData.flowInfo.my_role !=='promoter'"
                             >
                                 <el-form-item label="训练与验证数据比例（%）：" style="width: 300px">
                                     <div style="height: 50px;">
@@ -189,6 +192,7 @@
                     <div v-show="vData.active === 2" class="item params_setting">
                         <el-form
                             @submit.prevent
+                            :disabled="vData.flowInfo.my_role !=='promoter'"
                         >
                             <el-form-item label="算法类型：" required>
                                 <el-select v-model="vData.deepLearnParams.program" placeholder="请选择算法类型">
@@ -264,7 +268,7 @@
                 <div class="operation_btn">
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next">下一步</el-button>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode">开始训练</el-button>
+                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
