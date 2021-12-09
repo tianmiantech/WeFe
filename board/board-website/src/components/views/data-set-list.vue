@@ -114,7 +114,12 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    <template v-if="scope.row.data_set">
+                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                    <template v-else>
+                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column

@@ -27,7 +27,7 @@
                     :to="{name: 'project-detail', query: { project_id: item.project_id }}"
                     class="li"
                 >
-                    <p class="project_type" :style="{background: item.project_type === 'DeepLearning' ? '#eee' : '#f5f5f5'}">{{item.project_type}}
+                    <p class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type}}
                     </p>
                     <p class="p-name">
                         {{ item.name }}
@@ -252,7 +252,7 @@
             height: 26px;
             line-height: 26px;
             font-size: 14px;
-            color: #438BFF;
+            background: #f5f5f5;
             padding-right: 5px;
             border-radius: 0 3px 0 0;
             &::before {
@@ -262,7 +262,7 @@
                 height: 0;
                 width: 0;
                 border-top: 13px solid transparent;
-                border-right: 16px solid #eee;
+                border-right: 16px solid #f5f5f5;
                 border-bottom: 13px solid transparent;
             }
 
