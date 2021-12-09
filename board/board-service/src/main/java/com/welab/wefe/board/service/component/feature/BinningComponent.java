@@ -270,17 +270,32 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 List<JObject> providerResults = modelParam.getJSONList("providerResults");
-                if (CollectionUtils.isNotEmpty(providerResults)) {
+				Map<String, JObject> biningResultMap = new HashMap<>();
+				if (CollectionUtils.isNotEmpty(providerResults)) {
+					for (JObject providerResult : providerResults) {
+						String memberName = CacheObjects.getMemberName(providerResult.getString("memberId"));
+						String key = memberName + "_" + providerResult.getString("memberId") + "_"
+								+ providerResult.getString("role");
+						if (biningResultMap.containsKey(key)) {
+							// merge
+							JObject result = biningResultMap.get(key);
+							JObject temp = result.getJObject("binningResult");
+							temp.putAll(providerResult.getJObject("binningResult"));
+							result.put("binningResult", temp);
+							biningResultMap.put(key, result);
+						} else {
+							// add
+							providerResult.append("member_name", memberName)
+									.append("member_id", providerResult.getString("memberId"))
+									.append("member_role", providerResult.getString("role"));
+							biningResultMap.put(key, providerResult);
+						}
 
-                    for (JObject providerResult : providerResults) {
-                        String memberName = CacheObjects.getMemberName(providerResult.getString("memberId"));
-                        providerResult.append("member_name", memberName)
-                                .append("member_id", providerResult.getString("memberId"))
-                                .append("member_role", providerResult.getString("role"));
-
-                        resultList.add(providerResult);
-                    }
-                }
+					}
+					for (Map.Entry<String, JObject> entry : biningResultMap.entrySet()) {
+						resultList.add(entry.getValue());
+					}
+				}
 
                 taskResultMySqlModel.setResult(JObject.create().append("result", resultList).toJSONString());
             }
