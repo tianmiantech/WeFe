@@ -154,24 +154,34 @@ class TestPaillierEncryptedNumber(unittest.TestCase):
             self.print_time_consume(f'plaintext add test, repeat:{repeat_time} ')
 
     def test_encrypt_space(self):
-        repeat_time = 50000
-        lengths = [1024, 2048, 4096]
-        x = np.random.randint(1000000)
-        y = np.random.randint(1000000)
-        check_result = False
 
-        for length in lengths:
-            print(f'current n_length:{length}')
+        data = np.ones(1000) * np.random.randint(1000000)
+        n_lengths = [1024, 2048, 4096]
+
+        for length in n_lengths:
             public_key, private_key = PaillierKeypair.generate_keypair(n_length=length)
-            enc_x = public_key.encrypt(x)
+            data_result = np.asarray(list(map(public_key.encrypt, data)))
+            pickle_result = pickle.dumps(data_result)
+            print(f"n_length:{length},data_count:{len(data)}, src_size:{len(pickle.dumps(data))}, encrypted_size:{len(pickle_result)}")
 
-            enc_x_dump_result = pickle.dumps(enc_x)
-            enc_x_length = len(enc_x_dump_result) * repeat_time
-
-            x_dump_result = pickle.dumps(x)
-            x_length = len(x_dump_result) * repeat_time
-
-            print(f'n_length:{length}, enc_x_length:{enc_x_length}, x_length:{x_length}')
+        # repeat_time = 50000
+        # lengths = [1024, 2048, 4096]
+        # x = np.random.randint(1000000)
+        # y = np.random.randint(1000000)
+        # check_result = False
+        #
+        # for length in lengths:
+        #     print(f'current n_length:{length}')
+        #     public_key, private_key = PaillierKeypair.generate_keypair(n_length=length)
+        #     enc_x = public_key.encrypt(x)
+        #
+        #     enc_x_dump_result = pickle.dumps(enc_x)
+        #     enc_x_length = len(enc_x_dump_result) * repeat_time
+        #
+        #     x_dump_result = pickle.dumps(x)
+        #     x_length = len(x_dump_result) * repeat_time
+        #
+        #     print(f'n_length:{length}, enc_x_length:{enc_x_length}, x_length:{x_length}')
 
     def test_value(self):
         x = 100
@@ -189,7 +199,7 @@ class TestPaillierEncryptedNumber(unittest.TestCase):
         r = enc_x.gpu_mul_after(int(gpu_result), gpu_mul_before[1])
         add_before = r.gpu_add_before(enc_z)
         to_cal_2 = add_before[0]
-        mulm_result = to_cal_2[0]*to_cal_2[1]%to_cal_2[2]
+        mulm_result = to_cal_2[0] * to_cal_2[1] % to_cal_2[2]
         rr = r.gpu_add_after(mulm_result, to_cal_2[1])
         rr
 
