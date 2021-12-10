@@ -22,9 +22,10 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.ImageDataSetContract;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,10 +42,13 @@ import java.util.List;
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class ImageDataSetContractService extends AbstractContractService {
 
-    private final BlockChainContext blockChainContext = BlockChainContext.getInstance();
 
     @Autowired
     private MemberContractService memberContractService;
+    @Autowired
+    private ImageDataSetContract imageDataSetContract;
+    @Autowired
+    private CryptoSuite cryptoSuite;
 
     public void upsert(ImageDataSet imageDataSet) throws StatusCodeWithException {
         try {
@@ -52,23 +56,22 @@ public class ImageDataSetContractService extends AbstractContractService {
                 throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
             }
 
-            ImageDataSetContract imageDataSetContract = blockChainContext.getLatestVersionImageDataSetContract();
             TransactionReceipt insertTransactionReceipt = imageDataSetContract.insert(generateParams(imageDataSet, true),
                     JObject.toJSONString(imageDataSet.getExtJson()));
 
             // Get receipt result
-            TransactionResponse insertResponse = blockChainContext.getUnionTransactionDecoder()
+            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, insertTransactionReceipt);
             String values = insertResponse.getValues();
             if (!transactionIsSuccess(values) && transactionDataIsExist(values)) {
                 TransactionReceipt updateTransactionReceipt = imageDataSetContract.update(generateParams(imageDataSet, false));
 
                 // Get receipt result
-                TransactionResponse updateResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_UPDATE, updateTransactionReceipt);
-                checkTransactionResponse(updateResponse);
+                transactionIsSuccess(updateResponse);
             } else {
-                checkTransactionResponse(insertResponse);
+                transactionIsSuccess(insertResponse);
             }
 
         } catch (
@@ -82,7 +85,6 @@ public class ImageDataSetContractService extends AbstractContractService {
 
     public void updateLabeledCount(String dataSetId, String labeledCount, String sampleCount,String labelList,String labelCompleted) throws StatusCodeWithException {
         try {
-            ImageDataSetContract imageDataSetContract = blockChainContext.getLatestVersionImageDataSetContract();
             TransactionReceipt transactionReceipt = imageDataSetContract.updateLabeledCount(
                     dataSetId,
                     labeledCount,
@@ -92,10 +94,10 @@ public class ImageDataSetContractService extends AbstractContractService {
                     DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
 
             // Get receipt result
-            TransactionResponse transactionResponse = blockChainContext.getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_UPDATELABELEDCOUNT, transactionReceipt);
 
-            checkTransactionResponse(transactionResponse);
+            transactionIsSuccess(transactionResponse);
 
         } catch (
                 Exception e) {
@@ -107,15 +109,14 @@ public class ImageDataSetContractService extends AbstractContractService {
 
     public void deleteById(String dataSetId) throws StatusCodeWithException {
         try {
-            ImageDataSetContract imageDataSetContract = blockChainContext.getLatestVersionImageDataSetContract();
             boolean isExist = imageDataSetContract.isExist(dataSetId);
             if (isExist) {
                 TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataSetId(dataSetId);
                 // Get receipt result
-                TransactionResponse deleteResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
 
-                checkTransactionResponse(deleteResponse);
+                transactionIsSuccess(deleteResponse);
             }
         } catch (Exception e) {
             throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);

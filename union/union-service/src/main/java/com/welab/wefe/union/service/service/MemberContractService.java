@@ -30,6 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -398,7 +399,7 @@ public class MemberContractService extends AbstractContractService {
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
 
-            checkTransactionResponse(transactionResponse);
+            transactionIsSuccess(transactionResponse);
 
         } catch (
                 Exception e) {

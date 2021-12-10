@@ -4,9 +4,9 @@ pragma experimental ABIEncoderV2;
 import "./Table.sol";
 
 
-contract ImageDataSetContract{
-    string constant TABLE_NAME = "image_data_set";
-    string constant FIX_ID = "fix_id_007";
+contract TableDataSetContract{
+    string constant TABLE_NAME = "table_data_set";
+    string constant FIX_ID = "fix_id_010";
 
 
     TableFactory tableFactory;
@@ -20,7 +20,7 @@ contract ImageDataSetContract{
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,for_job_type,label_list,labeled_count,label_completed,files_size,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,contains_y,column_count,column_name_list,feature_count,feature_name_list,created_time,updated_time,ext_json");
     }
 
 
@@ -38,11 +38,11 @@ contract ImageDataSetContract{
         Entry entry = table.newEntry();
         entry.set("fix_id", FIX_ID);
         entry.set("data_resource_id", params[0]);
-        entry.set("for_job_type", params[1]);
-        entry.set("label_list", params[2]);
-        entry.set("labeled_count", params[3]);
-        entry.set("label_completed", params[4]);
-        entry.set("files_size", params[5]);
+        entry.set("contains_y", params[1]);
+        entry.set("column_count", params[2]);
+        entry.set("column_name_list", params[3]);
+        entry.set("feature_count", params[4]);
+        entry.set("feature_name_list", params[5]);
         entry.set("created_time", params[6]);
         entry.set("updated_time", params[7]);
         entry.set("ext_json", ext_json);
@@ -77,13 +77,12 @@ contract ImageDataSetContract{
         condition.EQ("data_resource_id", data_resource_id);
 
         Entry entry = table.newEntry();
-        entry.set("for_job_type", params[0]);
-        entry.set("label_list", params[1]);
-        entry.set("labeled_count", params[2]);
-        entry.set("label_completed", params[3]);
-        entry.set("files_size", params[4]);
+        entry.set("contains_y", params[0]);
+        entry.set("column_count", params[1]);
+        entry.set("column_name_list", params[2]);
+        entry.set("feature_count", params[3]);
+        entry.set("feature_name_list", params[4]);
         entry.set("updated_time", updated_time);
-
 
         int count = table.update(FIX_ID, entry, condition);
 
@@ -130,6 +129,7 @@ contract ImageDataSetContract{
     }
 
 
+
     function updateExtJson(string data_resource_id,string ext_json,string updated_time) public returns (int256) {
         Table table = tableFactory.openTable(TABLE_NAME);
 
@@ -153,10 +153,6 @@ contract ImageDataSetContract{
         return ret_code;
     }
 
-
-
-
-
     function isExist(string data_resource_id) public view returns(bool) {
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
@@ -169,24 +165,21 @@ contract ImageDataSetContract{
         return false;
     }
 
-
-
     function wrapReturnInfo(Entries entries) private view returns(string[]) {
         string[] memory data_list = new string[](uint256(entries.size()));
         for (int256 i = 0; i < entries.size(); ++i) {
             Entry entry = entries.get(i);
 
-
             string memory dataStr = strConcat(strEmptyToSpace(entry.getString("data_resource_id")), "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("for_job_type")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("contains_y")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_list")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("column_count")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("labeled_count")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("column_name_list")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_completed")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("feature_count")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("files_size")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("feature_name_list")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

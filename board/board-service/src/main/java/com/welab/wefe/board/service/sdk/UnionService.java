@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.api.union.data_set.DefaultTagListApi;
 import com.welab.wefe.board.service.api.union.data_set.QueryDataSetApi;
 import com.welab.wefe.board.service.api.union.image_data_set.QueryImageDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
-import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
@@ -37,7 +36,6 @@ import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
 import org.springframework.stereotype.Service;
 
 
@@ -138,34 +136,6 @@ public class UnionService extends AbstractUnionService {
         JSONObject response = request("image_data_set/tags/query", params);
         CACHE_MAP.put(key, response);
         return response;
-    }
-
-    public JSONObject queryMemberById(String id) throws StatusCodeWithException {
-        return queryMember(id, "");
-    }
-
-    public JSONObject queryMember(String id, String name) throws StatusCodeWithException {
-        return queryMemberByPage(0, 0, id, name);
-    }
-
-    public JSONObject queryMember(int pageIndex, int pageSize) throws StatusCodeWithException {
-        return queryMemberByPage(pageIndex, pageSize, "", "");
-    }
-
-    public JSONObject queryMemberByPage(int pageIndex, int pageSize, String id, String name) throws StatusCodeWithException {
-        JObject params = JObject.create()
-                .put("page_index", pageIndex)
-                .put("page_size", pageSize);
-
-        if (StringUtil.isNotEmpty(id)) {
-            params.put("id", id);
-        }
-
-        if (StringUtil.isNotEmpty(name)) {
-            params.put("name", name);
-        }
-
-        return request("member/query", params);
     }
 
     /**

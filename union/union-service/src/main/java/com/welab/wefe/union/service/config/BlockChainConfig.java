@@ -63,6 +63,10 @@ public class BlockChainConfig {
     private String dataSetMemberPermissionContractName;
     private String unionNodeContractName;
     private String memberFileInfoContractName;
+    private String imageDataSetContractName;
+    private String dataResourceContractName;
+    private String tableDataSetContractName;
+    private String bloomFilterContractName;
 
 
     // add channel disconnect
@@ -190,7 +194,6 @@ public class BlockChainConfig {
     }
 
 
-
     @Bean
     public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
@@ -198,11 +201,34 @@ public class BlockChainConfig {
     }
 
 
-
     @Bean
     public MemberFileInfoContract getLatestVersionMemberFileInfoContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, memberFileInfoContractName);
         return MemberFileInfoContract.load(address, client, cryptoKeyPair);
+    }
+
+    @Bean
+    public ImageDataSetContract getLatestVersionImageDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, imageDataSetContractName);
+        return ImageDataSetContract.load(address, client, cryptoKeyPair);
+    }
+
+    @Bean
+    public DataResourceContract getLatestVersionDataResourceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, dataResourceContractName);
+        return DataResourceContract.load(address, client, cryptoKeyPair);
+    }
+
+    @Bean
+    public TableDataSetContract getLatestVersionTableDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, tableDataSetContractName);
+        return TableDataSetContract.load(address, client, cryptoKeyPair);
+    }
+
+    @Bean
+    public BloomFilterContract getLatestVersionBloomFilterContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, bloomFilterContractName);
+        return BloomFilterContract.load(address, client, cryptoKeyPair);
     }
 
 
@@ -324,5 +350,38 @@ public class BlockChainConfig {
 
     public void setMemberFileInfoContractName(String memberFileInfoContractName) {
         this.memberFileInfoContractName = memberFileInfoContractName;
+    }
+
+    public String getImageDataSetContractName() {
+        return imageDataSetContractName;
+    }
+
+    public void setImageDataSetContractName(String imageDataSetContractName) {
+        this.imageDataSetContractName = imageDataSetContractName;
+    }
+
+
+    public String getDataResourceContractName() {
+        return dataResourceContractName;
+    }
+
+    public void setDataResourceContractName(String dataResourceContractName) {
+        this.dataResourceContractName = dataResourceContractName;
+    }
+
+    public String getTableDataSetContractName() {
+        return tableDataSetContractName;
+    }
+
+    public void setTableDataSetContractName(String tableDataSetContractName) {
+        this.tableDataSetContractName = tableDataSetContractName;
+    }
+
+    public String getBloomFilterContractName() {
+        return bloomFilterContractName;
+    }
+
+    public void setBloomFilterContractName(String bloomFilterContractName) {
+        this.bloomFilterContractName = bloomFilterContractName;
     }
 }

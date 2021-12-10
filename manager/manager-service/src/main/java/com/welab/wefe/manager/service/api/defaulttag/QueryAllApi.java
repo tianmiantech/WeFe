@@ -20,8 +20,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetDefaultTagMongoRepo;
-import com.welab.wefe.common.enums.DataSetType;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -64,7 +63,7 @@ public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
     }
 
     public AbstractDataSetDefaultTagMongoRepo getMongoRepo(QueryAllApi.Input input) {
-        if (DataSetType.ImageDataSet.name().equals(input.getDataSetType())) {
+        if (DataResourceType.ImageDataSet.name().equals(input.getDataSetType())) {
             return imageDataSetDefaultTagMongoRepo;
         }
         return tableDataSetDefaultTagMongoRepo;

@@ -4,23 +4,23 @@ pragma experimental ABIEncoderV2;
 import "./Table.sol";
 
 
-contract ImageDataSetContract{
-    string constant TABLE_NAME = "image_data_set";
-    string constant FIX_ID = "fix_id_007";
+contract BloomFilterContract{
+    string constant TABLE_NAME = "bloom_filter";
+    string constant FIX_ID = "fix_id_011";
 
 
     TableFactory tableFactory;
 
 
     event insertEvent(int256 ret_code,string[] params,string ext_json);
-    event updateEvent(int256 ret_code,string data_resource_id,string[] params,string updated_time);
+    event updateHashFunctionEvent(int256 ret_code,string data_resource_id,string hash_function,string updated_time);
     event deleteByDataResourceIdEvent(int256 ret_code,string data_resource_id);
     event updateExtJsonEvent(int256 ret_code,string data_resource_id, string ext_json,string updated_time);
 
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,for_job_type,label_list,labeled_count,label_completed,files_size,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,hash_function,created_time,updated_time,ext_json");
     }
 
 
@@ -38,15 +38,10 @@ contract ImageDataSetContract{
         Entry entry = table.newEntry();
         entry.set("fix_id", FIX_ID);
         entry.set("data_resource_id", params[0]);
-        entry.set("for_job_type", params[1]);
-        entry.set("label_list", params[2]);
-        entry.set("labeled_count", params[3]);
-        entry.set("label_completed", params[4]);
-        entry.set("files_size", params[5]);
-        entry.set("created_time", params[6]);
-        entry.set("updated_time", params[7]);
+        entry.set("hash_function", params[1]);
+        entry.set("created_time", params[2]);
+        entry.set("updated_time", params[3]);
         entry.set("ext_json", ext_json);
-
 
         int256 count = table.insert(FIX_ID, entry);
 
@@ -63,11 +58,11 @@ contract ImageDataSetContract{
 
 
 
-    function update(string data_resource_id,string[] params,string updated_time) public returns (int) {
+    function updateHashFuntion(string data_resource_id,string hash_function,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(data_resource_id)) {
             ret_code = -1;
-            emit updateEvent(ret_code,data_resource_id,params,updated_time);
+            emit updateHashFunctionEvent(ret_code,data_resource_id,hash_function,updated_time);
             return ret_code;
         }
 
@@ -75,13 +70,10 @@ contract ImageDataSetContract{
 
         Condition condition = table.newCondition();
         condition.EQ("data_resource_id", data_resource_id);
+        condition.EQ("hash_function", hash_function);
 
         Entry entry = table.newEntry();
-        entry.set("for_job_type", params[0]);
-        entry.set("label_list", params[1]);
-        entry.set("labeled_count", params[2]);
-        entry.set("label_completed", params[3]);
-        entry.set("files_size", params[4]);
+        entry.set("hash_function", hash_function);
         entry.set("updated_time", updated_time);
 
 
@@ -93,27 +85,8 @@ contract ImageDataSetContract{
             ret_code = -2;
         }
 
-        emit updateEvent(ret_code,data_resource_id,params,updated_time);
+        emit updateHashFunctionEvent(ret_code,data_resource_id,hash_function,updated_time);
         return ret_code;
-    }
-
-    function deleteByDataResourceId(string data_resource_id) public returns (int) {
-        int256 ret_code = 0;
-        Table table = tableFactory.openTable(TABLE_NAME);
-        Condition condition = table.newCondition();
-        condition.EQ("data_resource_id", data_resource_id);
-        int count = table.remove(FIX_ID,condition);
-
-        if(count >= 1){
-            ret_code = 0;
-        } else {
-            ret_code = -2;
-        }
-
-        emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
-
-        return ret_code;
-
     }
 
 
@@ -128,6 +101,7 @@ contract ImageDataSetContract{
 
         return (0, wrapReturnInfo(entries));
     }
+
 
 
     function updateExtJson(string data_resource_id,string ext_json,string updated_time) public returns (int256) {
@@ -153,9 +127,24 @@ contract ImageDataSetContract{
         return ret_code;
     }
 
+    function deleteByDataResourceId(string data_resource_id) public returns (int) {
+        int256 ret_code = 0;
+        Table table = tableFactory.openTable(TABLE_NAME);
+        Condition condition = table.newCondition();
+        condition.EQ("data_resource_id", data_resource_id);
+        int count = table.remove(FIX_ID,condition);
 
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
 
+        emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
 
+        return ret_code;
+
+    }
 
     function isExist(string data_resource_id) public view returns(bool) {
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -178,22 +167,13 @@ contract ImageDataSetContract{
 
 
             string memory dataStr = strConcat(strEmptyToSpace(entry.getString("data_resource_id")), "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("for_job_type")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_list")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("labeled_count")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_completed")));
-            dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("files_size")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("updateHashFuntion")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("updated_time")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("ext_json")));
-
             data_list[uint256(i)] = dataStr;
         }
 
