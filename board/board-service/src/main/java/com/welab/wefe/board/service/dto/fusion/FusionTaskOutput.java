@@ -58,9 +58,7 @@ public class FusionTaskOutput extends AbstractOutputModel {
     @Check(name = "Traces the field")
     public String traceColumn;
 
-    /**
-     * Number of rows of data resources
-     */
+    @Check(name = "Number of rows of data resources")
     int rowCount;
 
     PSIActuatorRole psiActuatorRole;
