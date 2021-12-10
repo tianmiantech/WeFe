@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractCheckpoint {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-    protected final Config config = Launcher.CONTEXT.getBean(Config.class);
-    protected final GlobalConfigService globalConfigService = Launcher.CONTEXT.getBean(GlobalConfigService.class);
+    protected final Config config = Launcher.getBean(Config.class);
+    protected final GlobalConfigService globalConfigService = Launcher.getBean(GlobalConfigService.class);
 
     public abstract String desc();
 

@@ -71,9 +71,9 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "业务层面的项目ID", hiddenForFrontEnd = true)
+        @Check(name = "业务层面的项目ID", donotShow = true)
         private String projectId;
-        @Check(name = "所有成员列表", hiddenForFrontEnd = true)
+        @Check(name = "所有成员列表", donotShow = true)
         private List<ProjectMemberInput> members;
 
         @Check(name = "项目名称", require = true)
@@ -103,7 +103,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
             // Project name cannot be repeated
             if (!super.fromGateway()) {
-                List<ProjectMySqlModel> allByName = Launcher.CONTEXT.getBean(ProjectRepository.class).findAllByName(name);
+                List<ProjectMySqlModel> allByName = Launcher.getBean(ProjectRepository.class).findAllByName(name);
                 if (!allByName.isEmpty()) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException(
                             "这个项目名称已经被用过了哟~ 再想一个吧~"

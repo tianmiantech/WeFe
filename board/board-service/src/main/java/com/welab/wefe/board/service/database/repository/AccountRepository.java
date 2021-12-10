@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.database.repository;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,9 +26,9 @@ import org.springframework.stereotype.Repository;
  * @author Zane
  */
 @Repository
-public interface AccountRepository extends BaseRepository<AccountMySqlModel, String> {
+public interface AccountRepository extends BaseRepository<AccountMysqlModel, String> {
 
-    AccountMySqlModel findByPhoneNumber(String phoneNumber);
+    AccountMysqlModel findByPhoneNumber(String phoneNumber);
 
 
     @Modifying(clearAutomatically = true)

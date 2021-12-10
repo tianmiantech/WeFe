@@ -167,6 +167,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOG.info("error: {}",e);
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
         }
     }

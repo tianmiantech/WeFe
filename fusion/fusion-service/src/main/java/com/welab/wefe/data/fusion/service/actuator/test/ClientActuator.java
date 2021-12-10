@@ -213,7 +213,7 @@ public class ClientActuator extends PsiClientActuator {
 
             PSIUtils.sendString(socket, ActionType.download.name());
 
-            LOG.info("client download bloomfilter data...");
+            LOG.info("client download bloom_filter data...");
 
             byte[][] pk = PSIUtils.receive2DBytes(socket);
             BigInteger e = PSIUtils.bytesToBigInteger(pk[0], 0, pk[0].length);

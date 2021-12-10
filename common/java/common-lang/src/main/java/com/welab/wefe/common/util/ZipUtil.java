@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.util;
 
-import com.welab.wefe.common.decompression.dto.DecompressionResult;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import org.apache.log4j.Logger;
 
 import java.io.*;

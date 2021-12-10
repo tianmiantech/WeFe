@@ -51,9 +51,7 @@ public class QueryOnlineApi extends AbstractApi<QueryOnlineApi.Input, QueryOnlin
          */
         @Check(require = true)
         private String memberId;
-        /**
-         * Account ID (if it is not empty, it means that you specify to query the online status of the account)
-         */
+        @Check(name = "Account ID (if it is not empty, it means that you specify to query the online status of the account)")
         private String accountId;
 
         public String getMemberId() {

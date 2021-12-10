@@ -41,7 +41,7 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
      */
     private String fileName;
     /**
-     * 文件路径
+     * 包含文件名的文件路径
      */
     private String filePath;
     /**

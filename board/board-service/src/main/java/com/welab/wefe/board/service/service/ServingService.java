@@ -26,7 +26,6 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
@@ -56,9 +55,6 @@ import java.util.TreeMap;
 public class ServingService extends AbstractService {
 
     private static final String SEPARATOR = "_";
-
-    @Autowired
-    private UnionService unionService;
 
     @Autowired
     JobRepository jobRepository;

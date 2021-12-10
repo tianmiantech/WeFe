@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author lonnie
  */
-@Api(path = "union/image_data_set/tag/default_list", name = "Get the default dataset tags from union")
+@Api(path = "union/image_data_set/default_tags", name = "Get the default dataset tags from union")
 public class DefaultTagListApi extends AbstractApi<DefaultTagListApi.Input, JSONObject> {
 
     @Autowired

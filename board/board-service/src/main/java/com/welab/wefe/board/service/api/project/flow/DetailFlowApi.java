@@ -56,7 +56,7 @@ public class DetailFlowApi extends AbstractApi<DetailFlowApi.Input, ProjectFlowD
         ProjectFlowDetailOutputModel output = ModelMapper.map(flow, ProjectFlowDetailOutputModel.class);
         output.setProject(projectService.detail(flow.getProjectId()));
         output.setParamsIsNullFlowNodes(projectFlowService.getParamsIsNullFlowNodes(input.flowId));
-        output.setIsCreator(CacheObjects.isCurrentMember(flow.getCreatedBy()));
+        output.setIsCreator(CacheObjects.isCurrentMemberAccount(flow.getCreatedBy()));
 
         // OOT model
         ModelOotRecordMysqlModel modelOotRecordMysqlModel = modelOotRecordService.findByFlowId(input.flowId);

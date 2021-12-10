@@ -18,19 +18,19 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.gateway.GetDerivedDataSetDetailApi;
 import com.welab.wefe.board.service.api.project.dataset.QueryDerivedDataSetApi;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataResourceType;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 public class ProjectDataSetService extends AbstractService {
 
     @Autowired
-    private DataSetService tableDataSetService;
+    private TableDataSetService tableDataSetService;
     @Autowired
     private ImageDataSetService imageDataSetService;
     @Autowired
@@ -67,7 +67,7 @@ public class ProjectDataSetService extends AbstractService {
      */
     public DerivedProjectDataSetOutputModel getDerivedDataSetDetail(GetDerivedDataSetDetailApi.Input input) throws StatusCodeWithException {
         // 衍生数据集目前只有 TableDataSet
-        DataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataSetId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataSetId());
         ProjectDataSetMySqlModel projectDataSet = findOne(input.getProjectId(), input.getDataSetId(), input.getMemberRole());
 
         if (dataSet == null || projectDataSet == null) {
@@ -78,7 +78,7 @@ public class ProjectDataSetService extends AbstractService {
             throw new StatusCodeWithException("拒绝查询原始数据集信息", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getSourceJobId(), false), JobMemberWithDataSetOutputModel.class);
+        List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getDerivedFromJobId(), false), JobMemberWithDataSetOutputModel.class);
 
         DerivedProjectDataSetOutputModel output = ModelMapper.map(projectDataSet, DerivedProjectDataSetOutputModel.class);
         output.setDataSet(ModelMapper.map(dataSet, TableDataSetOutputModel.class));
@@ -94,7 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
-                .equal("dataSetType", input.getDataSetType())
+                .equal("dataResourceType", input.getDataSetType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -125,7 +125,7 @@ public class ProjectDataSetService extends AbstractService {
      * tips：衍生数据集目前只有 TableDataSet 类型
      */
     private DerivedProjectDataSetOutputModel buildDerivedProjectDataSetOutputModel(ProjectDataSetMySqlModel projectDataSet) {
-        DataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
 
         JObject json = JObject.create();
         if (dataSet != null) {
@@ -138,7 +138,7 @@ public class ProjectDataSetService extends AbstractService {
 
         if (dataSet != null) {
             // Query the feature list from each member
-            List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getSourceJobId(), false);
+            List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
             List<JobMemberWithDataSetOutputModel> output = jobMembers
                     .stream()
                     .map(m -> {
@@ -192,7 +192,7 @@ public class ProjectDataSetService extends AbstractService {
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataResourceType)
+                .equal("dataResourceType", dataResourceType)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -207,7 +207,7 @@ public class ProjectDataSetService extends AbstractService {
 
                     try {
                         ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
-                        AbstractDataSetOutputModel dataSet = null;
+                        DataResourceOutputModel dataSet = null;
                         if (x.getDataSetType() == DataResourceType.TableDataSet) {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         } else if (x.getDataSetType() == DataResourceType.ImageDataSet) {
@@ -223,7 +223,7 @@ public class ProjectDataSetService extends AbstractService {
                 })
                 .filter(x -> {
                     if (containsY != null) {
-                        return containsY.equals(((TableDataSetOutputModel) x.getDataSet()).getContainsY());
+                        return containsY.equals(((TableDataSetOutputModel) x.getDataSet()).isContainsY());
                     }
                     return true;
                 })
@@ -258,7 +258,7 @@ public class ProjectDataSetService extends AbstractService {
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
-                .equal("dataSetType", dataResourceType)
+                .equal("dataResourceType", dataResourceType)
                 .equal("memberId", memberId)
                 .build(ProjectDataSetMySqlModel.class);
 

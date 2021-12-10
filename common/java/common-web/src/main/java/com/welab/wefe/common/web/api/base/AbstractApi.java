@@ -205,6 +205,10 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         return result;
     }
 
+    protected ApiResult<Out> fail(Exception e) {
+        return fail(-1, e.getClass().getSimpleName() + " " + e.getMessage(), null);
+    }
+
     protected ApiResult<Out> fail(String message) {
         return fail(-1, message, null);
     }
