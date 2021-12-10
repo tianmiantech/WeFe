@@ -44,6 +44,8 @@ class VisualFLJobStartAction(object):
             return
 
         if self.job.status != JobStatus.WAIT_RUN:
+            schedule_logger(self.job.job_id + '_' + self.my_role).info(
+                "job status not wait_run, {},{}".format(self.job.job_id, self.job.my_role))
             return
 
         try:
