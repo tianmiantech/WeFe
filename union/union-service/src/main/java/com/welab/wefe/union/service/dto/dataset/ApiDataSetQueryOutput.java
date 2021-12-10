@@ -16,7 +16,7 @@
 
 package com.welab.wefe.union.service.dto.dataset;
 
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
@@ -32,7 +32,7 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
     private Integer columnCount;
     private String columnNameList;
     private Integer featureCount;
-    private String dataSetType = DataSetType.TableDataSet.name();
+    private String dataResourceType = DataResourceType.TableDataSet.name();
     private String featureNameList;
     private String publicLevel;
     private String publicMemberList;
@@ -182,11 +182,11 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
         this.tags = tags;
     }
 
-    public String getDataSetType() {
-        return dataSetType;
+    public String getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setDataSetType(String dataSetType) {
-        this.dataSetType = dataSetType;
+    public void setDataResourceType(String dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 }

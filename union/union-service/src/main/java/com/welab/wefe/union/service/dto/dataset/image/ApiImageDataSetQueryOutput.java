@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.dto.dataset.image;
 
-import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
@@ -40,7 +39,7 @@ public class ApiImageDataSetQueryOutput extends AbstractTimedApiOutput {
     private Integer usageCountInJob;
     private Integer usageCountInFlow;
     private Integer usageCountInProject;
-    private String dataSetType = DataSetType.ImageDataSet.name();
+    private String dataSetType;
 
     public ApiImageDataSetQueryOutput() {
     }
