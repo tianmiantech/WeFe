@@ -31,7 +31,6 @@ class StartJobWorker(BaseFlowActionWorker):
         running_job = job_id + '_' + my_role
 
         schedule_logger(running_job).info('schedule job {}'.format(params))
-        schedule_logger(running_job).info('type = {}'.format(t))
         if 'visualfl' == t:
             VisualFLJobStartAction(job_id, my_role).do()
         else:
