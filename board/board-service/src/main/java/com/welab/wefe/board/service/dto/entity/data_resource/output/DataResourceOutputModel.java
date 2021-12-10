@@ -21,91 +21,52 @@ import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.enums.DataSetStorageType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 public class DataResourceOutputModel extends AbstractOutputModel {
-    /**
-     * 资源名称
-     */
+    @Check(name = "资源名称")
     private String name;
-    /**
-     * 资源类型
-     */
+    @Check(name = "资源类型")
     private DataResourceType resourceType;
-    /**
-     * 描述
-     */
+    @Check(name = "描述")
     private String description;
-    /**
-     * 标签
-     */
+    @Check(name = "标签")
     private String tags;
-    /**
-     * 存储类型
-     */
+    @Check(name = "存储类型")
     private DataSetStorageType storageType;
-    /**
-     * 资源在存储中的命名空间;库名、目录路径）
-     */
+    @Check(name = "资源在存储中的命名空间;库名、目录路径）")
     private String storageNamespace;
-    /**
-     * 资源在存储中的名称;表名、文件名）
-     */
+    @Check(name = "资源在存储中的名称;表名、文件名）")
     private String storageResourceName;
-    /**
-     * 总数据量
-     */
+    @Check(name = "总数据量")
     private Long totalDataCount;
-    /**
-     * 资源的可见性
-     */
+    @Check(name = "资源的可见性")
     private DataSetPublicLevel publicLevel;
-    /**
-     * 可见成员列表;只有在列表中的联邦成员才可以看到该资源的基本信息
-     */
+    @Check(name = "可见成员列表;只有在列表中的联邦成员才可以看到该资源的基本信息")
     private String publicMemberList;
-    /**
-     * 该资源在多少个job中被使用
-     */
+    @Check(name = "该资源在多少个job中被使用")
     private Integer usageCountInJob;
-    /**
-     * 该资源在多少个flow中被使用
-     */
+    @Check(name = "该资源在多少个flow中被使用")
     private Integer usageCountInFlow;
-    /**
-     * 该资源在多少个project中被使用
-     */
+    @Check(name = "该资源在多少个project中被使用")
     private Integer usageCountInProject;
-    /**
-     * 该资源被多少个其他成员被使用
-     */
+    @Check(name = "该资源被多少个其他成员被使用")
     private Integer usageCountInMember;
-    /**
-     * 是否是衍生资源
-     */
+    @Check(name = "是否是衍生资源")
     private boolean derivedResource;
-    /**
-     * 衍生来源，枚举;原始、对齐、分箱）
-     */
+    @Check(name = "衍生来源，枚举;原始、对齐、分箱）")
     private ComponentType derivedFrom;
-    /**
-     * 衍生来源流程id
-     */
+    @Check(name = "衍生来源流程id")
     private String derivedFromFlowId;
-    /**
-     * 衍生来源任务id
-     */
+    @Check(name = "衍生来源任务id")
     private String derivedFromJobId;
-    /**
-     * 衍生来源子任务id
-     */
+    @Check(name = "衍生来源子任务id")
     private String derivedFromTaskId;
-    /**
-     * 该数据资源相关的统计信息
-     */
+    @Check(name = "该数据资源相关的统计信息")
     private JSONObject statisticalInformation;
 
     // region getter/setter

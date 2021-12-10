@@ -15,54 +15,34 @@
  */
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * @author zane
  * @date 2021/12/1
  */
 public class TableDataSetOutputModel extends DataResourceOutputModel {
-    /**
-     * 数据集字段列表
-     */
+    @Check(name = "数据集字段列表")
     private String columnNameList;
-    /**
-     * 数据集列数
-     */
+    @Check(name = "数据集列数")
     private Integer columnCount;
-    /**
-     * 主键字段
-     */
+    @Check(name = "主键字段")
     private String primaryKeyColumn;
-    /**
-     * 特征列表
-     */
+    @Check(name = "特征列表")
     private String featureNameList;
-    /**
-     * 特征数量
-     */
+    @Check(name = "特征数量")
     private Integer featureCount;
-    /**
-     * 是否包含;Y 值
-     */
+    @Check(name = "是否包含;Y 值")
     private boolean containsY;
-    /**
-     * y列名称列表
-     */
+    @Check(name = "y列名称列表")
     private String yNameList;
-    /**
-     * y列的数量
-     */
+    @Check(name = "y列的数量")
     private Integer yCount;
-    /**
-     * 正样本的值
-     */
+    @Check(name = "正样本的值")
     private String positiveSampleValue;
-    /**
-     * 正例数量
-     */
+    @Check(name = "正例数量")
     private Long yPositiveSampleCount;
-    /**
-     * 正例比例
-     */
+    @Check(name = "正例比例")
     private Double yPositiveSampleRatio;
 
     // region getter/setter

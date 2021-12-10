@@ -16,48 +16,34 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataResourceUploadStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
-    /**
-     * 数据资源id
-     */
+    @Check(name = "数据资源id")
     private String dataResourceId;
-    /**
-     * 数据资源名称
-     */
+    @Check(name = "数据资源名称")
     private String dataResourceName;
-    /**
-     * 总数据行数
-     */
+    @Check(name = "资源类型")
+    private DataResourceType resourceType;
+    @Check(name = "总数据行数")
     private Long totalDataCount;
-    /**
-     * 已写入数据行数
-     */
+    @Check(name = "已写入数据行数")
     private Long completedDataCount;
-    /**
-     * 任务进度百分比
-     */
+    @Check(name = "任务进度百分比")
     private Integer progressRatio;
-    /**
-     * 预计剩余耗时
-     */
+    @Check(name = "预计剩余耗时")
     private long estimateRemainingTime;
-    /**
-     * 无效数据量;主键重复条数）
-     */
+    @Check(name = "无效数据量;主键重复条数）")
     private long invalidDataCount;
-    /**
-     * 错误消息
-     */
+    @Check(name = "错误消息")
     private String errorMessage;
-    /**
-     * 状态：上传中、已完成、已失败
-     */
+    @Check(name = "状态：上传中、已完成、已失败")
     private DataResourceUploadStatus status;
 
     // region getter/setter
@@ -76,6 +62,14 @@ public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
 
     public void setDataResourceName(String dataResourceName) {
         this.dataResourceName = dataResourceName;
+    }
+
+    public DataResourceType getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(DataResourceType resourceType) {
+        this.resourceType = resourceType;
     }
 
     public Long getTotalDataCount() {

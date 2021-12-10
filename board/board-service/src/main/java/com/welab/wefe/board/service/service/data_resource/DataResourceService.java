@@ -15,6 +15,10 @@
  */
 package com.welab.wefe.board.service.service.data_resource;
 
+import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
+import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterQueryApi;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetQueryApi;
+import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -27,16 +31,22 @@ import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
+import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -263,5 +273,38 @@ public class DataResourceService extends AbstractDataResourceService {
 
     public void delete(String dataSetId, DataResourceType dataSetType) {
         // TODO: Zane 待补充
+    }
+
+    @Autowired
+    private TableDataSetService tableDataSetService;
+    @Autowired
+    private ImageDataSetService imageDataSetService;
+    @Autowired
+    private BloomFilterService bloomFilterSetService;
+
+    public PagingOutput<?> queryDataResource(DataResourceQueryApi.Input input) {
+        if (input.getDataResourceType() == null) {
+            Specification<DataResourceOutputModel> where = Where
+                    .create()
+                    .equal("id", input.getId())
+                    .contains("name", input.getName())
+                    .containsItem("tags", input.getTag())
+                    .equal("createdBy", input.getCreator())
+                    .build(DataResourceOutputModel.class);
+
+            return dataResourceRepository.paging(where, input);
+        }
+
+        switch (input.getDataResourceType()) {
+            case TableDataSet:
+                return tableDataSetService.query((TableDataSetQueryApi.Input) input);
+            case ImageDataSet:
+                return imageDataSetService.query((ImageDataSetQueryApi.Input) input);
+            case BloomFilter:
+                return bloomFilterSetService.query((BloomFilterQueryApi.Input) input);
+            default:
+                return null;
+        }
+
     }
 }

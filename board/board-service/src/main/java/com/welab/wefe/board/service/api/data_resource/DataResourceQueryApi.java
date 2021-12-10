@@ -17,9 +17,8 @@
 package com.welab.wefe.board.service.api.data_resource;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
+import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
-import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -32,18 +31,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zane
  */
 @Api(path = "data_resource/query", name = "query all kinds of data resource")
-public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, String> {
+public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, PagingOutput<?>> {
 
-    @Autowired
-    private ImageDataSetService imageDataSetService;
-    @Autowired
-    private ImageDataSetSampleService imageDataSetSampleService;
     @Autowired
     private DataResourceService dataResourceService;
 
     @Override
-    protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
-        return null;
+    protected ApiResult<PagingOutput<?>> handle(Input input) throws StatusCodeWithException {
+        PagingOutput<?> output = dataResourceService.queryDataResource(input);
+        return success(output);
 
     }
 

@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.api.project.flow.QueryFlowTemplateApi.Templa
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.service.FlowTemplateService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
@@ -69,14 +70,10 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
     public static class TemplateOutput {
 
         private String id;
-        /**
-         * template name
-         */
+        @Check(name = "template name")
         private String name;
 
-        /**
-         * template name
-         */
+        @Check(name = "template name")
         private String description;
 
         private String enname;

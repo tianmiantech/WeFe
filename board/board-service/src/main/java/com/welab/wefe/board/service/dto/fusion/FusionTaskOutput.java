@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.dto.fusion;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
@@ -51,14 +52,10 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType dataResourceType;
 
-    /**
-     * Whether the trace
-     */
+    @Check(name = "Whether the trace")
     public boolean isTrace;
 
-    /**
-     * Traces the field
-     */
+    @Check(name = "Traces the field")
     public String traceColumn;
 
     /**
@@ -70,14 +67,10 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     AlgorithmType algorithm;
 
-    /**
-     * Number of aligned samples
-     */
+    @Check(name = "Number of aligned samples")
     public int dataCount;
 
-    /**
-     * Number of fusion
-     */
+    @Check(name = "Number of fusion")
     public int fusionCount;
 
     public long spend;

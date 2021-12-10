@@ -16,31 +16,22 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.welab.wefe.common.enums.DeepLearningJobType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 public class ImageDataSetOutputModel extends DataResourceOutputModel {
-    /**
-     * 任务类型;物体检测...）
-     */
+    @Check(name = "任务类型;物体检测...）")
     private DeepLearningJobType forJobType;
-    /**
-     * label;列表
-     */
+    @Check(name = "label;列表")
     private String labelList;
-    /**
-     * 已标注数量
-     */
+    @Check(name = "已标注数量")
     private Long labeledCount;
-    /**
-     * 是否已标注完毕
-     */
+    @Check(name = "是否已标注完毕")
     private boolean labelCompleted;
-    /**
-     * 数据集大小
-     */
+    @Check(name = "数据集大小")
     private Long filesSize;
 
     // region getter/setter
