@@ -23,12 +23,6 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
  * @date 2021/12/1
  */
 public class BloomFilterOutputModel extends DataResourceOutputModel {
-    @Check(name = "密钥e")
-    private String rsaE;
-    @Check(name = "密钥n")
-    private String rsaN;
-    @Check(name = "密钥e")
-    private String rsaD;
     @Check(name = "数据源id")
     private String dataSourceId;
     @Check(name = "数据源地址")
@@ -41,30 +35,6 @@ public class BloomFilterOutputModel extends DataResourceOutputModel {
     private String sqlScript;
 
     // region getter/setter
-
-    public String getRsaE() {
-        return rsaE;
-    }
-
-    public void setRsaE(String rsaE) {
-        this.rsaE = rsaE;
-    }
-
-    public String getRsaN() {
-        return rsaN;
-    }
-
-    public void setRsaN(String rsaN) {
-        this.rsaN = rsaN;
-    }
-
-    public String getRsaD() {
-        return rsaD;
-    }
-
-    public void setRsaD(String rsaD) {
-        this.rsaD = rsaD;
-    }
 
     public String getDataSourceId() {
         return dataSourceId;
