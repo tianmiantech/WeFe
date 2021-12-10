@@ -61,6 +61,10 @@ class VisualFLJobStartAction(object):
             # 获取 Job 中的 Task
             tasks = TaskDao.list_by_job(self.job)
             for task in tasks:
+                # DeepLearning
+                if task.task_type != 'DeepLearning':
+                    continue
+                schedule_logger(self.job.job_id + '_' + self.my_role).info("run_task_action begin, {},{}".format(task.task_id,task.task_type))
                 run_task_action = RunVisualFLTaskAction(self.job, task)
                 self.task_executor_pool.submit(run_task_action.do)
 
