@@ -107,15 +107,16 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
             syncDataToOtherUnionNode(input);
 
-            return success(new UploadFileApiOutput(fileId));
         } else {
-            throw new StatusCodeWithException("请勿重复上传相同文件", StatusCode.DUPLICATE_RESOURCE_ERROR);
+            fileId = gridFSFile.getObjectId().toString();
+            return success(new UploadFileApiOutput(fileId));
         }
 
+        return success(new UploadFileApiOutput(fileId));
     }
 
 
-    private void saveFileInfoToBlockchain(String memberId,String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
+    private void saveFileInfoToBlockchain(String memberId, String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
         MemberFileInfo memberFileInfo = new MemberFileInfo();
         memberFileInfo.setFileId(fileId);
         memberFileInfo.setMemberId(memberId);

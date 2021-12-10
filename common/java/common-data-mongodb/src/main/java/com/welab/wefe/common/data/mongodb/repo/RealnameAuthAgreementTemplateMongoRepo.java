@@ -48,6 +48,12 @@ public class RealnameAuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
                 RealnameAuthAgreementTemplate.class);
     }
 
+    public RealnameAuthAgreementTemplate findByTemplateFileId(String templateFileId) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder().append("templateFileId", templateFileId).notRemoved().build(),
+                RealnameAuthAgreementTemplate.class);
+    }
+
 
     public RealnameAuthAgreementTemplate findByEnable(boolean enable) {
         return mongoUnionTemplate.findOne(
