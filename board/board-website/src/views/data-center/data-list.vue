@@ -66,7 +66,7 @@
             >
                 查询
             </el-button>
-            <el-button plain native-type="submit" class="fr">
+            <el-button plain native-type="submit" class="fr" @click="checkUploadingData">
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
@@ -121,6 +121,21 @@
                 </el-tab-pane>
             </template>
         </el-tabs>
+
+        <el-dialog
+            title="上传中的数据集"
+            v-model="vData.showUploadingDialog"
+            custom-class="dialog-min-width"
+            :close-on-click-modal="false"
+            destroy-on-close
+            width="70%"
+        >
+            <UploadingList
+                ref="uploadingRef"
+                key="uploadingRef"
+                :table-loading="vData.loading"
+            />
+        </el-dialog>
     </el-card>
 </template>
 
@@ -132,15 +147,18 @@
         onMounted,
         onBeforeUnmount,
         getCurrentInstance,
+        nextTick,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import AllDataList from './components/all-data-list';
     import ImagesList from './components/images-list';
+    import UploadingList from './components/uploading-list';
 
     export default {
         components: {
             AllDataList,
             ImagesList,
+            UploadingList,
         },
         setup() {
             const timer = null;
@@ -150,6 +168,7 @@
             const { $http, $confirm, $message } = appContext.config.globalProperties;
             const imageUnions = ref();
             const allUnions = ref();
+            const uploadingRef = ref();
             const vData = reactive({
                 loading: false,
                 search:  {
@@ -178,9 +197,10 @@
                         count: 0,
                     },
                 ],
+                showUploadingDialog: false,
             });
             const methods = {
-                async getUploadList() {
+                async getImagesList() {
                     const $ref = imageUnions.value;
 
                     $ref.getDataList();
@@ -262,7 +282,7 @@
                 if (refInstance.paneName === 'allUnions') {
                     searchList();
                 } else {
-                    methods.getUploadList();
+                    methods.getImagesList();
                 }
             };
             const syncUrlParams = () => {
@@ -280,6 +300,12 @@
 
                 refInstance && refInstance.value.getDataList(opt);
             };
+            const checkUploadingData = () => {
+                vData.showUploadingDialog = true;
+                nextTick(_=>{
+                    uploadingRef.value.getDataList();
+                });
+            };
 
             onMounted(async () => {
                 syncUrlParams();
@@ -288,7 +314,7 @@
                 await methods.getUploaders();
                 searchList();
                 // Get the list of data sets being uploaded and display corner markers
-                await methods.getUploadList();
+                await methods.getImagesList();
             });
 
             onBeforeUnmount(() => {
@@ -312,6 +338,8 @@
                 tabChange,
                 imageUnions,
                 allUnions,
+                checkUploadingData,
+                uploadingRef,
             };
         },
     };

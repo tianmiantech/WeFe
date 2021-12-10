@@ -91,9 +91,8 @@
         <el-divider content-position="left">
             数据集信息
         </el-divider>
-        <div v-if="addDataType === 'img'" class="img_info" v-loading="imgLoading">
-            <preview-image-list :sampleList="sampleList" />
-        </div>
+
+        <preview-image-list v-if="addDataType === 'img'" ref="PreviewImageListRef" />
 
         <el-tabs
             v-if="addDataType === 'csv'"
@@ -134,8 +133,6 @@
                 dataInfo:    {},
                 addDataType: 'csv',
                 projects:    [],
-                sampleList:  [],
-                imgLoading:  false,
                 search:      {
                     page_index: 1,
                     page_size:  30,
@@ -156,7 +153,11 @@
             this.addDataType = this.$route.query.type || 'csv';
             this.getData();
             this.getRelativeProjects();
-            this.getSampleList();
+        },
+        mounted() {
+            if (this.addDataType === 'img') {
+                this.$refs['PreviewImageListRef'].methods.getSampleList(this.id);
+            }
         },
         methods: {
             async getRelativeProjects() {
@@ -281,53 +282,6 @@
                     name:  'data-check-label',
                     query: { id: this.id },
                 });
-            },
-            async getSampleList() {
-                this.imgLoading = true;
-                const params = {
-                    page_index:  this.search.page_index - 1,
-                    page_size:   this.search.page_size,
-                    label:       this.search.label,
-                    data_set_id: this.id,
-                    labeled:     this.search.labeled,
-                };
-                const { code, data } = await this.$http.post({
-                    url:  '/image_data_set_sample/query',
-                    data: params,
-                });
-                    
-                if(code === 0) {
-                    if (data && data.list.length>0) {
-                        this.search.total = data.total;
-                        data.list.forEach((item, idx) => {
-                            this.downloadImage(item.id, idx, item);
-                        });
-                    } else {
-                        this.search.total = data.total;
-                        this.sampleList = data.list;
-                        this.imgLoading = false;
-                    }
-                }
-            },
-            async downloadImage(id, idx, item) {
-                this.sampleList = [];
-                const { code, data } = await this.$http.get({
-                    url:          '/image_data_set_sample/download',
-                    params:       { id },
-                    responseType: 'blob',
-                });
-
-                if(code === 0) {
-                    const url = window.URL.createObjectURL(data);
-
-                    if (id === item.id) {
-                        item.img_src = url;
-                    }
-                    this.sampleList.push(item);
-                    setTimeout(_=> {
-                        this.imgLoading = false;
-                    }, 200);
-                }
             },
         },
     };
