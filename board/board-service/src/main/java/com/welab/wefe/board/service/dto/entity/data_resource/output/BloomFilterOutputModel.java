@@ -16,43 +16,28 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane
  * @date 2021/12/1
  */
 public class BloomFilterOutputModel extends DataResourceOutputModel {
-    /**
-     * 密钥e
-     */
+    @Check(name = "密钥e")
     private String rsaE;
-    /**
-     * 密钥n
-     */
+    @Check(name = "密钥n")
     private String rsaN;
-    /**
-     * 密钥e
-     */
+    @Check(name = "密钥e")
     private String rsaD;
-    /**
-     * 数据源id
-     */
+    @Check(name = "数据源id")
     private String dataSourceId;
-    /**
-     * 数据源地址
-     */
+    @Check(name = "数据源地址")
     private String sourcePath;
-    /**
-     * 主键hash生成方法
-     */
+    @Check(name = "主键hash生成方法")
     private String hashFunction;
-    /**
-     * 布隆过滤器添加方式
-     */
+    @Check(name = "布隆过滤器添加方式")
     private BloomfilterAddMethod addMethod;
-    /**
-     * sql语句
-     */
+    @Check(name = "sql语句")
     private String sqlScript;
 
     // region getter/setter

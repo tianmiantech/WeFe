@@ -57,9 +57,7 @@ public class QueryChatDetailApi extends AbstractApi<QueryChatDetailApi.Input, Pa
          */
         @Check(require = true)
         private String toAccountId;
-        /**
-         * query timestamp limit
-         */
+        @Check(name = "query timestamp limit")
         private Long limitCreateTime;
 
         public String getFromAccountId() {

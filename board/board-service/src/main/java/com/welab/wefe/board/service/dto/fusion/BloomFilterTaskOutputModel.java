@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,48 +17,28 @@
 package com.welab.wefe.board.service.dto.fusion;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author jacky.jiang
  */
 public class BloomFilterTaskOutputModel extends AbstractOutputModel {
 
-    /**
-     * 过滤器名
-     */
+    @Check(name = "过滤器名")
     private String bloomFilterName;
-
-    /**
-     * 过滤器id
-     */
+    @Check(name = "过滤器id")
     private String bloomFilterId;
-
-    /**
-     * 总数据行数
-     */
-    private long totalRowCount = 0;
-    /**
-     * 已写入数据行数
-     */
-    private long addedRowCount = 0;
-
-    /**
-     * 任务进度百分比
-     */
+    @Check(name = "总数据行数")
+    private long totalRowCount;
+    @Check(name = "已写入数据行数")
+    private long addedRowCount;
+    @Check(name = "任务进度百分比")
     private int progress;
-
-    /**
-     * 预计剩余耗时
-     */
+    @Check(name = "预计剩余耗时")
     private long estimateTime;
-
-    /**
-     * 主键重复条数
-     */
+    @Check(name = "主键重复条数")
     private long repeatIdRowCount;
-    /**
-     * 错误消息
-     */
+    @Check(name = "错误消息")
     private String errorMessage;
 
     // region getter/setter
