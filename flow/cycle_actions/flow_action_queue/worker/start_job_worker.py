@@ -27,11 +27,12 @@ class StartJobWorker(BaseFlowActionWorker):
     def work(self, params):
         job_id = params.get('jobId', '')
         my_role = params.get('dstRole', '')
-        type = params.get('type', '')
+        t = params.get('type', '')
         running_job = job_id + '_' + my_role
 
         schedule_logger(running_job).info('schedule job {}'.format(params))
-        if 'visualfl' == type:
+        schedule_logger(running_job).info('type = {}'.format(t))
+        if 'visualfl' == t:
             VisualFLJobStartAction(job_id, my_role).do()
         else:
             JobStartAction(job_id, my_role).do(FlowQueueActionType.RUN_JOB)
