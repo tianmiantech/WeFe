@@ -39,7 +39,8 @@ class VisualFLJobStartAction(object):
         self.task_executor_pool = ThreadPoolExecutor(max_workers=2)
 
     def do(self):
-
+        schedule_logger(self.job.job_id + '_' + self.my_role).info(
+            "VisualFLJobStartAction do begin, {},{}".format(self.job.job_id, self.job.my_role))
         if self.job is None:
             return
 
