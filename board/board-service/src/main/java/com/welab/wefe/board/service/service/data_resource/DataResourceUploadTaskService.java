@@ -155,8 +155,6 @@ public class DataResourceUploadTaskService extends AbstractService {
     public PagingOutput<DataSetTaskOutputModel> query(DataResourceUploadTaskQueryApi.Input input) {
         Specification<DataResourceUploadTaskMysqlModel> where = Where
                 .create()
-                .greaterThan("progress", 0)
-                .lessThan("progress", 100)
                 .greaterThan("updatedTime", DateUtil.getDate(System.currentTimeMillis() - TimeSpan.fromMinute(10).toMs()))
                 .build(DataResourceUploadTaskMysqlModel.class);
 
