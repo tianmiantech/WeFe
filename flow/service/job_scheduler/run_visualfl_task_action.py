@@ -162,7 +162,7 @@ class RunVisualFLTaskAction:
                 'job_type': 'paddle_fl',
                 'role': self.job.my_role,
                 'member_id': GlobalSetting.get_member_id(),
-                'callback_url': GlobalSetting.get_flow_base_url() + '/visualfl/apply_callback'
+                'callback_url': GlobalSetting.get_flow_base_url().value + '/visualfl/apply_callback'
             }
             self.log_job_info('apply_resource params:' + str(params))
             response = VisualFLService.request('apply', params)
