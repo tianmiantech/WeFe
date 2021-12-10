@@ -54,6 +54,10 @@ public class Env {
      * 是否使用 visualdl 可视化
      */
     public boolean useVdl = true;
+    /**
+     * 是否基于上次执行一半的任务继续执行
+     */
+    public boolean resume = false;
 
     public Env() {
     }
