@@ -297,27 +297,27 @@ contract MemberContract{
     }
 
 
-        function updateExtJson(string id,string ext_json) public returns (int256) {
-            Table table = tableFactory.openTable(TABLE_NAME);
+    function updateExtJson(string id,string ext_json) public returns (int256) {
+        Table table = tableFactory.openTable(TABLE_NAME);
 
-            Condition condition = table.newCondition();
-            condition.EQ("id", id);
+        Condition condition = table.newCondition();
+        condition.EQ("id", id);
 
-            Entry entry = table.newEntry();
-            entry.set("ext_json", ext_json);
+        Entry entry = table.newEntry();
+        entry.set("ext_json", ext_json);
 
-            int count = table.update(FIX_ID, entry, condition);
+        int count = table.update(FIX_ID, entry, condition);
 
-            int256 ret_code = 0;
-            if(count >= 1){
-                ret_code = 0;
-            } else {
-                ret_code = -2;
-            }
-
-            emit updateExtJsonEvent(ret_code,id,ext_json);
-            return ret_code;
+        int256 ret_code = 0;
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
         }
+
+        emit updateExtJsonEvent(ret_code,id,ext_json);
+        return ret_code;
+    }
 
 
     function deleteById(string id) public returns (int) {

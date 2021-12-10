@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,13 +17,16 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.entity.DataSet;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,26 +42,32 @@ import java.util.List;
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class DataSetContractService extends AbstractContractService {
 
-    private final BlockChainContext blockChainContext = BlockChainContext.getInstance();
-
+    @Autowired
+    private DataSetContract dataSetContract;
+    @Autowired
+    private CryptoSuite cryptoSuite;
     @Autowired
     private MemberContractService memberContractService;
+    @Autowired
+    private DataSetMongoReop dataSetMongoReop;
     @Autowired
     private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
 
     public void upsert(DataSet dataset) throws StatusCodeWithException {
         try {
             String extJson = " ";
+            if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
+                extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
+            }
             if (!memberContractService.isExist(dataset.getMemberId())) {
                 throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
             }
 
-            DataSetContract dataSetContract = blockChainContext.getLatestVersionDataSetContract();
             TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
                     extJson);
 
             // Get receipt result
-            TransactionResponse insertResponse = blockChainContext.getUnionTransactionDecoder()
+            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_INSERT, insertTransactionReceipt);
 
             // Transaction execution failed
@@ -68,7 +77,7 @@ public class DataSetContractService extends AbstractContractService {
                         extJson);
 
                 // Get receipt result
-                TransactionResponse updateResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
                 if (!transactionIsSuccess(updateResponse.getValues())) {
                     throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
@@ -84,12 +93,11 @@ public class DataSetContractService extends AbstractContractService {
 
     public void deleteById(String dataSetId) throws StatusCodeWithException {
         try {
-            DataSetContract dataSetContract = blockChainContext.getLatestVersionDataSetContract();
             boolean isExist = dataSetContract.isExist(dataSetId);
             if (isExist) {
                 TransactionReceipt transactionReceipt = dataSetContract.deleteByDataSetId(dataSetId);
                 // Get receipt result
-                TransactionResponse deleteResponse = blockChainContext.getUnionTransactionDecoder()
+                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
                     throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);

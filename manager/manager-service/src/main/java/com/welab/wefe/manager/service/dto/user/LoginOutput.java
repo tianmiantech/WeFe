@@ -7,14 +7,14 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
  */
 public class LoginOutput extends AbstractApiOutput {
     private String userId;
-
     private String token;
-
     private String account;
-
-    private String nickname;
-
+    private String password;
+    private String realname;
     private String email;
+    private boolean superAdminRole;
+    private boolean adminRole;
+
 
     public String getUserId() {
         return userId;
@@ -40,12 +40,20 @@ public class LoginOutput extends AbstractApiOutput {
         this.account = account;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getPassword() {
+        return password;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRealname() {
+        return realname;
+    }
+
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {
@@ -54,5 +62,21 @@ public class LoginOutput extends AbstractApiOutput {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isSuperAdminRole() {
+        return superAdminRole;
+    }
+
+    public void setSuperAdminRole(boolean superAdminRole) {
+        this.superAdminRole = superAdminRole;
+    }
+
+    public boolean isAdminRole() {
+        return adminRole;
+    }
+
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
     }
 }

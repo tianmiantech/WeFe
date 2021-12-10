@@ -28,36 +28,40 @@ import java.util.UUID;
  **/
 @Document(collection = MongodbTable.Union.UNION_NODE)
 public class UnionNode extends AbstractBlockChainBusinessModel {
-    private String unionNodeId = UUID.randomUUID().toString().replaceAll("-", "");
-    private String sign;
-    private String unionBaseUrl;
+    private String nodeId;
+    private String blockchainNodeId;
+    private String baseUrl;
     private String organizationName;
+    private String lostContact;
+    private String contactEmail;
+    private String priorityLevel;
+    private String version;
+    private String publicKey;
     private String enable;
-    private UnionNodeExtJSON extJson;
+    private UnionNodeExtJSON extJson = new UnionNodeExtJSON();
 
-
-    public String getUnionNodeId() {
-        return unionNodeId;
+    public String getNodeId() {
+        return nodeId;
     }
 
-    public void setUnionNodeId(String unionNodeId) {
-        this.unionNodeId = unionNodeId;
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
-    public String getSign() {
-        return sign;
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
     }
 
-    public void setSign(String sign) {
-        this.sign = sign;
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
     }
 
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getOrganizationName() {
@@ -66,6 +70,38 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public String getLostContact() {
+        return lostContact;
+    }
+
+    public void setLostContact(String lostContact) {
+        this.lostContact = lostContact;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(String priorityLevel) {
+        this.priorityLevel = priorityLevel;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getEnable() {
@@ -82,5 +118,13 @@ public class UnionNode extends AbstractBlockChainBusinessModel {
 
     public void setExtJson(UnionNodeExtJSON extJson) {
         this.extJson = extJson;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }

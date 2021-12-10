@@ -6,7 +6,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagDeleteInput;
 import com.welab.wefe.manager.service.dto.union.UnionNodeDeleteInput;
 import com.welab.wefe.manager.service.service.UnionNodeContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "union/node/delete", name = "union_node_delete", login = false)
+@Api(path = "union/node/delete", name = "union_node_delete")
 public class DeleteApi extends AbstractApi<UnionNodeDeleteInput, AbstractApiOutput> {
 
     @Autowired
@@ -25,7 +24,7 @@ public class DeleteApi extends AbstractApi<UnionNodeDeleteInput, AbstractApiOutp
         LOG.info("DeleteApi handle..");
         try {
 
-            unionNodeContractService.deleteByUnionNodeId(input.getUnionNodeId());
+            unionNodeContractService.deleteByUnionNodeId(input.getNodeId());
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

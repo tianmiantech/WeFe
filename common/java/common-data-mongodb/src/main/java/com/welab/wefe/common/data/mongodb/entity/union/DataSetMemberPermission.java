@@ -31,7 +31,7 @@ public class DataSetMemberPermission extends AbstractBlockChainBusinessModel {
     private String dataSetId;
     private String memberId;
 
-    private DataSetMemberPermissionExtJSON extJson;
+    private DataSetMemberPermissionExtJSON extJson = new DataSetMemberPermissionExtJSON();
 
 
 

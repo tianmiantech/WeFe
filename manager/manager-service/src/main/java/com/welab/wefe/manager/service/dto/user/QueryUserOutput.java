@@ -8,7 +8,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 public class QueryUserOutput extends AbstractApiOutput {
     private String userId;
     private String account;
-    private String nickname;
+    private String realname;
     private String email;
     /**
      * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
@@ -40,12 +40,12 @@ public class QueryUserOutput extends AbstractApiOutput {
         this.account = account;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {

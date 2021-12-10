@@ -11,19 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
-/**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/11/3
- */
-@Api(path = "union/member/realname/authInfo/query", name = "apply realname auth")
-public class MemberRealNameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, JSONObject> {
+@Api(path = "union/realname/auth/agreement/template/query", name = "realname auth agreement template query")
+public class QueryRealnameAuthAgreementTemplateApi  extends AbstractApi<AbstractApiInput, JSONObject> {
     @Autowired
     private UnionService unionService;
 
     @Override
     protected ApiResult<JSONObject> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
-        JSONObject result = unionService.realnameAuthInfoQuery();
+        JSONObject result = unionService.realnameAuthAgreementTemplateQuery();
         return unionApiResultToBoardApiResult(result);
     }
 }

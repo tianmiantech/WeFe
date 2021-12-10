@@ -1,10 +1,7 @@
 package com.welab.wefe.manager.service.dto.union;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
-
-import java.util.UUID;
 
 /**
  * @Description:
@@ -13,21 +10,28 @@ import java.util.UUID;
  */
 public class UnionNodeAddInput extends BaseInput {
     @Check(require = true)
-    private String unionBaseUrl;
+    private String blockchainNodeId;
     @Check(require = true)
+    private String baseUrl;
     private String organizationName;
-    private boolean enable = true;
-    private UnionNodeExtJSON extJson;
+    private String contactEmail;
+    private String version;
 
 
-
-
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
     }
 
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getOrganizationName() {
@@ -38,22 +42,19 @@ public class UnionNodeAddInput extends BaseInput {
         this.organizationName = organizationName;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public String getContactEmail() {
+        return contactEmail;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
     }
 
-    public UnionNodeExtJSON getExtJson() {
-        return extJson;
+    public String getVersion() {
+        return version;
     }
 
-    public void setExtJson(UnionNodeExtJSON extJson) {
-        this.extJson = extJson;
+    public void setVersion(String version) {
+        this.version = version;
     }
-
-
-
 }

@@ -15,7 +15,7 @@ contract MemberAuthTypeContract{
     event insertEvent(int256 ret_code,string[] params,string ext_json);
     event updateEvent(int256 ret_code,string type_id,string type_name,string updated_time);
     event deleteByTypeIdEvent(int256 ret_code,string type_id);
-    event updateExtJsonEvent(int256 ret_code,string type_id, string ext_json);
+    event updateExtJsonEvent(int256 ret_code,string type_id, string ext_json,string updated_time);
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
@@ -30,7 +30,7 @@ contract MemberAuthTypeContract{
         if (isExist(params[0])) {
             ret_code = -1;
             emit insertEvent(ret_code,params,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -53,7 +53,7 @@ contract MemberAuthTypeContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -61,7 +61,7 @@ contract MemberAuthTypeContract{
     function update(string type_id,string type_name,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(type_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,type_id,type_name,updated_time);
             return ret_code;
         }
@@ -84,11 +84,17 @@ contract MemberAuthTypeContract{
         }
 
         emit updateEvent(ret_code,type_id,type_name,updated_time);
-        return count;
+        return ret_code;
     }
 
     function deleteByTypeId(string type_id) public returns (int) {
         int256 ret_code = 0;
+        if (!isExist(type_id)) {
+            ret_code = -3;
+            emit deleteByTypeIdEvent(ret_code,type_id);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("type_id", type_id);
@@ -102,7 +108,7 @@ contract MemberAuthTypeContract{
 
         emit deleteByTypeIdEvent(ret_code,type_id);
 
-        return count;
+        return ret_code;
 
     }
 
@@ -118,7 +124,14 @@ contract MemberAuthTypeContract{
         return (0, wrapReturnMemberInfo(entries));
     }
 
-    function updateExtJson(string type_id,string ext_json) public returns (int256) {
+    function updateExtJson(string type_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(type_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,type_id,ext_json,updated_time);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
 
         Condition condition = table.newCondition();
@@ -126,17 +139,17 @@ contract MemberAuthTypeContract{
 
         Entry entry = table.newEntry();
         entry.set("ext_json", ext_json);
+        entry.set("updated_time", updated_time);
 
         int count = table.update(FIX_ID, entry, condition);
 
-        int256 ret_code = 0;
         if(count >= 1){
             ret_code = 0;
         } else {
             ret_code = -2;
         }
 
-        emit updateExtJsonEvent(ret_code,type_id,ext_json);
+        emit updateExtJsonEvent(ret_code,type_id,ext_json,updated_time);
         return ret_code;
     }
 

@@ -1,44 +1,46 @@
 package com.welab.wefe.manager.service.dto.union;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
-
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
 public class UnionNodeQueryOutput {
-    private String unionNodeId;
-    private String sign;
-    private String unionBaseUrl;
+    private String nodeId;
+    private String blockchainNodeId;
+    private String baseUrl;
     private String organizationName;
+    private String contactEmail;
+    private String priorityLevel;
+    private int lostContact;
     private int enable;
+    private String version;
     private int status;
-    private UnionNodeExtJSON extJson;
+    private String createdTime;
+    private String updatedTime;
 
-
-    public String getUnionNodeId() {
-        return unionNodeId;
+    public String getNodeId() {
+        return nodeId;
     }
 
-    public void setUnionNodeId(String unionNodeId) {
-        this.unionNodeId = unionNodeId;
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
-    public String getSign() {
-        return sign;
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
     }
 
-    public void setSign(String sign) {
-        this.sign = sign;
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
     }
 
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getOrganizationName() {
@@ -49,12 +51,44 @@ public class UnionNodeQueryOutput {
         this.organizationName = organizationName;
     }
 
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(String priorityLevel) {
+        this.priorityLevel = priorityLevel;
+    }
+
+    public int getLostContact() {
+        return lostContact;
+    }
+
+    public void setLostContact(int lostContact) {
+        this.lostContact = lostContact;
+    }
+
     public int getEnable() {
         return enable;
     }
 
     public void setEnable(int enable) {
         this.enable = enable;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public int getStatus() {
@@ -65,11 +99,19 @@ public class UnionNodeQueryOutput {
         this.status = status;
     }
 
-    public UnionNodeExtJSON getExtJson() {
-        return extJson;
+    public String getCreatedTime() {
+        return createdTime;
     }
 
-    public void setExtJson(UnionNodeExtJSON extJson) {
-        this.extJson = extJson;
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

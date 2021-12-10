@@ -1,7 +1,5 @@
 package com.welab.wefe.common.data.mongodb.dto.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON;
-
 /**
  * @Description:
  * @author: yuxin.zhang
@@ -11,7 +9,6 @@ public class MemberAuthQueryOutput {
     private String typeId;
     private String typeName;
     private int status;
-    private MemberAuthTypeExtJSON extJson;
 
     public String getTypeId() {
         return typeId;
@@ -37,11 +34,4 @@ public class MemberAuthQueryOutput {
         this.status = status;
     }
 
-    public MemberAuthTypeExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(MemberAuthTypeExtJSON extJson) {
-        this.extJson = extJson;
-    }
 }

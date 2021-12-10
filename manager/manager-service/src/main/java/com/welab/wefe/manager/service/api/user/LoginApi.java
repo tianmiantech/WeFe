@@ -13,7 +13,6 @@ import com.welab.wefe.manager.service.dto.user.LoginOutput;
 import com.welab.wefe.manager.service.mapper.UserMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @Description:

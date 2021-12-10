@@ -26,7 +26,7 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
  * @author yuxin.zhang
  */
 public class AbstractContractService {
-    protected void checkTransactionResponse(TransactionResponse transactionResponse) throws StatusCodeWithException {
+    protected void transactionIsSuccess(TransactionResponse transactionResponse) throws StatusCodeWithException {
         String responseValues = transactionResponse.getValues();
         JSONArray values = JObject.parseArray(responseValues);
         if(null == values || values.isEmpty()){
@@ -35,7 +35,7 @@ public class AbstractContractService {
         int retCode = values.getIntValue(0);
         switch (retCode){
             case 0:
-                break;
+                return;
             case -1:
                 throw new StatusCodeWithException("data already exists", StatusCode.SYSTEM_BUSY);
             case -2:

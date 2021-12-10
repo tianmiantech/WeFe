@@ -3,8 +3,9 @@ package com.welab.wefe.manager.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.UnionNodeContract;
 import com.welab.wefe.manager.service.dto.union.UnionNodeEnableInput;
 import com.welab.wefe.manager.service.dto.union.UnionNodeUpdateInput;
@@ -51,18 +52,9 @@ public class UnionNodeContractService extends AbstractContractService {
                     .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_INSERT, transactionReceipt);
 
 
-            LOG.info("UnionNode contract insert transaction, unionBaseUrl: {},  receipt response: {}", unionNode.getUnionBaseUrl(), JObject.toJSON(transactionResponse).toString());
+            LOG.info("UnionNode contract insert transaction, unionBaseUrl: {},  receipt response: {}", unionNode.getBaseUrl(), JObject.toJSON(transactionResponse).toString());
 
-            String responseValues = transactionResponse.getValues();
-            if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("UnionNode already exists", StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("UnionNode information failed", StatusCode.SYSTEM_BUSY);
-            }
+            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);
@@ -76,10 +68,18 @@ public class UnionNodeContractService extends AbstractContractService {
 
     public void update(UnionNodeUpdateInput input) throws StatusCodeWithException {
         try {
-            unionNodeContract.update(
-                    input.getUnionNodeId(),
+            TransactionReceipt transactionReceipt = unionNodeContract.update(
+                    input.getNodeId(),
                     generateUpdateParams(input)
             );
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_UPDATE, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -87,20 +87,36 @@ public class UnionNodeContractService extends AbstractContractService {
 
     public void enable(UnionNodeEnableInput input) throws StatusCodeWithException {
         try {
-            unionNodeContract.updateEnable(
-                    input.getUnionNodeId(),
+            TransactionReceipt transactionReceipt = unionNodeContract.updateEnable(
+                    input.getNodeId(),
                     String.valueOf(input.getEnable() ? 1 : 0),
                     toStringYYYY_MM_DD_HH_MM_SS2(new Date())
             );
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_UPDATEENABLE, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
 
-    public void deleteByUnionNodeId(String unionNodeId) throws StatusCodeWithException {
+    public void deleteByUnionNodeId(String nodeId) throws StatusCodeWithException {
         try {
-            unionNodeContract.deleteByUnionNodeId(unionNodeId);
+            TransactionReceipt transactionReceipt = unionNodeContract.deleteByUnionNodeId(nodeId);
+
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(UnionNodeContract.ABI, UnionNodeContract.FUNC_DELETEBYUNIONNODEID, transactionReceipt);
+
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("deleteByUnionNodeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -109,22 +125,24 @@ public class UnionNodeContractService extends AbstractContractService {
 
     private List<String> generateAddParams(UnionNode unionNode) {
         List<String> list = new ArrayList<>();
-        list.add(unionNode.getUnionNodeId());
-        list.add(unionNode.getSign());
-        list.add(unionNode.getUnionBaseUrl());
-        list.add(unionNode.getOrganizationName());
-        list.add(unionNode.getEnable());
+        list.add(unionNode.getNodeId());
+        list.add(StringUtil.isEmptyToBlank(unionNode.getBlockchainNodeId()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getBaseUrl()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getOrganizationName()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getLostContact()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getContactEmail()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getPriorityLevel()));
+        list.add(StringUtil.isEmptyToBlank(unionNode.getVersion()));
         list.add(unionNode.getCreatedTime());
         list.add(unionNode.getUpdatedTime());
-
         return list;
     }
 
     private List<String> generateUpdateParams(UnionNodeUpdateInput input) {
         List<String> list = new ArrayList<>();
-        list.add(Md5.of(input.getUnionBaseUrl()));
-        list.add(input.getUnionBaseUrl());
-        list.add(input.getOrganizationName());
+        list.add(StringUtil.isEmptyToBlank(input.getBaseUrl()));
+        list.add(StringUtil.isEmptyToBlank(input.getOrganizationName()));
+        list.add(StringUtil.isEmptyToBlank(input.getContactEmail()));
         list.add(toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }

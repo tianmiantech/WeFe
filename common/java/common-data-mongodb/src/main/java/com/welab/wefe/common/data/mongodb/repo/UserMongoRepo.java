@@ -92,7 +92,7 @@ public class UserMongoRepo extends AbstractMongoRepo {
     public void update(String userId, String nickname, String email) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
-                .append("nickname", nickname)
+                .append("realname", nickname)
                 .append("email", email)
                 .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
@@ -101,7 +101,7 @@ public class UserMongoRepo extends AbstractMongoRepo {
     public PageOutput<User> findList(String account, String nickname, Boolean adminRole, int pageIndex, int pageSize) {
         Query query = new QueryBuilder()
                 .append("account", account)
-                .like("nickname", nickname)
+                .like("realname", nickname)
                 .append("adminRole", adminRole)
                 .page(pageIndex, pageSize)
                 .build();

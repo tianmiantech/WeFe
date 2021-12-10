@@ -17,7 +17,6 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -44,40 +43,93 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-    public List<UnionNode> findAll() {
-        return mongoUnionTemplate.findAll(UnionNode.class);
+    public List<UnionNode> findAll(boolean status) {
+        return mongoUnionTemplate.find(
+                new QueryBuilder()
+                        .append("status", status ? 1 : 0)
+                        .build()
+                ,
+                UnionNode.class);
     }
 
-    public boolean deleteByUnionNodeId(String unionNodeId) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public List<UnionNode> findExcludeCurrentNode(String blockchainNodeId) {
+        return mongoUnionTemplate.find(
+                new QueryBuilder()
+                        .notEq("blockchainNodeId", blockchainNodeId)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+
+    public UnionNode findByUnionBaseUrl(String unionBaseUrl) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("baseUrl", unionBaseUrl)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public UnionNode findByBlockchainNodeId(String blockchainNodeId) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("blockchainNodeId", blockchainNodeId)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public UnionNode findByNodeId(String nodeId) {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .append("nodeId", nodeId)
+                        .notRemoved()
+                        .build()
+                ,
+                UnionNode.class);
+    }
+
+    public boolean deleteByUnionNodeId(String nodeId) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 
-    public boolean update(String unionNodeId,String sign,String unionBaseUrl,String organizationName,String updatedTime) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean update(
+            String nodeId,
+            String baseUrl,
+            String organizationName,
+            String contactEmail,
+            String updatedTime
+
+    ) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder()
-                .append("sign", sign)
-                .append("unionBaseUrl", unionBaseUrl)
+                .append("baseUrl", baseUrl)
                 .append("organizationName", organizationName)
+                .append("contactEmail", contactEmail)
                 .append("updatedTime", updatedTime)
                 .build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateEnable(String unionNodeId,String enable,String updatedTime) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean updateEnable(String nodeId, String enable, String updatedTime) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update udpate = new UpdateBuilder()
                 .append("enable", enable)
                 .append("updatedTime", updatedTime)
@@ -86,13 +138,27 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateExtJSONById(String unionNodeId, UnionNodeExtJSON extJSON) {
-        if (StringUtils.isEmpty(unionNodeId)) {
+    public boolean updatePublicKey(String nodeId, String publicKey, String updatedTime) {
+        if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("unionNodeId", unionNodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Update udpate = new UpdateBuilder()
+                .append("publicKey", publicKey)
+                .append("updatedTime", updatedTime)
+                .build();
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
+        return updateResult.wasAcknowledged();
+    }
+
+
+    public boolean updateExtJSONById(String nodeId, UnionNodeExtJSON extJSON) {
+        if (StringUtils.isEmpty(nodeId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("nodeId", nodeId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetDefaultTag.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, UnionNode.class);
         return updateResult.wasAcknowledged();
     }
 }

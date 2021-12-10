@@ -7,7 +7,7 @@ import java.util.List;
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class RealNameAuthInfoQueryOutput {
+public class RealnameAuthInfoQueryOutput {
 
     private int realNameAuthStatus;
     private String principalName;

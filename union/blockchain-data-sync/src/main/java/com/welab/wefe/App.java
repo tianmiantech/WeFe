@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
@@ -39,7 +40,9 @@ import java.util.Arrays;
         DataSourceAutoConfiguration.class,
         DruidDataSourceAutoConfigure.class,
         MongoAutoConfiguration.class,
-        MongoDataAutoConfiguration.class})
+        MongoDataAutoConfiguration.class,
+        TransactionAutoConfiguration.class
+})
 @ComponentScan(
         basePackages = {"com.welab.wefe.common.data.mongodb"},
         nameGenerator = ApiBeanNameGenerator.class,

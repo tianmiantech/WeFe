@@ -35,7 +35,9 @@ public class MongodbTable {
         public static final String BLOCK_SYNC_DETAIL_INFO = "BlockSyncDetailInfo";
         public static final String BLOCK_SYNC_CONTRACT_HEIGHT = "BlockSyncContractHeight";
         public static final String UNION_NODE = "UnionNode";
-        public static final String AUTH_AGREEMENT_TEMPLATE = "AuthAgreementTemplate";
+        public static final String REALNAME_AUTH_AGREEMENT_TEMPLATE = "RealnameAuthAgreementTemplate";
+        public static final String MEMBER_FILE_INFO = "MemberFileInfo";
+        public static final String UNION_NODE_CONFIG = "UnionNodeConfig";
         public static final String IMAGE_DATASET = "ImageDataSet";
         public static final String IMAGE_DATASET_LABELEDCOUNT = "ImageDataSetLabeledCount";
         public static final String IMAGE_DATA_SET_DEFAULT_TAG = "ImageDataSetDefaultTag";

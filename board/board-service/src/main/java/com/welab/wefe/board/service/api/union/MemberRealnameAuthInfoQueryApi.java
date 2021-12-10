@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.api.union;
 
-package com.welab.wefe.manager.service.api.agreement;
-
-import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.repo.AuthAgreementTemplateMongoRepo;
-import com.welab.wefe.common.util.JObject;
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+import java.io.IOException;
 
 /**
- *
- * @author yuxin.zhang
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/3
  */
-@Api(path = "auth/agreement/template/query", name = "auth/agreement/template/query")
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
-
+@Api(path = "union/member/realname/authInfo/query", name = "realname auth agreement template query")
+public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, JSONObject> {
     @Autowired
-    private AuthAgreementTemplateMongoRepo authAgreementTemplateMongoRepo;
+    private UnionService unionService;
 
     @Override
-    protected ApiResult<JObject> handle(BaseInput input) {
-        List<AuthAgreementTemplate> list = authAgreementTemplateMongoRepo.findAll();
-        return success(JObject.create("list", JObject.toJSON(list)));
+    protected ApiResult<JSONObject> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
+        JSONObject result = unionService.realnameAuthInfoQuery();
+        return unionApiResultToBoardApiResult(result);
     }
-
 }

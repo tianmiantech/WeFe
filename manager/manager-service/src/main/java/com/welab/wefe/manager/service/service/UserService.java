@@ -85,7 +85,7 @@ public class UserService {
     }
 
     public void update(UserUpdateInput input) {
-        userMongoRepo.update(CurrentAccount.id(), input.getNickname(), input.getEmail());
+        userMongoRepo.update(CurrentAccount.id(), input.getRealname(), input.getEmail());
     }
 
     public PageOutput<User> findList(QueryUserInput input) {

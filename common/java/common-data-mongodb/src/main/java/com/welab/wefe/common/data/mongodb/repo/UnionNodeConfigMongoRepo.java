@@ -16,27 +16,31 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.union.AuthAgreementTemplate;
+import com.welab.wefe.common.data.mongodb.entity.union.UnionNodeSm2Config;
+import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
- * @author aaron.li
+ * @author yuxin.zhang
  **/
 @Repository
-public class AuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
+public class UnionNodeConfigMongoRepo extends AbstractMongoRepo {
     @Autowired
     protected MongoTemplate mongoUnionTemplate;
-
-    public List<AuthAgreementTemplate> findAll() {
-        return mongoUnionTemplate.findAll(AuthAgreementTemplate.class);
-    }
 
     @Override
     protected MongoTemplate getMongoTemplate() {
         return mongoUnionTemplate;
+    }
+
+    public UnionNodeSm2Config find() {
+        return mongoUnionTemplate.findOne(
+                new QueryBuilder()
+                        .sort("updateTime")
+                        .build()
+                ,
+                UnionNodeSm2Config.class);
     }
 }

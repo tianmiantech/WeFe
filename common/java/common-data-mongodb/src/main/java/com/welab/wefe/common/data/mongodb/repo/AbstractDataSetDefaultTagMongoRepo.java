@@ -17,6 +17,7 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -46,7 +47,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
     protected abstract String getTableName();
 
     public <T> List<T> findAll(Class<T> t) {
-        return mongoUnionTemplate.findAll(t);
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), t);
     }
 
     public boolean deleteByTagId(String tagId) {

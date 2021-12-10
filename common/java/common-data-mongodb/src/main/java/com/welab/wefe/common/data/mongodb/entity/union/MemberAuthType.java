@@ -31,7 +31,7 @@ import java.util.UUID;
 public class MemberAuthType extends AbstractBlockChainBusinessModel {
     private String typeId = UUID.randomUUID().toString().replaceAll("-", "");
     private String typeName;
-    private MemberAuthTypeExtJSON extJson;
+    private MemberAuthTypeExtJSON extJson = new MemberAuthTypeExtJSON();
 
 
     public String getTypeId() {

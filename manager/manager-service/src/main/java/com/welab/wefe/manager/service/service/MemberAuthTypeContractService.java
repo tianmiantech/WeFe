@@ -51,16 +51,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
             LOG.info("MemberAuthType contract insert transaction, type id: {},  receipt response: {}", memberAuthType.getTypeId(), JObject.toJSON(transactionResponse).toString());
 
-            String responseValues = transactionResponse.getValues();
-            if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("MemberAuthType already exists", StatusCode.SYSTEM_BUSY);
-            }
-            if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("MemberAuthType information failed", StatusCode.SYSTEM_BUSY);
-            }
+            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);
@@ -74,11 +65,17 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
     public void updateByTypeId(MemberAuthTypeUpdateInput input) throws StatusCodeWithException {
         try {
-            memberAuthTypeContract.update(
+            TransactionReceipt transactionReceipt = memberAuthTypeContract.update(
                     input.getTypeId(),
                     input.getTypeName(),
                     StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis()))
             );
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(MemberAuthTypeContract.ABI, MemberAuthTypeContract.FUNC_UPDATE, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("updateByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -87,7 +84,13 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
     public void deleteByTypeId(String typeId) throws StatusCodeWithException {
         try {
-            memberAuthTypeContract.deleteByTypeId(typeId);
+            TransactionReceipt transactionReceipt = memberAuthTypeContract.deleteByTypeId(typeId);
+
+            // get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(MemberAuthTypeContract.ABI, MemberAuthTypeContract.FUNC_DELETEBYTYPEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
             throw new StatusCodeWithException("deleteByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -100,8 +103,8 @@ public class MemberAuthTypeContractService extends AbstractContractService {
         list.add(memberAuthType.getTypeId());
         list.add(memberAuthType.getTypeName());
 
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;
     }
 

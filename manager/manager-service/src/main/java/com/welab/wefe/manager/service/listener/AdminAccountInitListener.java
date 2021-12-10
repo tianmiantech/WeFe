@@ -35,7 +35,7 @@ public class AdminAccountInitListener implements ApplicationListener<Application
             user.setEnable(true);
             user.setAdminRole(true);
             user.setSuperAdminRole(true);
-            user.setNickname(UserConstant.ADMIN_ACCOUNT);
+            user.setRealname(UserConstant.ADMIN_ACCOUNT);
             try {
                 userService.register(user);
             } catch (StatusCodeWithException e) {

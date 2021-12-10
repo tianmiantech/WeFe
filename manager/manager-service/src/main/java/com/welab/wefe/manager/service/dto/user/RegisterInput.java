@@ -14,7 +14,7 @@ public class RegisterInput extends AbstractApiInput {
     @Check(require = true)
     private String password;
     @Check(require = true)
-    private String nickname;
+    private String realname;
     private String email;
 
     public String getAccount() {
@@ -33,12 +33,12 @@ public class RegisterInput extends AbstractApiInput {
         this.password = password;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public String getEmail() {

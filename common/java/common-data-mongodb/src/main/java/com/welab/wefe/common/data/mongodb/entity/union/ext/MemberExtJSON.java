@@ -1,6 +1,5 @@
 package com.welab.wefe.common.data.mongodb.entity.union.ext;
 
-import javax.persistence.Column;
 import java.util.List;
 
 /**
@@ -10,11 +9,12 @@ import java.util.List;
  */
 public class MemberExtJSON {
     private int realNameAuthStatus;
+    private String reporter;
     private String principalName;
     private String authType;
     private String auditComment;
     private String description;
-    private List<RealNameAuthFileInfo> realNameAuthFileInfoList;
+    private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
 
 
     public int getRealNameAuthStatus() {
@@ -49,13 +49,6 @@ public class MemberExtJSON {
         this.description = description;
     }
 
-    public List<RealNameAuthFileInfo> getRealNameAuthFileInfoList() {
-        return realNameAuthFileInfoList;
-    }
-
-    public void setRealNameAuthFileInfoList(List<RealNameAuthFileInfo> realNameAuthFileInfoList) {
-        this.realNameAuthFileInfoList = realNameAuthFileInfoList;
-    }
 
     public String getAuditComment() {
         return auditComment;
@@ -63,5 +56,22 @@ public class MemberExtJSON {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+
+    public List<RealnameAuthFileInfo> getRealnameAuthFileInfoList() {
+        return realnameAuthFileInfoList;
+    }
+
+    public void setRealnameAuthFileInfoList(List<RealnameAuthFileInfo> realnameAuthFileInfoList) {
+        this.realnameAuthFileInfoList = realnameAuthFileInfoList;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
     }
 }

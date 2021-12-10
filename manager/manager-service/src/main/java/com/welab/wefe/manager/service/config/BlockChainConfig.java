@@ -47,7 +47,6 @@ public class BlockChainConfig {
     private static final Logger log =
             LoggerFactory.getLogger(BlockChainConfig.class);
 
-    public static String orgName;
     public String certPath = "conf";
     private int groupId;
     /* use String in java sdk*/
@@ -65,6 +64,7 @@ public class BlockChainConfig {
     private String dataSetDefaultTagContractName;
     private String memberAuthTypeContractName;
     private String unionNodeContractName;
+    private String realnameAuthAgreementTemplateContractName;
 
 
     // add channel disconnect
@@ -158,12 +158,16 @@ public class BlockChainConfig {
 
 
     @Bean
-    public CnsService getCnsService(Client client,CryptoKeyPair cryptoKeyPair) {
+    public CnsService getCnsService(Client client, CryptoKeyPair cryptoKeyPair) {
         CnsService cnsService = new CnsService(client, cryptoKeyPair);
         return cnsService;
     }
 
-
+    @Bean
+    public String getCurrentBlockchainNodeId(Client client) {
+        String nodeId = client.getNodeIDList().getResult().get(0);
+        return nodeId;
+    }
 
     /**
      * 获取新最版的Member（成员）合约
@@ -222,6 +226,16 @@ public class BlockChainConfig {
 
 
     /**
+     * RealnameAuthAgreementTemplateContract（实名认证协议模板）合约
+     */
+    @Bean
+    public RealnameAuthAgreementTemplateContract getLatestVersionRealnameAuthAgreementTemplateContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, realnameAuthAgreementTemplateContractName);
+        return RealnameAuthAgreementTemplateContract.load(address, client, cryptoKeyPair);
+    }
+
+
+    /**
      * 根据名称获取最新版的union业务的合约地址
      *
      * @param cnsService   合约的CNS服务接口
@@ -267,14 +281,6 @@ public class BlockChainConfig {
 
     public void setDataSetMemberPermissionContractName(String dataSetMemberPermissionContractName) {
         this.dataSetMemberPermissionContractName = dataSetMemberPermissionContractName;
-    }
-
-    public static String getOrgName() {
-        return orgName;
-    }
-
-    public static void setOrgName(String orgName) {
-        BlockChainConfig.orgName = orgName;
     }
 
     public String getCertPath() {
@@ -356,5 +362,14 @@ public class BlockChainConfig {
 
     public void setUnionNodeContractName(String unionNodeContractName) {
         this.unionNodeContractName = unionNodeContractName;
+    }
+
+
+    public String getRealnameAuthAgreementTemplateContractName() {
+        return realnameAuthAgreementTemplateContractName;
+    }
+
+    public void setRealnameAuthAgreementTemplateContractName(String realnameAuthAgreementTemplateContractName) {
+        this.realnameAuthAgreementTemplateContractName = realnameAuthAgreementTemplateContractName;
     }
 }
