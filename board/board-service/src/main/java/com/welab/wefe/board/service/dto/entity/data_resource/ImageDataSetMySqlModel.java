@@ -1,0 +1,91 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.welab.wefe.board.service.dto.entity.data_resource;
+
+import com.welab.wefe.common.enums.DeepLearningJobType;
+
+/**
+ * @author zane
+ * @date 2021/12/1
+ */
+public class ImageDataSetMySqlModel extends DataResourceOutputModel {
+    /**
+     * 任务类型;物体检测...）
+     */
+    private DeepLearningJobType forJobType;
+    /**
+     * label;列表
+     */
+    private String labelList;
+    /**
+     * 已标注数量
+     */
+    private Long labeledCount;
+    /**
+     * 是否已标注完毕
+     */
+    private boolean labelCompleted;
+    /**
+     * 数据集大小
+     */
+    private Long filesSize;
+
+    // region getter/setter
+
+
+    public DeepLearningJobType getForJobType() {
+        return forJobType;
+    }
+
+    public void setForJobType(DeepLearningJobType forJobType) {
+        this.forJobType = forJobType;
+    }
+
+    public String getLabelList() {
+        return labelList;
+    }
+
+    public void setLabelList(String labelList) {
+        this.labelList = labelList;
+    }
+
+    public Long getLabeledCount() {
+        return labeledCount;
+    }
+
+    public void setLabeledCount(Long labeledCount) {
+        this.labeledCount = labeledCount;
+    }
+
+    public boolean isLabelCompleted() {
+        return labelCompleted;
+    }
+
+    public void setLabelCompleted(boolean labelCompleted) {
+        this.labelCompleted = labelCompleted;
+    }
+
+    public Long getFilesSize() {
+        return filesSize;
+    }
+
+    public void setFilesSize(Long filesSize) {
+        this.filesSize = filesSize;
+    }
+
+
+    // endregion
+}

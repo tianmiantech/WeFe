@@ -18,10 +18,11 @@ package com.welab.wefe.board.service.sdk;
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.*;
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.api.union.data_set.DataSetTagListApi;
+import com.welab.wefe.board.service.api.union.data_set.DefaultTagListApi;
+import com.welab.wefe.board.service.api.union.data_set.QueryDataSetApi;
+import com.welab.wefe.board.service.api.union.image_data_set.QueryImageDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetMysqlModel;
@@ -29,179 +30,51 @@ import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputMod
 import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
-import com.welab.wefe.common.enums.DataSetType;
-import com.welab.wefe.common.enums.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.http.HttpContentType;
-import com.welab.wefe.common.http.HttpRequest;
-import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.UrlUtil;
-import net.jodah.expiringmap.ExpiringMap;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
 
 /**
  * @author Zane
  */
 @Service
-public class UnionService extends AbstractService {
-
-    /**
-     * cache
-     */
-    private static final ExpiringMap<String, Object> CACHE_MAP = ExpiringMap
-            .builder()
-            .expiration(60, TimeUnit.SECONDS)
-            .maxSize(500)
-            .build();
-
-    @Autowired
-    private Config config;
-
-    @Autowired
-    private GlobalConfigService globalConfigService;
-
+public class UnionService extends AbstractUnionService {
     public void updateImageDataSetLabelInfo(ImageDataSetMysqlModel dataSet) {
         // TODO: Zane 待补充
     }
 
 
-    public JSONObject queryMemberAuthTypeList() throws StatusCodeWithException {
-        return request("member/authtype/query", JObject.create(), true);
-    }
-
-    public JSONObject realnameAuth(MemberRealNameAuthApi.Input input) throws StatusCodeWithException {
-        return request("member/realname/auth", JObject.create(input), true);
-    }
-
-    public JSONObject realnameAuthInfoQuery() throws StatusCodeWithException {
-        return request("member/realname/authInfo/query", JObject.create(), true);
-    }
-
-
-    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files,JObject params) throws StatusCodeWithException {
-
-        return request("member/file/upload", params, files, true);
-    }
-
-    /**
-     * initialize wefe system
-     */
-    public void initializeSystem(MemberInfoModel model) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("id", model.getMemberId())
-                .put("member_id", model.getMemberId())
-                .put("name", model.getMemberName())
-                .put("mobile", model.getMemberMobile())
-                .put("allow_open_data_set", model.getMemberAllowPublicDataSet())
-                .put("public_key", model.getRsaPublicKey())
-                .put("email", model.getMemberEmail())
-                .put("gateway_uri", model.getMemberGatewayUri())
-                .put("logo", model.getMemberLogo())
-                .put("hidden", model.getMemberHidden());
-
-        request("member/add", params, false);
-    }
-
-    /**
-     * Report member information
-     */
-    public void uploadMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("id", model.getMemberId())
-                .put("name", model.getMemberName())
-                .put("mobile", model.getMemberMobile())
-                .put("allow_open_data_set", model.getMemberAllowPublicDataSet())
-                .put("public_key", model.getRsaPublicKey())
-                .put("email", model.getMemberEmail())
-                .put("gateway_uri", model.getMemberGatewayUri())
-                .put("logo", model.getMemberLogo())
-                .put("hidden", model.getMemberHidden());
-
-        request("member/update", params);
-    }
-
-
-    /**
-     * Reset key
-     */
-    public void resetPublicKey(MemberInfoModel model) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("id", model.getMemberId())
-                .put("public_key", model.getRsaPublicKey());
-
-        request("member/update_public_key", params);
-    }
-
-    /**
-     * Update member information (not including logo)
-     */
-    public void uploadMemberInfoExcludeLogo(MemberInfoModel model) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("id", model.getMemberId())
-                .put("name", model.getMemberName())
-                .put("mobile", model.getMemberMobile())
-                .put("allow_open_data_set", model.getMemberAllowPublicDataSet())
-                .put("public_key", model.getRsaPublicKey())
-                .put("email", model.getMemberEmail())
-                .put("gateway_uri", model.getMemberGatewayUri())
-                .put("hidden", model.getMemberHidden());
-
-        request("member/update_exclude_logo", params);
-    }
-
-    /**
-     * Update member information logo
-     */
-    public void updateMemberLogo(MemberInfoModel model) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("id", model.getMemberId())
-                .put("logo", model.getMemberLogo());
-
-        request("member/update_logo", params);
-    }
-
     private void uploadDataSet(AbstractDataSetMysqlModel model, JObject params) throws StatusCodeWithException {
         MemberInfoModel member = globalConfigService.getMemberInfo();
         // If data exposure is prohibited globally, it will not be reported.
-        if (!member.getMemberAllowPublicDataSet()) {
+        if (!member.getMemberAllowPublicDataSet() || member.getMemberHidden()) {
             return;
         }
 
         // If this data set is not publicly available to anyone
         if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
             // Notify union to remove the data set
-            dontPublicDataSet(model.getId());
+            dontPublicDataSet(model);
             return;
         }
 
+
         CommonThreadPool.run(() -> {
+
+            String api = null;
+            if (model instanceof ImageDataSetMysqlModel) {
+                api = "image_data_set/put";
+            } else if (model instanceof DataSetMysqlModel) {
+                api = "data_set/put";
+            }
+
             try {
-                request("data_set/put", params);
+                request(api, params);
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }
@@ -210,19 +83,9 @@ public class UnionService extends AbstractService {
     }
 
     public void uploadImageDataSet(ImageDataSetMysqlModel model) throws StatusCodeWithException {
-        // TODO: Zane 待补充
         JObject params = JObject
-                .create()
-                .put("id", model.getId())
-                .put("name", model.getName())
-                .put("member_id", CacheObjects.getMemberId())
-                .put("public_level", model.getPublicLevel())
-                .put("public_member_list", model.getPublicMemberList())
-                .put("usage_count_in_job", model.getUsageCountInJob())
-                .put("usage_count_in_flow", model.getUsageCountInFlow())
-                .put("usage_count_in_project", model.getUsageCountInProject())
-                .put("tags", model.getTags())
-                .put("description", model.getDescription());
+                .create(model)
+                .put("data_set_id", model.getId());
 
         uploadDataSet(model, params);
     }
@@ -233,23 +96,8 @@ public class UnionService extends AbstractService {
     public void uploadTableDataSet(DataSetMysqlModel model) throws StatusCodeWithException {
 
         JObject params = JObject
-                .create()
-                .put("id", model.getId())
-                .put("name", model.getName())
-                .put("member_id", CacheObjects.getMemberId())
-                .put("contains_y", model.getContainsY())
-                .put("row_count", model.getRowCount())
-                .put("column_count", model.getColumnCount())
-                .put("column_name_list", model.getColumnNameList())
-                .put("feature_count", model.getFeatureCount())
-                .put("feature_name_list", model.getFeatureNameList())
-                .put("public_level", model.getPublicLevel())
-                .put("public_member_list", model.getPublicMemberList())
-                .put("usage_count_in_job", model.getUsageCountInJob())
-                .put("usage_count_in_flow", model.getUsageCountInFlow())
-                .put("usage_count_in_project", model.getUsageCountInProject())
-                .put("tags", model.getTags())
-                .put("description", model.getDescription());
+                .create(model)
+                .put("data_set_id", model.getId());
 
         uploadDataSet(model, params);
 
@@ -258,62 +106,36 @@ public class UnionService extends AbstractService {
     /**
      * Hidden data set
      */
-    public void dontPublicDataSet(String dataSetId) throws StatusCodeWithException {
+    public void dontPublicDataSet(AbstractDataSetMysqlModel model) throws StatusCodeWithException {
         JObject params = JObject
                 .create()
-                .put("id", dataSetId);
+                .put("id", model.getId())
+                .put("data_set_id", model.getId());
 
-        request("data_set/delete", params);
+
+        String api = null;
+        if (model instanceof ImageDataSetMysqlModel) {
+            api = "image_data_set/delete";
+        } else if (model instanceof DataSetMysqlModel) {
+            api = "data_set/delete";
+        }
+
+        request(api, params);
     }
 
-    /**
-     * Pagination query member
-     */
-    public synchronized JSONObject queryMembers(MemberListApi.Input input) throws StatusCodeWithException {
 
-        String key = "queryMembers" + JSON.toJSONString(input);
+    public JSONObject queryImageDataSetTags() throws StatusCodeWithException {
+        String key = "queryImageDataSetTags";
         if (CACHE_MAP.containsKey(key)) {
             return (JSONObject) CACHE_MAP.get(key);
         }
 
         JObject params = JObject
-                .create()
-                .put("page_index", input.getPageIndex())
-                .put("page_size", input.getPageSize())
-                .put("name", input.getName())
-                .put("id", input.getId());
+                .create();
 
-        JSONObject response = request("member/query", params);
+        JSONObject response = request("image_data_set/tags/query", params);
         CACHE_MAP.put(key, response);
         return response;
-    }
-
-    public JSONObject queryMemberById(String id) throws StatusCodeWithException {
-        return queryMember(id, "");
-    }
-
-    public JSONObject queryMember(String id, String name) throws StatusCodeWithException {
-        return queryMemberByPage(0, 0, id, name);
-    }
-
-    public JSONObject queryMember(int pageIndex, int pageSize) throws StatusCodeWithException {
-        return queryMemberByPage(pageIndex, pageSize, "", "");
-    }
-
-    public JSONObject queryMemberByPage(int pageIndex, int pageSize, String id, String name) throws StatusCodeWithException {
-        JObject params = JObject.create()
-                .put("page_index", pageIndex)
-                .put("page_size", pageSize);
-
-        if (StringUtil.isNotEmpty(id)) {
-            params.put("id", id);
-        }
-
-        if (StringUtil.isNotEmpty(name)) {
-            params.put("name", name);
-        }
-
-        return request("member/query", params);
     }
 
     /**
@@ -339,7 +161,7 @@ public class UnionService extends AbstractService {
     /**
      * Pagination query default tags
      */
-    public JSONObject queryTags(TagListApi.Input input) throws StatusCodeWithException {
+    public JSONObject queryTags(DefaultTagListApi.Input input) throws StatusCodeWithException {
 
         String key = "queryTags" + JSON.toJSONString(input);
         if (CACHE_MAP.containsKey(key)) {
@@ -356,57 +178,58 @@ public class UnionService extends AbstractService {
         return response;
     }
 
+
     /**
      * Paging query data set
      */
     public JSONObject queryDataSets(QueryDataSetApi.Input input) throws StatusCodeWithException {
-        JObject params = JObject
-                .create()
-                .put("page_index", input.getPageIndex())
-                .put("page_size", input.getPageSize())
-                .put("id", input.getId())
-                .put("tag", input.getTag())
-                .put("name", input.getName())
-                .put("contains_y", input.getContainsY())
-                .put("member_id", input.getMemberId());
+        JObject data = JObject.create()
+                .put("id", input.getDataSetId())
+                .put("data_set_id", input.getDataSetId());
 
-        return request("data_set/query", params);
+        return request("data_set/query", data);
+    }
+
+    public JSONObject queryImageDataSets(QueryImageDataSetApi.Input input) throws StatusCodeWithException {
+        return request("image_data_set/query", JObject.create(input));
     }
 
     /**
      * Get details of a single data set
      */
     public ImageDataSetOutputModel getImageDataSetDetail(String id) throws StatusCodeWithException {
-        return (ImageDataSetOutputModel) getDataSetDetail(id, DataSetType.ImageDataSet);
+        return (ImageDataSetOutputModel) getDataSetDetail(id, DataResourceType.ImageDataSet);
     }
 
     /**
      * Get details of a single data set
      */
     public TableDataSetOutputModel getTableDataSetDetail(String id) throws StatusCodeWithException {
-        return (TableDataSetOutputModel) getDataSetDetail(id, DataSetType.TableDataSet);
+        return (TableDataSetOutputModel) getDataSetDetail(id, DataResourceType.TableDataSet);
     }
 
     /**
      * Get details of a single data set
      */
-    public AbstractDataSetOutputModel getDataSetDetail(String id, DataSetType dataSetType) throws StatusCodeWithException {
+    public AbstractDataSetOutputModel getDataSetDetail(String id, DataResourceType dataResourceType) throws StatusCodeWithException {
 
-        if (CACHE_MAP.containsKey(id)) {
-            return (TableDataSetOutputModel) CACHE_MAP.get(id);
+        String key = id + dataResourceType;
+        if (CACHE_MAP.containsKey(key)) {
+            return (AbstractDataSetOutputModel) CACHE_MAP.get(key);
         }
 
         JObject params = JObject
                 .create()
-                .put("id", id);
+                .put("id", id)
+                .put("data_set_id", id);
 
         String api = null;
-        switch (dataSetType) {
+        switch (dataResourceType) {
             case TableDataSet:
                 api = "data_set/detail";
                 break;
             case ImageDataSet:
-                api = "";
+                api = "image_data_set/detail";
                 break;
             default:
         }
@@ -419,156 +242,19 @@ public class UnionService extends AbstractService {
             return null;
         }
 
-
-        switch (dataSetType) {
+        AbstractDataSetOutputModel output = null;
+        switch (dataResourceType) {
             case TableDataSet:
-                return data.toJavaObject(TableDataSetOutputModel.class);
+                output = data.toJavaObject(TableDataSetOutputModel.class);
+                break;
             case ImageDataSet:
-                return data.toJavaObject(ImageDataSetOutputModel.class);
+                output = data.toJavaObject(ImageDataSetOutputModel.class);
+                break;
             default:
-                return null;
+                StatusCode.UNEXPECTED_ENUM_CASE.throwException();
         }
-
+        CACHE_MAP.put(key, output);
+        return output;
     }
-
-
-    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
-        if (!StringUtil.checkPhoneNumber(mobile)) {
-            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        JObject params = JObject.create()
-                .append("mobile", mobile)
-                .append("smsBusinessType", smsBusinessType);
-        try {
-            request("sms/send_verification_code", params, true);
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
-        } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
-    /**
-     * Check verification code
-     */
-    public void checkVerificationCode(String mobile, String code, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
-        JObject params = JObject.create()
-                .append("mobile", mobile)
-                .append("code", code)
-                .append("smsBusinessType", smsBusinessType);
-        try {
-            request("sms/check_verification_code", params, true);
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
-        } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
-    private String getUnionOrigExceptionMsg(StatusCodeWithException e) {
-        String errorMsg = e.getMessage();
-        if (StringUtil.isNotEmpty(errorMsg)) {
-            int index = errorMsg.indexOf("：");
-            if (index != -1) {
-                errorMsg = errorMsg.substring(index + 1);
-            }
-        }
-        return errorMsg;
-    }
-
-    private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
-        return request(api, params, true);
-    }
-
-    private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
-        return request(api, params, null, true);
-    }
-
-    private JSONObject request(String api, JSONObject params, MultiValueMap<String, MultipartFile> files, boolean needSign) throws StatusCodeWithException {
-        /**
-         * Prevent the map from being out of order, causing the verification to fail.
-         */
-        params = new JSONObject(new TreeMap(params));
-
-        String data = params.toJSONString();
-        String sign = null;
-        // rsa signature
-        JSONObject body = new JSONObject();
-        if (needSign) {
-            try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
-            } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-            }
-
-
-            body.put("member_id", CacheObjects.getMemberId());
-            body.put("sign", sign);
-            body.put("data", data);
-
-            data = body.toJSONString();
-        }
-        HttpResponse response;
-        String url = config.getUNION_BASE_URL() + "/" + api;
-        // send http request without files
-        if (files == null) {
-            response = HttpRequest
-                    .create(url)
-                    .setBody(data)
-                    .postJson();
-        }
-        // send http request with files
-        else {
-            url = UrlUtil.appendQueryParameters(url, body);
-            HttpRequest request = HttpRequest
-                    .create(url)
-                    .setContentType(HttpContentType.MULTIPART);
-
-            for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
-                try {
-                    MultipartFile file = item.getValue();
-                    ContentType contentType = StringUtil.isEmpty(file.getContentType())
-                            ? ContentType.DEFAULT_BINARY
-                            : ContentType.create(file.getContentType());
-
-                    InputStreamBody streamBody = new InputStreamBody(
-                            file.getInputStream(),
-                            contentType,
-                            file.getOriginalFilename()
-                    );
-
-
-                    request.appendParameter(item.getKey(), streamBody);
-                } catch (IOException e) {
-                    StatusCode.FILE_IO_ERROR.throwException(e);
-                }
-            }
-
-            response = request.post();
-        }
-
-
-        if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
-        }
-
-        JSONObject json;
-        try {
-            json = response.getBodyAsJson();
-        } catch (JSONException e) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
-        }
-
-        if (json == null) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
-        }
-
-        Integer code = json.getInteger("code");
-        if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
-        }
-        return json;
-    }
-
 
 }

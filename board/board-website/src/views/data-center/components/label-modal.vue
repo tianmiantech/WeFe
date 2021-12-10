@@ -10,7 +10,7 @@
         <div class="label-modal-list">
             <div v-for="item in labelList" :key="item.text" class="label-modal-item" @click="methods.labelEvent(item)">
                 <span class="label-modal-item_text">{{item.label}}</span>
-                <span class="label-modal-item_keycode">{{item.keycode}}</span>
+                <span v-if="item.keycode !== ''" class="label-modal-item_keycode">{{item.keycode}}</span>
             </div>
         </div>
         <div class="label-modal-delete">

@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.board.service.service.dataset;
 
-import com.thoughtworks.xstream.io.StreamException;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetDeleteApi;
 import com.welab.wefe.board.service.api.dataset.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_set.AbstractDataSetMysqlModel;
@@ -29,33 +28,31 @@ import com.welab.wefe.board.service.dto.vo.data_set.AbstractDataSetUpdateInputMo
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddInputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetAddOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.ImageDataSetUpdateInputModel;
-import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Annotation;
-import com.welab.wefe.board.service.dto.vo.data_set.image_data_set.Size;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.dataset.image_data_set.AbstractImageDataSetParser;
+import com.welab.wefe.board.service.service.dataset.image_data_set.ClassifyImageDataSetParser;
+import com.welab.wefe.board.service.service.dataset.image_data_set.DetectionImageDataSetParser;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.decompression.SuperDecompressor;
+import com.welab.wefe.common.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.*;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.ListUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * @author zane
@@ -137,7 +134,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         FileUtil.deleteFileOrDir(model.getNamespace());
         CacheObjects.refreshImageDataSetTags();
 
-        unionService.dontPublicDataSet(model.getId());
+        unionService.dontPublicDataSet(model);
     }
 
     /**
@@ -148,6 +145,7 @@ public class ImageDataSetService extends AbstractDataSetService {
         Specification<ImageDataSetMysqlModel> where = Where
                 .create()
                 .equal("id", input.getId())
+                .equal("forJobType", input.getForJobType())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
@@ -156,10 +154,14 @@ public class ImageDataSetService extends AbstractDataSetService {
         return imageDataSetRepository.paging(where, input, ImageDataSetOutputModel.class);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Autowired
+    private DetectionImageDataSetParser detectionImageDataSetParser;
+    @Autowired
+    private ClassifyImageDataSetParser classifyImageDataSetParser;
+
     public ImageDataSetAddOutputModel add(ImageDataSetAddInputModel input) throws StatusCodeWithException {
 
-        File zipFile = new File(config.getFileUploadDir(), input.getFilename());
+        File dataSetFile = new File(config.getFileUploadDir(), input.getFilename());
 
         ImageDataSetMysqlModel dataSet = new ImageDataSetMysqlModel();
         // image data set dir
@@ -173,29 +175,32 @@ public class ImageDataSetService extends AbstractDataSetService {
                         .toString()
         );
 
-        ZipUtil.UnzipFileResult unzipFileResult = null;
+        DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
-            unzipFileResult = ZipUtil.unzipFile(zipFile);
-            // 过滤掉操作系统临时目录中的文件
-            unzipFileResult.files = unzipFileResult.files.stream()
-                    .filter(x -> !x.getAbsolutePath().contains("/__MACOSX/"))
-                    .collect(Collectors.toList());
+            fileDecompressionResult = SuperDecompressor.decompression(dataSetFile, true);
 
-            sampleList = parseZipFile(dataSet, unzipFileResult);
+            AbstractImageDataSetParser dataSetParser = null;
+            switch (input.forJobType) {
+                case classify:
+                    dataSetParser = classifyImageDataSetParser;
+                    break;
+                case detection:
+                    dataSetParser = detectionImageDataSetParser;
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
+            }
+            sampleList = dataSetParser.parseFilesToSamples(dataSet, fileDecompressionResult.files);
             setImageDataSetModel(input, dataSet, sampleList);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            super.log(e);
             StatusCode.FILE_IO_ERROR.throwException(e);
         }
 
         // save models to database
         imageDataSetRepository.save(dataSet);
         imageDataSetSampleRepository.saveAll(sampleList);
-
-        // delete source images
-        FileUtil.deleteFileOrDir(zipFile);
-        unzipFileResult.deleteAllDirAndFiles();
-
 
         // Synchronize information to union
         try {
@@ -204,8 +209,12 @@ public class ImageDataSetService extends AbstractDataSetService {
             super.log(e);
         }
 
+        // delete source images
+        FileUtil.deleteFileOrDir(dataSetFile);
+        fileDecompressionResult.deleteAllDirAndFiles();
+
         // Refresh the data set tag list
-        CacheObjects.refreshTableDataSetTags();
+        CacheObjects.refreshImageDataSetTags();
 
         return new ImageDataSetAddOutputModel(dataSet.getId());
     }
@@ -247,123 +256,10 @@ public class ImageDataSetService extends AbstractDataSetService {
 
     }
 
-    /**
-     * 解析 zip 文件，获取样本信息。
-     */
-    private List<ImageDataSetSampleMysqlModel> parseZipFile(ImageDataSetMysqlModel dataSet, ZipUtil.UnzipFileResult unzipFileResult) throws IOException, StatusCodeWithException {
+    public File download(String id) {
+        ImageDataSetMysqlModel dataSet = findOneById(id);
 
-        Set<String> fileNameSet = new HashSet<>();
-        for (File file : unzipFileResult.files) {
-            String fileName = file.getName();
-            if (fileNameSet.contains(fileName)) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("检测到多个文件名为：" + fileName + "，请删除或修改文件名后重试。");
-            }
-            fileNameSet.add(fileName);
-        }
 
-        Map<String, File> imageFiles = unzipFileResult.files
-                .stream()
-                .filter(x -> FileUtil.isImage(x))
-                .collect(Collectors.toMap(
-                        x -> FileUtil.getFileNameWithoutSuffix(x),
-                        x -> x
-                ));
-
-        Map<String, File> xmlFiles = unzipFileResult.files
-                .stream()
-                .filter(x -> "xml".equalsIgnoreCase(FileUtil.getFileSuffix(x)))
-                .collect(Collectors.toMap(
-                        x -> FileUtil.getFileNameWithoutSuffix(x),
-                        x -> x
-                ));
-
-        AtomicReference<StatusCodeWithException> error = new AtomicReference<>();
-        List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
-        imageFiles.keySet()
-                .parallelStream()
-                .forEach(key -> {
-                    File imageFile = imageFiles.get(key);
-                    File xmlFile = xmlFiles.get(key);
-
-                    try {
-                        Annotation annotation = buildAnnotation(imageFile, xmlFile, dataSet);
-                        ImageDataSetSampleMysqlModel sample = buildSample(dataSet, imageFile, annotation);
-                        result.add(sample);
-                    } catch (StatusCodeWithException e) {
-                        super.log(e);
-                        error.set(e);
-                    }
-                });
-
-        if (error.get() != null) {
-            throw error.get();
-        }
-
-        return result;
+        return null;
     }
-
-    private ImageDataSetSampleMysqlModel buildSample(ImageDataSetMysqlModel dataSet, File imageFile, Annotation annotation) throws StatusCodeWithException {
-        ImageDataSetSampleMysqlModel sample = new ImageDataSetSampleMysqlModel();
-        sample.setDataSetId(dataSet.getId());
-        sample.setFileName(imageFile.getName());
-        sample.setFilePath(
-                Paths.get(dataSet.getNamespace(), imageFile.getName()).toString()
-        );
-        sample.setFileSize(imageFile.length());
-        sample.setCreatedBy(CurrentAccount.id());
-        sample.setLabelList(StringUtil.join(annotation.getLabelList(), ","));
-        sample.setLabeled(StringUtil.isNotEmpty(sample.getLabelList()));
-        sample.setXmlAnnotation(XmlUtil.toXml(annotation));
-        sample.setLabelInfo(JObject.create(annotation.toLabelInfo()));
-
-        // move image to dest dir
-        File destFile = new File(sample.getFilePath());
-        if (destFile.exists()) {
-            destFile.delete();
-        }
-        try {
-            FileUtils.copyFile(imageFile, destFile);
-        } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
-        }
-
-        return sample;
-    }
-
-    /**
-     * XmlUtil Doc: https://www.bookstack.cn/read/hutool/e41e0b0a699544fb.md
-     */
-    private Annotation buildAnnotation(File imageFile, File xmlFile, ImageDataSetMysqlModel dataSet) throws StatusCodeWithException {
-        Annotation annotation = null;
-        if (xmlFile != null) {
-            try {
-                annotation = XmlUtil.toModel(xmlFile, Annotation.class);
-            } catch (StreamException e) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("xml 文件反序列化失败：" + xmlFile.getAbsolutePath());
-            } catch (IOException e) {
-                StatusCode.FILE_IO_ERROR.throwException(e);
-            }
-        } else {
-            annotation = new Annotation();
-        }
-
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(new FileInputStream(imageFile));
-        } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
-        }
-        annotation.size = new Size();
-        annotation.size.depth = image.getRaster().getNumDataElements();
-        annotation.size.width = image.getWidth();
-        annotation.size.height = image.getHeight();
-
-        annotation.folder = dataSet.getNamespace();
-
-        annotation.filename = imageFile.getName();
-        annotation.path = Paths.get(annotation.folder, annotation.filename).toString();
-
-        return annotation;
-    }
-
 }

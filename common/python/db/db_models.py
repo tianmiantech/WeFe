@@ -75,6 +75,27 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
+class JobApplyResult(Model):
+    id = CharField(primary_key=True)
+    created_by = CharField(null=True)
+    created_time = DateTimeField()
+    updated_by = CharField(null=True)
+    updated_time = DateTimeField()
+    job_id = CharField()
+    task_id = CharField()
+    server_endpoint = CharField()
+    aggregator_endpoint = CharField()
+    aggregator_assignee = CharField()
+    status = CharField()
+
+    class Meta:
+        database = DB
+        table_name = 'job_apply_result'
+
+    def to_json(self):
+        return self.__dict__['__data__']
+
+
 # GlobalSetting
 class GlobalSetting(object):
     """
@@ -116,6 +137,11 @@ class GlobalSetting(object):
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.getMemberInfo().rsa_private_key
 
+    @staticmethod
+    def get_flow_base_url():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+
 
 # DataSet
 class DataSet(ModelBase):
@@ -148,6 +174,8 @@ class DataSet(ModelBase):
     usage_count_in_project = IntegerField(constraints=[SQL("DEFAULT 0")])
     y_count = IntegerField()
     y_name_list = TextField(null=True)
+    y_positive_example_count = BigIntegerField(null=True)
+    y_positive_example_ratio = FloatField(null=True)
 
     class Meta:
         table_name = 'data_set'

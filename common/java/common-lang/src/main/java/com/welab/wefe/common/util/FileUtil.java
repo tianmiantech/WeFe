@@ -41,6 +41,23 @@ public class FileUtil {
     }
 
     /**
+     * 是否是压缩包文件
+     */
+    public static boolean isArchive(File file) {
+        switch (getFileSuffix(file).toLowerCase()) {
+            case "zip":
+            case "tar":
+            case "gz":
+            case "tgz":
+            case "7z":
+            case "rar":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * get file suffix
      */
     public static String getFileSuffix(File file) {
@@ -55,7 +72,7 @@ public class FileUtil {
      */
     public static String getFileNameWithoutSuffix(File file) {
         if (file.isDirectory()) {
-            return null;
+            return "";
         }
         return StringUtil.substringBeforeLast(file.getName(), ".");
     }
@@ -125,6 +142,4 @@ public class FileUtil {
     public static void deleteFileOrDir(String filePath) {
         deleteFileOrDir(new File(filePath));
     }
-
-
 }

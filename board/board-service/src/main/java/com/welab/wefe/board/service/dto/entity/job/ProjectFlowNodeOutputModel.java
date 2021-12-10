@@ -53,6 +53,19 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
         return componentType.getLabel();
     }
 
+    public JSONObject getParams() {
+        return params;
+    }
+
+    public void setParams(String params) {
+        if (params != null) {
+            this.params = JSONObject.parseObject(params);
+        }
+    }
+
+    public void setParams(JSONObject json) {
+        this.params = json;
+    }
 
     //region getter/setter
 
@@ -94,16 +107,6 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
 
     public void setComponentType(ComponentType componentType) {
         this.componentType = componentType;
-    }
-
-    public JSONObject getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        if (params != null) {
-            this.params = JSONObject.parseObject(params);
-        }
     }
 
     public long getParamsVersion() {

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,9 +56,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
-        JObject vertSecureBoostParam = JObject.create();
+        JObject output = JObject.create();
         JObject treeParam = JObject.create().append("criterion_method", "xgboost")
                 .append("criterion_params", params.getTreeParam().getCriterionParams())
                 .append("max_depth", params.getTreeParam().getMaxDepth())
@@ -78,7 +76,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
 
-        vertSecureBoostParam.append("task_type", params.otherParam.taskType)
+        output.append("task_type", params.otherParam.taskType)
                 .append("learning_rate", params.otherParam.learningRate)
                 .append("num_trees", params.otherParam.numTrees)
                 .append("subsample_feature_rate", params.otherParam.subsampleFeatureRate)
@@ -92,9 +90,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("encrypt_param", encryptParam)
                 .append("cv_param", cvParam);
 
-        taskParam.put("params", vertSecureBoostParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override

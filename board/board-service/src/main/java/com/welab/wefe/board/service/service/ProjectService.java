@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.api.project.member.RemoveApi;
 import com.welab.wefe.board.service.api.project.project.*;
 import com.welab.wefe.board.service.database.entity.job.*;
@@ -146,7 +146,6 @@ public class ProjectService extends AbstractService {
 
 
         ProjectMySqlModel project = new ProjectMySqlModel();
-        project.setProjectType(input.getProjectType());
         project.setCreatedBy(input);
         project.setMemberId(input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId());
         project.setMyRole(input.fromGateway() ? input.getRole() : JobMemberRole.promoter);
@@ -163,6 +162,7 @@ public class ProjectService extends AbstractService {
                 .append(ProjectFlowStatus.editing.name(), 0)
                 .append(ProjectFlowStatus.running.name(), 0)
                 .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
         // create and save ProjectMember to database
@@ -1033,6 +1033,7 @@ public class ProjectService extends AbstractService {
                     .append(ProjectFlowStatus.editing.name(), 0)
                     .append(ProjectFlowStatus.running.name(), 0)
                     .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
             // save ProjectMember to database
@@ -1068,6 +1069,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
+                        dataSet.setDataSetType(x.getDataSetType());
                         projectDataSetRepo.save(dataSet);
                     });
 
@@ -1149,7 +1151,7 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListApi.Input(projectId), ListApi.class);
+        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListInProjectApi.Input(projectId), ListInProjectApi.class);
 
         // Find the promoter in the current project from all members of the sender
         ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)

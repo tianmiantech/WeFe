@@ -16,14 +16,11 @@
 
 package com.welab.wefe.common.util;
 
+import com.welab.wefe.common.decompression.dto.DecompressionResult;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -88,11 +85,11 @@ public class ZipUtil {
     }
 
 
-    public static UnzipFileResult unzipFile(String srcFilePath) throws IOException {
+    public static DecompressionResult unzipFile(String srcFilePath) throws IOException {
         return unzipFile(new File(srcFilePath), null);
     }
 
-    public static UnzipFileResult unzipFile(File srcFile) throws IOException {
+    public static DecompressionResult unzipFile(File srcFile) throws IOException {
         return unzipFile(srcFile, null);
     }
 
@@ -101,7 +98,7 @@ public class ZipUtil {
      * 解压 zip 文件
      * 支持压缩文件中包含多个文件
      */
-    public static UnzipFileResult unzipFile(File srcFile, String destDirPath) throws IOException {
+    public static DecompressionResult unzipFile(File srcFile, String destDirPath) throws IOException {
         // 判断源文件是否存在
         if (!srcFile.exists()) {
             throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
@@ -113,8 +110,7 @@ public class ZipUtil {
 
         // 开始解压
         ZipFile zipFile = null;
-        UnzipFileResult result = new UnzipFileResult();
-        result.baseDir = Paths.get(destDirPath, FileUtil.getFileNameWithoutSuffix(srcFile)).toAbsolutePath().toString();
+        DecompressionResult result = new DecompressionResult(srcFile, destDirPath);
         try {
             zipFile = new ZipFile(srcFile);
             Enumeration<?> entries = zipFile.entries();
@@ -161,54 +157,5 @@ public class ZipUtil {
         return result;
     }
 
-    public static class UnzipFileResult {
-        public String baseDir;
-        /**
-         * 解压后的目录列表
-         */
-        public List<File> dirs = new ArrayList<>();
-        /**
-         * 解压后的文件列表
-         */
-        public List<File> files = new ArrayList<>();
-
-        public void addDir(File file) {
-            dirs.add(file);
-        }
-
-        public void addFile(File file) {
-            files.add(file);
-        }
-
-        /**
-         * delete all unzip resource
-         */
-        public void deleteAllDirAndFiles() {
-
-            FileUtil.deleteFileOrDir(baseDir);
-
-            for (File dir : dirs) {
-                FileUtil.deleteFileOrDir(dir);
-            }
-
-            for (File file : files) {
-                FileUtil.deleteFileOrDir(file);
-            }
-        }
-
-        @Override
-        public String toString() {
-            List<String> list = files
-                    .stream()
-                    .map(x -> x.getAbsolutePath())
-                    .collect(Collectors.toList());
-
-
-            return "UnzipFileResult{" +
-                    "files=" + System.lineSeparator()
-                    + StringUtil.join(list, System.lineSeparator())
-                    + '}';
-        }
-    }
 
 }

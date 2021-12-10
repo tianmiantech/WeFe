@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.dataset.image_data_set.sample;
 
 import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -26,9 +25,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
@@ -47,24 +43,8 @@ public class ImageDataSetSampleDownloadApi extends AbstractApi<ImageDataSetSampl
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
         ImageDataSetSampleMysqlModel sample = imageDataSetSampleRepository.findById(input.id).orElse(null);
         File file = new File(sample.getFilePath());
-        if (!file.exists()) {
-            StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不存在：" + sample.getFilePath());
-        }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "public, max-age=3600");
-        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
-        headers.add("Last-Modified", file.lastModified() + "");
-        headers.add("ETag", String.valueOf(file.lastModified()));
-
-        ResponseEntity<FileSystemResource> response = ResponseEntity
-                .ok()
-                .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(new FileSystemResource(file));
-
-        return success(response);
+        return file(file);
     }
 
     public static class Input extends AbstractApiInput {

@@ -13,15 +13,26 @@
                         <el-button plain type="primary">添加标签</el-button>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search" @input="methods.labelSearch"></el-input>
                     </div>
                     <div class="label_info">
-                        <div v-for="item in vData.count_by_sample" :key="item.label" class="label_item">
-                            <span class="span_label">{{item.label}}</span>
-                            <span class="span_count">{{item.count}}</span>
+                        <template v-if="vData.count_by_sample_list.length>0">
+                            <div class="label_title"><span>标签名称</span><span>快捷键</span></div>
+                            <div class="label_info_list">
+                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
+                                    <span class="span_label">{{item.label}}</span>
+                                    <span v-if="item.keycode !== ''" class="span_count">{{item.keycode}}</span>
+                                    <i v-if="item.iscustomized" class="el-icon-error label_close" @click="methods.deleteLabel(index)" />
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <EmptyData />
+                        </template>
+                        <!-- 自定义的可支持 编辑 删除 当标签列表高度超过可视区时，添加标签的输入框固定 -->
+                        <div class="fixed_box">
+                            <el-input type="text" placeholder="按回车或Tab添加标签" v-model="vData.newLabel" show-word-limit :maxlength="10" @keyup.enter="methods.addLabel" @keydown.tab="methods.addLabel" />
                         </div>
-                        <!-- 自定义的可支持 编辑 删除 -->
-                        <el-input type="text" placeholder="按回车或Tab添加标签" v-model="vData.newLabel" show-word-limit :maxlength="10" @keyup.enter="methods.addLabel" @keydown.tab="methods.addLabel" />
                     </div>
                 </div>
             </el-tabs>
@@ -87,14 +98,15 @@
                         count: '',
                     },
                 ],
-                sampleList:      [],
-                imgLoading:      false,
-                currentImage:    {},
-                timer:           null,
-                count_by_label:  [],
-                count_by_sample: [],
-                labelName:       '',
-                newLabel:        '',
+                sampleList:           [],
+                imgLoading:           false,
+                currentImage:         {},
+                timer:                null,
+                count_by_label:       [],
+                count_by_sample:      [],
+                count_by_sample_list: [],
+                labelName:            '',
+                newLabel:             '',
             });
 
             const methods = {
@@ -186,9 +198,10 @@
 
                                 vData.count_by_label = count_by_label;
                                 count_by_sample.forEach((item, i) => {
-                                    item.keycode = i;
+                                    if (i < 10 ) item.keycode = i;
                                 });
                                 vData.count_by_sample = count_by_sample;
+                                vData.count_by_sample_list = count_by_sample;
                             }
                         }
                     });
@@ -235,11 +248,17 @@
                 },
                 addLabel() {
                     vData.count_by_sample.push({
-                        label:   vData.newLabel,
-                        count:   0,
-                        keycode: vData.count_by_sample.length,
+                        label:        vData.newLabel,
+                        count:        0,
+                        keycode:      vData.count_by_sample.length > 9 ? '' : vData.count_by_sample.length,
+                        iscustomized: true,
                     });
                     vData.newLabel = '';
+                    vData.count_by_sample_list = vData.count_by_sample;
+                },
+                deleteLabel(idx) {
+                    vData.count_by_sample_list.splice(idx, 1);
+                    vData.count_by_sample = vData.count_by_sample_list;
                 },
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
@@ -278,11 +297,21 @@
                         }
                     });
                 },
+                labelSearch(val) {
+                    vData.count_by_sample_list = vData.count_by_sample.filter(function(item) {
+                        return Object.keys(item).some(function(key) {
+                            return (
+                                String(item[key]).toLowerCase().indexOf(val) > -1
+                            );
+                        });
+                    });
+                },
             };
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
                 methods.getLabelInfo();
+                // 注意清除定时器
                 setTimeout(_=> {
                     methods.getSampleList();
                     methods.resetWidth();
@@ -344,6 +373,16 @@
                 }
                 .label_info {
                     padding: 0 10px;
+                    .label_title {
+                        @include flex_box;
+                        font-size: 12px;
+                        color: #666;
+                        padding: 12px 10px 0;
+                    }
+                    .label_info_list {
+                        height: calc(100vh - 490px);
+                        overflow-y: auto;
+                    }
                     .label_item {
                         height: 40px;
                         @include flex_box;
@@ -351,8 +390,30 @@
                         margin: 10px 0;
                         padding: 0 10px;
                         font-size: 14px;
+                        position: relative;
                         .span_count {
+                            flex-shrink: 0;
+                            width: 18px;
+                            height: 18px;
+                            font-size: 12px;
                             color: #999;
+                            letter-spacing: 0;
+                            text-align: center;
+                            line-height: 16px;
+                            font-weight: 500;
+                            border: 1px solid #ddd;
+                            align-self: center;
+                            border-radius: 2px;
+                            margin-left: 12px;
+                        }
+                        .label_close {
+                            font-size: 15px;
+                            color: #ccc;
+                            position: absolute;
+                            right: -4px;
+                            top: -7px;
+                            cursor: pointer;
+                            z-index: 3;
                         }
                     }
                 }

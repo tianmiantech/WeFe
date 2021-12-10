@@ -39,7 +39,7 @@
             >
                 <template v-slot="scope">
                     <div :title="scope.row.description">
-                        {{ scope.row.name }}
+                        {{ isFlow ? scope.row.data_set.name : scope.row.name }}
                         <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
                     </div>
                 </template>
@@ -73,8 +73,8 @@
                 min-width="120"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.tags">
-                        <template v-for="(item, index) in scope.row.tags.split(',')" :key="index">
+                    <template v-if="scope.row.tags || scope.row.data_set.tags">
+                        <template v-for="(item, index) in projectType === 'DeepLearning' && isFlow ? scope.row.data_set.tags.split(',') : scope.row.tags.split(',')" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
@@ -107,7 +107,11 @@
                 v-if="projectType === 'DeepLearning'"
                 label="数据总量"
                 prop="sample_count"
-            />
+            >
+                <template v-slot="scope">
+                    {{isFlow ? scope.row.data_set.sample_count : scope.row.sample_count}}
+                </template>
+            </el-table-column>
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
                 label="标注状态"
@@ -119,6 +123,17 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="isFlow"
+                label="参与任务次数"
+                prop="usage_count_in_job"
+                min-width="110"
+            >
+                <template v-slot="scope">
+                    {{scope.row.data_set.usage_count_in_job}}
+                </template>
+            </el-table-column>
+            <el-table-column
+                v-else
                 label="参与任务次数"
                 prop="usage_count_in_job"
                 min-width="110"

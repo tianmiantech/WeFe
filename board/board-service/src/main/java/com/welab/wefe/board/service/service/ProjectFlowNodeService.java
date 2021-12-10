@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepositor
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
 import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
-import com.welab.wefe.board.service.dto.kernel.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.dataset.DataSetService;
@@ -138,6 +138,7 @@ public class ProjectFlowNodeService {
                         .in("componentType",
                                 Arrays.asList(
                                         ComponentType.DataIO,
+                                        ComponentType.ImageDataIO,
                                         ComponentType.HorzXGBoostValidationDataSetLoader,
                                         ComponentType.VertXGBoostValidationDataSetLoader,
                                         ComponentType.HorzLRValidationDataSetLoader,

@@ -166,7 +166,7 @@ public class DataSetService extends AbstractDataSetService {
         // is raw data set
         if (model.getSourceType() == null) {
             // Notify the union to do not public the data set
-            unionService.dontPublicDataSet(model.getId());
+            unionService.dontPublicDataSet(model);
 
             // Refresh the data set tag list
             CacheObjects.refreshTableDataSetTags();
@@ -306,6 +306,6 @@ public class DataSetService extends AbstractDataSetService {
     protected void beforeUpdate(AbstractDataSetMysqlModel model, AbstractDataSetUpdateInputModel input) {
         TableDataSetUpdateInputModel in = (TableDataSetUpdateInputModel) input;
         // save data set column info to database
-        dataSetColumnService.update(in.getId(), in.getMetadataList(), CurrentAccount.get());
+        dataSetColumnService.update(in.getDataSetId(), in.getMetadataList(), CurrentAccount.get());
     }
 }

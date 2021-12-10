@@ -42,7 +42,6 @@ public class Config {
     @Value("${wefe.file.upload.dir}")
     private String fileUploadDir;
 
-
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
 

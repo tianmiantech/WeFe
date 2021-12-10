@@ -17,7 +17,9 @@ package com.welab.wefe.board.service.dto.vo.data_set;
 
 import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 
@@ -26,7 +28,8 @@ import com.welab.wefe.common.web.Launcher;
  * @date 2021/11/8
  */
 public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputModel {
-    public String forJobType;
+    @Check(name = "数据集应用的任务类型", require = true)
+    public DeepLearningJobType forJobType;
 
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
@@ -34,10 +37,10 @@ public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
         int countByName = 0;
         ImageDataSetRepository repository = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
-        if (StringUtil.isEmpty(getId())) {
+        if (StringUtil.isEmpty(super.getDataSetId())) {
             countByName = repository.countByName(super.getName());
         } else {
-            countByName = repository.countByName(super.getName(), getId());
+            countByName = repository.countByName(super.getName(), super.getDataSetId());
         }
 
         if (countByName > 0) {
@@ -47,11 +50,11 @@ public class ImageDataSetUpdateInputModel extends AbstractDataSetUpdateInputMode
 
     // region getter/setter
 
-    public String getForJobType() {
+    public DeepLearningJobType getForJobType() {
         return forJobType;
     }
 
-    public void setForJobType(String forJobType) {
+    public void setForJobType(DeepLearningJobType forJobType) {
         this.forJobType = forJobType;
     }
 

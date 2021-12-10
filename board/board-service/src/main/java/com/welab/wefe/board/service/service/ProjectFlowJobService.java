@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,11 +24,13 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
-import com.welab.wefe.board.service.dto.kernel.*;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -38,6 +40,7 @@ import com.welab.wefe.board.service.service.dataset.DataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.apache.commons.collections4.CollectionUtils;
@@ -116,8 +119,10 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         JobMySqlModel lastJob = jobRepo.findLastByFlowId(flow.getFlowId(), project.getMyRole().name());
-        if (lastJob != null && !lastJob.getStatus().finished()) {
-            throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+        if (project.getProjectType() == ProjectType.MachineLearning) {
+            if (lastJob != null && !lastJob.getStatus().finished()) {
+                throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+            }
         }
 
         JobArbiterInfo jobArbiterInfo = calcArbiterInfo(flow, input, project);
@@ -158,13 +163,18 @@ public class ProjectFlowJobService extends AbstractService {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
             // create task
-            createJobTasks(graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
+            createJobTasks(project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
 
         }
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.run_job);
+        flowActionQueueService.notifyFlow(
+                input,
+                input.getJobId(),
+                FlowActionType.run_job,
+                JObject.create("type", "visualfl")
+        );
 
         //update flow
         projectFlowService.updateFlowStatus(flow.getFlowId(), ProjectFlowStatus.running);
@@ -182,6 +192,12 @@ public class ProjectFlowJobService extends AbstractService {
                                           ProjectMySqlModel project) {
         JobArbiterInfo info = new JobArbiterInfo();
         info.setHasArbiter(false);
+
+        // 深度学习没有 arbiter 角色
+        if (project.getProjectType() == ProjectType.DeepLearning) {
+            return info;
+        }
+
         if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
             if (project.getMyRole() == JobMemberRole.promoter) {
                 info.setHasArbiter(true);
@@ -203,9 +219,15 @@ public class ProjectFlowJobService extends AbstractService {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        if (graph.getStartNodes().stream().noneMatch(x -> (x.getComponentType() == ComponentType.DataIO
-                || x.getComponentType() == ComponentType.Oot))) {
-            throw new StatusCodeWithException("起始节点必须包含 " + ComponentType.DataIO.getLabel() + "，否则无法执行流程。", StatusCode.PARAMETER_VALUE_INVALID);
+        boolean hasDataSet = graph.getStartNodes()
+                .stream()
+                .anyMatch(x ->
+                        x.getComponentType() == ComponentType.DataIO
+                                || x.getComponentType() == ComponentType.Oot
+                                || x.getComponentType() == ComponentType.ImageDataIO
+                );
+        if (!hasDataSet) {
+            throw new StatusCodeWithException("流程起点必须包含数据集加载，否则无法执行流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (isOotMode) {
@@ -245,14 +267,8 @@ public class ProjectFlowJobService extends AbstractService {
             if (CacheObjects.getMemberId().equals(member.getMemberId())) {
                 ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(project.getProjectId(), member.getDataSetId(), member.getJobRole());
 
-
                 if (projectDataSet == null) {
-                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已删除。", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-
-                TableDataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
-                if (dataSet == null) {
-                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除。", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已删除或移除了授权。", StatusCode.PARAMETER_VALUE_INVALID);
                 }
 
             }
@@ -382,7 +398,7 @@ public class ProjectFlowJobService extends AbstractService {
 
     }
 
-    private List<TaskMySqlModel> createJobTasks(FlowGraph graph, boolean useCache, String endNodeId,
+    private List<TaskMySqlModel> createJobTasks(ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
                                                 FederatedLearningType federatedLearningType) throws StatusCodeWithException {
 
         List<FlowGraphNode> startNodes = graph.getStartNodes();
@@ -462,7 +478,7 @@ public class ProjectFlowJobService extends AbstractService {
                         tasks.addAll(subTasks);
                     }
                 } else {
-                    TaskMySqlModel task = component.buildTask(graph, tasks, kernelJob, node);
+                    TaskMySqlModel task = component.buildTask(project, graph, tasks, kernelJob, node);
                     if (task != null) {
                         tasks.add(task);
                     }
@@ -712,33 +728,39 @@ public class ProjectFlowJobService extends AbstractService {
 
         String promoterId = null;
         for (ProjectFlowNodeMySqlModel node : nodes) {
-            List<DataIOComponent.DataSetItem> dataSetItemList = null;
-            if (node.getComponentType().equals(ComponentType.Oot)) {
-                if (isOotMode) {
-                    OotComponent.Params params = (OotComponent.Params) Components
-                            .get(node.getComponentType())
-                            .deserializationParam(null, node.getParams());
-                    // oot model
-                    dataSetItemList = StringUtil.isNotEmpty(params.getJobId()) ? params.getDataSetList() : dataSetItemList;
-                }
-            } else {
-                DataIOComponent.Params params = (DataIOComponent.Params) Components
-                        .get(node.getComponentType())
-                        .deserializationParam(null, node.getParams());
-                dataSetItemList = params.getDataSetList();
+            List<? extends AbstractDataSetItem> dataSetItemList = null;
+
+            AbstractDataIOParam params = (AbstractDataIOParam) Components
+                    .get(node.getComponentType())
+                    .deserializationParam(null, node.getParams());
+
+            switch (node.getComponentType()) {
+                case DataIO:
+                case ImageDataIO:
+                    dataSetItemList = params.getDataSetList();
+                    break;
+                case Oot:
+                    OotComponent.Params ootParams = (OotComponent.Params) params;
+                    dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
+                            ? params.getDataSetList()
+                            : dataSetItemList;
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
 
             if (CollectionUtils.isEmpty(dataSetItemList)) {
                 continue;
             }
 
-            for (DataIOComponent.DataSetItem item : dataSetItemList) {
-                boolean existMember = jobMembers.stream().anyMatch(x ->
-                        x.getMemberId().equals(item.getMemberId())
-                                && x.getJobRole().equals(item.getMemberRole())
-                );
+            for (AbstractDataSetItem item : dataSetItemList) {
+                boolean memberExisted = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getMemberId().equals(item.getMemberId())
+                                        && x.getJobRole().equals(item.getMemberRole())
+                        );
 
-                if (existMember) {
+                if (memberExisted) {
                     continue;
                 }
 
