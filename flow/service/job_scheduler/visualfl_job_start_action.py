@@ -49,9 +49,11 @@ class VisualFLJobStartAction(object):
         try:
             if not self.wait_for_all_members_are_ready():
                 message = "等待其他成员 Job Ready 超时"
+                schedule_logger(self.job.job_id + '_' + self.my_role).info("等待其他成员 Job Ready 超时, {},{}".format(self.job.job_id, self.job.my_role))
                 JobStopAction(self.job.job_id, self.job.my_role).do(JobStatus.ERROR_ON_RUNNING, message)
                 return
-
+            schedule_logger(self.job.job_id + '_' + self.my_role).info(
+                "update job status to running, {},{}".format(self.job.job_id, self.job.my_role))
             # 更新 job 状态
             self.job.status = JobStatus.RUNNING
             self.job.status_updated_time = current_datetime()
@@ -63,6 +65,8 @@ class VisualFLJobStartAction(object):
             for task in tasks:
                 # DeepLearning
                 if task.task_type != 'DeepLearning':
+                    schedule_logger(self.job.job_id + '_' + self.my_role).info(
+                        "not DeepLearning task, pass {},{}".format(task.task_id, task.task_type))
                     continue
                 schedule_logger(self.job.job_id + '_' + self.my_role).info("run_task_action begin, {},{}".format(task.task_id,task.task_type))
                 run_task_action = RunVisualFLTaskAction(self.job, task)
