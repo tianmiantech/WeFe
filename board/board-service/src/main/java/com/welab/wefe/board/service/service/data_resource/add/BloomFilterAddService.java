@@ -21,7 +21,6 @@ import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
-import com.welab.wefe.board.service.database.entity.fusion.bloomfilter.BloomFilterTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterAddInputModel;
