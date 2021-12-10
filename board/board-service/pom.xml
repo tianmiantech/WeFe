@@ -13,7 +13,6 @@
 
     <properties>
         <grpc.version>1.29.0</grpc.version>
-        <hutool.version>4.6.7</hutool.version>
     </properties>
 
     <dependencies>
@@ -120,6 +119,10 @@
                     <artifactId>log4j-api</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -137,21 +140,12 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>jdk.tools</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.bouncycastle</groupId>-->
-<!--            <artifactId>bcprov-jdk15on</artifactId>-->
-<!--            <version>1.68</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-        <!-- impala -->
-        <!-- <dependency>
-            <groupId>com.cloudera</groupId>
-            <artifactId>ImpalaJDBC41</artifactId>
-            <version>2.6.4.1005</version>
-        </dependency> -->
-
     </dependencies>
 
     <build>
