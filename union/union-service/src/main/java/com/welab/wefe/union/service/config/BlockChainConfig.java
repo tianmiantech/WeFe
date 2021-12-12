@@ -210,11 +210,11 @@ public class BlockChainConfig {
 
 
     /**
-     * 根据名称获取最新版的union业务的合约地址
+     * Obtain the latest version of the contract address according to the name
      *
-     * @param cnsService   合约的CNS服务接口
-     * @param contractName 　合约名称
-     * @return 最新版的合约地址
+     * @param cnsService
+     * @param contractName 　
+     * @return Latest contract address
      * @throws StatusCodeWithException
      */
     public String getLatestContractAddressByName(CnsService cnsService, String contractName) throws StatusCodeWithException {
@@ -222,13 +222,15 @@ public class BlockChainConfig {
         try {
             cnsInfoList = cnsService.selectByName(contractName);
         } catch (Exception e) {
-            log.error("根据名称: " + contractName + "　获取合约CNS列表异常：", e);
-            throw new StatusCodeWithException("根据名称: " + contractName + "　获取合约CNS列表异常:" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            String msg = contractName + ":Exception in obtaining contract CNS list";
+            log.error(msg, e);
+            throw new StatusCodeWithException(msg, StatusCode.SYSTEM_ERROR);
         }
 
         if (CollectionUtils.isEmpty(cnsInfoList)) {
-            log.error("根据名称: " + contractName + "　获取合约CNS列表为空");
-            throw new StatusCodeWithException("根据名称: " + contractName + "获取合约为空，请用CNS方式部署相应合约到链上", StatusCode.DATA_NOT_FOUND);
+            String msg = contractName + ":Get contract CNS list is empty";
+            log.error(msg);
+            throw new StatusCodeWithException(msg, StatusCode.DATA_NOT_FOUND);
         }
         return cnsInfoList.get(cnsInfoList.size() - 1).getAddress();
     }
