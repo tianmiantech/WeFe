@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.image;
+package com.welab.wefe.union.service.api.dataresource.dataset.nomal;
 
 import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.union.service.api.dataset.AbstractDataSetTagsApi;
+import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDataSetTagsApi;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -27,10 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/tags/query", name = "dataset_tags_query", rsaVerify = true, login = false)
+@Api(path = "data_set/tags/query", name = "dataset_tags_query", rsaVerify = true, login = false)
 public class DataSetTagsApi extends AbstractDataSetTagsApi {
     @Autowired
-    protected ImageDataSetMongoReop dataSetMongoReop;
+    protected DataSetMongoReop dataSetMongoReop;
 
     @Override
     protected AbstractDataSetMongoRepo getDataSetMongoRepo() {

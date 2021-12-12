@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.nomal;
+package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
@@ -26,8 +26,8 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.DataSetOutput;
 import com.welab.wefe.union.service.entity.DataSet;
-import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
 import com.welab.wefe.union.service.service.DataSetContractService;
+import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,7 +44,7 @@ public class PutApi extends AbstractApi<PutApi.Input, DataSetOutput> {
     private DataSetMemberPermissionContractService mDataSetMemberPermissionContractService;
 
     @Override
-    protected ApiResult<DataSetOutput> handle(PutApi.Input input) throws StatusCodeWithException {
+    protected ApiResult<DataSetOutput> handle(Input input) throws StatusCodeWithException {
 
         DataSet dataSet = new DataSet();
         BeanUtils.copyProperties(input, dataSet);

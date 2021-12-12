@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.image;
+package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
@@ -25,7 +25,6 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
-import com.welab.wefe.union.service.service.DataSetContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 

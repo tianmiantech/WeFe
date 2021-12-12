@@ -35,17 +35,6 @@ public class AbstractBlockChainBusinessModel extends AbstractMongoModel {
 
     private String updatedTime;
 
-
-    private String logTime;
-
-    public String getLogTime() {
-        return logTime;
-    }
-
-    public void setLogTime(String logTime) {
-        this.logTime = logTime;
-    }
-
     public long getDataSyncTime() {
         return dataSyncTime;
     }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.image;
+package com.welab.wefe.union.service.api.dataresource.dataset.nomal;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
-import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
+import com.welab.wefe.union.service.dto.dataset.ApiDataSetQueryOutput;
+import com.welab.wefe.union.service.mapper.DataSetMapper;
+import com.welab.wefe.union.service.service.DataSetContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,21 +33,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author yuxin.zhang
+ * @author Jervis
  **/
-@Api(path = "image_data_set/query", name = "image_data_set_query", rsaVerify = true, login = false)
-public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDataSetQueryOutput>> {
+@Api(path = "data_set/query", name = "data_set_query", rsaVerify = true, login = false)
+public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQueryOutput>> {
     @Autowired
-    protected ImageDataSetMongoReop imageDataSetMongoReop;
-
-    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
+    protected DataSetMongoReop dataSetMongoReop;
+    @Autowired
+    protected DataSetContractService mDataSetContractService;
+    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
 
     @Override
-    protected ApiResult<PageOutput<ApiImageDataSetQueryOutput>> handle(Input input) {
-        PageOutput<ImageDataSetQueryOutput> pageOutput = imageDataSetMongoReop.findCurMemberCanSee(imageDataSetMapper.transferInput(input));
+    protected ApiResult<PageOutput<ApiDataSetQueryOutput>> handle(QueryApi.Input input) {
+        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.findCurMemberCanSee(mDataSetMapper.transferInput(input));
 
-        List<ApiImageDataSetQueryOutput> list = pageOutput.getList().stream()
-                .map(imageDataSetMapper::transferOutput)
+        List<ApiDataSetQueryOutput> list = pageOutput.getList().stream()
+                .map(mDataSetMapper::transferOutput)
                 .collect(Collectors.toList());
 
         return success(new PageOutput<>(
@@ -60,20 +61,21 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDat
     }
 
     public static class Input extends BaseInput {
-        private String dataSetId;
+        private String id;
         private String memberId;
         private String memberName;
         private String name;
+        private Boolean containsY;
         private String tag;
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
 
-        public String getDataSetId() {
-            return dataSetId;
+        public String getId() {
+            return id;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setId(String id) {
+            this.id = id;
         }
 
         public String getMemberId() {
@@ -98,6 +100,14 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDat
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public Boolean getContainsY() {
+            return containsY;
+        }
+
+        public void setContainsY(Boolean containsY) {
+            this.containsY = containsY;
         }
 
         public String getTag() {

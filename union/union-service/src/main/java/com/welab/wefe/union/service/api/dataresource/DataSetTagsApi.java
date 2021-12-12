@@ -14,26 +14,33 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.nomal;
+package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.union.service.api.dataset.AbstractDataSetTagsApi;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDataSetTagsApi;
+import com.welab.wefe.union.service.dto.dataset.ApiTagsQueryOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+
 /**
- * data set tags query
+ * data resoure tags query
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_set/tags/query", name = "dataset_tags_query", rsaVerify = true, login = false)
-public class DataSetTagsApi extends AbstractDataSetTagsApi {
+@Api(path = "data_resoure/tags/query", name = "resoure_tags_query", rsaVerify = true, login = false)
+public class DataSetTagsApi extends AbstractApi<AbstractDataSetTagsApi.Input, ApiTagsQueryOutput> {
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;
 
+
     @Override
-    protected AbstractDataSetMongoRepo getDataSetMongoRepo() {
-        return dataSetMongoReop;
+    protected ApiResult<ApiTagsQueryOutput> handle(AbstractDataSetTagsApi.Input input) throws StatusCodeWithException, IOException {
+        return null;
     }
 }

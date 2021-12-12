@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.nomal;
+package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
@@ -43,7 +43,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DataSetDetailOutput>
     protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
 
     @Override
-    protected ApiResult<DataSetDetailOutput> handle(DetailApi.Input input) {
+    protected ApiResult<DataSetDetailOutput> handle(Input input) {
         DataSet dataSet = dataSetMongoReop.findDataSetId(input.getId());
         return success(getOutput(dataSet));
     }

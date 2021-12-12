@@ -14,45 +14,42 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataset.nomal;
+package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataset.DataSetOutput;
-import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
-import com.welab.wefe.union.service.service.DataSetContractService;
+import com.welab.wefe.union.service.service.ImageDataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_set/delete", name = "data_set_delete", rsaVerify = true, login = false)
+@Api(path = "image_data_set/delete", name = "data_set_delete", rsaVerify = true, login = false)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, DataSetOutput> {
     @Autowired
-    protected DataSetContractService datasetContractService;
-
-    @Autowired
-    private DataSetMemberPermissionContractService mDataSetMemberPermissionContractService;
+    protected ImageDataSetContractService imageDataSetContractService;
 
     @Override
-    protected ApiResult<DataSetOutput> handle(DeleteApi.Input input) throws StatusCodeWithException {
-        datasetContractService.deleteById(input.getId());
-        mDataSetMemberPermissionContractService.deleteByDataSetId(input.getId());
+    protected ApiResult<DataSetOutput> handle(Input input) throws StatusCodeWithException {
+        imageDataSetContractService.deleteById(input.getDataSetId());
         return success();
     }
 
     public static class Input extends BaseInput {
-        private String id;
+        @Check(require = true)
+        private String dataSetId;
 
-        public String getId() {
-            return id;
+        public String getDataSetId() {
+            return dataSetId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setDataSetId(String dataSetId) {
+            this.dataSetId = dataSetId;
         }
     }
 }

@@ -17,13 +17,15 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.contract.DataResourceContract;
 import com.welab.wefe.union.service.contract.DataSetContract;
-import com.welab.wefe.union.service.entity.DataSet;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,49 +43,29 @@ import java.util.List;
  */
 @Service
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
-public class DataResourceContractService extends AbstractContractService {
+public abstract class DataResourceContractService extends AbstractContractService {
 
     @Autowired
-    private DataSetContract dataSetContract;
+    private DataResourceContract dataResourceContract;
     @Autowired
     private CryptoSuite cryptoSuite;
     @Autowired
     private MemberContractService memberContractService;
     @Autowired
-    private DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
+    private DataResourceMongoReop dataResourceMongoReop;
 
-    public void upsert(DataSet dataset) throws StatusCodeWithException {
+    public void upsert(DataResource dataResource) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
-                extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
-            }
-            if (!memberContractService.isExist(dataset.getMemberId())) {
-                throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
-            }
-
-            TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
+            String extJson = JObject.toJSONString(dataResource.getExtJson());
+            TransactionReceipt insertTransactionReceipt = dataResourceContract.insert(generateParams(dataResource),
                     extJson);
 
             // Get receipt result
-            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_INSERT, insertTransactionReceipt);
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_INSERT, insertTransactionReceipt);
 
-            // Transaction execution failed
-            if (!transactionIsSuccess(insertResponse.getValues())) {
-                // Update the data if it exists
-                TransactionReceipt updateTransactionReceipt = dataSetContract.update(generateParams(dataset),
-                        extJson);
+            transactionIsSuccess(transactionResponse);
 
-                // Get receipt result
-                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
-                if (!transactionIsSuccess(updateResponse.getValues())) {
-                    throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
-                }
-            }
         } catch (
                 Exception e) {
             throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
@@ -90,45 +73,40 @@ public class DataResourceContractService extends AbstractContractService {
 
     }
 
-
     public void deleteById(String dataSetId) throws StatusCodeWithException {
         try {
-            boolean isExist = dataSetContract.isExist(dataSetId);
+            boolean isExist = dataResourceContract.isExist(dataSetId);
             if (isExist) {
-                TransactionReceipt transactionReceipt = dataSetContract.deleteByDataSetId(dataSetId);
+                TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataSetId);
                 // Get receipt result
                 TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
+                        .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
                     throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
                 }
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to delete data resource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
-    private List<String> generateParams(DataSet dataSet) {
+    private List<String> generateParams(DataResource dataResource) {
         List<String> list = new ArrayList<>();
-        list.add(dataSet.getId());
-        list.add(StringUtil.isEmptyToBlank(dataSet.getMemberId()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getName()));
-        list.add(String.valueOf(dataSet.getContainsY()));
-        list.add(String.valueOf(dataSet.getRowCount()));
-        list.add(String.valueOf(dataSet.getColumnCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getColumnNameList()));
-        list.add(String.valueOf(dataSet.getFeatureCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getFeatureNameList()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicLevel()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicMemberList()));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInJob())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInFlow())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInProject())));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getDescription()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getTags()));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getCreatedTime())));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getUpdatedTime())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis())));
+        list.add(dataResource.getDataResourceId());
+        list.add(dataResource.getMemberId());
+        list.add(dataResource.getName());
+        list.add(StringUtil.isEmptyToBlank(dataResource.getDescription()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getTags()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getTotalDataCount()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getPublicLevel()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getPublicMemberList()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getUsageCountInJob()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getUsageCountInFlow()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getUsageCountInProject()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getUsageCountInMember()));
+        list.add(StringUtil.isEmptyToBlank(dataResource.getDataResourceType()));
+        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
+        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())));
         return list;
     }
 }

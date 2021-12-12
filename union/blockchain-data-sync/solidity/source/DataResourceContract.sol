@@ -21,7 +21,7 @@ contract DataResourceContract{
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,member_id,name,description,tags,total_data_count,public_level,public_member_list,usage_count_in_job,usage_count_in_flow,usage_count_in_project,usage_count_in_member,enable,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,member_id,name,description,tags,total_data_count,public_level,public_member_list,usage_count_in_job,usage_count_in_flow,usage_count_in_project,usage_count_in_member,enable,data_resource_type,created_time,updated_time,ext_json");
     }
 
 
@@ -50,8 +50,9 @@ contract DataResourceContract{
         entry.set("usage_count_in_flow", params[9]);
         entry.set("usage_count_in_project", params[10]);
         entry.set("usage_count_in_member", params[11]);
-        entry.set("created_time", params[12]);
-        entry.set("updated_time", params[13]);
+        entry.set("data_resource_type", params[12]);
+        entry.set("created_time", params[13]);
+        entry.set("updated_time", params[14]);
 
         entry.set("ext_json", ext_json);
         entry.set("enable", "1");
@@ -237,6 +238,8 @@ contract DataResourceContract{
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("usage_count_in_member")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("enable")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("data_resource_type")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

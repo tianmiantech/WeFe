@@ -20,7 +20,7 @@ import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.dataset.nomal.QueryApi;
+import com.welab.wefe.union.service.api.dataresource.dataset.nomal.QueryApi;
 import com.welab.wefe.union.service.dto.dataset.ApiDataSetQueryOutput;
 import com.welab.wefe.union.service.dto.dataset.DataSetDetailOutput;
 import org.mapstruct.Mapper;

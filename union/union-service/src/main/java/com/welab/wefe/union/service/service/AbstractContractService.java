@@ -89,4 +89,5 @@ public class AbstractContractService {
         JSONArray values = JObject.parseArray(responseValues);
         return !transactionException(responseValues) && (values.getIntValue(0) == -2);
     }
+
 }
