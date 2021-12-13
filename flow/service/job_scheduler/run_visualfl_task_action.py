@@ -141,8 +141,7 @@ class RunVisualFLTaskAction:
             env = task_config_json['env']
             # todo 将apply_result 填充到 params里面
             env.append(apply_result)
-            # todo local_trainer_indexs proposal_wait_time need_shuffle
-            env['proposal_wait_time'] = 5
+            # todo local_trainer_indexs need_shuffle
             task_config_json['algorithm_config']['need_shuffle'] = True
             task_config_json['env'] = env
             self.log_job_info('submit_task params: {}'.format(task_config_json))
@@ -170,8 +169,7 @@ class RunVisualFLTaskAction:
             }
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
-            # todo local_trainer_indexs proposal_wait_time need_shuffle
-            params['env']['proposal_wait_time'] = 5
+            # todo local_trainer_indexs need_shuffle
             params['algorithm_config'] = task_config_json['algorithm_config']
             params['algorithm_config']['need_shuffle'] = True
             self.log_job_info('apply_resource params: {}'.format(params))
