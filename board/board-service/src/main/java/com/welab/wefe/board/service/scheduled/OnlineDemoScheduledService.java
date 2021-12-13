@@ -19,6 +19,7 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
@@ -53,7 +54,7 @@ public class OnlineDemoScheduledService {
     /**
      * 清理体验者产生的过多无效数据
      */
-    @Scheduled(fixedDelay = 3600_000, initialDelay = 60_000)
+    @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
     //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void clean() {
         if (!config.isOnlineDemo()) {
@@ -68,6 +69,15 @@ public class OnlineDemoScheduledService {
         String commonWhere = "where DATEDIFF(now(), created_time)>20 and"
                 + "(updated_time is null or DATEDIFF(now(), updated_time)>20) and "
                 + "created_by not in (select id from account where admin_role=true or super_admin_role=true)";
+
+        /**
+         * 清理 job
+         * 无条件删除所有满足公共前提的 job 记录
+         */
+        delete(
+                JobMySqlModel.class,
+                commonWhere
+        );
 
         /**
          * 清理 project
