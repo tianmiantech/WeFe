@@ -138,13 +138,12 @@ class RunVisualFLTaskAction:
         submit_task_start_status = False
         task_config_json = json.loads(self.task.task_conf)
         try:
-            params = task_config_json['params']
-            env = params['env']
+            env = task_config_json['env']
             # todo 将apply_result 填充到 params里面
             env.append(apply_result)
-            self.log_job_info('submit_task params:' + str(params))
+            self.log_job_info('submit_task params:' + str(task_config_json))
             # submit
-            response = VisualFLService.request('submit', params)
+            response = VisualFLService.request('submit', task_config_json)
             submit_task_start_status = response is not None and response['job_id'] is not None
             return response
         except Exception as e:
@@ -164,6 +163,9 @@ class RunVisualFLTaskAction:
                 'member_id': GlobalSetting.get_member_id(),
                 'callback_url': GlobalSetting.get_flow_base_url().value + '/visualfl/apply_callback'
             }
+            task_config_json = json.loads(self.task.task_conf)
+            params['env'] = task_config_json['env']
+            params['algorithm_config'] = task_config_json['algorithm_config']
             self.log_job_info('apply_resource params:' + str(params))
             response = VisualFLService.request('apply', params)
             self.log_job_info('apply_resource response:' + str(response))
