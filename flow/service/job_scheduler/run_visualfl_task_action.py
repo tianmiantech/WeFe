@@ -141,9 +141,14 @@ class RunVisualFLTaskAction:
             env = task_config_json['env']
             # todo 将apply_result 填充到 params里面
             env.append(apply_result)
-            self.log_job_info('submit_task params:' + str(task_config_json))
+            # todo local_trainer_indexs proposal_wait_time need_shuffle
+            env['proposal_wait_time'] = 5
+            task_config_json['algorithm_config']['need_shuffle'] = True
+            task_config_json['env'] = env
+            self.log_job_info('submit_task params: {}'.format(task_config_json))
             # submit
             response = VisualFLService.request('submit', task_config_json)
+            self.log_job_info('submit response: {}'.format(response))
             submit_task_start_status = response is not None and response['job_id'] is not None
             return response
         except Exception as e:
@@ -165,11 +170,13 @@ class RunVisualFLTaskAction:
             }
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
+            # todo local_trainer_indexs proposal_wait_time need_shuffle
             params['env']['proposal_wait_time'] = 5
             params['algorithm_config'] = task_config_json['algorithm_config']
+            params['algorithm_config']['need_shuffle'] = True
             self.log_job_info('apply_resource params: {}'.format(params))
             response = VisualFLService.request('apply', params)
-            self.log_job_info('apply_resource response:' + str(response))
+            self.log_job_info('apply_resource response: {}'.format(response))
             if response:
                 apply_resource_start_status = True
                 # self.task.pid = p.pid
