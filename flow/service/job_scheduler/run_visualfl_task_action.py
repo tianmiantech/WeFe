@@ -166,6 +166,7 @@ class RunVisualFLTaskAction:
             }
             self.log_job_info('apply_resource params:' + str(params))
             response = VisualFLService.request('apply', params)
+            self.log_job_info('apply_resource response:' + str(response))
             if response:
                 apply_resource_start_status = True
                 # self.task.pid = p.pid
