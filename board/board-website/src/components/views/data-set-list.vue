@@ -175,7 +175,6 @@
                     <slot name="operation">
                         <div class="cell-reverse">
                             <el-tooltip
-                                v-if="is_my_data_set && projectType === 'MachineLearning'"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -231,8 +230,10 @@
             v-model="dataSetPreviewDialog"
             destroy-on-close
             append-to-body
+            width="60%"
         >
-            <DataSetPreview ref="DataSetPreview" />
+            <DataSetPreview v-if="projectType === 'MachineLearning'" ref="DataSetPreview" />
+            <PreviewImageList v-if="projectType === 'DeepLearning'" ref="PreviewImageList" />
         </el-dialog>
     </div>
 </template>
@@ -240,10 +241,12 @@
 <script>
     import table from '@src/mixins/table';
     import DataSetPreview from '@comp/views/data_set-preview';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
+            PreviewImageList,
         },
         mixins: [table],
         props:  {
@@ -307,9 +310,12 @@
             // preview dataset
             showDataSetPreview(item){
                 this.dataSetPreviewDialog = true;
-
                 this.$nextTick(() =>{
-                    this.$refs['DataSetPreview'].loadData(item.id);
+                    if (this.projectType === 'MachineLearning') {
+                        this.$refs['DataSetPreview'].loadData(item.id);
+                    } else if (this.projectType === 'DeepLearning') {
+                        this.$refs.PreviewImageList.methods.getSampleList(item.id);
+                    }
                 });
             },
 

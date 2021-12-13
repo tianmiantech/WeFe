@@ -1,6 +1,6 @@
 <template>
-    <div class="img_list">
-        <div v-for="item in sampleList" class="img_items" :key="item.id">
+    <div class="img_list" v-loading="vData.imgLoading">
+        <div v-for="item in vData.sampleList" class="img_items" :key="item.id">
             <el-image :src="item.img_src" :id="item.id" fit="contain" style="max-height: 114px;">
                 <template #reference>
                     <div class="image-slot">
@@ -16,12 +16,81 @@
 </template>
 
 <script>
+    import { getCurrentInstance, nextTick, reactive } from 'vue';
     export default {
-        props: {
-            sampleList: Array,
-        },
         setup(props, context) {
-            
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+            const vData = reactive({
+                imgLoading: false,
+                sampleList: [],
+                search:     {
+                    page_index: 1,
+                    page_size:  20,
+                    label:      '',
+                    labeled:    '',
+                    total:      1,
+                },
+            });
+            const methods = {
+                async getSampleList(id) {
+                    console.log(vData.sampleList);
+                    vData.imgLoading = true;
+                    const params = {
+                        page_index:  vData.search.page_index - 1,
+                        page_size:   vData.search.page_size,
+                        label:       vData.search.label,
+                        data_set_id: id,
+                        labeled:     vData.search.labeled,
+                    };
+                    const { code, data } = await $http.post({
+                        url:  '/image_data_set_sample/query',
+                        data: params,
+                    });
+                    
+                    nextTick(_=> {
+                        if(code === 0) {
+                            if (data && data.list.length > 0) {
+                                vData.search.total = data.total;
+                                data.list.forEach((item, idx) => {
+                                    methods.downloadImage(item.id, idx, item);
+                                });
+                            } else {
+                                vData.search.total = data.total;
+                                vData.sampleList = data.list;
+                                vData.imgLoading = false;
+                            }
+                        }
+                    });
+                },
+                async downloadImage(id, idx, item) {
+                    vData.sampleList = [];
+                    const { code, data } = await $http.get({
+                        url:          '/image_data_set_sample/download',
+                        params:       { id },
+                        responseType: 'blob',
+                    });
+
+                    nextTick(_=>{
+                        if(code === 0) {
+                            const url = window.URL.createObjectURL(data);
+
+                            if (id === item.id) {
+                                item.img_src = url;
+                            }
+                            vData.sampleList.push(item);
+                            setTimeout(_=> {
+                                vData.imgLoading = false;
+                            }, 200);
+                        }
+                    });
+                },
+            };
+
+            return {
+                vData,
+                methods,
+            };
         },
     };
 </script>
@@ -34,6 +103,7 @@
     @include flex_box;
     flex-wrap: wrap;
     align-content: baseline;
+    min-height: 200px;
     .img_items {
         width: 124px;
         max-height: 144px;

@@ -334,7 +334,7 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
+                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing'"
                             content="预览数据"
                             placement="top"
                         >
@@ -375,8 +375,10 @@
         v-model="vData.dataSetPreviewDialog"
         destroy-on-close
         append-to-body
+        width="60%"
     >
-        <DataSetPreview ref="DataSetPreviewRef" />
+        <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreviewRef" />
+        <PreviewImageList v-if="form.project_type === 'DeepLearning'" ref="PreviewImageListRef" />
     </el-dialog>
 
     <el-dialog
@@ -431,6 +433,7 @@
     } from 'vue';
     import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import DataSetPreview from '@comp/views/data_set-preview';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default{
         props: {
@@ -443,6 +446,7 @@
         components: {
             DataSetPreview,
             SelectDatasetDialog,
+            PreviewImageList,
         },
         emits: ['deleteDataSetEmit'],
         setup(props, context) {
@@ -453,6 +457,7 @@
             const userInfo = computed(() => store.state.base.userInfo);
             const DataSetPreviewRef = ref();
             const SelectDatasetDialogRef = ref();
+            const PreviewImageListRef = ref();
             const vData = reactive({
                 locker:               false,
                 dataSetPreviewDialog: false,
@@ -474,9 +479,12 @@
             const methods = {
                 showDataSetPreview(item){
                     vData.dataSetPreviewDialog = true;
-
                     nextTick(() =>{
-                        DataSetPreviewRef.value.loadData(item.data_set_id);
+                        if (props.form.project_type === 'MachineLearning') {
+                            DataSetPreviewRef.value.loadData(item.data_set_id);
+                        } else if (props.form.project_type === 'DeepLearning') {
+                            PreviewImageListRef.value.methods.getSampleList(item.data_set_id);
+                        }
                     });
                 },
 
@@ -679,6 +687,7 @@
                 userInfo,
                 DataSetPreviewRef,
                 SelectDatasetDialogRef,
+                PreviewImageListRef,
             };
         },
     };
