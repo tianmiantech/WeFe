@@ -165,10 +165,13 @@ class RunVisualFLTaskAction:
             }
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
+            # todo local_trainer_indexs proposal_wait_time need_shuffle
             params['env']['proposal_wait_time'] = 5
             params['algorithm_config'] = task_config_json['algorithm_config']
+            params['algorithm_config']['need_shuffle'] = True
             self.log_job_info('apply_resource params: {}'.format(params))
             response = VisualFLService.request('apply', params)
+            self.log_job_info('apply_resource response:' + str(response))
             if response:
                 apply_resource_start_status = True
                 # self.task.pid = p.pid
