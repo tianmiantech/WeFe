@@ -73,12 +73,10 @@ class VisualFLService:
 
         # 业务异常
         root = response.json()
-        code = root.get("code")
         job_id = root.get("job_id")
-        message = root.get("message")
         if job_id is None:
             VisualFLService.LOG.error(
-                "visualfl response fail({}ms) url:{}, {}, {}".format(spend, url, message, response.text)
+                "visualfl response fail({}ms) url:{}, {}, {}".format(spend, url, 'unknow exception', response.text)
             )
             return None
         else:
