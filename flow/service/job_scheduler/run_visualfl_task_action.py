@@ -165,8 +165,9 @@ class RunVisualFLTaskAction:
             }
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
+            params['env']['proposal_wait_time'] = 5
             params['algorithm_config'] = task_config_json['algorithm_config']
-            self.log_job_info('apply_resource params:' + str(params))
+            self.log_job_info('apply_resource params: {}'.format(params))
             response = VisualFLService.request('apply', params)
             self.log_job_info('apply_resource response:' + str(response))
             if response:
