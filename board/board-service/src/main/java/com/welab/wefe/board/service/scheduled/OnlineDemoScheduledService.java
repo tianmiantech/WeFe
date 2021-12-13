@@ -151,7 +151,7 @@ public class OnlineDemoScheduledService {
                 // jpa 删数据必须先查出来
                 // 这里为了避免数据量巨大导致查询超时
                 // 加上 limit 子句
-                .append(" limit 100");
+                .append(" limit 1000");
 
         String sqlStr = sql.toString().replace(System.lineSeparator(), "");
         int count = globalConfigRepository.deleteByQuery(sqlStr, clazz);

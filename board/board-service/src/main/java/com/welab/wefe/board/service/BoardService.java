@@ -48,13 +48,13 @@ import java.nio.charset.StandardCharsets;
  * @author hunter.zhao
  */
 @SpringBootApplication
+@EnableScheduling
 @EnableAsync
 @ComponentScan(
         lazyInit = true,
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {BoardService.class, Launcher.class, StorageManager.class}
 )
-@EnableScheduling
 public class BoardService implements ApplicationContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(BoardService.class);
