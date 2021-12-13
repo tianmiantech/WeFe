@@ -37,9 +37,9 @@ class VisualFLService:
             'callback_url': '回调地址'
         }"""
         if name == 'apply':
-            VisualFLService._request("/apply", params)
+            return VisualFLService._request("/apply", params)
         elif name == 'submit':
-            VisualFLService._request("/submit", params)
+            return VisualFLService._request("/submit", params)
 
     @staticmethod
     def _request(api, data):
