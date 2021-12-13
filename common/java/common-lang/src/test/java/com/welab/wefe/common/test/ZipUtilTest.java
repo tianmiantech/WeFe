@@ -15,8 +15,8 @@
  */
 package com.welab.wefe.common.test;
 
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.ZipUtil;
-import com.welab.wefe.common.util.dto.FileDecompressionResult;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import java.io.IOException;
  */
 public class ZipUtilTest {
     public static void main(String[] args) throws IOException {
-        FileDecompressionResult result = ZipUtil.unzipFile("/Users/zane/data/wefe_file_upload_dir/fl_fruit.zip");
+        DecompressionResult result = ZipUtil.unzipFile("/Users/zane/data/wefe_file_upload_dir/fl_fruit.zip");
 
         System.out.println(result);
     }

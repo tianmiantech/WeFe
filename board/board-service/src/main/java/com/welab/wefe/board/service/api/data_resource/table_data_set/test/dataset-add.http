@@ -1,0 +1,195 @@
+
+### 添加数据集-xlsx
+POST http://localhost:8080/board-service/data_set/add
+Content-Type: application/json
+token: {{token}}
+
+{
+  "publicLevel": "Public",
+  "name": "zane test",
+  "tags": [
+    "12321"
+  ],
+  "description": "",
+  "public_member_list": "",
+  "filename": "afc512de-2625-4f9b-9ebd-385fd05eaeb2-data0 - 缺失.csv",
+  "data_set_add_method": "HttpUpload",
+  "metadata_list": [
+    {
+      "data_type": "Integer",
+      "name": "id",
+      "$index": 0,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x1",
+      "$index": 1,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x2",
+      "$index": 2,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x3",
+      "$index": 3,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x4",
+      "$index": 4,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x5",
+      "$index": 5,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x6",
+      "$index": 6,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x7",
+      "$index": 7,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x8",
+      "$index": 8,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x9",
+      "$index": 9,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x10",
+      "$index": 10,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x11",
+      "$index": 11,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x12",
+      "$index": 12,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x13",
+      "$index": 13,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x14",
+      "$index": 14,
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x15",
+      "$index": 15,
+      "comment": ""
+    }
+  ],
+  "deduplication": true
+}
+
+
+
+
+### 添加数据集-xls
+POST http://localhost:8080/board-service/data_set/add
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+token: {{token}}
+
+--WebAppBoundary
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test02.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< /Users/zane.luo/test02.xlsx
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+xlsx测试数据集
+--WebAppBoundary
+Content-Disposition: form-data; name="tags"
+
+xlsx,test
+--WebAppBoundary
+Content-Disposition: form-data; name="description"
+
+这是一个测试数据集，用于测试数据集上传功能。
+--WebAppBoundary
+Content-Disposition: form-data; name="contains_y"
+
+false
+--WebAppBoundary
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}
+
+
+
+
+### 添加数据集-csv
+POST http://localhost:8080/board-service/data_set/add
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="反欺诈·反查贷后字段开发☞数据样本.csv"
+Content-Type: text/csv
+
+< /Users/Zane/Code/WeLab/Wefe/board/board-service/src/main/resources/test/data_set/data_set01.csv
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+xlsx测试数据集
+--WebAppBoundary
+Content-Disposition: form-data; name="tags"
+
+xlsx,test
+--WebAppBoundary
+Content-Disposition: form-data; name="description"
+
+这是一个测试数据集，用于测试数据集上传功能。
+--WebAppBoundary
+Content-Disposition: form-data; name="contains_y"
+
+false
+--WebAppBoundary
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+%}
+

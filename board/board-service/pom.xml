@@ -13,7 +13,6 @@
 
     <properties>
         <grpc.version>1.29.0</grpc.version>
-        <hutool.version>4.6.7</hutool.version>
     </properties>
 
     <dependencies>
@@ -32,15 +31,17 @@
             <artifactId>common-data-storage</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>fusion-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -110,12 +111,20 @@
             <artifactId>guava</artifactId>
             <version>30.0-jre</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
@@ -131,15 +140,12 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>jdk.tools</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-        <!-- impala -->
-        <!-- <dependency>
-            <groupId>com.cloudera</groupId>
-            <artifactId>ImpalaJDBC41</artifactId>
-            <version>2.6.4.1005</version>
-        </dependency> -->
-
     </dependencies>
 
     <build>

@@ -30,6 +30,9 @@ import java.util.List;
  */
 @XStreamAlias("annotation")
 public class Annotation {
+    /**
+     * folder的取值为：train、test
+     */
     public String folder;
     public String filename;
     public String path;

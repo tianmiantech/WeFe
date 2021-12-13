@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.account;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -60,7 +60,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             }
             // If you are not a super administrator, you will be prompted that you cannot log in.
             else {
-                AccountMySqlModel superAdmin = accountService.findSuperAdmin();
+                AccountMysqlModel superAdmin = accountService.findSuperAdmin();
                 return fail("The system has not been initialized, please contact " + superAdmin.getNickname() + " Initialize the system.");
             }
         }

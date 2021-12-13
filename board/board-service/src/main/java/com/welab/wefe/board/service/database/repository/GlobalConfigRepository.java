@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.database.repository;
 
-import com.welab.wefe.board.service.database.entity.GlobalConfigMySqlModel;
+import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * @author Zane
  */
 @Repository
-public interface GlobalConfigRepository extends BaseRepository<GlobalConfigMySqlModel, String> {
+public interface GlobalConfigRepository extends BaseRepository<GlobalConfigMysqlModel, String> {
 
-    List<GlobalConfigMySqlModel> findByGroup(String group);
+    List<GlobalConfigMysqlModel> findByGroup(String group);
 }

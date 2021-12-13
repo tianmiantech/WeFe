@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.dto.entity.project.data_set;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
@@ -47,9 +47,9 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
     @Check(name = "数据集是否已删除")
     private boolean deleted;
     @Check(name = "数据集类型")
-    private DataSetType dataSetType;
+    private DataResourceType dataResourceType;
     @Check(name = "数据集详情")
-    private AbstractDataSetOutputModel dataSet;
+    private DataResourceOutputModel dataSet;
 
     //region getter/setter
 
@@ -118,22 +118,21 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
         this.statusUpdatedTime = statusUpdatedTime;
     }
 
-    public DataSetType getDataSetType() {
-        return dataSetType;
-    }
-
-    public void setDataSetType(DataSetType dataSetType) {
-        this.dataSetType = dataSetType;
-    }
-
-    public AbstractDataSetOutputModel getDataSet() {
+    public DataResourceOutputModel getDataSet() {
         return dataSet;
     }
 
-    public void setDataSet(AbstractDataSetOutputModel dataSet) {
+    public void setDataSet(DataResourceOutputModel dataSet) {
         this.dataSet = dataSet;
     }
 
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
+    }
+
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
+    }
     //endregion
 
 }

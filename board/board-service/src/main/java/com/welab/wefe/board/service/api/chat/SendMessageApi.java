@@ -79,9 +79,7 @@ public class SendMessageApi extends AbstractApi<SendMessageApi.Input, SendMessag
          */
         @Check(require = true)
         private String content;
-        /**
-         * Message ID used by the front end
-         */
+        @Check(name = "Message ID used by the front end")
         private String messageId;
 
         public String getToMemberId() {
@@ -134,13 +132,9 @@ public class SendMessageApi extends AbstractApi<SendMessageApi.Input, SendMessag
     }
 
     public static class Output extends AbstractApiOutput {
-        /**
-         * Message ID used by the front end
-         */
+        @Check(name = "Message ID used by the front end")
         private String messageId;
-        /**
-         * Back end database message ID
-         */
+        @Check(name = "Back end database message ID")
         private String memberChatId;
 
         public String getMessageId() {

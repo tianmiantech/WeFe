@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author zane.luo
  */
-@Api(path = "project/data_set/audit", name = "audit the data set authorization application in the project")
+@Api(path = "project/data_resource/audit", name = "audit the data set authorization application in the project")
 public class AuditDataSetApi extends AbstractNoneOutputApi<AuditDataSetApi.Input> {
 
     @Autowired

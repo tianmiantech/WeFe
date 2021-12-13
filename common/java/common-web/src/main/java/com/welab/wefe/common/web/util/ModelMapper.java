@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.web.util;
 
+import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ModelMapper {
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
         mapper.getConfiguration().setFullTypeMatchingRequired(true);
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
 
         return mapper.map(source, destinationType);
 

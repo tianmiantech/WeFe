@@ -56,7 +56,7 @@ public class RegisterApi extends AbstractNoneOutputApi<RegisterApi.Input> {
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
-            if (Launcher.CONTEXT.getBean(Config.class).getEnvName().isProductionEnv()) {
+            if (Launcher.getBean(Config.class).getEnvName().isProductionEnv()) {
                 // Verification code verification
                 if (!CaptchaService.verify(key, code)) {
                     throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);

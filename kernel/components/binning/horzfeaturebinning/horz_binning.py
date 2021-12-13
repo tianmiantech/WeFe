@@ -82,6 +82,7 @@ class HorzBinningClient(BaseVertFeatureBinning):
         self._setup_bin_inner_param(data_instances, self.model_param)
         self.binning_obj.set_bin_inner_param(self.bin_inner_param)
         self.binning_obj.set_transfer_variable(self.transfer_variable)
+        self.binning_obj.set_role_party(self.role, self.member_id)
         split_points = self.binning_obj.fit_split_points(data_instances)
         self.binning_obj.cal_local_iv(data_instances, is_horz=True)
         self.transform(data_instances)

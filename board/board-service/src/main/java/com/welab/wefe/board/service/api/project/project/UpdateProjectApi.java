@@ -62,7 +62,7 @@ public class UpdateProjectApi extends AbstractNoneOutputApi<UpdateProjectApi.Inp
 
             // Project name cannot be repeated
             if (!super.fromGateway()) {
-                List<ProjectMySqlModel> allByName = Launcher.CONTEXT.getBean(ProjectRepository.class).findAllByName(name);
+                List<ProjectMySqlModel> allByName = Launcher.getBean(ProjectRepository.class).findAllByName(name);
                 if (!allByName.isEmpty()) {
                     if (allByName.size() > 1 || !allByName.get(0).getProjectId().equals(projectId)) {
                         StatusCode.PARAMETER_VALUE_INVALID.throwException(

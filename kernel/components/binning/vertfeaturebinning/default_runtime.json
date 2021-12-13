@@ -1,85 +1,145 @@
-
 {
-	"is_serving_model": false,
-	"method": "quantile",
-	"compress_thres": 10000,
-	"head_size": 10000,
-	"error": 0.001,
-	"adjustment_factor": 0.5,
-	"bin_num": 10,
-	"bin_indexes": -1,
-	"bin_names": [],
-	"category_indexes": [],
-	"category_names": [],
-	"local_only": false,
-	"transform_param": {
-		"is_serving_model": false,
-		"transform_cols": -1,
-		"transform_names": [],
-		"transform_type": "bin_num",
-		"model_save_to_storage": true
-	},
+        "is_serving_model": false,
+        "method": "quantile",
+        "compress_thres": 10000,
+        "head_size": 10000,
+        "error": 0.001,
+        "adjustment_factor": 0.5,
+        "bin_num": 10,
+        "bin_indexes": -1,
+        "bin_names": [],
+        "category_indexes": [],
+        "category_names": [],
+        "local_only": true,
+        "transform_param": {
+                "is_serving_model": false,
+                "transform_cols": -1,
+                "transform_names": [],
+                "transform_type": "bin_num",
+                "model_save_to_storage": true
+        },
 
-	"optimal_binning_param": {
-		"is_serving_model": false,
-		"init_bucket_method": "quantile",
-		"metric_method": "chi_square",
-		"max_bin": null,
-		"mixture": true,
-		"max_bin_pct": 0.8,
-		"min_bin_pct": 0.05,
-		"init_bin_nums": 100,
-		"adjustment_factor": null
-	},
-	"need_run": true,
-	"with_label": false,
-	"modes": [{
-		"method": "quantile",
-		"bin_num": 10,
-		"members": [{
-				"role": "promoter",
-				"member_id": "10001",
-				"bin_feature_names": [
-					"x0",
-					"x1",
-					"x2",
-					"x3",
-					"x4",
-					"x5",
-					"x6",
-					"x7",
-					"x8",
-					"x9"
-				]
-			},
-			{
-				"role": "provider",
-				"member_id": "10002",
-				"bin_feature_names": [
-					"x0",
-					"x1",
-					"x2",
-					"x3",
-					"x4",
-					"x5",
-					"x6",
-					"x7",
-					"x8",
-					"x9",
-					"x10",
-					"x11",
-					"x12",
-					"x13",
-					"x14",
-					"x15",
-					"x16",
-					"x17",
-					"x18",
-					"x19"
-				]
-			}
-		]
-	}],
-	"model_save_to_storage": true,
-	"feature_split_points": null
-}
+        "optimal_binning_param": {
+                "is_serving_model": false,
+                "init_bucket_method": "quantile",
+                "metric_method": "chi_square",
+                "max_bin": null,
+                "mixture": true,
+                "max_bin_pct": 0.8,
+                "min_bin_pct": 0.05,
+                "init_bin_nums": 100,
+                "adjustment_factor": null
+        },
+        "need_run": true,
+        "with_label": false,
+        "modes": [
+            {
+                "method": "quantile",
+                "bin_num": 10,
+                "members": [{
+                                "role": "promoter",
+                                "member_id": "10001",
+                                "bin_feature_names": [
+
+                                        "x5",
+                                        "x6",
+                                        "x7",
+                                        "x8",
+                                        "x9"
+                                ]
+
+
+                        },
+                        {
+                                "role": "provider",
+                                "member_id": "10002",
+                                "bin_feature_names": [
+
+
+                                        "x5",
+                                        "x6",
+                                        "x7",
+                                        "x8",
+                                        "x9",
+                                        "x10",
+                                        "x11",
+                                        "x12",
+                                        "x13",
+                                        "x14",
+                                        "x15",
+                                        "x16",
+                                        "x17",
+                                        "x18",
+                                        "x19"
+                                ]
+                        }
+                ]
+            },
+            {
+                "method": "optimal",
+                "bin_num": 5,
+                "members": [{
+                                "role": "promoter",
+                                "member_id": "10001",
+                                "bin_feature_names": [
+                                        "x0",
+                                        "x1",
+                                        "x2"
+                                ]
+                        },
+                {
+                                "role": "provider",
+                                "member_id": "10002",
+                                "bin_feature_names": [
+                                        "x0",
+                                        "x1",
+                                        "x2"
+
+                ]
+            }
+
+            ]},
+          {
+                "method": "custom",
+                "bin_num": -1,
+                "members": [{
+                                "role": "promoter",
+                                "member_id": "10001",
+                                "bin_feature_names": [
+                                        "x4"
+                                ],
+                               "feature_split_points": {"x4":[1,2,3,4,5,6]}
+                        },
+                {
+                                "role": "provider",
+                                "member_id": "10002",
+                                "bin_feature_names": [
+                                        "x4"
+                                ],
+                                "feature_split_points": {"x4":[1,2,3,4]}
+            }
+
+            ]},
+          {
+                "method": "bucket",
+                "bin_num": 6,
+                "members": [{
+                                "role": "promoter",
+                                "member_id": "10001",
+                                "bin_feature_names": [
+                                        "x3"
+                                ]
+                        },
+                {
+                                "role": "provider",
+                                "member_id": "10002",
+                                "bin_feature_names": [
+                                        "x3"
+                                ]
+            }
+
+            ]}],
+        "model_save_to_storage": true,
+        "feature_split_points": null
+
+          }

@@ -26,12 +26,12 @@ import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlMode
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.ComponentType;
@@ -64,7 +64,7 @@ public class ProjectFlowNodeService {
     @Autowired
     private ProjectFlowService projectFlowService;
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Autowired
     private ProjectFlowRepository projectFlowRepo;
@@ -113,10 +113,10 @@ public class ProjectFlowNodeService {
             for (DataIOComponent.DataSetItem item : params.getDataSetList()) {
                 JobDataSet.Member member = new JobDataSet.Member();
                 member.memberRole = item.getMemberRole();
-                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
+                TableDataSetOutputModel dataSetInfo = tableDataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
                         item.getDataSetId());
                 if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
+                    member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
                 }
                 dataSet.members.add(member);

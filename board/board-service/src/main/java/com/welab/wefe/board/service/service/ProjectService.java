@@ -36,7 +36,7 @@ import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOu
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -94,10 +94,6 @@ public class ProjectService extends AbstractService {
 
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
-
-    @Autowired
-    private DataSetService dataSetService;
-
     @Autowired
     private ProjectMemberAuditRepository projectMemberAuditRepository;
     @Autowired
@@ -108,6 +104,8 @@ public class ProjectService extends AbstractService {
 
     @Autowired
     private ProjectFlowNodeRepository projectFlowNodeRepository;
+    @Autowired
+    private DataResourceService dataResourceService;
 
     /**
      * New Project
@@ -204,8 +202,8 @@ public class ProjectService extends AbstractService {
                 projectDataSetRepo.save(dataSet);
 
                 // Update the usage count of the dataset in the project
-                if (auditStatus == AuditStatus.agree) {
-                    dataSetService.updateUsageCountInProject(dataSet.getDataSetId());
+                if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
                 }
             }
 
@@ -353,7 +351,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), member.getMemberId())
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
 
         checkAuditingRecord(input.getProjectId(), input.getMemberId());
 
@@ -503,7 +501,7 @@ public class ProjectService extends AbstractService {
             projectDataSetRepo.save(projectDataSet);
             // Update the usage count of the dataset in the project
             if (projectDataSet.getAuditStatus() == AuditStatus.agree) {
-                dataSetService.updateUsageCountInProject(projectDataSet.getDataSetId());
+                dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
         }
@@ -554,7 +552,7 @@ public class ProjectService extends AbstractService {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
 
-                dataSetService.delete(projectDataSet.getDataSetId());
+                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataSetType());
             }
 
         }
@@ -563,7 +561,7 @@ public class ProjectService extends AbstractService {
         projectDataSetRepo.deleteById(projectDataSet.getId());
 
         // Update the usage count of the dataset in the project
-        dataSetService.updateUsageCountInProject(projectDataSet.getDataSetId());
+        dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, RemoveDataSetApi.class);
 
@@ -952,12 +950,12 @@ public class ProjectService extends AbstractService {
 
         }
 
-        for (ProjectDataSetMySqlModel dataSetMySqlModel : dataInfoOutput.getProjectDataSets()) {
+        for (ProjectDataSetMySqlModel TableDataSetMysqlModel : dataInfoOutput.getProjectDataSets()) {
             // Filter derived data sets
-            if (dataSetMySqlModel.getSourceType() != null) {
+            if (TableDataSetMysqlModel.getSourceType() != null) {
                 continue;
             }
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(dataSetMySqlModel.getProjectId(), dataSetMySqlModel.getDataSetId(), dataSetMySqlModel.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(TableDataSetMysqlModel.getProjectId(), TableDataSetMysqlModel.getDataSetId(), TableDataSetMysqlModel.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSetService.update(projectDataSet, dataSet -> {
                     dataSet.setAuditStatus(projectDataSet.getAuditStatus());
@@ -966,7 +964,7 @@ public class ProjectService extends AbstractService {
 
             } else {
 
-                projectDataSetRepo.save(dataSetMySqlModel);
+                projectDataSetRepo.save(TableDataSetMysqlModel);
             }
         }
         List<String> excludeFlowIds = new ArrayList<>();
@@ -1220,7 +1218,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), memberId)
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
 
@@ -1251,7 +1249,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), null)
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
 
         // Notify other members that the project is closed
         try {

@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "project/data_set/list", name = "list all of the project data sets")
+@Api(path = "project/data_resource/list", name = "list all of the project data sets")
 public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
     @Autowired
@@ -40,7 +40,7 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.list(input.projectId, input.dataSetType, input.memberId);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.list(input.projectId, input.dataResourceType, input.memberId);
         return success(new Output(list));
     }
 
@@ -49,7 +49,7 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
         private String projectId;
 
         @Check(name = "数据集类型")
-        private DataSetType dataSetType;
+        private DataResourceType dataResourceType;
 
         @Check(name = "成员Id", desc = "当此参数为空时，返回项目中所有数据集")
         private String memberId;
@@ -66,12 +66,12 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
         }
 
 
-        public DataSetType getDataSetType() {
-            return dataSetType;
+        public DataResourceType getDataSetType() {
+            return dataResourceType;
         }
 
-        public void setDataSetType(DataSetType dataSetType) {
-            this.dataSetType = dataSetType;
+        public void setDataSetType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
         }
 
         public String getMemberId() {

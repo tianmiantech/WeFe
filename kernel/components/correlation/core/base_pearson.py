@@ -40,12 +40,8 @@ LOGGER = log_utils.get_logger()
 
 def select_columns(self, data_instance):
     col_names = data_instance.schema["header"]
-    if self.model_param.column_indexes == -1:
+    if self.model_param.column_indexes == -1 and len(self.model_param.column_names) < 1:
         self.names = col_names
-        name_set = set(self.names)
-        for name in self.model_param.column_names:
-            if name not in name_set:
-                raise ValueError(f"name={name} not found in header")
         return data_instance.mapValues(lambda inst: inst.features)
 
     name_to_idx = {col_names[i]: i for i in range(len(col_names))}

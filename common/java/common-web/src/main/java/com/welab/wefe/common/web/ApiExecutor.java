@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -101,6 +102,9 @@ public class ApiExecutor {
                 Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
             }
 
+            if (result == null) {
+                result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), "响应失败，疑似程序中发生了死循环。");
+            }
             result.spend = System.currentTimeMillis() - start;
 
             logResponse(annotation, result);
@@ -132,7 +136,7 @@ public class ApiExecutor {
             byte[] bytes = (byte[]) result.data;
             content = "bytes(length " + bytes.length + ")";
         } else {
-            content = JSON.toJSONString(result);
+            content = JSON.toJSONString(result, LoggerSerializeConfig.instance());
         }
 
 

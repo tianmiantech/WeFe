@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,9 @@
 
 package com.welab.wefe.common.http;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -193,10 +195,23 @@ public class HttpResponse {
      * Outputs the current response object to the log
      */
     public void log() {
+        String content = getBodyAsString();
+        if (contentType != null && contentType.toLowerCase().contains("json")) {
+            try {
+                JSONObject json = getBodyAsJson();
+                content = JSON.toJSONString(json.getInnerMap(), LoggerSerializeConfig.instance());
+            } catch (Exception e) {
+            }
+        }
+
+        if (content != null) {
+            content = content.replace(System.lineSeparator(), "");
+        }
+
         if (success()) {
-            LOG.info("http success({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, getBodyAsString().replace(System.lineSeparator(), ""));
+            LOG.info("http success({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, content);
         } else {
-            LOG.error("http fail({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, getBodyAsString(), error);
+            LOG.error("http fail({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, content, error);
         }
     }
 

@@ -21,7 +21,7 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
 import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataSetType;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -48,7 +48,7 @@ public class QueryDerivedDataSetApi extends AbstractApi<QueryDerivedDataSetApi.I
         private String projectId;
 
         @Check(name = "数据集类型", require = true)
-        private DataSetType dataSetType;
+        private DataResourceType dataResourceType;
 
         @Check(name = "来源")
         private ComponentType sourceType;
@@ -73,12 +73,12 @@ public class QueryDerivedDataSetApi extends AbstractApi<QueryDerivedDataSetApi.I
             this.projectId = projectId;
         }
 
-        public DataSetType getDataSetType() {
-            return dataSetType;
+        public DataResourceType getDataSetType() {
+            return dataResourceType;
         }
 
-        public void setDataSetType(DataSetType dataSetType) {
-            this.dataSetType = dataSetType;
+        public void setDataSetType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
         }
 
         public ComponentType getSourceType() {

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.database.repository;
 
-import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Repository;
  * @author Johnny.lin
  */
 @Repository
-public interface DataSourceRepository extends BaseRepository<DataSourceMySqlModel, String> {
+public interface DataSourceRepository extends BaseRepository<DataSourceMysqlModel, String> {
 
     @Query(value = "select count(*) from #{#entityName} where name=?1", nativeQuery = true)
     int countByName(String name);

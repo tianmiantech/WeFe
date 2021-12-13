@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -191,17 +191,21 @@ public class ProjectFlowService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到该流程", StatusCode.ILLEGAL_REQUEST);
         }
-        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
-        if (nodes != null && !nodes.isEmpty()) {
-            for (ProjectFlowNodeMySqlModel node : nodes) {
-                if (node.getComponentType().getFederatedLearningTypes() != null && !node.getComponentType()
-                        .getFederatedLearningTypes().contains(input.getFederatedLearningType())) {
-                    throw new StatusCodeWithException("训练类型选择错误，请先移除组件 【" + node.getComponentType().getLabel() + "】",
-                            StatusCode.ILLEGAL_REQUEST);
-                }
-            }
-        }
-        flow.setFederatedLearningType(input.getFederatedLearningType());
+		if (input.getFederatedLearningType() != null
+				&& flow.getFederatedLearningType() != input.getFederatedLearningType()) {
+			throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
+		}
+//        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
+//        if (nodes != null && !nodes.isEmpty()) {
+//            for (ProjectFlowNodeMySqlModel node : nodes) {
+//                if (node.getComponentType().getFederatedLearningTypes() != null && !node.getComponentType()
+//                        .getFederatedLearningTypes().contains(input.getFederatedLearningType())) {
+//                    throw new StatusCodeWithException("训练类型选择错误，请先移除组件 【" + node.getComponentType().getLabel() + "】",
+//                            StatusCode.ILLEGAL_REQUEST);
+//                }
+//            }
+//        }
+//        flow.setFederatedLearningType(input.getFederatedLearningType());
         flow.setFlowName(input.getName());
         flow.setFlowDesc(input.getDesc());
         flow.setUpdatedBy(input);
@@ -364,7 +368,7 @@ public class ProjectFlowService extends AbstractService {
                     if (lastJob != null) {
                         x.setJobProgress(lastJob.getProgress());
                     }
-                    x.setIsCreator(CacheObjects.isCurrentMember(x.getCreatedBy()));
+                    x.setIsCreator(CacheObjects.isCurrentMemberAccount(x.getCreatedBy()));
                 });
         return page;
     }

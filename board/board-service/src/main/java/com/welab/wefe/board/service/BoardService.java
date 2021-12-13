@@ -90,7 +90,7 @@ public class BoardService implements ApplicationContextAware {
                     // 在线体验版专用 api 权限检查
                     OnlineDemoApi onlineDemoApi = api.getClass().getAnnotation(OnlineDemoApi.class);
                     if (onlineDemoApi != null) {
-                        Config config = Launcher.CONTEXT.getBean(Config.class);
+                        Config config = Launcher.getBean(Config.class);
                         if (!config.isOnlineDemo()) {
                             throw new StatusCodeWithException("The current environment does not allow this API to be called", StatusCode.SYSTEM_ERROR);
                         }
@@ -104,7 +104,7 @@ public class BoardService implements ApplicationContextAware {
 
         Launcher
                 .instance()
-                .afterApiExecuteFunction(Launcher.CONTEXT.getBean(OperationLogAfterApiExecute.class));
+                .afterApiExecuteFunction(Launcher.getBean(OperationLogAfterApiExecute.class));
     }
 
 

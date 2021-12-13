@@ -133,7 +133,7 @@ public class StorageService {
     }
 
     public PageOutputModel getPage(String dbName, String tbName, PageInputModel pageInputModel) {
-        PageOutputModel pageOutputModel = null;
+        PageOutputModel pageOutputModel = new PageOutputModel();
         try {
             pageOutputModel = getStorage().getPage(dbName, tbName, pageInputModel);
         } catch (Exception e) {
