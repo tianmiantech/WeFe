@@ -74,10 +74,9 @@ class VisualFLService:
         # 业务异常
         root = response.json()
         code = root.get("code")
+        job_id = root.get("job_id")
         message = root.get("message")
-        data = root.get("data")
-
-        if code != 0:
+        if job_id is None:
             VisualFLService.LOG.error(
                 "visualfl response fail({}ms) url:{}, {}, {}".format(spend, url, message, response.text)
             )
@@ -86,4 +85,4 @@ class VisualFLService:
             VisualFLService.LOG.info(
                 "visualfl response success({}ms) url:{}, {}".format(spend, url, response.text)
             )
-            return data
+            return job_id
