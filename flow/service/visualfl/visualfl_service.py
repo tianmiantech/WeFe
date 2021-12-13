@@ -46,7 +46,7 @@ class VisualFLService:
         """
         向 board 服务发送请求
         """
-        url = BOARD_BASE_URL + api
+        url = "http://10.90.0.86:10002" + api
 
         # 发送请求
         start_time = current_timestamp()
