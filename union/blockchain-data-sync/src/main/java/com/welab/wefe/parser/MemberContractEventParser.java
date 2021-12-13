@@ -88,8 +88,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setCreatedTime(StringUtil.strTrim2(params.getString(11)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(12)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(13)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(14)));
-
 
         member.setExtJson(extJSON);
         member.setDataSyncTime(System.currentTimeMillis());
@@ -115,7 +113,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setCreatedTime(StringUtil.strTrim2(params.getString(10)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(11)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(12)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(13)));
         member.setDataSyncTime(System.currentTimeMillis());
         member.setExtJson(extJSON);
 
@@ -152,7 +149,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setGatewayUri(StringUtil.strTrim2(params.getString(9)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(11)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(12)));
         member.setDataSyncTime(System.currentTimeMillis());
         member.setExtJson(extJSON);
 

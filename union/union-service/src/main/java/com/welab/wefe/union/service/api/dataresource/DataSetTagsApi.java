@@ -16,17 +16,22 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDataSetTagsApi;
-import com.welab.wefe.union.service.dto.dataset.ApiTagsQueryOutput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.dataset.TagsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * data resoure tags query
@@ -34,13 +39,40 @@ import java.io.IOException;
  * @author yuxin.zhang
  **/
 @Api(path = "data_resoure/tags/query", name = "resoure_tags_query", rsaVerify = true, login = false)
-public class DataSetTagsApi extends AbstractApi<AbstractDataSetTagsApi.Input, ApiTagsQueryOutput> {
+public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsDTO>> {
     @Autowired
-    protected DataSetMongoReop dataSetMongoReop;
+    protected DataResourceMongoReop dataResourceMongoReop;
 
 
     @Override
-    protected ApiResult<ApiTagsQueryOutput> handle(AbstractDataSetTagsApi.Input input) throws StatusCodeWithException, IOException {
-        return null;
+    protected ApiResult<List<TagsDTO>> handle(Input input) throws StatusCodeWithException, IOException {
+        List<String> tagsList = dataResourceMongoReop.findByDataResourceType(input.dataResourceType);
+
+        Map<String, Long> tagGroupMap = tagsList.stream()
+                .flatMap(tags -> Arrays.stream(tags.split(",")))
+                .collect(Collectors.groupingBy(String::trim, Collectors.counting()));
+
+        List<TagsDTO> result = tagGroupMap
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(x -> new TagsDTO(x.getKey(), x.getValue()))
+                .collect(Collectors.toList());
+        return success(result);
     }
+
+
+    public static class Input extends BaseInput {
+        @Check(require = true)
+        private String dataResourceType;
+
+        public String getDataResourceType() {
+            return dataResourceType;
+        }
+
+        public void setDataResourceType(String dataResourceType) {
+            this.dataResourceType = dataResourceType;
+        }
+    }
+
 }

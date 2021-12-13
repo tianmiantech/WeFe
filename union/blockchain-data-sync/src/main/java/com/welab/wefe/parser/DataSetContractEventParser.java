@@ -76,7 +76,6 @@ public class DataSetContractEventParser extends AbstractParser {
         dataSet.setTags(StringUtil.strTrim2(params.getString(15)));
         dataSet.setCreatedTime(StringUtil.strTrim2(params.getString(16)));
         dataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(17)));
-        dataSet.setLogTime(StringUtil.strTrim2(params.getString(18)));
         dataSet.setExtJson(extJSON);
 
         dataSetMongoReop.upsert(dataSet);

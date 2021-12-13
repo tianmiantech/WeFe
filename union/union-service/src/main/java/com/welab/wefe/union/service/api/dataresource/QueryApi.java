@@ -45,7 +45,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQ
 
     @Override
     protected ApiResult<PageOutput<ApiDataSetQueryOutput>> handle(Input input) {
-        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.findCurMemberCanSee(mDataSetMapper.transferInput(input));
+        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.findCurMemberCanSee(null);
 
         List<ApiDataSetQueryOutput> list = pageOutput.getList().stream()
                 .map(mDataSetMapper::transferOutput)
