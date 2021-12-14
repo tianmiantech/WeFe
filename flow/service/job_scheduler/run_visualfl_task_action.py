@@ -44,7 +44,7 @@ class RunVisualFLTaskAction:
                                                              current_datetime()))
         response = self.apply_resource()
         apply_result = JobApplyResult()
-        if response is not None and response['job_id'] is not None:
+        if response is not None:
             # 等待 apply resource 执行完成
             while apply_result is None or apply_result.server_endpoint is None:
                 self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
