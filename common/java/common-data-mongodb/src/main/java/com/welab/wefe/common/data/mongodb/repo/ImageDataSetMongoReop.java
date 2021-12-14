@@ -186,13 +186,10 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
     public void upsert(ImageDataSet dataSet) {
-        ImageDataSet imageDataSet = findDataResourceId(dataSet.getDataResourceId());
-        if (imageDataSet != null) {
-            dataSet.setId(imageDataSet.getId());
-            dataSet.setExtJson(imageDataSet.getExtJson());
-        }
         mongoUnionTemplate.save(dataSet);
     }
+
+
 
     public boolean updateExtJSONById(String dataSetId, ImageDataSetExtJSON extJSON, String updateTime) {
         if (StringUtils.isEmpty(dataSetId)) {
