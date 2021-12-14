@@ -183,7 +183,6 @@
              -->
             <el-button
                 v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
-                plain
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
@@ -200,12 +199,12 @@
                 <el-table-column label="序号" type="index" />
                 <el-table-column
                     label="数据集"
-                    width="260"
+                    width="230"
                 >
                     <template v-slot="scope">
                         <span v-if="scope.row.audit_status === 'auditing'" class="color-danger mr10">(待审核)</span>
-                        <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
-                            {{ scope.row.name }}
+                        <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: form.project_type === 'DeepLearning' ? 'img' : 'csv' } }">
+                            {{ scope.row.data_set.name }}
                         </router-link>
                         <p class="p-id pt5">{{ scope.row.data_set_id }}</p>
                     </template>
@@ -213,8 +212,8 @@
 
                 <el-table-column label="关键词">
                     <template v-slot="scope">
-                        <template v-if="scope.row.tags">
-                            <template v-for="(item, index) in scope.row.tags.split(',')">
+                        <template v-if="scope.row.data_set.tags">
+                            <template v-for="(item, index) in scope.row.data_set.tags.split(',')">
                                 <el-tag
                                     v-if="item"
                                     :key="index"
@@ -227,11 +226,43 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="数据量">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量">
                     <template v-slot="scope">
-                        特征：{{ scope.row.feature_count }}
+                        特征量：{{ scope.row.data_set.feature_count }}
                         <br>
-                        行数：{{ scope.row.row_count }}
+                        样本量：{{ scope.row.data_set.row_count }}
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="样本分类"
+                    prop="for_job_type"
+                    width="100"
+                >
+                    <template v-slot="scope">
+                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="数据总量"
+                    width="80"
+                >
+                    <template v-slot="scope">
+                        {{ scope.row.data_set.total_data_count }}
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="标注状态"
+                    prop="label_completed"
+                    width="100"
+                >
+                    <template v-slot="scope">
+                        {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
                     </template>
                 </el-table-column>
 
@@ -240,11 +271,11 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.usage_count_in_job }}
+                        {{ scope.row.data_set.usage_count_in_job }}
                     </template>
                 </el-table-column>
 
-                <el-table-column label="是否包含 Y">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
                     <template v-slot="scope">
                         {{ scope.row.contains_y ? '是' : '否' }}
                     </template>
@@ -265,7 +296,9 @@
                                 content="被拒绝的数据集需要移除后再进行添加！"
                                 placement="top"
                             >
-                                <i class="el-icon-info"></i>
+                                <el-icon>
+                                    <elicon-info-filled />
+                                </el-icon>
                             </el-tooltip>
                         </template>
                     </template>
@@ -311,7 +344,9 @@
                                 class="dataset-preview"
                                 @click="methods.showDataSetPreview(scope.row)"
                             >
-                                <i class="el-icon-view" />
+                                <el-icon>
+                                    <elicon-view />
+                                </el-icon>
                             </el-button>
                         </el-tooltip>
                         <!--
@@ -323,7 +358,7 @@
                             circle
                             type="danger"
                             class="mr10"
-                            icon="el-icon-delete"
+                            icon="elicon-delete"
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
                         <template v-if="scope.row.deleted">
@@ -340,8 +375,10 @@
         v-model="vData.dataSetPreviewDialog"
         destroy-on-close
         append-to-body
+        width="60%"
     >
-        <DataSetPreview ref="DataSetPreviewRef" />
+        <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreviewRef" />
+        <PreviewImageList v-if="form.project_type === 'DeepLearning'" ref="PreviewImageListRef" />
     </el-dialog>
 
     <el-dialog
@@ -396,6 +433,7 @@
     } from 'vue';
     import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import DataSetPreview from '@comp/views/data_set-preview';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default{
         props: {
@@ -408,6 +446,7 @@
         components: {
             DataSetPreview,
             SelectDatasetDialog,
+            PreviewImageList,
         },
         emits: ['deleteDataSetEmit'],
         setup(props, context) {
@@ -418,6 +457,7 @@
             const userInfo = computed(() => store.state.base.userInfo);
             const DataSetPreviewRef = ref();
             const SelectDatasetDialogRef = ref();
+            const PreviewImageListRef = ref();
             const vData = reactive({
                 locker:               false,
                 dataSetPreviewDialog: false,
@@ -439,9 +479,12 @@
             const methods = {
                 showDataSetPreview(item){
                     vData.dataSetPreviewDialog = true;
-
                     nextTick(() =>{
-                        DataSetPreviewRef.value.loadData(item.data_set_id);
+                        if (props.form.project_type === 'MachineLearning') {
+                            DataSetPreviewRef.value.loadData(item.data_set_id);
+                        } else if (props.form.project_type === 'DeepLearning') {
+                            PreviewImageListRef.value.methods.getSampleList(item.data_set_id);
+                        }
                     });
                 },
 
@@ -518,7 +561,7 @@
                             return $message.error('请先等待他人同意授权加入合作!');
                         }
                     }
-                    const result = flag ? $prompt('确定同意协作方使用数据集进行流程训练吗', '提示', {
+                    const result = flag ? $confirm('确定同意协作方使用数据集进行流程训练吗', '提示', {
                         type:        'warning',
                         customClass: 'audit_dialog',
                     }) : $prompt('拒绝协作方在此项目中使用此数据集:\n 原因:', '提示', {
@@ -530,9 +573,9 @@
                     });
 
                     result.then(async ({ action, value }) => {
-                        if(action === 'confirm') {
+                        if(flag || action === 'confirm') {
                             const { code } = await $http.post({
-                                url:  '/project/data_set/audit',
+                                url:  '/project/data_resource/audit',
                                 data: {
                                     project_id:    props.form.project_id,
                                     audit_status:  flag ? 'agree' : 'disagree',
@@ -563,12 +606,12 @@
                             vData.batchDataSetList.push({
                                 member_role:   row.member_role,
                                 member_id:     row.member_id,
-                                data_set_id:   item.id,
+                                data_set_id:   item.id || item.data_set_id,
                                 data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });
                         const { code } = await $http.post({
-                            url:  '/project/data_set/add',
+                            url:  '/project/data_resource/add',
                             data: {
                                 project_id:  props.form.project_id,
                                 dataSetList: vData.batchDataSetList,
@@ -590,7 +633,7 @@
 
                     if(!has) {
                         const { code } = await $http.post({
-                            url:  '/project/data_set/add',
+                            url:  '/project/data_resource/add',
                             data: {
                                 project_id:  props.form.project_id,
                                 dataSetList: [
@@ -620,7 +663,7 @@
                         .then(async action => {
                             if(action === 'confirm') {
                                 const { code } = await $http.post({
-                                    url:  '/project/data_set/remove',
+                                    url:  '/project/data_resource/remove',
                                     data: {
                                         project_id:  props.form.project_id,
                                         data_set_id: row.data_set_id,
@@ -644,6 +687,7 @@
                 userInfo,
                 DataSetPreviewRef,
                 SelectDatasetDialogRef,
+                PreviewImageListRef,
             };
         },
     };
