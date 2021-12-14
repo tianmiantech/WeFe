@@ -17,6 +17,7 @@ from common.python.db.job_apply_result_dao import JobApplyResultDao
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
+from common.python.utils.log_utils import schedule_logger
 
 
 class Input(BaseApiInput):
@@ -34,6 +35,7 @@ class Input(BaseApiInput):
 class Api(BaseApi):
 
     def run(self, input: Input):
+        schedule_logger("get request apply_callback_api:{}".format(input))
         # todo
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
