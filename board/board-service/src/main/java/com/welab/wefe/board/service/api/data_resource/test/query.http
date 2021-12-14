@@ -5,5 +5,4 @@ Content-Type: application/json
 token: {{token}}
 
 {
-  "data_set_id": "d1eb80bdeb744af19f4ea43604ca68ab"
 }
