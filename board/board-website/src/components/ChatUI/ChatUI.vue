@@ -194,7 +194,7 @@
                 console.log('hide');
                 vData.dom.classList.add('hide');
                 vData.dom.classList.remove('show');
-                window.localStorage.removeItem(`${window.api.prefixPath}_chat`);
+                window.localStorage.removeItem(`${window.api.baseUrl}_chat`);
             };
 
             // show chat room
