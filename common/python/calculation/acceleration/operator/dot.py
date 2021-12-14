@@ -179,7 +179,7 @@ def _gpu_dot_4_batch(X, w, bits):
     _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
 
     print(f'start:{datetime.datetime.now()}')
-    _result_array_reduce_add(result_array)
+    _result_array_reduce_add(result_array, bits)
     print(f'end:{datetime.datetime.now()}')
 
     # Submit the remaining batches that are not enough to use CPU calculation and return the result
@@ -259,7 +259,7 @@ def _dot_list_to_restore(x_length_to_restore: list, res: list, batch_result: lis
             break
 
 
-def _result_array_reduce_add(result_array: list):
+def _result_array_reduce_add(result_array: list, bits):
     """
     PaillierEncryptedNumber result add
 
@@ -312,7 +312,7 @@ def _result_array_reduce_add(result_array: list):
                 to_restore_size.append(item_submit_count)
 
             aclr_client = RuntimeInstance.get_alcr_ins()
-            gpu_result = aclr_client.mulm(param_4_gpu, param_4_local)
+            gpu_result = aclr_client.mulm(param_4_gpu, param_4_local, bits)
 
             for idx in range(len(to_restore_size)):
                 each_pair_size = to_restore_size[idx]
