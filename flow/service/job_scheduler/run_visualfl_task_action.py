@@ -47,7 +47,7 @@ class RunVisualFLTaskAction:
         if response is not None:
             # 等待 apply resource 执行完成
             while apply_result is None or apply_result.server_endpoint is None:
-                self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
+                self.logger.info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
                 apply_result = self.query_apply_progress_result()
         else:
@@ -169,6 +169,7 @@ class RunVisualFLTaskAction:
             }
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
+            params['data_set'] = task_config_json['data_set']
             # todo local_trainer_indexs need_shuffle
             params['algorithm_config'] = task_config_json['algorithm_config']
             params['algorithm_config']['need_shuffle'] = True
