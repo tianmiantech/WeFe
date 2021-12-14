@@ -59,7 +59,6 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
-            @Mapping(target = "enable", expression = "java(\"1\")"),
             @Mapping(target = "labelCompleted", expression = "java(String.valueOf(input.isLabelCompleted() ? 1 : 0))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),

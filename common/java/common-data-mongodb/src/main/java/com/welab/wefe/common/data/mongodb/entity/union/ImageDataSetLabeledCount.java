@@ -17,9 +17,7 @@
 package com.welab.wefe.common.data.mongodb.entity.union;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
-import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -27,17 +25,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
  **/
 @Document(collection = MongodbTable.Union.IMAGE_DATASET_LABELEDCOUNT)
 public class ImageDataSetLabeledCount extends AbstractNormalMongoModel {
-    private String dataSetId;
+    private String dataResouceId;
     private String labelList;
-    private int sampleCount;
+    private int totalDataCount;
     private int labeledCount;
 
-    public String getDataSetId() {
-        return dataSetId;
+    public String getDataResouceId() {
+        return dataResouceId;
     }
 
-    public void setDataSetId(String dataSetId) {
-        this.dataSetId = dataSetId;
+    public void setDataResouceId(String dataResouceId) {
+        this.dataResouceId = dataResouceId;
     }
 
     public String getLabelList() {
@@ -48,12 +46,12 @@ public class ImageDataSetLabeledCount extends AbstractNormalMongoModel {
         this.labelList = labelList;
     }
 
-    public int getSampleCount() {
-        return sampleCount;
+    public int getTotalDataCount() {
+        return totalDataCount;
     }
 
-    public void setSampleCount(int sampleCount) {
-        this.sampleCount = sampleCount;
+    public void setTotalDataCount(int totalDataCount) {
+        this.totalDataCount = totalDataCount;
     }
 
     public int getLabeledCount() {

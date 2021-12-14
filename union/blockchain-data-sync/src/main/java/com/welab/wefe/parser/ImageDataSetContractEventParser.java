@@ -65,11 +65,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
 
     private void parseInsertAndUpdateEvent(boolean isAdd) {
         ImageDataSet imageDataSet = new ImageDataSet();
-        imageDataSet.setDataSetId(StringUtil.strTrim2(params.getString(0)));
-        imageDataSet.setMemberId(StringUtil.strTrim2(params.getString(1)));
-        imageDataSet.setName(StringUtil.strTrim2(params.getString(2)));
-        imageDataSet.setTags(StringUtil.strTrim2(params.getString(3)));
-        imageDataSet.setDescription(StringUtil.strTrim2(params.getString(4)));
+        imageDataSet.setDataResourceId(StringUtil.strTrim2(params.getString(0)));
         imageDataSet.setForJobType(params.getString(5));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(6)));
         imageDataSet.setSampleCount(StringUtil.strTrim2(params.getString(7)));
@@ -96,7 +92,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
 
     private void parseDeleteByDataSetIdEvent() {
         String id = eventBO.getEntity().get("id").toString();
-        dataSetMongoReop.deleteByDataSetId(id);
+        dataSetMongoReop.deleteByDataResourceId(id);
     }
 
 

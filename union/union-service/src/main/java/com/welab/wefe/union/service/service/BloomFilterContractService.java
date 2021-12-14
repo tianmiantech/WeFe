@@ -17,11 +17,13 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.contract.BloomFilterContract;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.entity.DataSet;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,92 +46,75 @@ import java.util.List;
 public class BloomFilterContractService extends AbstractContractService {
 
     @Autowired
-    private DataSetContract dataSetContract;
+    private BloomFilterContract bloomFilterContract;
     @Autowired
     private CryptoSuite cryptoSuite;
-    @Autowired
-    private MemberContractService memberContractService;
-    @Autowired
-    private DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
 
-    public void upsert(DataSet dataset) throws StatusCodeWithException {
+    public void add(BloomFilter bloomFilter) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
-                extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
-            }
-            if (!memberContractService.isExist(dataset.getMemberId())) {
-                throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
-            }
 
-            TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
-                    extJson);
+            TransactionReceipt transactionReceipt = bloomFilterContract.insert(
+                    generateParams(bloomFilter),
+                    JObject.toJSONString(bloomFilter.getExtJson())
+            );
 
             // Get receipt result
-            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_INSERT, insertTransactionReceipt);
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(BloomFilterContract.ABI, BloomFilterContract.FUNC_INSERT, transactionReceipt);
 
-            // Transaction execution failed
-            if (!transactionIsSuccess(insertResponse.getValues())) {
-                // Update the data if it exists
-                TransactionReceipt updateTransactionReceipt = dataSetContract.update(generateParams(dataset),
-                        extJson);
+            transactionIsSuccess(transactionResponse);
 
-                // Get receipt result
-                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
-                if (!transactionIsSuccess(updateResponse.getValues())) {
-                    throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
-                }
-            }
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to BloomFilter information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
+    }
 
+    public void updateHashFuntion(String dataResourceId,String hashFunction) throws StatusCodeWithException {
+        try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
+            TransactionReceipt transactionReceipt = bloomFilterContract.updateHashFuntion(
+                    dataResourceId,
+                    hashFunction,
+                    updatedTime
+            );
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(BloomFilterContract.ABI, BloomFilterContract.FUNC_UPDATEHASHFUNTION, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to add BloomFilter information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
     }
 
 
-    public void deleteById(String dataSetId) throws StatusCodeWithException {
+    public void deleteById(String dataResourceId) throws StatusCodeWithException {
         try {
-            boolean isExist = dataSetContract.isExist(dataSetId);
+            boolean isExist = bloomFilterContract.isExist(dataResourceId);
             if (isExist) {
-                TransactionReceipt transactionReceipt = dataSetContract.deleteByDataSetId(dataSetId);
+                TransactionReceipt transactionReceipt = bloomFilterContract.deleteByDataResourceId(dataResourceId);
                 // Get receipt result
                 TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
+                        .decodeReceiptWithValues(BloomFilterContract.ABI, BloomFilterContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
                     throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
                 }
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to delete BloomFilter  information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
-    private List<String> generateParams(DataSet dataSet) {
+    private List<String> generateParams(BloomFilter bloomFilter) {
         List<String> list = new ArrayList<>();
-        list.add(dataSet.getId());
-        list.add(StringUtil.isEmptyToBlank(dataSet.getMemberId()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getName()));
-        list.add(String.valueOf(dataSet.getContainsY()));
-        list.add(String.valueOf(dataSet.getRowCount()));
-        list.add(String.valueOf(dataSet.getColumnCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getColumnNameList()));
-        list.add(String.valueOf(dataSet.getFeatureCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getFeatureNameList()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicLevel()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicMemberList()));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInJob())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInFlow())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInProject())));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getDescription()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getTags()));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getCreatedTime())));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getUpdatedTime())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis())));
+        list.add(bloomFilter.getDataResourceId());
+        list.add(StringUtil.isEmptyToBlank(bloomFilter.getHashFunction()));
+        list.add(bloomFilter.getCreatedTime());
+        list.add(bloomFilter.getUpdatedTime());
         return list;
     }
 }

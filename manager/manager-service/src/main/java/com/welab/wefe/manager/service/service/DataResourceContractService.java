@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service;
+package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
@@ -23,7 +23,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.contract.DataResourceContract;
+import com.welab.wefe.manager.service.contract.DataResourceContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -62,7 +62,7 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
@@ -83,11 +83,32 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to update data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
 
+
+    public void enable(String dataResourceId, String enable) throws StatusCodeWithException {
+        try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
+            TransactionReceipt transactionReceipt = dataResourceContract.updateExtJson(
+                    dataResourceId,
+                    enable,
+                    updatedTime
+            );
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to enable data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
 
     public void deleteById(String dataSetId) throws StatusCodeWithException {
         try {
@@ -102,7 +123,7 @@ public abstract class DataResourceContractService extends AbstractContractServic
                 }
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to delete data resource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 

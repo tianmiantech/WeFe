@@ -61,29 +61,29 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         return MongodbTable.Union.IMAGE_DATASET;
     }
 
-    public boolean deleteByDataSetId(String dataSetId) {
-        if (StringUtils.isEmpty(dataSetId)) {
+    public boolean deleteByDataResourceId(String dataResouceId) {
+        if (StringUtils.isEmpty(dataResouceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
         return updateResult.wasAcknowledged();
     }
 
-    public boolean existsByDataSetId(String dataSetId) {
-        if (StringUtils.isEmpty(dataSetId)) {
+    public boolean existsByDataSetId(String dataResouceId) {
+        if (StringUtils.isEmpty(dataResouceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
         return mongoUnionTemplate.exists(query, ImageDataSet.class);
     }
 
-    public ImageDataSet findDataSetId(String dataSetId) {
-        if (StringUtils.isEmpty(dataSetId)) {
+    public ImageDataSet findDataResourceId(String dataResouceId) {
+        if (StringUtils.isEmpty(dataResouceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
@@ -186,7 +186,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
     public void upsert(ImageDataSet dataSet) {
-        ImageDataSet imageDataSet = findDataSetId(dataSet.getDataSetId());
+        ImageDataSet imageDataSet = findDataResourceId(dataSet.getDataResourceId());
         if (imageDataSet != null) {
             dataSet.setId(imageDataSet.getId());
             dataSet.setExtJson(imageDataSet.getExtJson());
