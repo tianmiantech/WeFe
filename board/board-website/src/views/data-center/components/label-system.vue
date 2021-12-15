@@ -278,15 +278,9 @@
                     });
                     vData.rectLayer.on('transform', function(e) {
                         if (e.target.attrs.isLabeled) {
-                            vData.labelNowPos.setAttrs({
-                                x:      vData.rectLayer.x(),
-                                y:      vData.rectLayer.y(),
+                            vData.currentRect.setAttrs({
                                 width:  vData.rectLayer.width(),
                                 height: vData.rectLayer.height(),
-                            });
-                            vData.currentRect.setAttrs({
-                                width:  vData.rectLayer.width() * vData.rectLayer.scaleX(),
-                                height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
                             });
                             methods.setLabelTextPosition();
                         } else {
@@ -295,10 +289,6 @@
                                 y:      vData.rectLayer.y(),
                                 width:  vData.rectLayer.width() * vData.rectLayer.scaleX(),
                                 height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
-                            });
-                            this.setAttrs({
-                                scaleX: 1,
-                                scaleY: 1,
                             });
                         }
                     });
