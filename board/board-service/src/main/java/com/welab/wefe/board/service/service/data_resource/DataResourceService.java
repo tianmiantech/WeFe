@@ -26,7 +26,10 @@ import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
-import com.welab.wefe.board.service.database.repository.data_resource.*;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
@@ -65,8 +68,6 @@ public class DataResourceService extends AbstractDataResourceService {
     private ProjectRepository projectRepository;
     @Autowired
     private DataResourceRepository dataResourceRepository;
-    @Autowired
-    private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
 
     /**
      * Update the number of data sets used in the project
@@ -270,10 +271,6 @@ public class DataResourceService extends AbstractDataResourceService {
         }
     }
 
-    public void delete(String dataSetId, DataResourceType dataSetType) {
-        // TODO: Zane 待补充
-    }
-
     @Autowired
     private TableDataSetService tableDataSetService;
     @Autowired
@@ -286,6 +283,21 @@ public class DataResourceService extends AbstractDataResourceService {
     private ImageDataSetRepository imageDataSetRepository;
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
+
+    public void delete(String dataResourceId, DataResourceType dataSetType) throws StatusCodeWithException {
+        switch (dataSetType) {
+            case ImageDataSet:
+                imageDataSetService.delete(dataResourceId);
+                break;
+            case TableDataSet:
+                tableDataSetService.delete(dataResourceId);
+                break;
+            case BloomFilter:
+                bloomFilterSetService.delete(dataResourceId);
+            default:
+        }
+    }
+
 
     public PagingOutput<? extends DataResourceOutputModel> query(DataResourceQueryApi.Input input) {
         Where where = Where

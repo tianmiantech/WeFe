@@ -551,7 +551,6 @@ public class ProjectService extends AbstractService {
                 if (project.getMyRole() != JobMemberRole.promoter) {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
-
                 dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataSetType());
             }
 
