@@ -17,13 +17,11 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.contract.DataSetContract;
-import com.welab.wefe.union.service.entity.DataSet;
+import com.welab.wefe.union.service.contract.TableDataSetContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -43,92 +41,89 @@ import java.util.List;
 public class TableDataSetContractService extends DataResourceContractService {
 
     @Autowired
-    private DataSetContract dataSetContract;
+    private TableDataSetContract tableDataSetContract;
     @Autowired
     private CryptoSuite cryptoSuite;
-    @Autowired
-    private MemberContractService memberContractService;
-    @Autowired
-    private DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
 
-    public void upsert(DataSet dataset) throws StatusCodeWithException {
+    public void add(TableDataSet tableDataSet) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
-                extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
-            }
-            if (!memberContractService.isExist(dataset.getMemberId())) {
-                throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
-            }
-
-            TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
-                    extJson);
+            TransactionReceipt transactionReceipt = tableDataSetContract.insert(
+                    generateAddParams(tableDataSet),
+                    JObject.toJSONString(tableDataSet.getExtJson())
+            );
 
             // Get receipt result
-            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_INSERT, insertTransactionReceipt);
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_INSERT, transactionReceipt);
 
-            // Transaction execution failed
-            if (!transactionIsSuccess(insertResponse.getValues())) {
-                // Update the data if it exists
-                TransactionReceipt updateTransactionReceipt = dataSetContract.update(generateParams(dataset),
-                        extJson);
-
-                // Get receipt result
-                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
-                if (!transactionIsSuccess(updateResponse.getValues())) {
-                    throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
-                }
-            }
+            transactionIsSuccess(transactionResponse);
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to add TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+
+    }
+
+    public void update(TableDataSet tableDataSet) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = tableDataSetContract.update(
+                    tableDataSet.getDataResourceId(),
+                    generateUpdateParams(tableDataSet),
+                    tableDataSet.getUpdatedTime()
+            );
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_INSERT, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to add TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
 
 
-    public void deleteById(String dataSetId) throws StatusCodeWithException {
+    public void deleteById(String dataResourceId) throws StatusCodeWithException {
         try {
-            boolean isExist = dataSetContract.isExist(dataSetId);
+            boolean isExist = tableDataSetContract.isExist(dataResourceId);
             if (isExist) {
-                TransactionReceipt transactionReceipt = dataSetContract.deleteByDataSetId(dataSetId);
+                TransactionReceipt transactionReceipt = tableDataSetContract.deleteByDataResourceId(dataResourceId);
                 // Get receipt result
                 TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
+                        .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
                     throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
                 }
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to delete TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
-    private List<String> generateParams(DataSet dataSet) {
+    private List<String> generateAddParams(TableDataSet tableDataSet) {
         List<String> list = new ArrayList<>();
-        list.add(dataSet.getId());
-        list.add(StringUtil.isEmptyToBlank(dataSet.getMemberId()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getName()));
-        list.add(String.valueOf(dataSet.getContainsY()));
-        list.add(String.valueOf(dataSet.getRowCount()));
-        list.add(String.valueOf(dataSet.getColumnCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getColumnNameList()));
-        list.add(String.valueOf(dataSet.getFeatureCount()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getFeatureNameList()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicLevel()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getPublicMemberList()));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInJob())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInFlow())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(dataSet.getUsageCountInProject())));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getDescription()));
-        list.add(StringUtil.isEmptyToBlank(dataSet.getTags()));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getCreatedTime())));
-        list.add(StringUtil.isEmptyToBlank(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(dataSet.getUpdatedTime())));
-        list.add(StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis())));
+        list.add(tableDataSet.getDataResourceId());
+        list.addAll(generateParams(tableDataSet));
+        list.add(tableDataSet.getCreatedTime());
+        list.add(tableDataSet.getUpdatedTime());
+        return list;
+    }
+
+    private List<String> generateUpdateParams(TableDataSet tableDataSet) {
+        List<String> list = generateParams(tableDataSet);
+        list.add(tableDataSet.getUpdatedTime());
+        return list;
+    }
+
+    private List<String> generateParams(TableDataSet tableDataSet) {
+        List<String> list = new ArrayList<>();
+        list.add(tableDataSet.getContainsY());
+        list.add(StringUtil.isEmptyToBlank(tableDataSet.getColumnCount()));
+        list.add(StringUtil.isEmptyToBlank(tableDataSet.getColumnNameList()));
+        list.add(StringUtil.isEmptyToBlank(tableDataSet.getFeatureCount()));
+        list.add(StringUtil.isEmptyToBlank(tableDataSet.getFeatureNameList()));
         return list;
     }
 }

@@ -42,110 +42,93 @@ import java.util.List;
 @Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class ImageDataSetContractService extends AbstractContractService {
 
-
-    @Autowired
-    private MemberContractService memberContractService;
     @Autowired
     private ImageDataSetContract imageDataSetContract;
     @Autowired
     private CryptoSuite cryptoSuite;
 
-    public void upsert(ImageDataSet imageDataSet) throws StatusCodeWithException {
+    public void add(ImageDataSet imageDataSet) throws StatusCodeWithException {
         try {
-            if (!memberContractService.isExist(imageDataSet.getMemberId())) {
-                throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
-            }
 
-            TransactionReceipt insertTransactionReceipt = imageDataSetContract.insert(generateParams(imageDataSet, true),
-                    JObject.toJSONString(imageDataSet.getExtJson()));
-
-            // Get receipt result
-            TransactionResponse insertResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, insertTransactionReceipt);
-            String values = insertResponse.getValues();
-            if (!transactionIsSuccess(values) && transactionDataIsExist(values)) {
-                TransactionReceipt updateTransactionReceipt = imageDataSetContract.update(generateParams(imageDataSet, false));
-
-                // Get receipt result
-                TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_UPDATE, updateTransactionReceipt);
-                transactionIsSuccess(updateResponse);
-            } else {
-                transactionIsSuccess(insertResponse);
-            }
-
-        } catch (
-                Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-
-    }
-
-
-
-    public void updateLabeledCount(String dataSetId, String labeledCount, String sampleCount,String labelList,String labelCompleted) throws StatusCodeWithException {
-        try {
-            TransactionReceipt transactionReceipt = imageDataSetContract.updateLabeledCount(
-                    dataSetId,
-                    labeledCount,
-                    sampleCount,
-                    labelList,
-                    labelCompleted,
-                    DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+            TransactionReceipt transactionReceipt = imageDataSetContract.insert(
+                    generateAddParams(imageDataSet),
+                    JObject.toJSONString(imageDataSet.getExtJson())
+            );
 
             // Get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_UPDATELABELEDCOUNT, transactionReceipt);
+                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, transactionReceipt);
 
             transactionIsSuccess(transactionResponse);
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to add ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+
+    }
+
+    public void update(ImageDataSet imageDataSet) throws StatusCodeWithException {
+        try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
+            TransactionReceipt transactionReceipt = imageDataSetContract.update(
+                    imageDataSet.getDataResourceId(),
+                    generateAddParams(imageDataSet),
+                    updatedTime
+            );
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_UPDATE, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update ImageDataSet set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
 
 
-    public void deleteById(String dataSetId) throws StatusCodeWithException {
+    public void deleteById(String dataResourceId) throws StatusCodeWithException {
         try {
-            boolean isExist = imageDataSetContract.isExist(dataSetId);
+            boolean isExist = imageDataSetContract.isExist(dataResourceId);
             if (isExist) {
-                TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataSetId(dataSetId);
+                TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataResourceId(dataResourceId);
                 // Get receipt result
                 TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
+                        .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
 
                 transactionIsSuccess(deleteResponse);
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to delete ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
-    private List<String> generateParams(ImageDataSet imageDataSet, boolean isAdd) {
+    private List<String> generateAddParams(ImageDataSet imageDataSet) {
         List<String> list = new ArrayList<>();
-        list.add(imageDataSet.getDataSetId());
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getMemberId()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getName()));
-        list.add(String.valueOf(imageDataSet.getTags()));
-        list.add(String.valueOf(imageDataSet.getDescription()));
+        list.add(imageDataSet.getDataResourceId());
+        list.addAll(generateParams(imageDataSet));
+        list.add(imageDataSet.getCreatedTime());
+        list.add(imageDataSet.getUpdatedTime());
+        return list;
+    }
+
+    private List<String> generateUpdateParams(ImageDataSet imageDataSet) {
+        List<String> list = generateParams(imageDataSet);
+        list.add(imageDataSet.getUpdatedTime());
+        return list;
+    }
+
+    private List<String> generateParams(ImageDataSet imageDataSet) {
+        List<String> list = new ArrayList<>();
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getForJobType()));
-        list.add(String.valueOf(imageDataSet.getLabelList()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getSampleCount()));
+        list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabelList()));
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabeledCount()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabelCompleted()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getFilesSize()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getPublicLevel()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getPublicMemberList()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getUsageCountInJob()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getUsageCountInFlow()));
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getUsageCountInProject()));
-        if (isAdd) {
-            list.add(StringUtil.isEmptyToBlank(imageDataSet.getEnable()));
-            list.add(StringUtil.isEmptyToBlank(imageDataSet.getCreatedTime()));
-        }
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getUpdatedTime()));
+        list.add(imageDataSet.getLabelCompleted());
+        list.add(StringUtil.isEmptyToBlank(imageDataSet.getFileSize()));
         return list;
     }
 }

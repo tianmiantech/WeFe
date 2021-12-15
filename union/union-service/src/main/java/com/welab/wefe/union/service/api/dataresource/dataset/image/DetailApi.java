@@ -41,7 +41,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQuery
 
     @Override
     protected ApiResult<ApiImageDataSetQueryOutput> handle(Input input) {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataSetId(input.getDataSetId());
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(input.getDataSetId());
         return success(getOutput(imageDataSet));
     }
 

@@ -30,6 +30,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 /**
  * @author yuxin.zhang
@@ -76,6 +78,15 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
         Query query = new QueryBuilder().append("dataResourceId", dataResourceId).notRemoved().build();
         return mongoUnionTemplate.findOne(query, DataResource.class);
+    }
+
+    public List<String> findByDataResourceType(String dataResourceType) {
+        if (StringUtils.isEmpty(dataResourceType)) {
+            return null;
+        }
+        Query query = new QueryBuilder().append("dataResourceType", dataResourceType).notRemoved().build();
+        query.fields().exclude("_id").include("tags");
+        return mongoUnionTemplate.find(query, String.class);
     }
 
 

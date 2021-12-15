@@ -20,7 +20,7 @@ contract ImageDataSetContract{
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,for_job_type,label_list,labeled_count,label_completed,files_size,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "data_resource_id,for_job_type,label_list,labeled_count,label_completed,file_size,created_time,updated_time,ext_json");
     }
 
 
@@ -42,7 +42,7 @@ contract ImageDataSetContract{
         entry.set("label_list", params[2]);
         entry.set("labeled_count", params[3]);
         entry.set("label_completed", params[4]);
-        entry.set("files_size", params[5]);
+        entry.set("file_size", params[5]);
         entry.set("created_time", params[6]);
         entry.set("updated_time", params[7]);
         entry.set("ext_json", ext_json);
@@ -81,7 +81,7 @@ contract ImageDataSetContract{
         entry.set("label_list", params[1]);
         entry.set("labeled_count", params[2]);
         entry.set("label_completed", params[3]);
-        entry.set("files_size", params[4]);
+        entry.set("file_size", params[4]);
         entry.set("updated_time", updated_time);
 
 
@@ -186,7 +186,7 @@ contract ImageDataSetContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("label_completed")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("files_size")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("file_size")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

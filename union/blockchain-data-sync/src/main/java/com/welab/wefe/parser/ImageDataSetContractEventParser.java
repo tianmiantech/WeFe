@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class ImageDataSetContractEventParser extends AbstractParser {
-    protected ImageDataSetMongoReop dataSetMongoReop = App.CONTEXT.getBean(ImageDataSetMongoReop.class);
+    protected ImageDataSetMongoReop imageDataSetMongoReop = App.CONTEXT.getBean(ImageDataSetMongoReop.class);
     protected ImageDataSetExtJSON extJSON;
 
 
@@ -41,16 +41,13 @@ public class ImageDataSetContractEventParser extends AbstractParser {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, ImageDataSetExtJSON.class) : new ImageDataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.ImageDataSet.INSERT_EVENT:
-                parseInsertAndUpdateEvent(true);
+                parseInsertEvent();
                 break;
             case EventConstant.ImageDataSet.UPDATE_EVENT:
-                parseInsertAndUpdateEvent(false);
+                parseUpdateEvent();
                 break;
-            case EventConstant.ImageDataSet.DELETE_BY_DATASETID_EVENT:
-                parseDeleteByDataSetIdEvent();
-                break;
-            case EventConstant.ImageDataSet.UPDATE_LABELED_COUNT:
-                parseUpdateLabeledCountEvent();
+            case EventConstant.ImageDataSet.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResouceIdEvent();
                 break;
             case EventConstant.ImageDataSet.UPDATE_ENABLE_EVENT:
                 parseUpdateEnableEvent();
@@ -63,64 +60,55 @@ public class ImageDataSetContractEventParser extends AbstractParser {
         }
     }
 
-    private void parseInsertAndUpdateEvent(boolean isAdd) {
+    private void parseInsertEvent() {
         ImageDataSet imageDataSet = new ImageDataSet();
-        imageDataSet.setDataSetId(StringUtil.strTrim2(params.getString(0)));
-        imageDataSet.setMemberId(StringUtil.strTrim2(params.getString(1)));
-        imageDataSet.setName(StringUtil.strTrim2(params.getString(2)));
-        imageDataSet.setTags(StringUtil.strTrim2(params.getString(3)));
-        imageDataSet.setDescription(StringUtil.strTrim2(params.getString(4)));
-        imageDataSet.setForJobType(params.getString(5));
-        imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(6)));
-        imageDataSet.setSampleCount(StringUtil.strTrim2(params.getString(7)));
-        imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(8)));
-        imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(9)));
-        imageDataSet.setFilesSize(StringUtil.strTrim2(params.getString(10)));
-        imageDataSet.setPublicLevel(StringUtil.strTrim2(params.getString(11)));
-        imageDataSet.setPublicMemberList(StringUtil.strTrim2(params.getString(12)));
-        imageDataSet.setUsageCountInJob(StringUtil.strTrim2(params.getString(13)));
-        imageDataSet.setUsageCountInFlow(StringUtil.strTrim2(params.getString(14)));
-        imageDataSet.setUsageCountInProject(StringUtil.strTrim2(params.getString(15)));
-        if (isAdd) {
-            imageDataSet.setEnable(StringUtil.strTrim2(params.getString(16)));
-            imageDataSet.setCreatedTime(StringUtil.strTrim2(params.getString(17)));
-            imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(18)));
-            imageDataSet.setExtJson(extJSON);
-        } else {
-            imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(16)));
-        }
-
-        dataSetMongoReop.upsert(imageDataSet);
-
+        imageDataSet.setDataResourceId(StringUtil.strTrim2(params.getString(0)));
+        imageDataSet.setForJobType(params.getString(1));
+        imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(2)));
+        imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(3)));
+        imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(4)));
+        imageDataSet.setFileSize(StringUtil.strTrim2(params.getString(5)));
+        imageDataSet.setCreatedTime(StringUtil.strTrim2(params.getString(6)));
+        imageDataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(7)));
+        imageDataSet.setExtJson(extJSON);
+        imageDataSetMongoReop.upsert(imageDataSet);
     }
 
-    private void parseDeleteByDataSetIdEvent() {
-        String id = eventBO.getEntity().get("id").toString();
-        dataSetMongoReop.deleteByDataSetId(id);
+    private void parseUpdateEvent() throws BusinessException {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        String updatedTime = eventBO.getEntity().get("updated_time").toString();
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(dataResourceId);
+        if(imageDataSet == null) {
+            throw new BusinessException("Data does not exist dataResourceId:" + dataResourceId);
+        }
+        imageDataSet.setForJobType(params.getString(0));
+        imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(1)));
+        imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(2)));
+        imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(3)));
+        imageDataSet.setFileSize(StringUtil.strTrim2(params.getString(4)));
+        imageDataSet.setUpdatedTime(updatedTime);
+        imageDataSetMongoReop.upsert(imageDataSet);
+    }
+
+
+    private void parseDeleteByDataResouceIdEvent() {
+        String id = eventBO.getEntity().get("data_resource_id").toString();
+        imageDataSetMongoReop.deleteByDataResourceId(id);
     }
 
 
     private void parseUpdateEnableEvent() {
-        String dataSetId = eventBO.getEntity().get("id").toString();
+        String dataSetId = eventBO.getEntity().get("data_resource_id").toString();
         String enable = eventBO.getEntity().get("enable").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        dataSetMongoReop.updateEnable(dataSetId, enable, updatedTime);
+        imageDataSetMongoReop.updateEnable(dataSetId, enable, updatedTime);
     }
 
-    private void parseUpdateLabeledCountEvent() {
-        String dataSetId = eventBO.getEntity().get("id").toString();
-        String labeledCount = eventBO.getEntity().get("labeled_count").toString();
-        String sampleCount = eventBO.getEntity().get("sample_count").toString();
-        String labelList = eventBO.getEntity().get("label_list").toString();
-        String labelCompleted = eventBO.getEntity().get("label_completed").toString();
-        String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        dataSetMongoReop.updateLabeledCount(dataSetId, labeledCount, sampleCount, labelList, labelCompleted, updatedTime);
-    }
 
     private void parseUpdateExtJson() {
-        String id = eventBO.getEntity().get("id").toString();
+        String id = eventBO.getEntity().get("data_resource_id").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        dataSetMongoReop.updateExtJSONById(id, extJSON, updatedTime);
+        imageDataSetMongoReop.updateExtJSONById(id, extJSON, updatedTime);
     }
 
 }

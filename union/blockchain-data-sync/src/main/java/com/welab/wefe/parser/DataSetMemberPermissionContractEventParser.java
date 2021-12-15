@@ -64,7 +64,6 @@ public class DataSetMemberPermissionContractEventParser extends AbstractParser {
         dataSetMemberPermission.setMemberId(data.get("member_id").toString());
         dataSetMemberPermission.setCreatedTime(data.get("created_time").toString());
         dataSetMemberPermission.setUpdatedTime(data.get("updated_time").toString());
-        dataSetMemberPermission.setLogTime(data.get("log_time").toString());
         dataSetMemberPermission.setExtJson(extJSON);
 
         dataSetMemberPermissionMongoRepo.upsert(dataSetMemberPermission);

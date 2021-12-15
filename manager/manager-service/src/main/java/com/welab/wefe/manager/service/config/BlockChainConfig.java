@@ -65,6 +65,7 @@ public class BlockChainConfig {
     private String memberAuthTypeContractName;
     private String unionNodeContractName;
     private String realnameAuthAgreementTemplateContractName;
+    private String dataResourceContractName;
 
 
     // add channel disconnect
@@ -235,6 +236,13 @@ public class BlockChainConfig {
     }
 
 
+    @Bean
+    public DataResourceContract getLatestVersionDataResourceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, dataResourceContractName);
+        return DataResourceContract.load(address, client, cryptoKeyPair);
+    }
+
+
     /**
      * 根据名称获取最新版的union业务的合约地址
      *
@@ -371,5 +379,13 @@ public class BlockChainConfig {
 
     public void setRealnameAuthAgreementTemplateContractName(String realnameAuthAgreementTemplateContractName) {
         this.realnameAuthAgreementTemplateContractName = realnameAuthAgreementTemplateContractName;
+    }
+
+    public String getDataResourceContractName() {
+        return dataResourceContractName;
+    }
+
+    public void setDataResourceContractName(String dataResourceContractName) {
+        this.dataResourceContractName = dataResourceContractName;
     }
 }

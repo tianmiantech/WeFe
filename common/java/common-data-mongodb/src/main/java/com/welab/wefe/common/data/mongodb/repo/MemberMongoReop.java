@@ -95,7 +95,6 @@ public class MemberMongoReop extends AbstractMongoRepo {
                 .append("gatewayUri", member.getGatewayUri())
                 .append("updatedTime", member.getUpdatedTime())
                 .append("lastActivityTime", member.getLastActivityTime())
-                .append("logTime", member.getLogTime())
                 .append("dataSyncTime", member.getDataSyncTime())
                 .append("extJson", member.getExtJson())
                 .build();
@@ -130,7 +129,6 @@ public class MemberMongoReop extends AbstractMongoRepo {
                 .append("createdTime", member.getCreatedTime())
                 .append("updatedTime", member.getUpdatedTime())
                 .append("lastActivityTime", member.getLastActivityTime())
-                .append("logTime", member.getLogTime())
                 .append("dataSyncTime", member.getDataSyncTime())
                 .append("extJson", member.getExtJson())
                 .build();

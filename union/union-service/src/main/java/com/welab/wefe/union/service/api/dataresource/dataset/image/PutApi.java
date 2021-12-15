@@ -41,7 +41,7 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
 
-        imageDataSetContractService.upsert(imageDataSetMapper.transferPutInput(input));
+        imageDataSetContractService.add(imageDataSetMapper.transferPutInput(input));
 
         return success();
     }

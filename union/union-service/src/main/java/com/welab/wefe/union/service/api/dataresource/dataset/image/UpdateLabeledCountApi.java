@@ -43,7 +43,7 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataSetId(input.getDataSetId());
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(input.getDataSetId());
         if (imageDataSet == null) {
             throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataSetId());
         }
@@ -59,9 +59,9 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
 
     private void saveImageDataSetLabeledCount(Input input){
         ImageDataSetLabeledCount imageDataSetLabeledCount = new ImageDataSetLabeledCount();
-        imageDataSetLabeledCount.setDataSetId(input.getDataSetId());
+        imageDataSetLabeledCount.setDataResouceId(input.getDataSetId());
         imageDataSetLabeledCount.setLabeledCount(input.getLabeledCount());
-        imageDataSetLabeledCount.setSampleCount(input.getSampleCount());
+        imageDataSetLabeledCount.setTotalDataCount(input.getTotalDataCount());
         imageDataSetLabeledCount.setLabelList(input.getLabelList());
         imageDataSetLabeledCountMongoReop.save(imageDataSetLabeledCount);
     }
@@ -72,7 +72,7 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
         @Check(require = true)
         private String labelList;
         @Check(require = true)
-        private int sampleCount;
+        private int totalDataCount;
         @Check(require = true)
         private int labeledCount;
 
@@ -93,12 +93,12 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
             this.labelList = labelList;
         }
 
-        public int getSampleCount() {
-            return sampleCount;
+        public int getTotalDataCount() {
+            return totalDataCount;
         }
 
-        public void setSampleCount(int sampleCount) {
-            this.sampleCount = sampleCount;
+        public void setTotalDataCount(int totalDataCount) {
+            this.totalDataCount = totalDataCount;
         }
 
         public int getLabeledCount() {

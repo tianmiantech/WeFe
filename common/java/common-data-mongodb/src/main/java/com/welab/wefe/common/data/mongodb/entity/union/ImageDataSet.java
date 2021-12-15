@@ -26,64 +26,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
  **/
 @Document(collection = MongodbTable.Union.IMAGE_DATASET)
 public class ImageDataSet extends AbstractBlockChainBusinessModel {
-    private String dataSetId;
-    private String memberId;
-    private String name;
-    private String tags;
-    private String description;
+    private String dataResourceId;
     private String forJobType;
     private String labelList;
-    private String sampleCount;
     private String labeledCount;
     private String labelCompleted;
-    private String filesSize;
-    private String publicLevel;
-    private String publicMemberList;
-    private String usageCountInJob;
-    private String usageCountInFlow;
-    private String usageCountInProject;
-    private String enable;
+    private String fileSize;
     private ImageDataSetExtJSON extJson;
 
-
-    public String getDataSetId() {
-        return dataSetId;
+    public String getDataResourceId() {
+        return dataResourceId;
     }
 
-    public void setDataSetId(String dataSetId) {
-        this.dataSetId = dataSetId;
-    }
-
-    public String getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
     }
 
     public String getForJobType() {
@@ -102,14 +58,6 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
         this.labelList = labelList;
     }
 
-    public String getSampleCount() {
-        return sampleCount;
-    }
-
-    public void setSampleCount(String sampleCount) {
-        this.sampleCount = sampleCount;
-    }
-
     public String getLabeledCount() {
         return labeledCount;
     }
@@ -126,60 +74,12 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
         this.labelCompleted = labelCompleted;
     }
 
-    public String getFilesSize() {
-        return filesSize;
+    public String getFileSize() {
+        return fileSize;
     }
 
-    public void setFilesSize(String filesSize) {
-        this.filesSize = filesSize;
-    }
-
-    public String getPublicLevel() {
-        return publicLevel;
-    }
-
-    public void setPublicLevel(String publicLevel) {
-        this.publicLevel = publicLevel;
-    }
-
-    public String getPublicMemberList() {
-        return publicMemberList;
-    }
-
-    public void setPublicMemberList(String publicMemberList) {
-        this.publicMemberList = publicMemberList;
-    }
-
-    public String getUsageCountInJob() {
-        return usageCountInJob;
-    }
-
-    public void setUsageCountInJob(String usageCountInJob) {
-        this.usageCountInJob = usageCountInJob;
-    }
-
-    public String getUsageCountInFlow() {
-        return usageCountInFlow;
-    }
-
-    public void setUsageCountInFlow(String usageCountInFlow) {
-        this.usageCountInFlow = usageCountInFlow;
-    }
-
-    public String getUsageCountInProject() {
-        return usageCountInProject;
-    }
-
-    public void setUsageCountInProject(String usageCountInProject) {
-        this.usageCountInProject = usageCountInProject;
-    }
-
-    public String getEnable() {
-        return enable;
-    }
-
-    public void setEnable(String enable) {
-        this.enable = enable;
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
     }
 
     public ImageDataSetExtJSON getExtJson() {
