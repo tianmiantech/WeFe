@@ -42,7 +42,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class BloomFilterContractService extends AbstractContractService {
 
     @Autowired
@@ -92,22 +91,6 @@ public class BloomFilterContractService extends AbstractContractService {
     }
 
 
-    public void deleteById(String dataResourceId) throws StatusCodeWithException {
-        try {
-            boolean isExist = bloomFilterContract.isExist(dataResourceId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = bloomFilterContract.deleteByDataResourceId(dataResourceId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(BloomFilterContract.ABI, BloomFilterContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-                if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
-                }
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete BloomFilter  information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
 
     private List<String> generateParams(BloomFilter bloomFilter) {
         List<String> list = new ArrayList<>();

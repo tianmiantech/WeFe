@@ -21,13 +21,13 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetDefaultTagExtJSON.class) : new DataSetDefaultTagExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.DataSetDefaultTag.INSERT_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.DataSetDefaultTag.UPDATE_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.UPDATE_EVENT:
                 parseUpdateEvent();
                 break;
-            case EventConstant.DataSetDefaultTag.DELETE_BY_TAGID_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.DELETE_BY_TAGID_EVENT:
                 parseDeleteByTagIdEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

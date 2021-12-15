@@ -19,6 +19,7 @@ package com.welab.wefe.union.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.contract.TableDataSetContract;
@@ -31,13 +32,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class TableDataSetContractService extends DataResourceContractService {
 
     @Autowired
@@ -66,10 +67,11 @@ public class TableDataSetContractService extends DataResourceContractService {
 
     public void update(TableDataSet tableDataSet) throws StatusCodeWithException {
         try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
             TransactionReceipt transactionReceipt = tableDataSetContract.update(
                     tableDataSet.getDataResourceId(),
                     generateUpdateParams(tableDataSet),
-                    tableDataSet.getUpdatedTime()
+                    updatedTime
             );
 
             // Get receipt result
@@ -85,23 +87,6 @@ public class TableDataSetContractService extends DataResourceContractService {
     }
 
 
-    public void deleteById(String dataResourceId) throws StatusCodeWithException {
-        try {
-            boolean isExist = tableDataSetContract.isExist(dataResourceId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = tableDataSetContract.deleteByDataResourceId(dataResourceId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-                if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
-                }
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
     private List<String> generateAddParams(TableDataSet tableDataSet) {
         List<String> list = new ArrayList<>();
         list.add(tableDataSet.getDataResourceId());
@@ -112,9 +97,7 @@ public class TableDataSetContractService extends DataResourceContractService {
     }
 
     private List<String> generateUpdateParams(TableDataSet tableDataSet) {
-        List<String> list = generateParams(tableDataSet);
-        list.add(tableDataSet.getUpdatedTime());
-        return list;
+        return generateParams(tableDataSet);
     }
 
     private List<String> generateParams(TableDataSet tableDataSet) {

@@ -40,7 +40,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public abstract class DataResourceContractService extends AbstractContractService {
 
     @Autowired
@@ -69,10 +68,11 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
     public void update(DataResource dataResource) throws StatusCodeWithException {
         try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
             TransactionReceipt transactionReceipt = dataResourceContract.update(
                     dataResource.getDataResourceId(),
                     generateUpdateParams(dataResource),
-                    dataResource.getUpdatedTime()
+                    updatedTime
             );
 
             // Get receipt result
@@ -86,24 +86,6 @@ public abstract class DataResourceContractService extends AbstractContractServic
             throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-    }
-
-
-    public void deleteById(String dataSetId) throws StatusCodeWithException {
-        try {
-            boolean isExist = dataResourceContract.isExist(dataSetId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataSetId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-                if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
-                }
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
     }
 
     private List<String> generateAddParams(DataResource dataResource) {

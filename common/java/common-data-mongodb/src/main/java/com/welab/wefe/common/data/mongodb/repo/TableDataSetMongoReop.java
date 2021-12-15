@@ -51,17 +51,6 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public boolean deleteByDataResourceId(String dataResourceId) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, TableDataSet.class);
-        return updateResult.wasAcknowledged();
-    }
-
-
     public boolean existsByDataResourceId(String dataResourceId) {
         if (StringUtils.isEmpty(dataResourceId)) {
             return false;
@@ -80,34 +69,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
     public void upsert(TableDataSet tableDataSet) {
-        TableDataSet obj = findByDataResourceId(tableDataSet.getDataResourceId());
-        if (obj != null) {
-            tableDataSet.setDataResourceId(obj.getDataResourceId());
-        }
         mongoUnionTemplate.save(tableDataSet);
-    }
-
-    public boolean updateExtJSONById(String dataResourceId, TableDataSetExtJSON extJSON) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, TableDataSet.class);
-        return updateResult.wasAcknowledged();
-    }
-
-    public boolean updateEnable(String dataResourceId, String enable, String updatedTime) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update udpate = new UpdateBuilder()
-                .append("enable", enable)
-                .append("updatedTime", updatedTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, TableDataSet.class);
-        return updateResult.wasAcknowledged();
     }
 
 }

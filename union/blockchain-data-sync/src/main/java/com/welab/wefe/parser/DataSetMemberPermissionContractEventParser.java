@@ -40,11 +40,11 @@ public class DataSetMemberPermissionContractEventParser extends AbstractParser {
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetMemberPermissionExtJSON.class) : new DataSetMemberPermissionExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.DataSetMemberPermission.INSERT_EVENT:
-            case EventConstant.DataSetMemberPermission.UPDATE_EVENT:
+            case EventConstant.DataSetMemberPermissionEvent.INSERT_EVENT:
+            case EventConstant.DataSetMemberPermissionEvent.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;
-            case EventConstant.DataSetMemberPermission.DELETE_BY_DATASETID_EVENT:
+            case EventConstant.DataSetMemberPermissionEvent.DELETE_BY_DATASETID_EVENT:
                 parseDeleteByDataSetIdEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

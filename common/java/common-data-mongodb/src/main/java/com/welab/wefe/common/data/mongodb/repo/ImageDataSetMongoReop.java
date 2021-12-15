@@ -61,15 +61,6 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         return MongodbTable.Union.IMAGE_DATASET;
     }
 
-    public boolean deleteByDataResourceId(String dataResouceId) {
-        if (StringUtils.isEmpty(dataResouceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
-        Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
-        return updateResult.wasAcknowledged();
-    }
 
     public boolean existsByDataSetId(String dataResouceId) {
         if (StringUtils.isEmpty(dataResouceId)) {
@@ -187,52 +178,5 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
     public void upsert(ImageDataSet dataSet) {
         mongoUnionTemplate.save(dataSet);
-    }
-
-
-
-    public boolean updateExtJSONById(String dataSetId, ImageDataSetExtJSON extJSON, String updateTime) {
-        if (StringUtils.isEmpty(dataSetId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
-        Update update = new UpdateBuilder()
-                .append("extJson", extJSON)
-                .append("updated_time", updateTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSet.class);
-        return updateResult.wasAcknowledged();
-    }
-
-
-    public boolean updateEnable(String dataSetId, String enable, String updatedTime) {
-        if (StringUtils.isEmpty(dataSetId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
-        Update udpate = new UpdateBuilder()
-                .append("enable", enable)
-                .append("updatedTime", updatedTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
-        return updateResult.wasAcknowledged();
-    }
-
-
-
-    public boolean updateLabeledCount(String dataSetId, String labeledCount, String sampleCount, String labelList, String labelCompleted, String updatedTime) {
-        if (StringUtils.isEmpty(dataSetId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
-        Update udpate = new UpdateBuilder()
-                .append("labeledCount", labeledCount)
-                .append("sampleCount", sampleCount)
-                .append("labelList", labelList)
-                .append("labelCompleted", labelCompleted)
-                .append("updatedTime", updatedTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
-        return updateResult.wasAcknowledged();
     }
 }

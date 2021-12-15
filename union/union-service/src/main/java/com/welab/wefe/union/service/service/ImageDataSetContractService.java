@@ -39,7 +39,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class ImageDataSetContractService extends AbstractContractService {
 
     @Autowired
@@ -73,7 +72,7 @@ public class ImageDataSetContractService extends AbstractContractService {
             String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
             TransactionReceipt transactionReceipt = imageDataSetContract.update(
                     imageDataSet.getDataResourceId(),
-                    generateAddParams(imageDataSet),
+                    generateUpdateParams(imageDataSet),
                     updatedTime
             );
 
@@ -91,22 +90,6 @@ public class ImageDataSetContractService extends AbstractContractService {
     }
 
 
-    public void deleteById(String dataResourceId) throws StatusCodeWithException {
-        try {
-            boolean isExist = imageDataSetContract.isExist(dataResourceId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataResourceId(dataResourceId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-
-                transactionIsSuccess(deleteResponse);
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
     private List<String> generateAddParams(ImageDataSet imageDataSet) {
         List<String> list = new ArrayList<>();
         list.add(imageDataSet.getDataResourceId());
@@ -117,9 +100,7 @@ public class ImageDataSetContractService extends AbstractContractService {
     }
 
     private List<String> generateUpdateParams(ImageDataSet imageDataSet) {
-        List<String> list = generateParams(imageDataSet);
-        list.add(imageDataSet.getUpdatedTime());
-        return list;
+        return generateParams(imageDataSet);
     }
 
     private List<String> generateParams(ImageDataSet imageDataSet) {
