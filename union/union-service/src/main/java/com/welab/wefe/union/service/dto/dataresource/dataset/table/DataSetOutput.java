@@ -14,31 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.dto.dataset;
+package com.welab.wefe.union.service.dto.dataresource.dataset.table;
 
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 
-import java.util.List;
-
 /**
- * @author yuxin.zhang
- */
-public class ApiTagsQueryOutput extends AbstractApiOutput {
+ * @author Jervis
+ **/
+public class DataSetOutput extends AbstractApiOutput {
 
-    private List<TagsDTO> tagList;
-
-    @Override
-    public String toString() {
-        return "{" +
-                "tagList=" + tagList +
-                '}';
-    }
-
-    public List<TagsDTO> getTagList() {
-        return tagList;
-    }
-
-    public void setTagList(List<TagsDTO> tagList) {
-        this.tagList = tagList;
-    }
 }

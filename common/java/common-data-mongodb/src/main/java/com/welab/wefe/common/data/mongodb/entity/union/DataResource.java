@@ -19,6 +19,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
+import com.welab.wefe.common.enums.DataResourceType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = MongodbTable.Union.DATA_RESOURCE)
@@ -36,7 +37,7 @@ public class DataResource extends AbstractBlockChainBusinessModel {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
-    private String dataResourceType;
+    private DataResourceType dataResourceType;
 
     private DataResourceExtJSON extJson = new DataResourceExtJSON();
 
@@ -144,11 +145,11 @@ public class DataResource extends AbstractBlockChainBusinessModel {
         this.enable = enable;
     }
 
-    public String getDataResourceType() {
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(String dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 

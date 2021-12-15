@@ -22,7 +22,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -16,83 +16,20 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataset;
 
-import com.welab.wefe.common.data.mongodb.dto.PageInput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 
 /**
  * @author yuxin.zhang
  **/
-public class ImageDataSetQueryInput extends PageInput {
-    private String dataSetId;
-    private String memberId;
-    private String memberName;
-    private String name;
-    private String tag;
-    private String curMemberId;
-    private Boolean status;
-    private Boolean enable;
+public class ImageDataSetQueryInput extends DataResourceQueryInput {
+    private DeepLearningJobType forJobType;
 
-
-    public String getDataSetId() {
-        return dataSetId;
+    public DeepLearningJobType getForJobType() {
+        return forJobType;
     }
 
-    public void setDataSetId(String dataSetId) {
-        this.dataSetId = dataSetId;
-    }
-
-    public String getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
-    }
-
-    public String getMemberName() {
-        return memberName;
-    }
-
-    public void setMemberName(String memberName) {
-        this.memberName = memberName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public String getCurMemberId() {
-        return curMemberId;
-    }
-
-    public void setCurMemberId(String curMemberId) {
-        this.curMemberId = curMemberId;
-    }
-
-    public Boolean getEnable() {
-        return enable;
-    }
-
-    public void setEnable(Boolean enable) {
-        this.enable = enable;
-    }
-
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public void setForJobType(DeepLearningJobType forJobType) {
+        this.forJobType = forJobType;
     }
 }

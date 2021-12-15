@@ -16,10 +16,12 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataresource;
 
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
+
 /**
  * @author yuxin.zhang
  **/
-public class DataResourceQueryOutput {
+public class DataResourceQueryOutput<T> {
     private String dataResourceId;
     private String memberId;
     private String name;
@@ -33,8 +35,8 @@ public class DataResourceQueryOutput {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
-    private int status;
     private String dataResourceType;
+    private T extraData;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -140,12 +142,12 @@ public class DataResourceQueryOutput {
         this.enable = enable;
     }
 
-    public int getStatus() {
-        return status;
+    public T getExtraData() {
+        return extraData;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setExtraData(T extraData) {
+        this.extraData = extraData;
     }
 
     public String getDataResourceType() {

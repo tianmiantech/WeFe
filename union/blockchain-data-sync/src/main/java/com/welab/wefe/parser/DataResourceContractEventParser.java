@@ -21,6 +21,7 @@ import com.welab.wefe.App;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
@@ -71,7 +72,7 @@ public class DataResourceContractEventParser extends AbstractParser {
         dataResource.setUsageCountInFlow(StringUtil.strTrim2(params.getString(9)));
         dataResource.setUsageCountInProject(StringUtil.strTrim2(params.getString(10)));
         dataResource.setUsageCountInMember(StringUtil.strTrim2(params.getString(11)));
-        dataResource.setDataResourceType(StringUtil.strTrim2(params.getString(12)));
+        dataResource.setDataResourceType(DataResourceType.valueOf(StringUtil.strTrim2(params.getString(12))));
         dataResource.setCreatedTime(StringUtil.strTrim2(params.getString(13)));
         dataResource.setUpdatedTime(StringUtil.strTrim2(params.getString(14)));
         dataResource.setExtJson(extJSON);

@@ -105,7 +105,7 @@ public class ImageDataSetContractService extends AbstractContractService {
 
     private List<String> generateParams(ImageDataSet imageDataSet) {
         List<String> list = new ArrayList<>();
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getForJobType()));
+        list.add(StringUtil.isEmptyToBlank(imageDataSet.getForJobType().name()));
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabelList()));
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabeledCount()));
         list.add(imageDataSet.getLabelCompleted());

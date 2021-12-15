@@ -5,7 +5,6 @@ import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSetLabeledCount;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetLabeledCountMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.service.ImageDataSetContractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,14 +45,14 @@ public class ImageDataSetLabelCountUpdateTask {
                     isLabelCompleted = true;
                 }
                 try {
-                    ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(imageDataSetLabeledCount.getDataResouceId());
-                    imageDataSet.setDataResourceId(imageDataSetLabeledCount.getDataResouceId());
+                    ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(imageDataSetLabeledCount.getDataResourceId());
+                    imageDataSet.setDataResourceId(imageDataSetLabeledCount.getDataResourceId());
                     imageDataSet.setLabeledCount(String.valueOf(imageDataSetLabeledCount.getLabeledCount()));
                     imageDataSet.setLabelList(imageDataSetLabeledCount.getLabelList());
                     imageDataSet.setLabelCompleted(isLabelCompleted ? "1" : "0");
                     imageDataSetContractService.update(imageDataSet);
                 } catch (StatusCodeWithException e) {
-                    LOG.error("update ImageDataSetLabeledCount error dataSetId: " + imageDataSetLabeledCount.getDataResouceId(), e);
+                    LOG.error("update ImageDataSetLabeledCount error dataSetId: " + imageDataSetLabeledCount.getDataResourceId(), e);
                 }
             }
         }

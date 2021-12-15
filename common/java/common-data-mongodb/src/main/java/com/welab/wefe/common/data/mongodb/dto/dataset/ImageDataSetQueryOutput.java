@@ -22,7 +22,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
  * @author yuxin.zhang
  **/
 public class ImageDataSetQueryOutput {
-    private String dataSetId;
+    private String dataResourceId;
     private String memberId;
     private String memberName;
     private String name;
@@ -45,12 +45,12 @@ public class ImageDataSetQueryOutput {
     private int status;
     private ImageDataSetExtJSON extJson;
 
-    public String getDataSetId() {
-        return dataSetId;
+    public String getDataResourceId() {
+        return dataResourceId;
     }
 
-    public void setDataSetId(String dataSetId) {
-        this.dataSetId = dataSetId;
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
     }
 
     public String getMemberId() {

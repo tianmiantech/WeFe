@@ -21,6 +21,7 @@ import com.welab.wefe.App;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
@@ -57,7 +58,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     private void parseInsertEvent() {
         ImageDataSet imageDataSet = new ImageDataSet();
         imageDataSet.setDataResourceId(StringUtil.strTrim2(params.getString(0)));
-        imageDataSet.setForJobType(params.getString(1));
+        imageDataSet.setForJobType(DeepLearningJobType.valueOf(params.getString(1)));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(2)));
         imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(3)));
         imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(4)));
@@ -74,7 +75,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
 
         ImageDataSet imageDataSet = getImageDataSet(dataResourceId);
 
-        imageDataSet.setForJobType(params.getString(0));
+        imageDataSet.setForJobType(DeepLearningJobType.valueOf(params.getString(0)));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(1)));
         imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(2)));
         imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(3)));
@@ -94,7 +95,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     }
 
     private ImageDataSet getImageDataSet(String dataResourceId) throws BusinessException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(dataResourceId);
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceId);
         if(imageDataSet == null) {
             throw new BusinessException("Data does not exist dataResourceId:" + dataResourceId);
         }

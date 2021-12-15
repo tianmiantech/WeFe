@@ -22,7 +22,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
-import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

@@ -19,6 +19,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -27,7 +28,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = MongodbTable.Union.IMAGE_DATASET)
 public class ImageDataSet extends AbstractBlockChainBusinessModel {
     private String dataResourceId;
-    private String forJobType;
+    private DeepLearningJobType forJobType;
     private String labelList;
     private String labeledCount;
     private String labelCompleted;
@@ -42,11 +43,11 @@ public class ImageDataSet extends AbstractBlockChainBusinessModel {
         this.dataResourceId = dataResourceId;
     }
 
-    public String getForJobType() {
+    public DeepLearningJobType getForJobType() {
         return forJobType;
     }
 
-    public void setForJobType(String forJobType) {
+    public void setForJobType(DeepLearningJobType forJobType) {
         this.forJobType = forJobType;
     }
 

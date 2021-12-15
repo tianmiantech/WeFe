@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.TagsDTO;
+import com.welab.wefe.union.service.dto.dataresource.TagsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;

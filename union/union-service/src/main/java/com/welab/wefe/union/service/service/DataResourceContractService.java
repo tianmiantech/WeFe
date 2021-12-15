@@ -93,7 +93,7 @@ public abstract class DataResourceContractService extends AbstractContractServic
         list.add(dataResource.getDataResourceId());
         list.add(dataResource.getMemberId());
         list.addAll(generateParams(dataResource));
-        list.add(dataResource.getDataResourceType());
+        list.add(dataResource.getDataResourceType().name());
         list.add(dataResource.getCreatedTime());
         list.add(dataResource.getUpdatedTime());
         return list;

@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.dto.dataset;
+package com.welab.wefe.union.service.dto.dataresource.dataset.table;
+
 
 /**
- * @author Jervis
- **/
-public class TagsDTO {
-
+ * ApiDataSetDefaultTag Output
+ *
+ * @author yuxin.zhang
+ */
+public class ApiDataSetDefaultTagOutput {
+    private String id;
     private String tagName;
-    private Long count;
 
     @Override
     public String toString() {
         return "{" +
-                "tagName='" + tagName + '\'' +
-                ", count=" + count +
+                "id='" + id + '\'' +
+                ", tagName='" + tagName + '\'' +
                 '}';
     }
 
-    public TagsDTO(String tagName, Long count) {
-        this.tagName = tagName;
-        this.count = count;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTagName() {
@@ -43,13 +48,5 @@ public class TagsDTO {
 
     public void setTagName(String tagName) {
         this.tagName = tagName;
-    }
-
-    public Long getCount() {
-        return count;
-    }
-
-    public void setCount(Long count) {
-        this.count = count;
     }
 }

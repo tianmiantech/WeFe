@@ -14,35 +14,31 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset.table;
+package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
-import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "table_data_set/detail", name = "table_data_set", rsaVerify = true, login = false)
+@Api(path = "bloom_filter/detail", name = "bloom_filter_detail", rsaVerify = true, login = false)
 public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQueryOutput> {
 
     @Autowired
-    protected TableDataSetMongoReop tableDataSetMongoReop;
+    protected BloomFilterMongoReop bloomFilterMongoReop;
 
-    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
     protected ApiResult<ApiImageDataSetQueryOutput> handle(Input input) {
         return success();
     }
-
 
 
     public static class Input extends BaseInput {

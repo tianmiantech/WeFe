@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.dto.dataset.image;
+package com.welab.wefe.union.service.dto.dataresource.dataset.image;
 
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 

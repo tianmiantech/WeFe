@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.DataSetOutput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetOutput;
 import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
 import com.welab.wefe.union.service.service.DataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;

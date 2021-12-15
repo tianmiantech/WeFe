@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.dto.dataset;
+package com.welab.wefe.union.service.dto.dataresource.dataset.table;
 
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 /**
  * @author Jervis
- **/
-public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
+ */
+public class DataSetDetailOutput extends AbstractTimedApiOutput {
     private String id;
-    private String memberName;
     private String name;
     private String memberId;
     private int containsY;
@@ -32,19 +31,40 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
     private Integer columnCount;
     private String columnNameList;
     private Integer featureCount;
-    private String dataResourceType = DataResourceType.TableDataSet.name();
     private String featureNameList;
     private String publicLevel;
     private String publicMemberList;
-    private Integer usageCountInJob;
-    private Integer usageCountInFlow;
-    private Integer usageCountInProject;
+    private Integer usageCountInJob = -1;
+    private Integer usageCountInFlow = -1;
+    private Integer usageCountInProject = -1;
     private String description;
     private String tags;
+    private long logTime;
+    private String dataSetType = DataResourceType.TableDataSet.name();
 
-    public ApiDataSetQueryOutput() {
+    @Override
+    public String toString() {
+        return "{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", memberId='" + memberId + '\'' +
+                ", containsY=" + containsY +
+                ", rowCount=" + rowCount +
+                ", columnCount=" + columnCount +
+                ", columnNameList='" + columnNameList + '\'' +
+                ", featureCount=" + featureCount +
+                ", featureNameList='" + featureNameList + '\'' +
+                ", publicLevel='" + publicLevel + '\'' +
+                ", publicMemberList='" + publicMemberList + '\'' +
+                ", usageCountInJob=" + usageCountInJob +
+                ", usageCountInFlow=" + usageCountInFlow +
+                ", usageCountInProject=" + usageCountInProject +
+                ", description='" + description + '\'' +
+                ", tags='" + tags + '\'' +
+                ", logTime=" + logTime +
+                ", dataSetType='" + dataSetType + '\'' +
+                '}';
     }
-
 
     public String getId() {
         return id;
@@ -52,14 +72,6 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getMemberName() {
-        return memberName;
-    }
-
-    public void setMemberName(String memberName) {
-        this.memberName = memberName;
     }
 
     public String getName() {
@@ -182,11 +194,19 @@ public class ApiDataSetQueryOutput extends AbstractTimedApiOutput {
         this.tags = tags;
     }
 
-    public String getDataResourceType() {
-        return dataResourceType;
+    public long getLogTime() {
+        return logTime;
     }
 
-    public void setDataResourceType(String dataResourceType) {
-        this.dataResourceType = dataResourceType;
+    public void setLogTime(long logTime) {
+        this.logTime = logTime;
+    }
+
+    public String getDataSetType() {
+        return dataSetType;
+    }
+
+    public void setDataSetType(String dataSetType) {
+        this.dataSetType = dataSetType;
     }
 }

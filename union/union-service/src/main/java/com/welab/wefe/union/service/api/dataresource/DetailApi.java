@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.DataSetDetailOutput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetDetailOutput;
 import com.welab.wefe.union.service.mapper.DataSetMapper;
 import com.welab.wefe.union.service.service.DataSetContractService;
 import org.mapstruct.factory.Mappers;

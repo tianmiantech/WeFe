@@ -43,7 +43,7 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(input.getDataSetId());
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataSetId());
         if (imageDataSet == null) {
             throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataSetId());
         }
@@ -59,7 +59,7 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
 
     private void saveImageDataSetLabeledCount(Input input){
         ImageDataSetLabeledCount imageDataSetLabeledCount = new ImageDataSetLabeledCount();
-        imageDataSetLabeledCount.setDataResouceId(input.getDataSetId());
+        imageDataSetLabeledCount.setDataResourceId(input.getDataSetId());
         imageDataSetLabeledCount.setLabeledCount(input.getLabeledCount());
         imageDataSetLabeledCount.setTotalDataCount(input.getTotalDataCount());
         imageDataSetLabeledCount.setLabelList(input.getLabelList());

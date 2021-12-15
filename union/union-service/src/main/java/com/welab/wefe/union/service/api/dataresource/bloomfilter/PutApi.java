@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset.image;
+package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -22,43 +22,36 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
-import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
-import com.welab.wefe.union.service.service.ImageDataSetContractService;
+import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.mapper.TableDataSetMapper;
+import com.welab.wefe.union.service.service.TableDataSetContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/put", name = "image_data_set_put", rsaVerify = true, login = false)
+@Api(path = "bloom_filter/put", name = "bloom_filter_put", rsaVerify = true, login = false)
 public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
-    protected ImageDataSetContractService imageDataSetContractService;
+    protected TableDataSetContractService tableDataSetContractService;
 
-    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
+    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-
-        imageDataSetContractService.add(imageDataSetMapper.transferPutInput(input));
-
         return success();
     }
 
-    public static class Input extends DataResourcePutInput {
+    public static class Input extends BaseInput {
+        @Check(require = true)
+        private String dataResourceId;
         @Check(require = true)
         private String memberId;
         @Check(require = true)
         private String name;
         private String tags;
         private String description;
-        private String forJobType;
-        private String labelList;
-        private int sampleCount;
-        private int labeledCount;
-        private boolean labelCompleted;
-        private String filesSize;
         @Check(require = true)
         private String publicLevel;
         private String publicMemberList;
@@ -66,12 +59,12 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
         private int usageCountInFlow;
         private int usageCountInProject;
 
-        public String getDataSetId() {
-            return dataSetId;
+        public String getDataResourceId() {
+            return dataResourceId;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setDataResourceId(String dataResourceId) {
+            this.dataResourceId = dataResourceId;
         }
 
         public String getMemberId() {
@@ -104,54 +97,6 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
 
         public void setDescription(String description) {
             this.description = description;
-        }
-
-        public String getForJobType() {
-            return forJobType;
-        }
-
-        public void setForJobType(String forJobType) {
-            this.forJobType = forJobType;
-        }
-
-        public String getLabelList() {
-            return labelList;
-        }
-
-        public void setLabelList(String labelList) {
-            this.labelList = labelList;
-        }
-
-        public int getSampleCount() {
-            return sampleCount;
-        }
-
-        public void setSampleCount(int sampleCount) {
-            this.sampleCount = sampleCount;
-        }
-
-        public int getLabeledCount() {
-            return labeledCount;
-        }
-
-        public void setLabeledCount(int labeledCount) {
-            this.labeledCount = labeledCount;
-        }
-
-        public boolean isLabelCompleted() {
-            return labelCompleted;
-        }
-
-        public void setLabelCompleted(boolean labelCompleted) {
-            this.labelCompleted = labelCompleted;
-        }
-
-        public String getFilesSize() {
-            return filesSize;
-        }
-
-        public void setFilesSize(String filesSize) {
-            this.filesSize = filesSize;
         }
 
         public String getPublicLevel() {

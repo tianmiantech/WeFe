@@ -16,25 +16,21 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
-import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -70,7 +66,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         return mongoUnionTemplate.exists(query, ImageDataSet.class);
     }
 
-    public ImageDataSet findDataResourceId(String dataResouceId) {
+    public ImageDataSet findByDataResourceId(String dataResouceId) {
         if (StringUtils.isEmpty(dataResouceId)) {
             return null;
         }
@@ -78,70 +74,76 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
+    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String curMemeberId) {
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.IMAGE_DATASET).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("image_data_set");
 
-    /**
-     * Query the image data set visible to the current member
-     */
-    public PageOutput<ImageDataSetQueryOutput> find(ImageDataSetQueryInput imageDataSetQueryInput) {
-        LookupOperation lookupToLots = LookupOperation.newLookup().
+        LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
                 localField("member_id").
                 foreignField("member_id").
                 as("member");
 
-        Criteria dataSetCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getName())
-                .like("tags", imageDataSetQueryInput.getTag())
-                .append("member_id", imageDataSetQueryInput.getMemberId())
-                .append("data_set_id", imageDataSetQueryInput.getDataSetId())
-                .append("enable", imageDataSetQueryInput.getEnable() != null ? (imageDataSetQueryInput.getEnable() ? 1 : 0) : null)
-                .append("status", imageDataSetQueryInput.getStatus() != null ? (imageDataSetQueryInput.getStatus() ? 1 : 0) : null)
+
+        Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
+                .append("member_id", curMemeberId)
+                .append("data_resource_id", dataResourceId)
                 .getCriteria();
 
+        Criteria or = new Criteria();
+        or.orOperator(
+                new QueryBuilder().append("public_level", "Public").getCriteria(),
+                new QueryBuilder().like("public_member_list", curMemeberId).getCriteria()
+        );
 
-        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
+        dataResouceCriteria.andOperator(or);
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
-        Criteria memberCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getMemberName())
-                .getCriteria();
-
-        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
         UnwindOperation unwind = Aggregation.unwind("member");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataSetQueryOutput.class).getMappedResults().size();
+        Aggregation aggregation = Aggregation.newAggregation(
+                dataResourceMatch,
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                addFieldsOperation
+        );
 
-        SkipOperation skipOperation = Aggregation.skip((long) imageDataSetQueryInput.getPageIndex() * imageDataSetQueryInput.getPageSize());
-        LimitOperation limitOperation = Aggregation.limit(imageDataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
-
-        List<ImageDataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, ImageDataSetQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(imageDataSetQueryInput.getPageIndex(), (long) total, imageDataSetQueryInput.getPageSize(), result);
+        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataResourceQueryOutput.class).getUniqueMappedResult();
+        return result;
     }
-
 
     /**
      * Query the image data set visible to the current member
      */
     public PageOutput<ImageDataSetQueryOutput> findCurMemberCanSee(ImageDataSetQueryInput imageDataSetQueryInput) {
-        LookupOperation lookupToLots = LookupOperation.newLookup().
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.IMAGE_DATASET).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("image_data_set");
+
+        LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
                 localField("member_id").
                 foreignField("member_id").
                 as("member");
 
 
-        Criteria dataSetCriteria = new QueryBuilder()
+        Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
                 .like("name", imageDataSetQueryInput.getName())
                 .like("tags", imageDataSetQueryInput.getTag())
-                .append("member_id", imageDataSetQueryInput.getMemberId())
-                .append("data_set_id", imageDataSetQueryInput.getDataSetId())
+                .append("member_id", imageDataSetQueryInput.getCurMemberId())
+                .append("data_resource_id", imageDataSetQueryInput.getDataResourceId())
                 .getCriteria();
 
         Criteria or = new Criteria();
@@ -149,8 +151,10 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
                 new QueryBuilder().like("public_member_list", imageDataSetQueryInput.getCurMemberId()).getCriteria()
         );
-        dataSetCriteria.andOperator(or);
-        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
+
+        dataResouceCriteria.andOperator(or);
+
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
                 .like("name", imageDataSetQueryInput.getMemberName())
@@ -163,12 +167,29 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataSetQueryOutput.class).getMappedResults().size();
+        Aggregation aggregation = Aggregation.newAggregation(
+                dataResourceMatch,
+                memberMatch,
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                addFieldsOperation
+        );
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) imageDataSetQueryInput.getPageIndex() * imageDataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(imageDataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+
+        aggregation = Aggregation.newAggregation(
+                dataResourceMatch,
+                memberMatch,
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                skipOperation,
+                limitOperation,
+                addFieldsOperation
+        );
 
         List<ImageDataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, ImageDataSetQueryOutput.class).getMappedResults();
 
@@ -176,7 +197,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public void upsert(ImageDataSet dataSet) {
-        mongoUnionTemplate.save(dataSet);
+    public void upsert(ImageDataSet imageDataSet) {
+        mongoUnionTemplate.save(imageDataSet);
     }
 }

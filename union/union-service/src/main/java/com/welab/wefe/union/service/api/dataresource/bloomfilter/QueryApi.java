@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset.table;
+package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -30,31 +30,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "table_data_set/detail", name = "table_data_set", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQueryOutput> {
-
+@Api(path = "bloom_filter/query", name = "bloom_filter_query", rsaVerify = true, login = false)
+public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDataSetQueryOutput>> {
     @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
 
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiImageDataSetQueryOutput> handle(Input input) {
+    protected ApiResult<PageOutput<ApiImageDataSetQueryOutput>> handle(Input input) {
         return success();
     }
 
-
-
     public static class Input extends BaseInput {
-        @Check(require = true)
-        private String dataResouceId;
 
-        public String getDataResouceId() {
-            return dataResouceId;
-        }
-
-        public void setDataResouceId(String dataResouceId) {
-            this.dataResouceId = dataResouceId;
-        }
     }
+
 }
