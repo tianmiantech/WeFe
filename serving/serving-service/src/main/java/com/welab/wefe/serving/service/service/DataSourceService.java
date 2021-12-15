@@ -185,6 +185,19 @@ public class DataSourceService {
 		return result;
 	}
 
+	public Map<String, Object> execute(String dataSourceId, String sql, List<String> returnFields)
+			throws StatusCodeWithException {
+		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+		if (model == null) {
+			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+		}
+
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+				model.getUserName(), model.getPassword(), model.getDatabaseName());
+		return jdbcManager.query(conn, sql, returnFields);
+	}
+
 	public Output queryTables(Input input) throws StatusCodeWithException {
 		Output out = new Output();
 		DataSourceMySqlModel model = getDataSourceById(input.getId());

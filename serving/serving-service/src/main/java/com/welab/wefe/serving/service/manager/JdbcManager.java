@@ -148,7 +148,6 @@ public class JdbcManager {
 			}
 			while (rs.next()) {
 				String tableName = rs.getString(1);
-				System.out.println(rs.getString(1));
 				tables.add(tableName);
 			}
 
@@ -160,6 +159,34 @@ public class JdbcManager {
 		}
 		return tables;
 	}
+	
+	public Map<String, Object> query(Connection conn, String sql, List<String> returnFields) {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Map<String, Object> fieldMap = new LinkedHashMap<>();
+		try {
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				return fieldMap;
+			}
+			while (rs.next()) {
+				for (String field : returnFields) {
+					String value = rs.getString(field);
+					fieldMap.put(field, value);
+				}
+			}
+
+		} catch (SQLException e) {
+			log.error(e);
+			return fieldMap;
+		} finally {
+			close(conn, ps, rs);
+		}
+		return fieldMap;
+	}
+	
 
 	public Map<String, String> queryTableFields(Connection conn, String tableName) {
 		PreparedStatement ps = null;
