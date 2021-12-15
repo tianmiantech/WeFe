@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -37,6 +38,7 @@ public class ImageDataSetQueryApi extends AbstractApi<DataResourceQueryApi.Input
 
     @Override
     protected ApiResult<PagingOutput<ImageDataSetOutputModel>> handle(DataResourceQueryApi.Input input) throws StatusCodeWithException {
+        input.setDataResourceType(DataResourceType.ImageDataSet);
         return success((PagingOutput<ImageDataSetOutputModel>) imageDataSetService.query(input));
     }
 

@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -39,6 +40,7 @@ public class TableDataSetQueryApi extends AbstractApi<DataResourceQueryApi.Input
 
     @Override
     protected ApiResult<PagingOutput<TableDataSetOutputModel>> handle(DataResourceQueryApi.Input input) throws StatusCodeWithException, IOException {
+        input.setDataResourceType(DataResourceType.TableDataSet);
         return success((PagingOutput<TableDataSetOutputModel>) dataResourceService.query(input));
     }
 }
