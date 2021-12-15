@@ -949,12 +949,12 @@ public class ProjectService extends AbstractService {
 
         }
 
-        for (ProjectDataSetMySqlModel TableDataSetMysqlModel : dataInfoOutput.getProjectDataSets()) {
+        for (ProjectDataSetMySqlModel item : dataInfoOutput.getProjectDataSets()) {
             // Filter derived data sets
-            if (TableDataSetMysqlModel.getSourceType() != null) {
+            if (item.getSourceType() != null) {
                 continue;
             }
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(TableDataSetMysqlModel.getProjectId(), TableDataSetMysqlModel.getDataSetId(), TableDataSetMysqlModel.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(item.getProjectId(), item.getDataSetId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSetService.update(projectDataSet, dataSet -> {
                     dataSet.setAuditStatus(projectDataSet.getAuditStatus());
@@ -962,8 +962,7 @@ public class ProjectService extends AbstractService {
                 });
 
             } else {
-
-                projectDataSetRepo.save(TableDataSetMysqlModel);
+                projectDataSetRepo.save(item);
             }
         }
         List<String> excludeFlowIds = new ArrayList<>();
@@ -979,7 +978,6 @@ public class ProjectService extends AbstractService {
             if (projectFlowService.findOne(projectFlowMySqlModel.getFlowId()) == null) {
                 projectFlowMySqlModel.setMyRole(project.getMyRole());
                 projectFlowMySqlModel.setFlowStatus(ProjectFlowStatus.editing);
-                // todo: put creator_member_id on next version
                 projectFlowMySqlModel.setCreatedBy("");
                 projectFlowRepository.save(projectFlowMySqlModel);
             }
