@@ -110,23 +110,6 @@ public abstract class DataResourceContractService extends AbstractContractServic
         }
     }
 
-    public void deleteById(String dataSetId) throws StatusCodeWithException {
-        try {
-            boolean isExist = dataResourceContract.isExist(dataSetId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataSetId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-                if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
-                }
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data resource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
     private List<String> generateAddParams(DataResource dataResource) {
         List<String> list = new ArrayList<>();
         list.add(dataResource.getDataResourceId());
