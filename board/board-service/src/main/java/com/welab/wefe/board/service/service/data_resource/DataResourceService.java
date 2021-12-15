@@ -41,6 +41,7 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -292,7 +293,8 @@ public class DataResourceService extends AbstractDataResourceService {
                 .equal("id", input.getId())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
-                .equal("createdBy", input.getCreator());
+                .equal("createdBy", input.getCreator())
+                .orderBy("createdTime", OrderBy.asc);
 
         if (input.getDataResourceType() == null) {
             return dataResourceRepository.paging(
