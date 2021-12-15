@@ -14,7 +14,6 @@ contract ImageDataSetContract{
 
     event insertEvent(int256 ret_code,string[] params,string ext_json);
     event updateEvent(int256 ret_code,string data_resource_id,string[] params,string updated_time);
-    event deleteByDataResourceIdEvent(int256 ret_code,string data_resource_id);
     event updateExtJsonEvent(int256 ret_code,string data_resource_id, string ext_json,string updated_time);
 
     constructor() public {

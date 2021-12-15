@@ -39,7 +39,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class DataSetContractService extends AbstractContractService {
 
     @Autowired

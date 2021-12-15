@@ -40,7 +40,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public abstract class DataResourceContractService extends AbstractContractService {
 
     @Autowired

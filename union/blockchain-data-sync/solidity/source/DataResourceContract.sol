@@ -16,7 +16,6 @@ contract DataResourceContract{
     event updateEvent(int256 ret_code,string data_resource_id,string[] params,string updated_time);
     event updateExtJsonEvent(int256 ret_code,string data_resource_id,string ext_json,string updated_time);
     event updateEnableEvent(int256 ret_code,string data_resource_id,string enable,string updated_time);
-    event deleteByDataResourceIdEvent(int256 ret_code,string data_resource_id);
 
     constructor() public {
         // 创建表

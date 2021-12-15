@@ -37,7 +37,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class TableDataSetContractService extends DataResourceContractService {
 
     @Autowired
@@ -84,23 +83,6 @@ public class TableDataSetContractService extends DataResourceContractService {
 
     }
 
-
-    public void deleteById(String dataResourceId) throws StatusCodeWithException {
-        try {
-            boolean isExist = tableDataSetContract.isExist(dataResourceId);
-            if (isExist) {
-                TransactionReceipt transactionReceipt = tableDataSetContract.deleteByDataResourceId(dataResourceId);
-                // Get receipt result
-                TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
-                        .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
-                if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
-                }
-            }
-        } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
 
     private List<String> generateAddParams(TableDataSet tableDataSet) {
         List<String> list = new ArrayList<>();
