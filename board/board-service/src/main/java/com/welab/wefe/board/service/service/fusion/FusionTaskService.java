@@ -293,9 +293,6 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        LOG.info("bf is {}", JSON.toJSONString(      BloomFilterUtils.readFrom(
-                Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
-        )));
         /**
          * Generate the corresponding task handler
          */
@@ -312,15 +309,6 @@ public class FusionTaskService extends AbstractService {
         ActuatorManager.set(server);
 
         server.run();
-    }
-
-    public static void main(String[] args) {
-
-        BloomFilterUtils.readFrom(
-                Paths.get("D:\\data\\wefe_file_upload_dir\\_bloom_filter\\f6398990b00d4928991f74e4e36075af", null).toString()
-        );
-
-        System.out.println();
     }
 
     /**
@@ -446,4 +434,7 @@ public class FusionTaskService extends AbstractService {
     }
 
 
+    public static void main(String[] args) {
+
+    }
 }

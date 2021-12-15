@@ -28,7 +28,9 @@ public class PsiActuatorMeta {
     private BigInteger e;
     private BigInteger N;
 
-    protected BloomFilters bf;
+    private BloomFilters bf;
+
+    protected BloomFilterDto bfDto;
 
     public BigInteger getE() {
         return e;
@@ -46,6 +48,14 @@ public class PsiActuatorMeta {
         N = n;
     }
 
+    public BloomFilterDto getBfDto() {
+        return bfDto;
+    }
+
+    public void setBfDto(BloomFilterDto bfDto) {
+        this.bfDto = bfDto;
+    }
+
     public BloomFilters getBf() {
         return bf;
     }
@@ -56,7 +66,9 @@ public class PsiActuatorMeta {
 
     public static PsiActuatorMeta of(BigInteger e, BigInteger N, BloomFilters bf) {
         PsiActuatorMeta psiActuatorMeta = new PsiActuatorMeta();
-        psiActuatorMeta.bf = bf;
+        psiActuatorMeta.bfDto.setBitSet(bf.getBitSet().toByteArray());
+        psiActuatorMeta.bfDto.setCount(bf.count());
+        psiActuatorMeta.bfDto.setSize(bf.size());
         psiActuatorMeta.e = e;
         psiActuatorMeta.N = N;
         return psiActuatorMeta;

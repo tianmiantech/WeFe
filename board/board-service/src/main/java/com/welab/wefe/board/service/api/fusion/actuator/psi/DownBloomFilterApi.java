@@ -39,8 +39,9 @@ import java.math.BigInteger;
 @Api(path = "fusion/psi/down_bloom_filter",
         name = "down bloomfilter",
         desc = "down bloomfilter",
-        login = false,
-        rsaVerify = true
+        login = false
+//        ,
+//        rsaVerify = true
 )
 public class DownBloomFilterApi extends AbstractApi<DownBloomFilterApi.Input, PsiActuatorMeta> {
 
