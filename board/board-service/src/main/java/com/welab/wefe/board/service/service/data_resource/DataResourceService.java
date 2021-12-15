@@ -16,9 +16,6 @@
 package com.welab.wefe.board.service.service.data_resource;
 
 import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
-import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterQueryApi;
-import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetQueryApi;
-import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -29,10 +26,12 @@ import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
-import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
-import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -46,7 +45,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -281,27 +279,53 @@ public class DataResourceService extends AbstractDataResourceService {
     private ImageDataSetService imageDataSetService;
     @Autowired
     private BloomFilterService bloomFilterSetService;
+    @Autowired
+    private TableDataSetRepository tableDataSetRepository;
+    @Autowired
+    private ImageDataSetRepository imageDataSetRepository;
+    @Autowired
+    private BloomFilterRepository bloomFilterRepository;
 
-    public PagingOutput<?> queryDataResource(DataResourceQueryApi.Input input) {
+    public PagingOutput<? extends DataResourceOutputModel> query(DataResourceQueryApi.Input input) {
+        Where where = Where
+                .create()
+                .equal("id", input.getId())
+                .contains("name", input.getName())
+                .containsItem("tags", input.getTag())
+                .equal("createdBy", input.getCreator());
+
         if (input.getDataResourceType() == null) {
-            Specification<DataResourceOutputModel> where = Where
-                    .create()
-                    .equal("id", input.getId())
-                    .contains("name", input.getName())
-                    .containsItem("tags", input.getTag())
-                    .equal("createdBy", input.getCreator())
-                    .build(DataResourceOutputModel.class);
-
-            return dataResourceRepository.paging(where, input);
+            return dataResourceRepository.paging(
+                    where.build(DataResourceMysqlModel.class),
+                    input,
+                    DataResourceOutputModel.class
+            );
         }
 
         switch (input.getDataResourceType()) {
             case TableDataSet:
-                return tableDataSetService.query((TableDataSetQueryApi.Input) input);
+                return tableDataSetRepository.paging(
+                        where
+                                .equal("containsY", input.getContainsY())
+                                .equal("derivedResource", false)
+                                .build(TableDataSetMysqlModel.class),
+                        input,
+                        TableDataSetOutputModel.class
+                );
             case ImageDataSet:
-                return imageDataSetService.query((ImageDataSetQueryApi.Input) input);
+                return imageDataSetRepository.paging(
+                        where
+                                .equal("forJobType", input.getForJobType())
+                                .build(ImageDataSetMysqlModel.class),
+                        input,
+                        ImageDataSetOutputModel.class
+                );
             case BloomFilter:
-                return bloomFilterSetService.query((BloomFilterQueryApi.Input) input);
+                return bloomFilterRepository.paging(
+                        where.build(BloomFilterMysqlModel.class),
+                        input,
+                        BloomFilterOutputModel.class
+                );
             default:
                 return null;
         }

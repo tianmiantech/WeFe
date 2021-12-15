@@ -19,45 +19,26 @@ package com.welab.wefe.board.service.api.data_resource.table_data_set;
 import com.welab.wefe.board.service.api.data_resource.DataResourceQueryApi;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
-import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+
 /**
  * @author Zane
  */
 @Api(path = "table_data_set/query", name = "query data set")
-public class TableDataSetQueryApi extends AbstractApi<TableDataSetQueryApi.Input, PagingOutput<TableDataSetOutputModel>> {
+public class TableDataSetQueryApi extends AbstractApi<DataResourceQueryApi.Input, PagingOutput<TableDataSetOutputModel>> {
 
     @Autowired
-    private TableDataSetService tableDataSetService;
+    private DataResourceService dataResourceService;
 
     @Override
-    protected ApiResult<PagingOutput<TableDataSetOutputModel>> handle(Input input) throws StatusCodeWithException {
-        return success(tableDataSetService.query(input));
-    }
-
-
-    public static class Input extends DataResourceQueryApi.Input {
-
-        @Check(name = "是否包含 Y 值")
-        private Boolean containsY;
-
-        //region getter/setter
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
-        }
-
-
-        //endregion
+    protected ApiResult<PagingOutput<TableDataSetOutputModel>> handle(DataResourceQueryApi.Input input) throws StatusCodeWithException, IOException {
+        return success((PagingOutput<TableDataSetOutputModel>) dataResourceService.query(input));
     }
 }

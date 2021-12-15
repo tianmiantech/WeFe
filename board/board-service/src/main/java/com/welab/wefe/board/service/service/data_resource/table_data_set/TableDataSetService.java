@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
-import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetQueryApi;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
@@ -26,7 +25,6 @@ import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetUpdateInputModel;
@@ -37,11 +35,9 @@ import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -92,23 +88,6 @@ public class TableDataSetService extends DataResourceService {
         return file;
     }
 
-    /**
-     * Paging query data set
-     */
-    public PagingOutput<TableDataSetOutputModel> query(TableDataSetQueryApi.Input input) {
-
-        Specification<TableDataSetMysqlModel> where = Where
-                .create()
-                .equal("id", input.getId())
-                .contains("name", input.getName())
-                .containsItem("tags", input.getTag())
-                .equal("containsY", input.getContainsY())
-                .equal("createdBy", input.getCreator())
-                .equal("derivedResource", false)
-                .build(TableDataSetMysqlModel.class);
-
-        return tableDataSetRepository.paging(where, input, TableDataSetOutputModel.class);
-    }
 
     /**
      * delete data set
