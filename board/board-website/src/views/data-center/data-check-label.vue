@@ -196,6 +196,7 @@
                 },
                 searchLabeledList(text) {
                     vData.search.label = vData.search.label ? '' : text;
+                    vData.search.page_index = 1;
                     methods.getSampleList();
                 },
                 currentPageChange (val) {

@@ -138,7 +138,7 @@
             label="操作"
             fixed="right"
             align="center"
-            min-width="160"
+            min-width="250"
         >
             <template v-slot="scope">
                 <router-link
@@ -153,11 +153,22 @@
                 </router-link>
                 <el-button
                     type="danger"
-                    class="ml10"
+                    class="ml10 mr10"
                     @click="deleteData(scope.row)"
                 >
                     删除
                 </el-button>
+                <router-link
+                    v-if="scope.row.resource_type === 'ImageDataSet'"
+                    :to="{
+                        name: 'data-check-label',
+                        query: { id: scope.row.id, type: 'img' }
+                    }"
+                >
+                    <el-button plain>
+                        查看与标注
+                    </el-button>
+                </router-link>
             </template>
         </el-table-column>
     </el-table>
