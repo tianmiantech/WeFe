@@ -40,17 +40,11 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, ImageDataSetExtJSON.class) : new ImageDataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.ImageDataSet.INSERT_EVENT:
+            case EventConstant.ImageDataSetEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.ImageDataSet.UPDATE_EVENT:
+            case EventConstant.ImageDataSetEvent.UPDATE_EVENT:
                 parseUpdateEvent();
-                break;
-            case EventConstant.ImageDataSet.DELETE_BY_DATA_RESOURCE_ID_EVENT:
-                parseDeleteByDataResouceIdEvent();
-                break;
-            case EventConstant.ImageDataSet.UPDATE_ENABLE_EVENT:
-                parseUpdateEnableEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
@@ -77,10 +71,9 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     private void parseUpdateEvent() throws BusinessException {
         String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(dataResourceId);
-        if(imageDataSet == null) {
-            throw new BusinessException("Data does not exist dataResourceId:" + dataResourceId);
-        }
+
+        ImageDataSet imageDataSet = getImageDataSet(dataResourceId);
+
         imageDataSet.setForJobType(params.getString(0));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(1)));
         imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(2)));
@@ -91,24 +84,21 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     }
 
 
-    private void parseDeleteByDataResouceIdEvent() {
-        String id = eventBO.getEntity().get("data_resource_id").toString();
-        imageDataSetMongoReop.deleteByDataResourceId(id);
+    private void parseUpdateExtJson() throws BusinessException {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        String updatedTime = eventBO.getEntity().get("updated_time").toString();
+        ImageDataSet imageDataSet = getImageDataSet(dataResourceId);
+        imageDataSet.setExtJson(extJSON);
+        imageDataSet.setUpdatedTime(updatedTime);
+        imageDataSetMongoReop.upsert(imageDataSet);
     }
 
-
-    private void parseUpdateEnableEvent() {
-        String dataSetId = eventBO.getEntity().get("data_resource_id").toString();
-        String enable = eventBO.getEntity().get("enable").toString();
-        String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        imageDataSetMongoReop.updateEnable(dataSetId, enable, updatedTime);
-    }
-
-
-    private void parseUpdateExtJson() {
-        String id = eventBO.getEntity().get("data_resource_id").toString();
-        String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        imageDataSetMongoReop.updateExtJSONById(id, extJSON, updatedTime);
+    private ImageDataSet getImageDataSet(String dataResourceId) throws BusinessException {
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(dataResourceId);
+        if(imageDataSet == null) {
+            throw new BusinessException("Data does not exist dataResourceId:" + dataResourceId);
+        }
+        return imageDataSet;
     }
 
 }

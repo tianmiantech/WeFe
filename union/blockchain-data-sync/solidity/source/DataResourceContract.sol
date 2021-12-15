@@ -164,26 +164,6 @@ contract DataResourceContract{
         return ret_code;
     }
 
-    function deleteByDataResourceId(string data_resource_id) public returns (int) {
-        int256 ret_code = 0;
-        Table table = tableFactory.openTable(TABLE_NAME);
-        Condition condition = table.newCondition();
-        condition.EQ("data_resource_id", data_resource_id);
-        int count = table.remove(FIX_ID,condition);
-
-        if(count >= 1){
-            ret_code = 0;
-        } else {
-            ret_code = -2;
-        }
-
-        emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
-
-        return ret_code;
-
-    }
-
-
     function isExist(string data_resource_id) public view returns(bool) {
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();

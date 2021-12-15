@@ -21,19 +21,19 @@ public class UnionNodeContractEventParser extends AbstractParser {
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, UnionNodeExtJSON.class) : new UnionNodeExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.UnionNode.INSERT_EVENT:
+            case EventConstant.UnionNodeEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.UnionNode.UPDATE_EVENT:
+            case EventConstant.UnionNodeEvent.UPDATE_EVENT:
                 parseUpdateEvent();
                 break;
-            case EventConstant.UnionNode.UPDATE_ENABLE_EVENT:
+            case EventConstant.UnionNodeEvent.UPDATE_ENABLE_EVENT:
                 parseUpdateEnableEvent();
                 break;
-            case EventConstant.UnionNode.UPDATE_PUBLIC_KEY_EVENT:
+            case EventConstant.UnionNodeEvent.UPDATE_PUBLIC_KEY_EVENT:
                 parseUpdatePublicKeyEvent();
                 break;
-            case EventConstant.UnionNode.DELETE_BY_UNIONNODEID_EVENT:
+            case EventConstant.UnionNodeEvent.DELETE_BY_UNIONNODEID_EVENT:
                 parseDeleteByUnionNodeIdEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

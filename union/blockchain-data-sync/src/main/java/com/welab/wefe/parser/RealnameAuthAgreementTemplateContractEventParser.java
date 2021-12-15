@@ -21,10 +21,10 @@ public class RealnameAuthAgreementTemplateContractEventParser extends AbstractPa
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, RealnameAuthAgreementTemplateExtJSON.class) : new RealnameAuthAgreementTemplateExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.UnionNode.INSERT_EVENT:
+            case EventConstant.UnionNodeEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.UnionNode.UPDATE_ENABLE_EVENT:
+            case EventConstant.UnionNodeEvent.UPDATE_ENABLE_EVENT:
                 parseUpdateEnableEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

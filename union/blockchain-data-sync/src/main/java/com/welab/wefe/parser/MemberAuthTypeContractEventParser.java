@@ -2,9 +2,7 @@ package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberAuthTypeMongoRepo;
 import com.welab.wefe.common.util.StringUtil;
@@ -23,13 +21,13 @@ public class MemberAuthTypeContractEventParser extends AbstractParser {
     protected void parseContractEvent() throws BusinessException {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, MemberAuthTypeExtJSON.class) : new MemberAuthTypeExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.MemberAuthType.INSERT_EVENT:
+            case EventConstant.MemberAuthTypeEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.MemberAuthType.UPDATE_EVENT:
+            case EventConstant.MemberAuthTypeEvent.UPDATE_EVENT:
                 parseUpdateEvent();
                 break;
-            case EventConstant.MemberAuthType.DELETE_BY_TYPEID_EVENT:
+            case EventConstant.MemberAuthTypeEvent.DELETE_BY_TYPEID_EVENT:
                 parseDeleteByTypeIdEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

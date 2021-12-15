@@ -41,26 +41,26 @@ public class MemberContractEventParser extends AbstractParser {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, MemberExtJSON.class) : new MemberExtJSON();
 
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.Member.INSERT_EVENT:
-            case EventConstant.Member.UPDATE_EVENT:
+            case EventConstant.MemberEvent.INSERT_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;
-            case EventConstant.Member.UPDATE_EXCLUDE_PUBLICKEY_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EXCLUDE_PUBLICKEY_EVENT:
                 parseUpdateExcludePublicKeyEvent();
                 break;
-            case EventConstant.Member.UPDATE_PUBLICKEY_EVENT:
+            case EventConstant.MemberEvent.UPDATE_PUBLICKEY_EVENT:
                 parseUpdatePublicKeyEvent();
                 break;
-            case EventConstant.Member.DELETE_BY_ID_EVENT:
+            case EventConstant.MemberEvent.DELETE_BY_ID_EVENT:
                 parseDeleteByIdEvent();
                 break;
-            case EventConstant.Member.UPDATE_EXCLUDE_LOGO_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EXCLUDE_LOGO_EVENT:
                 parseUpdateExcludeLogoEvent();
                 break;
-            case EventConstant.Member.UPDATE_LOGO_BY_ID_EVENT:
+            case EventConstant.MemberEvent.UPDATE_LOGO_BY_ID_EVENT:
                 parseUpdateLogoByIdEvent();
                 break;
-            case EventConstant.Member.UPDATE_LAST_ACTIVITY_TIME_BY_ID_EVENT:
+            case EventConstant.MemberEvent.UPDATE_LAST_ACTIVITY_TIME_BY_ID_EVENT:
                 parserUpdateLastActivityTimeByIdEvent();
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:

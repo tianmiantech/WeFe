@@ -52,17 +52,6 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public boolean deleteByDataResourceId(String dataResourceId) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, BloomFilter.class);
-        return updateResult.wasAcknowledged();
-    }
-
-
     public boolean existsByDataResourceId(String dataResourceId) {
         if (StringUtils.isEmpty(dataResourceId)) {
             return false;
@@ -81,34 +70,7 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
 
 
     public void upsert(BloomFilter bloomFilter) {
-        BloomFilter obj = findByDataResourceId(bloomFilter.getDataResourceId());
-        if (obj != null) {
-            bloomFilter.setDataResourceId(obj.getDataResourceId());
-        }
         mongoUnionTemplate.save(bloomFilter);
-    }
-
-    public boolean updateExtJSONById(String dataResourceId, BloomFilterExtJSON extJSON) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, BloomFilter.class);
-        return updateResult.wasAcknowledged();
-    }
-
-    public boolean updateEnable(String dataResourceId, String enable, String updatedTime) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update udpate = new UpdateBuilder()
-                .append("enable", enable)
-                .append("updatedTime", updatedTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, BloomFilter.class);
-        return updateResult.wasAcknowledged();
     }
 
 }

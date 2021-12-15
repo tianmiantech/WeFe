@@ -91,10 +91,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
 
     public void upsert(DataResource dataResource) {
-        DataResource obj = findByDataResourceId(dataResource.getDataResourceId());
-        if (obj != null) {
-            dataResource.setDataResourceId(obj.getDataResourceId());
-        }
         mongoUnionTemplate.save(dataResource);
     }
 
