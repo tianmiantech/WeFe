@@ -298,7 +298,7 @@ public class DataResourceService extends AbstractDataResourceService {
             return dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
                     input,
-                    DataResourceOutputModel.class
+                    Object.class
             );
         }
 

@@ -66,9 +66,7 @@ public class PsiActuatorMeta {
 
     public static PsiActuatorMeta of(BigInteger e, BigInteger N, BloomFilters bf) {
         PsiActuatorMeta psiActuatorMeta = new PsiActuatorMeta();
-        psiActuatorMeta.bfDto.setBitSet(bf.getBitSet().toByteArray());
-        psiActuatorMeta.bfDto.setCount(bf.count());
-        psiActuatorMeta.bfDto.setSize(bf.size());
+        psiActuatorMeta.bfDto = BloomFilterDto.ofBloomFilters(bf);
         psiActuatorMeta.e = e;
         psiActuatorMeta.N = N;
         return psiActuatorMeta;
