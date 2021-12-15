@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,18 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author jacky.jiang
  */
 @Api(path = "bloom_filter/query", name = "query bloom_filter")
-public class BloomFilterQueryApi extends AbstractApi<BloomFilterQueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
+public class BloomFilterQueryApi extends AbstractApi<DataResourceQueryApi.Input, PagingOutput<BloomFilterOutputModel>> {
 
     @Autowired
     private BloomFilterService bloomfilterService;
 
     @Override
-    protected ApiResult<PagingOutput<BloomFilterOutputModel>> handle(Input input) throws StatusCodeWithException {
-        return success(bloomfilterService.query(input));
-    }
-
-
-    public static class Input extends DataResourceQueryApi.Input {
-
+    protected ApiResult<PagingOutput<BloomFilterOutputModel>> handle(DataResourceQueryApi.Input input) throws StatusCodeWithException {
+        return success((PagingOutput<BloomFilterOutputModel>) bloomfilterService.query(input));
     }
 }

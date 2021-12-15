@@ -23,6 +23,8 @@ import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.enums.CallbackType;
@@ -99,13 +101,38 @@ public class ThirdPartyService {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */
-        ApiResult<JSONObject> result = gatewayService.callOtherMemberBoard(dstMemberId, api, params);
+      //  ApiResult<JSONObject> result = gatewayService.callOtherMemberBoard(dstMemberId, api, params);
+
+//        if (!result.success()) {
+//            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
+//        }
+
+        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/callback").appendParameters(params).postJson();
 
         if (!result.success()) {
             throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
         }
 
-        JSONObject json = JObject.create(result.data);
+        JSONObject json = JObject.create(result.getBodyAsJson());
         return json;
+    }
+
+    public static void main(String[] args) {
+
+
+
+        JObject params = JObject
+                .create()
+                .put("business_id", "3aa59df11bd34af8a196debc59cbf1f9")
+                .put("project_id", "test")
+                .put("audit_status", AuditStatus.agree)
+                .put("audit_comment", "auditComment");
+
+        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/callback").appendParameters(params).get();
+
+        if (!result.success()) {
+
+        }
+
     }
 }
