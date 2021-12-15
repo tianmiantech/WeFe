@@ -16,15 +16,13 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.dataresource.AbstractDataResourceInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
 import org.mapstruct.factory.Mappers;
@@ -34,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "image_data_set/detail", name = "data_set_detail", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<AbstractDataResourceInput, ApiImageDataSetQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiImageDataSetQueryOutput> {
 
     @Autowired
     protected ImageDataSetMongoReop imageDataSetMongoReop;
@@ -42,17 +40,19 @@ public class DetailApi extends AbstractApi<AbstractDataResourceInput, ApiImageDa
     protected ImageDataSetMapper mDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiImageDataSetQueryOutput> handle(AbstractDataResourceInput input) {
-        DataResourceQueryOutput imageDataSetQueryOutput = imageDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(),input.curMemberId);
-        return success(getOutput(imageDataSet));
+    protected ApiResult<ApiImageDataSetQueryOutput> handle(ApiDataResourceQueryInput input) {
+        DataResourceQueryOutput dataResourceQueryOutput = imageDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+        return success(getOutput(dataResourceQueryOutput));
     }
 
-    protected ApiImageDataSetQueryOutput getOutput(ImageDataSet imageDataSet) {
-        if (imageDataSet == null) {
+    protected ApiImageDataSetQueryOutput getOutput(DataResourceQueryOutput dataResourceQueryOutput) {
+        if (dataResourceQueryOutput == null) {
             return null;
         }
 
-        ApiImageDataSetQueryOutput detail = mDataSetMapper.transferDetail(imageDataSet);
+        ApiImageDataSetQueryOutput detail = mDataSetMapper.transferDetail(dataResourceQueryOutput);
         return detail;
     }
+
+
 }

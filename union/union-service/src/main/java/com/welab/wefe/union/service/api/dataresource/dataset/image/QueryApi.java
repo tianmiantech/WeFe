@@ -17,12 +17,14 @@
 package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
 import org.mapstruct.factory.Mappers;
@@ -35,18 +37,18 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  **/
 @Api(path = "image_data_set/query", name = "image_data_set_query", rsaVerify = true, login = false)
-public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDataSetQueryOutput>> {
+public class QueryApi extends AbstractApi<QueryApi.QueryInput, PageOutput<ApiImageDataSetQueryOutput>> {
     @Autowired
     protected ImageDataSetMongoReop imageDataSetMongoReop;
 
     protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
 
     @Override
-    protected ApiResult<PageOutput<ApiImageDataSetQueryOutput>> handle(Input input) {
-        PageOutput<ImageDataSetQueryOutput> pageOutput = imageDataSetMongoReop.findCurMemberCanSee(imageDataSetMapper.transferInput(input));
+    protected ApiResult<PageOutput<ApiImageDataSetQueryOutput>> handle(QueryInput input) {
+        PageOutput<DataResourceQueryOutput> pageOutput = imageDataSetMongoReop.findCurMemberCanSee(imageDataSetMapper.transferInput(input));
 
         List<ApiImageDataSetQueryOutput> list = pageOutput.getList().stream()
-                .map(imageDataSetMapper::transferOutput)
+                .map(imageDataSetMapper::transferDetail)
                 .collect(Collectors.toList());
 
         return success(new PageOutput<>(
@@ -58,70 +60,15 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiImageDat
         ));
     }
 
-    public static class Input extends BaseInput {
-        private String dataSetId;
-        private String memberId;
-        private String memberName;
-        private String name;
-        private String tag;
-        private Integer pageIndex = 0;
-        private Integer pageSize = 10;
+    public static class QueryInput extends ApiDataResourceQueryInput {
+        private DeepLearningJobType forJobType;
 
-        public String getDataSetId() {
-            return dataSetId;
+        public DeepLearningJobType getForJobType() {
+            return forJobType;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getMemberName() {
-            return memberName;
-        }
-
-        public void setMemberName(String memberName) {
-            this.memberName = memberName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        public Integer getPageIndex() {
-            return pageIndex;
-        }
-
-        public void setPageIndex(Integer pageIndex) {
-            this.pageIndex = pageIndex;
-        }
-
-        public Integer getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(Integer pageSize) {
-            this.pageSize = pageSize;
+        public void setForJobType(DeepLearningJobType forJobType) {
+            this.forJobType = forJobType;
         }
     }
-
 }

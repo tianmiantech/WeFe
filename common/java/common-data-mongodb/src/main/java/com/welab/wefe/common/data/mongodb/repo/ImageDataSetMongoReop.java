@@ -62,7 +62,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResouceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
         return mongoUnionTemplate.exists(query, ImageDataSet.class);
     }
 
@@ -70,7 +70,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResouceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
@@ -94,13 +94,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 .append("data_resource_id", dataResourceId)
                 .getCriteria();
 
-        Criteria or = new Criteria();
-        or.orOperator(
-                new QueryBuilder().append("public_level", "Public").getCriteria(),
-                new QueryBuilder().like("public_member_list", curMemeberId).getCriteria()
-        );
 
-        dataResouceCriteria.andOperator(or);
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
@@ -124,7 +118,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     /**
      * Query the image data set visible to the current member
      */
-    public PageOutput<ImageDataSetQueryOutput> findCurMemberCanSee(ImageDataSetQueryInput imageDataSetQueryInput) {
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(ImageDataSetQueryInput imageDataSetQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
@@ -139,7 +133,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .notRemoved()
+                .append("enable","0")
                 .like("name", imageDataSetQueryInput.getName())
                 .like("tags", imageDataSetQueryInput.getTag())
                 .append("member_id", imageDataSetQueryInput.getCurMemberId())
@@ -191,7 +185,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 addFieldsOperation
         );
 
-        List<ImageDataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, ImageDataSetQueryOutput.class).getMappedResults();
+        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataResourceQueryOutput.class).getMappedResults();
 
         return new PageOutput<>(imageDataSetQueryInput.getPageIndex(), (long) total, imageDataSetQueryInput.getPageSize(), result);
     }

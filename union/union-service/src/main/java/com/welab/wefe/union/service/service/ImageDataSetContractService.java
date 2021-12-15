@@ -58,6 +58,8 @@ public class ImageDataSetContractService extends AbstractContractService {
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, transactionReceipt);
 
+            String responseValues = transactionResponse.getValues();
+
             transactionIsSuccess(transactionResponse);
 
         } catch (

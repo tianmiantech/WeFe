@@ -1,6 +1,14 @@
 package com.welab.wefe.union.service.dto.dataresource;
 
-public class DataResourcePutInput extends AbstractDataResourceInput {
+import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.union.service.dto.base.BaseInput;
+
+public class DataResourcePutInput extends BaseInput {
+    @Check(require = true)
+    protected String dataResourceId;
+    @Check(require = true)
+    protected String memberId;
     protected String name;
     protected String description;
     protected String tags;
@@ -11,7 +19,24 @@ public class DataResourcePutInput extends AbstractDataResourceInput {
     protected int usageCountInFlow;
     protected int usageCountInProject;
     protected int usageCountInMember;
-    protected String dataResourceType;
+    @Check(require = true)
+    protected DataResourceType dataResourceType;
+
+    public String getDataResourceId() {
+        return dataResourceId;
+    }
+
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
+    }
 
     public String getName() {
         return name;
@@ -93,11 +118,11 @@ public class DataResourcePutInput extends AbstractDataResourceInput {
         this.usageCountInMember = usageCountInMember;
     }
 
-    public String getDataResourceType() {
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(String dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 }

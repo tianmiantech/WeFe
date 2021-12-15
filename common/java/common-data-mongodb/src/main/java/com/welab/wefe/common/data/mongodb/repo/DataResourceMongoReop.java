@@ -68,7 +68,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResourceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
         return mongoUnionTemplate.exists(query, DataResource.class);
     }
 
@@ -76,7 +76,18 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResourceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        return mongoUnionTemplate.findOne(query, DataResource.class);
+    }
+
+    public DataResource find(String dataResourceId,String curMemberId) {
+        if (StringUtils.isEmpty(dataResourceId)) {
+            return null;
+        }
+        Query query = new QueryBuilder()
+                .append("dataResourceId", dataResourceId)
+                .append("curMemberId", curMemberId)
+                .build();
         return mongoUnionTemplate.findOne(query, DataResource.class);
     }
 
@@ -84,7 +95,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResourceType)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataResourceType", dataResourceType).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResourceType", dataResourceType).build();
         query.fields().exclude("_id").include("tags");
         return mongoUnionTemplate.find(query, String.class);
     }

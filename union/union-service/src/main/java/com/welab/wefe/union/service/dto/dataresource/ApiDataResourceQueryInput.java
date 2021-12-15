@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.data.mongodb.dto.dataresource;
+package com.welab.wefe.union.service.dto.dataresource;
 
-import com.welab.wefe.common.data.mongodb.dto.PageInput;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.union.service.dto.base.PageInput;
 
 /**
  * @author yuxin.zhang
  **/
-public class DataResourceQueryInput extends PageInput {
+public class ApiDataResourceQueryInput extends PageInput {
     protected String dataResourceId;
     protected String memberName;
     protected String name;
     protected String tag;
+    @Check(require = true)
     protected String curMemberId;
+    @Check(require = true)
     protected DataResourceType dataResourceType;
-    protected Boolean enable;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -80,11 +81,4 @@ public class DataResourceQueryInput extends PageInput {
         this.dataResourceType = dataResourceType;
     }
 
-    public Boolean getEnable() {
-        return enable;
-    }
-
-    public void setEnable(Boolean enable) {
-        this.enable = enable;
-    }
 }

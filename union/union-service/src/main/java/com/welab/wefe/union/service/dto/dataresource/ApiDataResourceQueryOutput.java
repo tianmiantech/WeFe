@@ -1,40 +1,23 @@
-/**
- * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.welab.wefe.union.service.dto.dataresource;
 
-package com.welab.wefe.common.data.mongodb.dto.dataresource;
+import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
-/**
- * @author yuxin.zhang
- **/
-public class DataResourceQueryOutput<T> {
-    private String dataResourceId;
-    private String memberId;
-    private String name;
-    private String description;
-    private String tags;
-    private String totalDataCount;
-    private String publicLevel;
-    private String publicMemberList;
-    private String usageCountInJob;
-    private String usageCountInFlow;
-    private String usageCountInProject;
-    private String usageCountInMember;
-    private String enable;
-    private String dataResourceType;
-    private T extraData;
+public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
+    protected String dataResourceId;
+    protected String memberId;
+    protected String name;
+    protected String description;
+    protected String tags;
+    protected String totalDataCount;
+    protected String publicLevel;
+    protected String publicMemberList;
+    protected String usageCountInJob;
+    protected String usageCountInFlow;
+    protected String usageCountInProject;
+    protected String usageCountInMember;
+    protected String enable;
+    protected String dataResourceType;
+
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -138,14 +121,6 @@ public class DataResourceQueryOutput<T> {
 
     public void setEnable(String enable) {
         this.enable = enable;
-    }
-
-    public T getExtraData() {
-        return extraData;
-    }
-
-    public void setExtraData(T extraData) {
-        this.extraData = extraData;
     }
 
     public String getDataResourceType() {
