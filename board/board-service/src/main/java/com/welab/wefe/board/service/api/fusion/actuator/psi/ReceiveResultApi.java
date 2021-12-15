@@ -21,7 +21,7 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -34,13 +34,13 @@ import java.util.List;
  */
 @Api(
         path = "fusion/receive/result",
-        name = "psi handle",
-        desc = "psi handle",
+        name = "receive result",
+        desc = "receive result",
         login = false
 //        ,
 //        rsaVerify = true
 )
-public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionResultApi.Input> {
+public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
 
 
     @Override
@@ -56,13 +56,15 @@ public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionR
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "businessId", require = true)
         String businessId;
 
+        @Check(name = "rs")
         List<byte[]> rs;
 
-        Input(String businessId,List<byte[]> rs){
-            businessId = businessId;
-            rs = rs;
+        public Input(String businessId, List<byte[]> rs) {
+            this.businessId = businessId;
+            this.rs = rs;
         }
 
         public String getBusinessId() {

@@ -21,8 +21,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -211,7 +211,7 @@ public class ClientActuator extends PsiClientActuator {
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JSONObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JSONObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
@@ -234,7 +234,7 @@ public class ClientActuator extends PsiClientActuator {
         }
         ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, stringList)));
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
             LOG.info("error: {}", e);
             e.printStackTrace();

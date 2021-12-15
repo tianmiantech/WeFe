@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -185,7 +184,7 @@ public class FusionTaskService extends AbstractService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void handle(HandleApi.Input input) throws StatusCodeWithException {
+    public void handle(AuditApi.Input input) throws StatusCodeWithException {
 
         FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
@@ -222,7 +221,7 @@ public class FusionTaskService extends AbstractService {
     /**
      * RSA-psi Algorithm to deal with
      */
-    private void psi(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
+    private void psi(AuditApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
         switch (task.getPsiActuatorRole()) {
             case server:
                 psiServer(task);
@@ -238,7 +237,7 @@ public class FusionTaskService extends AbstractService {
     /**
      * psi-client
      */
-    private void psiClient(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
+    private void psiClient(AuditApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
 //        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
 //        if (dataSet == null) {
