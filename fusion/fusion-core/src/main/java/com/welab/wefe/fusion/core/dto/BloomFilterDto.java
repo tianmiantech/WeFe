@@ -17,6 +17,8 @@ package com.welab.wefe.fusion.core.dto;
  */
 
 
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
+
 /**
  * @author hunter.zhao
  */
@@ -26,6 +28,15 @@ public class BloomFilterDto {
     private int size;
 
     private byte[] bitSet;
+
+
+    public static BloomFilterDto ofBloomFilters(BloomFilters bf) {
+        BloomFilterDto dto = new BloomFilterDto();
+        dto.count = bf.count();
+        dto.size = bf.size();
+        dto.bitSet = bf.getBitSet().toByteArray();
+        return dto;
+    }
 
     public int getCount() {
         return count;

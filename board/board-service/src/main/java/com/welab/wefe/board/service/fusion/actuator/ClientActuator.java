@@ -24,10 +24,12 @@ import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.service.fusion.FusionResultStorageService;
+import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.data.storage.common.Constant;
@@ -41,6 +43,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -106,6 +109,12 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public void close() throws Exception {
+        //remove Actuator
+        ActuatorManager.remove(businessId);
+
+        //update task status
+        FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
+        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
     }
 
     @Override
@@ -243,7 +252,7 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     public static void main(String[] args) {
-        String code ="{\"code\":0,\"data\":{\"bytes\":[\"dSIFQYDQ2abHrr/1m4Txtj\n" +
+        String code = "{\"code\":0,\"data\":{\"bytes\":[\"dSIFQYDQ2abHrr/1m4Txtj\n" +
                 "yQFkyIV7h0dqpVH2bwkSJw/R/Sd6WlZIvc7Zt8SvWlCbqMw20ilEQpmEpdAY=\",\"Y8AX01gY7XKLs64aIpAXxHnWW8UE/q2S0o5VH+INm4wyj8mXPo9AVQiWN+7erbjobbxIS9JgCYlFU\n" +
                 "kXJ9ohumqsmYl5xhgepAAuE46\"]}}";
 

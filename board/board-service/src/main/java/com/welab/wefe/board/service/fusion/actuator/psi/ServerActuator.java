@@ -17,8 +17,12 @@ package com.welab.wefe.board.service.fusion.actuator.psi;
  */
 
 
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
+import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
+import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
 import java.math.BigInteger;
@@ -39,6 +43,11 @@ public class ServerActuator extends PsiServerActuator {
 
     @Override
     public void close() throws Exception {
+        //remove Actuator
+        ActuatorManager.remove(businessId);
 
+        //update task status
+        FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
+        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
     }
 }

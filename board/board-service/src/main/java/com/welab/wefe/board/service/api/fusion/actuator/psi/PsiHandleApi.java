@@ -38,8 +38,9 @@ import java.util.List;
         path = "fusion/psi/handle",
         name = "psi handle",
         desc = "psi handle",
-        login = false,
-        rsaVerify = true
+        login = false
+//        ,
+//        rsaVerify = true
 )
 public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
 
