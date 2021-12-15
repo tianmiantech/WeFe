@@ -18,12 +18,16 @@ package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -49,7 +53,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		ServiceMySqlModel entity = serviceMySqlModel.get();
 
 		DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
-
+		if (StringUtils.isNotBlank(entity.getConditionFields())) {
+			output.setConditionFields(JObject.parseArray(entity.getConditionFields()));
+		}
+		if (StringUtils.isNotBlank(entity.getDataSource())) {
+			output.setDataSource(JObject.parseArray(entity.getDataSource()));
+		}
 		return success(output);
 	}
 
@@ -76,8 +85,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private String url;
 		private int serviceType;
 		private String queryParams;// json
-		private String dataSource;// json
-		private String conditionFields;// json
+		private JSONArray dataSource;// json
+		private JSONArray conditionFields;// json
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
@@ -124,19 +133,19 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.queryParams = queryParams;
 		}
 
-		public String getDataSource() {
+		public JSONArray getDataSource() {
 			return dataSource;
 		}
 
-		public void setDataSource(String dataSource) {
+		public void setDataSource(JSONArray dataSource) {
 			this.dataSource = dataSource;
 		}
 
-		public String getConditionFields() {
+		public JSONArray getConditionFields() {
 			return conditionFields;
 		}
 
-		public void setConditionFields(String conditionFields) {
+		public void setConditionFields(JSONArray conditionFields) {
 			this.conditionFields = conditionFields;
 		}
 

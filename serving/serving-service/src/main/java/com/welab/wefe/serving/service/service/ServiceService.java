@@ -55,7 +55,7 @@ public class ServiceService {
 			where = where.equal("name", input.getName());
 		}
 		if (input.getServiceType() != -1) {
-			where = where.equal("service_type", input.getServiceType());
+			where = where.equal("serviceType", input.getServiceType());
 		}
 		if (input.getStatus() != -1) {
 			where = where.equal("status", input.getStatus());

@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
+@Api(path = "service/update", name = "update service info")
 public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
 	@Autowired
@@ -24,11 +26,11 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
 		@Check(require = true, name = "ID")
 		private String id;
-		@Check(require = true, name = "服务名")
+		@Check(name = "服务名")
 		private String name;
-		@Check(require = true, name = "服务地址")
+		@Check(name = "服务地址")
 		private String url;
-		@Check(require = true, name = "服务类型")
+		@Check(name = "服务类型")
 		private int serviceType;
 		@Check(name = "查询参数配置")
 		private String queryParams;// json

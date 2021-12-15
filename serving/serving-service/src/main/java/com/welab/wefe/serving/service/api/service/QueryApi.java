@@ -89,10 +89,10 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		private String name;
 
 		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合
-		private int serviceType;
+		private int serviceType = -1;
 
 		// 是否在线 1=在线 0=离线
-		private int status;
+		private int status = -1;
 
 		public String getName() {
 			return name;
