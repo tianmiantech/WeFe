@@ -16,12 +16,10 @@
 package com.welab.wefe.board.service.service.data_resource.image_data_set;
 
 import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetDeleteApi;
-import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetQueryApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.ImageDataSetSampleRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetUpdateInputModel;
@@ -30,13 +28,11 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -122,23 +118,6 @@ public class ImageDataSetService extends DataResourceService {
         CacheObjects.refreshImageDataSetTags();
 
         unionService.dontPublicDataSet(model);
-    }
-
-    /**
-     * Paging query data set
-     */
-    public PagingOutput<ImageDataSetOutputModel> query(ImageDataSetQueryApi.Input input) {
-
-        Specification<ImageDataSetMysqlModel> where = Where
-                .create()
-                .equal("id", input.getId())
-                .equal("forJobType", input.getForJobType())
-                .contains("name", input.getName())
-                .containsItem("tags", input.getTag())
-                .equal("createdBy", input.getCreator())
-                .build(ImageDataSetMysqlModel.class);
-
-        return imageDataSetRepository.paging(where, input, ImageDataSetOutputModel.class);
     }
 
 
