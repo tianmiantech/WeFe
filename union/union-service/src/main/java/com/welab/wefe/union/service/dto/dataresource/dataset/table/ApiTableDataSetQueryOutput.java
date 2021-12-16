@@ -25,7 +25,7 @@ public class ApiTableDataSetQueryOutput extends ApiDataResourceQueryOutput {
 
     private ExtraData extraData;
 
-    public class ExtraData {
+    public static class ExtraData {
         private int containsY;
         private int columnCount;
         private String columnNameList;

@@ -1,11 +1,11 @@
 package com.welab.wefe.union.service.dto.dataresource;
 
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
     protected String dataResourceId;
     protected String memberId;
+    protected String memberName;
     protected String name;
     protected String description;
     protected String tags;
@@ -132,25 +132,11 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
         this.dataResourceType = dataResourceType;
     }
 
-    public static class Test{
-        private int a;
-        private int b;
-
-        public int getA() {
-            return a;
-        }
-
-        public void setA(int a) {
-            this.a = a;
-        }
-
-        public int getB() {
-            return b;
-        }
-
-        public void setB(int b) {
-            this.b = b;
-        }
+    public String getMemberName() {
+        return memberName;
     }
 
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
+    }
 }

@@ -50,6 +50,7 @@ public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsD
 
         Map<String, Long> tagGroupMap = tagsList.stream()
                 .flatMap(tags -> Arrays.stream(tags.split(",")))
+                .filter(tag -> !tag.isEmpty())
                 .collect(Collectors.groupingBy(String::trim, Collectors.counting()));
 
         List<TagsDTO> result = tagGroupMap

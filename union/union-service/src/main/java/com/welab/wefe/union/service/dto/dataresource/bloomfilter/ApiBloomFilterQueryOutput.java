@@ -25,7 +25,7 @@ public class ApiBloomFilterQueryOutput extends ApiDataResourceQueryOutput {
 
     private ExtraData extraData;
 
-    public class ExtraData {
+    public static class ExtraData {
         private String hashFunction;
 
         public String getHashFunction() {
