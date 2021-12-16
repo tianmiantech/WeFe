@@ -107,7 +107,7 @@ public class UserService {
     public PageOutput<User> findList(QueryUserInput input) {
         return userMongoRepo.findList(
                 input.getAccount(),
-                input.getNickname(),
+                input.getRealname(),
                 input.getAdminRole(),
                 input.getPageIndex(),
                 input.getPageSize()

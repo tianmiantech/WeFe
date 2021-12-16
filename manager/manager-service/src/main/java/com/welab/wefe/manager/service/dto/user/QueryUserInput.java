@@ -25,7 +25,7 @@ import com.welab.wefe.manager.service.dto.base.PageInput;
  */
 public class QueryUserInput extends PageInput {
     private String account;
-    private String nickname;
+    private String realname;
     private Boolean adminRole;
 
     public String getAccount() {
@@ -36,12 +36,12 @@ public class QueryUserInput extends PageInput {
         this.account = account;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getRealname() {
+        return realname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setRealname(String realname) {
+        this.realname = realname;
     }
 
     public Boolean getAdminRole() {
