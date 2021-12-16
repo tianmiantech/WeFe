@@ -144,7 +144,9 @@ public class ClientActuator extends PsiClientActuator {
             String[] values = x.getV().toString().split(",");
             JObject jObject = JObject.create();
             for (int i = 0; i < headers.length; i++) {
-                jObject.put(headers[i], values[i]);
+                if (columnList.contains(headers[i])) {
+                    jObject.put(headers[i], values[i]);
+                }
             }
             curList.add(jObject);
         });

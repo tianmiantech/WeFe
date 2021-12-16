@@ -26,8 +26,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-
-import java.util.List;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
 /**
  * @author hunter.zhao
@@ -49,12 +48,7 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        try {
-            actuator.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        actuator.status = PSIActuatorStatus.success;
         return success();
     }
 
