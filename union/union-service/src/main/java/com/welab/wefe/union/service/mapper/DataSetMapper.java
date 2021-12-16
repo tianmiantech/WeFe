@@ -18,11 +18,11 @@ package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.dataset.QueryApi;
-import com.welab.wefe.union.service.dto.dataset.ApiDataSetQueryOutput;
-import com.welab.wefe.union.service.dto.dataset.DataSetDetailOutput;
+import com.welab.wefe.union.service.api.dataresource.dataset.nomal.QueryApi;
+import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetDetailOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

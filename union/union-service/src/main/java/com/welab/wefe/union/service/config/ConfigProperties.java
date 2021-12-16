@@ -25,26 +25,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigProperties {
 
-    /**
-     * toml configuration file path
-     */
-    @Value("${block.chain.toml.file.path}")
-    private String blockChainTomlFilePath;
-
-    @Value("${block.chain.union.member.contract.name}")
-    private String blockChainUnionMemberContractName;
-    @Value("${block.chain.union.data.set.contract.name}")
-    private String blockChainUnionDataSetContractName;
-    @Value("${block.chain.union.data.set.member.permission.contract.name}")
-    private String blockChainUnionDataSetMemberPermissionContractName;
-
-
-    /**
-     * The group ID to which the union business belongs
-     */
-    @Value("${block.chain.union.group.id}")
-    private String blockChainUnionGroupId;
-
     @Value("${aliyun.access.key.id:xxx}")
     private String aliyunAccessKeyId;
 
@@ -59,46 +39,6 @@ public class ConfigProperties {
 
     @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
     private String smsAliyunMemberRegisterVerificationCodeTemplateCode;
-
-    public String getBlockChainTomlFilePath() {
-        return blockChainTomlFilePath;
-    }
-
-    public void setBlockChainTomlFilePath(String blockChainTomlFilePath) {
-        this.blockChainTomlFilePath = blockChainTomlFilePath;
-    }
-
-    public String getBlockChainUnionMemberContractName() {
-        return blockChainUnionMemberContractName;
-    }
-
-    public void setBlockChainUnionMemberContractName(String blockChainUnionMemberContractName) {
-        this.blockChainUnionMemberContractName = blockChainUnionMemberContractName;
-    }
-
-    public String getBlockChainUnionGroupId() {
-        return blockChainUnionGroupId;
-    }
-
-    public void setBlockChainUnionGroupId(String blockChainUnionGroupId) {
-        this.blockChainUnionGroupId = blockChainUnionGroupId;
-    }
-
-    public String getBlockChainUnionDataSetContractName() {
-        return blockChainUnionDataSetContractName;
-    }
-
-    public void setBlockChainUnionDataSetContractName(String blockChainUnionDataSetContractName) {
-        this.blockChainUnionDataSetContractName = blockChainUnionDataSetContractName;
-    }
-
-    public String getBlockChainUnionDataSetMemberPermissionContractName() {
-        return blockChainUnionDataSetMemberPermissionContractName;
-    }
-
-    public void setBlockChainUnionDataSetMemberPermissionContractName(String blockChainUnionDataSetMemberPermissionContractName) {
-        this.blockChainUnionDataSetMemberPermissionContractName = blockChainUnionDataSetMemberPermissionContractName;
-    }
 
     public String getAliyunAccessKeyId() {
         return aliyunAccessKeyId;
@@ -124,6 +64,14 @@ public class ConfigProperties {
         this.smsAliyunSignName = smsAliyunSignName;
     }
 
+    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
+        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
+        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
     public String getSmsAliyunMemberRegisterVerificationCodeTemplateCode() {
         return smsAliyunMemberRegisterVerificationCodeTemplateCode;
     }
@@ -132,11 +80,4 @@ public class ConfigProperties {
         this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
     }
 
-    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
-        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
-
-    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
-        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
 }

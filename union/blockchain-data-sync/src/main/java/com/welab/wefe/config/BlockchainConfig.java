@@ -59,7 +59,6 @@ public class BlockchainConfig {
     private static final Logger log =
             LoggerFactory.getLogger(BlockchainConfig.class);
 
-    public static String orgName;
     public String certPath = "conf";
     private List<Integer> groupIdList;
     private String corePoolSize;
@@ -133,15 +132,6 @@ public class BlockchainConfig {
         bcosSDK.getChannel().addDisconnectHandler(disconnectMsg);
 
         return bcosSDK;
-    }
-
-
-    public static String getOrgName() {
-        return orgName;
-    }
-
-    public static void setOrgName(String orgName) {
-        BlockchainConfig.orgName = orgName;
     }
 
     public String getCertPath() {
