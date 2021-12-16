@@ -53,7 +53,7 @@ public class ImageDataSetMysqlModel extends DataResourceMysqlModel {
     private Long filesSize;
 
     public ImageDataSetMysqlModel() {
-        super.setResourceType(DataResourceType.ImageDataSet);
+        super.setDataResourceType(DataResourceType.ImageDataSet);
     }
 
     // region getter/setter
