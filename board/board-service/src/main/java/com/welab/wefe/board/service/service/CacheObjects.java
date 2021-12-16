@@ -19,15 +19,15 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
-import com.welab.wefe.board.service.database.repository.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -67,6 +67,7 @@ public class CacheObjects {
      */
     private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
     private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Long> IMAGE_BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -96,7 +97,7 @@ public class CacheObjects {
     }
 
     public synchronized static void refreshMemberBlacklist() {
-        BlacklistRepository repository = Launcher.CONTEXT.getBean(BlacklistRepository.class);
+        BlacklistRepository repository = Launcher.getBean(BlacklistRepository.class);
         MEMBER_BLACKLIST.clear();
         repository.findAll().forEach(x -> MEMBER_BLACKLIST.add(x.getBlacklistMemberId()));
     }
@@ -106,6 +107,13 @@ public class CacheObjects {
             refreshMemberInfo();
         }
         return MEMBER_ID;
+    }
+
+    /**
+     * 判断指定的 member_id 是属于当前本地成员
+     */
+    public static boolean isCurrentMember(String memberId) {
+        return getMemberId().equals(memberId);
     }
 
     public static String getRsaPrivateKey() {
@@ -170,7 +178,7 @@ public class CacheObjects {
     /**
      * Determine whether accountId belongs to the current member
      */
-    public static synchronized boolean isCurrentMember(String accountId) {
+    public static synchronized boolean isCurrentMemberAccount(String accountId) {
         return getAccountIdList().contains(accountId);
     }
 
@@ -185,7 +193,11 @@ public class CacheObjects {
      * Check if an id is member_id
      */
     public static boolean isMemberId(String memberId) {
-        return getMemberName(memberId) != null;
+        try {
+            return getMemberMap().get(memberId) != null;
+        } catch (StatusCodeWithException e) {
+            return false;
+        }
     }
 
     public static synchronized String getMemberName(String memberId) {
@@ -211,7 +223,7 @@ public class CacheObjects {
      * Reload member information
      */
     public static synchronized void refreshMemberInfo() {
-        GlobalConfigService service = Launcher.CONTEXT.getBean(GlobalConfigService.class);
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         MemberInfoModel model = service.getMemberInfo();
 
         if (model == null) {
@@ -245,28 +257,36 @@ public class CacheObjects {
 
     public static synchronized void refreshTableDataSetTags() {
         // Query all tags from the database
-        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.TableDataSet.name());
         refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
     }
 
+    public static synchronized void refreshBloomFilterTags() {
+        // Query all tags from the database
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.BloomFilter.name());
+        refreshDataSetTags(rows, IMAGE_BLOOM_FILTER_TAGS);
+    }
+
+
     public static synchronized void refreshImageDataSetTags() {
         // Query all tags from the database
-        ImageDataSetRepository repo = Launcher.CONTEXT.getBean(ImageDataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
-        refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = repo.listAllTags(DataResourceType.ImageDataSet.name());
+        refreshDataSetTags(rows, IMAGE_DATA_SET_TAGS);
     }
 
     /**
      * Reload account list
      */
     public static synchronized void refreshAccountMap() {
-        AccountRepository repo = Launcher.CONTEXT.getBean(AccountRepository.class);
-        List<AccountMySqlModel> list = repo.findAll(Sort.by("nickname"));
+        AccountRepository repo = Launcher.getBean(AccountRepository.class);
+        List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
         ACCOUNT_MAP.clear();
         ACCOUNT_ID_LIST.clear();
-        for (AccountMySqlModel item : list) {
+        for (AccountMysqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
             ACCOUNT_ID_LIST.add(item.getId());
         }
@@ -283,7 +303,7 @@ public class CacheObjects {
         }
         LAST_REFRESH_MEMBER_MAP_TIME = System.currentTimeMillis();
 
-        AbstractUnionService service = Launcher.CONTEXT.getBean(AbstractUnionService.class);
+        AbstractUnionService service = Launcher.getBean(AbstractUnionService.class);
         MEMBER_MAP.clear();
         MemberListApi.Input input = new MemberListApi.Input();
         while (true) {

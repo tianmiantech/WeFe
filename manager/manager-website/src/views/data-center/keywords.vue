@@ -3,27 +3,6 @@
         class="page"
         shadow="never"
     >
-        <!-- <el-form
-            inline
-            @submit.prevent
-        >
-            <el-form-item label="名称：">
-                <el-input
-                    v-model="vData.search.name"
-                    clearable
-                />
-            </el-form-item>
-
-            <el-button
-                type="primary"
-                native-type="submit"
-                :disabled="vData.loading"
-                @click="getList({ resetPagination: true })"
-            >
-                查询
-            </el-button>
-        </el-form> -->
-
         <div class="mb20">
             <el-button
                 class="mb10"

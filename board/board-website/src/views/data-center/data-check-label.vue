@@ -2,7 +2,7 @@
     <el-card class="page_layer">
         <div class="check_label">
             <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId }}">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType }}">
                     <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
@@ -12,12 +12,16 @@
                         <p>标签栏</p>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search" @input="methods.labelSearch"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" @input="methods.labelSearch">
+                            <template #suffix>
+                                <el-icon class="el-input__icon"><elicon-search /></el-icon>
+                            </template>
+                        </el-input>
                     </div>
                     <div class="label_info">
                         <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
                         <template v-if="vData.count_by_label_list.length">
-                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item">
+                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
                                 <span class="span_label">{{item.label}}</span>
                                 <span class="span_count">{{item.count}}</span>
                             </div>
@@ -28,7 +32,7 @@
                     </div>
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
-                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><i class="el-icon-loading"></i></div>
+                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
                     <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" @delete-options="methods.deleteEvent" />
                     <template v-else>
                         <EmptyData />
@@ -65,7 +69,7 @@
             const route = useRoute();
             // const router = useRouter();
             const { appContext } = getCurrentInstance();
-            const { $http, $message } = appContext.config.globalProperties;
+            const { $http, $message, $confirm } = appContext.config.globalProperties;
             const imgListRef = ref();
             const vData = reactive({
                 activeName: '',
@@ -99,6 +103,7 @@
                 count_by_label:      [],
                 count_by_sample:     [],
                 count_by_label_list: [],
+                forJobType:          '',
             });
 
             const methods = {
@@ -131,9 +136,10 @@
 
                     nextTick(_ => {
                         if(code === 0) {
-                            vData.tabsList[0].count = data.sample_count;
+                            vData.tabsList[0].count = data.total_data_count;
                             vData.tabsList[1].count = data.labeled_count;
-                            vData.tabsList[2].count = data.sample_count - data.labeled_count;
+                            vData.tabsList[2].count = data.total_data_count - data.labeled_count;
+                            vData.forJobType = data.for_job_type;
                         }
                     });
                 },
@@ -167,6 +173,7 @@
                     });
                 },
                 async downloadImage(id, idx, item) {
+                    vData.sampleList = [];
                     const { code, data } = await $http.get({
                         url:          '/image_data_set_sample/download',
                         params:       { id },
@@ -187,6 +194,10 @@
                         }
                     });
                 },
+                searchLabeledList(text) {
+                    vData.search.label = vData.search.label ? '' : text;
+                    methods.getSampleList();
+                },
                 currentPageChange (val) {
                     vData.search.page_index = val;
                     vData.sampleList = [];
@@ -202,11 +213,24 @@
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
                     vData.search.labeled = label_type;
+                    vData.search.label = '';
                     vData.search.page_index = 1;
                     vData.sampleList = [];
                     methods.getSampleList();
                 },
-                async deleteEvent(id, idx) {
+                deleteEvent(id, idx) {
+                    $confirm('确定要删除当前样本吗?', '警告', {
+                        type: 'warning',
+                        beforeClose(action, instance, done) {
+                            if (action === 'confirm') {
+                                methods.confirmDelete(id, idx);
+                            }
+                            done();
+                        },
+                    });
+                    
+                },
+                async confirmDelete(id, idx) {
                     const { code } = await $http.get({
                         url:    '/image_data_set_sample/delete',
                         params: { id },
@@ -305,6 +329,10 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
+                    .el-input__suffix {
+                        position: absolute;
+                        top: 5px;
+                    }
                 }
                 .label_info {
                     padding: 0 10px;
@@ -321,8 +349,12 @@
                         margin-bottom: 10px;
                         padding: 0 10px;
                         font-size: 14px;
+                        cursor: pointer;
                         .span_count {
                             color: #999;
+                        }
+                        &:hover {
+                            border: 1px solid #438bff;
                         }
                     }
                 }

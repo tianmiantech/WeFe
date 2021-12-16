@@ -46,3 +46,5 @@ venv/
 /docker/
 **/assembly/
 /assembly/
+
+board/board-website/yarn\.lock

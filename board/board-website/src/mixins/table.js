@@ -113,7 +113,9 @@ export default (function () {
                         },
                     });
                     if (watchRoute) {
-                        this.watchRoute = true;
+                        setTimeout(_ => {
+                            this.watchRoute = true;
+                        });
                     }
                 }
                 // watch $route

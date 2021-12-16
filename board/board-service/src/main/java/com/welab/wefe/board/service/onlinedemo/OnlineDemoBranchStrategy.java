@@ -33,7 +33,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 public class OnlineDemoBranchStrategy {
 
     public static void hackOnDelete(AbstractApiInput input, AbstractBaseMySqlModel model, String message) throws StatusCodeWithException {
-        Config config = Launcher.CONTEXT.getBean(Config.class);
+        Config config = Launcher.getBean(Config.class);
 
         if (!config.isOnlineDemo()) {
             return;

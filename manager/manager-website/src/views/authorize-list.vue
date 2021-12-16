@@ -71,18 +71,21 @@
                     >
                         启用
                     </el-button> -->
-                    <el-button
-                        type="primary"
-                        @click="update($event, scope.row)"
-                    >
-                        更新
-                    </el-button>
-                    <el-button
-                        type="danger"
-                        @click="remove($event, scope.row)"
-                    >
-                        删除
-                    </el-button>
+                    <template v-if="scope.row.status === 0">
+                        <el-button
+                            type="primary"
+                            @click="update($event, scope.row)"
+                        >
+                            更新
+                        </el-button>
+                        <el-button
+                            type="danger"
+                            @click="remove($event, scope.row)"
+                        >
+                            删除
+                        </el-button>
+                    </template>
+                    <span v-else>已删除</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -136,8 +139,8 @@
                 authorizeId:   '',
                 authorizeName: '',
                 search:        {
-                    name:   '',
-                    status: '',
+                    name: '',
+                    // status: '',
                 },
                 watchRoute:    true,
                 defaultSearch: true,
@@ -150,27 +153,7 @@
             ...mapGetters(['userInfo']),
         },
         methods: {
-            _getUrlParams() {
-                const { query } = this.$route;
-                const params = ['status'];
-
-                this.unUseParams = [];
-
-                for (const $key in this.search) {
-                    this.search[$key] = '';
-                }
-                params.forEach(key => {
-                    const val = query[key];
-
-                    if(val) {
-                        this.search[key] = val === 'true';
-                    } else {
-                        this.search[key] = false;
-                        this.unUseParams.push(key);
-                    }
-                });
-            },
-            async changeStatus(event, row, status) {
+            /* async changeStatus(event, row, status) {
                 const params = {
                     typeId: row.type_id,
                 };
@@ -195,7 +178,7 @@
                 if(code === 0) {
                     this.refresh();
                 }
-            },
+            }, */
             update(event, row) {
                 this.authorizeId = row.type_id;
                 this.authorizeName = row.type_name;
@@ -203,7 +186,9 @@
             },
             remove(event, row) {
                 this.$confirm('是否继续 将移除该类型?', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({
@@ -254,7 +239,7 @@
         position: relative;
         display: inline-block;
         vertical-align: top;
-        :deep(.nickname){font-size:40px;}
+        :deep(.realname){font-size:40px;}
     }
     .more-info{
         width: 100%;

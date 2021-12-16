@@ -24,6 +24,7 @@ from flow.cycle_actions.flow_action_queue.flow_action_queue_consumer import Flow
 from flow.cycle_actions.guard.job_guard import JobGuard
 from flow.service.gateway.gateway_service import GatewayService
 from flow.service.job_scheduler.clear_job_middle_data_scheduler import ClearJobMiddleDataScheduler
+from flow.service.fc.fc_budget_scheduler import FcBudgetScheduler
 from flow.service.job_scheduler.job_stop_action import JobStopAction
 from flow.web.app import app
 from flow.web.util.const import ServiceMeta
@@ -60,6 +61,10 @@ class AppLauncher:
         # Clean up intermediate data
         AppLauncher.logger.info("clean job middle data scheduler")
         ClearJobMiddleDataScheduler().start()
+        AppLauncher.logger.info("---done---")
+
+        AppLauncher.logger.info("start function computing budget scheduler")
+        FcBudgetScheduler().start()
         AppLauncher.logger.info("---done---")
 
         # start web service

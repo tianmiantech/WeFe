@@ -49,10 +49,12 @@
                 v-if="form.isPromoter"
                 class="result-panel"
             >
-                <i
+                <el-icon
                     class="el-icon-close close-result-panel-icon"
                     @click="hiddenResultPanel"
-                />
+                >
+                    <elicon-close />
+                </el-icon>
                 <ChartsWithTabs
                     v-if="show_result_panel"
                     ref="ChartsWithTabs"
@@ -393,7 +395,6 @@
                     },
                 });
 
-                console.log(href);
                 window.open(href, '_blank');
             },
         },

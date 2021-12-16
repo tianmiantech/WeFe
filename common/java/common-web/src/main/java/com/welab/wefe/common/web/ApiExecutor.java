@@ -102,6 +102,9 @@ public class ApiExecutor {
                 Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
             }
 
+            if (result == null) {
+                result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), "响应失败，疑似程序中发生了死循环。");
+            }
             result.spend = System.currentTimeMillis() - start;
 
             logResponse(annotation, result);

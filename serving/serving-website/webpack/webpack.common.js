@@ -5,14 +5,9 @@
  */
 
 const path = require('path');
-const webpack = require('webpack');
-const shelljs = require('shelljs');
-const { existsSync } = require('fs');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 
@@ -20,19 +15,9 @@ const packageJson = require('../package.json');
 const resolve = dir => path.resolve(__dirname, dir);
 const devMode = process.env.NODE_ENV !== 'production';
 const argv = require('minimist')(process.argv.slice(2));
-const argvs = argv._[1] ? argv._[1].split('=') : '';
-const context = devMode ? '/' : `${argvs ? `/${argvs[1]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
-const dllLib = `../dist${context}lib/vendor-manifest.json`;
-const dllExists = existsSync(resolve(dllLib));
+const argvs = argv._[0] ? argv._[0].split('=') : '';
+const context = devMode ? '/' : `${argvs[1] ? `/${argvs[1]}/` : (packageJson.context ? `/${packageJson.context}/` : '/')}`;
 
-// 如果 dll 库不存在, 就自动生成
-if (!dllExists) {
-    const command = `webpack -p --progress --config ${resolve('./webpack.dll.js')}`;
-
-    shelljs.exec(command);
-}
-
-const dllManifest = require(dllLib);
 const plugins = [];
 
 // 添加分析插件
@@ -70,18 +55,6 @@ const cssloaders = [
 
 if (devMode) {
     plugins.push(new HardSourceWebpackPlugin());
-} else {
-    // 非开发环境使用 dll 库
-    plugins.push(
-        new HtmlWebpackTagsPlugin({
-            publicPath: `${context}lib/`,
-            tags:       [`${dllManifest.name}.js`],
-            append:     false,
-        }),
-        new webpack.DllReferencePlugin({
-            manifest: dllManifest,
-        }),
-    );
 }
 
 const webpackConfig = {
@@ -189,7 +162,6 @@ const webpackConfig = {
             inject:   true,
         }),
         new FriendlyErrorsPlugin(),
-        new ManifestPlugin(),
         ...plugins,
     ],
 };

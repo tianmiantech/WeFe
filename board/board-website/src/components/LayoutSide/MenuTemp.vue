@@ -8,10 +8,12 @@
                     popper-class="sidebar-menu-popover"
                 >
                     <template #title>
-                        <i
+                        <el-icon
                             v-if="item.meta.icon"
-                            :class="['icon', item.meta.icon]"
-                        />
+                            class="icon"
+                        >
+                            <component :is="`elicon-${item.meta.icon}`"></component>
+                        </el-icon>
                         <span>{{ item.meta.title }}</span>
                     </template>
                     <el-menu-item-group>
@@ -25,7 +27,9 @@
                     :key="index"
                     :index="item.children[0].path"
                 >
-                    <i :class="['icon', item.children[0].meta.icon]" />
+                    <el-icon class="icon">
+                        <component :is="`elicon-${item.children[0].meta.icon}`"></component>
+                    </el-icon>
                     <template #title>
                         <span>{{ item.children[0].meta.title }}</span>
                     </template>
@@ -37,9 +41,11 @@
                     :key="index"
                     :index="item.path"
                 >
-                    <i :class="['icon', item.meta.icon]" />
+                    <el-icon v-if="item.meta.icon" class="icon">
+                        <component :is="`elicon-${item.meta.icon}`"></component>
+                    </el-icon>
                     <template #title>
-                        <span>{{ item.meta.title }}</span>
+                        <span class="pl10">{{ item.meta.title }}</span>
                     </template>
                 </el-menu-item>
             </template>
@@ -59,7 +65,7 @@
                 default: () => [],
             },
         },
-        setup(props) {
+        setup() {
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
 

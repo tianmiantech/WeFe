@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @author zan.luo
  */
-@Api(path = "project/data_set/add", name = "add data set to project")
+@Api(path = "project/data_resource/add", name = "add data set to project")
 public class AddDataSetApi extends AbstractNoneOutputApi<AddDataSetApi.Input> {
 
     @Autowired

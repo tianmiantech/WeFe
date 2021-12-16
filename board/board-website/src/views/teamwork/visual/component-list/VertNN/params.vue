@@ -74,7 +74,11 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="底层参数：">
-                        <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')"></i></p>
+                        <p class="add-one-group">
+                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
+                                <elicon-plus />
+                            </el-icon>
+                        </p>
                         <template v-for="(item, idx) in vData.form.bottom_nn_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -124,12 +128,21 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('bottom_nn_define', idx)"></i>
+                                <el-icon
+                                    v-if="idx !== 0" class="el-icon-delete"
+                                    @click="methods.deleteOneGroup('bottom_nn_define', idx)"
+                                >
+                                    <elicon-delete />
+                                </el-icon>
                             </div>
                         </template>
                     </el-form-item>
                     <el-form-item label="中层参数：">
-                        <p hidden class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')"></i></p>
+                        <p hidden class="add-one-group">
+                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
+                                <elicon-plus />
+                            </el-icon>
+                        </p>
                         <template v-for="(item, idx) in vData.form.interactive_layer_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -179,12 +192,21 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('interactive_layer_define', idx)"></i>
+                                <el-icon
+                                    v-if="idx !== 0" class="el-icon-delete"
+                                    @click="methods.deleteOneGroup('interactive_layer_define', idx)"
+                                >
+                                    <elicon-delete />
+                                </el-icon>
                             </div>
                         </template>
                     </el-form-item>
                     <el-form-item label="顶层参数：">
-                        <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')"></i></p>
+                        <p class="add-one-group">
+                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')">
+                                <elicon-plus />
+                            </el-icon>
+                        </p>
                         <template v-for="(item, idx) in vData.form.top_nn_define.layers" :key="item">
                             <div class="single-box" :index="idx">
                                 <div class="single-left">
@@ -234,7 +256,12 @@
                                         </el-select>
                                     </div>
                                 </div>
-                                <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('top_nn_define', idx)"></i>
+                                <el-icon
+                                    v-if="idx !== 0" class="el-icon-delete"
+                                    @click="methods.deleteOneGroup('top_nn_define', idx)"
+                                >
+                                    <elicon-delete />
+                                </el-icon>
                             </div>
                         </template>
                     </el-form-item>

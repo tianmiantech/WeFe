@@ -16,7 +16,16 @@
 
 package com.welab.wefe.board.service.component.feature;
 
-import com.alibaba.fastjson.JSONArray;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
@@ -36,13 +45,6 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author lonnie
@@ -83,112 +85,29 @@ public class MixBinningComponent extends AbstractComponent<MixBinningComponent.P
         return ComponentType.MixBinning;
     }
 
-    @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+	@Override
+	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+			Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
+		JSONObject taskParam = new JSONObject();
+		List<Member> members = params.members;
+		int bin_num = 10;
+		List<String> bin_names = new ArrayList<>();
+		for (Member member : members) {
+			if (CacheObjects.getMemberId().equals(member.getMemberId())) {
+				List<Feature> features = member.features;
+				features.stream().forEach(x -> {
+					bin_names.add(x.getName());
+				});
+				bin_num = features.get(0).getCount();
+			}
+		}
+		JObject binningParam = JObject.create().append("bin_num", bin_num).append("bin_names", bin_names);
 
-        JObject transformParam = JObject.create()
-                .append("transform_cols", -1)
-                .append("transform_names", new ArrayList<>())
-                .append("transform_type", "bin_num");
+		taskParam.put("params", binningParam);
 
-        JObject optimalBinningParam = JObject.create()
-                .append("metric_method", "chi_square")
-                .append("min_bin_pct", 0.05)
-                .append("max_bin_pct", 0.8)
-                .append("init_bucket_method", "quantile")
-                .append("init_bin_nums", 100)
-                .append("mixture", true);
-
-        List<Member> members = params.members;
-        List<JObject> modesObj = new ArrayList<>();
-        for (Member member : members) {
-
-            List<Feature> features = member.features;
-
-            //把同一个member里面相同分箱策略的特征 整到一起
-            Map<String, List<String>> featureBinningMap = new HashMap<>();
-            for (Feature feature : features) {
-
-                if (featureBinningMap.containsKey(feature.method.name() + "," + feature.count)) {
-                    featureBinningMap.get(feature.method.name() + "," + feature.count).add(feature.name);
-                } else {
-                    List<String> featureList = new ArrayList<>();
-                    featureList.add(feature.name);
-                    featureBinningMap.put(feature.method.name() + "," + feature.count, featureList);
-                }
-            }
-
-            //构建kernel需要的modes数组
-            for (Map.Entry<String, List<String>> entry : featureBinningMap.entrySet()) {
-                String[] strArr = entry.getKey().split(",");
-
-                JObject memberObj = JObject.create()
-                        .append("role", member.memberRole)
-                        .append("member_id", member.memberId)
-                        .append("bin_feature_names", entry.getValue());
-
-                if (modesObj.size() < 1) {
-                    //构建第一个mode节点
-                    JSONArray jsonArray = new JSONArray();
-                    jsonArray.add(memberObj);
-                    JObject modeObj = JObject.create()
-                            .append("method", strArr[0])
-                            .append("bin_num", Integer.valueOf(strArr[1]))
-                            .append("members", jsonArray
-                            );
-                    modesObj.add(modeObj);
-                } else {
-
-                    //如果有相同分箱策略，放到一起
-                    boolean insertFlag = false;
-                    for (JObject obj : modesObj) {
-                        if (obj.getString("method").equals(strArr[0]) && obj.getIntValue("bin_num") == Integer.valueOf(strArr[1])) {
-                            JSONArray list = obj.getJSONArray("members");
-                            list.add(memberObj);
-                            obj.put("members", list);
-                            insertFlag = true;
-                            break;
-                        }
-                    }
-
-                    //当前分箱策略在已存在分享策略中找不到，存一个新的分箱策略节点
-                    if (!insertFlag) {
-                        JSONArray jsonArray = new JSONArray();
-                        jsonArray.add(memberObj);
-                        JObject modeObj = JObject.create()
-                                .append("method", strArr[0])
-                                .append("bin_num", strArr[1])
-                                .append("members", jsonArray
-                                );
-                        modesObj.add(modeObj);
-                    }
-                }
-            }
-        }
-
-        JObject binningParam = JObject.create()
-                .append("method", "virtual_summary")
-                .append("compress_thres", 10000)
-                .append("head_size", 10000)
-                .append("error", 0.001)
-                .append("adjustment_factor", 0.5)
-                .append("bin_num", 10)
-                .append("bin_indexes", -1)
-                .append("bin_names", new ArrayList<>())
-                .append("category_indexes", new ArrayList<>())
-                .append("category_names", new ArrayList<>())
-                .append("local_only", false)
-                .append("need_run", true)
-                .append("transform_param", transformParam)
-                .append("optimal_binning_param", optimalBinningParam)
-                .append("modes", modesObj);
-
-        taskParam.put("params", binningParam);
-
-        return taskParam;
-    }
+		return taskParam;
+	}
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {

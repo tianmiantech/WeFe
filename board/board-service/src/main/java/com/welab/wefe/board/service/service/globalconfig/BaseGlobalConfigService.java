@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.welab.wefe.board.service.database.entity.GlobalConfigMySqlModel;
+import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigInput;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -48,7 +48,12 @@ public class BaseGlobalConfigService extends AbstractService {
         public static String WEFE_BOARD = "wefe_board";
         public static String WEFE_FLOW = "wefe_flow";
         public static String WEFE_SERVING = "wefe_serving";
+        public static String FC_CONFIG = "function_compute_config";
+        public static String DEEP_LEARNING_CONFIG = "deep_learning_config";
+        public static String CALCULATION_ENGINE_CONFIG = "calculation_engine_config";
+
     }
+
 
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
@@ -85,14 +90,13 @@ public class BaseGlobalConfigService extends AbstractService {
      * Add or update a record
      */
     protected synchronized void put(String group, String name, String value, String comment) throws StatusCodeWithException {
-        GlobalConfigMySqlModel one = findOne(group, name);
+        GlobalConfigMysqlModel one = findOne(group, name);
         if (one == null) {
-            one = new GlobalConfigMySqlModel();
+            one = new GlobalConfigMysqlModel();
             one.setGroup(group);
             one.setName(name);
             one.setCreatedBy(CurrentAccount.id());
         } else {
-
             if (one.getValue() != null && value == null) {
                 StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
             }
@@ -115,12 +119,12 @@ public class BaseGlobalConfigService extends AbstractService {
         globalConfigRepository.save(one);
     }
 
-    public GlobalConfigMySqlModel findOne(String group, String name) {
-        Specification<GlobalConfigMySqlModel> where = Where
+    public GlobalConfigMysqlModel findOne(String group, String name) {
+        Specification<GlobalConfigMysqlModel> where = Where
                 .create()
                 .equal("group", group)
                 .equal("name", name)
-                .build(GlobalConfigMySqlModel.class);
+                .build(GlobalConfigMysqlModel.class);
 
         return globalConfigRepository.findOne(where).orElse(null);
     }
@@ -128,7 +132,7 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Query list according to group
      */
-    public List<GlobalConfigMySqlModel> list(String group) {
+    public List<GlobalConfigMysqlModel> list(String group) {
         return globalConfigRepository.findByGroup(group);
     }
 
@@ -136,20 +140,20 @@ public class BaseGlobalConfigService extends AbstractService {
      * Get the entity corresponding to the specified group
      */
     protected <T> T getModel(String group, Class<T> clazz) {
-        List<GlobalConfigMySqlModel> list = list(group);
+        List<GlobalConfigMysqlModel> list = list(group);
         return toModel(list, clazz);
     }
 
     /**
      * Turn the list of configuration items into entities
      */
-    private <T> T toModel(List<GlobalConfigMySqlModel> list, Class<T> clazz) {
+    private <T> T toModel(List<GlobalConfigMysqlModel> list, Class<T> clazz) {
         if (list == null || list.isEmpty()) {
             return null;
         }
 
         JSONObject json = new JSONObject();
-        for (GlobalConfigMySqlModel item : list) {
+        for (GlobalConfigMysqlModel item : list) {
             json.put(item.getName(), item.getValue());
         }
         return json.toJavaObject(clazz);

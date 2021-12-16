@@ -5,7 +5,7 @@
         <el-descriptions class="dataset-desc" :column="2">
             <template #extra>
                 <p class="data-set-meta">
-                    <strong class="strong">{{ dataInfo.creator_nickname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在 <strong class="strong">{{ dataInfo.usage_count_in_project > 0 ? dataInfo.usage_count_in_project : 0 }}</strong> 个合作项目中，
+                    <strong class="strong">{{ dataInfo.creator_realname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在 <strong class="strong">{{ dataInfo.usage_count_in_project > 0 ? dataInfo.usage_count_in_project : 0 }}</strong> 个合作项目中，
                     参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
                 </p>
             </template>

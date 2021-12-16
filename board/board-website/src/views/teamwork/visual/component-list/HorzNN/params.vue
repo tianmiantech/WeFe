@@ -60,7 +60,11 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="每层参数：" :index="idx">
-                    <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup"></i></p>
+                    <p class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
                     <template v-for="(item, idx) in vData.form.nn_define.layers" :key="item">
                         <div class="single-box" :index="idx">
                             <div class="single-left">
@@ -109,7 +113,13 @@
                                     </el-select>
                                 </div>
                             </div>
-                            <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup(idx)"></i>
+                            <el-icon
+                                v-if="idx !== 0"
+                                class="el-icon-delete"
+                                @click="methods.deleteOneGroup(idx)"
+                            >
+                                <elicon-delete />
+                            </el-icon>
                         </div>
                     </template>
                 </el-form-item>

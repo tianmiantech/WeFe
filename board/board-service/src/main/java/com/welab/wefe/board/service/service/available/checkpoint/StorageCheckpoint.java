@@ -37,14 +37,14 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String value() {
-        JdbcParamConfig storageConfig = Launcher.CONTEXT.getBean(JdbcParamConfig.class);
+        JdbcParamConfig storageConfig = Launcher.getBean(JdbcParamConfig.class);
         return storageConfig.getUrl();
     }
 
     @Override
     protected void doCheck() throws Exception {
 
-        StorageService service = Launcher.CONTEXT.getBean(StorageService.class);
+        StorageService service = Launcher.getBean(StorageService.class);
         Storage storage = service.getStorage();
         String name = RandomStringUtils.randomAlphabetic(6);
         try {

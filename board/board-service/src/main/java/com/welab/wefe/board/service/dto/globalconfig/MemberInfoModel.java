@@ -16,10 +16,6 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
-/**
- * @author Zane
- */
-
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**

@@ -17,12 +17,10 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.sdk.FlowService;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
@@ -57,12 +55,6 @@ public class ServiceCheckService extends AbstractService {
     @Autowired
     private FlowService flowService;
     @Autowired
-    private UnionService unionService;
-
-    @Autowired
-    private GatewayService gatewayService;
-
-    @Autowired
     private ProjectMemberService projectMemberService;
 
     @Autowired
@@ -70,10 +62,6 @@ public class ServiceCheckService extends AbstractService {
 
     @Autowired
     private JdbcParamConfig jdbcParamConfig;
-
-    @Autowired
-    private Config config;
-
     @Autowired
     private GlobalConfigService globalConfigService;
 

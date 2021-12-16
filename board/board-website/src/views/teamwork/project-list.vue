@@ -27,6 +27,8 @@
                     :to="{name: 'project-detail', query: { project_id: item.project_id }}"
                     class="li"
                 >
+                    <p class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type}}
+                    </p>
                     <p class="p-name">
                         {{ item.name }}
                         <el-tooltip
@@ -34,9 +36,9 @@
                             placement="top"
                             effect="light"
                         >
-                            <i
-                                class="el-icon-info desc-icon"
-                            />
+                            <el-icon class="el-icon-info desc-icon">
+                                <elicon-info-filled />
+                            </el-icon>
                         </el-tooltip>
                     </p>
                     <p class="p-id">
@@ -48,9 +50,10 @@
                             :key="member.member_id + member.member_role"
                             class="parters-item"
                         >
-                            <i
-                                :class="['parters-icon', item.member_id === member.member_id ? 'el-icon-star-on' : 'el-icon-star-off', {'parters-icon-promoter': member.member_role === 'promoter'}]"
-                            />
+                            <el-icon :class="['parters-icon', {'parters-icon-promoter': member.member_role === 'promoter'}]">
+                                <elicon-star-filled v-if="item.member_id === member.member_id" class="parters-icon-star" />
+                                <elicon-star v-else />
+                            </el-icon>
                             {{ member.member_name }}
                         </p>
                     </div>
@@ -130,6 +133,7 @@
                 status:     {
                     created:  '已创建',
                     auditing: '等待审核中',
+                    closed:   '已关闭',
                 },
                 watchRoute: false, // When there are multiple instances, multiple requests will be issued at the same time, set to false, let the parent component listen for routing changes
             };
@@ -155,7 +159,9 @@
                     this.pagination.page_index = 1;
                     this.pagination.page_size = 20;
                 }
+
                 await this.getList(opt);
+
                 this.list.forEach(item => {
                     item.$promoter_list = [];
                     item.member_list.map(i => {
@@ -197,6 +203,7 @@
         }
     }
     .li{
+        position: relative;
         flex: 1;
         margin-left: 20px;
         min-height: 220px;
@@ -216,6 +223,49 @@
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
             .el-icon-delete{display: block;}
+        }
+        .project_type {
+            // position: absolute;
+            // top: -18px;
+            // right: 2px;
+            // z-index: 2;
+            // margin: 20px auto;
+            // height: 26px;
+            // width: 84px;
+            // font-size: 12px;
+            // background: #eee;
+            // padding-right: 4px;
+            // &::after {
+            //     content: '';
+            //     position: absolute;
+            //     border-top: 10px solid #eee;
+            //     border-left: 42px solid #eee;
+            //     border-right: 42px solid #eee;
+            //     border-bottom: 42px solid transparent;
+            //     top: 26px;
+            //     left: 0px;
+            // }
+
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 26px;
+            line-height: 26px;
+            font-size: 14px;
+            background: #f5f5f5;
+            padding-right: 5px;
+            border-radius: 0 3px 0 0;
+            &::before {
+                position: absolute;
+                left: -16px;
+                content: '';
+                height: 0;
+                width: 0;
+                border-top: 13px solid transparent;
+                border-right: 16px solid #f5f5f5;
+                border-bottom: 13px solid transparent;
+            }
+
         }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {
@@ -319,8 +369,19 @@
         text-overflow: ellipsis;
         vertical-align: middle;
     }
-    .parters-icon{color: #3182bd;}
-    .parters-icon-promoter{color: #E89B00;}
+    .parters-icon{
+        color: #3182bd;
+        top: -2px;
+    }
+    .parters-icon-promoter{
+        color: #E89B00;
+        .parters-icon-star{
+            font-size: 18px;
+            position: relative;
+            left: -2px;
+            top:-2px;
+        }
+    }
     .parters-item{
         width: 50%;
         float: left;

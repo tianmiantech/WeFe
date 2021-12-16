@@ -38,7 +38,6 @@ public class Config {
     @Value("${wefe.union.base-url}")
     private String UNION_BASE_URL;
 
-
     @Value("${wefe.file.upload.dir}")
     private String fileUploadDir;
 
@@ -69,6 +68,7 @@ public class Config {
     public void setUNION_BASE_URL(String UNION_BASE_URL) {
         this.UNION_BASE_URL = UNION_BASE_URL;
     }
+
 
     public String getFileUploadDir() {
         return fileUploadDir;

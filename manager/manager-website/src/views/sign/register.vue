@@ -24,27 +24,24 @@
                 @submit.prevent
             >
                 <el-form-item
-                    prop="phone"
-                    :rules="phoneRules"
+                    prop="account"
+                    :rules="accountRules"
                 >
                     <el-input
-                        v-model.trim="form.phone"
-                        placeholder="手机号"
-                        maxlength="11"
-                        id="username"
-                        type="tel"
+                        v-model.trim="form.account"
+                        placeholder="用户名"
+                        maxlength="50"
                         clearable
                     />
                 </el-form-item>
                 <el-form-item
-                    prop="nickname"
-                    :rules="nicknameRules"
+                    prop="realname"
+                    :rules="realnameRules"
                 >
                     <el-input
-                        v-model.trim="form.nickname"
+                        v-model.trim="form.realname"
                         placeholder="姓名"
                         maxlength="40"
-                        type="text"
                         clearable
                     />
                 </el-form-item>
@@ -86,7 +83,7 @@
                         clearable
                     />
                 </el-form-item>
-                <el-form-item
+                <!-- <el-form-item
                     prop="code"
                     :rules="codeRules"
                 >
@@ -110,7 +107,7 @@
                             </div>
                         </template>
                     </el-input>
-                </el-form-item>
+                </el-form-item> -->
                 <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
@@ -146,30 +143,19 @@
                 form:       {
                     terms:         false,
                     email:         '',
-                    phone:         '',
-                    nickname:      '',
+                    account:       '',
+                    realname:      '',
                     password:      '',
                     passwordAgain: '',
                     code:          '',
                     key:           '',
                 },
-                imgCode:     '',
-                termsDialog: false,
-                phoneRules:  [
+                imgCode:      '',
+                termsDialog:  false,
+                accountRules: [
                     {
                         required: true,
-                        message:  '请输入你的手机号',
-                    },
-                    {
-                        validator: (rule, value, callback) => {
-                            if (/^1[3-9]\d{9}/.test(value)) {
-                                callback();
-                            } else {
-                                callback(false);
-                            }
-                        },
-                        message: '请输入正确的手机号',
-                        trigger: 'blur',
+                        message:  '请输入用户名',
                     },
                 ],
                 emailRules: [
@@ -184,7 +170,7 @@
                         trigger:   'blur',
                     },
                 ],
-                nicknameRules: [
+                realnameRules: [
                     {
                         required: true,
                         message:  '请输入你的姓名',
@@ -228,11 +214,11 @@
             };
         },
         created() {
-            this.getImgCode();
+            // this.getImgCode();
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/account/captcha');
+                const { code, data } = await this.$http.get('/user/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
@@ -267,24 +253,16 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        if (!this.form.terms)
-                            return this.$message.error('请先勾选隐私权限');
-                        const password = [
-                            this.form.phone,
-                            this.form.password,
-                            this.form.phone,
-                            this.form.phone.substr(0, 3),
-                            this.form.password.substr(this.form.password.length - 3),
-                        ].join('');
+                        if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
                         const { code } = await this.$http.post({
-                            url:  '/account/register',
+                            url:  '/user/register',
                             data: {
-                                email:        this.form.email,
-                                phone_number: this.form.phone,
-                                nickname:     this.form.nickname,
-                                password:     md5(password),
-                                key:          this.form.key,
-                                code:         this.form.code,
+                                email:    this.form.email,
+                                account:  this.form.account,
+                                realname: this.form.realname,
+                                password: md5(this.form.password),
+                                key:      this.form.key,
+                                code:     this.form.code,
                             },
                         });
 

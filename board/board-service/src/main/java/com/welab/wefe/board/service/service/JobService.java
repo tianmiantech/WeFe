@@ -21,7 +21,6 @@ import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
@@ -52,8 +51,6 @@ public class JobService extends AbstractService {
     TaskRepository taskRepo;
     @Autowired
     JobMemberRepository jobMemberRepo;
-    @Autowired
-    DataSetRepository dataSetRepository;
     @Autowired
     JobMemberService jobMemberService;
     @Autowired

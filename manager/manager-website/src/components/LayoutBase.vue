@@ -107,7 +107,7 @@
         position: relative;
         background: $header-background;
         border-bottom: 1px solid $border-color-base;
-        z-index: 200;
+        z-index: 6;
     }
     .layout-main {
         padding: 20px;

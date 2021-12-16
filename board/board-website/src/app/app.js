@@ -13,7 +13,7 @@ import components from './components';
 import App from './App.vue';
 
 const context = process.env.CONTEXT_ENV.replace(/\//g, '');
-const tail = process.env.NODE_ENV === 'production' && context ? `-${context.substr(context.length - 2)}` : '';
+const tail = process.env.NODE_ENV === 'production' && process.env.TAIL ? `-${context.substr(context.length - 2)}` : '';
 const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`VUE_APP_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${!process.env.DEPLOY_ENV.includes('prod') ? tail : ''}`; // http(s) url + context, e.g. https://test.com/[context/]login
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV}`;
 
@@ -34,19 +34,20 @@ const app = createApp({
 });
 
 // add router/vuex
-app.use(router).use(store(app)).mount('#app');
+app.use(components)
+    .use(router)
+    .use(store(app))
+    .mount('#app');
 // global error handler
-app.config.errorHandler = (err, vm, info) => {
-    if (!err.message.includes('No match for')) {
-        app.config.globalProperties.$message.error('加载失败, 请刷新重试');
-    }
+app.config.errorHandler = ({ message }, vm, info) => {
+    setTimeout(() => {
+        app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
+    }, 200);
 };
 // add app to router
 router.$app = app;
 // add router guards
 guards(router);
-// install components automatically
-components.install(app);
 
 window.$app = app;
 
