@@ -98,6 +98,9 @@ public class ClientActuator extends PsiClientActuator {
          */
         fieldInfoList = service.fieldInfoList(businessId);
 
+        /**
+         * Initialize dataset header
+         */
         dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
         DataItemModel model = dataSetStorageService.getByKey(
                 Constant.DBName.WEFE_DATA,
@@ -106,6 +109,7 @@ public class ClientActuator extends PsiClientActuator {
         );
         headers = model.getV().toString().split(",");
     }
+
 
     @Override
     public void close() throws Exception {
@@ -118,35 +122,39 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public List<JObject> next() {
+    public void notifyServerClose() {
+        //notify the server that the task has ended
+
+    }
+
+    @Override
+    public synchronized List<JObject> next() {
         long start = System.currentTimeMillis();
-        synchronized (dataSetStorageService) {
 
-            PageOutputModel model = dataSetStorageService.getListByPage(
-                    Constant.DBName.WEFE_DATA,
-                    dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(current_index, shard_size)
-            );
+        PageOutputModel model = dataSetStorageService.getListByPage(
+                Constant.DBName.WEFE_DATA,
+                dataSetStorageService.createRawDataSetTableName(dataSetId),
+                new PageInputModel(current_index, shard_size)
+        );
 
-            List<DataItemModel> list = model.getData();
+        List<DataItemModel> list = model.getData();
 
-            List<JObject> curList = Lists.newArrayList();
-            list.forEach(x -> {
-                String[] values = x.getV().toString().split(",");
-                JObject jObject = JObject.create();
-                for (int i = 0; i < headers.length; i++) {
-                    jObject.put(headers[i], values[i]);
-                }
-                curList.add(jObject);
-            });
+        List<JObject> curList = Lists.newArrayList();
+        list.forEach(x -> {
+            String[] values = x.getV().toString().split(",");
+            JObject jObject = JObject.create();
+            for (int i = 0; i < headers.length; i++) {
+                jObject.put(headers[i], values[i]);
+            }
+            curList.add(jObject);
+        });
 
 
-            LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
+        LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
 
-            current_index++;
+        current_index++;
 
-            return curList;
-        }
+        return curList;
     }
 
     @Override
@@ -222,9 +230,9 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public byte[][] qureyFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) {
 
-        LOG.info("qureyFusionData start");
+        LOG.info("queryFusionData start");
 
         //调用gateway
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
@@ -251,27 +259,11 @@ public class ClientActuator extends PsiClientActuator {
         return ss;
     }
 
-    public static void main(String[] args) {
-        String code = "{\"code\":0,\"data\":{\"bytes\":[\"dSIFQYDQ2abHrr/1m4Txtj\n" +
-                "yQFkyIV7h0dqpVH2bwkSJw/R/Sd6WlZIvc7Zt8SvWlCbqMw20ilEQpmEpdAY=\",\"Y8AX01gY7XKLs64aIpAXxHnWW8UE/q2S0o5VH+INm4wyj8mXPo9AVQiWN+7erbjobbxIS9JgCYlFU\n" +
-                "kXJ9ohumqsmYl5xhgepAAuE46\"]}}";
-
-        ApiResult<JSONObject> s = JObject.create(code).toJavaObject(ApiResult.class);
-
-        System.out.println(JSON.toJSONString(s));
-
-        JSONArray response = s.data.getJSONArray("bytes");
-
-        byte[][] ss = new byte[response.size()][];
-        for (int i = 0; i < response.size(); i++) {
-            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
-        }
-    }
-
-
     @Override
     public void sendFusionData(List<byte[]> rs) {
+
     }
+
 
     @Override
     public String hashValue(JObject value) {

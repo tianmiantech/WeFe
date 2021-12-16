@@ -246,7 +246,7 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public byte[][] qureyFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) {
         Socket socket = null;
         try {
             LOG.info("Server@" + ip + ":" + port + " connecting!");
@@ -307,6 +307,11 @@ public class ClientActuator extends PsiClientActuator {
     public String hashValue(JObject value) {
         return PrimaryKeyUtils.create(value, fieldInfoList);
 //        return value.getString("id");
+    }
+
+    @Override
+    public void notifyServerClose() {
+
     }
 
 

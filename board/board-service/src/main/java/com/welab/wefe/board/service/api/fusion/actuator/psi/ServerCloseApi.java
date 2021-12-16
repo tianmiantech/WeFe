@@ -17,18 +17,57 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
+import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.ApiResult;
+
+import java.util.List;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/task/close",
-        name = "psi handle",
-        desc = "psi handle",
+        path = "fusion/server/close",
+        name = "server close",
+        desc = "server close",
         login = false
 //        ,
 //        rsaVerify = true
 )
-public class ServerCloseApi {
+public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> {
+    @Override
+    protected ApiResult handler(ServerCloseApi.Input input) throws StatusCodeWithException {
+        ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
+        if (actuator == null) {
+            LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
+            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+        }
+
+        try {
+            actuator.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return success();
+    }
+
+    public static class Input extends AbstractApiInput {
+        @Check(name = "businessId", require = true)
+        String businessId;
+
+        public String getBusinessId() {
+            return businessId;
+        }
+
+        public void setBusinessId(String businessId) {
+            this.businessId = businessId;
+        }
+    }
 }

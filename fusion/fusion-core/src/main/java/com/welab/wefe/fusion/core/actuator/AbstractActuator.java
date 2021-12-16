@@ -19,6 +19,7 @@ package com.welab.wefe.fusion.core.actuator;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public abstract class AbstractActuator implements AutoCloseable {
         return processedCount.intValue() / dataCount.intValue();
     }
 
-    protected void preprocess()  {
+    protected void preprocess() {
     }
 
     protected void postprocess() {
@@ -141,13 +142,12 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     /**
      * Alignment data into the library implementation method
-     *
      */
     public abstract void dump(List<JObject> fruit);
 
-    public void run(){
-        FusionThreadPool.run(()->execute());
-        FusionThreadPool.run(()->finish());
+    public void run() {
+        FusionThreadPool.run(() -> execute());
+        FusionThreadPool.run(() -> finish());
     }
 
     private void execute() {
@@ -167,7 +167,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            LOG.info("error: {}",e);
+            LOG.info("error: {}", e);
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
         }
     }
@@ -180,6 +180,15 @@ public abstract class AbstractActuator implements AutoCloseable {
 
             if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish()) {
                 continue;
+            }
+
+            try {
+                if (this instanceof PsiClientActuator) {
+                    LOG.info("notify the server that the task has ended...");
+                    ((PsiClientActuator) this).notifyServerClose();
+                }
+            } catch (Exception e) {
+                LOG.error(e.getClass().getSimpleName() + " notify the server error：" + e.getMessage());
             }
 
             try {
