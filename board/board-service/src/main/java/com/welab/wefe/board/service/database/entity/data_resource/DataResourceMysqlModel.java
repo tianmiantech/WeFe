@@ -48,7 +48,7 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
      * 资源类型
      */
     @Enumerated(EnumType.STRING)
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     /**
      * 描述
      */
@@ -164,12 +164,12 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
         this.name = name;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public String getDescription() {
