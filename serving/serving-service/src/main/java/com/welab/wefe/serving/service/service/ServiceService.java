@@ -51,13 +51,15 @@ import com.welab.wefe.serving.service.utils.ModelMapper;
 @Service
 public class ServiceService {
 
+	public static final String SERVICE_PRE_URL = "api/";
 	@Autowired
 	private ServiceRepository serviceRepository;
 	@Autowired
 	private DataSourceService dataSourceService;
 
 	@Transactional(rollbackFor = Exception.class)
-	public void save(AddApi.Input input) throws StatusCodeWithException {
+	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
+			throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), ServiceMySqlModel.class);
 		if (model != null) {
 			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "url exists");
@@ -68,6 +70,12 @@ public class ServiceService {
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
 		serviceRepository.save(model);
+
+		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
+		output.setId(model.getId());
+		output.setParams(model.getQueryParams());
+		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		return output;
 	}
 
 	/**

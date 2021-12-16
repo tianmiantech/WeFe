@@ -16,26 +16,69 @@
 
 package com.welab.wefe.serving.service.api.service;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/add", name = "add service")
-public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
+public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
 	@Autowired
 	private ServiceService service;
 
 	@Override
-	protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-		service.save(input);
-		return success();
+	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
+		Output output = service.save(input);
+		return success(output);
+	}
+
+	public static class Output extends AbstractApiOutput {
+		private String id;
+		private String params;
+		private String method = "POST";
+		private String url;
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getParams() {
+			return params;
+		}
+
+		public void setParams(String params) {
+			this.params = params;
+		}
+
+		public String getMethod() {
+			return method;
+		}
+
+		public void setMethod(String method) {
+			this.method = method;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
 	}
 
 	public static class Input extends AbstractApiInput {
@@ -102,5 +145,4 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 		}
 
 	}
-
 }
