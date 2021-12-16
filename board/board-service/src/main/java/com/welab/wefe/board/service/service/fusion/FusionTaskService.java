@@ -34,17 +34,22 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -186,10 +191,11 @@ public class FusionTaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(AuditApi.Input input) throws StatusCodeWithException {
 
-        FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
-        if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
-        }
+        FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
+//        FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
+//        if (task == null) {
+//            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+//        }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
             task.setStatus(FusionTaskStatus.Refuse);
@@ -292,11 +298,37 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+//
+//        BigInteger N = new BigInteger("146167375152084793681454802679848639178224348966309619052798488909082307110902445595724341286608959925801829756525526243684536115856528805020439965613516355067753856475629524304268915399502745195831856710907661535868988721331189916736238540712398051680091965455756603260140826492895494853907634504720747245633");
+//        BigInteger e = new BigInteger("65537");
+//        BigInteger d = new BigInteger("19889843166551599707817170915649025194796904711560632661135799992236385779254894331792265065443622756890012020212927705588884036211735720023380435682764524449631974370220019402021038164175570368177776959055309765000696946731304849785712081220896277458221633983822452333249197209907929579769680795368625751585");
+//
+//        File file = new File("/Users/hunter.zhao/Documents/tel.txt");
+//        String[] s = new String[0];
+//        try {
+//            s = FileUtil.readAllText(file).split(System.lineSeparator());
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+//
+//        BloomFilters bf = new BloomFilters(0.001, s.length);
+//        for (int i = 0; i < s.length; i++){
+//
+//            BigInteger h = PSIUtils.stringToBigInteger(String.valueOf(s[i]));
+//            BigInteger z = h.modPow(d, N);
+//
+//            bf.add(z);
+//        }
+
         /**
          * Generate the corresponding task handler
          */
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
+//bf ,
+//N,
+//e,
+//d
                 BloomFilterUtils.readFrom(
                         Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
                 ),
