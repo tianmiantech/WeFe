@@ -167,10 +167,6 @@ public class JdbcManager {
 		try {
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				return fieldMap;
-			}
 			while (rs.next()) {
 				for (String field : returnFields) {
 					String value = rs.getString(field);

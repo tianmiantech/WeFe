@@ -135,10 +135,8 @@ public class ServiceService {
 	private String parseReturnFields(JSONArray dataSource, int index) {
 		JSONObject json = dataSource.getJSONObject(index);
 		JSONArray returnFields = json.getJSONArray("return_fields");
-		String resultFields = "";
-		if (resultFields.isEmpty()) {
-			resultFields = "*";
-			return resultFields;
+		if (returnFields.isEmpty()) {
+			return "*";
 		} else {
 			List<String> fields = new ArrayList<>();
 			for (int i = 0; i < returnFields.size(); i++) {
@@ -154,10 +152,12 @@ public class ServiceService {
 			where = "1=1";
 			return where;
 		} else {
+			int size = conditionFields.size();
 			for (int i = 0; i < conditionFields.size(); i++) {
 				JSONObject tmp = conditionFields.getJSONObject(i);
-				where += (" " + tmp.getString("field_on_table") + "="
-						+ params.getString(tmp.getString("field_on_param")) + " " + " " + tmp.getString("operator"));
+				where += (" " + tmp.getString("field_on_table") + "=\""
+						+ params.getString(tmp.getString("field_on_param")) + "\" " + " "
+						+ (size - 1 == i ? "" : tmp.getString("operator")));
 			}
 			return where;
 		}
