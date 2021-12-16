@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
+@Service
 public class FusionResultStorageService  extends AbstractService {
 
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
@@ -62,7 +64,7 @@ public class FusionResultStorageService  extends AbstractService {
     /**
      * save data set header info to storage
      */
-    public void saveHeaderRow(String resultId, List<String> row) {
+    public void saveHeaderRow(String businessId, List<String> row) {
         String sid = null;
         List<String> header = new ArrayList<>();
 
@@ -74,7 +76,7 @@ public class FusionResultStorageService  extends AbstractService {
             }
         }
 
-        String tableName = createRawDataSetTableName(resultId) + ".meta";
+        String tableName = createRawDataSetTableName(businessId) + ".meta";
 
         // According to the convention,
         // sid needs to be converted to json string so that double quotation marks are added before and after.

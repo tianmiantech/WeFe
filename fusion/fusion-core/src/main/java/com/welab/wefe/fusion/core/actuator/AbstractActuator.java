@@ -198,6 +198,7 @@ public abstract class AbstractActuator implements AutoCloseable {
                 LOG.error(e.getClass().getSimpleName() + " close task error：" + e.getMessage());
             }
 
+            LOG.info("{} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
             return;
         }
     }

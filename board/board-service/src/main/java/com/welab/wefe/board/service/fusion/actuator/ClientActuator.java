@@ -112,6 +112,7 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public void close() throws Exception {
+
         //remove Actuator
         ActuatorManager.remove(businessId);
 
@@ -166,9 +167,13 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("fruit inserting...");
 
+        //saveHeaderRow
+        fusionResultStorageService.saveHeaderRow(businessId, columnList);
+
         /**
          * Fruit Standard formatting
          */
+
         List<List<Object>> fruits = fruit.
                 stream().
                 map(new Function<JObject, List<Object>>() {
@@ -182,6 +187,10 @@ public class ClientActuator extends PsiClientActuator {
                     }
                 }).collect(Collectors.toList());
 
+
+        if (fusionResultStorageService == null) {
+            Launcher.CONTEXT.getBean(FusionResultStorageService.class);
+        }
         fusionResultStorageService.saveDataRows(businessId, fruits);
 
         LOG.info("fruit insert end...");
