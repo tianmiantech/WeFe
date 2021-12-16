@@ -184,7 +184,7 @@ public class DataResourceService extends AbstractDataResourceService {
         RepositoryManager.get(model.getClass()).save(model);
 
 
-        unionService.uploadDataResource(model);
+        unionService.upsertDataResource(model);
         // todo: Zane
         CacheObjects.refreshImageDataSetTags();
         CacheObjects.refreshTableDataSetTags();

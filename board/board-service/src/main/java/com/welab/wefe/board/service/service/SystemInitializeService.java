@@ -76,13 +76,13 @@ public class SystemInitializeService extends AbstractService {
         unionService.initializeSystem(globalConfigService.getMemberInfo());
 
         for (TableDataSetMysqlModel model : tableDataSetRepository.findAll()) {
-            unionService.uploadDataResource(model);
+            unionService.upsertDataResource(model);
         }
         for (ImageDataSetMysqlModel model : imageDataSetRepository.findAll()) {
-            unionService.uploadDataResource(model);
+            unionService.upsertDataResource(model);
         }
         for (BloomFilterMysqlModel model : bloomFilterRepository.findAll()) {
-            unionService.uploadDataResource(model);
+            unionService.upsertDataResource(model);
         }
     }
 
