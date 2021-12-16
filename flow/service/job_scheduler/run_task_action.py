@@ -60,7 +60,7 @@ class RunTaskAction:
         if self.job.my_role == 'promoter':
             self.logger.info("begin execute temp code2")
             task_config_json = json.loads(self.task.task_conf)
-            members = task_config_json['members']
+            members = task_config_json['task']['members']
             for m in members:
                 member_id = m['member_id']
                 if member_id == GlobalSetting.get_member_id():
