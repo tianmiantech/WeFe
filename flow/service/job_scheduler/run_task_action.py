@@ -56,7 +56,9 @@ class RunTaskAction:
         self.logger.info("Task {}（{}）满足执行条件，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
 
         #  临时代码
+        self.logger.info("begin execute temp code1")
         if self.job.my_role == 'promoter':
+            self.logger.info("begin execute temp code2")
             task_config_json = json.loads(self.task.task_conf)
             members = task_config_json['members']
             for m in members:
@@ -71,6 +73,7 @@ class RunTaskAction:
                     "send message to {}, content is : {}".format(member_id, str(msg)))
                 job_utils.send(dst_member_id=member_id, content_str=str(msg))
         else:
+            self.logger.info("begin execute temp code3")
             result = None
             while result is None:
                 self.logger.info("wait message")
@@ -79,7 +82,7 @@ class RunTaskAction:
             self.logger.info(
                 "receive message , content is : {}".format(str(result)))
         # 临时代码
-
+        self.logger.info("begin execute temp code4")
         subprocess = self.start_subprocess()
         if subprocess:
             self.logger.info(
