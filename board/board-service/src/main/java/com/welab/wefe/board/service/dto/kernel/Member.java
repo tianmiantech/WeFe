@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.kernel.machine_learning;
+package com.welab.wefe.board.service.dto.kernel;
 
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
