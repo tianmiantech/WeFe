@@ -71,7 +71,7 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
 
     dst = gateway_meta_pb2.Member(memberId=dst_member_id)
     content = gateway_meta_pb2.Content(objectData=content_str)
-    transfer_meta = TransferMeta(sessionId=get_commit_id(), dst=dst, content=content,
+    transfer_meta = TransferMeta(sessionId='aaaaaaaaaaaa', dst=dst, content=content,
                                  action=action,
                                  taggedVariableName=None,
                                  processor=processor)
@@ -82,7 +82,7 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
 
 
 def receive():
-    transfer_meta = TransferMeta(sessionId=get_commit_id())
+    transfer_meta = TransferMeta(sessionId='aaaaaaaaaaaa')
     result = JOB_GRPC.recv(transfer_meta)
     schedule_logger().debug("[REMOTE] receive message from %s, content:%s", result.src, result.content)
     return str(result.content)
