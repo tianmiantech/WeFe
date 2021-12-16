@@ -225,6 +225,10 @@ public abstract class BaseFlowGraph {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("错误的 end node id：" + endNodeId);
             }
 
+            if (endNode.getPosition() == null) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("无法执行到此处");
+            }
+
             return jobSteps
                     .stream()
                     .filter(x -> x.getPosition() <= endNode.getPosition())
