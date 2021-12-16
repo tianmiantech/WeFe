@@ -16,10 +16,13 @@
 
 package com.welab.wefe.board.service.dto.vo;
 
+import com.welab.wefe.common.enums.ServiceType;
+
 /**
  * @author zane
  */
 public class ServerCheckPointOutput {
+    private ServiceType service;
     private String desc;
     private boolean success;
     private String message;
@@ -29,8 +32,9 @@ public class ServerCheckPointOutput {
     public ServerCheckPointOutput() {
     }
 
-    public static ServerCheckPointOutput success(String name, String desc, String value, long spend) {
+    public static ServerCheckPointOutput success(ServiceType service, String desc, String value, long spend) {
         ServerCheckPointOutput output = new ServerCheckPointOutput();
+        output.setService(service);
         output.setDesc(desc);
         output.setSuccess(false);
         output.setMessage("success");
@@ -39,7 +43,7 @@ public class ServerCheckPointOutput {
         return output;
     }
 
-    public static ServerCheckPointOutput fail(String name, String desc, String value, long spend, Exception e) {
+    public static ServerCheckPointOutput fail(ServiceType service, String desc, String value, long spend, Exception e) {
         ServerCheckPointOutput output = new ServerCheckPointOutput();
         output.setDesc(desc);
         output.setSuccess(false);
@@ -50,6 +54,15 @@ public class ServerCheckPointOutput {
     }
 
     // region getter/setter
+
+
+    public ServiceType getService() {
+        return service;
+    }
+
+    public void setService(ServiceType service) {
+        this.service = service;
+    }
 
     public String getDesc() {
         return desc;
