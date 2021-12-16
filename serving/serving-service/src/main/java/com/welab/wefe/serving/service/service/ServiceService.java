@@ -162,4 +162,19 @@ public class ServiceService {
 			return where;
 		}
 	}
+
+	public com.welab.wefe.serving.service.api.service.RouteApi.Output executeService(String serviceUrl,
+			com.welab.wefe.serving.service.api.service.RouteApi.Input input) {
+		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+		com.welab.wefe.serving.service.api.service.RouteApi.Output output = new com.welab.wefe.serving.service.api.service.RouteApi.Output();
+		if (model == null) {
+			output.setCode(-1);
+			output.setMessage("invalid request");
+			return output;
+		} else {
+			output.setCode(0);
+			output.setMessage("success");
+			return output;
+		}
+	}
 }
