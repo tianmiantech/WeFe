@@ -68,6 +68,8 @@ class RunVisualFLTaskAction:
             members = task_config_json['members']
             for m in members:
                 member_id = m['member_id']
+                if member_id == GlobalSetting.get_member_id():
+                    continue
                 self.logger.info(
                     "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
                 job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
@@ -82,7 +84,6 @@ class RunVisualFLTaskAction:
         if result is not None:
             result_json = json.loads(str(result))
             apply_result.append(result_json)
-        self.logger.info("receive aggregator_info , content is : {}".format(apply_result))
         response = self.submit_task(apply_result)
         if response:
             self.logger.info(
@@ -144,7 +145,7 @@ class RunVisualFLTaskAction:
         try:
             env = task_config_json['env']
             # todo 将apply_result 填充到 params里面
-            env.append(apply_result)
+            env = env.update(apply_result)
             # todo local_trainer_indexs need_shuffle
             task_config_json['algorithm_config']['need_shuffle'] = True
             task_config_json['env'] = env
