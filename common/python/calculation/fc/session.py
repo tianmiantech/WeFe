@@ -81,7 +81,8 @@ class WefeSessionImpl(WefeSession):
                     need_send):
 
         if namespace is None:
-            namespace = NAMESPACE.TRANSFER if need_send else NAMESPACE.PROCESS
+            # namespace = NAMESPACE.TRANSFER if need_send else NAMESPACE.PROCESS
+            namespace = NAMESPACE.PROCESS
 
         if name is None:
             name = self._session_id + "_" + str(uuid.uuid1())
