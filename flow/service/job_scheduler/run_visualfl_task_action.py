@@ -52,6 +52,7 @@ class RunVisualFLTaskAction:
                     self.logger.info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
                     time.sleep(3)
                     apply_result = self.query_apply_progress_result()
+                self.logger.info("Wait apply resource finished, apply_result={}".format(str(apply_result)))
             else:
                 raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(
                     self.task.task_type, self.task.task_id, current_datetime())))
@@ -157,7 +158,7 @@ class RunVisualFLTaskAction:
             # submit
             response = VisualFLService.request('submit', task_config_json)
             self.log_job_info('submit response: {}'.format(response))
-            submit_task_start_status = response is not None and response['job_id'] is not None
+            submit_task_start_status = response is not None
             return response
         except Exception as e:
             schedule_logger(self.running_job).exception(e)
