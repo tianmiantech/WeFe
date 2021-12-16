@@ -100,7 +100,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable","0")
+                .append("enable","1")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
                 .getCriteria();
@@ -109,6 +109,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
+        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
@@ -119,10 +120,11 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
+                unwindExtraData,
                 addFieldsOperation
         );
 
-        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataResourceQueryOutput.class).getUniqueMappedResult();
+        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
         return result;
     }
 
@@ -144,7 +146,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable","0")
+                .append("enable","1")
                 .like("name", tableDataSetQueryInput.getName())
                 .like("tags", tableDataSetQueryInput.getTag())
                 .append("member_id", tableDataSetQueryInput.getCurMemberId())
@@ -167,7 +169,8 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
-        UnwindOperation unwind = Aggregation.unwind("member");
+        UnwindOperation unwindMember = Aggregation.unwind("member");
+        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
@@ -178,7 +181,8 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 memberMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
-                unwind,
+                unwindMember,
+                unwindExtraData,
                 addFieldsOperation
         );
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataSetQueryOutput.class).getMappedResults().size();
@@ -191,13 +195,14 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 memberMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
-                unwind,
+                unwindMember,
+                unwindExtraData,
                 skipOperation,
                 limitOperation,
                 addFieldsOperation
         );
 
-        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataResourceQueryOutput.class).getMappedResults();
+        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
 
         return new PageOutput<>(tableDataSetQueryInput.getPageIndex(), (long) total, tableDataSetQueryInput.getPageSize(), result);
     }

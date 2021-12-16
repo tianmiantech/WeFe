@@ -25,7 +25,7 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
 
     private ExtraData extraData;
 
-    public class ExtraData {
+    public static class ExtraData {
         private String forJobType;
         private String labelList;
         private int labeledCount;

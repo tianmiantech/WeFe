@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -97,7 +98,9 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
         Query query = new QueryBuilder().append("dataResourceType", dataResourceType).build();
         query.fields().exclude("_id").include("tags");
-        return mongoUnionTemplate.find(query, String.class);
+        List<DataResource> dataResourceList = mongoUnionTemplate.find(query, DataResource.class);
+        List<String> tagsList = dataResourceList.stream().map(DataResource::getTags).collect(Collectors.toList());
+        return tagsList;
     }
 
 

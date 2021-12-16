@@ -63,11 +63,11 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiTableDat
     public static class Input extends BaseInput {
         private Boolean containsY;
 
-        public boolean isContainsY() {
+        public Boolean getContainsY() {
             return containsY;
         }
 
-        public void setContainsY(boolean containsY) {
+        public void setContainsY(Boolean containsY) {
             this.containsY = containsY;
         }
     }
