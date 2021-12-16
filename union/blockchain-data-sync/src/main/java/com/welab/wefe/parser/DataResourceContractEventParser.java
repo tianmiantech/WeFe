@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataResourceContractEventParser extends AbstractParser {
-    protected DataResourceMongoReop dataResourceMongoReop = App.CONTEXT.getBean(DataResourceMongoReop.class);
+    protected DataResourceMongoReop dataResourceMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(DataResourceMongoReop.class);
     protected DataResourceExtJSON extJSON;
 
 
@@ -75,6 +75,7 @@ public class DataResourceContractEventParser extends AbstractParser {
         dataResource.setDataResourceType(DataResourceType.valueOf(StringUtil.strTrim2(params.getString(12))));
         dataResource.setCreatedTime(StringUtil.strTrim2(params.getString(13)));
         dataResource.setUpdatedTime(StringUtil.strTrim2(params.getString(14)));
+        dataResource.setEnable("1");
         dataResource.setExtJson(extJSON);
         dataResourceMongoReop.upsert(dataResource);
     }

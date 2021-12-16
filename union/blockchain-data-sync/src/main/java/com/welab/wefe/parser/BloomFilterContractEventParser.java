@@ -17,9 +17,8 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
-import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.BloomFilterExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.util.StringUtil;
@@ -33,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class BloomFilterContractEventParser extends AbstractParser {
-    protected BloomFilterMongoReop bloomFilterMongoReop = App.CONTEXT.getBean(BloomFilterMongoReop.class);
+    protected BloomFilterMongoReop bloomFilterMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(BloomFilterMongoReop.class);
     protected BloomFilterExtJSON extJSON;
 
 

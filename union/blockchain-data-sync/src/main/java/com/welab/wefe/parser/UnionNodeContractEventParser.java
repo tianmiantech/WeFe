@@ -1,7 +1,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.UnionNodeExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class UnionNodeContractEventParser extends AbstractParser {
-    protected UnionNodeMongoRepo unionNodeMongoRepo = App.CONTEXT.getBean(UnionNodeMongoRepo.class);
+    protected UnionNodeMongoRepo unionNodeMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(UnionNodeMongoRepo.class);
     protected UnionNodeExtJSON extJSON;
 
     @Override

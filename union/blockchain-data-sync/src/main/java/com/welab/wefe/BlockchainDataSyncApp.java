@@ -48,23 +48,23 @@ import java.util.Arrays;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                App.class
+                BlockchainDataSyncApp.class
         }
 )
 
 /**
  * @author yuxin.zhang
  */
-public class App implements ApplicationContextAware {
-    static final Logger log = LoggerFactory.getLogger(App.class);
+public class BlockchainDataSyncApp implements ApplicationContextAware {
+    static final Logger log = LoggerFactory.getLogger(BlockchainDataSyncApp.class);
 
     public static ApplicationContext CONTEXT = null;
 
     public static void main(String[] args) {
 
         Launcher.instance()
-                .apiPackageClass(App.class)
-                .launch(App.class, args);
+                .apiPackageClass(BlockchainDataSyncApp.class)
+                .launch(BlockchainDataSyncApp.class, args);
         String[] beans = CONTEXT.getBeanDefinitionNames();
         Arrays.sort(beans);
         for (String bean : beans) {

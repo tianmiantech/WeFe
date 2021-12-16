@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MemberContractEventParser extends AbstractParser {
 
-    protected MemberMongoReop memberMongoReop = App.CONTEXT.getBean(MemberMongoReop.class);
+    protected MemberMongoReop memberMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(MemberMongoReop.class);
     protected MemberExtJSON extJSON;
 
     @Override

@@ -1,7 +1,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthAgreementTemplateExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class RealnameAuthAgreementTemplateContractEventParser extends AbstractParser {
-    protected RealnameAuthAgreementTemplateMongoRepo mongoRepo = App.CONTEXT.getBean(RealnameAuthAgreementTemplateMongoRepo.class);
+    protected RealnameAuthAgreementTemplateMongoRepo mongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(RealnameAuthAgreementTemplateMongoRepo.class);
     protected RealnameAuthAgreementTemplateExtJSON extJSON;
 
     @Override

@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class ImageDataSetContractEventParser extends AbstractParser {
-    protected ImageDataSetMongoReop imageDataSetMongoReop = App.CONTEXT.getBean(ImageDataSetMongoReop.class);
+    protected ImageDataSetMongoReop imageDataSetMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(ImageDataSetMongoReop.class);
     protected ImageDataSetExtJSON extJSON;
 
 

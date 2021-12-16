@@ -1,7 +1,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberFileInfoExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class MemberFileInfoContractEventParser extends AbstractParser {
-    protected MemberFileInfoMongoRepo unionNodeMongoRepo = App.CONTEXT.getBean(MemberFileInfoMongoRepo.class);
+    protected MemberFileInfoMongoRepo unionNodeMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(MemberFileInfoMongoRepo.class);
     protected MemberFileInfoExtJSON extJSON;
 
     @Override

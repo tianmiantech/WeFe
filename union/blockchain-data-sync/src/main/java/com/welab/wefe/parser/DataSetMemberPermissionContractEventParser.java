@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetMemberPermissionExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMemberPermissionMongoRepo;
@@ -33,7 +33,7 @@ import java.util.Map;
  * @author yuxin.zhang
  */
 public class DataSetMemberPermissionContractEventParser extends AbstractParser {
-    protected DataSetMemberPermissionMongoRepo dataSetMemberPermissionMongoRepo = App.CONTEXT.getBean(DataSetMemberPermissionMongoRepo.class);
+    protected DataSetMemberPermissionMongoRepo dataSetMemberPermissionMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(DataSetMemberPermissionMongoRepo.class);
     protected DataSetMemberPermissionExtJSON extJSON;
 
     @Override
