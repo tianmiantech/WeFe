@@ -52,14 +52,19 @@ class RunVisualFLTaskAction:
                 apply_result = self.query_apply_progress_result()
         else:
             raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime())))
+        self.logger.info("get apply resource finished, {} {}".format(self.task.task_type, self.task.task_id))
+        self.logger.info("apply result = {}".format(apply_result))
+        self.logger.info("my_role = {}".format(self.job.my_role))
+        result = None
         # send
         if self.job.my_role == 'promoter':
-            aggregator_info= {
+            aggregator_info = {
                 'server_endpoint': apply_result.server_endpoint,
                 'aggregator_endpoint': apply_result.aggregator_endpoint,
                 'aggregator_assignee': apply_result.aggregator_assignee
             }
             task_config_json = json.loads(self.task.task_conf)
+            self.logger.info("task_config_json = {}".format(task_config_json))
             members = task_config_json['members']
             for m in members:
                 member_id = m['member_id']
@@ -68,7 +73,6 @@ class RunVisualFLTaskAction:
                 job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
         # receive
         else:
-            result = None
             while result is None:
                 self.logger.info("wait aggregator_info")
                 result = job_utils.receive()
