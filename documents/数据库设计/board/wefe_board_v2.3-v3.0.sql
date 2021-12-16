@@ -157,3 +157,8 @@ CREATE TABLE `job_apply_result`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+
+INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`, `comment`)
+VALUES
+	('07ab31c0f41e45e2998d0315fbaac7ab', NULL, '2021-12-16 10:34:30.725000', NULL, '2021-12-16 10:34:30.725000', 'wefe_flow', 'visual_fl_base_url', 'http://10.90.0.86:10002', NULL);
