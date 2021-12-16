@@ -75,7 +75,7 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
     private Double yPositiveSampleRatio;
 
     public TableDataSetMysqlModel() {
-        super.setResourceType(DataResourceType.TableDataSet);
+        super.setDataResourceType(DataResourceType.TableDataSet);
     }
 
     // region getter/setter

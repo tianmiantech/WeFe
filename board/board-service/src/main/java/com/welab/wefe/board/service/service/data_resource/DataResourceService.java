@@ -110,7 +110,7 @@ public class DataResourceService extends AbstractDataResourceService {
             return;
         }
         Class<? extends DataResourceMysqlModel> clazz = null;
-        switch (one.getResourceType()) {
+        switch (one.getDataResourceType()) {
             case ImageDataSet:
                 clazz = ImageDataSetMysqlModel.class;
                 break;

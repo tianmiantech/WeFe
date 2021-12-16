@@ -19,8 +19,8 @@ package com.welab.wefe.board.service.fusion.actuator.psi;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.welab.wefe.board.service.fusion.actuator.PsiDumpHelper;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
-import com.welab.wefe.board.service.service.fusion.FusionResultStorageService;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -30,9 +30,6 @@ import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -46,30 +43,16 @@ public class ServerActuator extends PsiServerActuator {
     public void dump(List<JObject> fruit) {
         LOG.info("fruit insert ready...");
 
-        if (fruit.isEmpty()) {
+        List<String> headers = Lists.newArrayList();
+        if(fruit.isEmpty()){
             return;
         }
 
-        LOG.info("fruit inserting...");
+        for (String header : fruit.get(0).keySet()) {
+            headers.add(header);
+        }
 
-        /**
-         * Fruit Standard formatting
-         */
-        List<List<Object>> fruits = fruit.
-                stream().
-                map(new Function<JObject, List<Object>>() {
-                    @Override
-                    public List<Object> apply(JObject x) {
-                        List<Object> obj = Lists.newArrayList();
-                        for (Map.Entry<String, Object> column : x.entrySet()) {
-                            obj.add(column.getValue());
-                        }
-                        return obj;
-                    }
-                }).collect(Collectors.toList());
-
-        FusionResultStorageService fusionResultStorageService = Launcher.CONTEXT.getBean(FusionResultStorageService.class);
-        fusionResultStorageService.saveDataRows(businessId, fruits);
+        PsiDumpHelper.dump(businessId, headers, fruit);
 
         LOG.info("fruit insert end...");
 

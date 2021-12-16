@@ -65,7 +65,7 @@ public class BloomFilterMysqlModel extends DataResourceMysqlModel {
     private String sqlScript;
 
     public BloomFilterMysqlModel() {
-        super.setResourceType(DataResourceType.BloomFilter);
+        super.setDataResourceType(DataResourceType.BloomFilter);
     }
 
     // region getter/setter

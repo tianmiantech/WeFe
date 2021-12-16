@@ -82,5 +82,6 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         public void setRs(List<String> rs) {
             this.rs = rs;
         }
+
     }
 }
