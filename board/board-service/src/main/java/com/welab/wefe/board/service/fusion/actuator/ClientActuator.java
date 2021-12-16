@@ -45,7 +45,6 @@ import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -167,27 +166,23 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("fruit inserting...");
 
-
-        //Build table
-        //  createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
-        // fusionResultStorageService.saveDataRow(businessId,fruit);
         /**
          * Fruit Standard formatting
          */
-        List<Map<String, Object>> fruits = fruit.
+        List<List<Object>> fruits = fruit.
                 stream().
-                map(new Function<JObject, Map<String, Object>>() {
+                map(new Function<JObject, List<Object>>() {
                     @Override
-                    public Map<String, Object> apply(JObject x) {
-                        Map<String, Object> map = new LinkedHashMap();
+                    public List<Object> apply(JObject x) {
+                        List<Object> obj = Lists.newArrayList();
                         for (Map.Entry<String, Object> column : x.entrySet()) {
-                            map.put(column.getKey(), column.getValue());
+                            obj.add(column.getValue());
                         }
-                        return map;
+                        return obj;
                     }
                 }).collect(Collectors.toList());
 
-//        TaskResultManager.saveTaskResultRows(businessId, fruits);
+        fusionResultStorageService.saveDataRows(businessId, fruits);
 
         LOG.info("fruit insert end...");
 
