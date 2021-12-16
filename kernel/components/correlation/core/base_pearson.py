@@ -85,7 +85,7 @@ def set_parties(self):
     parties = []
     promoter_parties = RuntimeInstance.FEDERATION.roles_to_parties([consts.PROMOTER])
     provider_parties = RuntimeInstance.FEDERATION.roles_to_parties([consts.PROVIDER])
-    if len(promoter_parties) != 1 or len(provider_parties) != 1:
+    if len(promoter_parties) != 1 or len(provider_parties) < 1:
         raise ValueError(f"one promoter and one provider required, "
                          f"while {len(promoter_parties)} promoter and {len(provider_parties)} provider provided")
     parties.extend(promoter_parties)
@@ -97,3 +97,5 @@ def set_parties(self):
     self.parties = parties
     self.local_party = local_party
     self.other_party = other_party
+
+    return promoter_parties[0], provider_parties
