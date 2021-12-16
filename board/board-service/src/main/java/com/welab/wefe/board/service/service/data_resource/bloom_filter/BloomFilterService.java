@@ -98,8 +98,8 @@ public class BloomFilterService extends DataResourceService {
     /**
      * delete bloom_filter
      */
-    public void delete(String bloomfilterId) throws StatusCodeWithException {
-        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
+    public void delete(String bloomFilterId) throws StatusCodeWithException {
+        BloomFilterMysqlModel model = repo.findById(bloomFilterId).orElse(null);
         if (model == null) {
             return;
         }

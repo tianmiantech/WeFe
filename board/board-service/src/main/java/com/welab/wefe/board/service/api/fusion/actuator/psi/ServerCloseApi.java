@@ -17,57 +17,44 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
-import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/psi/handle",
-        name = "psi handle",
-        desc = "psi handle",
+        path = "fusion/server/close",
+        name = "server close",
+        desc = "server close",
         login = false
 //        ,
 //        rsaVerify = true
 )
-public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
-
-
+public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> {
     @Override
-    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult handler(ServerCloseApi.Input input) throws StatusCodeWithException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        return success(PsiMeta.of(actuator.compute(input.getBs())));
+        actuator.status = PSIActuatorStatus.success;
+        return success();
     }
-
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
-
-        List<String> bs;
-
-        public Input(String businessId, List<String> bs) {
-            this.businessId = businessId;
-            this.bs = bs;
-        }
 
         public String getBusinessId() {
             return businessId;
@@ -75,14 +62,6 @@ public class PsiHandleApi extends AbstractApi<PsiHandleApi.Input, PsiMeta> {
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public List<String> getBs() {
-            return bs;
-        }
-
-        public void setBs(List<String> bs) {
-            this.bs = bs;
         }
     }
 }

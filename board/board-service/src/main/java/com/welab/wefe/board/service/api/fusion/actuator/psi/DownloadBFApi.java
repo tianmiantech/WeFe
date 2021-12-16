@@ -21,48 +21,49 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * @author hunter.zhao
  */
-@Api(
-        path = "fusion/receive/result",
-        name = "psi handle",
-        desc = "psi handle",
+@Api(path = "fusion/psi/download_bloom_filter",
+        name = "download bloomfilter",
+        desc = "download bloomfilter",
         login = false
 //        ,
 //        rsaVerify = true
 )
-public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionResultApi.Input> {
-
+public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorMeta> {
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<PsiActuatorMeta> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.receiveResult(input.getRs());
-        return success();
+        return success(actuator.getActuatorParam());
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "businessId", require = true)
         String businessId;
 
-        List<byte[]> rs;
-
-        Input(String businessId,List<byte[]> rs){
-            businessId = businessId;
-            rs = rs;
+        public Input(String businessId) {
+            this.businessId = businessId;
         }
 
         public String getBusinessId() {
@@ -71,14 +72,6 @@ public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionR
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public List<byte[]> getRs() {
-            return rs;
-        }
-
-        public void setRs(List<byte[]> rs) {
-            this.rs = rs;
         }
     }
 }

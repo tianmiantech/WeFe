@@ -111,6 +111,19 @@ public class ImageDataSetService extends DataResourceService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, model, "只能删除自己添加的数据集。");
 
+        delete(model);
+    }
+
+    public void delete(String dataSetId) throws StatusCodeWithException {
+        ImageDataSetMysqlModel model = imageDataSetRepository.findById(dataSetId).orElse(null);
+        if (model == null) {
+            return;
+        }
+
+        delete(model);
+    }
+
+    public void delete(ImageDataSetMysqlModel model) throws StatusCodeWithException {
         imageDataSetRepository.deleteById(model.getId());
         imageDataSetSampleRepository.deleteByDataSetId(model.getId());
 

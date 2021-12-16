@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
+import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 import java.util.List;

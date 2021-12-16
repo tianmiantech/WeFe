@@ -16,12 +16,10 @@
 
 package com.welab.wefe.board.service.api.fusion.task;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.Options;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
@@ -29,7 +27,6 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -37,8 +34,8 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/handle", name = "任务处理", desc = "任务处理", login = false)
-public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
+@Api(path = "fusion/task/audit", name = "任务处理", desc = "任务处理", login = false)
+public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
 
     @Autowired
     FusionTaskService fusionTaskService;
@@ -56,8 +53,8 @@ public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
 
-        @Check(name = "是否追溯", require = true)
-        private Boolean isTrace;
+        @Check(name = "是否追溯")
+        private Boolean isTrace = false;
 
         @Check(name = "追溯字段")
         private String traceColumn;

@@ -1,3 +1,5 @@
+package com.welab.wefe.board.service.api.fusion.actuator.psi;
+
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * <p>
@@ -14,43 +16,56 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.actuator;
 
-import com.welab.wefe.board.service.service.fusion.CallbackService;
-import com.welab.wefe.common.enums.AuditStatus;
+import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/callback", name = "接收消息接口", login = false, rsaVerify = true)
-public class CallbackApi extends AbstractNoneOutputApi<CallbackApi.Input> {
-    @Autowired
-    CallbackService callbackService;
+@Api(
+        path = "fusion/receive/result",
+        name = "receive result",
+        desc = "receive result",
+        login = false
+//        ,
+//        rsaVerify = true
+)
+public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
+
 
     @Override
     protected ApiResult handler(Input input) throws StatusCodeWithException {
-        callbackService.callback(input);
+        ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
+        if (actuator == null) {
+            LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
+            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+        }
+
+        actuator.receiveResult(input.getRs());
         return success();
     }
 
-
     public static class Input extends AbstractApiInput {
+        @Check(name = "businessId", require = true)
+        String businessId;
 
-        @Check(name = "指定操作的businessId", require = true)
-        private String businessId;
+        @Check(name = "rs")
+        List<String> rs;
 
-        @Check(name = "审核字段", require = true)
-        private AuditStatus auditStatus;
-
-        @Check(name = "审核评论")
-        private String auditComment;
+        public Input(String businessId, List<String> rs) {
+            this.businessId = businessId;
+            this.rs = rs;
+        }
 
         public String getBusinessId() {
             return businessId;
@@ -60,20 +75,12 @@ public class CallbackApi extends AbstractNoneOutputApi<CallbackApi.Input> {
             this.businessId = businessId;
         }
 
-        public AuditStatus getAuditStatus() {
-            return auditStatus;
+        public List<String> getRs() {
+            return rs;
         }
 
-        public void setAuditStatus(AuditStatus auditStatus) {
-            this.auditStatus = auditStatus;
-        }
-
-        public String getAuditComment() {
-            return auditComment;
-        }
-
-        public void setAuditComment(String auditComment) {
-            this.auditComment = auditComment;
+        public void setRs(List<String> rs) {
+            this.rs = rs;
         }
     }
 }
