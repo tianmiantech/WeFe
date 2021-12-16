@@ -71,13 +71,13 @@ class RunTaskAction:
                 }
                 self.logger.info(
                     "send message to {}, content is : {}".format(member_id, str(msg)))
-                job_utils.send(dst_member_id=member_id, content_str=str(msg))
+                job_utils.send_fl(dst_member_id=member_id, content_str=str(msg))
         else:
             self.logger.info("begin execute temp code3")
             result = None
             while result is None or len(result) == 0:
                 self.logger.info("wait message")
-                result = job_utils.receive()
+                result = job_utils.receive_fl()
                 time.sleep(3)
             self.logger.info(
                 "receive message , content is : {}".format(str(result)))
