@@ -75,7 +75,7 @@ public class ThirdPartyService {
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 
-        request(dstMemberId, "fusion/callback", params);
+        request(dstMemberId, "fusion/audit/callback", params);
     }
 
     /**
@@ -107,7 +107,7 @@ public class ThirdPartyService {
 //            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
 //        }
 
-        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/callback").appendParameters(params).postJson();
+        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/audit/callback").appendParameters(params).postJson();
 
         if (!result.success()) {
             throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
@@ -115,24 +115,5 @@ public class ThirdPartyService {
 
         JSONObject json = JObject.create(result.getBodyAsJson());
         return json;
-    }
-
-    public static void main(String[] args) {
-
-
-
-        JObject params = JObject
-                .create()
-                .put("business_id", "3aa59df11bd34af8a196debc59cbf1f9")
-                .put("project_id", "test")
-                .put("audit_status", AuditStatus.agree)
-                .put("audit_comment", "auditComment");
-
-        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/callback").appendParameters(params).get();
-
-        if (!result.success()) {
-
-        }
-
     }
 }

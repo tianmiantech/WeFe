@@ -60,9 +60,9 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         String businessId;
 
         @Check(name = "rs")
-        List<byte[]> rs;
+        List<String> rs;
 
-        public Input(String businessId, List<byte[]> rs) {
+        public Input(String businessId, List<String> rs) {
             this.businessId = businessId;
             this.rs = rs;
         }
@@ -75,11 +75,11 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
             this.businessId = businessId;
         }
 
-        public List<byte[]> getRs() {
+        public List<String> getRs() {
             return rs;
         }
 
-        public void setRs(List<byte[]> rs) {
+        public void setRs(List<String> rs) {
             this.rs = rs;
         }
     }

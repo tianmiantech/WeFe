@@ -22,13 +22,18 @@ import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
+import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * @author hunter.zhao
@@ -44,7 +49,6 @@ public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorM
 
     @Override
     protected ApiResult<PsiActuatorMeta> handle(Input input) throws StatusCodeWithException, IOException {
-
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());

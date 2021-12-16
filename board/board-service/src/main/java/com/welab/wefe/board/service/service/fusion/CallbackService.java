@@ -134,7 +134,7 @@ public class CallbackService {
             throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
         }
 
-        task.setStatus(FusionTaskStatus.Ready);
+        task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
         fusionTaskRepository.save(task);
 
