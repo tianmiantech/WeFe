@@ -143,14 +143,11 @@ class RunVisualFLTaskAction:
         submit_task_start_status = False
         task_config_json = json.loads(self.task.task_conf)
         try:
-            env = task_config_json['env']
-            env['server_endpoint'] = apply_result.server_endpoint,
-            env['aggregator_endpoint'] = apply_result.aggregator_endpoint,
-            env['aggregator_assignee'] = apply_result.aggregator_assignee
-            # todo local_trainer_indexs need_shuffle
-            task_config_json['algorithm_config']['need_shuffle'] = True
-            task_config_json['env'] = env
-            schedule_logger(self.running_job).info('submit_task params: {}'.format(task_config_json))
+            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint,
+            task_config_json['env']['aggregator_assignee'] = apply_result.aggregator_assignee
+            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint,
+            # task_config_json['algorithm_config']['need_shuffle'] = True
+            schedule_logger(self.running_job).info('submit_task request: {}'.format(task_config_json))
             # submit
             response = VisualFLService.request('submit', task_config_json)
             schedule_logger(self.running_job).info('submit response: {}'.format(response))
@@ -176,10 +173,10 @@ class RunVisualFLTaskAction:
             task_config_json = json.loads(self.task.task_conf)
             params['env'] = task_config_json['env']
             params['data_set'] = task_config_json['data_set']
-            # todo local_trainer_indexs need_shuffle
             params['algorithm_config'] = task_config_json['algorithm_config']
-            params['algorithm_config']['need_shuffle'] = True
-            schedule_logger(self.running_job).info('apply_resource params: {}'.format(params))
+            # params['algorithm_config']['need_shuffle'] = True
+            schedule_logger(self.running_job).info('apply_resource request : {}'.format(params))
+            # return job_id
             response = VisualFLService.request('apply', params)
             schedule_logger(self.running_job).info('apply_resource response: {}'.format(response))
             if response:
