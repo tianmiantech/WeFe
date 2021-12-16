@@ -75,7 +75,7 @@ class RunTaskAction:
         else:
             self.logger.info("begin execute temp code3")
             result = None
-            while result is None:
+            while result is None or len(result) == 0:
                 self.logger.info("wait message")
                 result = job_utils.receive()
                 time.sleep(3)
