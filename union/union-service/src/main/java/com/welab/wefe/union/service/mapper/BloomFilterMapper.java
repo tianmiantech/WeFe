@@ -40,6 +40,7 @@ public interface BloomFilterMapper {
 
 
     @Mappings({
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getExtraData()).toJavaObject(ApiBloomFilterQueryOutput.ExtraData.class))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })

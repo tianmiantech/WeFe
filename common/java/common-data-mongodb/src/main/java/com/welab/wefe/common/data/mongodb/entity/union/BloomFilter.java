@@ -27,6 +27,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class BloomFilter extends AbstractBlockChainBusinessModel {
     private String dataResourceId;
     private String hashFunction;
+
+    public BloomFilter(){};
     public BloomFilter(String dataResourceId,String hashFunction){
         this.dataResourceId = dataResourceId;
         this.hashFunction = hashFunction;

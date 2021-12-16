@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataresource;
 
+import com.welab.wefe.common.util.JObject;
+
 /**
  * @author yuxin.zhang
  **/
@@ -34,6 +36,8 @@ public class DataResourceQueryOutput<T> {
     private String usageCountInMember;
     private String enable;
     private String dataResourceType;
+    private String createdTime;
+    private String updatedTime;
     private T extraData;
 
     public String getDataResourceId() {
@@ -154,5 +158,21 @@ public class DataResourceQueryOutput<T> {
 
     public void setDataResourceType(String dataResourceType) {
         this.dataResourceType = dataResourceType;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

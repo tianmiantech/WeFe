@@ -21,7 +21,6 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -89,7 +88,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable","0")
+                .append("enable", "0")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
                 .getCriteria();
@@ -133,7 +132,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable","0")
+                .append("enable", "0")
                 .like("name", imageDataSetQueryInput.getName())
                 .like("tags", imageDataSetQueryInput.getTag())
                 .append("member_id", imageDataSetQueryInput.getCurMemberId())

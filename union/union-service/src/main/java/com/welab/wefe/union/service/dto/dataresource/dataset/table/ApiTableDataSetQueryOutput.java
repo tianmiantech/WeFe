@@ -73,4 +73,12 @@ public class ApiTableDataSetQueryOutput extends ApiDataResourceQueryOutput {
         }
     }
 
+
+    public ExtraData getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(ExtraData extraData) {
+        this.extraData = extraData;
+    }
 }

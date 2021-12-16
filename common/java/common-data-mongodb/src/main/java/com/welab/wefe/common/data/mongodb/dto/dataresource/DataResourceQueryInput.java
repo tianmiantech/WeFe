@@ -30,7 +30,7 @@ public class DataResourceQueryInput extends PageInput {
     protected String tag;
     protected String curMemberId;
     protected DataResourceType dataResourceType;
-    protected Boolean enable;
+    protected String enable;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -80,11 +80,11 @@ public class DataResourceQueryInput extends PageInput {
         this.dataResourceType = dataResourceType;
     }
 
-    public Boolean getEnable() {
+    public String getEnable() {
         return enable;
     }
 
-    public void setEnable(Boolean enable) {
+    public void setEnable(String enable) {
         this.enable = enable;
     }
 }

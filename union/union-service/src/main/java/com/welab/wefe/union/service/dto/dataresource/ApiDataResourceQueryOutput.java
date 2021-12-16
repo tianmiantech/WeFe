@@ -1,5 +1,6 @@
 package com.welab.wefe.union.service.dto.dataresource;
 
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
@@ -130,4 +131,26 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
     public void setDataResourceType(String dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
+
+    public static class Test{
+        private int a;
+        private int b;
+
+        public int getA() {
+            return a;
+        }
+
+        public void setA(int a) {
+            this.a = a;
+        }
+
+        public int getB() {
+            return b;
+        }
+
+        public void setB(int b) {
+            this.b = b;
+        }
+    }
+
 }

@@ -36,4 +36,12 @@ public class ApiBloomFilterQueryOutput extends ApiDataResourceQueryOutput {
             this.hashFunction = hashFunction;
         }
     }
+
+    public ExtraData getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(ExtraData extraData) {
+        this.extraData = extraData;
+    }
 }

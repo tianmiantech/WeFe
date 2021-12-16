@@ -37,6 +37,7 @@ import org.mapstruct.Mappings;
 @Mapper
 public interface TableDataSetMapper {
     @Mappings({
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getExtraData()).toJavaObject(ApiTableDataSetQueryOutput.ExtraData.class))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
@@ -44,7 +45,7 @@ public interface TableDataSetMapper {
 
 
     @Mappings({
-            @Mapping(target = "containsY", expression = "java(String.valueOf(input.isLabelCompleted() ? 1 : 0))"),
+            @Mapping(target = "containsY", expression = "java(String.valueOf(input.isContainsY() ? 1 : 0))"),
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })
