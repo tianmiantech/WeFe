@@ -46,9 +46,6 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -106,7 +103,9 @@ public class ClientActuator extends PsiClientActuator {
                 dataSetStorageService.createRawDataSetTableName(dataSetId) + ".meta",
                 "header"
         );
-        headers = model.getV().toString().split(",");
+        headers = model.getV().toString().replace("\"", "").split(",");
+
+
     }
 
 
@@ -163,37 +162,7 @@ public class ClientActuator extends PsiClientActuator {
     public void dump(List<JObject> fruit) {
         LOG.info("fruit insert ready...");
 
-        if (fruit.isEmpty()) {
-            return;
-        }
-
-        LOG.info("fruit inserting...");
-
-        //saveHeaderRow
-        fusionResultStorageService.saveHeaderRow(businessId, columnList);
-
-        /**
-         * Fruit Standard formatting
-         */
-
-        List<List<Object>> fruits = fruit.
-                stream().
-                map(new Function<JObject, List<Object>>() {
-                    @Override
-                    public List<Object> apply(JObject x) {
-                        List<Object> obj = Lists.newArrayList();
-                        for (Map.Entry<String, Object> column : x.entrySet()) {
-                            obj.add(column.getValue());
-                        }
-                        return obj;
-                    }
-                }).collect(Collectors.toList());
-
-
-        if (fusionResultStorageService == null) {
-            Launcher.CONTEXT.getBean(FusionResultStorageService.class);
-        }
-        fusionResultStorageService.saveDataRows(businessId, fruits);
+        PsiDumpHelper.dump(businessId, columnList, fruit);
 
         LOG.info("fruit insert end...");
 
