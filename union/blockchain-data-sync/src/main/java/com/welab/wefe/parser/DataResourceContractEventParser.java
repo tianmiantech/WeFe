@@ -75,6 +75,7 @@ public class DataResourceContractEventParser extends AbstractParser {
         dataResource.setDataResourceType(DataResourceType.valueOf(StringUtil.strTrim2(params.getString(12))));
         dataResource.setCreatedTime(StringUtil.strTrim2(params.getString(13)));
         dataResource.setUpdatedTime(StringUtil.strTrim2(params.getString(14)));
+        dataResource.setEnable("1");
         dataResource.setExtJson(extJSON);
         dataResourceMongoReop.upsert(dataResource);
     }
