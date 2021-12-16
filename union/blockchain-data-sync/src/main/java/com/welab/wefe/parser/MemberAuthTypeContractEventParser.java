@@ -1,7 +1,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberAuthTypeExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberAuthTypeMongoRepo;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class MemberAuthTypeContractEventParser extends AbstractParser {
-    protected MemberAuthTypeMongoRepo memberAuthTypeMongoRepo = App.CONTEXT.getBean(MemberAuthTypeMongoRepo.class);
+    protected MemberAuthTypeMongoRepo memberAuthTypeMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(MemberAuthTypeMongoRepo.class);
     protected MemberAuthTypeExtJSON extJSON;
 
     @Override

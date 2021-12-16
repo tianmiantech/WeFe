@@ -1,7 +1,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetDefaultTagMongoRepo;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataSetDefaultTagContractEventParser extends AbstractParser {
-    protected AbstractDataSetDefaultTagMongoRepo abstractDataSetDefaultTagMongoRepo = App.CONTEXT.getBean(AbstractDataSetDefaultTagMongoRepo.class);
+    protected AbstractDataSetDefaultTagMongoRepo abstractDataSetDefaultTagMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(AbstractDataSetDefaultTagMongoRepo.class);
     protected DataSetDefaultTagExtJSON extJSON;
 
     @Override
