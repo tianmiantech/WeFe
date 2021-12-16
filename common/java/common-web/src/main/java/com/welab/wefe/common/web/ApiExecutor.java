@@ -26,6 +26,8 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.FlowLimitByIp;
 import com.welab.wefe.common.web.api.base.FlowLimitByMobile;
 import com.welab.wefe.common.web.dto.ApiResult;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -50,18 +52,24 @@ public class ApiExecutor {
 
         MDC.put("requestId", start + "");
 
-        AbstractApi<?, ?> api;
-        String apiPath = apiName.toLowerCase();
-
-
-        try {
-            api = Launcher.CONTEXT.getBean(apiPath, AbstractApi.class);
-
-        } catch (BeansException ex) {
-            return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiPath);
-        }
-
-        Api annotation = api.getClass().getAnnotation(Api.class);
+		AbstractApi<?, ?> api = null;
+		String apiPath = apiName.toLowerCase();
+		while (StringUtils.isNotBlank(apiPath) && api == null) {
+			try {
+				api = Launcher.CONTEXT.getBean(apiPath, AbstractApi.class);
+			} catch (BeansException ex) {
+				int end = apiPath.lastIndexOf("/");
+				apiPath = apiPath.substring(0, end);
+			}
+		}
+		if (api == null) {
+			return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiPath);
+		}
+		
+		Api annotation = api.getClass().getAnnotation(Api.class);
+		if (!annotation.forward() && !apiPath.equalsIgnoreCase(apiName)) {
+			return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiPath);
+		}
         switch (annotation.logLevel()) {
             case "debug":
                 LOG.debug("request({}):{}", apiPath, params.toString());

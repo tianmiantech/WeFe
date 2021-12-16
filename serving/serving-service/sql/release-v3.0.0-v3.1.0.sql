@@ -1,23 +1,40 @@
 -- 服务表
 DROP TABLE IF EXISTS service;
 CREATE TABLE `service` (
-                           `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-                           `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-                           `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                           `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-                           `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
-                           `name` varchar(32) NOT NULL COMMENT '服务名',
-                           `url` varchar(128) NOT NULL COMMENT '服务地址',
-                           `service_type` tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
-                           `query_params` text COMMENT '查询参数配置',
-                           `data_source` text COMMENT 'SQL配置',
-                           `condition_fields` text COMMENT '查询字段',
-                           `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
-                           PRIMARY KEY (`id`),
-                           UNIQUE KEY `url_unique` (`url`),
-                           KEY `name` (`name`)
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(32) NOT NULL COMMENT '服务名',
+  `url` varchar(128) NOT NULL COMMENT '服务地址',
+  `service_type` tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
+  `query_params` text COMMENT '查询参数配置',
+  `data_source` text COMMENT 'SQL配置',
+  `condition_fields` text COMMENT '查询字段',
+  `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url_unique` (`url`),
+  KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
 
+-- 数据源
+
+CREATE TABLE `data_source` (
+   `database_type` varchar(255) DEFAULT NULL,
+   `host` varchar(255) DEFAULT NULL,
+   `port` int(255) DEFAULT NULL,
+   `database_name` varchar(255) DEFAULT NULL,
+   `user_name` varchar(255) DEFAULT NULL,
+   `password` varchar(255) DEFAULT NULL,
+   `created_by` varchar(255) DEFAULT NULL,
+   `id` varchar(32) NOT NULL,
+   `created_time` datetime DEFAULT NULL,
+   `updated_time` datetime DEFAULT NULL,
+   `name` varchar(255) DEFAULT NULL,
+   `updated_by` varchar(255) DEFAULT '',
+   PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- 客户表
 DROP TABLE IF EXISTS client;
