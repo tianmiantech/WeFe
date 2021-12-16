@@ -81,8 +81,27 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
     return result
 
 
-def receive():
-    transfer_meta = TransferMeta(sessionId=get_commit_id())
+def send_fl(dst_member_id, processor=None, action=None, content_str=""):
+    """
+    Send message to gateway service.
+
+    Obsolete, please use GatewayService.send()
+    """
+
+    dst = gateway_meta_pb2.Member(memberId=dst_member_id)
+    content = gateway_meta_pb2.Content(objectData=content_str)
+    transfer_meta = TransferMeta(sessionId="aaaaaaaaaaa", dst=dst, content=content,
+                                 action=action,
+                                 taggedVariableName=None,
+                                 processor="residentMemoryProcessor")
+    result = JOB_GRPC.send(transfer_meta)
+    schedule_logger().debug("[REMOTE] send result:%s", result.message)
+
+    return result
+
+
+def receive_fl():
+    transfer_meta = TransferMeta(sessionId="aaaaaaaaaaa")
     result = JOB_GRPC.recv(transfer_meta)
     schedule_logger().debug("[REMOTE] receive message from %s, content:%s", result.src, result.content)
     return str(result.content)
