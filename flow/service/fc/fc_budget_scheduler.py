@@ -73,7 +73,7 @@ class FcBudgetScheduler(threading.Thread):
                     task_list = self.get_running_task()
                     self.stop_tasks(task_list)
                     break
-                elif self.day_budget <= day_cost:
+                elif float(self.day_budget) <= day_cost:
                     task_list = self.get_running_task()
                     self.stop_tasks(task_list, is_month=False)
                     break
