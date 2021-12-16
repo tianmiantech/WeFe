@@ -42,22 +42,22 @@ class RunVisualFLTaskAction:
         self.logger.info(
             "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id,
                                                              current_datetime()))
-        response = self.apply_resource()
         apply_result = JobApplyResult()
-        if response is not None:
-            # 等待 apply resource 执行完成
-            while apply_result is None or apply_result.server_endpoint is None:
-                self.logger.info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
-                time.sleep(3)
-                apply_result = self.query_apply_progress_result()
-        else:
-            raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime())))
-        self.logger.info("get apply resource finished, {} {}".format(self.task.task_type, self.task.task_id))
-        self.logger.info("apply result = {}".format(apply_result))
-        self.logger.info("my_role = {}".format(self.job.my_role))
-        result = None
         # send
         if self.job.my_role == 'promoter':
+            response = self.apply_resource()
+            if response is not None:
+                # 等待 apply resource 执行完成
+                while apply_result is None or apply_result.server_endpoint is None:
+                    self.logger.info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
+                    time.sleep(3)
+                    apply_result = self.query_apply_progress_result()
+            else:
+                raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(
+                    self.task.task_type, self.task.task_id, current_datetime())))
+            self.logger.info("get apply resource finished, {} {}".format(self.task.task_type, self.task.task_id))
+            self.logger.info("apply result server_endpoint = {}".format(apply_result.server_endpoint))
+            self.logger.info("my_role = {}".format(self.job.my_role))
             aggregator_info = {
                 'server_endpoint': apply_result.server_endpoint,
                 'aggregator_endpoint': apply_result.aggregator_endpoint,
@@ -75,15 +75,18 @@ class RunVisualFLTaskAction:
                 job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
         # receive
         else:
+            result = None
             while result is None:
                 self.logger.info("wait aggregator_info")
                 result = job_utils.receive()
                 time.sleep(3)
             self.logger.info("receive aggregator_info , content is : {}".format(str(result)))
-        # append result to apply_result
-        if result is not None:
-            result_json = json.loads(str(result))
-            apply_result.append(result_json)
+            # append result to apply_result
+            if result is not None:
+                result_json = json.loads(str(result))
+                apply_result.server_endpoint = result_json['server_endpoint']
+                apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
+                apply_result.aggregator_assignee = result_json['aggregator_assignee']
         response = self.submit_task(apply_result)
         if response:
             self.logger.info(
@@ -144,8 +147,9 @@ class RunVisualFLTaskAction:
         task_config_json = json.loads(self.task.task_conf)
         try:
             env = task_config_json['env']
-            # todo 将apply_result 填充到 params里面
-            env = env.update(apply_result)
+            env['server_endpoint'] = apply_result.server_endpoint,
+            env['aggregator_endpoint'] = apply_result.aggregator_endpoint,
+            env['aggregator_assignee'] = apply_result.aggregator_assignee
             # todo local_trainer_indexs need_shuffle
             task_config_json['algorithm_config']['need_shuffle'] = True
             task_config_json['env'] = env
