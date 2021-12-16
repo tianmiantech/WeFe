@@ -16,13 +16,13 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.table;
 
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiTableDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "table_data_set/detail", name = "table_data_set", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiTableDataSetQueryOutput> {
 
     @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
@@ -39,22 +39,18 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQuery
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiImageDataSetQueryOutput> handle(Input input) {
-        return success();
+    protected ApiResult<ApiTableDataSetQueryOutput> handle(ApiDataResourceQueryInput input) {
+        DataResourceQueryOutput dataResourceQueryOutput = tableDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+        return success(getOutput(dataResourceQueryOutput));
     }
 
-
-
-    public static class Input extends BaseInput {
-        @Check(require = true)
-        private String dataResouceId;
-
-        public String getDataResouceId() {
-            return dataResouceId;
+    protected ApiTableDataSetQueryOutput getOutput(DataResourceQueryOutput dataResourceQueryOutput) {
+        if (dataResourceQueryOutput == null) {
+            return null;
         }
 
-        public void setDataResouceId(String dataResouceId) {
-            this.dataResouceId = dataResouceId;
-        }
+        ApiTableDataSetQueryOutput detail = tableDataSetMapper.transferDetail(dataResourceQueryOutput);
+        return detail;
     }
+
 }

@@ -79,7 +79,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as("image_data_set");
+                as("extra_data");
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
@@ -89,7 +89,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .notRemoved()
+                .append("enable","0")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
                 .getCriteria();
@@ -123,7 +123,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as("image_data_set");
+                as("extra_data");
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).

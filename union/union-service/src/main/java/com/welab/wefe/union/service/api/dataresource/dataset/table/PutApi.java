@@ -16,13 +16,19 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.table;
 
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
+import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import com.welab.wefe.union.service.service.TableDataSetContractService;
 import org.mapstruct.factory.Mappers;
@@ -32,111 +38,83 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "table_data_set/put", name = "table_data_set", rsaVerify = true, login = false)
-public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
+public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected TableDataSetContractService tableDataSetContractService;
+    protected TableDataSetMongoReop tableDataSetMongoReop;
 
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
+        TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        if (dataResource == null) {
+            if (tableDataSet == null) {
+                tableDataSetContractService.add(tableDataSetMapper.transferPutInputToTableDataSet(input));
+            } else {
+                dataResourceContractService.add(tableDataSetMapper.transferPutInputToDataResource(input));
+            }
+        } else {
+            tableDataSet.setContainsY(input.containsY ? "1" : "0");
+            tableDataSet.setColumnCount(String.valueOf(input.columnCount));
+            tableDataSet.setColumnNameList(input.columnNameList);
+            tableDataSet.setFeatureCount(String.valueOf(input.featureCount));
+            tableDataSet.setFeatureNameList(input.featureNameList);
+            tableDataSetContractService.update(tableDataSet);
+
+            updateDataResource(dataResource,input);
+        }
+
         return success();
     }
 
-    public static class Input extends BaseInput {
+    public static class Input extends DataResourcePutInput {
         @Check(require = true)
-        private String dataResourceId;
-        @Check(require = true)
-        private String memberId;
-        @Check(require = true)
-        private String name;
-        private String tags;
-        private String description;
-        @Check(require = true)
-        private String publicLevel;
-        private String publicMemberList;
-        private int usageCountInJob;
-        private int usageCountInFlow;
-        private int usageCountInProject;
+        private boolean containsY;
+        private int columnCount;
+        private String columnNameList;
+        private int featureCount;
+        private String featureNameList;
 
-        public String getDataResourceId() {
-            return dataResourceId;
+        public boolean isContainsY() {
+            return containsY;
         }
 
-        public void setDataResourceId(String dataResourceId) {
-            this.dataResourceId = dataResourceId;
+        public void setContainsY(boolean containsY) {
+            this.containsY = containsY;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public int getColumnCount() {
+            return columnCount;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setColumnCount(int columnCount) {
+            this.columnCount = columnCount;
         }
 
-        public String getName() {
-            return name;
+        public String getColumnNameList() {
+            return columnNameList;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setColumnNameList(String columnNameList) {
+            this.columnNameList = columnNameList;
         }
 
-        public String getTags() {
-            return tags;
+        public int getFeatureCount() {
+            return featureCount;
         }
 
-        public void setTags(String tags) {
-            this.tags = tags;
+        public void setFeatureCount(int featureCount) {
+            this.featureCount = featureCount;
         }
 
-        public String getDescription() {
-            return description;
+        public String getFeatureNameList() {
+            return featureNameList;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getPublicLevel() {
-            return publicLevel;
-        }
-
-        public void setPublicLevel(String publicLevel) {
-            this.publicLevel = publicLevel;
-        }
-
-        public String getPublicMemberList() {
-            return publicMemberList;
-        }
-
-        public void setPublicMemberList(String publicMemberList) {
-            this.publicMemberList = publicMemberList;
-        }
-
-        public int getUsageCountInJob() {
-            return usageCountInJob;
-        }
-
-        public void setUsageCountInJob(int usageCountInJob) {
-            this.usageCountInJob = usageCountInJob;
-        }
-
-        public int getUsageCountInFlow() {
-            return usageCountInFlow;
-        }
-
-        public void setUsageCountInFlow(int usageCountInFlow) {
-            this.usageCountInFlow = usageCountInFlow;
-        }
-
-        public int getUsageCountInProject() {
-            return usageCountInProject;
-        }
-
-        public void setUsageCountInProject(int usageCountInProject) {
-            this.usageCountInProject = usageCountInProject;
+        public void setFeatureNameList(String featureNameList) {
+            this.featureNameList = featureNameList;
         }
     }
 }

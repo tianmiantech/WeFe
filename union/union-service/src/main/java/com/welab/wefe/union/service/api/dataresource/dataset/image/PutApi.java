@@ -21,6 +21,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -73,6 +74,7 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
         private DeepLearningJobType forJobType;
         private String labelList;
         private int labeledCount;
+        @Check(require = true)
         private boolean labelCompleted;
         private String filesSize;
 

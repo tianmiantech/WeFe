@@ -16,15 +16,17 @@
 
 package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
+import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
-import com.welab.wefe.union.service.service.TableDataSetContractService;
+import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
+import com.welab.wefe.union.service.mapper.BloomFilterMapper;
+import com.welab.wefe.union.service.service.BloomFilterContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,111 +34,40 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "bloom_filter/put", name = "bloom_filter_put", rsaVerify = true, login = false)
-public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
+public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
-    protected TableDataSetContractService tableDataSetContractService;
+    protected BloomFilterContractService bloomFilterContractService;
+    protected BloomFilterMongoReop bloomFilterMongoReop;
 
-    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
+    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
+        BloomFilter bloomFilter = bloomFilterMongoReop.findByDataResourceId(input.getDataResourceId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        if (dataResource == null) {
+            if (bloomFilter == null) {
+                bloomFilterContractService.add(new BloomFilter(input.getDataResourceId(), input.getHashFunction()));
+            } else {
+                dataResourceContractService.add(bloomFilterMapper.transferPutInputToDataResource(input));
+            }
+        } else {
+            bloomFilterContractService.updateHashFuntion(input.getDataResourceId(), input.getHashFunction());
+            updateDataResource(dataResource, input);
+        }
+
         return success();
     }
 
-    public static class Input extends BaseInput {
-        @Check(require = true)
-        private String dataResourceId;
-        @Check(require = true)
-        private String memberId;
-        @Check(require = true)
-        private String name;
-        private String tags;
-        private String description;
-        @Check(require = true)
-        private String publicLevel;
-        private String publicMemberList;
-        private int usageCountInJob;
-        private int usageCountInFlow;
-        private int usageCountInProject;
+    public static class Input extends DataResourcePutInput {
+        private String hashFunction;
 
-        public String getDataResourceId() {
-            return dataResourceId;
+        public String getHashFunction() {
+            return hashFunction;
         }
 
-        public void setDataResourceId(String dataResourceId) {
-            this.dataResourceId = dataResourceId;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getTags() {
-            return tags;
-        }
-
-        public void setTags(String tags) {
-            this.tags = tags;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getPublicLevel() {
-            return publicLevel;
-        }
-
-        public void setPublicLevel(String publicLevel) {
-            this.publicLevel = publicLevel;
-        }
-
-        public String getPublicMemberList() {
-            return publicMemberList;
-        }
-
-        public void setPublicMemberList(String publicMemberList) {
-            this.publicMemberList = publicMemberList;
-        }
-
-        public int getUsageCountInJob() {
-            return usageCountInJob;
-        }
-
-        public void setUsageCountInJob(int usageCountInJob) {
-            this.usageCountInJob = usageCountInJob;
-        }
-
-        public int getUsageCountInFlow() {
-            return usageCountInFlow;
-        }
-
-        public void setUsageCountInFlow(int usageCountInFlow) {
-            this.usageCountInFlow = usageCountInFlow;
-        }
-
-        public int getUsageCountInProject() {
-            return usageCountInProject;
-        }
-
-        public void setUsageCountInProject(int usageCountInProject) {
-            this.usageCountInProject = usageCountInProject;
+        public void setHashFunction(String hashFunction) {
+            this.hashFunction = hashFunction;
         }
     }
 }

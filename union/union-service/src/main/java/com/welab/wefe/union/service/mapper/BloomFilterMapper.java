@@ -17,13 +17,14 @@
 package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.TableDataSetQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.dataresource.dataset.table.PutApi;
-import com.welab.wefe.union.service.api.dataresource.dataset.table.QueryApi;
-import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiTableDataSetQueryOutput;
+import com.welab.wefe.union.service.api.dataresource.bloomfilter.PutApi;
+import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
+import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -35,28 +36,25 @@ import org.mapstruct.Mappings;
  * @author yuxin.zhang
  **/
 @Mapper
-public interface TableDataSetMapper {
+public interface BloomFilterMapper {
+
+
     @Mappings({
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
-    ApiTableDataSetQueryOutput transferDetail(DataResourceQueryOutput entity);
-
+    ApiBloomFilterQueryOutput transferDetail(DataResourceQueryOutput entity);
 
     @Mappings({
-            @Mapping(target = "containsY", expression = "java(String.valueOf(input.isLabelCompleted() ? 1 : 0))"),
-            @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
-            @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
+            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
     })
-    TableDataSet transferPutInputToTableDataSet(PutApi.Input input);
+    ImageDataSetQueryInput transferInput(ApiDataResourceQueryInput entity);
 
 
     DataResource transferPutInputToDataResource(PutApi.Input input);
 
 
-    @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
-    })
-    TableDataSetQueryInput transferInput(QueryApi.Input input);
+    DataResourcePutInput transferPutInputToDataResourcePutInput(PutApi.Input input);
+
 
 }

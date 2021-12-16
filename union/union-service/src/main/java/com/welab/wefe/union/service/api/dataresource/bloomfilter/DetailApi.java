@@ -16,41 +16,45 @@
 
 package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
+import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
+import com.welab.wefe.union.service.mapper.BloomFilterMapper;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
 @Api(path = "bloom_filter/detail", name = "bloom_filter_detail", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<DetailApi.Input, ApiImageDataSetQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiBloomFilterQueryOutput> {
 
     @Autowired
     protected BloomFilterMongoReop bloomFilterMongoReop;
 
+    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
+
 
     @Override
-    protected ApiResult<ApiImageDataSetQueryOutput> handle(Input input) {
-        return success();
+    protected ApiResult<ApiBloomFilterQueryOutput> handle(ApiDataResourceQueryInput input) {
+        DataResourceQueryOutput dataResourceQueryOutput = bloomFilterMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+        return success(getOutput(dataResourceQueryOutput));
     }
 
-
-    public static class Input extends BaseInput {
-        @Check(require = true)
-        private String dataResouceId;
-
-        public String getDataResouceId() {
-            return dataResouceId;
+    protected ApiBloomFilterQueryOutput getOutput(DataResourceQueryOutput dataResourceQueryOutput) {
+        if (dataResourceQueryOutput == null) {
+            return null;
         }
 
-        public void setDataResouceId(String dataResouceId) {
-            this.dataResouceId = dataResouceId;
-        }
+        ApiBloomFilterQueryOutput detail = bloomFilterMapper.transferDetail(dataResourceQueryOutput);
+        return detail;
     }
+
 }

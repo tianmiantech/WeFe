@@ -28,8 +28,8 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
     public class ExtraData {
         private String forJobType;
         private String labelList;
-        private String labeledCount;
-        private String labelCompleted;
+        private int labeledCount;
+        private int labelCompleted;
         private String fileSize;
 
         public String getForJobType() {
@@ -48,19 +48,19 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
             this.labelList = labelList;
         }
 
-        public String getLabeledCount() {
+        public int getLabeledCount() {
             return labeledCount;
         }
 
-        public void setLabeledCount(String labeledCount) {
+        public void setLabeledCount(int labeledCount) {
             this.labeledCount = labeledCount;
         }
 
-        public String getLabelCompleted() {
+        public int getLabelCompleted() {
             return labelCompleted;
         }
 
-        public void setLabelCompleted(String labelCompleted) {
+        public void setLabelCompleted(int labelCompleted) {
             this.labelCompleted = labelCompleted;
         }
 
@@ -71,9 +71,6 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
         public void setFileSize(String fileSize) {
             this.fileSize = fileSize;
         }
-    }
-
-    public ApiImageDataSetQueryOutput() {
     }
 
 }

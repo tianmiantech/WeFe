@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
-import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
