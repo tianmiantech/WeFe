@@ -158,7 +158,6 @@
         },
         created() {
             this.getAuthStatus();
-            this.getAuthType();
             this.getAgreementId();
         },
         methods: {
@@ -183,6 +182,7 @@
                             this.getFile(id, data.file_id_list.length);
                         });
                     }
+                    this.getAuthType();
                 }
             },
 
@@ -190,6 +190,12 @@
                 const { code, data } = await this.$http.get('/union/member/authtype/query');
 
                 if(code === 0) {
+                    const index = data.list.findIndex(x => x.type_id === this.form.authType);
+
+                    if(index < 0) {
+                        this.form.authType = '';
+                    }
+
                     data.list.forEach(item => {
                         this.options.push({
                             label: item.type_name,
