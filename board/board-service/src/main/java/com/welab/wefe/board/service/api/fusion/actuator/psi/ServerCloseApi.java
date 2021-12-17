@@ -55,6 +55,10 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
         @Check(name = "businessId", require = true)
         String businessId;
 
+        public Input(String businessId) {
+            this.businessId = businessId;
+        }
+
         public String getBusinessId() {
             return businessId;
         }
