@@ -141,7 +141,7 @@
                                 :audit-status="true"
                                 :search-field="vData.rawSearch"
                                 :paramsExclude="['allList', 'list']"
-                                project-type="DeepLearning"
+                                :project-type="vData.flowInfo.project.project_type"
                                 @list-loaded="methods.listLoaded"
                                 @selectDataSet="methods.selectDataSet"
                                 @close-dialog="vData.showSelectDataSet=false;"

@@ -271,6 +271,7 @@
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
+                        :project-type="projectType"
                     >
                         <template #data-add>
                             <i />
@@ -313,6 +314,7 @@
                         ref="derivedDataSetListRef"
                         :paramsExclude="['allList', 'list']"
                         :search-field="vData.derivedSearch"
+                        :project-type="projectType"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
                     >
@@ -352,6 +354,7 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+            projectType:  String,
         },
         setup(props, context) {
             const store = useStore();
@@ -365,6 +368,7 @@
             const derivedRef = ref();
             const derivedDataSetListRef = ref();
             const rawDataSetListRef = ref();
+
             const vData = reactive({
                 inited:            false,
                 locker:            false,
@@ -531,6 +535,7 @@
                         ref.searchField.member_id = vData.memberId;
                         ref.searchField.member_role = vData.memberRole;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
+                        ref.searchField.data_set_type = 'TableDataSet';
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',
