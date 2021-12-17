@@ -11,12 +11,6 @@ Content-Type: application/json
 }
 
 > {%
-
-client.test("Request executed successfully", function() {
-    client.assert(response.body.code === 0, "Response code is not 0");
-});
-
 client.global.set("token", response.body.data.token);
-
 %}
 

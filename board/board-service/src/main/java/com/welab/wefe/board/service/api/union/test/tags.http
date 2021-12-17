@@ -6,13 +6,3 @@ token:{{token}}
 
 {}
 
-
-
-
-### 按名字查
-POST http://localhost:8080/board-service/union/tag/query
-Content-Type: application/json
-
-{
-  "tag": "xlsx"
-}

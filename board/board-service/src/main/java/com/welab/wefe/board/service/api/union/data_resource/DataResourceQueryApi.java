@@ -17,10 +17,7 @@ package com.welab.wefe.board.service.api.union.data_resource;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.sdk.UnionService;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -41,14 +38,14 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
 
     @Override
     protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException, IOException {
-        String api = StringUtil.stringToUnderLineLowerCase(input.dataResourceType.name());
-        api += "/query";
-        JSONObject response = unionService.request(api, input.rawRequestParams);
+        JSONObject response = unionService.request(
+                "data_resource/query",
+                input.rawRequestParams
+        );
         return super.unionApiResultToBoardApiResult(response);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "资源类型", require = true)
-        public DataResourceType dataResourceType;
+
     }
 }
