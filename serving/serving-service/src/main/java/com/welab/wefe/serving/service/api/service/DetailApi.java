@@ -52,9 +52,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		ServiceMySqlModel entity = serviceMySqlModel.get();
 
 		DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
-		if (StringUtils.isNotBlank(entity.getConditionFields())) {
-			output.setConditionFields(JObject.parseArray(entity.getConditionFields()));
-		}
 		if (StringUtils.isNotBlank(entity.getDataSource())) {
 			output.setDataSource(JObject.parseArray(entity.getDataSource()));
 		}

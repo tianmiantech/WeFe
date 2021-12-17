@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,6 +44,15 @@ public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
 	}
 
 	public static class Input extends AbstractApiInput {
+		private List<String> ids; // 这里的string是一个json字符串
+
+		public List<String> getIds() {
+			return ids;
+		}
+
+		public void setIds(List<String> ids) {
+			this.ids = ids;
+		}
 
 	}
 

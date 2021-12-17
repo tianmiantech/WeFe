@@ -81,6 +81,12 @@
             <artifactId>guava</artifactId>
             <version>30.0-jre</version>
         </dependency>
+        
+        <dependency>
+        	<groupId>com.welab.wefe</groupId>
+        	<artifactId>mpc-pir-server</artifactId>
+        	<version>${project.parent.version}</version>
+        </dependency>
 
     </dependencies>
 

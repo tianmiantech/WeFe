@@ -93,8 +93,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 		private String queryParams;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
-		@Check(name = "查询字段")
-		private String conditionFields;// json
 
 		public String getName() {
 			return name;
@@ -134,14 +132,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
 		public void setDataSource(String dataSource) {
 			this.dataSource = dataSource;
-		}
-
-		public String getConditionFields() {
-			return conditionFields;
-		}
-
-		public void setConditionFields(String conditionFields) {
-			this.conditionFields = conditionFields;
 		}
 
 	}
