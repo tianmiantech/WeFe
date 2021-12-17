@@ -48,7 +48,7 @@ CREATE TABLE `data_resource_upload_task`
     `updated_time`            datetime(6) COMMENT '更新时间',
     `data_resource_id`        varchar(32)  DEFAULT NULL COMMENT '数据资源id',
     `data_resource_name`      varchar(128) DEFAULT NULL COMMENT '数据资源名称',
-    `resource_type`           varchar(32) COMMENT '资源类型',
+    `data_resource_type`      varchar(32) COMMENT '资源类型',
     `total_data_count`        bigint(20) DEFAULT NULL COMMENT '总数据行数',
     `completed_data_count`    bigint(20) DEFAULT 0 COMMENT '已写入数据行数',
     `progress_ratio`          int(10) DEFAULT NULL COMMENT '任务进度百分比',
