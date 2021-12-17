@@ -1,10 +1,10 @@
 <template>
     <el-dialog
         v-model="show"
-        custom-class="mid-min-width"
+        width="75%"
         title="请选择数据集"
         destroy-on-close
-        width="70%"
+        :close-on-click-modal="false"
     >
         <el-form
             inline
@@ -32,7 +32,57 @@
                     clearable
                 />
             </el-form-item>
-            <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
+            <el-form-item
+                label="资源类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="search.dataResourceType"
+                    filterable
+                    clearable
+                    @change="resourceTypeChange"
+                    :disabled="isTypeDisabled"
+                >
+                    <el-option
+                        v-for="item in sourceTypeList"
+                        :key="item.label"
+                        :value="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="search.dataResourceType === 'TableDataSet'"
+                label="是否包含Y值："
+                label-width="100"
+            >
+                <el-select
+                    v-model="search.containsY"
+                    filterable
+                    clearable
+                >
+                    <el-option label="是" :value="true"></el-option>
+                    <el-option label="否" :value="false"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="search.dataResourceType === 'ImageDataSet'"
+                label="任务类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="search.forJobType"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="item in forJobTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+            <!-- <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
                 <el-select
                     v-model="search.contains_y"
                     style="width:80px;"
@@ -41,11 +91,11 @@
                     <el-option label="是" value="true"></el-option>
                     <el-option label="否" value="false"></el-option>
                 </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <el-button
                 class="ml10 mb10"
                 type="primary"
-                @click="loadDataList({ memberId, resetPagination: true })"
+                @click="searchDataList({ memberId, resetPagination: true })"
             >
                 查询
             </el-button>
@@ -99,13 +149,38 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:         '',
-                    name:       '',
-                    creator:    '',
-                    contains_y: '',
+                    id:      '',
+                    name:    '',
+                    creator: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
+                sourceTypeList:      [
+                    {
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
+                    },
+                    {
+                        label: 'ImageDataSet',
+                        value: 'ImageDataSet',
+                    },
+                    {
+                        label: 'BloomFilter',
+                        value: 'BloomFilter',
+                    },
+                ],
+                forJobTypeList: [
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                ],
+                isTypeDisabled:  false,
+                checkedDataList: [],
             };
         },
         watch: {
@@ -126,26 +201,33 @@
                 this.show = false;
             },
 
+            resourceTypeChange() {
+                this.search.containsY = '';
+                this.search.forJobType = '';
+            },
+
             resetSearch() {
                 this.$nextTick(() => {
                     const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:         '',
-                        name:       '',
-                        creator:    '',
-                        contains_y: '',
+                        id:      '',
+                        name:    '',
+                        creator: '',
                     };
 
                     if(this.containsY) {
                         this.search.source_type = 'Raw';
-                        this.search.contains_y = true;
                     }
 
                     $ref.list = [];
                     $ref.pagination.page_index = 1;
                     $ref.pagination.page_size = 20;
                 });
+            },
+
+            searchDataList({ memberId, resetPagination }) {
+                this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
             },
 
             async loadDataList({
@@ -155,6 +237,7 @@
                 $data_set,
                 projectType,
             }) {
+                this.checkedDataList = $data_set;
                 // change memberId, reset search
                 if (memberId && this.memberId !== memberId) {
                     this.resetSearch();
@@ -162,7 +245,10 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-
+                await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
+                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
+                this.isTypeDisabled = true;
+                
                 if (memberId) {
                     this.memberId = memberId;
                 }
@@ -187,18 +273,10 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        if (this.projectType === 'DeepLearning') {
-                            url = '/image_data_set/query';
-                        } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/table_data_set/query?member_id=${this.memberId}` : '/table_data_set/query';
-                        }
+                        url = 'data_resource/query';
                     } else {
                         // search from union
-                        if (this.projectType === 'DeepLearning') {
-                            url = `/union/image_data_set/query?member_id=${this.memberId}`;
-                        } else {
-                            url = `/union/table_data_set/query?member_id=${this.memberId}`;
-                        }
+                        url = `/union/data_resource/query?member_id=${this.memberId}`;
                     }
                 }
 

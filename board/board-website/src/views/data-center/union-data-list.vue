@@ -100,11 +100,9 @@
                         border
                     >
                         <el-table-column label="添加" width="60" v-slot="scope">
-                            <i
-                                title="快捷创建项目"
-                                class="el-icon-folder-add"
-                                @click="addDataSet($event, scope.row)"
-                            ></i>
+                            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
+                                <elicon-folder-add />
+                            </el-icon>
                         </el-table-column>
                         <el-table-column
                             label="成员"
