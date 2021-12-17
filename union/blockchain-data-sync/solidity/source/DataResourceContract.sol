@@ -16,6 +16,7 @@ contract DataResourceContract{
     event updateEvent(int256 ret_code,string data_resource_id,string[] params,string updated_time);
     event updateExtJsonEvent(int256 ret_code,string data_resource_id,string ext_json,string updated_time);
     event updateEnableEvent(int256 ret_code,string data_resource_id,string enable,string updated_time);
+    event deleteByDataResourceIdEvent(int256 ret_code,string data_resource_id);
 
     constructor() public {
         // 创建表
@@ -161,6 +162,25 @@ contract DataResourceContract{
 
         emit updateEnableEvent(ret_code,data_resource_id,enable,updated_time);
         return ret_code;
+    }
+
+    function deleteByDataResourceId(string data_resource_id) public returns (int) {
+        int256 ret_code = 0;
+        Table table = tableFactory.openTable(TABLE_NAME);
+        Condition condition = table.newCondition();
+        condition.EQ("data_resource_id", data_resource_id);
+        int count = table.remove(FIX_ID,condition);
+
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
+
+        emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
+
+        return ret_code;
+
     }
 
     function isExist(string data_resource_id) public view returns(bool) {

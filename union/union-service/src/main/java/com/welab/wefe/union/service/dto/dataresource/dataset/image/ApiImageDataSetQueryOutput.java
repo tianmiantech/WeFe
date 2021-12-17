@@ -17,13 +17,14 @@
 package com.welab.wefe.union.service.dto.dataresource.dataset.image;
 
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 
 /**
  * @author yuxin.zhang
  **/
 public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
 
-    private ExtraData extraData;
+    private ApiBloomFilterQueryOutput.ExtraData extraData;
 
     public static class ExtraData {
         private String forJobType;
@@ -73,11 +74,12 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
         }
     }
 
-    public ExtraData getExtraData() {
+
+    public ApiBloomFilterQueryOutput.ExtraData getExtraData() {
         return extraData;
     }
 
-    public void setExtraData(ExtraData extraData) {
+    public void setExtraData(ApiBloomFilterQueryOutput.ExtraData extraData) {
         this.extraData = extraData;
     }
 }

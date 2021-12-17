@@ -98,10 +98,10 @@ public class UserMongoRepo extends AbstractMongoRepo {
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 
-    public PageOutput<User> findList(String account, String nickname, Boolean adminRole, int pageIndex, int pageSize) {
+    public PageOutput<User> findList(String account, String realname, Boolean adminRole, int pageIndex, int pageSize) {
         Query query = new QueryBuilder()
                 .append("account", account)
-                .like("realname", nickname)
+                .like("realname", realname)
                 .append("adminRole", adminRole)
                 .page(pageIndex, pageSize)
                 .build();

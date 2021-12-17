@@ -23,6 +23,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import org.mapstruct.Mapper;
@@ -49,7 +50,7 @@ public interface ImageDataSetMapper {
     @Mappings({
             @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
     })
-    ImageDataSetQueryInput transferInput(QueryApi.QueryInput entity);
+    ImageDataSetQueryInput transferInput(ApiDataResourceQueryInput entity);
 
 
     @Mappings({

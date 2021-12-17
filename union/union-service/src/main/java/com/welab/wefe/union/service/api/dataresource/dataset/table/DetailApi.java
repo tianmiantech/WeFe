@@ -21,6 +21,7 @@ import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiTableDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
@@ -31,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "table_data_set/detail", name = "table_data_set", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiTableDataSetQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiTableDataSetQueryOutput> {
 
     @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
@@ -39,7 +40,7 @@ public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiTableDa
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiTableDataSetQueryOutput> handle(ApiDataResourceQueryInput input) {
+    protected ApiResult<ApiTableDataSetQueryOutput> handle(ApiDataResourceDetailInput input) {
         DataResourceQueryOutput dataResourceQueryOutput = tableDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
         return success(getOutput(dataResourceQueryOutput));
     }

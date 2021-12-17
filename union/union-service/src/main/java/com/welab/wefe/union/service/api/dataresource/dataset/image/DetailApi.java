@@ -21,6 +21,7 @@ import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
@@ -31,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "image_data_set/detail", name = "data_set_detail", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiImageDataSetQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiImageDataSetQueryOutput> {
 
     @Autowired
     protected ImageDataSetMongoReop imageDataSetMongoReop;
@@ -39,7 +40,7 @@ public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiImageDa
     protected ImageDataSetMapper mDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
 
     @Override
-    protected ApiResult<ApiImageDataSetQueryOutput> handle(ApiDataResourceQueryInput input) {
+    protected ApiResult<ApiImageDataSetQueryOutput> handle(ApiDataResourceDetailInput input) {
         DataResourceQueryOutput dataResourceQueryOutput = imageDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
         return success(getOutput(dataResourceQueryOutput));
     }

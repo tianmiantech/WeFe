@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.authtype;
+package com.welab.wefe.union.service.dto.dataresource;
 
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 
 /**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/10/19
- */
-public class MemberAuthTypeUpdateInput extends BaseInput {
+ * @author yuxin.zhang
+ **/
+public class ApiDataResourceDetailInput extends BaseInput {
     @Check(require = true)
-    private String typeId;
+    private String dataResourceId;
     @Check(require = true)
-    private String typeName;
+    protected DataResourceType dataResourceType;
 
-    public String getTypeId() {
-        return typeId;
+    public String getDataResourceId() {
+        return dataResourceId;
     }
 
-    public void setTypeId(String typeId) {
-        this.typeId = typeId;
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
     }
 
-    public String getTypeName() {
-        return typeName;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 }

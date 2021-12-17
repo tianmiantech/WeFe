@@ -22,6 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.contract.ImageDataSetContract;
 import com.welab.wefe.union.service.contract.TableDataSetContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -84,6 +85,23 @@ public class TableDataSetContractService extends DataResourceContractService {
             throw new StatusCodeWithException("Failed to add TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
+    }
+
+
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = tableDataSetContract.deleteByDataResourceId(dataResourceId);
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(TableDataSetContract.ABI, TableDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
     }
 
 

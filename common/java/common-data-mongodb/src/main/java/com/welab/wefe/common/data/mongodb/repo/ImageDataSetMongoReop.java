@@ -18,18 +18,22 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
+import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -119,7 +123,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     /**
      * Query the image data set visible to the current member
      */
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(ImageDataSetQueryInput imageDataSetQueryInput) {
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput imageDataSetQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
@@ -131,7 +135,6 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 localField("member_id").
                 foreignField("member_id").
                 as("member");
-
 
         Criteria dataResouceCriteria = new QueryBuilder()
                 .append("enable", "1")
@@ -197,5 +200,12 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
     public void upsert(ImageDataSet imageDataSet) {
         mongoUnionTemplate.save(imageDataSet);
+    }
+
+
+    public void deleteByDataResourceId(String dataResourceId) {
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        Update udpate = new UpdateBuilder().append("status", 1).build();
+        mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
     }
 }

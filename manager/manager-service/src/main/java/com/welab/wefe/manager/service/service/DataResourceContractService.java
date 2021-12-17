@@ -92,7 +92,7 @@ public abstract class DataResourceContractService extends AbstractContractServic
     public void enable(String dataResourceId, String enable) throws StatusCodeWithException {
         try {
             String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
-            TransactionReceipt transactionReceipt = dataResourceContract.updateExtJson(
+            TransactionReceipt transactionReceipt = dataResourceContract.updateEnable(
                     dataResourceId,
                     enable,
                     updatedTime
@@ -100,7 +100,7 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
             // Get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_UPDATEENABLE, transactionReceipt);
 
             transactionIsSuccess(transactionResponse);
 

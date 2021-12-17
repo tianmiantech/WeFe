@@ -1,23 +1,24 @@
 package com.welab.wefe.union.service.dto.dataresource;
 
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
 public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
-    protected String dataResourceId;
-    protected String memberId;
-    protected String memberName;
-    protected String name;
-    protected String description;
-    protected String tags;
-    protected String totalDataCount;
-    protected String publicLevel;
-    protected String publicMemberList;
-    protected String usageCountInJob;
-    protected String usageCountInFlow;
-    protected String usageCountInProject;
-    protected String usageCountInMember;
-    protected String enable;
-    protected String dataResourceType;
+    private String dataResourceId;
+    private String memberId;
+    private String memberName;
+    private String name;
+    private String description;
+    private String tags;
+    private String totalDataCount;
+    private String publicLevel;
+    private String publicMemberList;
+    private String usageCountInJob;
+    private String usageCountInFlow;
+    private String usageCountInProject;
+    private String usageCountInMember;
+    private String enable;
+    private DataResourceType dataResourceType;
 
 
     public String getDataResourceId() {
@@ -124,11 +125,11 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
         this.enable = enable;
     }
 
-    public String getDataResourceType() {
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(String dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 

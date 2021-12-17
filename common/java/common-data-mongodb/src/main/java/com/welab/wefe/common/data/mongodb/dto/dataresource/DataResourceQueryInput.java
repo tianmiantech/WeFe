@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mongodb.dto.dataresource;
 
 import com.welab.wefe.common.data.mongodb.dto.PageInput;
 import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -30,6 +31,8 @@ public class DataResourceQueryInput extends PageInput {
     protected String tag;
     protected String curMemberId;
     protected DataResourceType dataResourceType;
+    private DeepLearningJobType forJobType;
+    private Boolean containsY;
     protected String enable;
 
     public String getDataResourceId() {
@@ -86,5 +89,22 @@ public class DataResourceQueryInput extends PageInput {
 
     public void setEnable(String enable) {
         this.enable = enable;
+    }
+
+
+    public DeepLearningJobType getForJobType() {
+        return forJobType;
+    }
+
+    public void setForJobType(DeepLearningJobType forJobType) {
+        this.forJobType = forJobType;
+    }
+
+    public Boolean getContainsY() {
+        return containsY;
+    }
+
+    public void setContainsY(Boolean containsY) {
+        this.containsY = containsY;
     }
 }

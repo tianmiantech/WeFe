@@ -18,13 +18,9 @@ package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.dataresource.bloomfilter.PutApi;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
-import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
-import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -42,5 +38,15 @@ public interface DataResourceMapper {
             @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
     })
     DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
+
+
+    @Mappings({
+            @Mapping(target = "imageDataSet", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getImageDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
+            @Mapping(target = "tableDataSet", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getTableDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
+            @Mapping(target = "bloomFilter", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getBloomFilter()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
+            @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
+            @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
+    })
+    ApiDataResourceQueryOutput transferDetail(DataResourceQueryOutput entity);
 
 }

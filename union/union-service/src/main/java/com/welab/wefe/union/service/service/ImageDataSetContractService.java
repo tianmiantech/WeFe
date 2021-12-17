@@ -22,6 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.contract.BloomFilterContract;
 import com.welab.wefe.union.service.contract.ImageDataSetContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -89,6 +90,23 @@ public class ImageDataSetContractService extends AbstractContractService {
             throw new StatusCodeWithException("Failed to update ImageDataSet set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
+    }
+
+
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataResourceId(dataResourceId);
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
     }
 
 
