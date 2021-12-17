@@ -1,0 +1,18 @@
+
+### 查询全部 tag
+POST http://localhost:8080/board-service/union/data_resource/tags/query
+Content-Type: application/json
+token:{{token}}
+
+{}
+
+
+
+
+### 按名字查
+POST http://localhost:8080/board-service/union/tag/query
+Content-Type: application/json
+
+{
+  "tag": "xlsx"
+}

@@ -81,7 +81,7 @@ public class DataResourceService extends AbstractDataResourceService {
         }
 
         try {
-            unionService.updateDataResourceBaseInfo(model);
+            unionService.lazyUpdateDataResource(model);
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
@@ -138,7 +138,7 @@ public class DataResourceService extends AbstractDataResourceService {
         func.accept(model);
         repo.save(model);
 
-        unionService.updateDataResourceBaseInfo(model);
+        unionService.lazyUpdateDataResource(model);
     }
 
 

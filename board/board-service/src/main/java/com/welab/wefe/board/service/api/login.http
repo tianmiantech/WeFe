@@ -1,0 +1,22 @@
+
+### 登录
+POST http://localhost:8080/board-service/account/login
+Content-Type: application/json
+
+{
+  "phone_number": "13100000001",
+  "password": "password",
+  "code": "code",
+  "key": "key"
+}
+
+> {%
+
+client.test("Request executed successfully", function() {
+    client.assert(response.body.code === 0, "Response code is not 0");
+});
+
+client.global.set("token", response.body.data.token);
+
+%}
+
