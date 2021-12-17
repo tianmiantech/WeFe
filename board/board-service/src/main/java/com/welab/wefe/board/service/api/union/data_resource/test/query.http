@@ -11,5 +11,5 @@ Content-Type: application/json
 token:{{token}}
 
 {
-  "data_resource_type": "ImageDataSet"
+  "data_resource_type": "TableDataSet"
 }

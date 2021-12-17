@@ -5,7 +5,7 @@ Content-Type: application/json
 token:{{token}}
 
 {
-  "data_resource_id": "0f320e76e4fc401ba7571d9c067e1021",
-  "data_resource_type": "ImageDataSet"
+  "data_resource_id": "c2c38a92d494451e87bf0c61db6a8aa6",
+  "data_resource_type": "TableDataSet"
 }
 

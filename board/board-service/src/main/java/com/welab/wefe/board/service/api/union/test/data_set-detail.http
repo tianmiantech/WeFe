@@ -1,9 +1,0 @@
-
-### 查询全部数据集
-POST http://localhost:8080/board-service/union/data_set/detail
-Content-Type: application/json
-
-{
-  "id": "766fb48a78ed4b80b684fd06301c8a84"
-}
-

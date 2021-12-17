@@ -67,7 +67,7 @@ public class ImageDataSetService extends DataResourceService {
         }
     }
 
-    public synchronized void updateLabelInfo(String dataSetId) {
+    public synchronized void updateLabelInfo(String dataSetId) throws StatusCodeWithException {
         ImageDataSetMysqlModel dataSet = findOneById(dataSetId);
         TreeSet<String> labelSet = new TreeSet<>();
         imageDataSetSampleRepository.getAllDistinctLabelList(dataSetId)
@@ -85,7 +85,7 @@ public class ImageDataSetService extends DataResourceService {
 
         imageDataSetRepository.save(dataSet);
 
-        unionService.updateImageDataSetLabelInfo(dataSet);
+        unionService.lazyUpdateDataResource(dataSet);
 
     }
 
@@ -130,7 +130,7 @@ public class ImageDataSetService extends DataResourceService {
         FileUtil.deleteFileOrDir(model.getStorageNamespace());
         CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
-        unionService.dontPublicDataSet(model);
+        unionService.doNotPublicDataSet(model);
     }
 
 

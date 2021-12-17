@@ -129,7 +129,7 @@ public class TableDataSetService extends DataResourceService {
         // is raw data set
         if (!model.isDerivedResource()) {
             // Notify the union to do not public the data set
-            unionService.dontPublicDataSet(model);
+            unionService.doNotPublicDataSet(model);
 
             // Refresh the data set tag list
             CacheObjects.refreshDataResourceTags(model.getDataResourceType());
