@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -121,7 +122,11 @@ public class ClientActuator extends PsiClientActuator {
     @Override
     public void notifyServerClose() {
         //notify the server that the task has ended
-
+        try {
+            gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
+        } catch (MemberGatewayException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
