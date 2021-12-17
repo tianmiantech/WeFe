@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -28,24 +27,35 @@ import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.storage.common.Constant;
+import com.welab.wefe.common.data.storage.model.DataItemModel;
+import com.welab.wefe.common.data.storage.model.PageInputModel;
+import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
+import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -185,8 +195,7 @@ public class FusionTaskService extends AbstractService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void handle(HandleApi.Input input) throws StatusCodeWithException {
-
+    public void handle(AuditApi.Input input) throws StatusCodeWithException {
         FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
@@ -222,7 +231,7 @@ public class FusionTaskService extends AbstractService {
     /**
      * RSA-psi Algorithm to deal with
      */
-    private void psi(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
+    private void psi(AuditApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
         switch (task.getPsiActuatorRole()) {
             case server:
                 psiServer(task);
@@ -238,7 +247,7 @@ public class FusionTaskService extends AbstractService {
     /**
      * psi-client
      */
-    private void psiClient(HandleApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
+    private void psiClient(AuditApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
 //        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
 //        if (dataSet == null) {
@@ -293,11 +302,37 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+//
+//        BigInteger N = new BigInteger("146167375152084793681454802679848639178224348966309619052798488909082307110902445595724341286608959925801829756525526243684536115856528805020439965613516355067753856475629524304268915399502745195831856710907661535868988721331189916736238540712398051680091965455756603260140826492895494853907634504720747245633");
+//        BigInteger e = new BigInteger("65537");
+//        BigInteger d = new BigInteger("19889843166551599707817170915649025194796904711560632661135799992236385779254894331792265065443622756890012020212927705588884036211735720023380435682764524449631974370220019402021038164175570368177776959055309765000696946731304849785712081220896277458221633983822452333249197209907929579769680795368625751585");
+//
+//        File file = new File("/Users/hunter.zhao/Documents/tel.txt");
+//        String[] s = new String[0];
+//        try {
+//            s = FileUtil.readAllText(file).split(System.lineSeparator());
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+//
+//        BloomFilters bf = new BloomFilters(0.001, s.length);
+//        for (int i = 0; i < s.length; i++){
+//
+//            BigInteger h = PSIUtils.stringToBigInteger(String.valueOf(s[i]));
+//            BigInteger z = h.modPow(d, N);
+//
+//            bf.add(z);
+//        }
+
         /**
          * Generate the corresponding task handler
          */
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
+//bf ,
+//N,
+//e,
+//d
                 BloomFilterUtils.readFrom(
                         Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
                 ),

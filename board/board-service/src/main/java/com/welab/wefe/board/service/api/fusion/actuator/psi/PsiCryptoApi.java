@@ -17,52 +17,56 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
+import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/receive/result",
-        name = "psi handle",
-        desc = "psi handle",
-        login = false
-//        ,
-//        rsaVerify = true
+        path = "fusion/psi/crypto",
+        name = "psi crypto",
+        desc = "psi crypto",
+        login = false,
+        rsaVerify = true
 )
-public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionResultApi.Input> {
+public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
 
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.receiveResult(input.getRs());
-        return success();
+        return success(PsiMeta.of(actuator.compute(input.getBs())));
     }
 
+
     public static class Input extends AbstractApiInput {
+        @Check(name = "businessId", require = true)
         String businessId;
 
-        List<byte[]> rs;
+        @Check(name = "bs")
+        List<String> bs;
 
-        Input(String businessId,List<byte[]> rs){
-            businessId = businessId;
-            rs = rs;
+        public Input(String businessId, List<String> bs) {
+            this.businessId = businessId;
+            this.bs = bs;
         }
 
         public String getBusinessId() {
@@ -73,12 +77,12 @@ public class ReceiveFusionResultApi extends AbstractNoneOutputApi<ReceiveFusionR
             this.businessId = businessId;
         }
 
-        public List<byte[]> getRs() {
-            return rs;
+        public List<String> getBs() {
+            return bs;
         }
 
-        public void setRs(List<byte[]> rs) {
-            this.rs = rs;
+        public void setBs(List<String> bs) {
+            this.bs = bs;
         }
     }
 }

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from common.python.db.db_models import GlobalSetting
 from common.python.db.global_config_dao import GlobalConfigDao
 from common.python.utils.log_utils import LoggerFactory
 import requests
@@ -43,10 +43,7 @@ class VisualFLService:
 
     @staticmethod
     def _request(api, data):
-        """
-        向 board 服务发送请求
-        """
-        url = "http://10.90.0.86:10002" + api
+        url = GlobalSetting.get_flow_base_url().value + api
 
         # 发送请求
         start_time = current_timestamp()

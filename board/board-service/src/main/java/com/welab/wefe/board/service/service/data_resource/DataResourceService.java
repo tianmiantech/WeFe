@@ -26,7 +26,10 @@ import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
-import com.welab.wefe.board.service.database.repository.data_resource.*;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
@@ -41,6 +44,7 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -64,8 +68,6 @@ public class DataResourceService extends AbstractDataResourceService {
     private ProjectRepository projectRepository;
     @Autowired
     private DataResourceRepository dataResourceRepository;
-    @Autowired
-    private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
 
     /**
      * Update the number of data sets used in the project
@@ -108,7 +110,7 @@ public class DataResourceService extends AbstractDataResourceService {
             return;
         }
         Class<? extends DataResourceMysqlModel> clazz = null;
-        switch (one.getResourceType()) {
+        switch (one.getDataResourceType()) {
             case ImageDataSet:
                 clazz = ImageDataSetMysqlModel.class;
                 break;
@@ -269,10 +271,6 @@ public class DataResourceService extends AbstractDataResourceService {
         }
     }
 
-    public void delete(String dataSetId, DataResourceType dataSetType) {
-        // TODO: Zane 待补充
-    }
-
     @Autowired
     private TableDataSetService tableDataSetService;
     @Autowired
@@ -286,13 +284,29 @@ public class DataResourceService extends AbstractDataResourceService {
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
+    public void delete(String dataResourceId, DataResourceType dataSetType) throws StatusCodeWithException {
+        switch (dataSetType) {
+            case ImageDataSet:
+                imageDataSetService.delete(dataResourceId);
+                break;
+            case TableDataSet:
+                tableDataSetService.delete(dataResourceId);
+                break;
+            case BloomFilter:
+                bloomFilterSetService.delete(dataResourceId);
+            default:
+        }
+    }
+
+
     public PagingOutput<? extends DataResourceOutputModel> query(DataResourceQueryApi.Input input) {
         Where where = Where
                 .create()
                 .equal("id", input.getId())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
-                .equal("createdBy", input.getCreator());
+                .equal("createdBy", input.getCreator())
+                .orderBy("createdTime", OrderBy.asc);
 
         if (input.getDataResourceType() == null) {
             return dataResourceRepository.paging(

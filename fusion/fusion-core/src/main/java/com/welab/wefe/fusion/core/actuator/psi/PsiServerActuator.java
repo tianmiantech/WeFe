@@ -75,11 +75,11 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
      *
      * @param rs
      */
-    public void receiveResult(List<byte[]> rs) {
+    public void receiveResult(List<String> rs) {
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {
-            fruit.add(JObject.create(new String(rs.get(i))));
+            fruit.add(JObject.create(new String(Base64Util.base64ToByteArray(rs.get(i)))));
         }
 
         dump(fruit);

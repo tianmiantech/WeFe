@@ -75,7 +75,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
-        model.setResourceType(getDataResourceType());
+        model.setDataResourceType(getDataResourceType());
         model.setTags(dataResourceService.standardizeTags(input.getTags()));
         dataResourceService.handlePublicMemberList(model);
         checkAndSetStorageLocation(model);
@@ -118,7 +118,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             model.setStorageNamespace(
                     Paths.get(
                                     config.getFileUploadDir(),
-                                    StringUtil.stringToUnderLineLowerCase(model.getResourceType().name()),
+                                    StringUtil.stringToUnderLineLowerCase(model.getDataResourceType().name()),
                                     model.getId()
                             )
                             .toAbsolutePath()

@@ -36,7 +36,6 @@ class Api(BaseApi):
 
     def run(self, input: Input):
         schedule_logger("get request apply_callback_api:{}".format(input))
-        # todo
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
         if apply_result is None:

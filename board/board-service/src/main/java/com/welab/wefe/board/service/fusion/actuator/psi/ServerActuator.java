@@ -17,6 +17,9 @@ package com.welab.wefe.board.service.fusion.actuator.psi;
  */
 
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.welab.wefe.board.service.fusion.actuator.PsiDumpHelper;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.util.JObject;
@@ -38,7 +41,22 @@ public class ServerActuator extends PsiServerActuator {
 
     @Override
     public void dump(List<JObject> fruit) {
+        LOG.info("fruit insert ready...");
 
+        List<String> headers = Lists.newArrayList();
+        if(fruit.isEmpty()){
+            return;
+        }
+
+        for (String header : fruit.get(0).keySet()) {
+            headers.add(header);
+        }
+
+        PsiDumpHelper.dump(businessId, headers, fruit);
+
+        LOG.info("fruit insert end...");
+
+        System.out.println("测试结果：" + JSON.toJSONString(fruit));
     }
 
     @Override

@@ -246,7 +246,7 @@ public abstract class AbstractUnionService extends AbstractService {
         return errorMsg;
     }
 
-    protected JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+    public JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
         return request(api, params, true);
     }
 

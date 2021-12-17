@@ -72,7 +72,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
         model.setSourcePath(config.getFileUploadDir() + input.getFilename());
         model.setDataSourceId(input.getDataSourceId());
-        model.setHashFunction(StringUtil.join(input.getFieldInfoList()));
+        model.setHashFunction(String.valueOf(input.getHashFunction()));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         // save bloom_filter info to file

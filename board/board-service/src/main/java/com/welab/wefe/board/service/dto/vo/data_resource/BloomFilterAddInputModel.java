@@ -46,7 +46,7 @@ public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
     private String sql;
 
     @Check(name = "选择的id特征列")
-    private List<String> rows;
+    private List<String> hashFunction;
 
     @Check(name = "主键处理")
     private List<FieldInfo> fieldInfoList;
@@ -122,12 +122,12 @@ public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
         this.sql = sql;
     }
 
-    public List<String> getRows() {
-        return rows;
+    public List<String> getHashFunction() {
+        return hashFunction;
     }
 
-    public void setRows(List<String> rows) {
-        this.rows = rows;
+    public void setHashFunction(List<String> hashFunction) {
+        this.hashFunction = hashFunction;
     }
 
     public List<FieldInfo> getFieldInfoList() {
