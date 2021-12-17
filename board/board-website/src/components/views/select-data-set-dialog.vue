@@ -273,22 +273,10 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        // if (this.projectType === 'DeepLearning') {
-                        //     url = '/image_data_set/query';
-                        // } else {
-                        //     url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/table_data_set/query?member_id=${this.memberId}` : '/table_data_set/query';
-                        // }
-                        // data_resource/query
                         url = 'data_resource/query';
                     } else {
                         // search from union
                         url = `/union/data_resource/query?member_id=${this.memberId}`;
-
-                        // if (this.projectType === 'DeepLearning') {
-                        //     url = `/union/data_resource/query?member_id=${this.memberId}`;
-                        // } else {
-                        //     url = `/union/data_resource/query?member_id=${this.memberId}`;
-                        // }
                     }
                 }
 

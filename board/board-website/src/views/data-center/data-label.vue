@@ -82,8 +82,8 @@
                 sampleId:   route.query.id,
                 forJobType: route.query.for_job_type,
                 search:     {
-                    page_index: 1,
-                    page_size:  20,
+                    page_index: route.query.page_index || 1,
+                    page_size:  route.query.page_size || 20,
                     label:      '',
                     labeled:    '',
                     total:      1,
