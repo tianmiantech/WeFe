@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "bloom_filter/detail", name = "bloom_filter_detail", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiBloomFilterQueryOutput> {
+public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiBloomFilterQueryOutput> {
 
     @Autowired
     protected BloomFilterMongoReop bloomFilterMongoReop;
@@ -43,7 +44,7 @@ public class DetailApi extends AbstractApi<ApiDataResourceQueryInput, ApiBloomFi
 
 
     @Override
-    protected ApiResult<ApiBloomFilterQueryOutput> handle(ApiDataResourceQueryInput input) {
+    protected ApiResult<ApiBloomFilterQueryOutput> handle(ApiDataResourceDetailInput input) {
         DataResourceQueryOutput dataResourceQueryOutput = bloomFilterMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
         return success(getOutput(dataResourceQueryOutput));
     }

@@ -49,6 +49,9 @@ public class BloomFilterContractEventParser extends AbstractParser {
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
                 break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
+                break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
         }
@@ -86,7 +89,10 @@ public class BloomFilterContractEventParser extends AbstractParser {
         bloomFilterMongoReop.upsert(bloomFilter);
     }
 
-
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        bloomFilterMongoReop.deleteByDataResourceId(dataResourceId);
+    }
 
     private BloomFilter getBloomFilter(String dataResourceId) throws BusinessException {
         BloomFilter bloomFilter = bloomFilterMongoReop.findByDataResourceId(dataResourceId);

@@ -49,6 +49,9 @@ public class TableDataSetContractEventParser extends AbstractParser {
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
                 break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
+                break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
         }
@@ -94,6 +97,12 @@ public class TableDataSetContractEventParser extends AbstractParser {
         tableDataSet.setUpdatedTime(updatedTime);
         tableDataSetMongoReop.upsert(tableDataSet);
     }
+
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        tableDataSetMongoReop.deleteByDataResourceId(dataResourceId);
+    }
+
 
     private TableDataSet getTableDataSet(String dataResourceId) throws BusinessException {
         TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(dataResourceId);

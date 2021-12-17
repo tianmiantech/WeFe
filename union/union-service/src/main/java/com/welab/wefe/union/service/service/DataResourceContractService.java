@@ -88,6 +88,22 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
     }
 
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataResourceId);
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
     private List<String> generateAddParams(DataResource dataResource) {
         List<String> list = new ArrayList<>();
         list.add(dataResource.getDataResourceId());

@@ -22,14 +22,17 @@ import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInpu
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -198,6 +201,13 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
 
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
+    }
+
+
+    public void deleteByDataResourceId(String dataResourceId) {
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        Update udpate = new UpdateBuilder().append("status", 1).build();
+        mongoUnionTemplate.updateFirst(query, udpate, BloomFilter.class);
     }
 
 }

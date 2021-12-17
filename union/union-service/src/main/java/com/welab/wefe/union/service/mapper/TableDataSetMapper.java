@@ -23,6 +23,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.table.PutApi;
 import com.welab.wefe.union.service.api.dataresource.dataset.table.QueryApi;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiTableDataSetQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -58,6 +59,6 @@ public interface TableDataSetMapper {
     @Mappings({
             @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
     })
-    TableDataSetQueryInput transferInput(QueryApi.Input input);
+    TableDataSetQueryInput transferInput(ApiDataResourceQueryInput input);
 
 }

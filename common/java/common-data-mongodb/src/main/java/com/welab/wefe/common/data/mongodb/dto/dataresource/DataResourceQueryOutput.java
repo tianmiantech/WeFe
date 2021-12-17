@@ -16,12 +16,15 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataresource;
 
-import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
+import com.welab.wefe.common.enums.DataResourceType;
 
 /**
  * @author yuxin.zhang
  **/
-public class DataResourceQueryOutput<T> {
+public class DataResourceQueryOutput {
     private String dataResourceId;
     private String memberId;
     private String name;
@@ -35,10 +38,12 @@ public class DataResourceQueryOutput<T> {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
-    private String dataResourceType;
+    private DataResourceType dataResourceType;
     private String createdTime;
     private String updatedTime;
-    private T extraData;
+    private ImageDataSet imageDataSet;
+    private TableDataSet tableDataSet;
+    private BloomFilter bloomFilter;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -144,19 +149,35 @@ public class DataResourceQueryOutput<T> {
         this.enable = enable;
     }
 
-    public T getExtraData() {
-        return extraData;
+    public ImageDataSet getImageDataSet() {
+        return imageDataSet;
     }
 
-    public void setExtraData(T extraData) {
-        this.extraData = extraData;
+    public void setImageDataSet(ImageDataSet imageDataSet) {
+        this.imageDataSet = imageDataSet;
     }
 
-    public String getDataResourceType() {
+    public TableDataSet getTableDataSet() {
+        return tableDataSet;
+    }
+
+    public void setTableDataSet(TableDataSet tableDataSet) {
+        this.tableDataSet = tableDataSet;
+    }
+
+    public BloomFilter getBloomFilter() {
+        return bloomFilter;
+    }
+
+    public void setBloomFilter(BloomFilter bloomFilter) {
+        this.bloomFilter = bloomFilter;
+    }
+
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(String dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 

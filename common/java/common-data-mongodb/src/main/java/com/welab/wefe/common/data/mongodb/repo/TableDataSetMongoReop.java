@@ -19,11 +19,13 @@ package com.welab.wefe.common.data.mongodb.repo;
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.TableDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.TableDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
@@ -131,7 +133,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
     /**
      * Query the table data set visible to the current member
      */
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(TableDataSetQueryInput tableDataSetQueryInput) {
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput tableDataSetQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.TABLE_DATASET).
                 localField("data_resource_id").
@@ -207,5 +209,10 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         return new PageOutput<>(tableDataSetQueryInput.getPageIndex(), (long) total, tableDataSetQueryInput.getPageSize(), result);
     }
 
+    public void deleteByDataResourceId(String dataResourceId) {
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        Update udpate = new UpdateBuilder().append("status", 1).build();
+        mongoUnionTemplate.updateFirst(query, udpate, TableDataSet.class);
+    }
 
 }

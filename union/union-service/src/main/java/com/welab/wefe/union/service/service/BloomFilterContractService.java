@@ -24,6 +24,7 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.contract.BloomFilterContract;
+import com.welab.wefe.union.service.contract.DataResourceContract;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.entity.DataSet;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -90,7 +91,21 @@ public class BloomFilterContractService extends AbstractContractService {
         }
     }
 
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = bloomFilterContract.deleteByDataResourceId(dataResourceId);
 
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(BloomFilterContract.ABI, BloomFilterContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update BloomFilter information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
 
     private List<String> generateParams(BloomFilter bloomFilter) {
         List<String> list = new ArrayList<>();
