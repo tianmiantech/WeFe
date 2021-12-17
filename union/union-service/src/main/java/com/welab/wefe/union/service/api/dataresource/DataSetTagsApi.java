@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resoure/tags/query", name = "data_resoure_tags_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/tags/query", name = "data_resource_tags_query", rsaVerify = true, login = false)
 public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsDTO>> {
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
