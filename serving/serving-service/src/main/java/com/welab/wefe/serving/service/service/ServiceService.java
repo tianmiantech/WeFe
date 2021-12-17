@@ -17,7 +17,10 @@
 package com.welab.wefe.serving.service.service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,6 +58,7 @@ import com.welab.wefe.serving.service.database.serving.repository.ServiceReposit
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
+import com.welab.wefe.serving.service.utils.ZipUtils;
 
 /**
  * 服务 Service
@@ -209,21 +213,26 @@ public class ServiceService {
 		}
 	}
 
-	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException {
+	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "service not exists");
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 		if (serviceType == 1) {
-			// 读取文件路径,根据实际情况来
-			String path = "/Users/winter.zou/Documents/eclipse/workspace/Wefe/serving/serving-service/README.md";
-			File file = new File(path);
-			// 待下载文件名，根据实际情况来
-			String fileName = "mpc-pir-sdk.jar";
+			String projectPath = System.getProperty("user.dir");
+			String sdkZipName = "sdk.zip";
+			String outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			List<File> fileList = new ArrayList<>();
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+			FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
+			ZipUtils.toZip(fileList, fos2);
+			File file = new File(outputPath);
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-			headers.setContentDispositionFormData("attachment", fileName);
+			headers.setContentDispositionFormData("attachment", sdkZipName);
 			try {
 				return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
 			} catch (IOException e) {

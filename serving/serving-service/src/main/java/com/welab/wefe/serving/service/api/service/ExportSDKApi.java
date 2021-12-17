@@ -25,11 +25,10 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "service/export_sdk", name = "export sdk")
+@Api(path = "service/export_sdk", name = "export sdk", login = false)
 public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity<byte[]>> {
 
 	@Autowired
@@ -51,10 +50,6 @@ public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity
 		public void setServiceId(String serviceId) {
 			this.serviceId = serviceId;
 		}
-
-	}
-
-	public static class Output extends AbstractApiOutput {
 
 	}
 
