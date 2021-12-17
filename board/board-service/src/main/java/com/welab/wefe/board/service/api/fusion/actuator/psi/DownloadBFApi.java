@@ -41,9 +41,8 @@ import java.math.BigInteger;
 @Api(path = "fusion/psi/download_bloom_filter",
         name = "download bloomfilter",
         desc = "download bloomfilter",
-        login = false
-//        ,
-//        rsaVerify = true
+        login = false,
+        rsaVerify = true
 )
 public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorMeta> {
 
