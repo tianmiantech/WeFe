@@ -89,10 +89,9 @@ public class UnionService extends AbstractUnionService {
     public void doNotPublicDataSet(DataResourceMysqlModel model) throws StatusCodeWithException {
         JObject params = JObject
                 .create()
-                .put("id", model.getId());
-        // TODO: Zane 待补充
-        String api = "data_resource/delete";
-        request(api, params);
+                .put("data_resource_id", model.getId());
+
+        request("data_resource/delete", params);
     }
 
 

@@ -34,7 +34,7 @@ import java.util.List;
  * @author Johnny.lin
  */
 @Api(path = "data_set/list_local_data_set_files", name = "query the files in the specified directory on the server")
-public class ServerLocalFilesApi extends AbstractApi<NoneApiInput, ServerLocalFilesApi.Output> {
+public class ListServerLocalFilesApi extends AbstractApi<NoneApiInput, ListServerLocalFilesApi.Output> {
 
     @Autowired
     private Config config;
