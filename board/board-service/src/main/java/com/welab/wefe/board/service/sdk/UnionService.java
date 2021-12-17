@@ -128,6 +128,12 @@ public class UnionService extends AbstractUnionService {
             return null;
         }
 
+        JSONObject extraData = data.getJSONObject("extra_data");
+        if (extraData != null) {
+            data.putAll(extraData);
+            data.remove("extra_data");
+        }
+
         OUT output = data.toJavaObject(outputClass);
 
         CACHE_MAP.put(key, output);
