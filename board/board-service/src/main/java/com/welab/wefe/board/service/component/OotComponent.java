@@ -93,7 +93,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             return;
         }
         if (FederatedLearningType.mix.equals(graph.getFederatedLearningType())) {
-            throw new FlowNodeException(node, "[打分验证]组件暂时不支持混合联邦");
+            throw new FlowNodeException(node, "【打分验证】组件暂时不支持混合联邦");
         }
 
         DataIOComponent.DataSetItem myDataSetConfig = getMyDataSetConfig(graph, params);
@@ -116,7 +116,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // This jobid means the jobid of the old process
         if (isOotMode(params)) {
             if (graph.allNodes.size() > 1) {
-                throw new FlowNodeException(node, "只允许只有[打分验证]组件。");
+                throw new FlowNodeException(node, "只允许只有【打分验证】组件。");
             }
             // Find the dataio task from the task list
             dataIoTaskMysqlModel = taskService.findDataIoTask(params.jobId, graph.getJob().getMyRole());
@@ -131,7 +131,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             // Find evaluation node
             FlowGraphNode evaluationNode = graph.findOneNodeFromParent(node, ComponentType.Evaluation);
             if (null == evaluationNode && null == modelingNode) {
-                throw new FlowNodeException(node, "在[打分验证]节点前必须有建模行为或评估行为");
+                throw new FlowNodeException(node, "在【打分验证】节点前必须有建模行为或评估行为");
             }
 
             dataIoTaskMysqlModel = findDataIoTask(preTasks);
@@ -478,7 +478,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         for (TaskMySqlModel taskMySqlModel : taskMySqlModelList) {
             for (ComponentType componentType : TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST) {
                 if (componentType.equals(taskMySqlModel.getTaskType())) {
-                    throw new FlowNodeException(node, "暂时不支持组件 " + componentType.getLabel());
+                    throw new FlowNodeException(node, "暂时不支持组件【" + componentType.getLabel() + "】");
                 }
             }
         }
@@ -561,7 +561,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private TaskMySqlModel createEvaluationTaskMySqlModel(FlowGraph graph, FlowGraphNode node, TaskMySqlModel dataIoTask, OotComponent.Params ootParams) throws FlowNodeException {
         if (StringUtil.isEmpty(ootParams.getEvalType()) || null == ootParams.posLabel) {
-            throw new FlowNodeException(node, "请填写 打分验证 节点的评估类别或正标签类型字段。");
+            throw new FlowNodeException(node, "请填写【打分验证】节点的评估类别或正标签类型字段。");
         }
         TaskMySqlModel evaluationTaskMySqlModel = new TaskMySqlModel();
         String evaluationTaskId = dataIoTask.getTaskId();
