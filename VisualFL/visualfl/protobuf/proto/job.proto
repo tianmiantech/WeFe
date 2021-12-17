@@ -6,8 +6,9 @@ package visualfl;
 message Task {
   string job_id = 1;
   string task_id = 2;
-  string task_type = 3;
-  google.protobuf.Any task = 4;
-  string assignee = 5;
+  string web_task_id = 3;
+  string task_type = 4;
+  google.protobuf.Any task = 5;
+  string assignee = 6;
 }
 

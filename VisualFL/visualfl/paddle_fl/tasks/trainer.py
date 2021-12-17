@@ -15,6 +15,7 @@ class FLTrainer(Task):
         self,
         job_id,
         task_id,
+        web_task_id,
         scheduler_ep: str,
         trainer_id: int,
         trainer_ep: str,
@@ -30,7 +31,7 @@ class FLTrainer(Task):
         config_string,
         algorithm_config_string,
     ):
-        super().__init__(job_id=job_id, task_id=task_id)
+        super().__init__(job_id=job_id, task_id=task_id,web_task_id=web_task_id)
         self._scheduler_ep = scheduler_ep
         self._trainer_id = trainer_id
         self._trainer_ep = trainer_ep
@@ -57,6 +58,7 @@ class FLTrainer(Task):
         return FLTrainer(
             job_id=pb.job_id,
             task_id=pb.task_id,
+            web_task_id=pb.web_task_id,
             scheduler_ep=worker_task_pb.scheduler_ep,
             trainer_id=worker_task_pb.trainer_id,
             trainer_ep=worker_task_pb.trainer_ep,
@@ -78,6 +80,8 @@ class FLTrainer(Task):
         cmd = " ".join(
             [
                 f"{python_executable} -m {self._entrypoint}",
+                f"--job-id={self.job_id}",
+                f"--task-id={self.web_task_id}",
                 f"--scheduler-ep={self._scheduler_ep}",
                 f"--trainer-id={self._trainer_id}",
                 f"--trainer-ep={self._trainer_ep}",

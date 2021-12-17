@@ -8,15 +8,7 @@
 #    - master1, use cluster `cluster1`, connect to coordinator `coordinator1` at machine1
 #    - master2, use cluster `cluster2`, connect to coordinator `coordinator1` at machine1
   # deploy structure:
-#                                    +---------------------------------+
-#                                    |                                 |
-#                                    |    +------------------------+   |
-#                                    |    |       coordinator1     |   |
-#                                    |    +----------^-------------+   |
-#                                    |               |       machine3  |
-#                                    +---------------------------------+
-#                                                    |
-#                                                    |
+
 #+---------------------------------------------+     | +----------------------------------------------+
 #|                                             |     | |                                              |
 #|                         +-------------+-----------+------+-------------+                           |
@@ -48,18 +40,6 @@ machines:
     ssh_string:
     base_dir: /data/projects/visualfl
     python_for_venv_create: python3
-
-  - name: machine3
-    ip:
-    ssh_string:
-    base_dir: /data/projects/visualfl
-    python_for_venv_create: python3
-
-# coordinator start/stop only if machine provided
-coordinator:
-  name: coordinator1
-  machine: machine3
-  port: 10000
 
 
 clusters:

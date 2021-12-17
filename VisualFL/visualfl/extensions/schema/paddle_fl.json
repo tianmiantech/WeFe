@@ -4,11 +4,6 @@
   "description": "PaddleFL job config",
   "type": "object",
   "properties": {
-    "proposal_wait_time": {
-      "type": "integer",
-      "description": "how many secends to wait for other parties to accept proposal",
-      "minimum": 1
-    },
     "program": {
       "type": "string",
       "description": "program to run"
@@ -27,10 +22,6 @@
     }
   },
   "required": [
-    "proposal_wait_time",
-    "worker_num",
-    "program",
-    "max_iter",
-    "inner_step"
+    "worker_num"
   ]
 }

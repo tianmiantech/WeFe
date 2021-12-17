@@ -36,8 +36,12 @@ import yaml
 
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl.algorithm.paddle_clas import data_loader
+from visualfl.db.task_progress_dao import TaskProgressDao
+from visualfl.utils.tools import *
 
 @click.command()
+@click.option("--job-id", type=str, required=True)
+@click.option("--task-id", type=str, required=True)
 @click.option("--scheduler-ep", type=str, required=True)
 @click.option("--trainer-id", type=int, required=True)
 @click.option("--trainer-ep", type=str, required=True)
@@ -91,13 +95,10 @@ from visualfl.algorithm.paddle_clas import data_loader
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     required=True,
 )
-@click.option(
-    "--data-set",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    required=True,
-)
 
 def fl_trainer(
+    job_id: str,
+    task_id: str,
     trainer_id: int,
     trainer_ep: str,
     scheduler_ep: str,
@@ -111,7 +112,6 @@ def fl_trainer(
     feeds,
     config,
     algorithm_config,
-    data_set
 ):
     import numpy as np
     import paddle.fluid as fluid
@@ -128,17 +128,18 @@ def fl_trainer(
 
     with open(config) as f:
         config_json = json.load(f)
-    max_iter = config_json["max_iters"]
     device = config_json.get("device", "cpu")
     use_vdl = config_json.get("use_vdl", False)
-    resume_checkpoint = config_json.get("resume_checkpoint", None)
+    resume_checkpoint = config_json.get("resume", True)
     save_model_dir = "model"
     save_checkpoint_dir = "checkpoint"
+    log_dir = "vdl_log"
 
     with open(algorithm_config) as f:
-        algorithm_config_dict = yaml.load(f)
-    batch_size = algorithm_config_dict.get("batch_size", 128)
+        algorithm_config_dict = yaml.safe_load(f)
+    batch_size = algorithm_config_dict.get("batch_size", 1024)
     need_shuffle = algorithm_config_dict.get("need_shuffle", True)
+    max_iter = algorithm_config_dict.get("max_iter")
 
 
     logging.debug(f"training program begin")
@@ -160,6 +161,7 @@ def fl_trainer(
     trainer.start(place)
     logging.debug(f"trainer stared")
 
+
     logging.debug(f"loading data")
     feed_list = trainer.load_feed_list(feeds)
     feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
@@ -167,10 +169,12 @@ def fl_trainer(
 
     epoch_id = 0
     step = 0
+    TaskProgressDao.init_task_progress(task_id,max_iter)
     if resume_checkpoint:
-        checkpoint.load_checkpoint(trainer.exe, trainer._main_program,resume_checkpoint)
         epoch_id = checkpoint.global_step()
+        checkpoint.load_checkpoint(trainer.exe, trainer._main_program,os.path.join(save_checkpoint_dir,str(epoch_id)))
         logging.debug(f"checkpoint epoch {epoch_id}")
+        TaskProgressDao.set_task_progress(task_id, epoch_id)
 
     #TODO download the data based on the download_url
     reader = data_loader.train()
@@ -180,11 +184,12 @@ def fl_trainer(
             buf_size=1000,
         )
 
-    mnist_loader = paddle.batch(reader=reader, batch_size=batch_size)
+    train_loader = paddle.batch(reader=reader, batch_size=batch_size)
 
     if use_vdl:
         from visualdl import LogWriter
         vdl_writer = LogWriter("vdl_log")
+
 
     while epoch_id < max_iter:
         if not trainer.scheduler_agent.join(epoch_id):
@@ -193,7 +198,7 @@ def fl_trainer(
 
         logging.debug(f"epoch {epoch_id} start train")
 
-        for step_id, data in enumerate(mnist_loader()):
+        for step_id, data in enumerate(train_loader()):
             outs = trainer.run(feeder.feed(data), fetch=trainer._target_names)
             if use_vdl:
                 stats = {
@@ -201,6 +206,7 @@ def fl_trainer(
                 }
                 for loss_name, loss_value in stats.items():
                     vdl_writer.add_scalar(loss_name, loss_value, step)
+                    get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_clas")
             step += 1
             logging.debug(f"step: {step}, outs: {outs}")
 
@@ -212,6 +218,7 @@ def fl_trainer(
         trainer.scheduler_agent.finish()
         checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
         epoch_id += 1
+        TaskProgressDao.add_task_progress(task_id, 1)
 
     logging.debug(f"reach max iter, finish training")
 

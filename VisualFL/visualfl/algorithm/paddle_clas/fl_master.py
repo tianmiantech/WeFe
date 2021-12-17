@@ -65,10 +65,10 @@ def fl_master(algorithm_config, ps_endpoint, config):
     with open(config) as f:
         config_json = json.load(f)
     worker_num = config_json["worker_num"]
-    inner_step = config_json["inner_step"]
 
     with open(algorithm_config) as f:
         algorithm_config_dict = yaml.load(f)
+    inner_step = algorithm_config_dict.get("inner_step")
     base_lr = algorithm_config_dict.get("base_lr", 0.001)
     image_shape = algorithm_config_dict.get("image_shape")
     num_classes = algorithm_config_dict.get("num_classes")
@@ -101,10 +101,6 @@ def fl_master(algorithm_config, ps_endpoint, config):
 
 
 if __name__ == "__main__":
-    # fl_master()
-    inputs = fluid.layers.data(name="img", shape=[3, 28, 28], dtype="float64")
-    label = fluid.layers.data(name="label", shape=[1], dtype="int64")
-    model = Model()
-    model.build_program(inputs,label,1000,"DenseNet121")
+    fl_master()
 
 

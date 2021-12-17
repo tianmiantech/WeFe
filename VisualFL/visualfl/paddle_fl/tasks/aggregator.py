@@ -15,12 +15,13 @@ class FLAggregator(Task):
         self,
         job_id,
         task_id,
+        web_task_id,
         scheduler_ep,
         main_program,
         startup_program,
         config_string,
     ):
-        super().__init__(job_id=job_id, task_id=task_id)
+        super().__init__(job_id=job_id, task_id=task_id,web_task_id=web_task_id)
         self._scheduler_ep = scheduler_ep
         self._main_program = main_program
         self._startup_program = startup_program
@@ -37,6 +38,7 @@ class FLAggregator(Task):
         return FLAggregator(
             job_id=pb.job_id,
             task_id=pb.task_id,
+            web_task_id=pb.web_task_id,
             scheduler_ep=scheduler_task_pb.scheduler_ep,
             startup_program=scheduler_task_pb.startup_program,
             main_program=scheduler_task_pb.main_program,
@@ -48,6 +50,8 @@ class FLAggregator(Task):
         cmd = " ".join(
             [
                 f"{python_executable} -m visualfl.paddle_fl.scheduler.fl_scheduler",
+                # f"--job-id={self.job_id}",
+                # f"--task-id={self.web_task_id}",
                 f"--scheduler-ep={self._scheduler_ep}",
                 f"--startup-program=startup_program",
                 f"--main-program=main_program",

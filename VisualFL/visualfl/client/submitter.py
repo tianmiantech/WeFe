@@ -50,28 +50,33 @@ def submit(endpoint, config):
     with base.open("r") as f:
         config_json = yaml.load(f, yaml.Loader)
     job_id = config_json.get("job_id")
+    task_id = config_json.get("task_id")
     job_type = config_json.get("job_type")
     role = config_json.get("role")
     member_id = config_json.get("member_id")
-    job_config = config_json.get("job_config")
+    env = config_json.get("env")
+    data_set = config_json.get("data_set")
+    algorithm_config = config_json.get("algorithm_config")
 
-    algorithm_config_path = base.parent.joinpath(
-        config_json.get("algorithm_config")
-    ).absolute()
-    with algorithm_config_path.open("r") as f:
-        algorithm_config_string = f.read()
+    # algorithm_config_path = base.parent.joinpath(
+    #     config_json.get("algorithm_config")
+    # ).absolute()
+    # with algorithm_config_path.open("r") as f:
+    #     algorithm_config_string = f.read()
 
-    extensions.get_job_schema_validator(job_type).validate(job_config)
+    # extensions.get_job_schema_validator(job_type).validate(env)
     post(
         endpoint,
         "submit",
         dict(
             job_id=job_id,
+            task_id=task_id,
             job_type=job_type,
             role=role,
             member_id=member_id,
-            job_config=job_config,
-            algorithm_config=algorithm_config_string,
+            env=env,
+            data_set=data_set,
+            algorithm_config=algorithm_config,
         ),
     )
 

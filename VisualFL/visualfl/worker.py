@@ -18,6 +18,8 @@ from visualfl.utils.exception import (
     VisualFLException,
 )
 from visualfl.utils.logger import Logger, pretty_pb
+from visualfl.db.task_dao import TaskDao
+from visualfl.utils.consts import TaskStatus
 
 
 class ClusterWorker(Logger):
@@ -177,6 +179,7 @@ class ClusterWorker(Logger):
                         )
                     task = task_class.deserialize(response.task)
                     await self._task_queue.put(task)
+                    TaskDao.update_task_status(task.web_task_id, TaskStatus.wait_run)
                     self.trace(f"put task in queue: task_id={task_id}")
                 except VisualFLException as e:
                     self.error(f"preprocess fetched task failed: {e}")
@@ -218,6 +221,7 @@ class ClusterWorker(Logger):
                 Path(__logs_dir__).joinpath(f"jobs/{_task.job_id}/{_task.task_id}"),
                 data_dir=self._data_dir,
             )
+            TaskDao.update_task_status(_task.web_task_id,TaskStatus.RUNNING)
             response = await _task.exec(executor)
             self.info(
                 f"finish exec task, job_id={_task.job_id}, task_id={_task.task_id}"
@@ -233,6 +237,7 @@ class ClusterWorker(Logger):
                     exec_result=response,
                 )
             )
+            TaskDao.update_task_status(_task.web_task_id,TaskStatus.SUCCESS)
             self.info(
                 f"task status success updated to {cluster_pb2.UpdateStatus.TASK_FINISH}. "
                 f"job_id={_task.job_id}, task_id={_task.task_id}"
@@ -249,6 +254,7 @@ class ClusterWorker(Logger):
                     exception=str(e),
                 )
             )
+            TaskDao.update_task_status(_task.web_task_id, TaskStatus.ERROR,str(e))
         finally:
             self._semaphore.release()
             self.trace_lazy(

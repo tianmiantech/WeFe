@@ -5,7 +5,6 @@ role: promoter
 member_id: master1
 callback_url: https://www.xxx.com
 env:
-  proposal_wait_time: 5
   worker_num: 2
   local_worker_num: 2
   local_trainer_indexs: [0,1]
@@ -14,4 +13,15 @@ env:
   server_endpoint: 127.0.0.1:12002
   aggregator_endpoint: 127.0.0.1:12003
   aggregator_assignee: worker2
-algorithm_config: ./yolov3_mobilenet_v1_fruit.yml
+data_set:
+  download_url: http://x.x
+algorithm_config:
+  program: paddle_detection
+  max_iter: 10
+  inner_step: 10
+  architecture: yolov3
+  num_classes:  10
+  base_lr: 0.01
+  batch_size: 128
+  need_shuffle: True
+  image_shape: [1, 28, 28]

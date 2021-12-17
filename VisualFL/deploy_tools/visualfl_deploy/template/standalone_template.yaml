@@ -2,18 +2,11 @@
 # deploy machine: single
 # coordinator: name=coordinator1, port=10000
 # clusters: single, name=cluster1, port=10001, single worker
-# masters: 4, share cluster `cluster1`, connect to same coordinator `coordinator1`
+# masters: 4, share cluster `cluster1`
 # deploy structure:
 #
 #+----------------------------------------------------------------------------------------+
 #|                                                                                        |
-#|          +--------------------------------------------------------------------+        |
-#|          |                                                                    |        |
-#|          |                          coordinator1                              |        |
-#|          |                                                                    |        |
-#|          +-----+-----------------+------------------+-----------------+-------+        |
-#|                |                 |                  |                 |                |
-#|                |                 |                  |                 |                |
 #|          +-----+------+    +-----+------+     +-----+------+    +-----+------+         |
 #|          |  master1   |    |  master2   |     |  master3   |    |  master4   |         |
 #|          |            |    |            |     |            |    |            |         |
@@ -59,12 +52,16 @@ clusters:
         machine: machine1
         ports: 12000-12099
         max_tasks: 10
+      - name: worker4
+        machine: machine1
+        ports: 12000-12099
+        max_tasks: 10
+
 
 masters:
   - name: master1
     machine: machine1
     submit_port: 10002
-    coordinator: coordinator1
     cluster: cluster1
     standalone: True
 

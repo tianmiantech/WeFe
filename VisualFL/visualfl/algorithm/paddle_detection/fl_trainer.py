@@ -35,10 +35,13 @@ import click
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl import get_data_dir
 from ppdet.core.workspace import create
-from ppdet.utils.eval_utils import parse_fetches, eval_run, eval_results
-
+from visualfl.db.task_progress_dao import TaskProgressDao
+from visualdl import LogWriter,LogReader
+from visualfl.utils.tools import *
 
 @click.command()
+@click.option("--job-id", type=str, required=True)
+@click.option("--task-id", type=str, required=True)
 @click.option("--scheduler-ep", type=str, required=True)
 @click.option("--trainer-id", type=int, required=True)
 @click.option("--trainer-ep", type=str, required=True)
@@ -93,6 +96,8 @@ from ppdet.utils.eval_utils import parse_fetches, eval_run, eval_results
     required=True,
 )
 def fl_trainer(
+    job_id: str,
+    task_id: str,
     trainer_id: int,
     trainer_ep: str,
     scheduler_ep: str,
@@ -128,11 +133,10 @@ def fl_trainer(
     max_iter = config_json["max_iter"]
     device = config_json.get("device", "cpu")
     use_vdl = config_json.get("use_vdl", False)
-    checkpoint_path = config_json.get("checkpoint_path", None)
-    need_eval = config_json.get("need_eval", True)
-    model_dir = "model"
-    checkpoint_dir = "checkpoint"
-    output_eval = "eval"
+    resume_checkpoint = config_json.get("resume", True)
+    save_model_dir = "model"
+    save_checkpoint_dir = "checkpoint"
+    log_dir = "vdl_log"
 
     logging.debug(f"training program begin")
     trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
@@ -165,11 +169,13 @@ def fl_trainer(
     epoch_id = 0
     vdl_loss_step = 0
     # vdl_mAP_step = 0
-    if checkpoint_path:
-        checkpoint.load_checkpoint(trainer.exe, trainer._main_program, checkpoint_path)
+    TaskProgressDao.init_task_progress(task_id, max_iter)
+    if resume_checkpoint:
         vdl_loss_step = checkpoint.global_step()
-        epoch_id = round(vdl_loss_step/max_iter)
+        epoch_id = round(vdl_loss_step / max_iter)
+        checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
         logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
+        TaskProgressDao.set_task_progress(task_id, epoch_id)
     # elif cfg.pretrain_weights and not ignore_params:
     #     checkpoint.load_and_fusebn(trainer.exe, trainer._main_program, cfg.pretrain_weights)
     # elif cfg.pretrain_weights:
@@ -187,7 +193,6 @@ def fl_trainer(
     logging.error(f"{cfg.TrainReader['dataset']}")
 
     if use_vdl:
-        from visualdl import LogWriter
         vdl_writer = LogWriter("vdl_log")
 
     while epoch_id < max_iter:
@@ -205,17 +210,19 @@ def fl_trainer(
                 }
                 for loss_name, loss_value in stats.items():
                     vdl_writer.add_scalar(loss_name, loss_value, vdl_loss_step)
+                    get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_detection")
                 vdl_loss_step += 1
             logging.debug(f"step: {vdl_loss_step}, outs: {outs}")
 
         # save model
         logging.debug(f"saving model at {epoch_id}-th epoch")
-        trainer.save_model(f"model/{epoch_id}")
+        trainer.save_model(os.path.join(save_model_dir,str(epoch_id)))
 
         # info scheduler
         trainer.scheduler_agent.finish()
-        checkpoint.save(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
+        checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
         epoch_id += 1
+        TaskProgressDao.add_task_progress(task_id, 1)
     logging.debug(f"reach max iter, finish training")
 
 

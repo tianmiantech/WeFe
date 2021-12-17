@@ -12,9 +12,10 @@ class Task(metaclass=abc.ABCMeta):
 
     task_type: str
 
-    def __init__(self, job_id, task_id):
+    def __init__(self, job_id, task_id,web_task_id):
         self.job_id = job_id
         self.task_id = task_id
+        self.web_task_id = web_task_id
 
     @abc.abstractmethod
     async def exec(self, executor: Executor) -> int:

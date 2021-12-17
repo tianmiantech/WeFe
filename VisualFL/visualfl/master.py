@@ -12,7 +12,7 @@ import yaml
 import attr
 import grpc
 from aiohttp import web
-
+import requests
 from visualfl import __basedir__
 from visualfl import extensions
 from visualfl.paddle_fl.abs.job import Job
@@ -23,7 +23,10 @@ from visualfl.protobuf import (
 )
 from visualfl.utils.exception import VisualFLExtensionException
 from visualfl.utils.logger import Logger
-
+from ppdet.core.workspace import load_config
+from visualfl.utils.tools import *
+import visualfl.utils.consts
+from visualfl.utils.consts import TaskStatus
 
 
 class _JobStatus(enum.Enum):
@@ -137,6 +140,27 @@ class RESTService(Logger):
         route_table.post("/query")(self._restful_query)
         return route_table
 
+    def web_response(self,code,message,job_id=None):
+        return web.json_response(data=dict(code=code,message=message,job_id=job_id), status=code)
+
+    def parse_detection_config(self,algorithm_config):
+        program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
+        default_config_name = 'default_algorithm_config.yml'
+        architecture = algorithm_config["architecture"]
+        default_algorithm_config = os.path.join(program_full_path, "configs", architecture.lower(), default_config_name)
+        with open(default_algorithm_config) as f:
+            default_algorithm_dict = yaml.load(f, Loader=yaml.Loader)
+        default_algorithm_dict["program"] = algorithm_config["program"]
+        default_algorithm_dict["max_iter"] = algorithm_config["max_iter"]
+        default_algorithm_dict["inner_step"] = algorithm_config["inner_step"]
+        default_algorithm_dict["num_classes"] = algorithm_config["num_classes"]
+        default_algorithm_dict["LearningRate"]["base_lr"] = algorithm_config["base_lr"]
+        default_algorithm_dict["TrainReader"]["inputs_def"]["image_shape"] = algorithm_config["image_shape"]
+        default_algorithm_dict["TrainReader"]["batch_size"] = algorithm_config["batch_size"]
+
+        return default_algorithm_dict
+
+
     async def _restful_submit(self, request: web.Request) -> web.Response:
         """
         handle submit request
@@ -149,37 +173,27 @@ class RESTService(Logger):
         try:
             data = await request.json()
         except json.JSONDecodeError as e:
-            return web.json_response(data={}, status=400, reason=str(e))
+            return self.web_response(400,str(e))
 
         try:
             job_id = data["job_id"]
+            task_id = data["task_id"]
             role = data["role"]
             member_id = data["member_id"]
             job_type = data["job_type"]
             config = data["env"]
             data_set = data["data_set"]
             download_url = data_set["download_url"]
-            algorithm_config = data.get("algorithm_config", None)
+            algorithm_config = data.get("algorithm_config")
             program = algorithm_config["program"]
-            if program is "paddle_detection":
-                program_full_path = os.path.join(__basedir__, 'visualfl', 'algorithm', program)
-                default_config_name = 'default_algorithm_config.yaml'
-                architecture = algorithm_config["architecture"]
-                default_algorithm_config = os.path.join(program_full_path,"configs",architecture,default_config_name)
-                with open(default_algorithm_config) as f:
-                    default_algorithm_dict = yaml.load(f)
-                default_algorithm_dict["download_url"] = download_url
-                default_algorithm_dict["max_iters"] = algorithm_config["max_iters"]
-                default_algorithm_dict["inner_step"] = algorithm_config["inner_step"]
-                default_algorithm_dict["num_classes"] = algorithm_config["num_classes"]
-                default_algorithm_dict["LearningRate"]["base_lr"] = algorithm_config["base_lr"]
-                default_algorithm_dict["TrainReader"]["inputs_def"]["image_shape"] = algorithm_config["image_shape"]
-                default_algorithm_dict["TrainReader"]["batch_size"] = algorithm_config["batch_size"]
+            config["max_iter"] = algorithm_config["max_iter"]
+            algorithm_config["download_url"] = download_url
+            if program == "paddle_detection":
+                algorithm_config = self.parse_detection_config(algorithm_config)
 
-        except KeyError:
-            return web.json_response(
-                data=dict(exception=traceback.format_exc()), status=400
-            )
+        except Exception:
+            return self.web_response(400, traceback.format_exc(),job_id)
+
 
         # noinspection PyBroadException
         try:
@@ -187,22 +201,22 @@ class RESTService(Logger):
             validator = extensions.get_job_schema_validator(job_type)
             if loader is None:
                 raise VisualFLExtensionException(f"job type {job_type} not supported")
-            validator.validate(config)
+            # validator.validate(config)
             job = loader.load(
-                job_id=job_id, role=role,member_id=member_id,config=config, algorithm_config=default_algorithm_dict
+                job_id=job_id, task_id=task_id,role=role,member_id=member_id,config=config, algorithm_config=algorithm_config
             )
 
         except Exception:
             # self.logger.exception("[submit]catch exception")
             reason = traceback.format_exc()
-            return web.json_response(data=dict(exception=reason), status=400)
+            return self.web_response(400, reason,job_id)
+
 
         self.shared_status.job_status[job_id] = _JobStatus.WAITING
         await self.shared_status.job_queue.put(job)
 
-        return web.json_response(
-            data={"job_id": job_id},
-        )
+        return self.web_response(200, "success", job_id)
+
 
     async def _restful_query(self, request: web.Request) -> web.Response:
         """
@@ -217,20 +231,17 @@ class RESTService(Logger):
         try:
             data = await request.json()
         except json.JSONDecodeError as e:
-            return web.json_response(data={}, status=400, reason=str(e))
+            return self.web_response(400, str(e))
 
         job_id = data.get("job_id", None)
         if job_id is None:
-            return web.json_response(data={}, status=400, reason="required `job_id`")
+            return self.web_response(400, "required `job_id`")
 
         if job_id not in self.shared_status.job_status:
-            return web.json_response(
-                data=dict(job_id=job_id, status=str(_JobStatus.NOTFOUND)),
-                status=404,
-            )
+            return self.web_response(404, "job_id not found",job_id)
 
         return web.json_response(
-            data=dict(job_id=job_id, status=str(self.shared_status.job_status[job_id])),
+            data=dict(code=200,job_id=job_id,status=str(self.shared_status.job_status[job_id]),message="success"),
         )
 
 
@@ -247,48 +258,46 @@ class RESTService(Logger):
         try:
             data = await request.json()
         except json.JSONDecodeError as e:
-            return web.json_response(data={}, status=400, reason=str(e))
+            return self.web_response(400, str(e))
 
         try:
             job_id = data["job_id"]
-            job_type = data["job_type"]
+            task_id = data["task_id"]
             role = data["role"]
             member_id = data["member_id"]
+            job_type = data["job_type"]
+            config = data["env"]
             callback_url = data["callback_url"]
-            job_config = data["job_config"]
-            algorithm_config = data["algorithm_config"]
-        except KeyError:
-            return web.json_response(
-                data=dict(exception=traceback.format_exc()), status=400
-            )
+            data_set = data["data_set"]
+            download_url = data_set["download_url"]
+            algorithm_config = data.get("algorithm_config")
+            program = algorithm_config["program"]
+            config["max_iter"] = algorithm_config["max_iter"]
+            algorithm_config["download_url"] = download_url
+            if program == "paddle_detection":
+                algorithm_config = self.parse_detection_config(algorithm_config)
+
+        except Exception:
+            return self.web_response(400, traceback.format_exc(),job_id)
 
         try:
-            # loader = extensions.get_job_class(job_type)
-            # # validator = extensions.get_job_schema_validator(job_type)
-            # if loader is None:
-            #     raise VisualFLExtensionException(f"job type {job_type} not supported")
-            # job = loader(job_id=job_id,role=role,member_id=member_id,callback_url=callback_url)
-
             loader = extensions.get_job_class(job_type)
             validator = extensions.get_job_schema_validator(job_type)
             if loader is None:
                 raise VisualFLExtensionException(f"job type {job_type} not supported")
-            validator.validate(job_config)
+            # validator.validate(env_config)
             job = loader.load(
-                job_id=job_id, role=role, member_id=member_id, config=job_config, algorithm_config=algorithm_config,callback_url=callback_url
+                job_id=job_id, task_id=task_id,role=role, member_id=member_id, config=config, algorithm_config=algorithm_config,callback_url=callback_url
             )
 
         except Exception:
             # self.logger.exception("[submit]catch exception")
-            reason = traceback.format_exc()
-            return web.json_response(data=dict(exception=reason), status=400)
+            return self.web_response(400, traceback.format_exc(),job_id)
 
         self.shared_status.job_status[job_id] = _JobStatus.APPLYING
         await self.shared_status.apply_queue.put(job)
 
-        return web.json_response(
-            data={"job_id": job_id},
-        )
+        return self.web_response(200, "success", job_id)
 
 
 class ClusterManagerConnect(Logger):
@@ -397,6 +406,19 @@ class Master(Logger):
         )
         self.standalone = standalone
 
+    def callback(self,job,status=None,message=None):
+        json_data = dict(
+            job_id=job.job_id,
+            status=status,
+            message=message,
+            server_endpoint=job._server_endpoint,
+            aggregator_endpoint=job._aggregator_endpoint,
+            aggregator_assignee=job._aggregator_assignee
+        )
+        post(
+            job._callback_url,
+            json_data
+        )
 
     async def _apply_job_handler(self):
         """
@@ -424,17 +446,12 @@ class Master(Logger):
                         )
                         await self.shared_status.cluster_task_queue.put(task)
 
-                        json_data = {"job_id": job.job_id,
-                                     "server_endpoint": job._server_endpoint,
-                                     "aggregator_endpoint": job._aggregator_endpoint,
-                                     "aggregator_assignee": job._aggregator_assignee
-                                     }
-                        self.debug(f"json data: {json_data}")
-                        import requests
-                        requests.post(job._callback_url, json=json_data)
+                        self.callback(job)
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
+                TaskDao.update_task_status(job._web_task_id, TaskStatus.ERROR, str(e))
+
 
         while True:
             apply_job = await self.shared_status.apply_queue.get()
@@ -485,6 +502,7 @@ class Master(Logger):
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
+                TaskDao.update_task_status(task_id=job._web_task_id,status=TaskStatus.ERROR, message=str(e))
 
         while True:
             submitted_job = await self.shared_status.job_queue.get()
@@ -530,3 +548,4 @@ class Master(Logger):
         # await self._coordinator.stop_coordinator_channel(grace=1)
         await self._rest_site.stop_rest_site()
         await self._cluster.stop_cluster_channel(grace=1)
+

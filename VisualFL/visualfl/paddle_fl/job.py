@@ -1,6 +1,7 @@
 
 
 import json
+import yaml
 import sys
 from pathlib import Path
 from typing import List
@@ -11,7 +12,6 @@ from visualfl.paddle_fl.executor import ProcessExecutor
 from visualfl.protobuf import job_pb2, cluster_pb2
 from visualfl.utils.exception import VisualFLJobCompileException
 from visualfl.protobuf import fl_job_pb2
-
 JOB_TYPE = "paddle_fl"
 
 
@@ -19,28 +19,28 @@ class PaddleFLJob(Job):
     job_type = JOB_TYPE
 
     @classmethod
-    def load(cls, job_id, role, member_id, config, algorithm_config,callback_url=None) -> "PaddleFLJob":
-        job =  PaddleFLJob(job_id=job_id,role=role,member_id=member_id)
+    def load(cls, job_id,task_id, role, member_id, config, algorithm_config,callback_url=None) -> "PaddleFLJob":
+        job =  PaddleFLJob(job_id=job_id,task_id=task_id,role=role,member_id=member_id)
         job._init_fl_job(config,algorithm_config,callback_url)
         return job
 
-    def __init__(self,job_id,role,member_id):
+    def __init__(self,job_id,task_id,role,member_id):
         super().__init__(job_id=job_id)
+        self._web_task_id = task_id
         self._role = role
         self._member_id = member_id
 
     def _init_fl_job(self,config, algorithm_config,callback_url=None):
-        self._proposal_wait_time = config["proposal_wait_time"]
         self._worker_num = config["worker_num"]
         self._local_worker_num = config["local_worker_num"]
         self._local_trainer_indexs = config["local_trainer_indexs"]
         self._program = algorithm_config["program"]
         self._trainer_entrypoint = f"visualfl.algorithm.{self._program}.fl_trainer"
         self._config_string = json.dumps(config)
-        self._algorithm_config = algorithm_config
-        self._server_endpoint = config["server_endpoint"]
-        self._aggregator_endpoint = config["aggregator_endpoint"]
-        self._aggregator_assignee = config["aggregator_assignee"]
+        self._algorithm_config = yaml.dump(algorithm_config)
+        self._server_endpoint = config.get("server_endpoint",None)
+        self._aggregator_endpoint = config.get("aggregator_endpoint",None)
+        self._aggregator_assignee = config.get("aggregator_assignee",None)
         self._callback_url = callback_url
 
     @property
@@ -75,7 +75,6 @@ class PaddleFLJob(Job):
         )
         returncode = await executor.execute(cmd)
         if returncode != 0:
-
             raise VisualFLJobCompileException("compile error")
 
     def generate_trainer_tasks(self) -> List[job_pb2.Task]:
@@ -93,6 +92,7 @@ class PaddleFLJob(Job):
         task_pb = job_pb2.Task(
             job_id=self.job_id,
             task_id=f"trainer_{i}",
+            web_task_id=self._web_task_id,
             task_type="fl_trainer")
 
         trainer_pb = fl_job_pb2.PaddleFLWorkerTask(
@@ -146,6 +146,7 @@ class PaddleFLJob(Job):
 
         task_pb = job_pb2.Task(
             job_id=self.job_id,
+            web_task_id=self._web_task_id,
             task_id=f"aggregator",
             task_type="fl_aggregator",
             assignee=self._aggregator_assignee,

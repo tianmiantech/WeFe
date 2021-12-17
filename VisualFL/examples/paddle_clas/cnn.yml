@@ -1,9 +1,0 @@
-program: paddle_clas
-max_iters: 10
-inner_step: 10
-architecture: LeNet
-num_classes:  10
-base_lr: 0.01
-batch_size: 128
-need_shuffle: True
-image_shape: [1, 28, 28]

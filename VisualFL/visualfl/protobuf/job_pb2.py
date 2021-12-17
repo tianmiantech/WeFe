@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='visualfl',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\tjob.proto\x12\x08visualfl\x1a\x19google/protobuf/any.proto\"p\n\x04Task\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x11\n\ttask_type\x18\x03 \x01(\t\x12\"\n\x04task\x18\x04 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x10\n\x08\x61ssignee\x18\x05 \x01(\tb\x06proto3'
+  serialized_pb=b'\n\tjob.proto\x12\x08visualfl\x1a\x19google/protobuf/any.proto\"\x85\x01\n\x04Task\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x13\n\x0bweb_task_id\x18\x03 \x01(\t\x12\x11\n\ttask_type\x18\x04 \x01(\t\x12\"\n\x04task\x18\x05 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x10\n\x08\x61ssignee\x18\x06 \x01(\tb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,])
 
@@ -48,22 +48,29 @@ _TASK = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='task_type', full_name='visualfl.Task.task_type', index=2,
+      name='web_task_id', full_name='visualfl.Task.web_task_id', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='task', full_name='visualfl.Task.task', index=3,
-      number=4, type=11, cpp_type=10, label=1,
+      name='task_type', full_name='visualfl.Task.task_type', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='task', full_name='visualfl.Task.task', index=4,
+      number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='assignee', full_name='visualfl.Task.assignee', index=4,
-      number=5, type=9, cpp_type=9, label=1,
+      name='assignee', full_name='visualfl.Task.assignee', index=5,
+      number=6, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -80,8 +87,8 @@ _TASK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=50,
-  serialized_end=162,
+  serialized_start=51,
+  serialized_end=184,
 )
 
 _TASK.fields_by_name['task'].message_type = google_dot_protobuf_dot_any__pb2._ANY
