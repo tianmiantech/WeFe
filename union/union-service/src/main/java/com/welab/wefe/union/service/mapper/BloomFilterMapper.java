@@ -21,7 +21,6 @@ import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.bloomfilter.PutApi;
-import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
@@ -40,7 +39,7 @@ public interface BloomFilterMapper {
 
 
     @Mappings({
-            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getExtraData()).toJavaObject(ApiBloomFilterQueryOutput.ExtraData.class))"),
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getBloomFilter()).toJavaObject(ApiBloomFilterQueryOutput.ExtraData.class))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })

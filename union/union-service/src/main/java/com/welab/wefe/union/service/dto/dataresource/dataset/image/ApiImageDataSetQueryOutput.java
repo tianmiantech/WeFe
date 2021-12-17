@@ -24,7 +24,7 @@ import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQ
  **/
 public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
 
-    private ApiBloomFilterQueryOutput.ExtraData extraData;
+    private ExtraData extraData;
 
     public static class ExtraData {
         private String forJobType;
@@ -74,12 +74,11 @@ public class ApiImageDataSetQueryOutput extends ApiDataResourceQueryOutput {
         }
     }
 
-
-    public ApiBloomFilterQueryOutput.ExtraData getExtraData() {
+    public ExtraData getExtraData() {
         return extraData;
     }
 
-    public void setExtraData(ApiBloomFilterQueryOutput.ExtraData extraData) {
+    public void setExtraData(ExtraData extraData) {
         this.extraData = extraData;
     }
 }
