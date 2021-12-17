@@ -30,30 +30,30 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Jacky.jiang
+ * @author zane.luo
  */
-@Api(path = "data_resource/usage_in_project_list", name = "list usage_detail")
+@Api(path = "data_resource/usage_in_project_list", name = "list project by data resource usage")
 public class UsageInProjectListApi extends AbstractApi<UsageInProjectListApi.Input, List<ProjectUsageDetailOutputModel>> {
     @Autowired
     private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<List<ProjectUsageDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(dataResourceService.queryUsageInProject(input.getDataSetId()));
+        return success(dataResourceService.queryUsageInProject(input.getDataResourceId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "数据集ID", require = true)
-        private String dataSetId;
+        @Check(name = "资源Id", require = true)
+        private String dataResourceId;
 
         //region getter/setter
 
-        public String getDataSetId() {
-            return dataSetId;
+        public String getDataResourceId() {
+            return dataResourceId;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setDataResourceId(String dataResourceId) {
+            this.dataResourceId = dataResourceId;
         }
 
         //endregion
