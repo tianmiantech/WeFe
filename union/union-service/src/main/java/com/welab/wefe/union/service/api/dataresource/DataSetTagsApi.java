@@ -64,7 +64,6 @@ public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsD
 
 
     public static class Input extends BaseInput {
-        @Check(require = true)
         private String dataResourceType;
 
         public String getDataResourceType() {
