@@ -11,6 +11,7 @@ import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
 import com.welab.wefe.mpc.pir.server.service.HauckRandomLegalService;
+import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RANDOM_LEGAL, name = "random_legal")
 public class PrivateInformationRetrievalForRandomLegalApi
@@ -20,8 +21,7 @@ public class PrivateInformationRetrievalForRandomLegalApi
 	protected ApiResult<QueryRandomLegalResponse> handle(PrivateInformationRetrievalForRandomLegalApi.Input input)
 			throws StatusCodeWithException, IOException {
 		HauckRandomLegalService service = new HauckRandomLegalService();
-		QueryRandomLegalRequest request = new QueryRandomLegalRequest();
-		// TODO input to request
+		QueryRandomLegalRequest request = ModelMapper.map(input, QueryRandomLegalRequest.class);
 		return success(service.handle(request));
 	}
 
