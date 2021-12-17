@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/delete", name = "data_resoure_delete", rsaVerify = true, login = false)
+@Api(path = "data_resource/delete", name = "data_resource_delete", rsaVerify = true, login = false)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, AbstractApiOutput> {
     @Autowired
     private DataResourceContractService dataResourceContractService;
