@@ -19,6 +19,7 @@ package com.welab.wefe.fusion.core.dto;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
 import java.math.BigInteger;
+import java.util.BitSet;
 
 /**
  * @author hunter.zhao
@@ -70,5 +71,10 @@ public class PsiActuatorMeta {
         psiActuatorMeta.e = e;
         psiActuatorMeta.N = N;
         return psiActuatorMeta;
+    }
+
+    public void setBfByDto(BloomFilterDto dto) {
+        BitSet bs = BitSet.valueOf(dto.getBitSet());
+        this.bf = new BloomFilters(dto.getSize(), dto.getCount(), dto.getCount(), bs);
     }
 }
