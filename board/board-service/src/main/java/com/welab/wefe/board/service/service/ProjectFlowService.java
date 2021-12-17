@@ -351,7 +351,7 @@ public class ProjectFlowService extends AbstractService {
         return projectFlowRepo.findOne("flowId", flowId, ProjectFlowMySqlModel.class);
     }
 
-    public PagingOutput<ProjectFlowListOutputModel> query(QueryFlowListApi.Input input) {
+    public PagingOutput<ProjectFlowListOutputModel> query(FlowQueryApi.Input input) {
 
         Specification<ProjectFlowMySqlModel> where = Where
                 .create()

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author zane.luo
  */
 @Api(path = "project/member/add/audit/list", name = "Get the review status of new members in the project")
-public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
+public class ProjectMemberAuditListApi extends AbstractApi<ProjectMemberAuditListApi.Input, ProjectMemberAuditListApi.Output> {
 
     @Autowired
     private ProjectMemberAuditService projectMemberAuditService;

@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author eval
  **/
 @Api(path = "/log/query", name = "query log")
-public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<OperationLogOutputModel>> {
+public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<OperationLogOutputModel>> {
 
     @Autowired
     OperationLogService service;
