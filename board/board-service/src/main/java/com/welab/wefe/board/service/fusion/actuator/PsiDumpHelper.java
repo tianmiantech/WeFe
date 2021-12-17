@@ -42,7 +42,7 @@ public class PsiDumpHelper {
     private static void dumpHeaders(String businessId, List<String> headers) {
         //saveHeaderRow
 
-        if (fusionResultStorageService.count(fusionResultStorageService.createRawDataSetTableName(businessId)) > 0) {
+        if (fusionResultStorageService.count(fusionResultStorageService.createRawDataSetHeaderTableName(businessId)) > 0) {
             return;
         }
         ;
