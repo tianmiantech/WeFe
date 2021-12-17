@@ -13,7 +13,7 @@
                     type="primary"
                     @click="addFlow=true"
                 >
-                    新增流程
+                    新建训练流程
                 </el-button>
             </template>
             <span v-else class="ml10 f12">(协作方无法添加流程)</span>
@@ -94,7 +94,10 @@
                     </router-link>
                     <el-dropdown v-if="scope.row.is_creator">
                         <el-button type="text">
-                            更多<i class="el-icon-arrow-down el-icon--right" />
+                            更多
+                            <el-icon>
+                                <elicon-arrow-down />
+                            </el-icon>
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -202,10 +205,14 @@
         </el-dialog>
 
         <el-dialog
-            title="选择模版:"
             v-model="addFlow"
             destroy-on-close
         >
+            <template #title>
+                选择模版:
+                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+            </template>
+
             <div
                 v-loading="loading"
                 class="model-list"
@@ -213,10 +220,30 @@
                 <el-button
                     type="text"
                     class="li empty-flow"
-                    @click="createFlow"
+                    @click="createFlow($event, { federated_learning_type: 'vertical' })"
                 >
-                    <span class="model-img pt10">
-                        <i class="el-icon-plus" />
+                    <span class="model-img f30">
+                        纵向
+                    </span>
+                    空白流程
+                </el-button>
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'horizontal' })"
+                >
+                    <span class="model-img f30">
+                        横向
+                    </span>
+                    空白流程
+                </el-button>
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'mix' })"
+                >
+                    <span class="model-img f30">
+                        混合
                     </span>
                     空白流程
                 </el-button>
@@ -298,6 +325,8 @@
                     vert_lr:  require('@assets/images/vert_lr.png'),
                     vert_xgb: require('@assets/images/vert_xgb.png'),
                     horz_xgb: require('@assets/images/horz_xgb.png'),
+                    mix_lr:   require('@assets/images/mix_lr.png'),
+                    mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
                 flowTimer: null,
             };
@@ -329,11 +358,13 @@
                 clearTimeout(this.timer);
 
                 this.timer = setTimeout(() => {
-                    this.getFlowList();
+                    this.getFlowList({
+                        requestFromRefresh: true,
+                    });
                 }, 3000);
             },
 
-            async getFlowList(opt = { resetPagination: false }) {
+            async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
                 if(opt.resetPagination) {
                     this.pagination.page_index = 1;
                 }
@@ -341,9 +372,10 @@
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: {
-                        project_id: this.project_id,
-                        page_index: this.pagination.page_index - 1,
-                        page_size:  this.pagination.page_size,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.project_id,
+                        page_index:             this.pagination.page_index - 1,
+                        page_size:              this.pagination.page_size,
                     },
                 });
 
@@ -359,7 +391,7 @@
                 }
                 clearTimeout(this.flowTimer);
                 this.flowTimer = setTimeout(() => {
-                    this.getFlowList();
+                    this.getFlowList({ requestFromRefresh: true });
                 }, 5000);
             },
 
@@ -393,18 +425,23 @@
                 }
             },
 
-            async createFlow(event, opt = { name: '', id: '' }) {
-                if(this.locker) return;
-                this.locker = true;
-
+            getDateTime() {
                 const now = new Date();
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
                 const seconds = now.getSeconds();
+
+                return `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+            },
+
+            async createFlow(event, opt = { federated_learning_type: '', name: '', id: '' }) {
+                if(this.locker) return;
+                this.locker = true;
+
                 const params = {
                     project_id:            this.project_id,
-                    FederatedLearningType: 'vertical',
-                    name:                  `${opt.name || '新流程'}-${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
+                    federatedLearningType: opt.federated_learning_type,
+                    name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
@@ -470,9 +507,9 @@
             copyFlow(row) {
                 this.thisProject = true;
                 this.copyFlowDialog.visible = true;
-                this.copyFlowDialog.flowRename = row.flow_name;
                 this.copyFlowDialog.sourceFlowId = row.flow_id;
                 this.copyFlowDialog.targetProjectId = this.project_id;
+                this.copyFlowDialog.flowRename = `${row.flow_name}-${this.getDateTime()}`;
                 this.copyFlowDialog.targetProject = '';
             },
 
@@ -525,6 +562,9 @@
 </script>
 
 <style lang="scss" scoped>
+    .el-alert__description{
+        color: $--color-danger;
+    }
     h3{margin: 10px;}
     .model-list{
         display: flex;

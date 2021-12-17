@@ -50,13 +50,13 @@
                                     prop="mean"
                                 />
                                 <!-- <el-table-column
-                            label="众数"
-                            prop="mode"
-                        >
-                            <template v-slot="scope">
-                                {{ scope.row.mode[0][0] }}({{ scope.row.mode[0][1] }}次)
-                            </template>
-                        </el-table-column> -->
+                                    label="众数"
+                                    prop="mode"
+                                >
+                                    <template v-slot="scope">
+                                        {{ scope.row.mode[0][0] }}({{ scope.row.mode[0][1] }}次)
+                                    </template>
+                                </el-table-column> -->
                                 <el-table-column
                                     label="实际数量"
                                     prop="not_null_count"
@@ -75,8 +75,9 @@
                                             placement="top-start"
                                             content="表征概率密度分布曲线在平均值处峰值高低的特征数"
                                         >
-                                            <template #reference>峰度
-                                                <i class="el-icon-warning" />
+                                            <template #reference>峰度<el-icon>
+                                                <elicon-warning-filled />
+                                            </el-icon>
                                             </template>
                                         </el-popover>
                                     </template>
@@ -91,8 +92,9 @@
                                             placement="top-start"
                                             content="统计数据分布偏斜方向和程度的度量，是统计数据分布非对称程度的数字特征"
                                         >
-                                            <template #reference>偏态
-                                                <i class="el-icon-warning" />
+                                            <template #reference>偏态<el-icon>
+                                                <elicon-warning-filled />
+                                            </el-icon>
                                             </template>
                                         </el-popover>
                                     </template>
@@ -110,7 +112,7 @@
                                     min-width="180"
                                 >
                                     <template v-slot="scope">
-                                        <div style="max-height:400px;overflow: auto;">
+                                        <div v-if="Object.keys(scope.row.unique_count).length" style="max-height:400px;overflow: auto;">
                                             <p
                                                 v-for="(value, key) in scope.row.unique_count"
                                                 :key="key"
@@ -118,6 +120,7 @@
                                                 {{ key }} : {{ value }}
                                             </p>
                                         </div>
+                                        <template v-else>-</template>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -172,7 +175,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
@@ -186,8 +188,8 @@
             let methods = {
                 showResult(data) {
                     vData.members = [];
-                    if (data.result && data.result.members) {
-                        const { members } = data.result;
+                    if (data[0].result && data[0].result.members) {
+                        const { members } = data[0].result;
 
                         vData.tabName = `${members[0].member_id}-${members[0].role}`;
 

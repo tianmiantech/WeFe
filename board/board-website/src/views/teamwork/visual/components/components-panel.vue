@@ -34,16 +34,16 @@
                         :disabled="myRole !== 'promoter' || !isCreator"
                         @submit.prevent
                     >
-                        <el-alert
-                            v-if="!isCreator"
-                            title="!!! 仅允许查看"
-                            style="width:250px;"
-                            :closable="false"
-                            type="warning"
-                            effect="dark"
-                            class="mb10"
-                            show-icon
-                        />
+                        <div v-if="!isCreator" class="mb10">
+                            <el-alert
+                                title="!!! 仅允许查看"
+                                style="width:250px;"
+                                :closable="false"
+                                type="warning"
+                                effect="dark"
+                                show-icon
+                            />
+                        </div>
                         <el-form-item
                             label="流程名称："
                             required
@@ -62,21 +62,15 @@
                             />
                         </el-form-item>
                         <el-form-item label="训练类型：">
-                            <el-radio-group
-                                v-model="learningType"
-                                :disabled="!!ootJobId"
-                                @change="changeLearningType"
-                            >
-                                <el-radio label="vertical">
-                                    纵向
-                                </el-radio>
-                                <el-radio label="horizontal">
-                                    横向
-                                </el-radio>
-                                <el-radio label="mix">
-                                    混合
-                                </el-radio>
-                            </el-radio-group>
+                            <template v-if="learningType === 'vertical'">
+                                纵向
+                            </template>
+                            <template v-if="learningType === 'horizontal'">
+                                横向
+                            </template>
+                            <template v-if="learningType === 'mix'">
+                                混合
+                            </template>
                         </el-form-item>
                         <p style="color:#fff;">{{ jobId }}</p>
                     </el-form>
@@ -100,16 +94,16 @@
                                 name="params"
                             >
                                 <el-scrollbar height="100%">
-                                    <el-alert
-                                        v-if="!isCreator"
-                                        title="!!! 仅允许查看"
-                                        style="width:250px;"
-                                        :closable="false"
-                                        type="warning"
-                                        effect="dark"
-                                        class="mb10"
-                                        show-icon
-                                    />
+                                    <div v-if="!isCreator" class="mb10">
+                                        <el-alert
+                                            title="!!! 仅允许查看"
+                                            style="width:250px;"
+                                            :closable="false"
+                                            type="warning"
+                                            effect="dark"
+                                            show-icon
+                                        />
+                                    </div>
                                     <el-popover
                                         title="参数说明"
                                         :offset="15"
@@ -268,18 +262,12 @@
                 this.$emit('component-panel-change-size', this.maxSize);
             },
 
-            changeLearningType() {
-                this.saveFlowInfo(null, () => {
-                    this.$emit('getComponents');
-                });
-            },
-
             tabChange({ paneName }) {
                 const child = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
-                } else if(paneName === 'params' && child.vData.inited === false) {
+                } else if(paneName === 'params' && (child.vData.inited === false || this.jobGraphShow)) {
                     // never inited
                     child.methods.readData && child.methods.readData(this.nodeModel);
                 }
@@ -300,12 +288,16 @@
                 if(data.componentType) {
                     // cache last node id
                     const lastNodeId = this.currentObj.nodeId;
+                    const cfg = this.componentsList[data.componentType];
 
                     if(lastNodeId === id) return;
 
                     if(type) {
                         this.tabName = type;
-                    } else if (this.componentsList[data.componentType].params) {
+                        if(type === 'result' && !cfg.result) {
+                            this.tabName = 'params';
+                        }
+                    } else if (cfg.params) {
                         this.tabName = 'params';
                     } else if(this.jobGraphShow) {
                         this.tabName = 'result';
@@ -350,7 +342,7 @@
                 }
             },
 
-            async saveFlowInfo($event, callback) {
+            async saveFlowInfo($event) {
                 if(this.locker) return;
                 this.locker = true;
 
@@ -382,13 +374,11 @@
                     });
                     this.$emit('changeHeaderTitle');
                     this.$notify.success({
-                        offset:   -10,
+                        offset:   5,
                         duration: 1500,
                         title:    '提示',
                         message:  '保存成功!',
                     });
-
-                    callback && callback();
 
                     if(!flowId) {
                         this.$router.replace({
@@ -454,7 +444,7 @@
                     }
                     if($event !== 'node-update') {
                         this.$notify.success({
-                            offset:   -10,
+                            offset:   5,
                             duration: 1000,
                             title:    '提示',
                             message:  '保存成功!',

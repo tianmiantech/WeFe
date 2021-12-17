@@ -90,13 +90,15 @@
         },
         created () {
             this.$bus.$on('show-login-dialog', () => {
-                // hide the chat room
-                window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
-                this.$store.commit('SYSTEM_INITED', false);
-                this.form.code = '';
-                this.show = true;
-                this.getImgCode();
-                clearUserInfo();
+                if(!this.show) {
+                    // hide the chat room
+                    window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
+                    this.$store.commit('SYSTEM_INITED', false);
+                    this.form.code = '';
+                    this.show = true;
+                    this.getImgCode();
+                    clearUserInfo();
+                }
             });
         },
         methods: {
@@ -148,11 +150,9 @@
                     });
 
                     if(res.code === 0){
-                        data.member_id = res.data.member_id;
-                        data.member_logo = res.data.member_logo;
-                        data.member_name = res.data.member_name;
-                        data.member_email = res.data.member_email;
-                        this.$store.commit('UPDATE_USERINFO', data);
+                        const info = Object.assign(data, res.data);
+
+                        this.$store.commit('UPDATE_USERINFO', info);
                     }
                     // login and refresh whole page
                     if(this.$route.meta.loginAndRefresh) {

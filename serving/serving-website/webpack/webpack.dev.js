@@ -7,11 +7,12 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const webpackConfig = require('./webpack.common.js');
-const { original } = JSON.parse(process.env.npm_config_argv);
+const argv = require('minimist')(process.argv.slice(2));
+const argvs = argv._[0] ? argv._[0].split('=') : '';
 const { context } = require('../package.json');
 const proxy = require('../proxy.js');
 
-const DEPLOY_ENV = original.length > 2 ? original[original.length - 1] : 'dev';
+const DEPLOY_ENV = argvs[1] || 'dev';
 
 const plugins = [
     // 注入环境变量

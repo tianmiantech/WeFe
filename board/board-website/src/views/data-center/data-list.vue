@@ -110,7 +110,7 @@
                             {{ tab.label }}
                         </el-badge>
                     </template>
-                    <List
+                    <AllDataList
                         ref="allUnions"
                         key="allUnions"
                         :table-loading="vData.loading"
@@ -132,12 +132,12 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import List from './components/list';
     import UploadingList from './components/uploading-list';
+    import AllDataList from './components/all-data-list';
 
     export default {
         components: {
-            List,
+            AllDataList,
             UploadingList,
         },
         setup() {
@@ -303,7 +303,7 @@
             const searchList = (opt = {}) => {
                 const refInstance = vData.activeTab === 'uploadUnions' ? uploadUnions : allUnions;
 
-                refInstance.value.getDataList(opt);
+                refInstance && refInstance.value.getDataList(opt);
             };
 
             onMounted(async () => {

@@ -34,9 +34,9 @@
                             placement="top"
                             effect="light"
                         >
-                            <i
-                                class="el-icon-info desc-icon"
-                            />
+                            <el-icon class="el-icon-info desc-icon">
+                                <elicon-info-filled />
+                            </el-icon>
                         </el-tooltip>
                     </p>
                     <p class="p-id">
@@ -48,17 +48,18 @@
                             :key="member.member_id + member.member_role"
                             class="parters-item"
                         >
-                            <i
-                                :class="['parters-icon', item.member_id === member.member_id ? 'el-icon-star-on' : 'el-icon-star-off', {'parters-icon-promoter': member.member_role === 'promoter'}]"
-                            />
+                            <el-icon :class="['parters-icon', {'parters-icon-promoter': member.member_role === 'promoter'}]">
+                                <elicon-star-filled v-if="item.member_id === member.member_id" class="parters-icon-star" />
+                                <elicon-star v-else />
+                            </el-icon>
                             {{ member.member_name }}
                         </p>
                     </div>
                     <p
                         v-if="item.closed"
-                        class="f14 color-danger"
+                        class="project-closed f12 color-danger"
                     >
-                        该项目已由 {{ item.close_operator_nickname }} ({{ item.closed_by }}) 于 {{ dateFormat(item.closed_time) }} 关闭
+                        该项目已由 {{ item.close_operator_nickname }} 于 {{ dateFormat(item.closed_time) }} 关闭
                     </p>
                     <div
                         v-else-if="item.audit_status !== 'agree'"
@@ -74,7 +75,7 @@
                     </p>
                     <div
                         v-if="item.flow_status_statistics"
-                        class="flow-list"
+                        class="flow-list mt10"
                     >
                         <div class="flow-status">
                             <p class="status-num">{{ item.flow_status_statistics.editing }}</p>
@@ -130,6 +131,8 @@
                 status:     {
                     created:  '已创建',
                     auditing: '等待审核中',
+                    disagree: '已拒绝加入',
+                    closed:   '已关闭',
                 },
                 watchRoute: false, // When there are multiple instances, multiple requests will be issued at the same time, set to false, let the parent component listen for routing changes
             };
@@ -155,7 +158,9 @@
                     this.pagination.page_index = 1;
                     this.pagination.page_size = 20;
                 }
+
                 await this.getList(opt);
+
                 this.list.forEach(item => {
                     item.$promoter_list = [];
                     item.member_list.map(i => {
@@ -311,16 +316,27 @@
     }
     .parters{
         color:#333;
-        height: 55px;
         font-size: 13px;
+        max-height: 50px;
         overflow: hidden;
         white-space: nowrap;
         word-break: break-all;
         text-overflow: ellipsis;
         vertical-align: middle;
     }
-    .parters-icon{color: #3182bd;}
-    .parters-icon-promoter{color: #E89B00;}
+    .parters-icon{
+        color: #3182bd;
+        top: -2px;
+    }
+    .parters-icon-promoter{
+        color: #E89B00;
+        .parters-icon-star{
+            font-size: 18px;
+            position: relative;
+            left: -2px;
+            top:-2px;
+        }
+    }
     .parters-item{
         width: 50%;
         float: left;
@@ -328,6 +344,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         -webkit-box-orient: vertical;
+    }
+    .project-closed{
+        line-height: 18px;
     }
     .data-status{flex:1;
         text-align: center;
