@@ -6,7 +6,6 @@
         >
             <el-form
                 inline
-                label-width="100px"
                 @submit.prevent
             >
                 <el-form-item label="项目名称">
@@ -42,6 +41,7 @@
                     <el-select
                         v-model="search.audit_status"
                         style="width: 176px;"
+                        class="mr10"
                         clearable
                     >
                         <el-option
@@ -52,16 +52,26 @@
                         />
                     </el-select>
                 </el-form-item>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="search.closed"
+                        style="vertical-align:top;"
+                        true-label="true"
+                        false-label="false"
+                    >项目已关闭</el-checkbox>
+                </el-form-item>
                 <el-form-item label="创建日期">
                     <DateTimePicker @change="timeChange" />
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    native-type="submit"
-                    @click="searchList"
-                >
-                    搜索
-                </el-button>
+                <el-form-item>
+                    <el-button
+                        type="primary"
+                        native-type="submit"
+                        @click="searchList"
+                    >
+                        搜索
+                    </el-button>
+                </el-form-item>
             </el-form>
         </el-card>
 
@@ -124,6 +134,7 @@
                 member_id:  '',
                 members:    [],
                 search:     {
+                    closed:            false,
                     name:              '',
                     member_id:         '',
                     member_name:       '',

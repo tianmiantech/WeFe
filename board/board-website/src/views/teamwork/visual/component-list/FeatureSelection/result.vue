@@ -35,7 +35,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             let vData = reactive({});
 
