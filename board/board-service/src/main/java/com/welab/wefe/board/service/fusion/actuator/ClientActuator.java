@@ -214,7 +214,7 @@ public class ClientActuator extends PsiClientActuator {
         }
         ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/crypto", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
             LOG.info("error: {}", e);
             e.printStackTrace();
