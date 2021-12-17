@@ -196,11 +196,10 @@ public class FusionTaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void handle(AuditApi.Input input) throws StatusCodeWithException {
-        FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
-//        FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
-//        if (task == null) {
-//            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
-//        }
+        FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
+        if (task == null) {
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
             task.setStatus(FusionTaskStatus.Refuse);

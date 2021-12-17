@@ -36,9 +36,8 @@ import java.util.List;
         path = "fusion/receive/result",
         name = "receive result",
         desc = "receive result",
-        login = false
-//        ,
-//        rsaVerify = true
+        login = false,
+        rsaVerify = true
 )
 public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
 
