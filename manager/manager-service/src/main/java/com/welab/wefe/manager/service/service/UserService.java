@@ -83,7 +83,7 @@ public class UserService {
     }
 
     public void resetPassword(String userId) throws StatusCodeWithException {
-        if (CurrentAccount.isAdmin()) {
+        if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
         // Regenerate salt
@@ -94,7 +94,7 @@ public class UserService {
     }
 
     public void changeUserRole(String userId, boolean adminRole) throws StatusCodeWithException {
-        if (CurrentAccount.isSuperAdmin()) {
+        if (!CurrentAccount.isSuperAdmin()) {
             throw new StatusCodeWithException("非超级管理员无法操作。", StatusCode.PERMISSION_DENIED);
         }
         userMongoRepo.changeUserRole(userId, adminRole);
