@@ -133,7 +133,9 @@
             destroy-on-close
         >
             <div class="el-message-box__container">
-                <i class="el-message-box__status el-icon-warning" />
+                <el-icon class="el-message-box__status color-danger">
+                    <elicon-warning-filled />
+                </el-icon>
                 <div class="el-message-box__message">{{ cooperAuthDialog.flag ? '同意加入合作' : '拒绝与发起方的此次项目合作' }}</div>
             </div>
             <div class="mt20 text-r">
@@ -272,12 +274,15 @@
             this.$bus.$off('update-title-navigator');
         },
         methods: {
-            async getProjectInfo(callback) {
+            async getProjectInfo(callback, opt = {
+                requestFromRefresh: false,
+            }) {
                 // this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/project/detail',
                     params: {
-                        project_id: this.form.project_id,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.form.project_id,
                     },
                 });
 
@@ -386,7 +391,7 @@
                         };
                     });
                     // audit from other members
-                    this.otherAudit();
+                    this.otherAudit(opt);
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
@@ -403,7 +408,7 @@
                     // refresh audit state every 30s
                     clearTimeout(timer);
                     timer = setTimeout(() => {
-                        this.getProjectInfo();
+                        this.getProjectInfo(null, { requestFromRefresh: true });
                     }, 30 * 10e2);
                 }
             },
@@ -435,11 +440,12 @@
                     });
             },
 
-            async otherAudit() {
+            async otherAudit(opt = { requestFromRefresh: false }) {
                 const { code, data } = await this.$http.get({
                     url:    '/project/member/add/audit/list',
                     params: {
-                        project_id: this.form.project_id,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.form.project_id,
                     },
                 });
 
@@ -469,6 +475,13 @@
             },
 
             cooperAuth(flag) {
+                if(!flag && !this.form.audit_comment) {
+                    return this.$alert('', {
+                        title:   '警告',
+                        type:    'warning',
+                        message: '请填写审核意见!',
+                    });
+                }
                 this.cooperAuthDialog.show = true;
                 this.cooperAuthDialog.flag = flag;
             },

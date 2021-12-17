@@ -31,6 +31,8 @@
             />
             <el-button
                 size="mini"
+                class="ml10"
+                style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog(item, index)"
             >
@@ -38,7 +40,7 @@
             </el-button>
             <el-button
                 type="text"
-                class="el-icon-delete"
+                class="elicon-delete"
                 style="color:#F85564;font-size: 14px;"
                 @click="methods.removeRow(item, index)"
             />

@@ -31,7 +31,6 @@
 
                 <el-button
                     v-if="form.isCreator && !form.closed"
-                    plain
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
@@ -77,9 +76,9 @@
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="数据量">
                         <template v-slot="scope">
-                            特征：{{ scope.row.data_set.feature_count }}
+                            特征量：{{ scope.row.feature_count }}
                             <br>
-                            行数：{{ scope.row.data_set.row_count }}
+                            样本量：{{ scope.row.row_count }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -145,7 +144,9 @@
                                     class="dataset-preview mr5"
                                     @click="showDataSetPreview(scope.row)"
                                 >
-                                    <i class="el-icon-view" />
+                                    <el-icon>
+                                        <elicon-view />
+                                    </el-icon>
                                 </el-button>
                             </el-tooltip>
                             <!--
@@ -157,7 +158,7 @@
                                 circle
                                 type="danger"
                                 class="mr10"
-                                icon="el-icon-delete"
+                                icon="elicon-delete"
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
                             <template v-if="scope.row.deleted">
@@ -314,12 +315,7 @@
         data() {
             return {
                 dataSetPreviewDialog: false,
-                public_level_map:     {
-                    Public:               '所有成员可见',
-                    MySelf:               '仅自己可见',
-                    PublicWithMemberList: '指定成员可见',
-                },
-                dataSets: {
+                dataSets:             {
                     role:  '',
                     id:    '',
                     index: 0,

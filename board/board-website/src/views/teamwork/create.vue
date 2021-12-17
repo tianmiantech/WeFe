@@ -61,7 +61,11 @@
                         <p>5、退出参与的成员将只有看到之前参与的流程。</p>
                         6、退出参与的成员可在主页删除项目。
                     </template>
-                    <span>发起方 <i class="icon el-icon-warning" /></span>
+                    <span>发起方
+                        <el-icon class="color-danger">
+                            <elicon-warning />
+                        </el-icon>
+                    </span>
                 </el-tooltip>
                 <el-button
                     v-if="form.projectType !== 'DeepLearning'"
@@ -130,7 +134,7 @@
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="el-icon-delete"
+                                    icon="elicon-delete"
                                     @click="removeDataSet({ role: 'promoter_creator', memberIndex: 0, $index: scope.$index })"
                                 />
                             </template>
@@ -145,10 +149,12 @@
                     <h4 class="member-name mb10">
                         {{ member.member_name }}
                         <MemberServiceStatus :status="member.$serviceStatus" />
-                        <i
+                        <el-icon
                             class="el-icon-remove-outline"
                             @click="removeMember(memberIndex, 'promoter')"
-                        />
+                        >
+                            <elicon-remove />
+                        </el-icon>
                     </h4>
                     <p
                         v-if="member.$error"
@@ -191,7 +197,7 @@
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="el-icon-delete"
+                                    icon="elicon-delete"
                                     @click="removeDataSet({ role: 'promoter', memberIndex, $index: scope.$index })"
                                 />
                             </template>
@@ -225,10 +231,12 @@
                     <h4 class="member-name mb10">
                         {{ member.member_name }}
                         <MemberServiceStatus :status="member.$serviceStatus" />
-                        <i
+                        <el-icon
                             class="el-icon-remove-outline"
                             @click="removeMember(memberIndex, 'provider')"
-                        />
+                        >
+                            <elicon-remove />
+                        </el-icon>
                     </h4>
                     <p
                         v-if="member.$error"
@@ -271,7 +279,7 @@
                             <template v-slot="scope">
                                 <el-button
                                     type="danger"
-                                    icon="el-icon-delete"
+                                    icon="elicon-delete"
                                     @click="removeDataSet({ role: 'provider', memberIndex, $index: scope.$index })"
                                 />
                             </template>
@@ -292,7 +300,10 @@
                 style="color:#6C757D;"
                 class="f12 mt10"
             >
-                <i class="el-icon-info" /> 只有己方成员时可进行本地建模
+                <el-icon>
+                    <elicon-info-filled />
+                </el-icon>
+                只有己方成员时可进行本地建模
             </p>
         </div>
 
@@ -305,7 +316,8 @@
         <SelectDatasetDialog
             ref="SelectDatasetDialog"
             :data-sets="dataSets.list"
-            :contains-y="`${dataSets.role === 'promoter' ? true : ''}`"
+            :member-role="dataSets.role"
+            :contains-y="`${dataSets.role !== 'provider' ? true : ''}`"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
         />
@@ -390,7 +402,7 @@
                 canLeave = false;
                 next();
             } else {
-                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗', '警告', {
+                this.$confirm('未保存的数据将会丢失! 确定要离开当前页面吗?', '警告', {
                     type: 'warning',
                 }).then(async () => {
                     canLeave = false;
@@ -479,7 +491,7 @@
                     role = '协作方';
                     list = this.form.memberList;
                 }
-                this.$confirm(`确定要删除该${role}吗`, '警告', {
+                this.$confirm(`确定要删除该${role}吗?`, '警告', {
                     type: 'warning',
                 })
                     .then(action => {
@@ -496,7 +508,6 @@
             addDataSet(role, memberId, memberIndex, $data_set) {
                 const ref = this.$refs['SelectDatasetDialog'];
 
-                ref.show = true;
                 this.dataSets.role = role;
                 this.dataSets.index = memberIndex;
                 this.dataSets.list = $data_set.map(row => {
@@ -505,7 +516,10 @@
                         data_set_id: row.id,
                     };
                 });
-                ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list, projectType: this.form.projectType });
+                ref.show = true;
+                this.$nextTick(async _ => {
+                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                });
             },
 
             async batchDataSet(batchlist) {
