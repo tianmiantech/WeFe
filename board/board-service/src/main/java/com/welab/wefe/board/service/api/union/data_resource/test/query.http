@@ -1,0 +1,15 @@
+###
+POST http://localhost:8080/board-service/union/data_resource/query
+Content-Type: application/json
+token:{{token}}
+
+{}
+
+###
+POST http://localhost:8080/board-service/union/data_resource/query
+Content-Type: application/json
+token:{{token}}
+
+{
+  "data_resource_type": "ImageDataSet"
+}

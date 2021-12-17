@@ -132,7 +132,7 @@ public class TableDataSetService extends DataResourceService {
             unionService.dontPublicDataSet(model);
 
             // Refresh the data set tag list
-            CacheObjects.refreshTableDataSetTags();
+            CacheObjects.refreshDataResourceTags(model.getDataResourceType());
         }
 
     }

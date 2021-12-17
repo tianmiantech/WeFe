@@ -128,7 +128,7 @@ public class ImageDataSetService extends DataResourceService {
         imageDataSetSampleRepository.deleteByDataSetId(model.getId());
 
         FileUtil.deleteFileOrDir(model.getStorageNamespace());
-        CacheObjects.refreshImageDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
         unionService.dontPublicDataSet(model);
     }

@@ -99,6 +99,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
             In apiInput = requestParams.toJavaObject(apiInputClass);
             apiInput.method = method.toUpperCase();
             apiInput.request = request;
+            apiInput.rawRequestParams = requestParams;
             // The parameter checking
             apiInput.checkAndStandardize();
 

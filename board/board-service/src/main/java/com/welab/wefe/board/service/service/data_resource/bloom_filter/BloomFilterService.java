@@ -124,7 +124,7 @@ public class BloomFilterService extends DataResourceService {
             unionService.dontPublicDataSet(model);
 
             // Refresh the bloom_filter tag list
-            CacheObjects.refreshBloomFilterTags();
+            CacheObjects.refreshDataResourceTags(model.getDataResourceType());
         }
 
     }

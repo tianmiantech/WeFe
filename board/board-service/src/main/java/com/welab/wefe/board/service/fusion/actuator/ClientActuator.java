@@ -197,7 +197,7 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("downloadBloomFilter end {} ", result);
 
-        PsiActuatorMeta meta = JObject.toJavaObject(result.getJSONObject("data"), PsiActuatorMeta.class);
+        PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
         meta.setBfByDto(meta.getBfDto());
         return meta;
     }

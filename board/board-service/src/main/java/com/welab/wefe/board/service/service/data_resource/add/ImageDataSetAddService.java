@@ -100,7 +100,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         fileDecompressionResult.deleteAllDirAndFiles();
 
         // Refresh the data set tag list
-        CacheObjects.refreshImageDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
     private void setImageDataSetModel(ImageDataSetAddInputModel input, ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> sampleList) {

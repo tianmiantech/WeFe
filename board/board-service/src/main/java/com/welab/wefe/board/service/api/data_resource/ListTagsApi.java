@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.data_resource.bloom_filter;
+package com.welab.wefe.board.service.api.data_resource;
 
 
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -27,47 +29,41 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
- * @author Jacky.jiang
+ * @author Zane
  */
-@Api(path = "bloom_filter/tags", name = "all of the data set tags")
-public class BloomFilterTagListApi extends AbstractApi<BloomFilterTagListApi.Input, TreeMap<String, Long>> {
+@Api(path = "data_resource/tags", name = "all of the table data set tags")
+public class ListTagsApi extends AbstractApi<ListTagsApi.Input, TreeMap<String, Long>> {
 
     @Autowired
     TableDataSetRepository repo;
 
     @Override
     protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
-        TreeMap<String, Long> map = (TreeMap<String, Long>) CacheObjects.getTableDataSetTags().clone();
 
-        // filter
-        if (StringUtil.isNotEmpty(input.tag)) {
-            for (Object tag : map.keySet().toArray()) {
-                if (!String.valueOf(tag).toLowerCase().contains(input.tag)) {
-                    map.remove(tag);
-                }
-            }
-        }
+        Map<String, Long> result = CacheObjects
+                .getDataResourceTags(input.dataResourceType)
+                .entrySet()
+                .stream()
+                .filter(x -> {
+                    return StringUtil.isNotEmpty(input.tag) ||
+                            x.getKey().toLowerCase().contains(x.getKey().toLowerCase());
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return success(map);
+        return success(new TreeMap<>(result));
     }
 
     public static class Input extends AbstractApiInput {
-        private String tag;
+        @Check(name = "tag关键字，用于模糊搜索（联想输入）")
+        public String tag;
 
-        //region getter/setter
+        @Check(name = "资源类型")
+        public DataResourceType dataResourceType;
 
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-
-        //endregion
     }
 }
