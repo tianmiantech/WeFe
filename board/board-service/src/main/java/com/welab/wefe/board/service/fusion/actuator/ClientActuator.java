@@ -197,7 +197,9 @@ public class ClientActuator extends PsiClientActuator {
 
         LOG.info("downloadBloomFilter end {} ", result);
 
-        return JObject.toJavaObject(result, PsiActuatorMeta.class);
+        PsiActuatorMeta meta = JObject.toJavaObject(result.getJSONObject("data"), PsiActuatorMeta.class);
+        meta.setBfByDto(meta.getBfDto());
+        return meta;
     }
 
     @Override
@@ -237,7 +239,7 @@ public class ClientActuator extends PsiClientActuator {
         }
 
         try {
-             gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
+            gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
             LOG.info("sendFusionData error: {}", e);
             e.printStackTrace();
