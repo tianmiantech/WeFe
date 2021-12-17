@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,7 @@ public class ClientService {
         model.setIpAdd(input.getIpAdd());
         model.setRemark(input.getRemark());
         model.setPubKey(input.getPubKey());
+        model.setStatus(input.getStatus());
         clientRepository.save(model);
     }
 
@@ -50,7 +52,7 @@ public class ClientService {
                 .create()
                 .equal("createdBy", input.getCreatedBy())
                 .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
-                .equal("status", 1)
+                .equal("status", ClientStatusEnum.NORMAL.getValue())
                 .build(ClientMysqlModel.class);
 
         PagingOutput<ClientMysqlModel> page = clientRepository.paging(where, input);
@@ -76,9 +78,15 @@ public class ClientService {
 
     }
 
+    public QueryClientApi.Output queryByName(String name) {
+        ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+        return ModelMapper.map(model, QueryClientApi.Output.class);
+    }
+
     public void detele(String id) {
         ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
         model.setStatus(ClientStatusEnum.DELETED.getValue());
+        model.setUpdatedTime(new Date());
         clientRepository.save(model);
     }
 

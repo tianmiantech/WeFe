@@ -1,11 +1,13 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.serving.service.api.requeststatistics.QueryListApi;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.RequestStatisticsRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
+
 
 /**
  * @author ivenn.zheng
@@ -15,17 +17,17 @@ import org.springframework.stereotype.Service;
 public class RequestStatisticsService {
 
     @Autowired
-    private ClientRepository clientRepository;
+    private RequestStatisticsRepository requestStatisticsRepository;
 
-
-
-    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
-        String clientName = input.getClientName();
-        ClientMysqlModel client = clientRepository.findOne("clientName", clientName, ClientMysqlModel.class);
-        if (null != client) {
-
-        }
-        return null;
+    /**
+     * query request statistics list
+     * @param input
+     * @return
+     */
+    public PagingOutput<RequestStatisticsMysqlModel> queryList(QueryListApi.Input input) {
+        List<RequestStatisticsMysqlModel> list = requestStatisticsRepository.groupByServiceIdAndClientId(input.getServiceId(),
+                input.getClientId(), input.getStartDate(), input.getEndDate());
+        return PagingOutput.of(list.size(), list);
     }
 
 

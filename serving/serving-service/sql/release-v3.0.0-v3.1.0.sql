@@ -19,7 +19,7 @@ CREATE TABLE `service` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
 
 -- 数据源
-
+DROP TABLE IF EXISTS data_source;
 CREATE TABLE `data_source` (
    `database_type` varchar(255) DEFAULT NULL,
    `host` varchar(255) DEFAULT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE api_request_record(
                                    updated_time datetime DEFAULT NULL COMMENT '更新时间',
                                    PRIMARY KEY (id)
 )  COMMENT = 'API 调用记录';
-CREATE UNIQUE INDEX service_client_index ON api_request_record(service_id,client_id);
+CREATE UNIQUE INDEX service_client_index ON api_request_record(service_id,client_id,id);
 
 -- 计费详情表
 DROP TABLE IF EXISTS fee_detail;

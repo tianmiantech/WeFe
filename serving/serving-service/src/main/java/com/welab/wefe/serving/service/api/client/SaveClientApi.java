@@ -45,6 +45,9 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
         @Check(name = "备注")
         private String remark;
 
+        @Check(name = "状态")
+        private Integer status;
+
         public String getId() {
             return id;
         }
@@ -91,6 +94,14 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         public void setRemark(String remark) {
             this.remark = remark;
+        }
+
+        public Integer getStatus() {
+            return status;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
         }
     }
 

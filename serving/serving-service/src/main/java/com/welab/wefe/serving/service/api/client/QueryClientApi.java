@@ -16,7 +16,7 @@ import java.io.IOException;
  * @author ivenn.zheng
  */
 @Api(path = "client/query-one", name = "get client")
-public class QueryClientApi extends AbstractApi<QueryClientApi.Input,QueryClientApi.Output> {
+public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClientApi.Output> {
 
     @Autowired
     private ClientService clientService;
@@ -24,7 +24,14 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input,QueryClient
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-        return success((clientService.queryById(input.getId())));
+        if (null != input.getId()) {
+            return success(clientService.queryById(input.getId()));
+        } else if (null != input.getName()) {
+            return success(clientService.queryByName(input.getName()));
+        }
+
+        return null;
+
     }
 
     public static class Input extends AbstractApiInput {
@@ -33,12 +40,23 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input,QueryClient
         @Check(name = "client id")
         private String id;
 
+        @Check(name = "client name")
+        private String name;
+
         public String getId() {
             return id;
         }
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }
 

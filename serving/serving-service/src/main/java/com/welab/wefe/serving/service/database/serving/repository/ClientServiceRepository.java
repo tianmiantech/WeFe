@@ -25,4 +25,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ClientServiceRepository extends BaseRepository<ClientServiceMysqlModel, String> {
+
+
+
+
 }

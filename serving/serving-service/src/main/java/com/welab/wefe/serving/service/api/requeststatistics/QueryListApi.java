@@ -6,25 +6,27 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.RequestStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.Entity;
 import java.io.IOException;
 import java.util.Date;
 
 /**
  * @author ivenn.zheng
  */
-@Api(path = "requeststatistics/query-list", name = "query request statistics list")
-public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<QueryListApi.Output>> {
+@Api(path = "requeststatistics/query-list", name = "query request statistics list",login = false)
+public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<RequestStatisticsMysqlModel>> {
 
 
     @Autowired
     private RequestStatisticsService requestStatisticsService;
 
     @Override
-    protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<PagingOutput<RequestStatisticsMysqlModel>> handle(Input input) throws StatusCodeWithException, IOException {
         return success(requestStatisticsService.queryList(input));
     }
 
@@ -44,12 +46,12 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 服务名称
          */
-        private String serviceName;
+        private String serviceId;
 
         /**
          * 客户名称
          */
-        private String clientName;
+        private String clientId;
 
         public Date getStartDate() {
             return startDate;
@@ -67,24 +69,36 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.endDate = endDate;
         }
 
-        public String getServiceName() {
-            return serviceName;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
-        public String getClientName() {
-            return clientName;
+        public String getClientId() {
+            return clientId;
         }
 
-        public void setClientName(String clientName) {
-            this.clientName = clientName;
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
         }
     }
 
+
     public static class Output extends AbstractApiOutput {
+
+        public Output(Integer totalRequestTimes, Integer totalFailTimes, Integer totalSuccessTimes, String serviceName, String clientName, Integer serviceType, Double unitPrice, long totalSpend) {
+            this.totalRequestTimes = totalRequestTimes;
+            this.totalFailTimes = totalFailTimes;
+            this.totalSuccessTimes = totalSuccessTimes;
+            this.serviceName = serviceName;
+            this.clientName = clientName;
+            this.serviceType = serviceType;
+            this.unitPrice = unitPrice;
+            this.totalSpend = totalSpend;
+        }
 
         /**
          * 总调用次数
@@ -121,6 +135,18 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
          */
         private Double unitPrice;
 
+        /**
+         * 总耗时
+         */
+        private long totalSpend;
+
+        public long getTotalSpend() {
+            return totalSpend;
+        }
+
+        public void setTotalSpend(long totalSpend) {
+            this.totalSpend = totalSpend;
+        }
 
         public Integer getTotalRequestTimes() {
             return totalRequestTimes;

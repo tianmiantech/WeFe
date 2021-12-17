@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author lonnie
  */
-@Component
+//@Component
 public class LogStatisticsScheduler {
 
     private Logger logger = LoggerFactory.getLogger(LogStatisticsScheduler.class);
@@ -34,7 +34,7 @@ public class LogStatisticsScheduler {
     @Autowired
     private PredictStatisticsService predictStatisticsService;
 
-    @Scheduled(initialDelay = 5_000, fixedDelay = 120_000)
+//    @Scheduled(initialDelay = 5_000, fixedDelay = 120_000)
     public void logStatistics() {
         logger.info("logStatistics start");
 

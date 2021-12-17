@@ -1,14 +1,17 @@
-package com.welab.wefe.serving.service.dto;
+package com.welab.wefe.serving.service.database.serving.entity;
 
-import com.welab.wefe.common.util.DateUtil;
-
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.util.UUID;
 
 /**
  * @author ivenn.zheng
  */
-public class RequestStatisticsOutput {
+@Entity
+public class RequestStatisticsMysqlModel{
 
+    @Id
+    private String id = UUID.randomUUID().toString().replaceAll("-", "");
     /**
      * 总调用次数
      */
@@ -44,6 +47,26 @@ public class RequestStatisticsOutput {
      */
     private Double unitPrice;
 
+    /**
+     * 总耗时
+     */
+    private long totalSpend;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public long getTotalSpend() {
+        return totalSpend;
+    }
+
+    public void setTotalSpend(long totalSpend) {
+        this.totalSpend = totalSpend;
+    }
 
     public Integer getTotalRequestTimes() {
         return totalRequestTimes;
@@ -100,4 +123,5 @@ public class RequestStatisticsOutput {
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
+
 }
