@@ -109,7 +109,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // All characteristic columns of the dataset I selected
         List<String> myFeatureNameList = Arrays.asList(dataSetMysqlModel.getFeatureNameList().split(","));
 
-        List<TaskMySqlModel> taskMySqlModelList = new ArrayList<>();
+        List<TaskMySqlModel> taskMySqlModelList = preTasks;
         // Dataio task component
         TaskMySqlModel dataIoTaskMysqlModel = null;
         // If the jobid is not empty, it means an OOT process (a process containing only two components of [start] and [OOT]).
@@ -148,6 +148,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // Check the correctness of the feature column of the provider member selected by the OOT component on the promoter side.
         // Because the front end should be prompted directly on the initiator side, check it on the promoter side）
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            checkUnsupportedComponent(node, taskMySqlModelList);
             checkSelectedFeatures(graph, node, params, myDataSetConfig);
             checkSelectedMembersValid(graph, node, params);
         }
@@ -462,6 +463,23 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 }
             } catch (StatusCodeWithException e) {
                 throw new FlowNodeException(node, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check for unsupported components
+     */
+    private void checkUnsupportedComponent(FlowGraphNode node, List<TaskMySqlModel> taskMySqlModelList) throws FlowNodeException {
+        if (CollectionUtils.isEmpty(taskMySqlModelList)) {
+            throw new FlowNodeException(node, "未找任何节点任务信息。");
+        }
+
+        for (TaskMySqlModel taskMySqlModel : taskMySqlModelList) {
+            for (ComponentType componentType : TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST) {
+                if (componentType.equals(taskMySqlModel.getTaskType())) {
+                    throw new FlowNodeException(node, "暂时不支持组件 " + componentType.getLabel());
+                }
             }
         }
     }
