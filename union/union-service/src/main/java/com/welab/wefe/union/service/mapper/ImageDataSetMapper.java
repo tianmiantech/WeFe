@@ -22,7 +22,6 @@ import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
-import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
@@ -41,7 +40,7 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
-            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getExtraData()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getImageDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
