@@ -29,7 +29,7 @@
             >
                 <el-input
                     v-model="form.url"
-                    :maxlength="30"
+                    :maxlength="100"
                     :minlength="4"
                     show-word-limit
                     size="medium"
@@ -58,14 +58,11 @@
 
             <div class="form-inline">
                 <el-form-item
-                    prop="password"
-                    label="密码"
-                    :rules="[
-                        { required: true, message: '密码必填！' }
-                    ]"
+                    prop="query_param"
+                    label="参数名称"
                 >
                     <el-input
-                        v-model="form.password"
+                        v-model="form.query_param"
                         size="medium"
                     />
                 </el-form-item>
@@ -98,15 +95,15 @@
                 form:             {},
                 ServiceTypeList: [{
                     name:  '匿踪查询',
-                    value: '1',
+                    value: 1,
                 },
                 {
                     name:  '交集查询',
-                    value: '2',
+                    value: 2,
                 },
                 {
                     name:  '安全聚合',
-                    value: '3',
+                    value: 3,
                 }],
                 currentItem: {},
                 testLoading: false,
@@ -115,7 +112,6 @@
         },
         created() {
             this.currentItem.id = this.$route.query.id;
-            this.currentItem.name = this.$route.query.name;
             if (this.currentItem.id) {
                 this.getSqlConfigDetail();
             }
@@ -125,13 +121,13 @@
 
             async getSqlConfigDetail() {
                 const { code, data } = await this.$http.post({
-                    url:  '/service/query',
+                    url:  '/service/detail',
                     data: { id: this.currentItem.id},
                 });
 
                 if (code === 0) {
-                    if (data.list) {
-                        const resData = data.list[0];
+                    if (data) {
+                        const resData = data;
 
                         this.form = resData;
                     }
