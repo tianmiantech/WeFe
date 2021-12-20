@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.service.base.AbstractSendTransferMetaCachePersistentService;
@@ -47,8 +48,8 @@ public class SendTransferMetaService extends AbstractSendTransferMetaService {
 
 
     @Override
-    public BasicMetaProto.ReturnStatus doHandle(GatewayMetaProto.TransferMeta transferMeta) {
-        return ProcessorContext.getProcessor(transferMeta).preSendToRemote(transferMeta);
+    public BasicMetaProto.ReturnStatus doHandle(GatewayMetaProto.TransferMeta transferMeta) throws StatusCodeWithException {
+        return ProcessorContext.getProcessor(transferMeta).beforeSendToRemote(transferMeta);
     }
 
     @Override

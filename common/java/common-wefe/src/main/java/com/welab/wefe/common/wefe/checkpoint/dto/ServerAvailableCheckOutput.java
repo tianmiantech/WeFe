@@ -30,6 +30,24 @@ public class ServerAvailableCheckOutput {
 
     public ServerAvailableCheckOutput(List<ServerCheckPointOutput> list) {
         this.list = list;
-        this.available = list.stream().allMatch(x -> x.isSuccess());
+        if (list == null) {
+            this.available = false;
+        } else {
+            this.available = list.stream().allMatch(x -> x.isSuccess());
+        }
+
+    }
+
+    /**
+     * 如果是其他成员访问服务状态，需要将 value 置空。
+     */
+    public void cleanValues() {
+        if (list == null) {
+            return;
+        }
+
+        for (ServerCheckPointOutput item : list) {
+            item.setValue(null);
+        }
     }
 }

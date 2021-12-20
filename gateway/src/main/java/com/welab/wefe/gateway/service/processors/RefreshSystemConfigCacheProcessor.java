@@ -30,7 +30,7 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 @Processor(name = "refreshSystemConfigCacheProcessor", desc = "Refresh system configuration cache processor")
 public class RefreshSystemConfigCacheProcessor extends AbstractProcessor {
     @Override
-    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         boolean ret = SystemConfigCache.getInstance().refreshCache();
         return ret ? ReturnStatusBuilder.ok(transferMeta.getSessionId()) : ReturnStatusBuilder.sysExc("刷新系统配置缓存失败", transferMeta.getSessionId());
     }

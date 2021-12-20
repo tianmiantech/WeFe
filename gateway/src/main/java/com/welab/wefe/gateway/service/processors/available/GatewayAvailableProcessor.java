@@ -27,6 +27,7 @@ import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.service.processors.AbstractProcessor;
+import com.welab.wefe.gateway.service.processors.available.checkpoint.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +48,20 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
     private final Logger LOG = LoggerFactory.getLogger(GatewayAvailableProcessor.class);
 
     @Override
-    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         // Check self
         if (isCheckSelf(transferMeta)) {
             ServerAvailableCheckOutput result = checkService();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         }
 
-        return super.toRemote(transferMeta);
+        return super.remoteProcess(transferMeta);
     }
 
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         ServerAvailableCheckOutput result = checkService();
+        result.cleanValues();
         return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
     }
 

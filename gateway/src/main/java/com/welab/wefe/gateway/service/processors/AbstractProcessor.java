@@ -44,7 +44,7 @@ public abstract class AbstractProcessor {
      * @param transferMeta Messages submitted by the client
      * @return Processing response status
      */
-    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         return toRemote(transferMeta);
     }
 

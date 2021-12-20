@@ -32,7 +32,7 @@ import com.welab.wefe.gateway.entity.MemberEntity;
 public class RefreshMemberCacheProcessor extends AbstractProcessor {
 
     @Override
-    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         MemberCache memberCache = MemberCache.getInstance();
         boolean ret = memberCache.refreshSelfMemberCache();
         if (!ret) {
