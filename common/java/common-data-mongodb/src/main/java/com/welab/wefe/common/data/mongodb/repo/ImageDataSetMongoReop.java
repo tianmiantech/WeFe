@@ -79,7 +79,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as("extra_data");
+                as("image_data_set");
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
@@ -98,7 +98,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
+        UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
@@ -109,7 +109,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
-                unwindExtraData,
+                unwindImageDataSet,
                 addFieldsOperation
         );
 

@@ -16,18 +16,11 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.TableDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.TableDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -92,7 +85,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 from(MongodbTable.Union.TABLE_DATASET).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as("extra_data");
+                as("table_data_set");
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
@@ -111,7 +104,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
+        UnwindOperation unwindTableDataSet = Aggregation.unwind("table_data_set");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
@@ -122,7 +115,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
-                unwindExtraData,
+                unwindTableDataSet,
                 addFieldsOperation
         );
 

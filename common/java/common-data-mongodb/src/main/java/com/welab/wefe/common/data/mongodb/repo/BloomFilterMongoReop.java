@@ -22,7 +22,6 @@ import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInpu
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -87,7 +86,7 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
                 from(MongodbTable.Union.BLOOM_FILTER).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as("extra_data");
+                as("bloom_filter");
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
@@ -106,7 +105,7 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
+        UnwindOperation unwindBloomFilter = Aggregation.unwind("bloom_filter");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
@@ -117,7 +116,7 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
-                unwindExtraData,
+                unwindBloomFilter,
                 addFieldsOperation
         );
 
