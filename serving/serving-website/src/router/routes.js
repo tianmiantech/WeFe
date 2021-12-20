@@ -50,7 +50,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}`,
+        path: `${prefixPath}data_source`,
         meta: {
             title: '数据源管理',
             icon:  'el-icon-monitor',
@@ -82,7 +82,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}`,
+        path: `${prefixPath}service`,
         meta: {
             title: '服务中心',
             icon:  'el-icon-monitor',
