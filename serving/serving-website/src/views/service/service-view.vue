@@ -38,7 +38,6 @@
 
             <el-form-item
                 label="服务类型:"
-                prop="service_type"
                 :rules="[
                     { required: true, message: '服务类型必填!' }
                 ]"

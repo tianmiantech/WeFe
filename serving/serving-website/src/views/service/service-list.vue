@@ -249,7 +249,7 @@
             editService(row) {
                 this.$router.replace({
                     name:  'service-view',
-                    query: { id: row.id, name: row.name },
+                    query: { id: row.id},
                 });
             },
 

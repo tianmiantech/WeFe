@@ -200,7 +200,7 @@
             editSource(row) {
                 this.$router.replace({
                     name:  'data-source-view',
-                    query: { id: row.id, name: row.name },
+                    query: { id: row.id},
                 });
             },
 
