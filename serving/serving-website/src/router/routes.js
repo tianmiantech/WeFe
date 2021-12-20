@@ -82,6 +82,38 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}`,
+        meta: {
+            title: '服务中心',
+            icon:  'el-icon-monitor',
+            index: 5,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}service-list`,
+                name: 'service-list',
+                meta: {
+                    title:  '服务列表',
+                    index:  '5-1',
+                    active: `${prefixPath}service-list`,
+                },
+                component: () => import('@views/service/service-list.vue'),
+            },
+            {
+                path: `${prefixPath}service-view`,
+                name: 'service-view',
+                meta: {
+                    title:  '服务详情',
+                    index:  '5-2',
+                    hidden: true,
+                    active: `${prefixPath}service-view`,
+                },
+                component: () => import('@views/service/service-view.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}member`,
         meta: {
         title: 'member管理',

@@ -6,9 +6,9 @@
         <el-form :model="form">
             <el-form-item
                 prop="name"
-                label="源名称:"
+                label="服务名称:"
                 :rules="[
-                    { required: true, message: '源名称必填!' }
+                    { required: true, message: '服务名称必填!' }
                 ]"
             >
                 <el-input
@@ -21,67 +21,42 @@
             </el-form-item>
 
             <el-form-item
-                label="数据库类型:"
-                prop="database_type"
+                prop="url"
+                label="服务地址:"
                 :rules="[
-                    { required: true, message: '数据库类型必填!' }
+                    { required: true, message: '服务地址必填!' }
+                ]"
+            >
+                <el-input
+                    v-model="form.url"
+                    :maxlength="30"
+                    :minlength="4"
+                    show-word-limit
+                    size="medium"
+                />
+            </el-form-item>
+
+            <el-form-item
+                label="服务类型:"
+                prop="service_type"
+                :rules="[
+                    { required: true, message: '服务类型必填!' }
                 ]"
             >
                 <el-select
-                    v-model="form.database_type"
+                    v-model="form.service_type"
                     size="medium"
                     clearable
                 >
                     <el-option
-                        v-for="item in DatabaseTypeList"
+                        v-for="item in ServiceTypeList"
                         :key="item.value"
                         :value="item.value"
                         :label="item.name"
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item
-                prop="host"
-                label="Host"
-                :rules="[{ required: true, message: 'Host必填！' }]"
-            >
-                <el-input
-                    v-model="form.host"
-                    size="medium"
-                />
-            </el-form-item>
-            <el-form-item
-                prop="port"
-                label="Port"
-                :rules="[{ required: true, message: 'Port必填！' }]"
-            >
-                <el-input
-                    v-model="form.port"
-                    size="medium"
-                />
-            </el-form-item>
-            <el-form-item
-                prop="database_name"
-                label="目标数据库名"
-                :rules="[{ required: true, message: '数据库名必填！' }]"
-            >
-                <el-input
-                    v-model="form.database_name"
-                    size="medium"
-                />
-            </el-form-item>
-            <el-form-item
-                label="数据库用户名"
-                prop="user_name"
-                :rules="[
-                    { required: true, message: '用户名必填！' }
-                ]"
-            >
-                <el-input
-                    v-model="form.user_name"
-                    size="medium"
-                />
-            </el-form-item>
+
             <div class="form-inline">
                 <el-form-item
                     prop="password"
@@ -121,11 +96,18 @@
         data() {
             return {
                 loading:          false,
-                // model
                 form:             {},
-                DatabaseTypeList: [{
-                    name:  'MySql',
-                    value: 'MySql',
+                ServiceTypeList: [{
+                    name:  '匿踪查询',
+                    value: '1',
+                },
+                {
+                    name:  '交集查询',
+                    value: '2',
+                },
+                {
+                    name:  '安全聚合',
+                    value: '3',
                 }],
                 currentItem: {},
                 testLoading: false,
@@ -144,19 +126,15 @@
 
             async getSqlConfigDetail() {
                 const { code, data } = await this.$http.post({
-                    url:  '/data_source/query',
-                    data: { id: this.currentItem.id, name: this.currentItem.name },
+                    url:  '/service/query',
+                    data: { id: this.currentItem.id},
                 });
 
                 if (code === 0) {
-                    console.log(data);
                     if (data.list) {
                         const resData = data.list[0];
 
                         this.form = resData;
-                        // this.form.databaseType = resData.database_type;
-                        // this.form.databaseName = resData.database_name;
-                        // this.form.userName = resData.user_name;
                     }
                 }
             },
@@ -171,29 +149,26 @@
 
                 this.saveLoading = true;
                 const { code } = await this.$http.post({
-                    url:     id ? '/data_source/update' : '/data_source/add',
+                    url:     id ? '/service/update' : '/service/add',
                     timeout: 1000 * 60 * 24 * 30,
                     data:    this.form,
                 });
 
                 if (code === 0) {
                     this.$message.success('保存成功!');
-                    this.$router.replace({ name: 'data-resouce-list', query: {} });
+                    this.$router.replace({ name: 'service-list', query: {} });
 
                 }
                 this.saveLoading = false;
             },
             async testConnection() {
-                if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
+                if (!this.form.query_params || !this.form.data_source || !this.form.params) {
                     this.$message.error('请将必填项填写完整！');
-                    return;
-                } else if (this.form.name.length < 4) {
-                    this.$message.error('源名称长度不能少于4，不能大于30');
                     return;
                 }
                 this.testLoading = true;
                 const { code, data } = await this.$http.post({
-                    url:     '/data_source/test_db_connect',
+                    url:     '/service/sql_test',
                     timeout: 1000 * 60 * 24 * 30,
                     data:    this.form,
 
@@ -204,7 +179,6 @@
                 }
                 this.testLoading = false;
             },
-
         },
     };
 </script>
