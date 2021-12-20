@@ -82,7 +82,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private int serviceType;
 		private String queryParams;// json
 		private JSONArray dataSource;// json
-		private JSONArray conditionFields;// json
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
@@ -135,14 +134,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		public void setDataSource(JSONArray dataSource) {
 			this.dataSource = dataSource;
-		}
-
-		public JSONArray getConditionFields() {
-			return conditionFields;
-		}
-
-		public void setConditionFields(JSONArray conditionFields) {
-			this.conditionFields = conditionFields;
 		}
 
 		public String getCreatedBy() {

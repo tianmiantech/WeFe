@@ -52,8 +52,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 		private String queryParams;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
-		@Check(name = "查询字段")
-		private String conditionFields;// json
 
 		public String getId() {
 			return id;
@@ -101,14 +99,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
 		public void setDataSource(String dataSource) {
 			this.dataSource = dataSource;
-		}
-
-		public String getConditionFields() {
-			return conditionFields;
-		}
-
-		public void setConditionFields(String conditionFields) {
-			this.conditionFields = conditionFields;
 		}
 
 	}
