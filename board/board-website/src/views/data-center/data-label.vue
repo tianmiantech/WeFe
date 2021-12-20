@@ -1,28 +1,34 @@
 <template>
-    <el-card class="page_layer_label">
+    <el-card v-loading="vData.pageLoading" class="page_layer_label">
         <div class="check_label">
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
                 <div class="label_content">
-                    <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" @save-label="methods.saveCurrentLabel" />
+                    <label-system v-show="vData.sampleList.length" ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
+                    <div v-if="vData.sampleList.length === 0" class="empty_box">
+                        <EmptyData />
+                    </div>
                     <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" @select-image="methods.selectImage" />
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name"></el-tab-pane>
                 <div class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
-                        <el-button plain type="primary">添加标签</el-button>
                     </div>
                     <div class="label_search">
-                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" prefix-icon="el-icon-search" @input="methods.labelSearch"></el-input>
+                        <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" @input="methods.labelSearch">
+                            <template #suffix>
+                                <el-icon class="el-input__icon"><elicon-search /></el-icon>
+                            </template>
+                        </el-input>
                     </div>
                     <div class="label_info">
                         <template v-if="vData.count_by_sample_list.length>0">
                             <div class="label_title"><span>标签名称</span><span>快捷键</span></div>
                             <div class="label_info_list">
-                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
+                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">
                                     <span class="span_label">{{item.label}}</span>
                                     <span v-if="item.keycode !== ''" class="span_count">{{item.keycode}}</span>
-                                    <i v-if="item.iscustomized" class="el-icon-error label_close" @click="methods.deleteLabel(index)" />
+                                    <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
                             </div>
                         </template>
@@ -55,7 +61,7 @@
 </template>
 
 <script>
-    import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
+    import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick, onUnmounted } from 'vue';
     import { useRoute } from 'vue-router';
     import LabelSystem from './components/label-system.vue';
     import ImageThumbnailList from './components/image-thumbnail-list.vue';
@@ -74,9 +80,10 @@
             const vData = reactive({
                 activeName: '',
                 sampleId:   route.query.id,
+                forJobType: route.query.for_job_type,
                 search:     {
-                    page_index: 1,
-                    page_size:  20,
+                    page_index: route.query.page_index || 1,
+                    page_size:  route.query.page_size || 20,
                     label:      '',
                     labeled:    '',
                     total:      1,
@@ -99,14 +106,16 @@
                     },
                 ],
                 sampleList:           [],
-                imgLoading:           false,
                 currentImage:         {},
                 timer:                null,
+                timer2:               null,
                 count_by_label:       [],
                 count_by_sample:      [],
                 count_by_sample_list: [],
                 labelName:            '',
                 newLabel:             '',
+                pageLoading:          false,
+                pageSamplelength:     0, // 当前页图片数量
             });
 
             const methods = {
@@ -118,14 +127,14 @@
 
                     nextTick(_ => {
                         if(code === 0) {
-                            vData.tabsList[0].count = data.sample_count;
+                            vData.tabsList[0].count = data.total_data_count;
                             vData.tabsList[1].count = data.labeled_count;
-                            vData.tabsList[2].count = data.sample_count - data.labeled_count;
+                            vData.tabsList[2].count = data.total_data_count - data.labeled_count;
                         }
                     });
                 },
                 async getSampleList() {
-                    vData.imgLoading = true;
+                    vData.pageLoading = true;
                     const params = {
                         page_index:  vData.search.page_index - 1,
                         page_size:   vData.search.page_size,
@@ -142,6 +151,7 @@
                         if(code === 0) {
                             if (data && data.list.length>0) {
                                 vData.search.total = data.total;
+                                vData.pageSamplelength = data.list.length;
                                 data.list.forEach((item, idx) => {
                                     methods.downloadImage(item.id, idx, item);
                                 });
@@ -151,7 +161,7 @@
                             } else {
                                 vData.search.total = data.total;
                                 vData.sampleList = data.list;
-                                vData.imgLoading = false;
+                                vData.pageLoading = false;
                             }
                         }
                     });
@@ -176,11 +186,15 @@
                             vData.currentImage = { item: vData.sampleList[0], idx: 0 };
                             nextTick(_=> {
                                 // When the last picture is obtained, call the interface to update the current label information
-                                if (idx === vData.search.page_size - 1) {
+                                if (idx === vData.search.page_size - 1 && vData.pageSamplelength === vData.search.page_size) {
+                                    labelSystemRef.value.methods.createStage();
+                                }
+                                // When the number of data items on this page is less than the current page number, store the total number of samples on the current page for comparison
+                                else if (vData.pageSamplelength === idx + 1 && vData.pageSamplelength < vData.search.page_size) {
                                     labelSystemRef.value.methods.createStage();
                                 }
                             });
-                            vData.imgLoading = false;
+                            vData.pageLoading = false;
                             
                         }
                     });
@@ -262,7 +276,7 @@
                 },
                 // 保存当前标注
                 async saveCurrentLabel(res, id) {
-                    console.log(res);
+                    vData.pageLoading = true;
                     const params = {
                         id,
                         label_info: {
@@ -270,6 +284,7 @@
                         },
                     };
 
+                    console.log(params);
                     const { code } = await $http.post({
                         url:  '/image_data_set_sample/update',
                         data: params,
@@ -295,6 +310,7 @@
                                 }
                             }
                         }
+                        vData.pageLoading = false;
                     });
                 },
                 labelSearch(val) {
@@ -306,19 +322,35 @@
                         });
                     });
                 },
+                // label classify sample
+                labelSampleEvent(text) {
+                    const res = [];
+
+                    res.push({
+                        label:  text,
+                        points: [],
+                    });
+                    methods.saveCurrentLabel(res, vData.currentImage.item.id);
+                },
             };
 
             onBeforeMount(() => {
                 methods.getSampleInfo();
                 methods.getLabelInfo();
                 // 注意清除定时器
-                setTimeout(_=> {
+                if (vData.timer2) clearTimeout(vData.timer2);
+                vData.timer2 = setTimeout(_=> {
                     methods.getSampleList();
                     methods.resetWidth();
                 }, 200);
                 window.onresize = () => {
                     methods.debounce();
                 };
+            });
+
+            onUnmounted(()=>{
+                clearTimeout(vData.timer);
+                clearTimeout(vData.timer2);
             });
 
             return {
@@ -370,6 +402,10 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
+                    .el-input__suffix {
+                        position: absolute;
+                        top: 5px;
+                    }
                 }
                 .label_info {
                     padding: 0 10px;
@@ -410,17 +446,28 @@
                             font-size: 15px;
                             color: #ccc;
                             position: absolute;
-                            right: -4px;
+                            right: -2px;
                             top: -7px;
                             cursor: pointer;
                             z-index: 3;
                         }
+                        &:hover {
+                            border: 1px solid #438bff;
+                        }
+                    }
+                    .fixed_box {
+                        position: absolute;
+                        bottom: 5px;
+                        width: 93%;
                     }
                 }
             }
             .label_content {
                 flex: 1;
                 overflow-y: auto;
+                .empty_box {
+                    width: calc(100% - 280px);
+                }
             }
         }
         

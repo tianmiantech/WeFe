@@ -165,9 +165,10 @@
                     Queue.push(this.$http.get({
                         url:    '/flow/job/detail',
                         params: {
-                            flow_id:     this.flow_id,
-                            member_role: this.member_role[index],
-                            needResult:  true,
+                            requestFromRefresh: true,
+                            flow_id:            this.flow_id,
+                            member_role:        this.member_role[index],
+                            needResult:         true,
                             job_id,
                         },
                     }));

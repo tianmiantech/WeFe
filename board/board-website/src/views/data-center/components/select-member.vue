@@ -45,7 +45,7 @@
                 <el-table-column
                     prop="id"
                     label="Id"
-                    width="160"
+                    min-width="220"
                 >
                     <template v-slot="scope">
                         {{ scope.row.name }}<br>
@@ -65,7 +65,7 @@
                 </el-table-column>
                 <el-table-column
                     label="最后活动时间"
-                    width="160px"
+                    width="160"
                 >
                     <template v-slot="scope">
                         {{ dateFormat(scope.row.last_activity_time) }}
@@ -74,7 +74,7 @@
                 <el-table-column
                     label="是否对其可见"
                     align="center"
-                    width="120"
+                    min-width="120"
                 >
                     <template v-slot="scope">
                         <el-switch
@@ -163,8 +163,9 @@
                     url:  'union/member/query',
                     data: {
                         ...this.search,
-                        page_index: this.pagination.page_index - 1,
-                        page_size:  this.pagination.page_size,
+                        page_index:         this.pagination.page_index - 1,
+                        page_size:          this.pagination.page_size,
+                        requestFromRefresh: true,
                     },
                 });
 
