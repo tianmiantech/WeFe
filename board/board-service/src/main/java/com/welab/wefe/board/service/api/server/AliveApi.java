@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.wefe.enums;
+
+package com.welab.wefe.board.service.api.server;
+
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
+import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.ApiResult;
 
 /**
  * @author zane
- * @date 2021/12/16
  */
-public enum ServiceType {
-    /**
-     *
-     */
-    UnionService,
-    BoardService,
-    GatewayService,
-    FlowService,
-    StorageService,
-    ServingService,
-    MysqlService,
-    FileSystem
+@Api(path = "server/alive", name = "")
+public class AliveApi extends AbstractNoneInputApi<Object> {
+
+    @Override
+    protected ApiResult<Object> handle() throws StatusCodeWithException {
+        return success();
+    }
+
 }

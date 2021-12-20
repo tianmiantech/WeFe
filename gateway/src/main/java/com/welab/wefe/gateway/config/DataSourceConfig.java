@@ -46,7 +46,7 @@ public class DataSourceConfig extends AbstractJpaConfig {
     @Bean
     @ConfigurationProperties(prefix = "db.mysql")
     @Primary
-    DataSource wefeGatewayDS() {
+    public DataSource wefeGatewayDS() {
         return createDatasource();
     }
 

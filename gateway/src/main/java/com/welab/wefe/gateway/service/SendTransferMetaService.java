@@ -48,7 +48,7 @@ public class SendTransferMetaService extends AbstractSendTransferMetaService {
 
     @Override
     public BasicMetaProto.ReturnStatus doHandle(GatewayMetaProto.TransferMeta transferMeta) {
-        return ProcessorContext.preToRemoteExecute(transferMeta);
+        return ProcessorContext.getProcessor(transferMeta).preSendToRemote(transferMeta);
     }
 
     @Override

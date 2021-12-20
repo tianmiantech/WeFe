@@ -116,7 +116,7 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
 
         // Execute business processing
         try {
-            returnStatus = ProcessorContext.remoteExecute(transferMeta);
+            returnStatus = ProcessorContext.getProcessor(transferMeta).remoteProcess(transferMeta);
         } catch (Exception e) {
             LOG.error("RecvTransferMetaService doHandle method exception: ", e);
             returnStatus = ReturnStatusBuilder.sysExc("对端业务处理异常：" + e.getMessage(), transferMeta.getSessionId());

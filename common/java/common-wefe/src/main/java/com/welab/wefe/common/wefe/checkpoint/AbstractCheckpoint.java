@@ -43,9 +43,19 @@ public abstract class AbstractCheckpoint {
     public ServerCheckPointOutput check() {
         long start = System.currentTimeMillis();
 
+        String value = null;
+        try {
+            value = value();
+        } catch (Exception e) {
+            throw new RuntimeException("获取 value 失败，" + e.getClass().getSimpleName() + ":" + e.getMessage());
+        }
+
+        String finalValue = value;
         Future<Exception> future = CommonThreadPool.submit(() -> {
             try {
-                if (value() == null) {
+
+
+                if (finalValue == null) {
                     StatusCode
                             .PARAMETER_CAN_NOT_BE_EMPTY
                             .throwException("相关配置为空，请进行设置后再进行检查。");
@@ -67,7 +77,7 @@ public abstract class AbstractCheckpoint {
         ServerCheckPointOutput output = new ServerCheckPointOutput();
         output.setService(service());
         output.setDesc(desc());
-        output.setValue(value());
+        output.setValue(value);
         output.setSpend(System.currentTimeMillis() - start);
 
         if (e == null) {

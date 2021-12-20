@@ -50,7 +50,7 @@ public class DsourceProcessor extends AbstractProcessor {
     private AbstractTransferMetaDataSink transferMetaDataSink;
 
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         JObject objectData = null;
         try {
             objectData = JObject.create(transferMeta.getContent().getObjectData());

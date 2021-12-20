@@ -29,7 +29,7 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 @Processor(name = "gatewayAliveProcessor", desc = "Gateway survival processor")
 public class GatewayAliveProcessor extends AbstractProcessor {
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus preSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
     }
 }
