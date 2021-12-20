@@ -25,7 +25,6 @@ import java.util.Map;
 public class XxxFeatureDataProcessor extends AbstractFeatureDataProcessor {
     @Override
     public Map<String, Object> process(String userId) {
-        //TODO
 
         return null;
     }

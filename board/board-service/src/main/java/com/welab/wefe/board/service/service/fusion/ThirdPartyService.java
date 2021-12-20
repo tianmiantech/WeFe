@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -27,6 +28,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.enums.CallbackType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
+import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -73,7 +75,7 @@ public class ThirdPartyService {
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 
-        request(dstMemberId, "fusion/callback", params);
+        request(dstMemberId, "fusion/audit/callback", params);
     }
 
     /**
@@ -105,7 +107,17 @@ public class ThirdPartyService {
             throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
         }
 
-        JSONObject json = JObject.create(result.data);
-        return json;
+        Log.info("result is {}", JSON.toJSONString(result));
+
+        return result.data;
+
+//        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/audit/callback").appendParameters(params).postJson();
+
+//        if (!result.success()) {
+//            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
+//        }
+
+//        JSONObject json = JObject.create(result.getBodyAsJson());
+//        return json;
     }
 }

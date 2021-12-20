@@ -456,18 +456,18 @@
                     clearTimeout(heatbeatTimer);
 
                     heatbeatTimer = setTimeout(() => {
-                        methods.getJobStatus();
+                        methods.getJobStatus(null, { requestFromRefresh: true });
                     }, 2000);
                 },
 
-                async getJobStatus(callback) {
+                async getJobStatus(callback, opt = { requestFromRefresh: false }) {
                     const { code, data } = await $http.get({
                         url:    '/flow/job/detail',
                         params: {
-                            requestFromRefresh: true,
-                            flowId:             props.flowId,
-                            memberRole:         props.myRole,
-                            needResult:         true,
+                            'request-from-refresh': opt.requestFromRefresh,
+                            flowId:                 props.flowId,
+                            memberRole:             props.myRole,
+                            needResult:             true,
                         },
                     });
 
@@ -498,8 +498,8 @@
                                 const res = await $http.get({
                                     url:    '/flow/job/get_progress',
                                     params: {
-                                        requestFromRefresh: true,
-                                        jobId:              job.job_id,
+                                        'request-from-refresh': opt.requestFromRefresh,
+                                        jobId:                  job.job_id,
                                     },
                                 });
 
@@ -591,8 +591,8 @@
                         url:    '/task/progress/detail',
                         params: {
                             task_id,
-                            memberRole:         props.myRole,
-                            requestFromRefresh: true,
+                            memberRole:             props.myRole,
+                            'request-from-refresh': true,
                         },
                     });
 

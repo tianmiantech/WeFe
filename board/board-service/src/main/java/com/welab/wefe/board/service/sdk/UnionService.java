@@ -17,20 +17,18 @@
 package com.welab.wefe.board.service.sdk;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.image_data_set.QueryImageDataSetApi;
-import com.welab.wefe.board.service.api.union.table_data_set.DataSetTagListApi;
-import com.welab.wefe.board.service.api.union.table_data_set.DefaultTagListApi;
-import com.welab.wefe.board.service.api.union.table_data_set.QueryDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
-import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
-import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import org.springframework.stereotype.Service;
 
 
@@ -39,16 +37,26 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UnionService extends AbstractUnionService {
-    public void updateImageDataSetLabelInfo(ImageDataSetMysqlModel dataSet) {
-        // TODO: Zane 待补充
+    /**
+     * 更新资源信息，使用此接口更新时，数据不会立即更新，有延迟。
+     */
+    public void lazyUpdateDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
+        MemberInfoModel member = globalConfigService.getMemberInfo();
+        if (!member.getMemberAllowPublicDataSet() || member.getMemberHidden()) {
+            return;
+        }
+
+        CommonThreadPool.run(() -> {
+            try {
+                request("data_resource/lazy_update", JObject.create(model));
+            } catch (StatusCodeWithException e) {
+                super.log(e);
+            }
+        });
+
     }
 
-
-    public void updateDataResourceBaseInfo(DataResourceMysqlModel model) throws StatusCodeWithException {
-        // TODO: Zane 待补充
-    }
-
-    public void uploadDataResource(DataResourceMysqlModel model) {
+    public void upsertDataResource(DataResourceMysqlModel model) {
         JObject params = JObject
                 .create(model);
 
@@ -63,11 +71,11 @@ public class UnionService extends AbstractUnionService {
                 // If this data set is not publicly available to anyone
                 if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
                     // Notify union to remove the data set
-                    dontPublicDataSet(model);
+                    doNotPublicDataSet(model);
                     return;
                 }
 
-                request("data_resource/put", params);
+                request(StringUtil.stringToUnderLineLowerCase(model.getDataResourceType().name()) + "/put", params);
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }
@@ -78,101 +86,51 @@ public class UnionService extends AbstractUnionService {
     /**
      * Hidden data set
      */
-    public void dontPublicDataSet(DataResourceMysqlModel model) throws StatusCodeWithException {
+    public void doNotPublicDataSet(DataResourceMysqlModel model) throws StatusCodeWithException {
         JObject params = JObject
                 .create()
-                .put("id", model.getId());
+                .put("data_resource_id", model.getId());
 
-        String api = "data_resource/delete";
-        request(api, params);
+        request("data_resource/delete", params);
     }
 
 
-    public JSONObject queryImageDataSetTags() throws StatusCodeWithException {
-        String key = "queryImageDataSetTags";
-        if (CACHE_MAP.containsKey(key)) {
-            return (JSONObject) CACHE_MAP.get(key);
+    public <OUT> OUT getDataResourceDetail(String dataResourceId, Class<OUT> outputClass) throws StatusCodeWithException {
+        DataResourceType type = null;
+        if (outputClass == ImageDataSetOutputModel.class) {
+            type = DataResourceType.ImageDataSet;
+        } else if (outputClass == TableDataSetOutputModel.class) {
+            type = DataResourceType.TableDataSet;
+        } else if (outputClass == BloomFilterOutputModel.class) {
+            type = DataResourceType.BloomFilter;
         }
-
-        JObject params = JObject
-                .create();
-
-        JSONObject response = request("image_data_set/tags/query", params);
-        CACHE_MAP.put(key, response);
-        return response;
-    }
-
-    /**
-     * Paging query data set tag
-     */
-    public JSONObject queryDataSetTags(DataSetTagListApi.Input input) throws StatusCodeWithException {
-        String key = "queryDataSetTags" + JSON.toJSONString(input);
-        if (CACHE_MAP.containsKey(key)) {
-            return (JSONObject) CACHE_MAP.get(key);
-        }
-
-        JObject params = JObject
-                .create()
-                .put("page_index", input.getPageIndex())
-                .put("page_size", input.getPageSize())
-                .put("tag_name", input.getTag());
-
-        JSONObject response = request("data_set/tags/query", params);
-        CACHE_MAP.put(key, response);
-        return response;
-    }
-
-    /**
-     * Pagination query default tags
-     */
-    public JSONObject queryTags(DefaultTagListApi.Input input) throws StatusCodeWithException {
-
-        String key = "queryTags" + JSON.toJSONString(input);
-        if (CACHE_MAP.containsKey(key)) {
-            return (JSONObject) CACHE_MAP.get(key);
-        }
-
-        JObject params = JObject
-                .create()
-                .put("page_index", input.getPageIndex())
-                .put("page_size", input.getPageSize());
-
-        JSONObject response = request("default_tag/query", params);
-        CACHE_MAP.put(key, response);
-        return response;
-    }
-
-
-    /**
-     * Paging query data set
-     */
-    public JSONObject queryDataSets(QueryDataSetApi.Input input) throws StatusCodeWithException {
-        JObject data = JObject.create()
-                .put("id", input.getDataSetId())
-                .put("data_set_id", input.getDataSetId());
-
-        return request("data_set/query", data);
-    }
-
-    public JSONObject queryImageDataSets(QueryImageDataSetApi.Input input) throws StatusCodeWithException {
-        return request("image_data_set/query", JObject.create(input));
+        return getDataResourceDetail(dataResourceId, type, outputClass);
     }
 
     /**
      * 获取数据资源详情
      */
-    public <OUT extends DataResourceOutputModel> OUT getDataResourceDetail(String dataResourceId, Class<OUT> outputClass) throws StatusCodeWithException {
+    public <OUT> OUT getDataResourceDetail(String dataResourceId, DataResourceType dataResourceType, Class<OUT> outputClass) throws StatusCodeWithException {
         String key = dataResourceId + "getDataResourceDetail";
         if (CACHE_MAP.containsKey(key)) {
             return (OUT) CACHE_MAP.get(key);
         }
 
-        JObject params = JObject.create("id", dataResourceId);
+        JObject params = JObject
+                .create()
+                .put("data_resource_id", dataResourceId)
+                .put("data_resource_type", dataResourceType);
         JSONObject result = request("data_resource/detail", params);
 
         JSONObject data = result.getJSONObject("data");
         if (data == null || data.isEmpty()) {
             return null;
+        }
+
+        JSONObject extraData = data.getJSONObject("extra_data");
+        if (extraData != null) {
+            data.putAll(extraData);
+            data.remove("extra_data");
         }
 
         OUT output = data.toJavaObject(outputClass);

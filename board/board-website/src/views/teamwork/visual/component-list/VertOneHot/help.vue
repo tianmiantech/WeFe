@@ -1,20 +1,17 @@
 <template>
     <CommonHelp>
         <template #intro>
-            对数据集的特征进行统计，并输出统计结果。
+            独热编码(One-Hot Encoding)，又称一位有效编码，其方法是使用N位状态寄存器来对N个状态进行编码，每个状态都有它独立的寄存器位，并且在任意时候，其中只有一位有效，即只有一位是1，其余都是零值。
         </template>
         <template #params>
-            <code>选择特征</code>
-            <br>
-            该组件仅会对选择的特征进行统计
-            <br>
+            参与方数据集的特征名列表(要求选择的特征类型是整型或字符串，并且要求特征的值是离散的并小于20个类 别)
         </template>
         <template #desc>
-            tips：默认数量 ≤ 20 的特征为离散型特征，否则为连续型特征。
+            选择参与方数据集的特征
         </template>
 
         <template #output>
-            数据集统计报告
+            生成新数据集
         </template>
         <template #error-tip />
     </CommonHelp>

@@ -2,7 +2,7 @@
     <el-form
         ref="form"
         :model="vData.form"
-        :disabled="vData.disabled"
+        :disabled="disabled"
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -59,8 +59,8 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="每层参数：" :index="idx">
-                    <p class="add-one-group">
+                <el-form-item label="每层参数：">
+                    <p v-if="!disabled" class="add-one-group">
                         <el-icon class="el-icon-plus" @click="methods.addOneGroup">
                             <elicon-plus />
                         </el-icon>
@@ -114,7 +114,7 @@
                                 </div>
                             </div>
                             <el-icon
-                                v-if="idx !== 0"
+                                v-if="!disabled && idx !== 0"
                                 class="el-icon-delete"
                                 @click="methods.deleteOneGroup(idx)"
                             >

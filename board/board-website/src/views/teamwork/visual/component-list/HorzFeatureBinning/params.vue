@@ -148,21 +148,33 @@
 
             let methods = {
                 paramsCheck() {
+                    let featureName = '';
                     const members = vData.featureSelectTab.length;
-                    const checked = true;
                     const featureMaps = {};
 
-                    vData.featureSelectTab.forEach((member, index) => {
-                        member.$feature_list.forEach(row => {
+                    for(const index in vData.featureSelectTab) {
+                        const member = vData.featureSelectTab[index];
+
+                        for(const i in member.$feature_list) {
+                            const row = member.$feature_list[i];
+
                             if(row.method) {
+                                if(featureName === '' && row.method === 'custom' && !row.points) {
+                                    featureName = row.name;
+                                    $alert(`<p class="color-danger">${member.member_name} 特征 ${featureName} 未填写, 请检查</p>`, '警告', {
+                                        type:                     'warning',
+                                        dangerouslyUseHTMLString: true,
+                                    });
+                                    return false;
+                                }
                                 if(!featureMaps[row.name]) {
                                     featureMaps[row.name] = 1;
                                 } else {
                                     featureMaps[row.name]++;
                                 }
                             }
-                        });
-                    });
+                        }
+                    }
 
                     for(const key in featureMaps) {
                         const val = featureMaps[key];
@@ -176,7 +188,7 @@
                         }
                     }
 
-                    return checked;
+                    return true;
                 },
             };
 

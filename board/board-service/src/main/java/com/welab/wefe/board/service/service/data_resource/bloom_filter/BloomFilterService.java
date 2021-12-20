@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
-import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterQueryApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -25,32 +24,25 @@ import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author jacky.jiang
  */
 @Service
-public class BloomFilterService extends AbstractService {
+public class BloomFilterService extends DataResourceService {
 
     @Autowired
     protected BloomFilterRepository repo;
@@ -106,8 +98,8 @@ public class BloomFilterService extends AbstractService {
     /**
      * delete bloom_filter
      */
-    public void delete(String bloomfilterId) throws StatusCodeWithException {
-        BloomFilterMysqlModel model = repo.findById(bloomfilterId).orElse(null);
+    public void delete(String bloomFilterId) throws StatusCodeWithException {
+        BloomFilterMysqlModel model = repo.findById(bloomFilterId).orElse(null);
         if (model == null) {
             return;
         }
@@ -129,28 +121,12 @@ public class BloomFilterService extends AbstractService {
         // is raw bloom_filter
         if (model.isDerivedResource()) {
             // Notify the union to do not public the bloom_filter
-            unionService.dontPublicDataSet(model);
+            unionService.doNotPublicDataSet(model);
 
             // Refresh the bloom_filter tag list
-            CacheObjects.refreshBloomFilterTags();
+            CacheObjects.refreshDataResourceTags(model.getDataResourceType());
         }
 
-    }
-
-    /**
-     * Paging query bloom_filter
-     */
-    public PagingOutput<BloomFilterOutputModel> query(BloomFilterQueryApi.Input input) {
-
-        Specification<BloomFilterMysqlModel> where = Where
-                .create()
-                .equal("id", input.getId())
-                .contains("name", input.getName())
-                .containsItem("tags", input.getTag())
-                .equal("createdBy", input.getCreator())
-                .build(BloomFilterMysqlModel.class);
-
-        return repo.paging(where, input, BloomFilterOutputModel.class);
     }
 
     /**
@@ -177,28 +153,6 @@ public class BloomFilterService extends AbstractService {
 
     }
 
-
-    /**
-     * Standardize the tag list
-     */
-    public String standardizeTags(List<String> tags) {
-        if (tags == null) {
-            return "";
-        }
-
-        tags = tags.stream()
-                // Remove comma(,，)
-                .map(x -> x.replace(",", "").replace("，", ""))
-                // Remove empty elements
-                .filter(x -> !StringUtil.isEmpty(x))
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
-
-        // Concatenate into a string, add a comma before and after it to facilitate like query.
-        return "," + StringUtil.join(tags, ',') + ",";
-
-    }
 
     /**
      * get data source by id

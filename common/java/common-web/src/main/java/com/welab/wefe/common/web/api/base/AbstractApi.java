@@ -99,6 +99,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
             In apiInput = requestParams.toJavaObject(apiInputClass);
             apiInput.method = method.toUpperCase();
             apiInput.request = request;
+            apiInput.rawRequestParams = requestParams;
             // The parameter checking
             apiInput.checkAndStandardize();
 
@@ -267,12 +268,12 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
     /**
      * Wrap the union API return result as the board API return result.
      */
-    protected ApiResult<JSONObject> unionApiResultToBoardApiResult(JSONObject json) {
+    protected ApiResult<Object> unionApiResultToBoardApiResult(JSONObject json) {
 
-        ApiResult<JSONObject> result = new ApiResult<>();
+        ApiResult<Object> result = new ApiResult<>();
         result.code = json.getInteger("code");
         result.message = json.getString("message");
-        result.data = json.getJSONObject("data");
+        result.data = json.get("data");
 
         return result;
     }

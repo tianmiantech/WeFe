@@ -56,6 +56,11 @@ public @interface Api {
     boolean rsaVerify() default false;
 
     /**
+     * Whether to perform SM2 verification
+     */
+    boolean sm2Verify() default false;
+
+    /**
      * The caller
      */
     Caller domain() default Caller.Member;

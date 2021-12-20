@@ -26,13 +26,14 @@ import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpd
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterAddInputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
-import com.welab.wefe.board.service.service.data_resource.bloom_filter.*;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterColumnService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
         model.setSourcePath(config.getFileUploadDir() + input.getFilename());
         model.setDataSourceId(input.getDataSourceId());
-        model.setHashFunction(StringUtil.join(input.getFieldInfoList()));
+        model.setHashFunction(String.valueOf(input.getHashFunction()));
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         // save bloom_filter info to file
@@ -103,7 +104,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         }
 
         // Refresh the bloom_filter tag list
-        CacheObjects.refreshTableDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
     /**

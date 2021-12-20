@@ -701,7 +701,7 @@ export default {
                     if (clear) {
                         errorPanel.value.vData.message = '';
                         errorPanel.value.vData.show = false;
-                    } else {
+                    } else if (!vData.jobGraphShow){
                         const item = graph.instance.findById(node_id);
 
                         if (item) {

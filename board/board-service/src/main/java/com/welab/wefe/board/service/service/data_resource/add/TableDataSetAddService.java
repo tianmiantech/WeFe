@@ -91,7 +91,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         }
 
         // Refresh the data set tag list
-        CacheObjects.refreshTableDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
     }
 

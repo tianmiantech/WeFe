@@ -42,7 +42,7 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 资源类型
      */
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     /**
      * 总数据行数
      */
@@ -91,12 +91,12 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
         this.dataResourceName = dataResourceName;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public Long getTotalDataCount() {

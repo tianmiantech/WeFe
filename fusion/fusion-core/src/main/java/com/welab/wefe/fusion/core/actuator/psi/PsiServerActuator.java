@@ -21,6 +21,7 @@ import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
 import java.math.BigInteger;
@@ -74,11 +75,11 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
      *
      * @param rs
      */
-    public void receiveResult(List<byte[]> rs) {
+    public void receiveResult(List<String> rs) {
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {
-            fruit.add(JObject.create(new String(rs.get(i))));
+            fruit.add(JObject.create(new String(Base64Util.base64ToByteArray(rs.get(i)))));
         }
 
         dump(fruit);

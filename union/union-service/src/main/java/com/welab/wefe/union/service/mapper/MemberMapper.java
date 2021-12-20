@@ -16,7 +16,7 @@
 
 package com.welab.wefe.union.service.mapper;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
 import org.mapstruct.Mapper;

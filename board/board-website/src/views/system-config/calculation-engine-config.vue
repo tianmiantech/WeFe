@@ -63,7 +63,7 @@
 </template>
 
 <script>
-    import { computed, reactive, getCurrentInstance, onBeforeMount } from 'vue';
+    import { computed, reactive, getCurrentInstance, nextTick, onBeforeMount } from 'vue';
     import { useStore } from 'vuex';
     import { useRouter } from 'vue-router';
     export default {
@@ -112,12 +112,14 @@
                         data: { groups: vData.form },
                     });
 
-                    if (code === 0) {
-                        $message.success('保存成功!');
-                        router.push({ name: 'calculation-engine-config' });
-                        methods.getData();
-                    }
-                    vData.loading = false;
+                    nextTick(_ => {
+                        if (code === 0) {
+                            $message.success('保存成功!');
+                            router.push({ name: 'calculation-engine-config' });
+                            methods.getData();
+                        }
+                        vData.loading = false;
+                    });
                 },
                 jumpToNewPage() {
                     const url = vData.form.deep_learning_config.paddle_visual_dl_base_url;

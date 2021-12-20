@@ -30,7 +30,7 @@ public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
     @Check(name = "数据资源名称")
     private String dataResourceName;
     @Check(name = "资源类型")
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     @Check(name = "总数据行数")
     private Long totalDataCount;
     @Check(name = "已写入数据行数")
@@ -64,12 +64,12 @@ public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
         this.dataResourceName = dataResourceName;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public Long getTotalDataCount() {

@@ -30,13 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zane
  */
 @Api(path = "union/member/query", name = "Query members from union")
-public class MemberListApi extends AbstractApi<MemberListApi.Input, JSONObject> {
+public class MemberListApi extends AbstractApi<MemberListApi.Input, Object> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Object> handle(Input input) throws StatusCodeWithException {
         JSONObject result = unionService.queryMembers(input);
         return unionApiResultToBoardApiResult(result);
     }

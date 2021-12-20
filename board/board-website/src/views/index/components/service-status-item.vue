@@ -41,7 +41,7 @@
                     </el-col>
                     <el-col
                         :span="4"
-                        style="text-align:right"
+                        class="text-r"
                     >
                         <el-button
                             class="test-btn"
