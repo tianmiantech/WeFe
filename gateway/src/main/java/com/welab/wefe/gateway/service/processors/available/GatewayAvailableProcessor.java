@@ -21,6 +21,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -43,7 +44,7 @@ import java.util.List;
  *
  * @author aaron.li
  **/
-@Processor(name = "gatewayAvailableProcessor", desc = "Gateway availability processor")
+@Processor(type = GatewayProcessorType.gatewayAvailableProcessor, desc = "Gateway availability processor")
 public class GatewayAvailableProcessor extends AbstractProcessor {
     private final Logger LOG = LoggerFactory.getLogger(GatewayAvailableProcessor.class);
 

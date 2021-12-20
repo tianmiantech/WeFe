@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -27,7 +28,7 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
  *
  * @author aaron.li
  **/
-@Processor(name = "refreshMemberBlacklistCacheProcessor", desc = "Refresh member blacklist cache processor")
+@Processor(type = GatewayProcessorType.refreshMemberBlacklistCacheProcessor, desc = "Refresh member blacklist cache processor")
 public class RefreshMemberBlacklistCacheProcessor extends AbstractProcessor {
 
     @Override

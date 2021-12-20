@@ -13,33 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.gateway.test;
 
-package com.welab.wefe.gateway.base;
-
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
-import org.springframework.stereotype.Component;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
- * Processor annotation definition
- *
- * @author aaron.li
- **/
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Component
-public @interface Processor {
-    /**
-     * name: Global uniqueness required
-     */
-    GatewayProcessorType type();
-
-    /**
-     * describe
-     */
-    String desc() default "";
+ * @author zane
+ * @date 2021/12/20
+ */
+public class AvailableTest {
+    public static void main(String[] args) throws Exception {
+        String response = Client.send(
+                null,
+                "local",
+                GatewayActionType.not_null,
+                "",
+                GatewayProcessorType.gatewayAvailableProcessor
+        );
+    }
 }
