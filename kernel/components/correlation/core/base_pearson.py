@@ -51,11 +51,14 @@ def select_columns(self, data_instance):
             selected.add(name_to_idx[name])
             continue
         raise ValueError(f"{name} not found")
-    for idx in self.model_param.column_indexes:
-        if 0 <= idx < len(col_names):
-            selected.add(idx)
-            continue
-        raise ValueError(f"idx={idx} out of bound")
+    if self.model_param.column_indexes == -1:
+        pass
+    else:
+        for idx in self.model_param.column_indexes:
+            if 0 <= idx < len(col_names):
+                selected.add(idx)
+                continue
+            raise ValueError(f"idx={idx} out of bound")
     selected = sorted(list(selected))
     if len(selected) == len(col_names):
         self.names = col_names
