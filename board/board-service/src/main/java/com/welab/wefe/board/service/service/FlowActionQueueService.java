@@ -19,10 +19,10 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.database.entity.flow.FlowActionQueueMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.repository.FlowActionQueueRepository;
-import com.welab.wefe.common.enums.FlowActionType;
-import com.welab.wefe.common.enums.ProducerType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.enums.FlowActionType;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

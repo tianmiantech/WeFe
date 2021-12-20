@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.AuditStatus;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
  * @author Zane

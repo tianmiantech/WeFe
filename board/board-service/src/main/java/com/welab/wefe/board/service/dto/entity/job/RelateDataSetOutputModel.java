@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity.job;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author lonnie

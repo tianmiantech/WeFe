@@ -16,10 +16,11 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author zane.luo

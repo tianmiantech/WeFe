@@ -21,7 +21,8 @@ import com.welab.wefe.board.service.component.base.filter.OutputItemFilterFuncti
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+
 
 /**
  * Component's input matcher

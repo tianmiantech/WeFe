@@ -17,7 +17,10 @@
 package com.welab.wefe.board.service.service.available.checkpoint;
 
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.common.enums.ServiceType;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.enums.ServiceType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,6 +28,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GatewayInternetCheckpoint extends AbstractCheckpoint {
+    @Autowired
+    protected GlobalConfigService globalConfigService;
 
     @Override
     public ServiceType service() {

@@ -17,9 +17,9 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DatabaseType;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ModelSqlConfigMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;

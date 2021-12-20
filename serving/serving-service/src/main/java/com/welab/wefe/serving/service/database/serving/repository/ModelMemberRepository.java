@@ -16,7 +16,7 @@
 
 package com.welab.wefe.serving.service.database.serving.repository;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;

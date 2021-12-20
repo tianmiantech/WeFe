@@ -18,7 +18,8 @@ package com.welab.wefe.board.service.dto.kernel;
 
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+
 
 /**
  * @author zane.luo

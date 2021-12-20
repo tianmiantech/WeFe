@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.database.entity.fusion.bloomfilter;
 import com.alibaba.fastjson.JSONObject;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.ColumnDataType;
+import com.welab.wefe.common.wefe.enums.ColumnDataType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 

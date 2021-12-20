@@ -19,11 +19,11 @@ package com.welab.wefe.board.service.api.online_demo;
 import com.welab.wefe.board.service.base.OnlineDemoApi;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.service.account.AccountService;
-import com.welab.wefe.common.enums.BoardUserSource;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
