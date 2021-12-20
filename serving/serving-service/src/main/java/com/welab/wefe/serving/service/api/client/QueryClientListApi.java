@@ -34,10 +34,10 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
         private String createdBy;
 
         @Check(name = "开始时间")
-        private Date startTime;
+        private Long startTime;
 
         @Check(name = "结束时间")
-        private Date endTime;
+        private Long endTime;
 
         public String getCreatedBy() {
             return createdBy;
@@ -47,19 +47,19 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
             this.createdBy = createdBy;
         }
 
-        public Date getStartTime() {
+        public Long getStartTime() {
             return startTime;
         }
 
-        public void setStartTime(Date startTime) {
+        public void setStartTime(Long startTime) {
             this.startTime = startTime;
         }
 
-        public Date getEndTime() {
+        public Long getEndTime() {
             return endTime;
         }
 
-        public void setEndTime(Date endTime) {
+        public void setEndTime(Long endTime) {
             this.endTime = endTime;
         }
     }
@@ -80,6 +80,17 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
 
         @Check(name = "公钥")
         private String pubKey;
+
+        @Check(name = "创建时间")
+        private Date createdTime;
+
+        public Date getCreatedTime() {
+            return createdTime;
+        }
+
+        public void setCreatedTime(Date createdTime) {
+            this.createdTime = createdTime;
+        }
 
         public String getId() {
             return id;

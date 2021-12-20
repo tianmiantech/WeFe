@@ -48,6 +48,8 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
         @Check(name = "状态")
         private Integer status;
 
+        private String createdBy;
+
         public String getId() {
             return id;
         }
@@ -102,6 +104,14 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         public void setStatus(Integer status) {
             this.status = status;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
         }
     }
 

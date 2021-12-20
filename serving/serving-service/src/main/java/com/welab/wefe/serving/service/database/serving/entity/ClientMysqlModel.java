@@ -44,7 +44,7 @@ public class ClientMysqlModel extends AbstractBaseMySqlModel{
     /**
      * status, 1 normal、 0 deleted
      */
-    private Integer status = ClientStatusEnum.NORMAL.getValue();
+    private Integer status;
 
     public String getName() {
         return name;

@@ -38,7 +38,8 @@ public class ClientService {
         model.setIpAdd(input.getIpAdd());
         model.setRemark(input.getRemark());
         model.setPubKey(input.getPubKey());
-        model.setStatus(input.getStatus());
+        model.setCreatedBy(input.getCreatedBy());
+        model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
         clientRepository.save(model);
     }
 
@@ -50,8 +51,9 @@ public class ClientService {
 
         Specification<ClientMysqlModel> where = Where
                 .create()
-                .equal("createdBy", input.getCreatedBy())
-                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .contains("createdBy", input.getCreatedBy())
+                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime(),
+                        input.getEndTime() == null ? null : input.getEndTime())
                 .equal("status", ClientStatusEnum.NORMAL.getValue())
                 .build(ClientMysqlModel.class);
 
