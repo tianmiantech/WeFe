@@ -12,7 +12,7 @@ import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-@Api(path = "clientservice/save", name = "save client service model")
+@Api(path = "clientservice/save", name = "save client service model", login = false)
 public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
 
@@ -38,8 +38,8 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "客户 id", require = true)
         private String clientId;
 
-        @Check(name = "status")
-        private Boolean status;
+        @Check(name = "use status")
+        private Integer status;
 
         public String getId() {
             return id;
@@ -65,14 +65,15 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
             this.clientId = clientId;
         }
 
-        public Boolean getStatus() {
+        public Integer getStatus() {
             return status;
         }
 
-        public void setStatus(Boolean status) {
+        public void setStatus(Integer status) {
             this.status = status;
         }
     }
+
 
 
 

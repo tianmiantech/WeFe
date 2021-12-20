@@ -2,7 +2,6 @@ package com.welab.wefe.serving.service.database.serving.repository;
 
 import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
-import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
