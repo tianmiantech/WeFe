@@ -32,13 +32,13 @@ import java.util.List;
  * @date 2021/11/2
  */
 @Api(path = "union/member/realname/auth", name = "apply realname auth")
-public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Input, JSONObject> {
+public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Input, Object> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.realnameAuth(input);
         return super.unionApiResultToBoardApiResult(result);
     }
