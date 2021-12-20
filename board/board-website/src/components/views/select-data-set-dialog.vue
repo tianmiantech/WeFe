@@ -149,9 +149,10 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:      '',
-                    name:    '',
-                    creator: '',
+                    id:         '',
+                    name:       '',
+                    creator:    '',
+                    contains_y: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
@@ -211,13 +212,15 @@
                     const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:      '',
-                        name:    '',
-                        creator: '',
+                        id:         '',
+                        name:       '',
+                        creator:    '',
+                        contains_y: '',
                     };
 
                     if(this.containsY) {
                         this.search.source_type = 'Raw';
+                        this.search.contains_y = true;
                     }
 
                     $ref.list = [];
@@ -273,10 +276,18 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = 'data_resource/query';
+                        if (this.projectType === 'DeepLearning') {
+                            url = '/image_data_set/query';
+                        } else {
+                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
+                        }
                     } else {
                         // search from union
-                        url = `/union/data_resource/query?member_id=${this.memberId}`;
+                        if (this.projectType === 'DeepLearning') {
+                            url = `/union/image_data_set/query?member_id=${this.memberId}`;
+                        } else {
+                            url = `/union/data_set/query?member_id=${this.memberId}`;
+                        }
                     }
                 }
 

@@ -325,6 +325,8 @@
                     vert_lr:  require('@assets/images/vert_lr.png'),
                     vert_xgb: require('@assets/images/vert_xgb.png'),
                     horz_xgb: require('@assets/images/horz_xgb.png'),
+                    mix_lr:   require('@assets/images/mix_lr.png'),
+                    mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
                 flowTimer: null,
                 config:    {}, // deeplearning config
@@ -358,11 +360,13 @@
                 clearTimeout(this.timer);
 
                 this.timer = setTimeout(() => {
-                    this.getFlowList();
+                    this.getFlowList({
+                        requestFromRefresh: true,
+                    });
                 }, 3000);
             },
 
-            async getFlowList(opt = { resetPagination: false }) {
+            async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
                 if(opt.resetPagination) {
                     this.pagination.page_index = 1;
                 }
@@ -370,10 +374,10 @@
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: {
-                        requestFromRefresh: true,
-                        project_id:         this.project_id,
-                        page_index:         this.pagination.page_index - 1,
-                        page_size:          this.pagination.page_size,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.project_id,
+                        page_index:             this.pagination.page_index - 1,
+                        page_size:              this.pagination.page_size,
                     },
                 });
 
@@ -389,7 +393,7 @@
                 }
                 clearTimeout(this.flowTimer);
                 this.flowTimer = setTimeout(() => {
-                    this.getFlowList();
+                    this.getFlowList({ requestFromRefresh: true });
                 }, 5000);
             },
 

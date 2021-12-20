@@ -17,12 +17,14 @@
                         </template>
                         <p class="f12">参与的合作:</p>
                         <p v-for="item in projects" :key="item.project_id">
-                            <el-link type="primary" :underline="false">
-                                {{ item.name }}
-                                <el-icon>
-                                    <elicon-right />
-                                </el-icon>
-                            </el-link>
+                            <router-link :to="{name: 'project-detail', query: { project_id: item.project_id }}">
+                                <el-link type="primary" :underline="false">
+                                    {{ item.name }}
+                                    <el-icon>
+                                        <elicon-right />
+                                    </el-icon>
+                                </el-link>
+                            </router-link>
                         </p>
                     </el-popover>
                     <strong v-else class="strong">0</strong> 个合作项目中，
