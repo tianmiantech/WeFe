@@ -58,22 +58,53 @@
 
             <div class="form-inline">
                 <el-form-item
-                    prop="query_param"
+                    prop="query_params"
                     label="参数名称"
                 >
                     <el-input
-                        v-model="form.query_param"
+                        v-model="form.query_params"
                         size="medium"
                     />
                 </el-form-item>
-                <el-button
+            </div>
+
+
+            <div class="form-inline">
+                <el-form-item
+                    prop="data_source"
+                    label="数据源"
+                >
+                    <el-input
+                        type="textarea"
+                        resize="both"
+                        v-model="form.data_source"
+                        size="medium"
+                    />
+                </el-form-item>
+            </div>
+
+            <div class="form-inline">
+                <el-form-item
+                    prop="params"
+                    label="参数值"
+                >
+                    <el-input
+                        type="textarea"
+                        resize="both"
+                        v-model="form.params"
+                        size="medium"
+                    />
+                </el-form-item>
+            </div>
+
+            <el-button
                     :loading="testLoading"
                     size="small"
                     @click="testConnection"
                 >
                     测试连接
-                </el-button>
-            </div>
+            </el-button>
+
             <el-button
                 class="save-btn mt20"
                 type="primary"
@@ -128,17 +159,14 @@
                 if (code === 0) {
                     if (data) {
                         const resData = data;
-
                         this.form = resData;
+                        this.form.data_source = JSON.stringify(this.form.data_source);
                     }
                 }
             },
             async add(id = '') {
-                if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
+                if (!this.form.name || !this.form.url || !this.form.service_type || !this.form.query_params) {
                     this.$message.error('请将必填项填写完整！');
-                    return;
-                } else if (this.form.name.length < 4) {
-                    this.$message.error('源名称长度不能少于4，不能大于30');
                     return;
                 }
 
@@ -170,7 +198,7 @@
                 });
 
                 if (code === 0) {
-                    this.$message.success('数据库可连接!');
+                    this.$message.success(JSON.stringify(data.result));
                 }
                 this.testLoading = false;
             },
