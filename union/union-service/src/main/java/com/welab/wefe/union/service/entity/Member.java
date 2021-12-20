@@ -34,6 +34,7 @@ public class Member extends AbstractBlockChainEntity {
     private String gatewayUri;
     private String logo;
     private long lastActivityTime;
+    private String extJson;
 
     public String getName() {
         return name;
@@ -121,5 +122,13 @@ public class Member extends AbstractBlockChainEntity {
 
     public void setLastActivityTime(long lastActivityTime) {
         this.lastActivityTime = lastActivityTime;
+    }
+
+    public String getExtJson() {
+        return extJson;
+    }
+
+    public void setExtJson(String extJson) {
+        this.extJson = extJson;
     }
 }

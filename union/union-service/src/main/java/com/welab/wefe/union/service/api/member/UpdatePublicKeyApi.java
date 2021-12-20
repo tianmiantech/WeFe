@@ -38,7 +38,7 @@ public class UpdatePublicKeyApi extends AbstractApi<UpdatePublicKeyApi.Input, Me
     @Override
     protected ApiResult<MemberOutput> handle(Input input) throws StatusCodeWithException {
         try {
-            memberContractService.updatePublicKey(input.id, input.publicKey);
+            memberContractService.updatePublicKey(input.curMemberId, input.publicKey);
         } catch (StatusCodeWithException e) {
             throw e;
         }

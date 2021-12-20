@@ -17,6 +17,8 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.welab.wefe.common.data.mongodb.entity.sms.SmsDetailInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,8 +27,15 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public class SmsDetailInfoReop extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
 
     public void save(SmsDetailInfo smsDetailInfo) {
-        mongoTemplate.save(smsDetailInfo);
+        mongoUnionTemplate.save(smsDetailInfo);
+    }
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
     }
 }

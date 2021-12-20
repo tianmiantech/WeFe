@@ -15,7 +15,7 @@
                 <span class="p-id">{{ scope.row.id }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="数据集类型" prop="resource_type"></el-table-column>
+        <el-table-column label="数据集类型" prop="data_resource_type"></el-table-column>
         <el-table-column
             label="样本量"
             prop="row_count"

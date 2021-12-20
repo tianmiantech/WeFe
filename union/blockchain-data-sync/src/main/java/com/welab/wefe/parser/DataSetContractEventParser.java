@@ -17,8 +17,9 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
+import com.welab.wefe.BlockchainDataSyncApp;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -31,19 +32,23 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataSetContractEventParser extends AbstractParser {
-    protected DataSetMongoReop dataSetMongoReop = App.CONTEXT.getBean(DataSetMongoReop.class);
-    protected DataSet.ExtJSON extJSON;
+    protected DataSetMongoReop dataSetMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(DataSetMongoReop.class);
+    protected DataSetExtJSON extJSON;
+
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSet.ExtJSON.class) : new DataSet.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetExtJSON.class) : new DataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.DataSet.INSERT_EVENT:
-            case EventConstant.DataSet.UPDATE_EVENT:
+            case EventConstant.DataSetEvent.INSERT_EVENT:
+            case EventConstant.DataSetEvent.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;
-            case EventConstant.DataSet.DELETE_BY_DATASETID_EVENT:
+            case EventConstant.DataSetEvent.DELETE_BY_DATASETID_EVENT:
                 parseDeleteByDataSetIdEvent();
+                break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -70,7 +75,6 @@ public class DataSetContractEventParser extends AbstractParser {
         dataSet.setTags(StringUtil.strTrim2(params.getString(15)));
         dataSet.setCreatedTime(StringUtil.strTrim2(params.getString(16)));
         dataSet.setUpdatedTime(StringUtil.strTrim2(params.getString(17)));
-        dataSet.setLogTime(StringUtil.strTrim2(params.getString(18)));
         dataSet.setExtJson(extJSON);
 
         dataSetMongoReop.upsert(dataSet);
@@ -80,6 +84,12 @@ public class DataSetContractEventParser extends AbstractParser {
     private void parseDeleteByDataSetIdEvent() {
         String id = eventBO.getEntity().get("id").toString();
         dataSetMongoReop.deleteByDataSetId(id);
+    }
+
+
+    private void parseUpdateExtJson() {
+        String id = eventBO.getEntity().get("id").toString();
+        dataSetMongoReop.updateExtJSONById(id,extJSON);
     }
 
 }

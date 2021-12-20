@@ -90,7 +90,7 @@
                     </p>
                     <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加数据集到此项目</el-button>
                     <el-table
-                        v-if="promoter.$data_set.length"
+                        v-show="promoter.$data_set.length"
                         :data="promoter.$data_set"
                         max-height="520px"
                         class="mt20"
@@ -111,7 +111,7 @@
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
                             </template>
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
@@ -195,7 +195,7 @@
                         </el-table-column>
                         <el-table-column label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
                             </template>
                         </el-table-column>
                         <el-table-column label="是否有 Y">
@@ -277,7 +277,7 @@
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count || scope.row.row_count}}
                             </template>
                         </el-table-column>
                         <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">

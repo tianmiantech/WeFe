@@ -2,7 +2,7 @@
     <div class="data-set-list">
         <div class="flexbox">
             <el-alert
-                v-if="containsY === 'true'"
+                v-if="search.dataResourceType === 'TableDataSet' && containsY === 'true'"
                 :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
                 :closable="false"
                 type="warning"
@@ -64,12 +64,48 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="projectType === 'MachineLearning'"
-                label="包含Y"
-                min-width="60"
+                label="资源类型"
+                prop="data_resource_type"
+                width="130"
+                align="center"
             >
                 <template v-slot="scope">
-                    <el-tag :type="scope.row.contains_y ? 'success' : 'warning'">{{ scope.row.contains_y ? "是" : "否" }}</el-tag>
+                    <p>
+                        {{scope.row.data_set ? scope.row.data_set.data_resource_type : scope.row.data_resource_type}}
+                    </p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                v-if="projectType === 'DeepLearning'"
+                label="任务类型"
+                prop="for_job_type"
+                width="100"
+            >
+                <template v-slot="scope">
+                    <template v-if="scope.row.data_set">
+                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                    <template v-else>
+                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                </template>
+            </el-table-column>
+            <el-table-column
+                v-if="search.dataResourceType !== 'ImageDataSet'"
+                label="包含Y"
+                width="100"
+                align="center"
+            >
+                <template v-slot="scope">
+                    <p v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                            <elicon-check />
+                        </el-icon>
+                        <el-icon v-else class="el-icon-close">
+                            <elicon-close />
+                        </el-icon>
+                    </p>
+                    <p v-else>-</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -78,7 +114,7 @@
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.tags || scope.row.data_set.tags">
-                        <template v-for="(item, index) in projectType === 'DeepLearning' && isFlow ? scope.row.data_set.tags.split(',') : scope.row.tags.split(',')" :key="index">
+                        <template v-for="(item, index) in isFlow ? scope.row.data_set.tags.split(',') : scope.row.tags.split(',')" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
@@ -98,27 +134,12 @@
                 <template v-slot="scope">
                     特征量：{{ scope.row.feature_count }}
                     <br>
-                    样本量：{{ scope.row.row_count }}
-                    <template v-if="scope.row.contains_y && scope.row.y_positive_example_count">
+                    样本量：{{ scope.row.total_data_count }}
+                    <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
                         <br>
-                        正例样本数量：{{ scope.row.y_positive_example_count }}
+                        正例样本数量：{{ scope.row.y_positive_sample_count }}
                         <br>
-                        正例样本比例：{{(scope.row.y_positive_example_ratio * 100).toFixed(1)}}%
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="样本分类"
-                prop="for_job_type"
-                width="100"
-            >
-                <template v-slot="scope">
-                    <template v-if="scope.row.data_set">
-                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
-                    </template>
-                    <template v-else>
-                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
                     </template>
                 </template>
             </el-table-column>
@@ -312,9 +333,9 @@
                 this.dataSetPreviewDialog = true;
                 this.$nextTick(() =>{
                     if (this.projectType === 'MachineLearning') {
-                        this.$refs['DataSetPreview'].loadData(item.id);
+                        this.$refs['DataSetPreview'].loadData(item.data_set && item.data_set.id ? item.data_set.id : item.id);
                     } else if (this.projectType === 'DeepLearning') {
-                        this.$refs.PreviewImageList.methods.getSampleList(item.id);
+                        this.$refs.PreviewImageList.methods.getSampleList(item.data_set && item.data_set.id ? item.data_set.id : item.id);
                     }
                 });
             },
@@ -327,17 +348,17 @@
                 $data_set,
             }) {
                 this.is_my_data_set = is_my_data_set;
-
                 this.getListApi = url;
                 this.checkAll = false;
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
+                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
                 if(this.search) {
-                    if(this.containsY === 'true') {
-                        this.search.contains_y = true;
-                    } else if (this.containsY === 'false') {
-                        this.search.contains_y = false;
+                    if(this.search.dataResourceType === 'TableDataSet' && this.containsY === true) {
+                        this.search.containsY = true;
+                    } else if (this.dataResourceType === 'TableDataSet' && this.containsY === false) {
+                        this.search.containsY = false;
                     }
                 }
                 this.unUseParams = this.$props.paramsExclude;

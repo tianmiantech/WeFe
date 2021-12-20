@@ -312,7 +312,7 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        units:       1,
+                        units:       20,
                         input_shape: [],
                         activation:  'relu',
                     },
@@ -428,7 +428,7 @@
                     const json = {
                         class_name: 'Dense',
                         config:     {
-                            'units':      1,
+                            'units':      20,
                             'activation': 'relu',
                         },
                     };

@@ -29,6 +29,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,6 +55,7 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
 
         return success(PsiMeta.of(actuator.compute(input.getBs())));
     }
+
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)

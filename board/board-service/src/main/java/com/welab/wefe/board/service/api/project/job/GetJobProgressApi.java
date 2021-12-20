@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "flow/job/get_progress", name = "Get job execution progress of all members", login = false)
+//@Api(path = "flow/job/get_progress", name = "Get job execution progress of all members", login = false)
 public class GetJobProgressApi extends AbstractApi<GetJobProgressApi.Input, List<JobProgressOutput>> {
 
     @Autowired

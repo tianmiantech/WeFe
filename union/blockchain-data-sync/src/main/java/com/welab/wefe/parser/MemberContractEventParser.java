@@ -17,8 +17,9 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.BlockchainDataSyncApp;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -32,35 +33,38 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MemberContractEventParser extends AbstractParser {
 
-    protected MemberMongoReop memberMongoReop = App.CONTEXT.getBean(MemberMongoReop.class);
-    protected Member.ExtJSON extJSON;
+    protected MemberMongoReop memberMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(MemberMongoReop.class);
+    protected MemberExtJSON extJSON;
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, Member.ExtJSON.class) : new Member.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, MemberExtJSON.class) : new MemberExtJSON();
 
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.Member.INSERT_EVENT:
-            case EventConstant.Member.UPDATE_EVENT:
+            case EventConstant.MemberEvent.INSERT_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;
-            case EventConstant.Member.UPDATE_EXCLUDE_PUBLICKEY_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EXCLUDE_PUBLICKEY_EVENT:
                 parseUpdateExcludePublicKeyEvent();
                 break;
-            case EventConstant.Member.UPDATE_PUBLICKEY_EVENT:
+            case EventConstant.MemberEvent.UPDATE_PUBLICKEY_EVENT:
                 parseUpdatePublicKeyEvent();
                 break;
-            case EventConstant.Member.DELETE_BY_ID_EVENT:
+            case EventConstant.MemberEvent.DELETE_BY_ID_EVENT:
                 parseDeleteByIdEvent();
                 break;
-            case EventConstant.Member.UPDATE_EXCLUDE_LOGO_EVENT:
+            case EventConstant.MemberEvent.UPDATE_EXCLUDE_LOGO_EVENT:
                 parseUpdateExcludeLogoEvent();
                 break;
-            case EventConstant.Member.UPDATE_LOGO_BY_ID_EVENT:
+            case EventConstant.MemberEvent.UPDATE_LOGO_BY_ID_EVENT:
                 parseUpdateLogoByIdEvent();
                 break;
-            case EventConstant.Member.UPDATE_LAST_ACTIVITY_TIME_BY_ID_EVENT:
+            case EventConstant.MemberEvent.UPDATE_LAST_ACTIVITY_TIME_BY_ID_EVENT:
                 parserUpdateLastActivityTimeByIdEvent();
+                break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
                 break;
             default:
                 throw new BusinessException("contract name:" + eventBO.getContractName() + ",event name valid:" + eventBO.getEventName());
@@ -84,8 +88,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setCreatedTime(StringUtil.strTrim2(params.getString(11)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(12)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(13)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(14)));
-
 
         member.setExtJson(extJSON);
         member.setDataSyncTime(System.currentTimeMillis());
@@ -111,7 +113,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setCreatedTime(StringUtil.strTrim2(params.getString(10)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(11)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(12)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(13)));
         member.setDataSyncTime(System.currentTimeMillis());
         member.setExtJson(extJSON);
 
@@ -148,7 +149,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setGatewayUri(StringUtil.strTrim2(params.getString(9)));
         member.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(11)));
-        member.setLogTime(StringUtil.strTrim2(params.getString(12)));
         member.setDataSyncTime(System.currentTimeMillis());
         member.setExtJson(extJSON);
 
@@ -167,5 +167,10 @@ public class MemberContractEventParser extends AbstractParser {
         String id = eventBO.getEntity().get("id").toString();
         String lastActivityTime = eventBO.getEntity().get("last_activity_time").toString();
         memberMongoReop.updateLastActivityTimeById(lastActivityTime, id);
+    }
+
+    private void parseUpdateExtJson() {
+        String id = eventBO.getEntity().get("id").toString();
+        memberMongoReop.updateExtJSONById(id,extJSON);
     }
 }
