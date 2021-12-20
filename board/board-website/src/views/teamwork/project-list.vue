@@ -326,15 +326,19 @@
     }
     .parters-icon{
         color: #3182bd;
-        top: -2px;
+        font-size: 14px;
+        vertical-align: top;
+        top:4px;
     }
     .parters-icon-promoter{
         color: #E89B00;
+        font-size: 16px;
+        top: 3px;
+        left:-1px;
         .parters-icon-star{
             font-size: 18px;
             position: relative;
-            left: -2px;
-            top:-2px;
+            top: -1px;
         }
     }
     .parters-item{
