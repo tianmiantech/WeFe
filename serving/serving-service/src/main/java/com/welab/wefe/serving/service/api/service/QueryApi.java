@@ -101,6 +101,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 	public static class Input extends PagingInput {
 
+		private String id;
 		// 服务名
 		private String name;
 
@@ -132,6 +133,14 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 		public void setStatus(int status) {
 			this.status = status;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
 		}
 
 	}

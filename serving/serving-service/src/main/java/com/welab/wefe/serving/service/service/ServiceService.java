@@ -99,6 +99,9 @@ public class ServiceService {
 	public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
 
 		Where where = Where.create();
+		if (StringUtils.isNotBlank(input.getId())) {
+			where = where.equal("id", input.getId());
+		}
 		if (StringUtils.isNotBlank(input.getName())) {
 			where = where.equal("name", input.getName());
 		}
@@ -138,9 +141,30 @@ public class ServiceService {
 		if (input.getServiceType() != -1) {
 			model.setServiceType(input.getServiceType());
 		}
-		if (input.getStatus() != -1) {
-			model.setStatus(input.getStatus());
+		serviceRepository.save(model);
+	}
+
+	public void offlineService(String id) throws StatusCodeWithException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
 		}
+		if (model.getStatus() == 0) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是下线状态，无需重复操作");
+		}
+		model.setStatus(0);
+		serviceRepository.save(model);
+	}
+
+	public void onlineService(String id) throws StatusCodeWithException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
+		}
+		if (model.getStatus() == 1) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是在线状态，无需重复操作");
+		}
+		model.setStatus(1);
 		serviceRepository.save(model);
 	}
 
