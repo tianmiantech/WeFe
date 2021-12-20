@@ -99,9 +99,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
     public List<String> findByDataResourceType(String dataResourceType) {
-        if (StringUtils.isEmpty(dataResourceType)) {
-            return null;
-        }
         Query query = new QueryBuilder().append("dataResourceType", dataResourceType).notRemoved().build();
         query.fields().exclude("_id").include("tags");
         List<DataResource> dataResourceList = mongoUnionTemplate.find(query, DataResource.class);
