@@ -16,11 +16,15 @@
 
 package com.welab.wefe.board.service.service.available;
 
-import com.welab.wefe.board.service.dto.vo.ServerAvailableCheckOutput;
-import com.welab.wefe.board.service.dto.vo.ServerCheckPointOutput;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.available.checkpoint.*;
+import com.welab.wefe.board.service.service.available.checkpoint.GatewayInternetCheckpoint;
+import com.welab.wefe.board.service.service.available.checkpoint.GatewayIntranetCheckpoint;
+import com.welab.wefe.board.service.service.available.checkpoint.StorageCheckpoint;
+import com.welab.wefe.board.service.service.available.checkpoint.UnionConnectionCheckpoint;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

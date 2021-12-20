@@ -16,12 +16,12 @@
 
 package com.welab.wefe.board.service.api.server;
 
-import com.welab.wefe.board.service.dto.vo.ServerAvailableCheckOutput;
 import com.welab.wefe.board.service.service.available.ServerAvailableCheckService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
