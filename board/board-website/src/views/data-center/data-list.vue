@@ -59,6 +59,55 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item
+                label="资源类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.dataResourceType"
+                    filterable
+                    clearable
+                    @change="resourceTypeChange"
+                >
+                    <el-option
+                        v-for="item in vData.sourceTypeList"
+                        :key="item.label"
+                        :value="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                label="是否包含Y值："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.containsY"
+                    filterable
+                    clearable
+                >
+                    <el-option label="是" :value="true"></el-option>
+                    <el-option label="否" :value="false"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="vData.search.dataResourceType === 'ImageDataSet'"
+                label="任务类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.forJobType"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="item in vData.forJobTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
             <el-button
                 type="primary"
                 native-type="submit"
@@ -66,61 +115,32 @@
             >
                 查询
             </el-button>
-            <el-button plain type="primary" class="fr">
+            <el-button plain native-type="submit" class="fr" @click="checkUploadingData">
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
-        
-        <el-tabs
-            v-model="vData.activeTab"
-            type="border-card"
-            @tab-click="tabChange"
+
+        <DataResourceList
+            ref="DataResourceListRef"
+            key="DataResourceListRef"
+            :table-loading="vData.loading"
+            :search-field="vData.search"
+        />
+
+        <el-dialog
+            title="上传中的数据集"
+            v-model="vData.showUploadingDialog"
+            custom-class="dialog-min-width"
+            :close-on-click-modal="false"
+            destroy-on-close
+            width="70%"
         >
-            <template
-                v-for="tab in vData.unionTabs"
-                :key="tab.name"
-            >
-                <el-tab-pane
-                    v-if="tab.name === 'imageUnions'"
-                    :name="tab.name"
-                    :label="tab.label"
-                >
-                    <template #label>
-                        <!-- <el-badge
-                            :max="99"
-                            :value="tab.count"
-                            :hidden="tab.count < 1"
-                            type="danger"
-                        > -->
-                        {{ tab.label }}
-                        <!-- </el-badge> -->
-                    </template>
-                    <ImagesList
-                        ref="imageUnions"
-                        key="imageUnions"
-                        :table-loading="vData.loading"
-                        :search-field="vData.search"
-                    />
-                </el-tab-pane>
-                <el-tab-pane
-                    v-else
-                    :name="tab.name"
-                    :label="tab.label"
-                >
-                    <template #label>
-                        <el-badge v-if="tab.label">
-                            {{ tab.label }}
-                        </el-badge>
-                    </template>
-                    <AllDataList
-                        ref="allUnions"
-                        key="allUnions"
-                        :table-loading="vData.loading"
-                        :search-field="vData.search"
-                    />
-                </el-tab-pane>
-            </template>
-        </el-tabs>
+            <UploadingList
+                ref="uploadingRef"
+                key="uploadingRef"
+                :table-loading="vData.loading"
+            />
+        </el-dialog>
     </el-card>
 </template>
 
@@ -132,32 +152,34 @@
         onMounted,
         onBeforeUnmount,
         getCurrentInstance,
+        nextTick,
     } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-    import AllDataList from './components/all-data-list';
-    import ImagesList from './components/images-list';
+    import { useRoute } from 'vue-router';
+    import UploadingList from './components/uploading-list';
+    import DataResourceList from './components/data-resource-list.vue';
 
     export default {
         components: {
-            AllDataList,
-            ImagesList,
+            UploadingList,
+            DataResourceList,
         },
         setup() {
             const timer = null;
             const route = useRoute();
-            const router = useRouter();
             const { appContext } = getCurrentInstance();
-            const { $http, $confirm, $message } = appContext.config.globalProperties;
-            const imageUnions = ref();
-            const allUnions = ref();
+            const { $http } = appContext.config.globalProperties;
+            const uploadingRef = ref();
+            const DataResourceListRef = ref();
             const vData = reactive({
                 loading: false,
                 search:  {
-                    id:          '',
-                    name:        '',
-                    creator:     '',
-                    tag:         '',
-                    source_type: '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    tag:              '',
+                    dataResourceType: '',
+                    containsY:        '',
+                    forJobType:       '',
                 },
                 userList:       [],
                 tagList:        [],
@@ -165,7 +187,6 @@
                     visible: false,
                     list:    [],
                 },
-                activeTab: 'allUnions',
                 unionTabs: [
                     {
                         name:  'allUnions',
@@ -178,16 +199,35 @@
                         count: 0,
                     },
                 ],
+                showUploadingDialog: false,
+                sourceTypeList:      [
+                    {
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
+                    },
+                    {
+                        label: 'ImageDataSet',
+                        value: 'ImageDataSet',
+                    },
+                    {
+                        label: 'BloomFilter',
+                        value: 'BloomFilter',
+                    },
+                ],
+                forJobTypeList: [
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                ],
             });
             const methods = {
-                async getUploadList() {
-                    const $ref = imageUnions.value;
-
-                    $ref.getDataList();
-                },
-
                 async getTags() {
-                    const { code, data } = await $http.get('/data_set/tags');
+                    const { code, data } = await $http.get('/table_data_set/all_tags');
 
                     if (code === 0) {
                         vData.tagList = data;
@@ -202,93 +242,38 @@
                         vData.userList = data.list;
                     }
                 },
-
-                async deleteData(row) {
-                    let message = '此操作将永久删除该条目, 是否继续?';
-
-                    const res = await this.$http.get({
-                        url:    '/data_set/usage_detail',
-                        params: {
-                            dataSetId: row.id,
-                        },
-                    });
-
-                    if(res.code === 0) {
-                        if(res.data && res.data.length) {
-                            const list = res.data.map(row => {
-                                const path = router.resolve({
-                                    name:  'project-detail',
-                                    query: {
-                                        project_id: row.project_id,
-                                    },
-                                });
-
-                                return `<a href="${path.href}" target="_blank">${row.name}</a>`;
-                            });
-
-                            message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，`;
-                        } else if (row.usage_count_in_project > 0) {
-                            message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，`;
-                        }
-
-                        $confirm('警告', {
-                            type:                     'warning',
-                            dangerouslyUseHTMLString: true,
-                            message,
-                        }).then(async () => {
-                            const { code } = await $http.post({
-                                url:  '/data_set/delete',
-                                data: {
-                                    id: row.id,
-                                },
-                            });
-
-                            if (code === 0) {
-                                $message.success('删除成功!');
-                                searchList({ resetPagination: true });
-                            }
-                        });
-                    }
-                },
-            };
-            const tabChange = (refInstance) => {
-                router.push({
-                    query: {
-                        ...vData.search,
-                        page_index:  1,
-                        source_type: refInstance.paneName,
-                    },
-                });
-                if (refInstance.paneName === 'allUnions') {
-                    searchList();
-                } else {
-                    methods.getUploadList();
-                }
             };
             const syncUrlParams = () => {
                 vData.search = {
-                    id:          '',
-                    name:        '',
-                    creator:     '',
-                    tag:         '',
-                    source_type: '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    tag:              '',
+                    dataResourceType: '',
                     ...route.query,
                 };
             };
             const searchList = (opt = {}) => {
-                const refInstance = vData.activeTab === 'imageUnions' ? imageUnions : allUnions;
-
-                refInstance && refInstance.value.getDataList(opt);
+                DataResourceListRef.value.getDataList(opt);
+            };
+            const checkUploadingData = () => {
+                vData.showUploadingDialog = true;
+                nextTick(_=>{
+                    uploadingRef.value.getDataList();
+                });
+            };
+            const resourceTypeChange = () => {
+                vData.search.containsY = '';
+                vData.search.forJobType = '';
             };
 
             onMounted(async () => {
                 syncUrlParams();
-                vData.search.source_type = route.query.source_type || 'allUnions';
                 await methods.getTags();
                 await methods.getUploaders();
                 searchList();
                 // Get the list of data sets being uploaded and display corner markers
-                await methods.getUploadList();
+                // await methods.getImagesList();
             });
 
             onBeforeUnmount(() => {
@@ -299,7 +284,6 @@
                 () => route.query,
                 (newVal) => {
                     syncUrlParams();
-                    vData.search.source_type = newVal.source_type || 'allUnions';
                     searchList();
                 },
                 { deep: true },
@@ -309,9 +293,10 @@
                 vData,
                 searchList,
                 syncUrlParams,
-                tabChange,
-                imageUnions,
-                allUnions,
+                checkUploadingData,
+                uploadingRef,
+                DataResourceListRef,
+                resourceTypeChange,
             };
         },
     };

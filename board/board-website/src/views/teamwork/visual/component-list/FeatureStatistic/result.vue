@@ -52,20 +52,20 @@
                                                 <div class="flexbox">
                                                     <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="medium" border style="flex: 1">
                                                         <el-descriptions-item label="Minimum">{{props.row.min}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile">{{props.row.percentile[5]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{props.row.percentile[25]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="median">{{props.row.percentile[50]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q3">{{props.row.percentile[75]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="95-th percentile">{{props.row.percentile[95]}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile"></el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{props.row.q1}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="median">{{props.row.median}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="95-th percentile">{{props.row.q95}}</el-descriptions-item>
                                                         <el-descriptions-item label="Maximum">{{props.row.max}}</el-descriptions-item>
                                                         <el-descriptions-item label="Variance">{{props.row.variance}}</el-descriptions-item>
                                                     </el-descriptions>
-                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="medium" border style="flex: 1">
+                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="medium" border style="flex : 1">
                                                         <el-descriptions-item label="Standard deviation">{{props.row.std_variance}}</el-descriptions-item>
                                                         <el-descriptions-item label="Coefficient of variation（CV）">{{props.row.cv}}</el-descriptions-item>
                                                         <el-descriptions-item label="kurtosis">{{props.row.kurtosis}}</el-descriptions-item>
                                                         <el-descriptions-item label="Mean">{{props.row.mean}}</el-descriptions-item>
                                                         <el-descriptions-item label="Skewness">{{props.row.skewness}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Sum">{{props.row.sum}}</el-descriptions-item>
                                                     </el-descriptions>
                                                 </div>
                                             </el-tab-pane>

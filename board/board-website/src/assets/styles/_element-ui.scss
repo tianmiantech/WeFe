@@ -9,9 +9,18 @@
 }
 
 .color-danger{color: $--color-danger !important;}
+.el-icon{
+    vertical-align: middle;
+    top:-1px;
+}
 .el-input__suffix{
-    .el-input__suffix-inner{
-        align-items: center;
+    .el-icon{
+        svg{
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            top: -1px;
+        }
     }
 }
 .el-message-box__status{
@@ -93,4 +102,3 @@
     }
 }
 .el-upload-list__item-thumbnail{object-fit: contain;}
-.el-badge.el-message__badge{position:absolute;}

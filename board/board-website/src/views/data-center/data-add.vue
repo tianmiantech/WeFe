@@ -55,6 +55,18 @@
                             rows="4"
                         />
                     </el-form-item>
+                    <el-form-item
+                        v-if="addDataType === 'img'"
+                        prop="for_job_type"
+                        label="数据集类型："
+                        :rules="[{ required: true, message: '数据集类型必填!' }]"
+                    >
+                        <el-radio-group v-model="form.for_job_type">
+                            <el-radio v-for="item in forJobTypeList" :key="item.value" :label="item.value">
+                                {{item.label}}
+                            </el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-divider />
@@ -67,6 +79,7 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="Public"
                             >
@@ -79,6 +92,7 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="PublicWithMemberList"
                             >
@@ -237,7 +251,7 @@
                         >
                             <uploader-unsupport />
                             <uploader-drop v-if="img_upload_options.files.length === 0">
-                                <p class="mb10">将文件 (.zip .tar .rar .7z) 拖到此处</p>或
+                                <p class="mb10">将文件 (.zip .tar .tgz .7z) 拖到此处</p>或
                                 <uploader-btn
                                     :attrs="img_upload_attrs"
                                     :single="true"
@@ -248,7 +262,7 @@
                             <uploader-list :file-list="img_upload_options.files.length" />
                         </uploader>
                         <ul class="data-set-upload-tip">
-                            <li>仅限压缩文件 .zip .tar .rar等</li>
+                            <li>仅限压缩文件 .zip .tar .tgz .7z等</li>
                         </ul>
                     </fieldset>
                 </el-col>
@@ -411,7 +425,8 @@
                 <div class="upload-info">
                     <p class="mb5">样本总量：<span>{{uploadTask.total_row_count}}</span></p>
                     <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
-                    <p class="mb10">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
+                    <p class="mb10" v-if="uploadTask.repeat_id_row_count">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
+                    <p class="mb10" v-if="uploadTask.invalid_data_count">错误条数：<span>{{uploadTask.invalid_data_count}}</span></p>
                     <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
                     <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据集上传效率会急剧下降，建议在本地去重后执行上传。</strong>
                 </div>
@@ -521,7 +536,7 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                getListApi:    '/union/tag/query',
+                getListApi:    '/union/table_data_set/default_tags',
                 fillUrlQuery:  false,
                 defaultSearch: true,
                 watchRoute:    false,
@@ -584,8 +599,18 @@
                     databaseType:        'Database',
                     dataSourceId:        '',
                     sql:                 '',
+                    for_job_type:        'classify',
                 },
-
+                forJobTypeList: [
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                ],
                 dataSource: {
                     loading:        false,
                     show:           false,
@@ -675,6 +700,9 @@
         },
         created() {
             this.addDataType = this.$route.query.type || 'csv';
+            if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
+                this.form.publicLevel = 'OnlyMyself';
+            }
             this.getDataSouceList();
             this.checkStorage();
 
@@ -702,7 +730,8 @@
                 const { code, data } = await this.$http.post({
                     url:  '/member/service_status_check',
                     data: {
-                        member_id: this.userInfo.member_id,
+                        requestFromRefresh: true,
+                        member_id:          this.userInfo.member_id,
                     },
                 });
 
@@ -878,7 +907,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/preview',
+                    url: '/table_data_set/preview',
                     params,
                 });
 
@@ -997,7 +1026,7 @@
                 this.options_tags = [];
                 if (keyword) {
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },
@@ -1055,54 +1084,55 @@
                 this.loading = true;
                 this.form.metadata_list = this.metadata_list;
 
-                const params = this.addDataType === 'img' ? Object.assign(this.form, { for_job_type: '目标检测', filename: this.http_upload_filename }) : this.form;
+                const params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 const { code, data } = await this.$http.post({
-                    url:     this.addDataType === 'csv' ? '/data_set/add': '/image_data_set/add',
+                    url:     this.addDataType === 'csv' ? '/table_data_set/add': '/image_data_set/add',
                     timeout: 1000 * 60 * 24 * 30,
                     data:    params,
                 });
 
                 if (code === 0) {
-                    if (this.addDataType === 'csv') {
-                        if (data.repeat_data_count > 0) {
-                            this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
-                        } else {
-                            this.$message.success('保存成功!');
-                        }
-                        setTimeout(() => {
-                            this.getAddTask(data.id);
-                        }, 500);
+                    // if (this.addDataType === 'csv') {
+                    if (data.repeat_data_count > 0) {
+                        this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
-                        canLeave = true;
-                        this.$router.push({
-                            name:  'data-view',
-                            query: { id: data.data_set_id, type: this.addDataType },
-                        });
+                        this.$message.success('保存成功!');
                     }
+                    setTimeout(() => {
+                        this.getAddTask(data.data_resource_id);
+                    }, 500);
+                    // } else {
+                    //     canLeave = true;
+                    //     this.$router.push({
+                    //         name:  'data-view',
+                    //         query: { id: data.data_resource_id, type: this.addDataType },
+                    //     });
+                    // }
                 }
                 this.loading = false;
             },
 
-            async getAddTask(id, opt = { requestFromRefresh: false }) {
+            async getAddTask(id) {
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set_task/detail',
+                    url:    '/data_resource/upload_task/detail',
                     params: {
-                        id,
-                        'request-from-refresh': opt.requestFromRefresh,
+                        data_resource_id:   id,
+                        requestFromRefresh: true,
                     },
                 });
 
                 if(code === 0) {
                     if(data) {
-                        const { estimate_time, name, data_set_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message } = data;
+                        const { estimate_time, name, data_resource_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message, status, completed_data_count, total_data_count, estimate_remaining_time, invalid_data_count, progress_ratio } = data;
 
                         this.uploadTask.name = name;
-                        this.uploadTask.progress = progress;
-                        this.uploadTask.estimate_time = estimate_time / 1000;
+                        this.uploadTask.progress = progress || progress_ratio;
+                        this.uploadTask.estimate_time = (estimate_time || estimate_remaining_time) / 1000;
                         this.uploadTask.visible = true;
-                        this.uploadTask.total_row_count = total_row_count;
-                        this.uploadTask.added_row_count = added_row_count;
+                        this.uploadTask.total_row_count = total_row_count || total_data_count;
+                        this.uploadTask.added_row_count = added_row_count || completed_data_count;
                         this.uploadTask.repeat_id_row_count = repeat_id_row_count;
+                        this.uploadTask.invalid_data_count = invalid_data_count;
                         this.uploadTask.error_message = error_message;
 
                         // error in uploading, stop refreshing the interface
@@ -1115,10 +1145,10 @@
 
                         if(this.uploadTask.visible) {
                             setTimeout(() => {
-                                if(progress < 100) {
+                                if(status === 'uploading') {
                                     // uploading
-                                    this.getAddTask(id, { requestFromRefresh: true });
-                                } else {
+                                    this.getAddTask(id);
+                                } else if(status === 'completed') {
                                     // upload completed
                                     this.uploadTask.visible = false;
 
@@ -1126,8 +1156,10 @@
 
                                     this.$router.push({
                                         name:  'data-view',
-                                        query: { id: data_set_id, type: this.addDataType },
+                                        query: { id: data_resource_id, type: this.addDataType },
                                     });
+                                } else {
+                                    this.$message.error(error_message);
                                 }
                             }, 1000);
                         }

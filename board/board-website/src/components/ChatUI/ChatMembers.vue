@@ -91,7 +91,8 @@
                 const { code, data } = await $http.post({
                     url:  '/union/member/query',
                     data: {
-                        page_size: 100,
+                        page_size:          100,
+                        requestFromRefresh: true,
                     },
                 });
 

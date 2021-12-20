@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
             label="数据总量"
-            prop="sample_count"
+            prop="total_data_count"
             width="140"
         ></el-table-column>
         <el-table-column
@@ -78,6 +78,15 @@
         >
             <template v-slot="scope">
                 {{scope.row.label_completed ? '已完成' : '标注中'}}
+            </template>
+        </el-table-column>
+        <el-table-column
+            label="样本分类"
+            prop="for_job_type"
+            width="100"
+        >
+            <template v-slot="scope">
+                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
             </template>
         </el-table-column>
         <el-table-column
@@ -132,7 +141,7 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain type="primary">
+                    <el-button plain>
                         查看与标注
                     </el-button>
                 </router-link>
@@ -187,7 +196,7 @@
                 let message = '此操作将永久删除该条目, 是否继续?';
 
                 const res = await this.$http.get({
-                    url:    '/data_set/usage_detail',
+                    url:    '/data_resource/usage_in_project_list',
                     params: {
                         dataSetId: row.id,
                     },

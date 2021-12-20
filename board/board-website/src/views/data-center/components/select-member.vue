@@ -163,8 +163,9 @@
                     url:  'union/member/query',
                     data: {
                         ...this.search,
-                        page_index: this.pagination.page_index - 1,
-                        page_size:  this.pagination.page_size,
+                        page_index:         this.pagination.page_index - 1,
+                        page_size:          this.pagination.page_size,
+                        requestFromRefresh: true,
                     },
                 });
 

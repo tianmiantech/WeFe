@@ -4,7 +4,7 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <el-icon class="is-loading">
+            <el-icon>
                 <elicon-loading />
             </el-icon>
         </span>
@@ -26,7 +26,7 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <el-icon class="is-loading">
+            <el-icon>
                 <elicon-loading />
             </el-icon>
         </span>
@@ -108,11 +108,15 @@
     .status_waiting,
     .icon-service-error,
     .icon-service-ok{
-        height:20px;
+        height:32px;
         font-size: 12px;
         display: inline-block;
         vertical-align:top;
         cursor: pointer;
+    }
+    .status_waiting{
+        position: relative;
+        top:2px;
     }
     .member-service-item{
         margin-top: 5px;

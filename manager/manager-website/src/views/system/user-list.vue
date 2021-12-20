@@ -5,8 +5,11 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="姓名">
-                <el-input v-model="search.realname" />
+            <el-form-item label="成员名称">
+                <el-input v-model="search.name" />
+            </el-form-item>
+            <el-form-item label="成员 ID">
+                <el-input v-model="search.id" />
             </el-form-item>
             <el-form-item label="是否为管理员">
                 <el-select
@@ -104,7 +107,8 @@
             return {
                 loading: false,
                 search:  {
-                    realname:  '',
+                    id:        '',
+                    name:      '',
                     adminRole: '',
                 },
                 watchRoute:    true,
@@ -126,7 +130,7 @@
                     const { code } = await this.$http.post({
                         url:  '/user/role/change',
                         data: {
-                            userId:    row.user_id,
+                            userId:    row.id,
                             adminRole: !row.admin_role,
                         },
                         btnState: {
@@ -151,7 +155,7 @@
                     const { code } = await this.$http.post({
                         url:  '/user/reset/password',
                         data: {
-                            userId: row.user_id,
+                            userId: row.id,
                         },
                         btnState: {
                             target: event,

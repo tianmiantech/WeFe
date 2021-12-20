@@ -262,7 +262,8 @@
                     const res = await this.$http.post({
                         url:  '/union/member/query',
                         data: {
-                            id: data.member_id,
+                            id:                 data.member_id,
+                            requestFromRefresh: true,
                         },
                     });
 

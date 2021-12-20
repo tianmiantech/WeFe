@@ -222,7 +222,7 @@
             },
             beforeUpload(file) {
                 const isImg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
-                const isWord = file.name.endsWith('.doc') || file.name.endsWith('.docx');
+                const isWord = file.type.includes('wordprocessingml.document');
                 const isPdf = file.type === 'application/pdf';
 
                 if(!isImg && !isWord && !isPdf) {

@@ -274,15 +274,13 @@
             this.$bus.$off('update-title-navigator');
         },
         methods: {
-            async getProjectInfo(callback, opt = {
-                requestFromRefresh: false,
-            }) {
+            async getProjectInfo(callback) {
                 // this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/project/detail',
                     params: {
-                        'request-from-refresh': opt.requestFromRefresh,
-                        project_id:             this.form.project_id,
+                        requestFromRefresh: true,
+                        project_id:         this.form.project_id,
                     },
                 });
 
@@ -391,7 +389,7 @@
                         };
                     });
                     // audit from other members
-                    this.otherAudit(opt);
+                    this.otherAudit();
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
@@ -408,7 +406,7 @@
                     // refresh audit state every 30s
                     clearTimeout(timer);
                     timer = setTimeout(() => {
-                        this.getProjectInfo(null, { requestFromRefresh: true });
+                        this.getProjectInfo();
                     }, 30 * 10e2);
                 }
             },
@@ -424,7 +422,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,
@@ -440,12 +438,12 @@
                     });
             },
 
-            async otherAudit(opt = { requestFromRefresh: false }) {
+            async otherAudit() {
                 const { code, data } = await this.$http.get({
                     url:    '/project/member/add/audit/list',
                     params: {
-                        'request-from-refresh': opt.requestFromRefresh,
-                        project_id:             this.form.project_id,
+                        requestFromRefresh: true,
+                        project_id:         this.form.project_id,
                     },
                 });
 
@@ -475,13 +473,6 @@
             },
 
             cooperAuth(flag) {
-                if(!flag && !this.form.audit_comment) {
-                    return this.$alert('', {
-                        title:   '警告',
-                        type:    'warning',
-                        message: '请填写审核意见!',
-                    });
-                }
                 this.cooperAuthDialog.show = true;
                 this.cooperAuthDialog.flag = flag;
             },
@@ -524,6 +515,7 @@
                     url:  '/member/service_status_check',
                     data: {
                         member_id,
+                        requestFromRefresh: true,
                     },
                 });
 

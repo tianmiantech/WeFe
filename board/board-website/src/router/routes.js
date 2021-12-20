@@ -385,6 +385,15 @@ const baseRoutes = [
                 },
                 component: () => import('../views/system-config/system-config-view'),
             },
+            {
+                path: `${prefixPath}calculation-engine-config`,
+                name: 'calculation-engine-config',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '计算引擎设置',
+                },
+                component: () => import('../views/system-config/calculation-engine-config'),
+            },
         ],
     },
     {

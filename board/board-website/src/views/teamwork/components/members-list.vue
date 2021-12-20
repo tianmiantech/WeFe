@@ -50,7 +50,7 @@
                         width="260"
                     >
                         <template v-slot="scope">
-                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
+                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: projectType === 'DeepLearning' ? 'img' : 'csv' } }">
                                 {{ scope.row.data_set.name }}
                             </router-link>
                             <br>
@@ -76,9 +76,9 @@
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="数据量">
                         <template v-slot="scope">
-                            特征量：{{ scope.row.feature_count }}
+                            特征量：{{ scope.row.data_set.feature_count }}
                             <br>
-                            样本量：{{ scope.row.row_count }}
+                            样本量：{{ scope.row.data_set.row_count }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -96,11 +96,21 @@
                     </el-table-column>
                     <el-table-column
                         v-if="projectType === 'DeepLearning'"
+                        label="样本分类"
+                        prop="for_job_type"
+                        width="100"
+                    >
+                        <template v-slot="scope">
+                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
                         label="数据总量"
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_set.sample_count }}
+                            {{ scope.row.data_set.total_data_count }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -464,7 +474,7 @@
                         });
                     });
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: this.batchDataSetList,
@@ -486,7 +496,7 @@
 
                 if(!has) {
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: [
@@ -516,7 +526,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,

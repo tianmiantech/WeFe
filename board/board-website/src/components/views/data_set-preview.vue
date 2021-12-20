@@ -47,7 +47,7 @@
                 this.loading = true;
 
                 const { code, data } = await this.$http.get({
-                    url: '/storage/data_set/preview?id=' + id,
+                    url: '/storage/table_data_set/preview?id=' + id,
                 });
 
                 this.loading = false;

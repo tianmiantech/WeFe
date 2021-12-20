@@ -27,6 +27,8 @@
                     :to="{name: 'project-detail', query: { project_id: item.project_id }}"
                     class="li"
                 >
+                    <p class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type}}
+                    </p>
                     <p class="p-name">
                         {{ item.name }}
                         <el-tooltip
@@ -57,9 +59,9 @@
                     </div>
                     <p
                         v-if="item.closed"
-                        class="project-closed f12 color-danger"
+                        class="f14 color-danger"
                     >
-                        该项目已由 {{ item.close_operator_nickname }} 于 {{ dateFormat(item.closed_time) }} 关闭
+                        该项目已由 {{ item.close_operator_nickname }} ({{ item.closed_by }}) 于 {{ dateFormat(item.closed_time) }} 关闭
                     </p>
                     <div
                         v-else-if="item.audit_status !== 'agree'"
@@ -75,7 +77,7 @@
                     </p>
                     <div
                         v-if="item.flow_status_statistics"
-                        class="flow-list mt10"
+                        class="flow-list"
                     >
                         <div class="flow-status">
                             <p class="status-num">{{ item.flow_status_statistics.editing }}</p>
@@ -131,7 +133,6 @@
                 status:     {
                     created:  '已创建',
                     auditing: '等待审核中',
-                    disagree: '已拒绝加入',
                     closed:   '已关闭',
                 },
                 watchRoute: false, // When there are multiple instances, multiple requests will be issued at the same time, set to false, let the parent component listen for routing changes
@@ -202,6 +203,7 @@
         }
     }
     .li{
+        position: relative;
         flex: 1;
         margin-left: 20px;
         min-height: 220px;
@@ -221,6 +223,49 @@
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
             .el-icon-delete{display: block;}
+        }
+        .project_type {
+            // position: absolute;
+            // top: -18px;
+            // right: 2px;
+            // z-index: 2;
+            // margin: 20px auto;
+            // height: 26px;
+            // width: 84px;
+            // font-size: 12px;
+            // background: #eee;
+            // padding-right: 4px;
+            // &::after {
+            //     content: '';
+            //     position: absolute;
+            //     border-top: 10px solid #eee;
+            //     border-left: 42px solid #eee;
+            //     border-right: 42px solid #eee;
+            //     border-bottom: 42px solid transparent;
+            //     top: 26px;
+            //     left: 0px;
+            // }
+
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 26px;
+            line-height: 26px;
+            font-size: 14px;
+            background: #f5f5f5;
+            padding-right: 5px;
+            border-radius: 0 3px 0 0;
+            &::before {
+                position: absolute;
+                left: -16px;
+                content: '';
+                height: 0;
+                width: 0;
+                border-top: 13px solid transparent;
+                border-right: 16px solid #f5f5f5;
+                border-bottom: 13px solid transparent;
+            }
+
         }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {
@@ -316,8 +361,8 @@
     }
     .parters{
         color:#333;
+        height: 55px;
         font-size: 13px;
-        max-height: 50px;
         overflow: hidden;
         white-space: nowrap;
         word-break: break-all;
@@ -344,9 +389,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         -webkit-box-orient: vertical;
-    }
-    .project-closed{
-        line-height: 18px;
     }
     .data-status{flex:1;
         text-align: center;

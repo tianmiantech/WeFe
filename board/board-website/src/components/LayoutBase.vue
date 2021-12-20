@@ -93,12 +93,10 @@
             const chatui = ref();
             const methods = {
                 refresh() {
-                    setTimeout(_ => {
-                        vData.isRouterAlive = false;
-                        nextTick(() => {
-                            vData.isRouterAlive = true;
-                        });
-                    }, 300);
+                    vData.isRouterAlive = false;
+                    nextTick(() => {
+                        vData.isRouterAlive = true;
+                    });
                 },
 
                 // ws heat beat every 26s
@@ -121,7 +119,7 @@
             };
             // open chat room
             const startChart = () => {
-                if (window.localStorage.getItem(`${window.api.baseUrl}_chat`) === 'connect') {
+                if (window.localStorage.getItem(`${window.api.prefixPath}_chat`) === 'connect') {
                     nextTick(async () => {
                         chatui.value.show();
                         restartWs();
@@ -131,8 +129,7 @@
             const restartWs = () => {
                 if(vData.ws) return;
 
-                const protocol = window.api.baseUrl.replace(/^http/, 'ws');
-                const url = process.env.NODE_ENV === 'production' ? protocol : 'wss://xxx.wolaidai.com/board-service-04'; // ws://xxx:8080/board-service-01 // wss://xxx.wolaidai.com/board-service-01
+                const url = process.env.NODE_ENV === 'production' ? `wss://${window.api.baseUrl.replace(/http(s?):\/\//, '')}` : 'wss://xxx.wolaidai.com/board-service-04'; // ws://xxx:8080/board-service-01 // wss://xxx.wolaidai.com/board-service-01
                 const websocket = new WebSocket(`${url}/chatserver/${userInfo.value.token}`);
 
                 websocket.addEventListener('open', ev => {
@@ -174,8 +171,8 @@
             provide('refresh', methods.refresh);
 
             onBeforeMount(() => {
-                const { baseUrl } = window.api;
-                const asideCollapsedKey = `${baseUrl}AsideCollapsed`;
+                const { prefixPath } = window.api;
+                const asideCollapsedKey = `${prefixPath}AsideCollapsed`;
 
                 // collapsed left menus
                 const $isCollapsed = window.localStorage.getItem(asideCollapsedKey);
@@ -193,7 +190,7 @@
                 });
 
                 // check last state
-                if (window.localStorage.getItem(`${baseUrl}_chat`) === 'connect') {
+                if (window.localStorage.getItem(`${prefixPath}_chat`) === 'connect') {
                     startChart();
                 }
             });

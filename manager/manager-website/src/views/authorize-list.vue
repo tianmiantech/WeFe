@@ -76,7 +76,7 @@
                             type="primary"
                             @click="update($event, scope.row)"
                         >
-                            编辑
+                            更新
                         </el-button>
                         <el-button
                             type="danger"

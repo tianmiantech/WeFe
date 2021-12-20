@@ -1,11 +1,11 @@
 <template>
     <el-card
-        name="流程列表"
+        name="训练列表"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            流程列表
+            训练列表
             <template v-if="form.isPromoter">
                 <el-button
                     v-if="!form.closed && !form.is_exited"
@@ -26,11 +26,12 @@
             stripe
         >
             <el-table-column
-                label="流程"
+                label="训练"
                 min-width="220px"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
+                        v-if="form.project_type === 'MachineLearning'"
                         :key="scope.row.updated_time"
                         :status="scope.row.flow_status"
                         :disable-transitions="true"
@@ -42,6 +43,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.project_type === 'MachineLearning'"
                 label="进度"
                 min-width="130px"
             >
@@ -62,13 +64,13 @@
             />
             <el-table-column
                 label="创建时间"
-                width="160px"
+                max-width="160px"
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
                     <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
@@ -80,13 +82,11 @@
                 fixed="right"
             >
                 <template v-slot="scope">
-                    <router-link
-                        class="link mr10"
-                        :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }"
-                    >
+                    <el-button type="text" @click="checkDetail(scope.row.flow_id)" style="margin-right: 4px;">
                         查看
-                    </router-link>
+                    </el-button>
                     <router-link
+                        v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
                         :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
                     >
@@ -325,10 +325,9 @@
                     vert_lr:  require('@assets/images/vert_lr.png'),
                     vert_xgb: require('@assets/images/vert_xgb.png'),
                     horz_xgb: require('@assets/images/horz_xgb.png'),
-                    mix_lr:   require('@assets/images/mix_lr.png'),
-                    mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
                 flowTimer: null,
+                config:    {}, // deeplearning config
             };
         },
         computed: {
@@ -348,6 +347,7 @@
             this.project_id = this.$route.query.project_id;
             this.getFlowList();
             this.getTemplateList();
+            this.getConfigInfo();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
@@ -358,13 +358,11 @@
                 clearTimeout(this.timer);
 
                 this.timer = setTimeout(() => {
-                    this.getFlowList({
-                        requestFromRefresh: true,
-                    });
+                    this.getFlowList();
                 }, 3000);
             },
 
-            async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
+            async getFlowList(opt = { resetPagination: false }) {
                 if(opt.resetPagination) {
                     this.pagination.page_index = 1;
                 }
@@ -372,10 +370,10 @@
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: {
-                        'request-from-refresh': opt.requestFromRefresh,
-                        project_id:             this.project_id,
-                        page_index:             this.pagination.page_index - 1,
-                        page_size:              this.pagination.page_size,
+                        requestFromRefresh: true,
+                        project_id:         this.project_id,
+                        page_index:         this.pagination.page_index - 1,
+                        page_size:          this.pagination.page_size,
                     },
                 });
 
@@ -391,7 +389,7 @@
                 }
                 clearTimeout(this.flowTimer);
                 this.flowTimer = setTimeout(() => {
-                    this.getFlowList({ requestFromRefresh: true });
+                    this.getFlowList();
                 }, 5000);
             },
 
@@ -440,7 +438,7 @@
 
                 const params = {
                     project_id:            this.project_id,
-                    federatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : 'vertical',
+                    federatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : opt.federated_learning_type,
                     name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
@@ -564,6 +562,29 @@
                 } else {
                     // 创建深度学习流程
                     this.createFlow();
+                }
+            },
+
+            async getConfigInfo() {
+                const { code, data } = await this.$http.post({
+                    url:  '/global_config/get',
+                    data: { groups: ['deep_learning_config'] },
+                });
+
+                if (code === 0) {
+                    this.config = data;
+                }
+            },
+            checkDetail(flow_id) {
+                if (this.form.project_type === 'DeepLearning') {
+                    const url = this.config.deep_learning_config.paddle_visual_dl_base_url;
+
+                    window.open(`${url}?id=${flow_id}`, '_blank');
+                } else {
+                    this.$router.replace({
+                        name:  'project-flow',
+                        query: { flow_id },
+                    });
                 }
             },
         },

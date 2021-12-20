@@ -456,18 +456,18 @@
                     clearTimeout(heatbeatTimer);
 
                     heatbeatTimer = setTimeout(() => {
-                        methods.getJobStatus(null, { requestFromRefresh: true });
+                        methods.getJobStatus();
                     }, 2000);
                 },
 
-                async getJobStatus(callback, opt = { requestFromRefresh: false }) {
+                async getJobStatus(callback) {
                     const { code, data } = await $http.get({
                         url:    '/flow/job/detail',
                         params: {
-                            'request-from-refresh': opt.requestFromRefresh,
-                            flowId:                 props.flowId,
-                            memberRole:             props.myRole,
-                            needResult:             true,
+                            requestFromRefresh: true,
+                            flowId:             props.flowId,
+                            memberRole:         props.myRole,
+                            needResult:         true,
                         },
                     });
 
@@ -498,8 +498,8 @@
                                 const res = await $http.get({
                                     url:    '/flow/job/get_progress',
                                     params: {
-                                        'request-from-refresh': opt.requestFromRefresh,
-                                        jobId:                  job.job_id,
+                                        requestFromRefresh: true,
+                                        jobId:              job.job_id,
                                     },
                                 });
 
@@ -591,8 +591,8 @@
                         url:    '/task/progress/detail',
                         params: {
                             task_id,
-                            memberRole:             props.myRole,
-                            'request-from-refresh': true,
+                            memberRole:         props.myRole,
+                            requestFromRefresh: true,
                         },
                     });
 

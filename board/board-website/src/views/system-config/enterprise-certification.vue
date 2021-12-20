@@ -57,7 +57,6 @@
 
                     <el-upload
                         ref="uploader"
-                        class="el-uploader"
                         v-loading="pending"
                         :file-list="fileList"
                         :on-remove="onRemove"
@@ -96,7 +95,6 @@
         </el-card>
 
         <el-dialog
-            width="80%"
             title="文件预览:"
             v-model="preview.visible"
         >
@@ -111,11 +109,6 @@
                     :style="`width: 100%;${preview.fileType.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
                     @click="preview.fullscreen = !preview.fullscreen"
                 >
-                <el-divider></el-divider>
-                <span class="color-danger">无法查看?</span> 下载附件:
-                <p>
-                    <el-link type="primary" :underline="false" @click="downloadFile($event, preview)">{{preview.fileName}}</el-link>
-                </p>
             </div>
         </el-dialog>
     </div>
@@ -148,7 +141,6 @@
                     fileName:   '',
                     fileData:   '',
                     fileType:   '',
-                    fileId:     '',
                     fullscreen: false,
                 },
             };
@@ -158,15 +150,14 @@
         },
         created() {
             this.getAuthStatus();
+            this.getAuthType();
             this.getAgreementId();
         },
         methods: {
             async getAuthStatus() {
                 this.loading = true;
-                this.pending = true;
                 const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
 
-                this.loading = false;
                 if(code === 0) {
                     const { file_id_list } = data;
 
@@ -181,8 +172,11 @@
                         file_id_list.forEach(id => {
                             this.getFile(id, data.file_id_list.length);
                         });
+                    } else {
+                        this.loading = false;
                     }
-                    this.getAuthType();
+                } else {
+                    this.loading = false;
                 }
             },
 
@@ -190,12 +184,6 @@
                 const { code, data } = await this.$http.get('/union/member/authtype/query');
 
                 if(code === 0) {
-                    const index = data.list.findIndex(x => x.type_id === this.form.authType);
-
-                    if(index < 0) {
-                        this.form.authType = '';
-                    }
-
                     data.list.forEach(item => {
                         this.options.push({
                             label: item.type_name,
@@ -213,11 +201,11 @@
                 }
             },
 
-            downloadFile(event, file) {
+            downloadFile() {
                 if(this.loading || !this.agreementId) return;
                 this.loading = true;
 
-                const api = `${window.api.baseUrl}/union/download/file?fileId=${file? file.fileId : this.agreementId}&token=${this.userInfo.token}`;
+                const api = `${window.api.baseUrl}/union/download/file?fileId=${this.agreementId}&token=${this.userInfo.token}`;
                 const link = document.createElement('a');
 
                 link.href = api;
@@ -259,7 +247,7 @@
 
                         if(this.fileList.length === files) {
                             setTimeout(() => {
-                                this.pending = false;
+                                this.loading = false;
                             }, 1000);
                         }
                     });
@@ -268,26 +256,20 @@
 
             onRemove(file) {
                 const index = this.form.fileIdList.findIndex(id => id === file.fileId);
-                const i = this.fileList.findIndex(item => item.fileId === file.fileId);
 
                 if(~index) {
                     this.form.fileIdList.splice(index, 1);
                 }
-                if(~i) {
-                    this.fileList.splice(index, 1);
-                }
             },
             onPreview(file) {
                 this.preview.fileType = file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpg';
-                this.preview.fileId = file.fileId;
-                this.preview.fileName = file.name;
                 this.preview.fileData = file.url;
                 this.preview.fullscreen = false;
                 this.preview.visible = true;
             },
             beforeUpload(file) {
                 const isImg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
-                const isWord = file.name.endsWith('.doc') || file.name.endsWith('.docx');
+                const isWord = file.type.includes('wordprocessingml.document');
                 const isPdf = file.type === 'application/pdf';
 
                 if(!isImg && !isWord && !isPdf) {
@@ -309,14 +291,11 @@
                 }
 
                 this.uploading++;
-
                 this.upload(file);
-
-                return false;
+                return true;
             },
             async upload(file) {
                 this.pending = true;
-
                 const formData = new FormData();
 
                 formData.append('file', file);
@@ -329,26 +308,19 @@
                 });
 
                 if(code === 0) {
-                    const index = this.form.fileIdList.findIndex(id => id === data.file_id);
-
-                    if(~index) {
-                        this.$message.error('文件已在列表中!');
-                    } else {
-                        this.form.fileIdList.push(data.file_id);
-                        this.blobToDataURI(file, result => {
-                            this.fileList.push({
-                                name:   window.decodeURIComponent(file.name),
-                                fileId: data.file_id,
-                                url:    result,
-                            });
+                    this.form.fileIdList.push(data.file_id);
+                    this.blobToDataURI(file, result => {
+                        this.fileList.push({
+                            name:   window.decodeURIComponent(file.name),
+                            fileId: data.file_id,
+                            url:    result,
                         });
-                    }
+                    });
                 }
                 this.uploading--;
                 if(this.uploading === 0) {
                     this.pending = false;
                 }
-
             },
             async submit($event) {
                 const { code } = await this.$http.post({
@@ -379,18 +351,6 @@
 <style lang="scss" scoped>
     .el-form{max-width: 500px;}
     .el-link{line-height: 1;}
-    .el-uploader{
-        :deep(.el-upload-list__item-thumbnail){display: none;}
-        :deep(.el-upload-list__item-name){
-            line-height: 30px !important;
-            margin:0;
-            .el-icon{display:none;}
-        }
-        :deep(.el-upload-list__item){
-            padding:10px;
-            height: 50px;
-        }
-    }
     .el-upload__tip{
         padding:20px;
         line-height: 16px;

@@ -400,6 +400,9 @@
         .el-dropdown{
             line-height: 30px;
         }
+        .el-dropdown{
+            line-height: 30px;
+        }
     }
 
     @keyframes zoom{

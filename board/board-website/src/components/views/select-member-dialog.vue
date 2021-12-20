@@ -133,8 +133,9 @@
                 show:       false,
                 getListApi: '/union/member/query',
                 search:     {
-                    id:   '',
-                    name: '',
+                    id:                 '',
+                    name:               '',
+                    requestFromRefresh: true,
                 },
                 mutipleMembers:  [],
                 watchRoute:      false,

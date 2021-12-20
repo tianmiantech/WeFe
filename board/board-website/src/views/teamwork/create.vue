@@ -119,7 +119,17 @@
                                 {{ scope.row.contains_y ? '是' : '否' }}
                             </template>
                         </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="sample_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
                             label="标注状态"
@@ -265,14 +275,35 @@
                                 </router-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="特征量/数据量">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
                                 {{ scope.row.feature_count }} / {{ scope.row.row_count }}
                             </template>
                         </el-table-column>
-                        <el-table-column label="是否有 Y">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
@@ -470,6 +501,7 @@
                     url:  '/member/service_status_check',
                     data: {
                         member_id,
+                        requestFromRefresh: true,
                     },
                 });
 
@@ -518,7 +550,7 @@
                 });
                 ref.show = true;
                 this.$nextTick(async _ => {
-                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list, projectType: this.form.projectType });
                 });
             },
 
@@ -529,6 +561,7 @@
 
                 if (batchlist.length) {
                     batchlist.forEach(item => {
+                        item.id = item.id || item.data_set_id;
                         list.push(item);
                     });
                 }

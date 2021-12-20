@@ -255,7 +255,7 @@
         mixins: [table],
         setup() {
             const { ctx, appContext } = getCurrentInstance();
-            const { $http, $confirm } = appContext.config.globalProperties;
+            const { $http } = appContext.config.globalProperties;
             const memberCard = ref();
             const vData = reactive({
                 loading: true,
@@ -329,24 +329,18 @@
                     }
                 },
 
-                changeStatus($event, row) {
-                    $confirm(`你确定要${ row.ext_json.enable ? '禁用' : '启用' }该数据集吗?`, '警告', {
-                        type:              'warning',
-                        cancelButtonText:  '取消',
-                        confirmButtonText: '确定',
-                    }).then(async _ => {
-                        await $http.post({
-                            url:  '/data_set/update_ext_json',
-                            data: {
-                                id:      row.id,
-                                extJson: {
-                                    enable: !row.ext_json.enable,
-                                },
+                async changeStatus($event, row) {
+                    await $http.post({
+                        url:  '/data_set/update_ext_json',
+                        data: {
+                            id:      row.id,
+                            extJson: {
+                                enable: !row.ext_json.enable,
                             },
-                        });
-
-                        ctx.refresh();
+                        },
                     });
+
+                    ctx.refresh();
                 },
             };
 

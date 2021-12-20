@@ -11,29 +11,11 @@
             <el-form-item label="成员 ID:">
                 <el-input v-model="search.id" />
             </el-form-item>
-            <el-form-item label="已失联">
-                <el-select v-model="search.lostContact" style="width:100px;" clearable>
-                    <el-option label="是" value="true" />
-                    <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="已隐身">
-                <el-select v-model="search.hidden" style="width:100px;" clearable>
-                    <el-option label="是" value="true" />
-                    <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="已冻结">
-                <el-select v-model="search.freezed" style="width:100px;" clearable>
-                    <el-option label="是" value="true" />
-                    <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="已删除">
-                <el-select v-model="search.status" style="width:100px;" clearable>
-                    <el-option label="是" value="1" />
-                    <el-option label="否" value="0" />
-                </el-select>
+            <el-form-item>
+                <el-checkbox label="已失联" v-model="search.lostContact"></el-checkbox>
+                <el-checkbox label="已隐身" v-model="search.hidden"></el-checkbox>
+                <el-checkbox label="已冻结" v-model="search.freezed"></el-checkbox>
+                <el-checkbox label="已删除" v-model="search.status"></el-checkbox>
             </el-form-item>
             <el-button
                 type="primary"
@@ -116,29 +98,27 @@
                     >
                         取消标记失联
                     </el-button> -->
-                    <template v-if="!scope.row.status">
-                        <el-button
-                            v-if="!scope.row.freezed"
-                            type="danger"
-                            @click="changeStatus($event, scope.row, 'freeze')"
-                        >
-                            冻结
-                        </el-button>
-                        <el-button
-                            v-if="scope.row.freezed"
-                            type="primary"
-                            @click="changeStatus($event, scope.row, 'unfreeze')"
-                        >
-                            取消冻结
-                        </el-button>
-                        <el-button
-                            v-if="scope.row.ext_json.principal_name && scope.row.ext_json.real_name_auth_status === 1"
-                            type="primary"
-                            @click="authorized($event, scope.row)"
-                        >
-                            企业认证
-                        </el-button>
-                    </template>
+                    <el-button
+                        v-if="!scope.row.freezed"
+                        type="danger"
+                        @click="changeStatus($event, scope.row, 'freeze')"
+                    >
+                        冻结
+                    </el-button>
+                    <el-button
+                        v-if="scope.row.freezed"
+                        type="primary"
+                        @click="changeStatus($event, scope.row, 'unfreeze')"
+                    >
+                        取消冻结
+                    </el-button>
+                    <el-button
+                        v-if="scope.row.ext_json.principal_name && scope.row.ext_json.real_name_auth_status === 1"
+                        type="primary"
+                        @click="authorized($event, scope.row)"
+                    >
+                        企业认证
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -266,6 +246,23 @@
             },
         },
         methods: {
+            _getUrlParams() {
+                const { query } = this.$route;
+                const params = ['lostContact', 'freezed', 'hidden', 'status'];
+
+                for (const $key in this.search) {
+                    this.search[$key] = '';
+                }
+                params.forEach(key => {
+                    const val = query[key];
+
+                    if(val) {
+                        this.search[key] = val === 'true';
+                    } else {
+                        this.search[key] = false;
+                    }
+                });
+            },
             async changeStatus(event, member, status) {
                 const params = {
                     id: member.id,
@@ -376,8 +373,6 @@
                     this.$prompt('原因:', '拒绝', {
                         inputPattern:      /\S/,
                         inputErrorMessage: '不能为空',
-                        cancelButtonText:  '取消',
-                        confirmButtonText: '确定',
                     })
                         .then(async ({ value }) => {
                             const { code } = await this.$http.post({

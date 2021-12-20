@@ -28,12 +28,14 @@
                                     v-model="item[0]"
                                     placeholder="枚举"
                                     style="width:80px;"
+                                    clearable
                                 /> ：
                                 <el-input
                                     v-model="item[1]"
                                     placeholder="数值"
                                     style="width:66px;"
                                     class="ml5"
+                                    clearable
                                     @keyup.enter="methods.addTransform($event, member, scope.$index)"
                                 />
                                 <el-icon
@@ -166,16 +168,9 @@
                     const members = vData.members.map(member => {
                         const features = [];
 
-                        member.features.forEach(({ name, transforms }) => {
-                            if(transforms && transforms.length) {
-                                const maps = transforms.map(x => {
-                                    return [x[0], +x[1]];
-                                });
-
-                                features.push({
-                                    name,
-                                    transforms: maps,
-                                });
+                        member.features.forEach(feature => {
+                            if(feature.transforms && feature.transforms.length) {
+                                features.push(feature);
                             }
                         });
 

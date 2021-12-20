@@ -37,7 +37,7 @@ const app = createApp({
 app.use(router).use(store(app)).mount('#app');
 // global error handler
 app.config.errorHandler = ({ message  }, vm, info) => {
-    // app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
+    app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
 };
 // add app to router
 router.$app = app;

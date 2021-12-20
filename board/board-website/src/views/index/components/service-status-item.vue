@@ -90,8 +90,9 @@
                 const { code, data } = await this.$http.post({
                     url:  '/member/service_status_check',
                     data: {
-                        member_id: this.userInfo.member_id,
-                        service:   this.service,
+                        requestFromRefresh: true,
+                        member_id:          this.userInfo.member_id,
+                        service:            this.service,
                     },
                 });
 

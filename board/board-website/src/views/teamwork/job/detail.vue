@@ -275,9 +275,10 @@
                 const { code, data } = await this.$http.get({
                     url:    '/flow/job/detail',
                     params: {
-                        jobId:       this.jobId,
-                        member_role: this.member_role,
-                        needResult:  true,
+                        requestFromRefresh: true,
+                        jobId:              this.jobId,
+                        member_role:        this.member_role,
+                        needResult:         true,
                     },
                 });
 

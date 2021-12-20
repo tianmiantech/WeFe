@@ -11,6 +11,22 @@
                 <el-form-item label="项目名称">
                     <el-input v-model="search.name" clearable />
                 </el-form-item>
+                <el-form-item label="项目类型">
+                    <el-select
+                        v-model="search.project_type"
+                        style="width: 176px;"
+                        clearable
+                    >
+                        <el-option
+                            label="MachineLearning"
+                            value="MachineLearning"
+                        />
+                        <el-option
+                            label="DeepLearning"
+                            value="DeepLearning"
+                        />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="参与方">
                     <el-autocomplete
                         v-model="search.member_name"
@@ -143,6 +159,7 @@
                     start_create_time: '',
                     end_create_time:   '',
                     my_role:           '',
+                    project_type:      '',
                 },
                 searchRequest: {},
                 projectStatus: [{
@@ -151,6 +168,9 @@
                 }, {
                     label: '等待审核',
                     value: 'auditing',
+                }, {
+                    label: '已关闭',
+                    value: 'closed',
                 }],
                 projectTabs: [{
                     name:   'allProjects',

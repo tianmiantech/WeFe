@@ -71,12 +71,10 @@
             });
             const methods = {
                 refresh() {
-                    setTimeout(_ => {
-                        vData.isRouterAlive = false;
-                        nextTick(() => {
-                            vData.isRouterAlive = true;
-                        });
-                    }, 1000);
+                    vData.isRouterAlive = false;
+                    nextTick(() => {
+                        vData.isRouterAlive = true;
+                    });
                 },
             };
 

@@ -33,12 +33,12 @@
             <el-table-column label="名称" min-width="100">
                 <template v-slot="scope">
                     {{ scope.row.organization_name }}
-                    <!-- <p>节点id: {{ scope.row.node_id }}</p> -->
+                    <!-- <p>节点id: {{ scope.row.union_node_id }}</p> -->
                 </template>
             </el-table-column>
             <el-table-column label="链接" min-width="100">
                 <template v-slot="scope">
-                    {{ scope.row.base_url }}
+                    {{ scope.row.union_base_url }}
                 </template>
             </el-table-column>
             <!-- <el-table-column label="签名" min-width="100">
@@ -77,7 +77,7 @@
                         type="primary"
                         @click="update($event, scope.row)"
                     >
-                        编辑
+                        更新
                     </el-button>
                     <el-button
                         type="danger"
@@ -159,7 +159,7 @@
         methods: {
             async changeStatus(event, row, status) {
                 const params = {
-                    nodeId: row.node_id,
+                    unionNodeId: row.union_node_id,
                 };
 
                 switch (status) {
@@ -194,9 +194,9 @@
                     });
             },
             update(event, row) {
-                this.editId = row.node_id;
+                this.editId = row.union_node_id;
                 this.editName = row.organization_name;
-                this.editURL = row.base_url;
+                this.editURL = row.union_base_url;
                 this.editDialog = true;
             },
             remove(event, row) {
@@ -209,7 +209,7 @@
                         const { code } = await this.$http.post({
                             url:  '/union/node/delete',
                             data: {
-                                nodeId: row.node_id,
+                                unionNodeId: row.union_node_id,
                             },
                             btnState: {
                                 target: event,
@@ -227,8 +227,8 @@
             async confirm(event) {
                 const params = {
                     organizationName: this.editName,
-                    baseUrl:          this.editURL,
-                    nodeId:           this.editId,
+                    unionBaseUrl:     this.editURL,
+                    unionNodeId:      this.editId,
                 };
 
                 const { code } = await this.$http.post({

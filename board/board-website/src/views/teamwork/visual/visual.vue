@@ -349,14 +349,14 @@
                     }
                     return true;
                 },
-                async init (opt = { requestFromRefresh: false }) {
+                async init () {
                     vData.loading = true;
 
                     const { code, data } = await $http.get({
                         url:    '/project/flow/detail',
                         params: {
-                            flow_id:                vData.flow_id,
-                            'request-from-refresh': opt.requestFromRefresh,
+                            flow_id:            vData.flow_id,
+                            requestFromRefresh: true,
                         },
                     });
 
@@ -400,7 +400,7 @@
                                 methods.getComponents();
 
                                 // get task details
-                                ToolbarRef.value && ToolbarRef.value.methods.init(opt);
+                                ToolbarRef.value && ToolbarRef.value.methods.init();
                             }
                         } else if(code !== 10006) {
                             vData.failedDialog = true;

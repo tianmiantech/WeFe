@@ -29,6 +29,7 @@
         </div>
 
         <el-table
+            v-if="list.length"
             v-loading="tableLoading"
             max-height="500"
             :data="list"
@@ -43,10 +44,8 @@
                 min-width="220"
             >
                 <template v-slot="scope">
-                    <div :title="scope.row.description">
-                        {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                        <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
-                    </div>
+                    {{ isFlow ? scope.row.data_set.name : scope.row.name }}
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -110,11 +109,26 @@
             </el-table-column>
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
-                label="数据总量"
-                prop="sample_count"
+                label="样本分类"
+                prop="for_job_type"
+                width="100"
             >
                 <template v-slot="scope">
-                    {{isFlow ? scope.row.data_set.sample_count : scope.row.sample_count}}
+                    <template v-if="scope.row.data_set">
+                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                    <template v-else>
+                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                    </template>
+                </template>
+            </el-table-column>
+            <el-table-column
+                v-if="projectType === 'DeepLearning'"
+                label="数据总量"
+                prop="total_data_count"
+            >
+                <template v-slot="scope">
+                    {{isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count}}
                 </template>
             </el-table-column>
             <el-table-column
@@ -161,7 +175,6 @@
                     <slot name="operation">
                         <div class="cell-reverse">
                             <el-tooltip
-                                v-if="is_my_data_set && projectType === 'MachineLearning'"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -217,8 +230,10 @@
             v-model="dataSetPreviewDialog"
             destroy-on-close
             append-to-body
+            width="60%"
         >
-            <DataSetPreview ref="DataSetPreview" />
+            <DataSetPreview v-if="projectType === 'MachineLearning'" ref="DataSetPreview" />
+            <PreviewImageList v-if="projectType === 'DeepLearning'" ref="PreviewImageList" />
         </el-dialog>
     </div>
 </template>
@@ -226,10 +241,12 @@
 <script>
     import table from '@src/mixins/table';
     import DataSetPreview from '@comp/views/data_set-preview';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
+            PreviewImageList,
         },
         mixins: [table],
         props:  {
@@ -293,9 +310,12 @@
             // preview dataset
             showDataSetPreview(item){
                 this.dataSetPreviewDialog = true;
-
                 this.$nextTick(() =>{
-                    this.$refs['DataSetPreview'].loadData(item.id);
+                    if (this.projectType === 'MachineLearning') {
+                        this.$refs['DataSetPreview'].loadData(item.id);
+                    } else if (this.projectType === 'DeepLearning') {
+                        this.$refs.PreviewImageList.methods.getSampleList(item.id);
+                    }
                 });
             },
 
