@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -27,19 +28,35 @@ import com.welab.wefe.union.service.mapper.MemberMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
- * @author Jervis
+ * @author yuxin.zhang
  **/
-@Api(path = "member/name_map", name = "member_name_map", rsaVerify = true, login = false)
-public class QueryMemberNameMapApi extends AbstractApi<BaseInput, JObject> {
+@Api(path = "member/name/query", name = "member_name_query", rsaVerify = true, login = false)
+public class QueryMemberNameApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
     protected MemberMongoReop memberMongoReop;
 
-    protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
+    private static JObject apply(Member member) {
+        return JObject.create()
+                .put("name", member.getName())
+                .put("hidden", member.getName())
+                .put("freezed", member.getName())
+                .put("lostContact", member.getName());
+    }
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) throws StatusCodeWithException {
-        return success();
+        List<Member> memberList = memberMongoReop.find(null);
+        Map<String, JObject> collect = memberList.stream().collect(
+                Collectors.toMap(
+                        Member::getMemberId,
+                        QueryMemberNameApi::apply
+                ));
+        return success(JObject.create(collect));
     }
 
 }
