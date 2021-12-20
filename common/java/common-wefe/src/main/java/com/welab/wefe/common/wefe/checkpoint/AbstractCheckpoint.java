@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.available.checkpoint;
+package com.welab.wefe.common.wefe.checkpoint;
 
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.dto.vo.ServerCheckPointOutput;
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -33,13 +29,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zane
  */
-@Service
 public abstract class AbstractCheckpoint {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    protected Config config;
-    @Autowired
-    protected GlobalConfigService globalConfigService;
 
     protected abstract ServiceType service();
 

@@ -16,7 +16,9 @@
 
 package com.welab.wefe.board.service.service.available.checkpoint;
 
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UnionConnectionCheckpoint extends AbstractCheckpoint {
+    @Autowired
+    protected Config config;
 
     @Autowired
     private UnionService unionService;

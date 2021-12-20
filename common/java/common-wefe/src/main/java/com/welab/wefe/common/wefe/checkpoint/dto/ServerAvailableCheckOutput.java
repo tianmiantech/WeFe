@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.vo;
+package com.welab.wefe.common.wefe.checkpoint.dto;
 
 import java.util.List;
 

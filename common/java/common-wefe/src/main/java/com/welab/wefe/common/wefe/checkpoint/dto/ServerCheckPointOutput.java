@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.dto.vo;
+package com.welab.wefe.common.wefe.checkpoint.dto;
 
 
 import com.welab.wefe.common.wefe.enums.ServiceType;
