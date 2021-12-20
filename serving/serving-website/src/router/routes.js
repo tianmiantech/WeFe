@@ -19,11 +19,11 @@ const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.en
 const baseRoutes = [
     {
         path: `${prefixPath}`,
-            meta: {
+        meta: {
         title: '模型管理',
             icon:  'el-icon-monitor',
             index: 0,
-    },
+        },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
@@ -46,6 +46,38 @@ const baseRoutes = [
             },
                 component: () =>
                 import('@views/model/model-view.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}`,
+        meta: {
+            title: '数据源管理',
+            icon:  'el-icon-monitor',
+            index: 4,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}data-souce-list`,
+                name: 'data-resouce-list',
+                meta: {
+                    title:  '数据库配置',
+                    index:  '4-1',
+                    active: `${prefixPath}data-souce-list`,
+                },
+                component: () => import('@views/data_source/data-source-list.vue'),
+            },
+            {
+                path: `${prefixPath}data-source-view`,
+                name: 'data-source-view',
+                meta: {
+                    title:  '数据库配置详情',
+                    index:  '4-2',
+                    hidden: true,
+                    active: `${prefixPath}data-source-view`,
+                },
+                component: () => import('@views/data_source/data-source-view.vue'),
             },
         ],
     },
