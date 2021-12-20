@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author winter.zou
  */
 @Api(path = "project/flow/query", name = "query flow list")
-public class QueryFlowListApi extends AbstractApi<QueryFlowListApi.Input, PagingOutput<ProjectFlowListOutputModel>> {
+public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<ProjectFlowListOutputModel>> {
 
     @Autowired
     ProjectFlowService flowService;

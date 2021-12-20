@@ -42,7 +42,7 @@ import java.nio.file.Paths;
  * @author zane.luo
  */
 @Api(path = "file/upload", name = "upload file")
-public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
+public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadApi.Output> {
 
     @Autowired
     private Config config;

@@ -50,13 +50,13 @@
                                     prop="mean"
                                 />
                                 <!-- <el-table-column
-                            label="众数"
-                            prop="mode"
-                        >
-                            <template v-slot="scope">
-                                {{ scope.row.mode[0][0] }}({{ scope.row.mode[0][1] }}次)
-                            </template>
-                        </el-table-column> -->
+                                    label="众数"
+                                    prop="mode"
+                                >
+                                    <template v-slot="scope">
+                                        {{ scope.row.mode[0][0] }}({{ scope.row.mode[0][1] }}次)
+                                    </template>
+                                </el-table-column> -->
                                 <el-table-column
                                     label="实际数量"
                                     prop="not_null_count"
@@ -112,7 +112,7 @@
                                     min-width="180"
                                 >
                                     <template v-slot="scope">
-                                        <div style="max-height:400px;overflow: auto;">
+                                        <div v-if="Object.keys(scope.row.unique_count).length" style="max-height:400px;overflow: auto;">
                                             <p
                                                 v-for="(value, key) in scope.row.unique_count"
                                                 :key="key"
@@ -120,6 +120,7 @@
                                                 {{ key }} : {{ value }}
                                             </p>
                                         </div>
+                                        <template v-else>-</template>
                                     </template>
                                 </el-table-column>
                                 <el-table-column

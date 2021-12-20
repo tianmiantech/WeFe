@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-public abstract class AbstractThroughUnionApi extends AbstractApi<NoneApiInput, JSONObject> {
+public abstract class AbstractThroughUnionApi extends AbstractApi<NoneApiInput, Object> {
 
     @Autowired
     private UnionService unionService;
@@ -36,7 +36,7 @@ public abstract class AbstractThroughUnionApi extends AbstractApi<NoneApiInput, 
     protected abstract String api();
 
     @Override
-    protected ApiResult<JSONObject> handle(NoneApiInput input) throws StatusCodeWithException {
+    protected ApiResult<Object> handle(NoneApiInput input) throws StatusCodeWithException {
         JSONObject response = unionService.request(api(), input.rawRequestParams);
         return super.unionApiResultToBoardApiResult(response);
     }

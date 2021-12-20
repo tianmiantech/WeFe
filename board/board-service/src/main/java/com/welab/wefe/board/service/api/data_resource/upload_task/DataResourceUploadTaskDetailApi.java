@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author lonnie
  */
 @Api(path = "data_resource/upload_task/detail", name = "get a data set upload task info")
-public class DetailApi extends AbstractApi<DetailApi.Input, DataResourceUploadTaskMysqlModel> {
+public class DataResourceUploadTaskDetailApi extends AbstractApi<DataResourceUploadTaskDetailApi.Input, DataResourceUploadTaskMysqlModel> {
 
     @Autowired
     private DataResourceUploadTaskService dataResourceUploadTaskService;
