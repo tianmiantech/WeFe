@@ -31,10 +31,10 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "from ( " +
             "SELECT sum(arr.spend) total_spend, sum(arr.request_result) success_request, count(id) total_request, arr.client_id, arr.service_id " +
             "from api_request_record arr " +
-            "where if(:service_id !='', arr.service_id = :service_id ,1=1) and " +
-            "      if(:client_id !='', arr.client_id = :client_id ,1=1) and " +
-            "      arr.created_time  between if(:start_date !='', :start_date , '1900-01-01 00:00:00' ) and " +
-            "      if(:end_date !='', :end_date , NOW())  " +
+            "where if(:service_id is not null, arr.service_id = :service_id ,1=1) and " +
+            "      if(:client_id is not null, arr.client_id = :client_id ,1=1) and " +
+            "      arr.created_time  between if(:start_date is not null, :start_date , '1900-01-01 00:00:00' ) and " +
+            "      if(:end_date is not null, :end_date , NOW())  " +
             "group by arr.service_id, arr.client_id " +
             ")as t left join service s on t.service_id = s.id " +
             "      left join client c on t.client_id = c.id " +
