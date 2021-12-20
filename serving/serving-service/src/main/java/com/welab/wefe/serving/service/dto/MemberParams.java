@@ -16,7 +16,7 @@
 
 package com.welab.wefe.serving.service.dto;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author hunter.zhao

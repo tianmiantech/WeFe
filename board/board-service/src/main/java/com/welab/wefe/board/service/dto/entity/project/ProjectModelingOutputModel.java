@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.dto.entity.project;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 /**
  * @author lonnie

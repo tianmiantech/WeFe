@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.database.entity.flow;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.common.enums.FlowActionType;
-import com.welab.wefe.common.enums.ProducerType;
+import com.welab.wefe.common.wefe.enums.FlowActionType;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

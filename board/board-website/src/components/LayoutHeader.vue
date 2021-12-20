@@ -395,6 +395,7 @@
             height: 30px;
             line-height: 30px;
             cursor: pointer;
+            .el-icon-arrow-left{top:-2px;}
         }
         .el-dropdown{
             line-height: 30px;

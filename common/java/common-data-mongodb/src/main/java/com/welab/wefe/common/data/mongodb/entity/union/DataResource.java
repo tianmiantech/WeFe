@@ -19,7 +19,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
-import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = MongodbTable.Union.DATA_RESOURCE)

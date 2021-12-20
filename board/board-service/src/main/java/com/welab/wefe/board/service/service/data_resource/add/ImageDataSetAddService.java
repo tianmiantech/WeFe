@@ -26,13 +26,13 @@ import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputMod
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.file.decompression.SuperDecompressor;
 import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,7 +100,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         fileDecompressionResult.deleteAllDirAndFiles();
 
         // Refresh the data set tag list
-        CacheObjects.refreshImageDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
     private void setImageDataSetModel(ImageDataSetAddInputModel input, ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> sampleList) {

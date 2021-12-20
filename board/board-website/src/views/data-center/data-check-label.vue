@@ -33,7 +33,7 @@
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
                     <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
-                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" @delete-options="methods.deleteEvent" />
+                    <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" @delete-options="methods.deleteEvent" @label-single-sample="methods.labelSingle" />
                     <template v-else>
                         <EmptyData />
                     </template>
@@ -59,7 +59,7 @@
 
 <script>
     import { ref, reactive, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import CheckImageList from './components/check-image-list.vue';
     export default {
         components: {
@@ -67,7 +67,7 @@
         },
         setup() {
             const route = useRoute();
-            // const router = useRouter();
+            const router = useRouter();
             const { appContext } = getCurrentInstance();
             const { $http, $message, $confirm } = appContext.config.globalProperties;
             const imgListRef = ref();
@@ -195,7 +195,8 @@
                     });
                 },
                 searchLabeledList(text) {
-                    vData.search.label = vData.search.label ? '' : text;
+                    vData.search.label = vData.search.label === text ? '' : text;
+                    vData.search.page_index = 1;
                     methods.getSampleList();
                 },
                 currentPageChange (val) {
@@ -250,6 +251,19 @@
                                 String(item[key]).toLowerCase().indexOf(val) > -1
                             );
                         });
+                    });
+                },
+                labelSingle(id, idx) {
+                    router.replace({
+                        name:  'data-label',
+                        query: {
+                            id:               vData.sampleId,
+                            single_sample_id: id,
+                            for_job_type:     vData.forJobType,
+                            page_index:       vData.search.page_index,
+                            page_size:        vData.search.page_size,
+                            idx,
+                        },
                     });
                 },
             };

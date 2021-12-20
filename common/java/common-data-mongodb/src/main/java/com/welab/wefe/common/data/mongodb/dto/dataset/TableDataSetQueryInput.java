@@ -17,7 +17,6 @@
 package com.welab.wefe.common.data.mongodb.dto.dataset;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
-import com.welab.wefe.common.enums.DeepLearningJobType;
 
 /**
  * @author yuxin.zhang

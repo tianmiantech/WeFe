@@ -16,7 +16,7 @@
 
 package com.welab.wefe.serving.service.dto;
 
-import com.welab.wefe.common.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 /**
  * @author hunter.zhao

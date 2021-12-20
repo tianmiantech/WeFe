@@ -39,13 +39,14 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutput
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.*;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -351,7 +352,7 @@ public class ProjectFlowService extends AbstractService {
         return projectFlowRepo.findOne("flowId", flowId, ProjectFlowMySqlModel.class);
     }
 
-    public PagingOutput<ProjectFlowListOutputModel> query(QueryFlowListApi.Input input) {
+    public PagingOutput<ProjectFlowListOutputModel> query(FlowQueryApi.Input input) {
 
         Specification<ProjectFlowMySqlModel> where = Where
                 .create()

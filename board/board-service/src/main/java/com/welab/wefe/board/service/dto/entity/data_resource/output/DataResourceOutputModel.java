@@ -17,11 +17,11 @@ package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
-import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 
 /**
  * @author zane
@@ -31,7 +31,7 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "资源名称")
     private String name;
     @Check(name = "资源类型")
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     @Check(name = "描述")
     private String description;
     @Check(name = "标签")
@@ -79,12 +79,12 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.name = name;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public String getDescription() {

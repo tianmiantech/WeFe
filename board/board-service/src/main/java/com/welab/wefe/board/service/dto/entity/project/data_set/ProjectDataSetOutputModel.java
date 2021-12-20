@@ -18,10 +18,10 @@ package com.welab.wefe.board.service.dto.entity.project.data_set;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.Date;
 

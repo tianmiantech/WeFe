@@ -17,14 +17,14 @@
 package com.welab.wefe.board.service.api.component;
 
 import com.welab.wefe.board.service.dto.entity.component.ComponentOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 
 import java.util.Arrays;
 import java.util.List;

@@ -16,8 +16,9 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.MessageLevel;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
 
 /**
  * @author Zane

@@ -16,8 +16,8 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataResourceUploadStatus;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceUploadStatus;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -42,7 +42,7 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 资源类型
      */
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     /**
      * 总数据行数
      */
@@ -91,12 +91,12 @@ public class DataResourceUploadTaskMysqlModel extends AbstractBaseMySqlModel {
         this.dataResourceName = dataResourceName;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public Long getTotalDataCount() {

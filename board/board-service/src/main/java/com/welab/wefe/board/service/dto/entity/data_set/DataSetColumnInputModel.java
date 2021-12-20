@@ -17,10 +17,10 @@
 package com.welab.wefe.board.service.dto.entity.data_set;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.ColumnDataType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ColumnDataType;
 
 /**
  * @author Zane

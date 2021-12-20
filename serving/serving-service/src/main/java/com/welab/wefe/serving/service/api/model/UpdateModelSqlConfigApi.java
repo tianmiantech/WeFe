@@ -16,14 +16,14 @@
 
 package com.welab.wefe.serving.service.api.model;
 
-import com.welab.wefe.common.enums.DatabaseType;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 

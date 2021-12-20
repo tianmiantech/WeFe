@@ -31,9 +31,9 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTask
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.board.service.util.*;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,7 +91,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         }
 
         // Refresh the data set tag list
-        CacheObjects.refreshTableDataSetTags();
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
     }
 

@@ -21,13 +21,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.DownBloomFilterApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiHandleApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
-import com.welab.wefe.board.service.service.fusion.FusionResultStorageService;
+import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.data.storage.common.Constant;
@@ -41,12 +44,9 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -58,11 +58,11 @@ public class ClientActuator extends PsiClientActuator {
      * Fragment size, default 10000
      */
     private int shard_size = 1000;
-    private int current_index = 0;
+    private Integer current_index = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
-    FusionResultStorageService fusionResultStorageService;
+    GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
     private String[] headers;
 
@@ -95,23 +95,44 @@ public class ClientActuator extends PsiClientActuator {
          */
         fieldInfoList = service.fieldInfoList(businessId);
 
+        /**
+         * Initialize dataset header
+         */
         dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
         DataItemModel model = dataSetStorageService.getByKey(
                 Constant.DBName.WEFE_DATA,
                 dataSetStorageService.createRawDataSetTableName(dataSetId) + ".meta",
                 "header"
         );
-        headers = model.getV().toString().split(",");
+        headers = model.getV().toString().replace("\"", "").split(",");
     }
+
 
     @Override
     public void close() throws Exception {
+
+        //remove Actuator
+        ActuatorManager.remove(businessId);
+
+        //update task status
+        FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
+        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+    }
+
+    @Override
+    public void notifyServerClose() {
+        //notify the server that the task has ended
+        try {
+            gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
+        } catch (MemberGatewayException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<JObject> next() {
-        long start = System.currentTimeMillis();
-        synchronized (dataSetStorageService) {
+        synchronized (current_index) {
+            long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
@@ -126,7 +147,9 @@ public class ClientActuator extends PsiClientActuator {
                 String[] values = x.getV().toString().split(",");
                 JObject jObject = JObject.create();
                 for (int i = 0; i < headers.length; i++) {
-                    jObject.put(headers[i], values[i]);
+                    if (columnList.contains(headers[i])) {
+                        jObject.put(headers[i], values[i]);
+                    }
                 }
                 curList.add(jObject);
             });
@@ -136,6 +159,7 @@ public class ClientActuator extends PsiClientActuator {
 
             current_index++;
 
+
             return curList;
         }
     }
@@ -144,33 +168,7 @@ public class ClientActuator extends PsiClientActuator {
     public void dump(List<JObject> fruit) {
         LOG.info("fruit insert ready...");
 
-        if (fruit.isEmpty()) {
-            return;
-        }
-
-        LOG.info("fruit inserting...");
-
-
-        //Build table
-        //  createTable(businessId, new ArrayList<>(fruit.get(0).keySet()));
-        // fusionResultStorageService.saveDataRow(businessId,fruit);
-        /**
-         * Fruit Standard formatting
-         */
-        List<Map<String, Object>> fruits = fruit.
-                stream().
-                map(new Function<JObject, Map<String, Object>>() {
-                    @Override
-                    public Map<String, Object> apply(JObject x) {
-                        Map<String, Object> map = new LinkedHashMap();
-                        for (Map.Entry<String, Object> column : x.entrySet()) {
-                            map.put(column.getKey(), column.getValue());
-                        }
-                        return map;
-                    }
-                }).collect(Collectors.toList());
-
-//        TaskResultManager.saveTaskResultRows(businessId, fruits);
+        PsiDumpHelper.dump(businessId, columnList, fruit);
 
         LOG.info("fruit insert end...");
 
@@ -179,11 +177,7 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public Boolean hasNext() {
-        if (dataSetStorageService == null) {
-            dataSetStorageService = Launcher.CONTEXT.getBean(DataSetStorageService.class);
-        }
-
-        synchronized (dataSetStorageService) {
+        synchronized (current_index) {
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
@@ -199,39 +193,39 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("downloadBloomFilter start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         JSONObject result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownBloomFilterApi.class, new DownBloomFilterApi.Input(businessId), JSONObject.class);
+            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
         } catch (MemberGatewayException e) {
             e.printStackTrace();
         }
 
         LOG.info("downloadBloomFilter end {} ", result);
 
-        return JObject.toJavaObject(result, PsiActuatorMeta.class);
+        PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
+        meta.setBfByDto(meta.getBfDto());
+        return meta;
     }
 
     @Override
-    public byte[][] qureyFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) {
 
-        LOG.info("qureyFusionData start");
+        LOG.info("queryFusionData start");
 
         //调用gateway
-        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
         List<String> stringList = Lists.newArrayList();
         for (int i = 0; i < bs.length; i++) {
             stringList.add(Base64Util.encode(bs[i]));
         }
         ApiResult<JSONObject> result = null;
         try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/handle", JObject.create(new PsiHandleApi.Input(businessId, stringList)));
+            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/crypto", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
             LOG.info("error: {}", e);
             e.printStackTrace();
         }
 
-        JSONArray response = result.data.getJSONArray("bytes");
+        JSONArray response = result.data.getJSONArray("bs");
 
         byte[][] ss = new byte[response.size()][];
         for (int i = 0; i < response.size(); i++) {
@@ -242,27 +236,21 @@ public class ClientActuator extends PsiClientActuator {
         return ss;
     }
 
-    public static void main(String[] args) {
-        String code ="{\"code\":0,\"data\":{\"bytes\":[\"dSIFQYDQ2abHrr/1m4Txtj\n" +
-                "yQFkyIV7h0dqpVH2bwkSJw/R/Sd6WlZIvc7Zt8SvWlCbqMw20ilEQpmEpdAY=\",\"Y8AX01gY7XKLs64aIpAXxHnWW8UE/q2S0o5VH+INm4wyj8mXPo9AVQiWN+7erbjobbxIS9JgCYlFU\n" +
-                "kXJ9ohumqsmYl5xhgepAAuE46\"]}}";
+    @Override
+    public void sendFusionData(List<byte[]> rs) {
+        List<String> stringList = Lists.newArrayList();
+        for (int i = 0; i < rs.size(); i++) {
+            stringList.add(Base64Util.encode(rs.get(i)));
+        }
 
-        ApiResult<JSONObject> s = JObject.create(code).toJavaObject(ApiResult.class);
-
-        System.out.println(JSON.toJSONString(s));
-
-        JSONArray response = s.data.getJSONArray("bytes");
-
-        byte[][] ss = new byte[response.size()][];
-        for (int i = 0; i < response.size(); i++) {
-            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
+        try {
+            gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
+        } catch (MemberGatewayException e) {
+            LOG.info("sendFusionData error: {}", e);
+            e.printStackTrace();
         }
     }
 
-
-    @Override
-    public void sendFusionData(List<byte[]> rs) {
-    }
 
     @Override
     public String hashValue(JObject value) {

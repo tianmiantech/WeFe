@@ -44,7 +44,5 @@ build/
 *.properties
 venv/
 /docker/
-**/assembly/
-/assembly/
-
-board/board-website/yarn\.lock
+/assembly/*
+assembly/

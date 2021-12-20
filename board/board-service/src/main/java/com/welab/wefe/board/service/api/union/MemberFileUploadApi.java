@@ -30,12 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author zane.luo
  */
 @Api(path = "union/member/file/upload", name = "upload file")
-public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, JSONObject> {
+public class MemberFileUploadApi extends AbstractApi<MemberFileUploadApi.Input, Object> {
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Object> handle(Input input) throws StatusCodeWithException {
         JSONObject result = unionService.uploadFile(
                 input.files,
                 JObject.create("filename", input.filename).append("purpose", input.purpose)

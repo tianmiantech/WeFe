@@ -16,14 +16,14 @@
 
 package com.welab.wefe.serving.service.api;
 
-import com.welab.wefe.common.enums.Algorithm;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;

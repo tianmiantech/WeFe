@@ -18,10 +18,10 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSourceRepository;

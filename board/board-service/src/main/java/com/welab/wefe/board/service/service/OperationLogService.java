@@ -16,13 +16,13 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.operation.QueryApi;
+import com.welab.wefe.board.service.api.operation.LogQueryApi;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.repository.OperationLogRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.OperationLogOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class OperationLogService extends AbstractService {
     @Autowired
     OperationLogRepository mOperationLogRepository;
 
-    public PagingOutput<OperationLogOutputModel> query(QueryApi.Input input) {
+    public PagingOutput<OperationLogOutputModel> query(LogQueryApi.Input input) {
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()

@@ -27,10 +27,10 @@ import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.domain.Sort;
 
 import java.util.*;
@@ -62,12 +62,13 @@ public class CacheObjects {
     private static String MEMBER_NAME;
 
     /**
-     * Data set tags
+     * Data resource tags
      * tag : count
      */
+    private static final TreeMap<String, Long> DATA_RESOURCE_TAGS = new TreeMap<>();
     private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
     private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> IMAGE_BLOOM_FILTER_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Long> BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -137,18 +138,32 @@ public class CacheObjects {
         return MEMBER_NAME;
     }
 
-    public static TreeMap<String, Long> getTableDataSetTags() {
-        if (TABLE_DATA_SET_TAGS.isEmpty()) {
-            refreshTableDataSetTags();
-        }
-        return TABLE_DATA_SET_TAGS;
-    }
+    public static TreeMap<String, Long> getDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Long> map = null;
 
-    public static TreeMap<String, Long> getImageDataSetTags() {
-        if (IMAGE_DATA_SET_TAGS.isEmpty()) {
-            refreshTableDataSetTags();
+        if (dataResourceType == null) {
+            map = DATA_RESOURCE_TAGS;
+        } else {
+            switch (dataResourceType) {
+                case TableDataSet:
+                    map = TABLE_DATA_SET_TAGS;
+                    break;
+                case ImageDataSet:
+                    map = IMAGE_DATA_SET_TAGS;
+                    break;
+                case BloomFilter:
+                    map = BLOOM_FILTER_TAGS;
+                    break;
+                default:
+
+            }
         }
-        return IMAGE_DATA_SET_TAGS;
+
+        if (map.isEmpty()) {
+            refreshDataResourceTags(dataResourceType, map);
+        }
+
+        return map;
     }
 
     public static List<String> getAccountIdList() {
@@ -236,14 +251,22 @@ public class CacheObjects {
         MEMBER_NAME = model.getMemberName();
     }
 
-    /**
-     * Reload the number of data sets corresponding to each tag
-     */
-    private static synchronized void refreshDataSetTags(List<Object[]> allRows, TreeMap<String, Long> map) {
-        map.clear();
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Long> map = getDataResourceTags(dataResourceType);
+        refreshDataResourceTags(dataResourceType, map);
+    }
 
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Long> map) {
+
+        // Query all tags from the database
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = dataResourceType == null
+                ? repo.listAllTags()
+                : repo.listAllTags(dataResourceType.name());
+
+        map.clear();
         // Count the number of data sets corresponding to each tag
-        for (Object[] row : allRows) {
+        for (Object[] row : rows) {
             List<String> tags = StringUtil.splitWithoutEmptyItem(String.valueOf(row[0]), ",");
             long count = Convert.toLong(row[1]);
             for (String tag : tags) {
@@ -255,27 +278,6 @@ public class CacheObjects {
         }
     }
 
-    public static synchronized void refreshTableDataSetTags() {
-        // Query all tags from the database
-        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
-        List<Object[]> rows = repo.listAllTags(DataResourceType.TableDataSet.name());
-        refreshDataSetTags(rows, TABLE_DATA_SET_TAGS);
-    }
-
-    public static synchronized void refreshBloomFilterTags() {
-        // Query all tags from the database
-        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
-        List<Object[]> rows = repo.listAllTags(DataResourceType.BloomFilter.name());
-        refreshDataSetTags(rows, IMAGE_BLOOM_FILTER_TAGS);
-    }
-
-
-    public static synchronized void refreshImageDataSetTags() {
-        // Query all tags from the database
-        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
-        List<Object[]> rows = repo.listAllTags(DataResourceType.ImageDataSet.name());
-        refreshDataSetTags(rows, IMAGE_DATA_SET_TAGS);
-    }
 
     /**
      * Reload account list

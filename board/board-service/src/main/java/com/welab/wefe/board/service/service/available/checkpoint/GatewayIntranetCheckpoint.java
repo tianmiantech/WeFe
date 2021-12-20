@@ -17,16 +17,30 @@
 package com.welab.wefe.board.service.service.available.checkpoint;
 
 import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.enums.ServiceType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author zane
  */
+@Service
 public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
+
+    @Autowired
+    protected GlobalConfigService globalConfigService;
+
+    @Override
+    public ServiceType service() {
+        return ServiceType.GatewayService;
+    }
 
     @Override
     public String desc() {
-        return "检查 board 与 gateway 服务在内网的的连通性";
+        return "检查 board 与 gateway 服务在内网的连通性";
     }
 
     @Override

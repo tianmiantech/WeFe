@@ -226,7 +226,7 @@
 
                             const { data_set_id } = data.members[0];
                             const response = await $http.get({
-                                url:    'table_data_set/column/list',
+                                url:    '/table_data_set/column/list',
                                 params: {
                                     data_set_id,
                                 },

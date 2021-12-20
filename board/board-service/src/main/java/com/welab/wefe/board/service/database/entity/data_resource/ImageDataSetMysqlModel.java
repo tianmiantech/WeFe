@@ -15,8 +15,9 @@
  */
 package com.welab.wefe.board.service.database.entity.data_resource;
 
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DeepLearningJobType;
+
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,7 +54,7 @@ public class ImageDataSetMysqlModel extends DataResourceMysqlModel {
     private Long filesSize;
 
     public ImageDataSetMysqlModel() {
-        super.setResourceType(DataResourceType.ImageDataSet);
+        super.setDataResourceType(DataResourceType.ImageDataSet);
     }
 
     // region getter/setter

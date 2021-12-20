@@ -21,8 +21,8 @@ import com.welab.wefe.board.service.component.deep_learning.DeepLearningComponen
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.component.feature.*;
 import com.welab.wefe.board.service.component.modeling.*;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

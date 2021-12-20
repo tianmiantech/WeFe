@@ -40,10 +40,6 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectFlowStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
@@ -52,6 +48,10 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -551,7 +551,6 @@ public class ProjectService extends AbstractService {
                 if (project.getMyRole() != JobMemberRole.promoter) {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
-
                 dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataSetType());
             }
 
@@ -950,12 +949,12 @@ public class ProjectService extends AbstractService {
 
         }
 
-        for (ProjectDataSetMySqlModel TableDataSetMysqlModel : dataInfoOutput.getProjectDataSets()) {
+        for (ProjectDataSetMySqlModel item : dataInfoOutput.getProjectDataSets()) {
             // Filter derived data sets
-            if (TableDataSetMysqlModel.getSourceType() != null) {
+            if (item.getSourceType() != null) {
                 continue;
             }
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(TableDataSetMysqlModel.getProjectId(), TableDataSetMysqlModel.getDataSetId(), TableDataSetMysqlModel.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(item.getProjectId(), item.getDataSetId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSetService.update(projectDataSet, dataSet -> {
                     dataSet.setAuditStatus(projectDataSet.getAuditStatus());
@@ -963,8 +962,7 @@ public class ProjectService extends AbstractService {
                 });
 
             } else {
-
-                projectDataSetRepo.save(TableDataSetMysqlModel);
+                projectDataSetRepo.save(item);
             }
         }
         List<String> excludeFlowIds = new ArrayList<>();
@@ -980,7 +978,6 @@ public class ProjectService extends AbstractService {
             if (projectFlowService.findOne(projectFlowMySqlModel.getFlowId()) == null) {
                 projectFlowMySqlModel.setMyRole(project.getMyRole());
                 projectFlowMySqlModel.setFlowStatus(ProjectFlowStatus.editing);
-                // todo: put creator_member_id on next version
                 projectFlowMySqlModel.setCreatedBy("");
                 projectFlowRepository.save(projectFlowMySqlModel);
             }

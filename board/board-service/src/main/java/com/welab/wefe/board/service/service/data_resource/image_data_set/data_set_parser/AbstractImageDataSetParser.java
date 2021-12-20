@@ -21,11 +21,11 @@ import com.welab.wefe.board.service.database.entity.data_set.ImageDataSetSampleM
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.file.compression.impl.Zip;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

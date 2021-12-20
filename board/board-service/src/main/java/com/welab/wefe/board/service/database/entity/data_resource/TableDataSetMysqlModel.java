@@ -15,7 +15,8 @@
  */
 package com.welab.wefe.board.service.database.entity.data_resource;
 
-import com.welab.wefe.common.enums.DataResourceType;
+
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -75,7 +76,7 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
     private Double yPositiveSampleRatio;
 
     public TableDataSetMysqlModel() {
-        super.setResourceType(DataResourceType.TableDataSet);
+        super.setDataResourceType(DataResourceType.TableDataSet);
     }
 
     // region getter/setter

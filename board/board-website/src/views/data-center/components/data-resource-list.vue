@@ -65,7 +65,7 @@
         </el-table-column>
         <el-table-column
             label="资源类型"
-            prop="resource_type"
+            prop="data_resource_type"
             width="130"
             align="center"
         />
@@ -76,7 +76,7 @@
             align="center"
         >
             <template v-slot="scope">
-                <p v-if="scope.row.resource_type === 'ImageDataSet'">
+                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
                     {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>
                 <p v-else>-</p>
@@ -87,7 +87,7 @@
             width="140"
         >
             <template v-slot="scope">
-                <p v-if="scope.row.resource_type === 'TableDataSet'">
+                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     特征量：{{ scope.row.feature_count }}
                     <br>
                     样本量：{{ scope.row.row_count }}
@@ -111,7 +111,7 @@
             align="center"
         >
             <template v-slot="scope">
-                <p v-if="scope.row.resource_type === 'TableDataSet'">
+                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
                         <elicon-check />
                     </el-icon>
@@ -138,13 +138,13 @@
             label="操作"
             fixed="right"
             align="center"
-            min-width="160"
+            min-width="250"
         >
             <template v-slot="scope">
                 <router-link
                     :to="{
                         name: 'data-update',
-                        query: { id: scope.row.id, type: scope.row.resource_type === 'ImageDataSet' ? 'img' : 'csv' }
+                        query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }
                     }"
                 >
                     <el-button type="primary">
@@ -153,11 +153,22 @@
                 </router-link>
                 <el-button
                     type="danger"
-                    class="ml10"
+                    class="ml10 mr10"
                     @click="deleteData(scope.row)"
                 >
                     删除
                 </el-button>
+                <router-link
+                    v-if="scope.row.data_resource_type === 'ImageDataSet'"
+                    :to="{
+                        name: 'data-check-label',
+                        query: { id: scope.row.id, type: 'img' }
+                    }"
+                >
+                    <el-button plain>
+                        查看与标注
+                    </el-button>
+                </router-link>
             </template>
         </el-table-column>
     </el-table>
@@ -238,8 +249,8 @@
                         dangerouslyUseHTMLString: true,
                         message,
                     }).then(async () => {
-                        const url = row.resource_type === 'TableDataSet' ? '/table_data_set/delete' 
-                            : row.resource_type === 'ImageDataSet' ? '/image_data_set/delete' 
+                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete' 
+                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete' 
                                 : '/data_set/delete';
                         const { code } = await this.$http.post({
                             url,

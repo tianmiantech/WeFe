@@ -21,10 +21,10 @@ import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutp
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
 import com.welab.wefe.union.service.mapper.BloomFilterMapper;

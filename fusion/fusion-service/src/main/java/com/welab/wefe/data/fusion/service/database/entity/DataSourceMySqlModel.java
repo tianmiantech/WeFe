@@ -16,7 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
-import com.welab.wefe.common.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

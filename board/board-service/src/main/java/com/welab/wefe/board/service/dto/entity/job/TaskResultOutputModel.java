@@ -19,10 +19,10 @@ package com.welab.wefe.board.service.dto.entity.job;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 
 import java.util.Date;
 

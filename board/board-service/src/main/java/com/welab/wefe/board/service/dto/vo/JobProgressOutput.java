@@ -20,9 +20,10 @@ import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.JobStatus;
-import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobStatus;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
+
 
 /**
  * 任务执行进度

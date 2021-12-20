@@ -18,12 +18,12 @@ package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

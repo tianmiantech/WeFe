@@ -16,8 +16,9 @@
 
 package com.welab.wefe.board.service.dto.vo;
 
-import com.welab.wefe.common.enums.MemberService;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.MemberService;
 
 import java.util.List;
 

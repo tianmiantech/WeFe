@@ -17,7 +17,6 @@
 package com.welab.wefe.union.service.dto.dataresource.dataset.image;
 
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
-import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 
 /**
  * @author yuxin.zhang

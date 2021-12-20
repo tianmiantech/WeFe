@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import org.apache.log4j.Logger;
 
 import java.sql.*;

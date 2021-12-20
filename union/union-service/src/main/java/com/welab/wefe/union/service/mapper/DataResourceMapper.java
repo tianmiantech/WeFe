@@ -39,4 +39,5 @@ public interface DataResourceMapper {
     })
     DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
 
+
 }

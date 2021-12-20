@@ -16,7 +16,7 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
-import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 import javax.persistence.*;
 
@@ -65,7 +65,7 @@ public class BloomFilterMysqlModel extends DataResourceMysqlModel {
     private String sqlScript;
 
     public BloomFilterMysqlModel() {
-        super.setResourceType(DataResourceType.BloomFilter);
+        super.setDataResourceType(DataResourceType.BloomFilter);
     }
 
     // region getter/setter

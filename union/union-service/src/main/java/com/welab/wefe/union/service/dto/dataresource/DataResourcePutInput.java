@@ -1,7 +1,7 @@
 package com.welab.wefe.union.service.dto.dataresource;
 
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 
 public class DataResourcePutInput extends BaseInput {

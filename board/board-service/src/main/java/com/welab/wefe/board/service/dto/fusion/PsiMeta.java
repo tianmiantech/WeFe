@@ -17,23 +17,32 @@ package com.welab.wefe.board.service.dto.fusion;
  */
 
 
+import com.welab.wefe.common.util.Base64Util;
+import org.apache.commons.compress.utils.Lists;
+
+import java.util.List;
+
 /**
  * @author hunter.zhao
  */
 public class PsiMeta {
-    byte[][] bytes;
+    List<String> bs;
 
-    public byte[][] getBytes() {
-        return bytes;
+    public List<String> getBs() {
+        return bs;
     }
 
-    public void setBytes(byte[][] bytes) {
-        this.bytes = bytes;
+    public void setBs(List<String> bs) {
+        this.bs = bs;
     }
 
     public static PsiMeta of(byte[][] bs) {
         PsiMeta psiMeta = new PsiMeta();
-        psiMeta.bytes = bs;
+        List<String> bitStr = Lists.newArrayList();
+        for (int i = 0; i < bs.length; i++) {
+            bitStr.add(Base64Util.encode(bs[i]));
+        }
+        psiMeta.bs = bitStr;
         return psiMeta;
     }
 }

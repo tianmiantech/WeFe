@@ -1,274 +1,267 @@
 <template>
-    <div
-        class="form"
+    <el-form
+        ref="form"
+        :model="vData.form"
+        :disabled="disabled"
     >
-        <el-form
-            ref="form"
-            :model="vData.form"
-            :disabled="vData.disabled"
-        >
-            <el-collapse v-model="vData.activeNames">
-                <el-collapse-item title="VertNN参数设置" name="1">
-                    <el-form-item
-                        prop="epochs"
-                        label="最大迭代次数："
-                    >
-                        <el-input
-                            v-model="vData.form.epochs"
-                            placeholder="epochs"
-                            type="number"
-                        />
-                    </el-form-item>
-                    <el-form-item
-                        prop="interactive_layer_lr"
-                        label="交互层学习率："
-                    >
-                        <el-input
-                            v-model="vData.form.interactive_layer_lr"
-                            placeholder="interactive_layer_lr"
-                        />
-                    </el-form-item>
-                    <el-form-item
-                        prop="batch_size"
-                        label="批量大小："
+        <el-collapse v-model="vData.activeNames">
+            <el-collapse-item title="VertNN参数设置" name="1">
+                <el-form-item
+                    prop="epochs"
+                    label="最大迭代次数："
+                >
+                    <el-input
+                        v-model="vData.form.epochs"
+                        placeholder="epochs"
                         type="number"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="interactive_layer_lr"
+                    label="交互层学习率："
+                >
+                    <el-input
+                        v-model="vData.form.interactive_layer_lr"
+                        placeholder="interactive_layer_lr"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="batch_size"
+                    label="批量大小："
+                    type="number"
+                >
+                    <el-input
+                        v-model="vData.form.batch_size"
+                        placeholder="batch_size"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="learning_rate"
+                    label="学习率"
+                >
+                    <el-input
+                        v-model="vData.form.learning_rate"
+                        placeholder="learning_rate"
+                    />
+                </el-form-item>
+                <el-form-item prop="optimizer" label="优化算法：">
+                    <el-select
+                        v-model="vData.form.optimizer"
+                        clearable
                     >
-                        <el-input
-                            v-model="vData.form.batch_size"
-                            placeholder="batch_size"
+                        <el-option
+                            v-for="(model, index) in vData.optimizerList"
+                            :key="index"
+                            :label="model.text"
+                            :value="model.value"
                         />
-                    </el-form-item>
-                    <el-form-item
-                        prop="learning_rate"
-                        label="学习率"
+                    </el-select>
+                </el-form-item>
+                <el-form-item prop="loss" label="损失函数：">
+                    <el-select
+                        v-model="vData.form.loss"
+                        clearable
                     >
-                        <el-input
-                            v-model="vData.form.learning_rate"
-                            placeholder="learning_rate"
+                        <el-option
+                            v-for="(model, index) in vData.lossList"
+                            :key="index"
+                            :label="model.text"
+                            :value="model.value"
                         />
-                    </el-form-item>
-                    <el-form-item prop="optimizer" label="优化算法：">
-                        <el-select
-                            v-model="vData.form.optimizer"
-                            clearable
-                        >
-                            <el-option
-                                v-for="(model, index) in vData.optimizerList"
-                                :key="index"
-                                :label="model.text"
-                                :value="model.value"
-                            />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item prop="loss" label="损失函数：">
-                        <el-select
-                            v-model="vData.form.loss"
-                            clearable
-                        >
-                            <el-option
-                                v-for="(model, index) in vData.lossList"
-                                :key="index"
-                                :label="model.text"
-                                :value="model.value"
-                            />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="底层参数：">
-                        <p class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
-                        <template v-for="(item, idx) in vData.form.bottom_nn_define.layers" :key="item">
-                            <div class="single-box" :index="idx">
-                                <div class="single-left">
-                                    <div>
-                                        <label for="">类型：</label>
-                                        <el-select
-                                            v-model="item.class_name"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.classNameList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
-                                    <div v-if="idx === 0">
-                                        <label for="">输入维度：</label>
-                                        <el-input
-                                            v-model="item.config.input_shape[0]"
-                                            placeholder="input_shape"
-                                            disabled
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="底层参数：">
+                    <p v-if="!disabled" class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
+                    <template v-for="(item, idx) in vData.form.bottom_nn_define.layers" :key="item">
+                        <div class="single-box" :index="idx">
+                            <div class="single-left">
+                                <div>
+                                    <label for="">类型：</label>
+                                    <el-select
+                                        v-model="item.class_name"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.classNameList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
                                         />
-                                    </div>
-                                    <div>
-                                        <label for="">输出维度：</label>
-                                        <el-input
-                                            v-model="item.config.units"
-                                            placeholder="units"
-                                            type="number"
-                                            @change="methods.unitsChangeEvent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="">激活函数：</label>
-                                        <el-select
-                                            v-model="item.config.activation"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.activationList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
+                                    </el-select>
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('bottom_nn_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
-                            </div>
-                        </template>
-                    </el-form-item>
-                    <el-form-item label="中层参数：">
-                        <p hidden class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
-                        <template v-for="(item, idx) in vData.form.interactive_layer_define.layers" :key="item">
-                            <div class="single-box" :index="idx">
-                                <div class="single-left">
-                                    <div>
-                                        <label for="">类型：</label>
-                                        <el-select
-                                            v-model="item.class_name"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.classNameList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
-                                    <div v-if="idx === 0">
-                                        <label for="">输入维度：</label>
-                                        <el-input
-                                            v-model="item.config.input_shape[0]"
-                                            placeholder="input_shape"
-                                            disabled
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="">输出维度：</label>
-                                        <el-input
-                                            v-model="item.config.units"
-                                            placeholder="units"
-                                            type="number"
-                                            @change="methods.unitsChangeEvent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="">激活函数：</label>
-                                        <el-select
-                                            v-model="item.config.activation"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.activationList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
+                                <div v-if="idx === 0">
+                                    <label for="">输入维度：</label>
+                                    <el-input
+                                        v-model="item.config.input_shape[0]"
+                                        placeholder="input_shape"
+                                        disabled
+                                    />
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('interactive_layer_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
-                            </div>
-                        </template>
-                    </el-form-item>
-                    <el-form-item label="顶层参数：">
-                        <p class="add-one-group">
-                            <el-icon class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')">
-                                <elicon-plus />
-                            </el-icon>
-                        </p>
-                        <template v-for="(item, idx) in vData.form.top_nn_define.layers" :key="item">
-                            <div class="single-box" :index="idx">
-                                <div class="single-left">
-                                    <div>
-                                        <label for="">类型：</label>
-                                        <el-select
-                                            v-model="item.class_name"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.classNameList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
-                                    <div v-if="idx === 0">
-                                        <label for="">输入维度：</label>
-                                        <el-input
-                                            v-model="item.config.input_shape[0]"
-                                            placeholder="input_shape"
-                                            disabled
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="">输出维度：</label>
-                                        <el-input
-                                            v-model="item.config.units"
-                                            placeholder="units"
-                                            type="number"
-                                            @change="methods.unitsChangeEvent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="">激活函数：</label>
-                                        <el-select
-                                            v-model="item.config.activation"
-                                            clearable
-                                        >
-                                            <el-option
-                                                v-for="(model, index) in vData.activationList"
-                                                :key="index"
-                                                :label="model.text"
-                                                :value="model.value"
-                                            />
-                                        </el-select>
-                                    </div>
+                                <div>
+                                    <label for="">输出维度：</label>
+                                    <el-input
+                                        v-model="item.config.units"
+                                        placeholder="units"
+                                        type="number"
+                                        @change="methods.unitsChangeEvent"
+                                    />
                                 </div>
-                                <el-icon
-                                    v-if="idx !== 0" class="el-icon-delete"
-                                    @click="methods.deleteOneGroup('top_nn_define', idx)"
-                                >
-                                    <elicon-delete />
-                                </el-icon>
+                                <div>
+                                    <label for="">激活函数：</label>
+                                    <el-select
+                                        v-model="item.config.activation"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.activationList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
+                                        />
+                                    </el-select>
+                                </div>
                             </div>
-                        </template>
-                    </el-form-item>
-                </el-collapse-item>
-            </el-collapse>
-        </el-form>
-    </div>
+                            <el-icon v-if="!disabled && idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('bottom_nn_define', idx)">
+                                <elicon-delete />
+                            </el-icon>
+                        </div>
+                    </template>
+                </el-form-item>
+                <el-form-item label="中层参数：">
+                    <p hidden class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
+                    <template v-for="(item, idx) in vData.form.interactive_layer_define.layers" :key="item">
+                        <div class="single-box" :index="idx">
+                            <div class="single-left">
+                                <div>
+                                    <label for="">类型：</label>
+                                    <el-select
+                                        v-model="item.class_name"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.classNameList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
+                                        />
+                                    </el-select>
+                                </div>
+                                <div v-if="idx === 0">
+                                    <label for="">输入维度：</label>
+                                    <el-input
+                                        v-model="item.config.input_shape[0]"
+                                        placeholder="input_shape"
+                                        disabled
+                                    />
+                                </div>
+                                <div>
+                                    <label for="">输出维度：</label>
+                                    <el-input
+                                        v-model="item.config.units"
+                                        placeholder="units"
+                                        type="number"
+                                        @change="methods.unitsChangeEvent"
+                                    />
+                                </div>
+                                <div>
+                                    <label for="">激活函数：</label>
+                                    <el-select
+                                        v-model="item.config.activation"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.activationList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
+                                        />
+                                    </el-select>
+                                </div>
+                            </div>
+                            <el-icon
+                                v-if="idx !== 0" class="el-icon-delete"
+                                @click="methods.deleteOneGroup('interactive_layer_define', idx)"
+                            >
+                                <elicon-delete />
+                            </el-icon>
+                        </div>
+                    </template>
+                </el-form-item>
+                <el-form-item label="顶层参数：">
+                    <p class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
+                    <template v-for="(item, idx) in vData.form.top_nn_define.layers" :key="item">
+                        <div class="single-box" :index="idx">
+                            <div class="single-left">
+                                <div>
+                                    <label for="">类型：</label>
+                                    <el-select
+                                        v-model="item.class_name"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.classNameList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
+                                        />
+                                    </el-select>
+                                </div>
+                                <div v-if="idx === 0">
+                                    <label for="">输入维度：</label>
+                                    <el-input
+                                        v-model="item.config.input_shape[0]"
+                                        placeholder="input_shape"
+                                        disabled
+                                    />
+                                </div>
+                                <div>
+                                    <label for="">输出维度：</label>
+                                    <el-input
+                                        v-model="item.config.units"
+                                        placeholder="units"
+                                        type="number"
+                                        @change="methods.unitsChangeEvent"
+                                    />
+                                </div>
+                                <div>
+                                    <label for="">激活函数：</label>
+                                    <el-select
+                                        v-model="item.config.activation"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(model, index) in vData.activationList"
+                                            :key="index"
+                                            :label="model.text"
+                                            :value="model.value"
+                                        />
+                                    </el-select>
+                                </div>
+                            </div>
+                            <el-icon
+                                v-if="idx !== 0" class="el-icon-delete"
+                                @click="methods.deleteOneGroup('top_nn_define', idx)"
+                            >
+                                <elicon-delete />
+                            </el-icon>
+                        </div>
+                    </template>
+                </el-form-item>
+            </el-collapse-item>
+        </el-collapse>
+    </el-form>
 </template>
 
 <script>
@@ -312,7 +305,7 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        units:       20,
+                        units:       1,
                         input_shape: [],
                         activation:  'relu',
                     },
@@ -428,7 +421,7 @@
                     const json = {
                         class_name: 'Dense',
                         config:     {
-                            'units':      20,
+                            'units':      1,
                             'activation': 'relu',
                         },
                     };

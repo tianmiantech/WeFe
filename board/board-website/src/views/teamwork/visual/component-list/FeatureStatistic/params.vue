@@ -280,7 +280,7 @@
                     if (code === 0) {
                         const { params } = data;
 
-                        if(params.members) {
+                        if(params && params.members) {
                             const { featureMethods, members, workMode, form } = params;
 
                             vData.form = form;

@@ -29,11 +29,11 @@ import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 

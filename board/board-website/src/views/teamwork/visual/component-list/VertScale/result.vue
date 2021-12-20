@@ -27,7 +27,7 @@
     const mixin = resultMixin();
 
     export default {
-        name:       'VertFilter',
+        name:       'VertScale',
         components: {
             CommonResult,
         },

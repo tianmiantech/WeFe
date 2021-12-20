@@ -19,7 +19,7 @@ package com.welab.wefe.common.data.mongodb.dto.dataresource;
 import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
-import com.welab.wefe.common.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 /**
  * @author yuxin.zhang

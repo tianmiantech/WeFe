@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.actuator.CallbackApi;
+import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,7 @@ public class CallbackService {
      * rsa-callback
      */
     @Transactional(rollbackFor = Exception.class)
-    public void callback(CallbackApi.Input input) throws StatusCodeWithException {
+    public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
                 running(input.getBusinessId());
@@ -76,17 +75,6 @@ public class CallbackService {
                 fusionTaskRepository.save(task);
 
                 break;
-//            case falsify:
-//                //Alignment data check invalid, shut down task
-//                AbstractActuator job = ActuatorManager.get(input.getBusinessId());
-//                job.finish();
-//                break;
-//            case success:
-//                //Mission completed. Destroy task
-//                AbstractActuator successTask = ActuatorManager.get(input.getBusinessId());
-//                successTask.finish();
-
-//                break;
             default:
                 throw new RuntimeException("Unexpected enumeration：" + input.getAuditStatus());
         }
@@ -146,7 +134,7 @@ public class CallbackService {
             throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
         }
 
-        task.setStatus(FusionTaskStatus.Ready);
+        task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
         fusionTaskRepository.save(task);
 

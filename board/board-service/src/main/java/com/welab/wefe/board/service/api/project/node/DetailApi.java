@@ -20,7 +20,6 @@ import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.service.ProjectFlowNodeService;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -29,6 +28,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

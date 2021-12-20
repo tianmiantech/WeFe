@@ -16,8 +16,8 @@
 package com.welab.wefe.board.service.dto.globalconfig;
 
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.common.enums.JobBackendType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 
 /**
  * 计算引擎相关配置

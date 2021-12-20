@@ -1,28 +1,28 @@
 <template>
-    <div
+    <el-form
         v-loading="vData.loading"
-        :disabled="disabled"
+        class="flex-form"
     >
-        <el-form class="flex-form">
-            <el-form-item label="案例:">
-                <p class="f12"><span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
-            </el-form-item>
-            <el-form-item label="含义:">
-                <p class="f12">其中 <span class="color-danger">x1, x3, x5</span> 为特征名称, 满足 x1>2 <span class="strong">并且</span> x1&lt;50 <span class="strong">并且</span> x3 = 100 <span class="strong">并且</span> x5!=30 的数据样本保留，其他的样本将被删除</p>
-            </el-form-item>
-            <el-form-item label="支持的操作符:">
-                <p class="f12">>, &lt;, >=, &lt;=, =, !=</p>
-            </el-form-item>
-            <el-form-item label="支持的运算符:">
-                <p class="f12">&</p>
-            </el-form-item>
-            <el-form-item label="注意:">
-                <p class="f12 color-danger">对于同一个特征的操作符 >, &lt; 和 !=, = 不能同时存在</p>
-            </el-form-item>
-        </el-form>
+        <el-form-item label="案例:">
+            <p class="f12"><span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
+        </el-form-item>
+        <el-form-item label="含义:">
+            <p class="f12">其中 <span class="color-danger">x1, x3, x5</span> 为特征名称, 满足 x1>2 <span class="strong">并且</span> x1&lt;50 <span class="strong">并且</span> x3 = 100 <span class="strong">并且</span> x5!=30 的数据样本保留，其他的样本将被删除</p>
+        </el-form-item>
+        <el-form-item label="支持的操作符:">
+            <p class="f12">>, &lt;, >=, &lt;=, =, !=</p>
+        </el-form-item>
+        <el-form-item label="支持的运算符:">
+            <p class="f12">&</p>
+        </el-form-item>
+        <el-form-item label="注意:">
+            <p class="f12 color-danger">对于同一个特征的操作符 >, &lt; 和 !=, = 不能同时存在</p>
+        </el-form-item>
+
         <el-form
             v-for="member in vData.members"
             :key="`${member.member_id}-${member.member_role}`"
+            :disabled="disabled"
             class="flex-form li"
             label-width="80px"
             :model="member"
@@ -66,7 +66,7 @@
                 />
             </el-form-item>
         </el-form>
-    </div>
+    </el-form>
 </template>
 
 <script>
@@ -75,13 +75,16 @@
     export default {
         name:  'VertFilter',
         props: {
-            projectId:    String,
-            flowId:       String,
-            disabled:     Boolean,
-            learningType: String,
-            currentObj:   Object,
-            jobId:        String,
-            class:        String,
+            isCreator:          Boolean,
+            ootModelFlowNodeId: String,
+            ootJobId:           String,
+            projectId:          String,
+            flowId:             String,
+            disabled:           Boolean,
+            learningType:       String,
+            currentObj:         Object,
+            jobId:              String,
+            class:              String,
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
@@ -166,14 +169,28 @@
                 },
 
                 checkParams() {
-                    const members = vData.members.map(member => {
-                        return {
+                    const members = [];
+
+                    for(const i in vData.members) {
+                        const member = vData.members[i];
+
+                        if(!member.filter_rules) {
+                            $alert('警告:', {
+                                type:                     'warning',
+                                title:                    '警告:',
+                                message:                  '<div class="color-danger">过滤规则必填!</div>',
+                                dangerouslyUseHTMLString: true,
+                            });
+                            return false;
+                        }
+
+                        members.push({
                             member_id:    member.member_id,
                             member_role:  member.member_role,
                             member_name:  member.member_name,
                             filter_rules: member.filter_rules,
-                        };
-                    });
+                        });
+                    }
 
                     return {
                         params: {
