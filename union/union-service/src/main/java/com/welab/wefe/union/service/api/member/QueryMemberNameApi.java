@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/name/query", name = "member_name_query", rsaVerify = true, login = false)
+@Api(path = "member/map", name = "member_map", rsaVerify = true, login = false)
 public class QueryMemberNameApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
     protected MemberMongoReop memberMongoReop;
@@ -41,9 +41,9 @@ public class QueryMemberNameApi extends AbstractApi<BaseInput, JObject> {
     private static JObject apply(Member member) {
         return JObject.create()
                 .put("name", member.getName())
-                .put("hidden", member.getName())
-                .put("freezed", member.getName())
-                .put("lostContact", member.getName());
+                .put("hidden", Integer.parseInt(member.getHidden()))
+                .put("freezed", Integer.parseInt(member.getFreezed()))
+                .put("lostContact", Integer.parseInt(member.getLostContact()));
     }
 
     @Override
