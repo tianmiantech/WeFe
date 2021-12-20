@@ -15,9 +15,10 @@
  */
 package com.welab.wefe.board.service.component.base.dto;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author zane

@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.service.available.checkpoint;
 
 import com.welab.wefe.board.service.service.GatewayService;
-import com.welab.wefe.common.enums.ServiceType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.stereotype.Service;
 
 /**

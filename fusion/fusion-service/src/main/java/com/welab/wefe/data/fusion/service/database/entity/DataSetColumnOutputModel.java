@@ -16,8 +16,8 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
-import com.welab.wefe.common.enums.ColumnDataType;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
+import com.welab.wefe.common.wefe.enums.ColumnDataType;
 
 import java.util.Map;
 

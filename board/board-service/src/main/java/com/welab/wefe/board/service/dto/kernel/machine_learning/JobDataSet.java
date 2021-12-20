@@ -16,8 +16,9 @@
 
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
+
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.List;
 

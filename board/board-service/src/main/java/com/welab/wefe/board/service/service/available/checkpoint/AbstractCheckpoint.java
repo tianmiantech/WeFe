@@ -21,7 +21,7 @@ import com.welab.wefe.board.service.dto.vo.ServerCheckPointOutput;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.ServiceType;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

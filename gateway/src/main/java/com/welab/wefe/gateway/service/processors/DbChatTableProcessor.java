@@ -16,7 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
-import com.welab.wefe.common.enums.ProducerType;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;

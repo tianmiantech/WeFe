@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.database.entity.flow;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

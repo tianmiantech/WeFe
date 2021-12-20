@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.MessageLevel;
-import com.welab.wefe.common.enums.ProducerType;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

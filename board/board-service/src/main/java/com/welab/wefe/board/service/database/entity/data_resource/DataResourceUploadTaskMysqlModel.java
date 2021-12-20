@@ -16,8 +16,8 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataResourceUploadStatus;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceUploadStatus;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

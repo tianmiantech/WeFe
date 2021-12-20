@@ -26,11 +26,11 @@ import com.welab.wefe.board.service.proto.meta.basic.BasicMetaProto;
 import com.welab.wefe.board.service.proto.meta.basic.GatewayMetaProto;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.GatewayActionType;
-import com.welab.wefe.common.enums.GatewayProcessorType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +95,7 @@ public class BaseGatewayService extends AbstractService {
      * @param dstMemberName The member_name of the target member
      * @param action        action of the message
      * @param data          data of the message
-     * @param processorType enum, see:{@link com.welab.wefe.common.enums.GatewayProcessorType}
+     * @param processorType enum, see:{@link com.welab.wefe.common.wefe.enums.GatewayProcessorType}
      */
     private ApiResult<JSONObject> sendMessage(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
 

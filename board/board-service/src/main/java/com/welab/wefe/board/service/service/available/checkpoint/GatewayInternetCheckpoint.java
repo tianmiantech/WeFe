@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service.available.checkpoint;
 
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.common.enums.ServiceType;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.stereotype.Service;
 
 /**

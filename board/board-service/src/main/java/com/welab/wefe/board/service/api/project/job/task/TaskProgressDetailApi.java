@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.api.project.job.task;
 import com.welab.wefe.board.service.database.entity.job.TaskProgressMysqlModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskProgressOuputModel;
 import com.welab.wefe.board.service.service.TaskProgressService;
-import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,6 +26,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

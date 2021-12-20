@@ -16,7 +16,7 @@
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
 import com.welab.wefe.board.service.dto.kernel.Member;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.List;
 
