@@ -15,8 +15,9 @@
  */
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
-import com.welab.wefe.common.enums.DeepLearningJobType;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
 /**
  * @author zane

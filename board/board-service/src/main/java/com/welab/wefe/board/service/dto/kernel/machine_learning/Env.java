@@ -17,8 +17,9 @@
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.enums.JobBackendType;
-import com.welab.wefe.common.enums.env.EnvName;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
+import com.welab.wefe.common.wefe.enums.env.EnvName;
+
 
 /**
  * @author zane.luo

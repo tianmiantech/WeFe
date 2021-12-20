@@ -19,7 +19,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
-import com.welab.wefe.common.enums.DeepLearningJobType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**

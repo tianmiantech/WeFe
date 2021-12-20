@@ -16,9 +16,9 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataResourceUploadStatus;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceUploadStatus;
 
 /**
  * @author zane

@@ -20,8 +20,8 @@ import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.Storage;
 import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.enums.ServiceType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 

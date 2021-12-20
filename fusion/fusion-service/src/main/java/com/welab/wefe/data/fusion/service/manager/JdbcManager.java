@@ -17,11 +17,10 @@
 package com.welab.wefe.data.fusion.service.manager;
 
 import com.alibaba.fastjson.JSONObject;
-//import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import org.apache.log4j.Logger;
 
 import java.sql.*;

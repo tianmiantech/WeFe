@@ -17,10 +17,10 @@
 package com.welab.wefe.board.service.database.entity.job;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

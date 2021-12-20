@@ -16,8 +16,8 @@
 
 package com.welab.wefe.union.service.dto.dataresource.dataset.table;
 
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 /**
  * @author Jervis

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

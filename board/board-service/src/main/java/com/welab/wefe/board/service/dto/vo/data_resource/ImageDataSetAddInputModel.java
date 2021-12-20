@@ -18,10 +18,10 @@ package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DeepLearningJobType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
 import java.io.File;
 
