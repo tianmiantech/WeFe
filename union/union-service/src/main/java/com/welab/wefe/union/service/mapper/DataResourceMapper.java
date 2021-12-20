@@ -39,14 +39,4 @@ public interface DataResourceMapper {
     })
     DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
 
-
-    @Mappings({
-            @Mapping(target = "imageDataSet", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getImageDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
-            @Mapping(target = "tableDataSet", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getTableDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
-            @Mapping(target = "bloomFilter", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getBloomFilter()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
-            @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-            @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-    })
-    ApiDataResourceQueryOutput transferDetail(DataResourceQueryOutput entity);
-
 }

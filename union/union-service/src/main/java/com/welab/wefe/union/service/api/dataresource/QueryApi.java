@@ -28,6 +28,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
 import com.welab.wefe.union.service.mapper.BloomFilterMapper;
+import com.welab.wefe.union.service.mapper.DataResourceMapper;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
@@ -52,16 +53,17 @@ public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
     protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
     protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
+    protected DataResourceMapper dataResourceMapper = Mappers.getMapper(DataResourceMapper.class);
 
     @Override
     protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
         PageOutput<DataResourceQueryOutput> pageOutput = null;
         if (null == input.getDataResourceType() || DataResourceType.BloomFilter.compareTo(input.getDataResourceType()) == 0) {
-            pageOutput = dataResourceMongoReop.findCurMemberCanSee(bloomFilterMapper.transferInput(input));
+            pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         } else if (DataResourceType.ImageDataSet.compareTo(input.getDataResourceType()) == 0) {
-            pageOutput = imageDataSetMongoReop.findCurMemberCanSee(imageDataSetMapper.transferInput(input));
+            pageOutput = imageDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         } else if (DataResourceType.TableDataSet.compareTo(input.getDataResourceType()) == 0) {
-            pageOutput = tableDataSetMongoReop.findCurMemberCanSee(tableDataSetMapper.transferInput(input));
+            pageOutput = tableDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         }
 
         List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()

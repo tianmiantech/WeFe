@@ -28,6 +28,7 @@ public class DataResourceQueryOutput {
     private String dataResourceId;
     private String memberId;
     private String name;
+    private String memberName;
     private String description;
     private String tags;
     private String totalDataCount;
@@ -195,5 +196,14 @@ public class DataResourceQueryOutput {
 
     public void setUpdatedTime(String updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 }

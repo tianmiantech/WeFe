@@ -140,4 +140,7 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
     public void setMemberName(String memberName) {
         this.memberName = memberName;
     }
+
+
+
 }
