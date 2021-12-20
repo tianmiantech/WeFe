@@ -67,7 +67,6 @@
                 }],
             });
             const timeChange = (value) => {
-                console.log(value);
                 context.emit('change', value);
             };
 

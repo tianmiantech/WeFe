@@ -12,11 +12,13 @@
             v-loading="vData.loading"
             class="flexbox"
         >
-            <i
+            <el-icon
                 title="切换全屏"
                 class="el-icon-full-screen f16"
                 @click="switchFullscreen"
-            />
+            >
+                <elicon-full-screen />
+            </el-icon>
 
             <div class="node-history">
                 <h4 class="text-c mb5">执行历史:</h4>

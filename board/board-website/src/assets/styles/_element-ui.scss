@@ -1,7 +1,5 @@
 @charset "UTF-8";
-$--font-path: '../fonts';
 @import './_variable.scss';
-@import "~element-plus/packages/theme-chalk/src/index";
 
 :root {
     --el-color-success  : #35c895;
@@ -11,7 +9,17 @@ $--font-path: '../fonts';
 }
 
 .color-danger{color: $--color-danger !important;}
-
+.el-input__suffix{
+    .el-input__suffix-inner{
+        align-items: center;
+    }
+}
+.el-message-box__status{
+    &.el-icon{
+        position: absolute;
+        top: 50%;
+    }
+}
 .el-header{
     --el-header-height: 80px !important;
     height: var(--el-header-height);
@@ -25,8 +33,12 @@ $--font-path: '../fonts';
     &.flex-form{
         .el-form-item{display: flex;}
     }
+    .el-range-editor.el-input__inner{display: flex;}
     .el-form-item{display: block;}
     .el-button{vertical-align:top;}
+}
+.el-date-editor{
+    .el-icon{line-height:2.3;}
 }
 #pane-result{
     .result{
@@ -66,5 +78,19 @@ $--font-path: '../fonts';
     .el-tabs__nav-next,
     .el-tabs__nav-prev{
         padding-top: 16px;
+        line-height: 1px;
     }
 }
+.el-upload-list{
+    .el-progress {top:0;}
+    .el-progress__text {
+        top: -17px;
+        max-width: 50px;
+        overflow: hidden;
+        white-space: nowrap;
+        word-break: break-all;
+        text-overflow: ellipsis;
+    }
+}
+.el-upload-list__item-thumbnail{object-fit: contain;}
+.el-badge.el-message__badge{position:absolute;}
