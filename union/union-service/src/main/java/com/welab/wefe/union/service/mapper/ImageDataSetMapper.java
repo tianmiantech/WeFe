@@ -17,12 +17,10 @@
 package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import org.mapstruct.Mapper;
@@ -45,11 +43,6 @@ public interface ImageDataSetMapper {
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
     ApiImageDataSetQueryOutput transferDetail(DataResourceQueryOutput entity);
-
-    @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
-    })
-    ImageDataSetQueryInput transferInput(ApiDataResourceQueryInput entity);
 
 
     @Mappings({

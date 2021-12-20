@@ -17,12 +17,10 @@
 package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.TableDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.table.PutApi;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiTableDataSetQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -53,11 +51,5 @@ public interface TableDataSetMapper {
 
 
     DataResource transferPutInputToDataResource(PutApi.Input input);
-
-
-    @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
-    })
-    TableDataSetQueryInput transferInput(ApiDataResourceQueryInput input);
 
 }

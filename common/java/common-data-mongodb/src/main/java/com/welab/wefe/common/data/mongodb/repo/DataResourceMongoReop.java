@@ -20,7 +20,6 @@ import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -154,11 +153,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-
     /**
      * Query the image data set visible to the current member
      */
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput imageDataSetQueryInput) {
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.IMAGE_DATASET).
                 localField("data_resource_id").
@@ -187,16 +185,16 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Criteria dataResouceCriteria = new QueryBuilder()
                 .append("enable", "1")
                 .notRemoved()
-                .like("name", imageDataSetQueryInput.getName())
-                .like("tags", imageDataSetQueryInput.getTag())
-                .append("member_id", imageDataSetQueryInput.getCurMemberId())
-                .append("data_resource_id", imageDataSetQueryInput.getDataResourceId())
+                .like("name", dataResourceQueryInput.getName())
+                .like("tags", dataResourceQueryInput.getTag())
+                .append("member_id", dataResourceQueryInput.getCurMemberId())
+                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
                 .getCriteria();
 
         Criteria or = new Criteria();
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
-                new QueryBuilder().like("public_member_list", imageDataSetQueryInput.getCurMemberId()).getCriteria()
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
         );
 
         dataResouceCriteria.andOperator(or);
@@ -204,7 +202,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getMemberName())
+                .like("name", dataResourceQueryInput.getMemberName())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
@@ -230,10 +228,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 unwindBloomFilter,
                 addFieldsOperation
         );
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataSetQueryOutput.class).getMappedResults().size();
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults().size();
 
-        SkipOperation skipOperation = Aggregation.skip((long) imageDataSetQueryInput.getPageIndex() * imageDataSetQueryInput.getPageSize());
-        LimitOperation limitOperation = Aggregation.limit(imageDataSetQueryInput.getPageSize());
+        SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
 
         aggregation = Aggregation.newAggregation(
                 dataResourceMatch,
@@ -252,7 +250,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
 
-        return new PageOutput<>(imageDataSetQueryInput.getPageIndex(), (long) total, imageDataSetQueryInput.getPageSize(), result);
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
     }
 
 }
