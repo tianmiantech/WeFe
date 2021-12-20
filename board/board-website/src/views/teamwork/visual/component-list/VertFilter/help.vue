@@ -1,11 +1,11 @@
 <template>
     <CommonHelp>
         <template #intro>
-            根据条件筛选样本。
+            样本筛选组件对数据按照过滤表达式进行筛选。
         </template>
 
         <template #params>
-            该组件会对成员的特征按照<span class="strong">指定过滤规则</span>进行筛选
+            编写数据集的过滤表达式, 对成员的特征按照<span class="strong">指定过滤规则</span>进行筛选
         </template>
 
         <template #desc>
@@ -29,10 +29,12 @@
         </template>
 
         <template #output>
-            数据集过滤报告
+            过滤完之后的数据集。
         </template>
 
-        <template #error-tip />
+        <template #error-tip>
+            过滤完数据集为空
+        </template>
     </CommonHelp>
 </template>
 
