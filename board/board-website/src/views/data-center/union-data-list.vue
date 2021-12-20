@@ -100,7 +100,11 @@
                         border
                     >
                         <el-table-column label="添加" width="60" v-slot="scope">
-                            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
+                            <el-icon
+                                title="快捷创建项目"
+                                class="el-icon-folder-add"
+                                @click="addDataSet($event, scope.row)"
+                            >
                                 <elicon-folder-add />
                             </el-icon>
                         </el-table-column>
@@ -317,9 +321,8 @@
                     const { code, data } = await $http.post({
                         url:  '/union/member/query',
                         data: {
-                            page_size:          100,
-                            name:               keyward,
-                            requestFromRefresh: true,
+                            page_size: 100,
+                            name:      keyward,
                         },
                     });
 
@@ -331,8 +334,7 @@
                     const res = await $http.post({
                         url:  '/union/member/query',
                         data: {
-                            id:                 member_id,
-                            requestFromRefresh: true,
+                            id: member_id,
                         },
                     });
 

@@ -26,6 +26,7 @@
         </el-table-column>
         <el-table-column label="上传样本总量" prop="total_row_count"></el-table-column>
         <el-table-column label="已处理样本量" prop="added_row_count"></el-table-column>
+        <el-table-column label="主键重复条数" prop="repeat_id_row_count"></el-table-column>
         <el-table-column
             label="上传者"
             prop="creator_nickname"

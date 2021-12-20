@@ -1112,12 +1112,12 @@
                 this.loading = false;
             },
 
-            async getAddTask(id) {
+            async getAddTask(id, opt = { requestFromRefresh: false }) {
                 const { code, data } = await this.$http.get({
                     url:    '/data_resource/upload_task/detail',
                     params: {
-                        data_resource_id:   id,
-                        requestFromRefresh: true,
+                        data_resource_id:       id,
+                        'request-from-refresh': opt.requestFromRefresh,
                     },
                 });
 

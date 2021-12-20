@@ -119,7 +119,7 @@
                                         min-width="180"
                                     >
                                         <template v-slot="scope">
-                                            <div style="max-height:400px;overflow: auto;">
+                                            <div v-if="Object.keys(scope.row.unique_count).length" style="max-height:400px;overflow: auto;">
                                                 <p
                                                     v-for="(value, key) in scope.row.unique_count"
                                                     :key="key"
@@ -127,6 +127,7 @@
                                                     {{ key }} : {{ value }}
                                                 </p>
                                             </div>
+                                            <template v-else>-</template>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
@@ -135,7 +136,7 @@
                                     >
                                         <template v-slot="scope">
                                             <PieChart
-                                                v-if="`${member.member_id}-${member.member_role}` === vData.tabName"
+                                                v-if="`${member.member_id}-${member.member_role}` === result.tabName"
                                                 :config="scope.row.distributionChart"
                                             />
                                         </template>
@@ -146,7 +147,7 @@
                                     >
                                         <template v-slot="scope">
                                             <LineChart
-                                                v-if="`${member.member_id}-${member.member_role}` === vData.tabName"
+                                                v-if="`${member.member_id}-${member.member_role}` === result.tabName"
                                                 :config="scope.row.percentileChart"
                                             />
                                         </template>

@@ -34,7 +34,6 @@
                         </el-form>
                     </div>
                     <div v-show="vData.active === 1" class="item enter_data">
-                        
                         <div class="data_select">
                             <h4>选择数据集</h4>
                             <div
@@ -171,7 +170,7 @@
                                         </div>
 
                                         <div class="float-right">
-                                            <p style="font-weight:bold;color:#FF4343;" class="text-r mb5">验证:</p>
+                                            <p style="font-weight:bold;" class="text-r color-danger mb5">验证:</p>
                                             <el-input-number
                                                 v-model="vData.dataCutForm.verification_ratio"
                                                 style="width:100px"
@@ -299,6 +298,7 @@
             const router = useRouter();
             const rawDataSetListRef = ref();
             const vData = reactive({
+                loading: false,
                 active:  0,
                 flow_id: route.query.flow_id,
                 form:    {
@@ -574,12 +574,7 @@
                     }
                 },
                 changeSteps(val) {
-                    console.log(val);
                     vData.active = val;
-                    // if (vData.active === 1 && !vData.member_list.length) {
-                    //     methods.getMemberList();
-                    //     methods.getNodeData();
-                    // }
                 },
                 async getMemberList() {
                     const { code, data } = await $http.get({
@@ -833,7 +828,7 @@
                     });
 
                     if(code === 0) {
-                        nextTick(_=> {
+                        nextTick(_ => {
                             if($event !== 'node-update') {
                                 $notify.success({
                                     offset:   -10,
@@ -877,7 +872,7 @@
             });
 
             watch(
-                () => vData.deepLearnParams.program, 
+                () => vData.deepLearnParams.program,
                 (newVal, oldVal) => {
                     if (newVal !== oldVal) {
                         if (newVal === 'paddle_clas') {
@@ -905,6 +900,7 @@
     width: 100%;
     min-height: calc(100vh - 180px);
     display: flex;
+    min-height: calc(100vh - 180px);
     justify-content: space-between;
     .left_content {
         // flex: 1;
@@ -971,6 +967,5 @@
             border-color: #5088fc;
         }
     }
-    
 }
 </style>

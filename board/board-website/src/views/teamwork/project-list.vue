@@ -59,9 +59,9 @@
                     </div>
                     <p
                         v-if="item.closed"
-                        class="f14 color-danger"
+                        class="project-closed f12 color-danger"
                     >
-                        该项目已由 {{ item.close_operator_nickname }} ({{ item.closed_by }}) 于 {{ dateFormat(item.closed_time) }} 关闭
+                        该项目已由 {{ item.close_operator_nickname }} 于 {{ dateFormat(item.closed_time) }} 关闭
                     </p>
                     <div
                         v-else-if="item.audit_status !== 'agree'"
@@ -77,7 +77,7 @@
                     </p>
                     <div
                         v-if="item.flow_status_statistics"
-                        class="flow-list"
+                        class="flow-list mt10"
                     >
                         <div class="flow-status">
                             <p class="status-num">{{ item.flow_status_statistics.editing }}</p>
@@ -133,6 +133,7 @@
                 status:     {
                     created:  '已创建',
                     auditing: '等待审核中',
+                    disagree: '已拒绝加入',
                     closed:   '已关闭',
                 },
                 watchRoute: false, // When there are multiple instances, multiple requests will be issued at the same time, set to false, let the parent component listen for routing changes
@@ -225,27 +226,6 @@
             .el-icon-delete{display: block;}
         }
         .project_type {
-            // position: absolute;
-            // top: -18px;
-            // right: 2px;
-            // z-index: 2;
-            // margin: 20px auto;
-            // height: 26px;
-            // width: 84px;
-            // font-size: 12px;
-            // background: #eee;
-            // padding-right: 4px;
-            // &::after {
-            //     content: '';
-            //     position: absolute;
-            //     border-top: 10px solid #eee;
-            //     border-left: 42px solid #eee;
-            //     border-right: 42px solid #eee;
-            //     border-bottom: 42px solid transparent;
-            //     top: 26px;
-            //     left: 0px;
-            // }
-
             position: absolute;
             top: 0;
             right: 0;
@@ -361,8 +341,8 @@
     }
     .parters{
         color:#333;
-        height: 55px;
         font-size: 13px;
+        max-height: 50px;
         overflow: hidden;
         white-space: nowrap;
         word-break: break-all;
@@ -371,15 +351,19 @@
     }
     .parters-icon{
         color: #3182bd;
-        top: -2px;
+        font-size: 14px;
+        vertical-align: top;
+        top:4px;
     }
     .parters-icon-promoter{
         color: #E89B00;
+        font-size: 16px;
+        top: 3px;
+        left:-1px;
         .parters-icon-star{
             font-size: 18px;
             position: relative;
-            left: -2px;
-            top:-2px;
+            top: -1px;
         }
     }
     .parters-item{
@@ -389,6 +373,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         -webkit-box-orient: vertical;
+    }
+    .project-closed{
+        line-height: 18px;
     }
     .data-status{flex:1;
         text-align: center;
