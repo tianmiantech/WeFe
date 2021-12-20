@@ -32,13 +32,13 @@ import java.io.IOException;
  * @date 2021/12/17
  */
 @Api(path = "union/data_resource/query", name = "query data resource from union service")
-public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, JSONObject> {
+public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, Object> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<Object> handle(Input input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.request(
                 "data_resource/query",
                 input.rawRequestParams
