@@ -56,32 +56,30 @@
                 </el-select>
             </el-form-item>
 
-            <div class="form-inline">
-                <el-form-item
-                    prop="query_params"
-                    label="参数名称"
-                >
-                    <el-input
-                        v-model="form.query_params"
-                        size="medium"
-                    />
-                </el-form-item>
-            </div>
+            <el-form-item
+                prop="query_params"
+                label="参数名称"
+            >
+                <el-input
+                    v-model="form.query_params"
+                    size="medium"
+                />
+            </el-form-item>
 
 
-            <div class="form-inline">
-                <el-form-item
-                    prop="data_source"
-                    label="数据源"
-                >
-                    <el-input
-                        type="textarea"
-                        resize="both"
-                        v-model="form.data_source"
-                        size="medium"
-                    />
-                </el-form-item>
-            </div>
+            <el-form-item
+                prop="data_source"
+                style="max-width:500px"
+                label="数据源"
+            >
+                <el-input
+                    type="textarea"
+                    resize="both"
+                    rows="10"
+                    v-model="form.data_source"
+                    size="medium"
+                />
+            </el-form-item>
 
             <div class="form-inline">
                 <el-form-item
@@ -90,20 +88,21 @@
                 >
                     <el-input
                         type="textarea"
-                        resize="both"
+                        rows="7"
                         v-model="form.params"
                         size="medium"
                     />
                 </el-form-item>
-            </div>
-
-            <el-button
+                <el-button
                     :loading="testLoading"
                     size="small"
                     @click="testConnection"
                 >
-                    测试连接
-            </el-button>
+                    SQL测试
+                </el-button>
+            </div>
+
+            
 
             <el-button
                 class="save-btn mt20"
@@ -114,12 +113,25 @@
             >
                 保存
             </el-button>
+
+            <el-button
+                class="save-btn mt20"
+                type="primary"
+                size="medium"
+                @click="export_sdk()"
+            >
+                SDK导出
+            </el-button>
         </el-form>
     </el-card>
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     export default {
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
         data() {
             return {
                 loading:          false,
@@ -178,11 +190,20 @@
                 });
 
                 if (code === 0) {
-                    this.$message.success('保存成功!');
-                    this.$router.replace({ name: 'service-list', query: {} });
+                    this.$message.success(JSON.stringify(this.form));
+                    // this.$router.replace({ name: 'service-list', query: {} });
 
                 }
                 this.saveLoading = false;
+            },
+            async export_sdk(){
+                const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${this.currentItem.id}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
             },
             async testConnection() {
                 if (!this.form.query_params || !this.form.data_source || !this.form.params) {
