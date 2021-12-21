@@ -16,11 +16,11 @@
 
 package com.welab.wefe.board.service.api.server;
 
-import com.welab.wefe.board.service.service.available.ServerAvailableCheckService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,11 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AvailableApi extends AbstractNoneInputApi<ServerAvailableCheckOutput> {
 
     @Autowired
-    private ServerAvailableCheckService serverAvailableCheckService;
+    private CheckpointManager checkpointManager;
 
     @Override
     protected ApiResult<ServerAvailableCheckOutput> handle() throws StatusCodeWithException {
-        ServerAvailableCheckOutput output = serverAvailableCheckService.check();
+        ServerAvailableCheckOutput output = checkpointManager.checkAll();
         return success(output);
     }
 

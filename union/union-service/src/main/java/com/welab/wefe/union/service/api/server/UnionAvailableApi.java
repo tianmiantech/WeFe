@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.common;
+package com.welab.wefe.union.service.api.server;
 
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.NoneApiOutput;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Check service survivability
+ * Check service availability
  *
  * @author aaron.li
  **/
-@Api(path = "union/alive", name = "alive", rsaVerify = false, login = false)
-public class UnionAliveApi extends AbstractApi<UnionAliveApi.Input, NoneApiOutput> {
+@Api(path = "server/available", name = "available", rsaVerify = true, login = false)
+public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServerAvailableCheckOutput> {
+
+    @Autowired
+    private CheckpointManager checkpointManager;
 
     @Override
-    protected ApiResult<NoneApiOutput> handle(Input input) {
-        return success();
+    protected ApiResult<ServerAvailableCheckOutput> handle(Input input) {
+        ServerAvailableCheckOutput output = checkpointManager.checkAll();
+
+        return success(output);
     }
 
     public static class Input extends BaseInput {

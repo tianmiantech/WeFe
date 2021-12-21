@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
+package com.welab.wefe.board.service.service.checkpoint;
+
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.wefe.checkpoint.AbstractUnionConnectionCheckpoint;
-import com.welab.wefe.gateway.sdk.UnionHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @date 2021/12/20
  */
 @Service
-public class UnionCheckpoint extends AbstractUnionConnectionCheckpoint {
+public class UnionConnectionCheckpoint extends AbstractUnionConnectionCheckpoint {
+    @Autowired
+    protected Config config;
+
     @Override
-    protected String getConfigValue() {
-        return UnionHelper.BASE_URL;
+    public String getConfigValue() {
+        return config.getUNION_BASE_URL();
     }
 
 }

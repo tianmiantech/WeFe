@@ -13,45 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.service.processors.available.checkpoint;
+package com.welab.wefe.common.wefe.checkpoint;
 
-import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.wefe.enums.ServiceType;
-import com.welab.wefe.gateway.service.base.AbstractMemberService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @date 2021/12/20
+ * @date 2021/12/21
  */
-@Service
-public class MysqlCheckpoint extends AbstractCheckpoint {
-    @Autowired
-    private AbstractMemberService memberService;
-
+public abstract class AbstractUnionConnectionCheckpoint extends AbstractCheckpoint {
     @Override
     protected ServiceType service() {
-        return ServiceType.MysqlService;
+        return ServiceType.UnionService;
     }
 
     @Override
     protected String desc() {
-        return "检查 mysql 服务的可用性";
-    }
-
-    @Override
-    protected String getConfigValue() {
-        return null;
+        return "检查与 union 服务的连通性";
     }
 
     @Override
     protected String messageWhenConfigValueEmpty() {
-        return null;
+        return "union-service 服务地址为空，请在配置文件 config.properties 中对其进行配置。";
     }
 
     @Override
-    protected void doCheck(String value) throws Exception {
-        memberService.findSelf();
+    protected void doCheck(String configValue) throws Exception {
+        HttpResponse httpResponse = HttpRequest.create(configValue + "server/alive")
+                .closeLog()
+                .postJson();
+
+        if (httpResponse.getError() != null) {
+            throw httpResponse.getError();
+        }
     }
 }
