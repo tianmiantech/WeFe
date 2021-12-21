@@ -3,7 +3,7 @@
         :class="['member-card', { readonly: !edit }]"
         :style="{ width: size[0], height: size[1] }"
     >
-        <el-tooltip v-if="form && form.ext_json.real_name_auth_status === 2"  content="已通过企业认证" effect="light">
+        <el-tooltip v-if="form.ext_json && form.ext_json.real_name_auth_status === 2"  content="已通过企业认证" effect="light">
             <span class="certification">
                 <i class="iconfont icon-certification" title="已通过企业认证"></i>
                 已通过企业认证

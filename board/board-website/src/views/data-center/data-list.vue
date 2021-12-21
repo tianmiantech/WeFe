@@ -55,7 +55,7 @@
                     <el-option
                         v-for="(tag, index) in vData.tagList"
                         :key="index"
-                        :value="index"
+                        :value="tag.tag_name"
                     />
                 </el-select>
             </el-form-item>
@@ -227,11 +227,18 @@
             });
             const methods = {
                 async getTags() {
-                    const { code, data } = await $http.get('/table_data_set/all_tags');
+                    const { code, data } = await $http.post({
+                        url:  '/union/data_resource/tags/query',
+                        data: {
+                            dataResourceType: vData.search.dataResourceType,
+                        },
+                    });
 
-                    if (code === 0) {
-                        vData.tagList = data;
-                    }
+                    nextTick(_=> {
+                        if (code === 0) {
+                            vData.tagList = data;
+                        }
+                    });
                 },
 
                 // uploader account list

@@ -47,6 +47,55 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item
+                label="资源类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.dataResourceType"
+                    filterable
+                    clearable
+                    @change="resourceTypeChange"
+                >
+                    <el-option
+                        v-for="item in vData.sourceTypeList"
+                        :key="item.label"
+                        :value="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                label="是否包含Y值："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.containsY"
+                    filterable
+                    clearable
+                >
+                    <el-option label="是" :value="true"></el-option>
+                    <el-option label="否" :value="false"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="vData.search.dataResourceType === 'ImageDataSet'"
+                label="任务类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.forJobType"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="item in vData.forJobTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
 
             <el-button
                 type="primary"
@@ -57,7 +106,7 @@
             </el-button>
         </el-form>
 
-        <el-tabs
+        <!-- <el-tabs
             v-model="vData.activeTab"
             type="border-card"
             @tab-click="tabChange"
@@ -204,8 +253,16 @@
                     </div>
                 </el-tab-pane>
             </template>
-        </el-tabs>
+        </el-tabs> -->
 
+        <UnionDataResourceList
+            ref="UnionDataResourceListRef"
+            key="UnionDataResourceListRef"
+            :table-loading="vData.loading"
+            :search-field="vData.search"
+            @add-data-set="addDataSet"
+            @check-card="checkCard"
+        />
         <el-dialog
             title="名片预览"
             v-model="vData.dialogCard"
@@ -260,13 +317,13 @@
     import { useRouter } from 'vue-router';
     import table from '@src/mixins/table.js';
     import speedCart from './components/speed-cart';
-    import UnionImagesList from './components/union-images-list';
+    import UnionDataResourceList from './components/union-data-resource-list.vue';
 
     export default {
         mixins:     [table],
         components: {
             speedCart,
-            UnionImagesList,
+            UnionDataResourceList,
         },
         setup() {
             const { ctx, appContext } = getCurrentInstance();
@@ -274,47 +331,68 @@
             const memberCard = ref();
             const speedCart = ref();
             const router = useRouter();
-            const imageUnionsRef = ref();
+            const UnionDataResourceListRef = ref();
             const vData = reactive({
                 loading: true,
                 search:  {
-                    data_set_id: '',
-                    name:        '',
-                    member_id:   '',
-                    tag:         '',
+                    data_set_id:      '',
+                    name:             '',
+                    member_id:        '',
+                    tag:              '',
+                    dataResourceType: '',
+                    containsY:        '',
+                    forJobType:       '',
                 },
-                getListApi:     '/union/table_data_set/query',
+                getListApi:     '/union/data_resource/query',
                 member_list:    [],
                 tag_list:       [],
                 viewDataDialog: {
                     visible: false,
                     list:    [],
                 },
-                dialogCard:  false,
-                cardData:    {}, // Business card information
-                dataSetList: [], // dataset form Quick create project
-                balls:       [],
-                activeTab:   'allUnions',
-                unionTabs:   [
+                dialogCard:     false,
+                cardData:       {}, // Business card information
+                dataSetList:    [], // dataset form Quick create project
+                balls:          [],
+                sourceTypeList: [
                     {
-                        name:  'allUnions',
-                        label: '结构化数据',
-                        count: 0,
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
                     },
                     {
-                        name:  'imageUnions',
-                        label: '图像数据',
-                        count: 0,
+                        label: 'ImageDataSet',
+                        value: 'ImageDataSet',
+                    },
+                    {
+                        label: 'BloomFilter',
+                        value: 'BloomFilter',
+                    },
+                ],
+                forJobTypeList: [
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                    {
+                        label: '图像分类',
+                        value: 'classify',
                     },
                 ],
             });
             const methods = {
                 async loadTags() {
-                    const { code, data } = await $http.get('/union/table_data_set/tag/query');
+                    const { code, data } = await $http.post({
+                        url:  '/union/data_resource/tags/query',
+                        data: {
+                            dataResourceType: vData.search.dataResourceType,
+                        },
+                    });
 
-                    if (code === 0) {
-                        vData.tag_list = data.tag_list;
-                    }
+                    nextTick(_=> {
+                        if (code === 0) {
+                            vData.tag_list = data;
+                        }
+                    });
                 },
 
                 async loadMemberList(keyward) {
@@ -353,7 +431,8 @@
                 },
                 // add dataset to cart
                 addDataSet(ev, row) {
-                    const id = row.id ? row.id : row.data_set_id;
+                    console.log(row);
+                    const id = row.data_resource_id ? row.data_resource_id : row.id;
 
                     vData.balls.push({
                         id,
@@ -409,37 +488,19 @@
                     speedCart.value.addDataSet(item[0].item);
                 }
             };
-            const tabChange = (refInstance) => {
-                vData.search.data_set_id = '';
-                router.push({
-                    query: {
-                        ...vData.search,
-                        page_index:  1,
-                        source_type: refInstance.paneName,
-                    },
-                });
-                if (refInstance.paneName === 'allUnions') {
-                    vData.getListApi = '/union/table_data_set/query';
-                    ctx.getList();
-                } else {
-                    imageUnionsRef.value.search = vData.search;
-                    vData.getListApi = imageUnionsRef.value.vData.getListApi;
-                    imageUnionsRef.value.methods.getDataList();
-                }
-            };
             const searchList = (opt = {}) => {
-                if (vData.activeTab === 'imageUnions') {
-                    imageUnionsRef.value.search = vData.search;
-                    imageUnionsRef.value.methods.getDataList();
-                } else {
-                    ctx.getList();
-                }
+                UnionDataResourceListRef.value.search = vData.search;
+                UnionDataResourceListRef.value.methods.getDataList();
+            };
+            const resourceTypeChange = () => {
+                vData.search.containsY = '';
+                vData.search.forJobType = '';
             };
 
             onMounted(async () => {
                 await methods.loadTags();
                 await methods.loadMemberList();
-                ctx.getList();
+                UnionDataResourceListRef.value.methods.getDataList();
             });
 
             return {
@@ -451,9 +512,9 @@
                 ballBeforeEnter,
                 ballEnter,
                 ballAfterEnter,
-                tabChange,
-                imageUnionsRef,
+                UnionDataResourceListRef,
                 searchList,
+                resourceTypeChange,
             };
         },
     };

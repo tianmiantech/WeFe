@@ -19,14 +19,33 @@
                 </router-link>
             </div>
         </template>
-
+        <el-table-column label="添加" width="60" v-slot="scope">
+            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="methods.addDataSet($event, scope.row)">
+                <elicon-folder-add />
+            </el-icon>
+        </el-table-column>
+        <el-table-column
+            label="成员"
+            min-width="100"
+        >
+            <template v-slot="scope">
+                <span
+                    class="p-name"
+                    @click="methods.checkCard(scope.row.member_id)"
+                >
+                    <i class="iconfont icon-visiting-card" />
+                    {{ scope.row.member_name }}
+                </span>
+                <span class="p-id">{{ scope.row.member_id }}</span>
+            </template>
+        </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
-                <span class="p-id">{{ scope.row.id }}</span>
+                <span class="p-id">{{ scope.row.data_resource_id }}</span>
             </template>
         </el-table-column>
         <el-table-column label="关键词">
@@ -135,43 +154,6 @@
                 {{ dateFormat(scope.row.created_time) }}
             </template>
         </el-table-column>
-        <el-table-column
-            label="操作"
-            fixed="right"
-            align="center"
-            min-width="250"
-        >
-            <template v-slot="scope">
-                <router-link
-                    :to="{
-                        name: 'data-update',
-                        query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }
-                    }"
-                >
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
-                </router-link>
-                <el-button
-                    type="danger"
-                    class="ml10 mr10"
-                    @click="deleteData(scope.row)"
-                >
-                    删除
-                </el-button>
-                <router-link
-                    v-if="scope.row.data_resource_type === 'ImageDataSet'"
-                    :to="{
-                        name: 'data-check-label',
-                        query: { id: scope.row.id, type: 'img' }
-                    }"
-                >
-                    <el-button plain>
-                        查看与标注
-                    </el-button>
-                </router-link>
-            </template>
-        </el-table-column>
     </el-table>
 
     <div
@@ -192,6 +174,8 @@
 
 <script>
     import table from '@src/mixins/table';
+    import { reactive, getCurrentInstance } from 'vue';
+    import { useRoute } from 'vue-router';
 
     export default {
         mixins: [table],
@@ -203,70 +187,35 @@
                 default: _ => {},
             },
         },
-        data() {
-            return {
-                getListApi:    '/data_resource/query',
+        emits: ['add-data-set', 'check-card'],
+        setup(props, context) {
+            const { ctx } = getCurrentInstance();
+            const route = useRoute();
+            const vData = reactive({
+                getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
                 watchRoute:    false,
+            });
+            const methods = {
+                getDataList(opt) {
+                    ctx.search = props.searchField;
+                    ctx.getListApi = vData.getListApi;
+                    ctx.pagination.page_index =+route.query.page_index || 1;
+                    ctx.pagination.page_size =+route.query.page_size || 20;
+                    ctx.getList(opt);
+                },
+                addDataSet(ev, item) {
+                    context.emit('add-data-set', ev, item);
+                },
+                checkCard(id) {
+                    context.emit('check-card', id);
+                },
             };
-        },
-        methods: {
-            getDataList(opt) {
-                this.search = this.searchField;
-                this.pagination.page_index = +this.$route.query.page_index || 1;
-                this.pagination.page_size = +this.$route.query.page_size || 20;
-                this.getList(opt);
-            },
-            async deleteData(row) {
-                let message = '此操作将永久删除该条目, 是否继续?';
 
-                const res = await this.$http.get({
-                    url:    '/data_resource/usage_in_project_list',
-                    params: {
-                        dataSetId: row.id,
-                    },
-                });
-
-                if(res.code === 0) {
-                    if(res.data && res.data.length) {
-                        const list = res.data.map(row => {
-                            const path = this.$router.resolve({
-                                name:  'project-detail',
-                                query: {
-                                    project_id: row.project_id,
-                                },
-                            });
-
-                            return `<a href="${path.href}" target="_blank">${row.name}</a>`;
-                        });
-
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
-                    } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
-                    }
-
-                    this.$confirm('警告', {
-                        type:                     'warning',
-                        dangerouslyUseHTMLString: true,
-                        message,
-                    }).then(async () => {
-                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete' 
-                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete' 
-                                : '/data_set/delete';
-                        const { code } = await this.$http.post({
-                            url,
-                            data: {
-                                id: row.id,
-                            },
-                        });
-
-                        if (code === 0) {
-                            this.$message.success('删除成功!');
-                            this.getList({ resetPagination: true });
-                        }
-                    });
-                }
-            },
+            return {
+                vData,
+                methods,
+            };
         },
     };
 </script>
@@ -277,5 +226,17 @@
         height: 260px;
         line-height: 30px;
         padding:100px 0;
+    }
+    .el-icon-folder-add{
+        cursor: pointer;
+        font-size: 16px;
+        color: $color-link-base;
+    }
+    .p-name {
+        color: $color-link-base;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        i {padding-right: 5px;}
     }
 </style>

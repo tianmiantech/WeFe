@@ -198,12 +198,12 @@
                 const params = {
                     url:    '/project/derived_data_set/query',
                     params: {
-                        sourceType:    this.derived.name,
-                        project_id:    this.project_id,
-                        sourceJobId:   this.derived.sourceJobId,
-                        page_index:    this.derived.page_index - 1,
-                        page_size:     this.derived.page_size,
-                        data_set_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                        sourceType:         this.derived.name,
+                        project_id:         this.project_id,
+                        sourceJobId:        this.derived.sourceJobId,
+                        page_index:         this.derived.page_index - 1,
+                        page_size:          this.derived.page_size,
+                        data_resource_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                     },
                 };
 

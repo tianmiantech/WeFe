@@ -535,7 +535,7 @@
                         ref.searchField.member_id = vData.memberId;
                         ref.searchField.member_role = vData.memberRole;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
-                        ref.searchField.data_set_type = 'TableDataSet';
+                        ref.searchField.data_resource_type = 'TableDataSet';
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',
