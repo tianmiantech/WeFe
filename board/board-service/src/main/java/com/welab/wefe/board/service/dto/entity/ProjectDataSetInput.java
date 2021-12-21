@@ -65,11 +65,11 @@ public class ProjectDataSetInput extends AbstractCheckModel {
         this.dataSetId = dataSetId;
     }
 
-    public DataResourceType getDataSetType() {
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataSetType(DataResourceType dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 

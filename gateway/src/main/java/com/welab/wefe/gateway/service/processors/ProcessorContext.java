@@ -18,7 +18,6 @@ package com.welab.wefe.gateway.service.processors;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.ProcessorAnnotate;
 import com.welab.wefe.gateway.util.ClassUtil;
 
@@ -40,8 +39,7 @@ public class ProcessorContext {
     /**
      * get AbstractProcessor instance
      */
-    public static AbstractProcessor getProcessor(GatewayMetaProto.TransferMeta transferMeta) throws StatusCodeWithException {
-        String processorName = transferMeta.getProcessor();
+    public static AbstractProcessor getProcessor(String processorName) throws StatusCodeWithException {
         ProcessorAnnotate processorAnnotate = PROCESSOR_MAP.get(processorName);
         if (null == processorAnnotate) {
             StatusCode

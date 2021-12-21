@@ -20,6 +20,7 @@ import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
  * @author zane
  * @date 2021/12/20
  */
+@Service
 public class FileSystemCheckpoint extends AbstractCheckpoint {
 
     @Autowired
@@ -52,7 +54,7 @@ public class FileSystemCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         String sendDir = mConfigProperties.getSendTransferMetaPersistentTempDir();
         String recvDir = mConfigProperties.getRecvTransferMetaPersistentTempDir();
 

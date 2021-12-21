@@ -81,7 +81,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}data-center`,
         meta: {
-            title: '数据中心',
+            title: '资源中心',
             icon:  'coin',
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -91,7 +91,7 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '我的数据集',
+                    title:           '我的资源',
                 },
                 component: () => import('../views/data-center/data-list'),
             },
@@ -278,6 +278,59 @@ const baseRoutes = [
                     navigation: true,
                 },
                 component: () => import('../views/teamwork/job/compare'),
+            },
+            {
+                path: `${prefixPath}fusion-task`,
+                name: 'fusion-task',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '数据融合',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/fusion/fusion-task.vue'),
+            },
+            {
+                path: `${prefixPath}fusion-task-detail`,
+                name: 'fusion-task-detail',
+                meta: {
+                    loginAndRefresh: true,
+                    hidden:          true,
+                    title:           '数据融合详情',
+                    active:          `${prefixPath}fusion-task`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/fusion/fusion-task-detail.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}modeling-list`,
+        meta: {
+            title:  '模型列表',
+            hidden: true,
+        },
+        component: () => import('@comp/LayoutFullScreen.vue'),
+        children:  [
+            {
+                path: `${prefixPath}modeling-list`,
+                name: 'modeling-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '模型列表',
+                },
+                component: () => import('../views/teamwork/modeling-list.vue'),
             },
         ],
     },

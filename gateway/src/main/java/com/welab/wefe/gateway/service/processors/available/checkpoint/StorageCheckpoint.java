@@ -54,7 +54,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         String name = RandomStringUtils.randomAlphabetic(6);
         Storage storage = storageService.getStorage();
         storage.put(Constant.DBName.WEFE_DATA, name, new DataItemModel<>(name, "test"));

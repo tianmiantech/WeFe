@@ -44,7 +44,7 @@ public class UnionCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         HttpResponse httpResponse = HttpRequest.create(UnionHelper.BASE_URL + "union/alive")
                 .closeLog()
                 .postJson();

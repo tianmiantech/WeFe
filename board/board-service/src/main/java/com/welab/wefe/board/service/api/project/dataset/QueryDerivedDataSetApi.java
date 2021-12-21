@@ -73,11 +73,11 @@ public class QueryDerivedDataSetApi extends AbstractApi<QueryDerivedDataSetApi.I
             this.projectId = projectId;
         }
 
-        public DataResourceType getDataSetType() {
+        public DataResourceType getDataResourceType() {
             return dataResourceType;
         }
 
-        public void setDataSetType(DataResourceType dataResourceType) {
+        public void setDataResourceType(DataResourceType dataResourceType) {
             this.dataResourceType = dataResourceType;
         }
 

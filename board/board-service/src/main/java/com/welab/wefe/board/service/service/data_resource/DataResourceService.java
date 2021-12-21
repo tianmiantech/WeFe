@@ -281,8 +281,8 @@ public class DataResourceService extends AbstractDataResourceService {
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
-    public void delete(String dataResourceId, DataResourceType dataSetType) throws StatusCodeWithException {
-        switch (dataSetType) {
+    public void delete(String dataResourceId, DataResourceType dataResourceType) throws StatusCodeWithException {
+        switch (dataResourceType) {
             case ImageDataSet:
                 imageDataSetService.delete(dataResourceId);
                 break;

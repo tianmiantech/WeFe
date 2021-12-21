@@ -55,7 +55,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
 
         StorageService service = Launcher.getBean(StorageService.class);
         Storage storage = service.getStorage();

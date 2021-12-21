@@ -17,11 +17,9 @@
 package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.bloomfilter.PutApi;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.dto.dataresource.bloomfilter.ApiBloomFilterQueryOutput;
 import org.mapstruct.Mapper;
@@ -44,11 +42,6 @@ public interface BloomFilterMapper {
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
     ApiBloomFilterQueryOutput transferDetail(DataResourceQueryOutput entity);
-
-    @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
-    })
-    ImageDataSetQueryInput transferInput(ApiDataResourceQueryInput entity);
 
 
     DataResource transferPutInputToDataResource(PutApi.Input input);

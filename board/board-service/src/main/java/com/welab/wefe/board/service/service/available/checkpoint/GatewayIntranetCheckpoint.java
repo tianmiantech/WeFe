@@ -49,7 +49,7 @@ public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
         // Since the gateway does not currently have an alive interface,

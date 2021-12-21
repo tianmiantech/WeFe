@@ -50,7 +50,7 @@ public class MysqlCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         memberService.findSelf();
     }
 }

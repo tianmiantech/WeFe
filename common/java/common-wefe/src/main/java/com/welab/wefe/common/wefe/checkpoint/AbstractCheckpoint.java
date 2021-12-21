@@ -38,7 +38,7 @@ public abstract class AbstractCheckpoint {
 
     protected abstract String value();
 
-    protected abstract void doCheck() throws Exception;
+    protected abstract void doCheck(String value) throws Exception;
 
     public ServerCheckPointOutput check() {
         long start = System.currentTimeMillis();
@@ -53,14 +53,12 @@ public abstract class AbstractCheckpoint {
         String finalValue = value;
         Future<Exception> future = CommonThreadPool.submit(() -> {
             try {
-
-
                 if (finalValue == null) {
                     StatusCode
                             .PARAMETER_CAN_NOT_BE_EMPTY
                             .throwException("相关配置为空，请进行设置后再进行检查。");
                 }
-                doCheck();
+                doCheck(finalValue);
             } catch (Exception e) {
                 return e;
             }
