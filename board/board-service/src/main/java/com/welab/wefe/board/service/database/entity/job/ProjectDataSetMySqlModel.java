@@ -169,11 +169,11 @@ public class ProjectDataSetMySqlModel extends AbstractBaseMySqlModel {
         this.sourceTaskId = sourceTaskId;
     }
 
-    public DataResourceType getDataSetType() {
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataSetType(DataResourceType dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
 

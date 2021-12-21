@@ -94,7 +94,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
-                .equal("dataResourceType", input.getDataSetType())
+                .equal("dataResourceType", input.getDataResourceType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -208,9 +208,9 @@ public class ProjectDataSetService extends AbstractService {
                     try {
                         ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                         DataResourceOutputModel dataSet = null;
-                        if (x.getDataSetType() == DataResourceType.TableDataSet) {
+                        if (x.getDataResourceType() == DataResourceType.TableDataSet) {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        } else if (x.getDataSetType() == DataResourceType.ImageDataSet) {
+                        } else if (x.getDataResourceType() == DataResourceType.ImageDataSet) {
                             dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         }
                         projectDataSet.setDataSet(dataSet);

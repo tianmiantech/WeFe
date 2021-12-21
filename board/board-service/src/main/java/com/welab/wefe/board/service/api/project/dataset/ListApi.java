@@ -66,11 +66,11 @@ public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
         }
 
 
-        public DataResourceType getDataSetType() {
+        public DataResourceType getDataResourceType() {
             return dataResourceType;
         }
 
-        public void setDataSetType(DataResourceType dataResourceType) {
+        public void setDataResourceType(DataResourceType dataResourceType) {
             this.dataResourceType = dataResourceType;
         }
 
