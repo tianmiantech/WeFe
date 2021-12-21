@@ -274,6 +274,7 @@
                     // define API from parent
                     url = this.interfaceApi;
                 } else {
+                    // data_resource/query
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
                         url = 'data_resource/query';

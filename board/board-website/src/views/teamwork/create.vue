@@ -615,9 +615,9 @@
                 if(this.promoter.$data_set.length) {
                     this.promoter.$data_set.forEach(data => {
                         promoterDataSetList.push({
-                            member_role:   'promoter',
-                            member_id:     this.userInfo.member_id,
-                            data_set_id:   data.id,
+                            member_role:        'promoter',
+                            member_id:          this.userInfo.member_id,
+                            data_set_id:        data.id,
                             data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
@@ -632,9 +632,9 @@
 
                     item.$data_set.forEach(data => {
                         promoter.dataSetList.push({
-                            member_role:   'promoter',
-                            member_id:     item.member_id,    // promoter Id
-                            data_set_id:   data.id,
+                            member_role:        'promoter',
+                            member_id:          item.member_id,    // promoter Id
+                            data_set_id:        data.data_resource_id,
                             data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
@@ -650,9 +650,9 @@
 
                     item.$data_set.forEach(data => {
                         provider.dataSetList.push({
-                            member_role:   'provider',
-                            member_id:     item.member_id,    // provider Id
-                            data_set_id:   data.id,
+                            member_role:        'provider',
+                            member_id:          item.member_id,    // provider Id
+                            data_set_id:        data.data_resource_id,
                             data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
