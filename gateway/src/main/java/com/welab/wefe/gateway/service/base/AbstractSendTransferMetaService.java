@@ -72,11 +72,10 @@ public abstract class AbstractSendTransferMetaService {
 
         try {
             return doHandle(transferMeta);
-        } catch (StatusCodeWithException e) {
+        } catch (Exception e) {
 
             return ReturnStatusBuilder
-                    .create(
-                            e.getStatusCode().getCode(),
+                    .sysExc(
                             e.getMessage(),
                             transferMeta.getSessionId()
                     );

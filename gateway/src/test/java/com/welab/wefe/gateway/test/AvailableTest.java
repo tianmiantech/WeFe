@@ -27,9 +27,10 @@ public class AvailableTest {
         String response = Client.send(
                 "290007c2a71d470ba00f486b18875d31",
                 "local_test",
-                GatewayActionType.not_null,
+                GatewayActionType.refresh_system_config_cache,
                 "",
                 GatewayProcessorType.gatewayAvailableProcessor
         );
+        System.out.println(response);
     }
 }

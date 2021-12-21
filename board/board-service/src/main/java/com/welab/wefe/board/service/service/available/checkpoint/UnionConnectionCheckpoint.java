@@ -50,7 +50,7 @@ public class UnionConnectionCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         unionService.request("union/available", null);
     }
 }

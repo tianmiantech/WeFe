@@ -25,6 +25,7 @@ import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.sdk.BoardHelper;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
@@ -32,6 +33,7 @@ import java.util.HashMap;
  * @author zane
  * @date 2021/12/20
  */
+@Service
 public class BoardCheckpoint extends AbstractCheckpoint {
 
     @Autowired
@@ -44,7 +46,7 @@ public class BoardCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String desc() {
-        return null;
+        return "检查 gateway 与 board-service 服务的连通性";
     }
 
     @Override
@@ -58,17 +60,17 @@ public class BoardCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected void doCheck() throws Exception {
+    protected void doCheck(String value) throws Exception {
         MemberEntity selfMember = MemberCache.getInstance().getSelfMember();
-        String boardBaseUrl = selfMember.getBoardUri();
 
         JObject reqBody = JObject.create()
                 .append("callerMemberId", selfMember.getId())
+                .append("callerMemberName", selfMember.getName())
                 .append("api", "server/alive")
                 .append("data", JObject.create());
 
         HttpResponse httpResponse = BoardHelper.push(
-                boardBaseUrl + "/gateway/redirect",
+                value + "/gateway/redirect",
                 BoardHelper.POST,
                 new HashMap<>(0),
                 BoardHelper.generateReqParam(reqBody.toString())
