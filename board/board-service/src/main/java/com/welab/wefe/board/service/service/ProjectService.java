@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -197,7 +197,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
-                dataSet.setDataSetType(dataSetInput.getDataSetType());
+                dataSet.setDataResourceType(dataSetInput.getDataResourceType());
 
                 projectDataSetRepo.save(dataSet);
 
@@ -495,7 +495,7 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setMemberRole(item.getMemberRole());
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
-                projectDataSet.setDataSetType(item.getDataSetType());
+                projectDataSet.setDataResourceType(item.getDataResourceType());
             }
 
             projectDataSetRepo.save(projectDataSet);
@@ -551,7 +551,7 @@ public class ProjectService extends AbstractService {
                 if (project.getMyRole() != JobMemberRole.promoter) {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
-                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataSetType());
+                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataResourceType());
             }
 
         }
@@ -1064,7 +1064,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
-                        dataSet.setDataSetType(x.getDataSetType());
+                        dataSet.setDataResourceType(x.getDataResourceType());
                         projectDataSetRepo.save(dataSet);
                     });
 

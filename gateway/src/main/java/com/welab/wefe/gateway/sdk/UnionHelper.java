@@ -42,7 +42,7 @@ public class UnionHelper {
      */
     private static String QUERY_ALL_URL;
 
-    private static String BASE_URL;
+    public static String BASE_URL;
 
 
     static {
@@ -93,23 +93,6 @@ public class UnionHelper {
         } catch (Exception e) {
             LOG.error("Failed to query member information：", e);
             throw e;
-        }
-    }
-
-    /**
-     * Check union survivability
-     */
-    public static void checkAlive() throws Exception {
-        HttpResponse httpResponse = HttpRequest.create(BASE_URL + "union/alive")
-                .closeLog()
-                .postJson();
-        if (!httpResponse.success()) {
-            throw new Exception("union 响应失败，httpCode：" + httpResponse.getCode());
-        }
-        JObject bodyJson = JObject.create(httpResponse.getBodyAsString());
-        String code = bodyJson.getString("code");
-        if (!RESP_CODE_SUCCESS.equals(code)) {
-            throw new Exception("union 响应失败，code：" + code + ", message: " + bodyJson.getString("message"));
         }
     }
 

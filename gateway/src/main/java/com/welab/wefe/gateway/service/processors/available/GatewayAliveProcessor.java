@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.gateway.service.processors;
+package com.welab.wefe.gateway.service.processors.available;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
+import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 
 /**
  * Gateway survival processor
  *
  * @author aaron.li
  **/
-@Processor(name = "gatewayAliveProcessor", desc = "Gateway survival processor")
+@Processor(type = GatewayProcessorType.gatewayAliveProcessor, desc = "Gateway survival processor")
 public class GatewayAliveProcessor extends AbstractProcessor {
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
     }
 }

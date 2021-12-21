@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.service.processors;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -32,7 +33,7 @@ import com.welab.wefe.gateway.service.base.AbstractRecvTransferMetaCachePersiste
  *
  * @author aaron.li
  **/
-@Processor(name = "residentMemoryProcessor", desc = "Memory resident processor")
+@Processor(type = GatewayProcessorType.residentMemoryProcessor, desc = "Memory resident processor")
 public class ResidentMemoryProcessor extends AbstractProcessor {
 
     @Override

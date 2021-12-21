@@ -19,6 +19,7 @@ package com.welab.wefe.gateway.service.processors;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -37,7 +38,7 @@ import java.util.Map;
  *
  * @author aaron.li
  **/
-@Processor(name = "boardHttpProcessor", desc = "push to the board module message processor in HTTP mode")
+@Processor(type = GatewayProcessorType.boardHttpProcessor, desc = "push to the board module message processor in HTTP mode")
 public class BoardHttpProcessor extends AbstractProcessor {
 
     @Autowired

@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -28,11 +29,11 @@ import com.welab.wefe.gateway.entity.MemberEntity;
  *
  * @author aaron.li
  **/
-@Processor(name = "refreshMemberCacheProcessor", desc = "Refresh local member cache processor")
+@Processor(type = GatewayProcessorType.refreshMemberCacheProcessor, desc = "Refresh local member cache processor")
 public class RefreshMemberCacheProcessor extends AbstractProcessor {
 
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         MemberCache memberCache = MemberCache.getInstance();
         boolean ret = memberCache.refreshSelfMemberCache();
         if (!ret) {
