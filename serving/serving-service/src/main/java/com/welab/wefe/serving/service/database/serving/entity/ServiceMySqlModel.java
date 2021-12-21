@@ -50,16 +50,10 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	private String dataSource;// json
 
 	/**
-	 * 查询字段
-	 */
-	@Column(name = "condition_fields")
-	private String conditionFields;// json
-
-	/**
 	 * 是否在线 1在线 0离线
 	 */
 	@Column(name = "status")
-	private int status;
+	private int status = 0;
 
 	public String getName() {
 		return name;
@@ -99,14 +93,6 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	public void setDataSource(String dataSource) {
 		this.dataSource = dataSource;
-	}
-
-	public String getConditionFields() {
-		return conditionFields;
-	}
-
-	public void setConditionFields(String conditionFields) {
-		this.conditionFields = conditionFields;
 	}
 
 	public int getStatus() {

@@ -17,12 +17,11 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -30,60 +29,36 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "api", name = "api service", forward = true)
-public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
+@Api(path = "service/online", name = "online service")
+public class OnlineApi extends AbstractApi<OnlineApi.Input, OnlineApi.Output> {
 
 	@Autowired
-	private ServiceService service;
+	ServiceService serviceService;
 
 	@Override
 	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-		String uri = input.request.getRequestURI();
-		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-		return success(service.executeService(serviceUrl, input));
+		serviceService.onlineService(input.getId());
+		return success();
 	}
 
 	public static class Input extends AbstractApiInput {
-		private List<String> ids; // 这里的string是一个json字符串
 
-		public List<String> getIds() {
-			return ids;
+		@Check(name = "主键id")
+		private String id;
+
+		// region getter/setter
+
+		public String getId() {
+			return id;
 		}
 
-		public void setIds(List<String> ids) {
-			this.ids = ids;
+		public void setId(String id) {
+			this.id = id;
 		}
-
+		// endregion
 	}
 
 	public static class Output extends AbstractApiOutput {
-		private int code;
-		private String message;
-		private JObject result;
-
-		public int getCode() {
-			return code;
-		}
-
-		public void setCode(int code) {
-			this.code = code;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
-		public JObject getResult() {
-			return result;
-		}
-
-		public void setResult(JObject result) {
-			this.result = result;
-		}
 
 	}
 
