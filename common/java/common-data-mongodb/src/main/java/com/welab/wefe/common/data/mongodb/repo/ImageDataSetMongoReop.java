@@ -75,49 +75,6 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
-    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String curMemeberId) {
-        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
-                from(MongodbTable.Union.IMAGE_DATASET).
-                localField("data_resource_id").
-                foreignField("data_resource_id").
-                as("image_data_set");
-
-        LookupOperation lookupToMember = LookupOperation.newLookup().
-                from(MongodbTable.Union.MEMBER).
-                localField("member_id").
-                foreignField("member_id").
-                as("member");
-
-
-        Criteria dataResouceCriteria = new QueryBuilder()
-                .notRemoved()
-                .append("enable", "1")
-                .append("member_id", curMemeberId)
-                .append("data_resource_id", dataResourceId)
-                .getCriteria();
-
-
-        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
-
-        UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set");
-        Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.name");
-
-        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwind,
-                unwindImageDataSet,
-                addFieldsOperation,
-                dataResourceMatch
-        );
-
-        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
-        return result;
-    }
 
     /**
      * Query the image data set visible to the current member
