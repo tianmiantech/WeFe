@@ -55,17 +55,20 @@
                     />
                 </el-select>
             </el-form-item>
-
-            <el-form-item
-                prop="query_params"
-                label="参数名称"
+            查询参数配置：
+            <el-form-item  v-for="(item, index) in query_param_arr"
+                  :key="`query_param_arr-${index}`"
+                   label="参数名称"
+                   label-width="100px"
             >
-                <el-input
-                    v-model="form.query_params"
-                    size="medium"
-                />
+                <el-input v-model="item.key" />
+                <el-button type="primary" size="mini" @click="delete_params(index)">删除</el-button>
             </el-form-item>
 
+            <el-button
+                        type="primary"
+                        @click="add_params()"
+                    >新增参数</el-button>
 
             <el-form-item
                 prop="data_source"
@@ -82,27 +85,46 @@
             </el-form-item>
 
             <div class="form-inline">
-                <el-form-item
-                    prop="params"
-                    label="参数值"
-                >
-                    <el-input
-                        type="textarea"
-                        rows="7"
-                        v-model="form.params"
-                        size="medium"
-                    />
-                </el-form-item>
                 <el-button
                     :loading="testLoading"
                     size="small"
-                    @click="testConnection"
+                    @click="sql_test.editor=true"
                 >
                     SQL测试
                 </el-button>
             </div>
-
-            
+            <el-dialog
+                :visible.sync="sql_test.editor"
+                title="SQL测试"
+                width="500px"
+            >
+                <el-form>
+                    参数输入 : 
+                    <el-form-item  v-for="(item, index) in sql_test.params"
+                          :key="`params-${index}`"
+                           :label="item.key"
+                           label-width="100px"
+                    >
+                        <el-input v-model="item.value" />
+                    </el-form-item>
+                    返回字段 : 
+                    <el-form-item  v-for="(item, index) in sql_test.return_fields"
+                          :key="`return_fields-${index}`"
+                           :label="item.name"
+                           label-width="100px"
+                    >
+                        <el-input v-model="item.value" />
+                    </el-form-item>
+                    
+                </el-form>
+                <span slot="footer">
+                    <el-button @click="sql_test.editor=false">取消</el-button>
+                    <el-button
+                        type="primary"
+                        @click="testConnection()"
+                    >确定</el-button>
+                </span>
+            </el-dialog>
 
             <el-button
                 class="save-btn mt20"
@@ -151,6 +173,14 @@
                 currentItem: {},
                 testLoading: false,
                 saveLoading: false,
+                query_param_arr:[],
+                sql_test: {
+                    visible:    false,
+                    editor:     false,
+                    params:[],
+                    params_json:{},
+                    return_fields:[],
+                },
             };
         },
         created() {
@@ -172,16 +202,22 @@
                     if (data) {
                         const resData = data;
                         this.form = resData;
+                        this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x}});
+                        this.sql_test.return_fields = this.form.data_source[0].return_fields;
                         this.form.data_source = JSON.stringify(this.form.data_source);
                     }
                 }
             },
             async add(id = '') {
-                if (!this.form.name || !this.form.url || !this.form.service_type || !this.form.query_params) {
+                if (!this.form.name || !this.form.url || !this.form.service_type || !this.query_param_arr) {
                     this.$message.error('请将必填项填写完整！');
                     return;
                 }
-
+                let a = []
+                for(let j = 0; j < this.query_param_arr.length; j++) {
+                    a[j] = this.query_param_arr[j].key;
+                }
+                this.form.query_params = a.join();
                 this.saveLoading = true;
                 const { code } = await this.$http.post({
                     url:     id ? '/service/update' : '/service/add',
@@ -191,10 +227,15 @@
 
                 if (code === 0) {
                     this.$message.success(JSON.stringify(this.form));
-                    // this.$router.replace({ name: 'service-list', query: {} });
-
+                    this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x}});
                 }
                 this.saveLoading = false;
+            },
+            async add_params(){
+                this.query_param_arr.push({key:"",value:""})
+            },
+            async delete_params(index){
+                this.query_param_arr.splice(index, 1);
             },
             async export_sdk(){
                 const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${this.currentItem.id}&token=${this.userInfo.token}`;
@@ -206,20 +247,30 @@
                 link.click();
             },
             async testConnection() {
-                if (!this.form.query_params || !this.form.data_source || !this.form.params) {
+                if (!this.form.data_source || !this.sql_test.params) {
                     this.$message.error('请将必填项填写完整！');
                     return;
                 }
                 this.testLoading = true;
+                for(let j = 0; j < this.sql_test.params.length; j++) {
+                    this.sql_test.params_json[this.sql_test.params[j].key] = this.sql_test.params[j].value;
+                }
+                let sql_test_data = {
+                    params : this.sql_test.params_json,
+                    data_source:this.form.data_source,
+                }
                 const { code, data } = await this.$http.post({
                     url:     '/service/sql_test',
                     timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                    data:    sql_test_data,
 
                 });
 
                 if (code === 0) {
-                    this.$message.success(JSON.stringify(data.result));
+                    for(let j = 0; j < this.sql_test.return_fields.length; j++) {
+                        this.sql_test.return_fields[j].value = data.result[this.sql_test.return_fields[j].name];
+                    }
+                    this.$message.success('success');
                 }
                 this.testLoading = false;
             },
