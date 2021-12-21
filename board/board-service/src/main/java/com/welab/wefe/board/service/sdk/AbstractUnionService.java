@@ -246,11 +246,18 @@ public abstract class AbstractUnionService extends AbstractService {
         return errorMsg;
     }
 
+    public JSONObject request(String api) throws StatusCodeWithException {
+        return request(api, null, true);
+    }
+
     public JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
         return request(api, params, true);
     }
 
     protected JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+        if (params == null) {
+            params = new JSONObject();
+        }
         /**
          * Prevent the map from being out of order, causing the verification to fail.
          */

@@ -30,6 +30,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
@@ -215,8 +216,8 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshSystemConfigCache() {
         sendToMyselfGateway(
-                GatewayActionType.refresh_system_config_cache,
-                "refresh_system_config_cache",
+                GatewayActionType.none,
+                "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
     }
@@ -226,8 +227,8 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshMemberBlacklistCache() {
         sendToMyselfGateway(
-                GatewayActionType.refresh_system_config_cache,
-                "refresh_member_blacklist_cache",
+                GatewayActionType.none,
+                "",
                 GatewayProcessorType.refreshMemberBlacklistCacheProcessor
         );
     }
@@ -237,10 +238,19 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshIpWhiteListCache() {
         sendToMyselfGateway(
-                GatewayActionType.refresh_system_config_cache,
-                "refresh_ip_white_list_cache",
+                GatewayActionType.none,
+                "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
+    }
+
+    public ServerAvailableCheckOutput getLocalGatewayAvailable() {
+        ApiResult<?> result = sendToMyselfGateway(
+                GatewayActionType.none,
+                "",
+                GatewayProcessorType.gatewayAvailableProcessor
+        );
+        return JObject.create(result.getData()).toJavaObject(ServerAvailableCheckOutput.class);
     }
 
     /**

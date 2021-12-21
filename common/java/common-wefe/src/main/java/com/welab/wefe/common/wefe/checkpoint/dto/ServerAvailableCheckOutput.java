@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class ServerAvailableCheckOutput {
     public boolean available;
+    public String message;
     public List<ServerCheckPointOutput> list;
 
     public ServerAvailableCheckOutput() {
@@ -35,7 +36,10 @@ public class ServerAvailableCheckOutput {
         } else {
             this.available = list.stream().allMatch(x -> x.isSuccess());
         }
+    }
 
+    public ServerAvailableCheckOutput(String message) {
+        this.message = message;
     }
 
     /**
