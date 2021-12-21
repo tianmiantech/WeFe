@@ -1,3 +1,19 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.serving.service.utils;
 
 import java.io.File;
@@ -12,11 +28,6 @@ public class ZipUtils {
 
 	private static final int BUFFER_SIZE = 2 * 1024;
 
-	/**
-	 * @param srcFiles 需要压缩的文件列表
-	 * @param out      压缩文件输出流
-	 * @throws RuntimeException 压缩失败会抛出运行时异常
-	 */
 	public static void toZip(List<File> srcFiles, OutputStream out) throws RuntimeException {
 		long start = System.currentTimeMillis();
 		ZipOutputStream zos = null;
