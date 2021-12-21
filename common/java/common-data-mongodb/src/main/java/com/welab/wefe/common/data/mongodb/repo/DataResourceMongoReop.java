@@ -124,6 +124,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable", "1")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
@@ -183,8 +184,8 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 as("member");
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable", "1")
                 .notRemoved()
+                .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getCurMemberId())
@@ -202,7 +203,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataResourceQueryInput.getMemberName())
+                .like("member_name", dataResourceQueryInput.getMemberName())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);

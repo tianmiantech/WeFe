@@ -48,6 +48,7 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
         if (dataResource == null) {
             if (bloomFilter == null) {
                 bloomFilterContractService.add(new BloomFilter(input.getDataResourceId(), input.getHashFunction()));
+                dataResourceContractService.add(bloomFilterMapper.transferPutInputToDataResource(input));
             } else {
                 dataResourceContractService.add(bloomFilterMapper.transferPutInputToDataResource(input));
             }

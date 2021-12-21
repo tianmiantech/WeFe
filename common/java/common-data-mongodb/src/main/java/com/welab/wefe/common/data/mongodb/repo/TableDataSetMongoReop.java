@@ -96,6 +96,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable","1")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
@@ -142,12 +143,12 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable","1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getCurMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
-                .append("contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                 .getCriteria();
 
         Criteria or = new Criteria();
@@ -161,10 +162,15 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataResourceQueryInput.getMemberName())
+                .like("member_name", dataResourceQueryInput.getMemberName())
+                .getCriteria();
+
+        Criteria tableDataSetCriteria = new QueryBuilder()
+                .append("table_data_set.contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+        AggregationOperation tableDataSetMatch = Aggregation.match(tableDataSetCriteria);
         UnwindOperation unwindMember = Aggregation.unwind("member");
         UnwindOperation unwindTableDataSet = Aggregation.unwind("table_data_set");
         Map<String, Object> addfieldsMap = new HashMap<>();
@@ -175,6 +181,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         Aggregation aggregation = Aggregation.newAggregation(
                 dataResourceMatch,
                 memberMatch,
+                tableDataSetMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwindMember,
@@ -189,6 +196,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
         aggregation = Aggregation.newAggregation(
                 dataResourceMatch,
                 memberMatch,
+                tableDataSetMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwindMember,
