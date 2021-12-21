@@ -24,6 +24,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -110,11 +111,12 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
     public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String curMemeberId, String joinCollectionName) {
 
+        String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(joinCollectionName).
                 localField("data_resource_id").
                 foreignField("data_resource_id").
-                as(joinCollectionName);
+                as(joinCollectionNameAlias);
 
         LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
@@ -134,7 +136,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind(joinCollectionName);
+        UnwindOperation unwindExtraData = Aggregation.unwind(joinCollectionNameAlias);
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
