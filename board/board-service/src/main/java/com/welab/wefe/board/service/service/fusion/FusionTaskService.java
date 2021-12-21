@@ -114,7 +114,7 @@ public class FusionTaskService extends AbstractService {
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
-        //Add fieldinfo
+        //Add fieldInfo
         fieldInfoService.saveAll(businessId, input.getFieldInfoList());
 
         //Add tasks
@@ -243,7 +243,7 @@ public class FusionTaskService extends AbstractService {
 //            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
 //        }
 
-        //Add fieldinfo
+        //Add fieldInfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
         task.setStatus(FusionTaskStatus.Running);

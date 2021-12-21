@@ -92,12 +92,7 @@ public class ThirdPartyService {
         // request(url, "thirdparty/callback", params);
     }
 
-
     private JSONObject request(String dstMemberId, String api, JSONObject params) throws StatusCodeWithException {
-        return request(dstMemberId, api, params, true);
-    }
-
-    private JSONObject request(String dstMemberId, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */

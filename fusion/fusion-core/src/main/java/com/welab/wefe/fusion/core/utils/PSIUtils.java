@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -107,10 +107,9 @@ public class PSIUtils {
         return bytes;
     }
 
-    public static long receiveInteger(DataInputStream d_in) {
+    public static long receiveInteger(DataInputStream dIn) {
         try {
-            long size = d_in.readLong();
-            return size;
+            return dIn.readLong();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,9 +135,9 @@ public class PSIUtils {
     }
 
 
-    public static void sendInteger(DataOutputStream d_out, long integer) {
+    public static void sendInteger(DataOutputStream dOut, long integer) {
         try {
-            d_out.writeLong(integer);
+            dOut.writeLong(integer);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,17 +163,17 @@ public class PSIUtils {
         return "";
     }
 
-    public static void sendFile(DataOutputStream d_out, File file) {
+    public static void sendFile(DataOutputStream dOut, File file) {
         try {
-            FileInputStream f_in = new FileInputStream(file);
+            FileInputStream fIn = new FileInputStream(file);
 
             byte[] buffer = new byte[4096];
-            int read = 0;
-            while ((read = (f_in.read(buffer))) > 0) {
-                d_out.write(buffer, 0, read);
+            int read;
+            while ((read = (fIn.read(buffer))) > 0) {
+                dOut.write(buffer, 0, read);
             }
-            f_in.close();
-            d_out.flush();
+            fIn.close();
+            dOut.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -202,9 +201,7 @@ public class PSIUtils {
             block = in;
         }
 
-        BigInteger res = new BigInteger(1, block);
-
-        return res;
+        return new BigInteger(1, block);
     }
 
     public static byte[] bigIntegerToBytes(BigInteger input, boolean forEncryption) {

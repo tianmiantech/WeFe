@@ -185,6 +185,7 @@ public class BloomFilters<E> implements Serializable {
         if (this.bitSetSize != other.bitSetSize) {
             return false;
         }
+
         if (this.bitset != other.bitset
                 && (this.bitset == null || !this.bitset.equals(other.bitset))) {
             return false;
@@ -393,11 +394,11 @@ public class BloomFilters<E> implements Serializable {
 
 
     public void writeTo(OutputStream out) throws IOException {
-        DataOutputStream dout = new DataOutputStream(out);
-        dout.writeInt(bitSetSize);
-        dout.writeInt(expectedNumberOfFilterElements);
-        dout.writeInt(getBitSet().toByteArray().length);
-        dout.write(getBitSet().toByteArray());
+        DataOutputStream dOut = new DataOutputStream(out);
+        dOut.writeInt(bitSetSize);
+        dOut.writeInt(expectedNumberOfFilterElements);
+        dOut.writeInt(getBitSet().toByteArray().length);
+        dOut.write(getBitSet().toByteArray());
     }
 
     public static BloomFilters readFrom(InputStream in) throws IOException {

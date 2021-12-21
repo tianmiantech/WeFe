@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -341,6 +342,11 @@ public class LmdbStorage extends AbstractStorage {
     @Override
     public int getAddBatchSize(int columnCount) {
         return 10000;
+    }
+
+    @Override
+    public boolean isExists(String dbName, String tbName) throws SQLException {
+        return false;
     }
 
     private void close(Cursor<byte[]> cursor, Txn<byte[]> txn, Dbi<byte[]> dbi, Env<byte[]> env) {

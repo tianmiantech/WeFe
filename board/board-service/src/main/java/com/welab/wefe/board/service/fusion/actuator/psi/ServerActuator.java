@@ -24,7 +24,7 @@ import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiServerActuator;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
@@ -34,9 +34,9 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class ServerActuator extends PsiServerActuator {
-    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger N, BigInteger e, BigInteger d) {
-        super(businessId, bloomFilters, N, e, d);
+public class ServerActuator extends AbstractPsiServerActuator {
+    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d) {
+        super(businessId, bloomFilters, n, e, d);
     }
 
     @Override

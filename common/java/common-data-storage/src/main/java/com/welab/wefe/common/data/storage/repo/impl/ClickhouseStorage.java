@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,10 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -362,5 +359,26 @@ public class ClickhouseStorage extends AbstractStorage {
             close(rs, statement, conn);
         }
         return super.getCountByByteSize(dbName, tbName, byteSize);
+    }
+
+    @Override
+    public boolean isExists(String dbName, String tbName) throws SQLException {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = getConnection();
+            String sql = String.format("SELECT  count(*) from system.parts p  where active  and database = '%s' and table ='%s'", dbName, tbName);
+            statement = conn.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+            if(rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+            return false;
+//            System.out.println();
+        } finally {
+            close(statement, conn);
+        }
+//        return false;
     }
 }
