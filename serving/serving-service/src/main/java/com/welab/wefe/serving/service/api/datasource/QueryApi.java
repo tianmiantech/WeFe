@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.api.datasource;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.enums.DatabaseType;
@@ -59,6 +61,8 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 	public static class Output extends AbstractApiOutput {
 
+		private String id;
+
 		private String name;
 
 		private DatabaseType databaseType;
@@ -72,6 +76,18 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		private String userName;
 
 		private String password;
+
+		private Date updatedTime;
+
+		private Date createdTime;
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
 
 		public String getName() {
 			return name;
@@ -128,5 +144,22 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		public void setPassword(String password) {
 			this.password = password;
 		}
+
+		public Date getUpdatedTime() {
+			return updatedTime;
+		}
+
+		public void setUpdatedTime(Date updatedTime) {
+			this.updatedTime = updatedTime;
+		}
+
+		public Date getCreatedTime() {
+			return createdTime;
+		}
+
+		public void setCreatedTime(Date createdTime) {
+			this.createdTime = createdTime;
+		}
+
 	}
 }

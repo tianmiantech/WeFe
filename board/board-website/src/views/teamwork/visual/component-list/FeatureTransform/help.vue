@@ -1,20 +1,25 @@
 <template>
     <CommonHelp>
         <template #intro>
-            对数据集的特征进行统计，并输出统计结果。
+            特征转换把数据集中字符串类型数据转换成数值类型。
         </template>
         <template #params>
-            <code>选择特征</code>
-            <br>
-            该组件仅会对选择的特征进行统计
-            <br>
+            数据集特征的某个值转换成指定值。
         </template>
         <template #desc>
-            tips：默认数量 ≤ 20 的特征为离散型特征，否则为连续型特征。
+            选择数据集特征，给特征的可能值转换成指定数值。
+            <br>
+            填写枚举与数值, 如:
+            <br>
+            特征为: x0
+            <br>
+            枚举为: '男', 数值为: 1
+            <br>
+            枚举为: '女', 数值为 0
         </template>
 
         <template #output>
-            数据集统计报告
+            输出转换后的数据集。
         </template>
         <template #error-tip />
     </CommonHelp>

@@ -160,10 +160,10 @@ public class JdbcManager {
 		return tables;
 	}
 	
-	public Map<String, Object> query(Connection conn, String sql, List<String> returnFields) {
+	public Map<String, String> query(Connection conn, String sql, List<String> returnFields) {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		Map<String, Object> fieldMap = new LinkedHashMap<>();
+		Map<String, String> fieldMap = new LinkedHashMap<>();
 		try {
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();

@@ -16,9 +16,14 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,16 +31,24 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
+import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
+import com.welab.wefe.mpc.pir.server.data.QueryResult;
+import com.welab.wefe.mpc.pir.server.data.impl.LocalResultCache;
+import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
@@ -44,6 +57,8 @@ import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.utils.ModelMapper;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+import com.welab.wefe.serving.service.utils.ZipUtils;
 
 /**
  * 服务 Service
@@ -51,13 +66,15 @@ import com.welab.wefe.serving.service.utils.ModelMapper;
 @Service
 public class ServiceService {
 
+	public static final String SERVICE_PRE_URL = "api/";
 	@Autowired
 	private ServiceRepository serviceRepository;
 	@Autowired
 	private DataSourceService dataSourceService;
 
 	@Transactional(rollbackFor = Exception.class)
-	public void save(AddApi.Input input) throws StatusCodeWithException {
+	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
+			throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), ServiceMySqlModel.class);
 		if (model != null) {
 			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "url exists");
@@ -68,6 +85,12 @@ public class ServiceService {
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
 		serviceRepository.save(model);
+
+		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
+		output.setId(model.getId());
+		output.setParams(model.getQueryParams());
+		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		return output;
 	}
 
 	/**
@@ -76,6 +99,9 @@ public class ServiceService {
 	public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
 
 		Where where = Where.create();
+		if (StringUtils.isNotBlank(input.getId())) {
+			where = where.equal("id", input.getId());
+		}
 		if (StringUtils.isNotBlank(input.getName())) {
 			where = where.equal("name", input.getName());
 		}
@@ -112,75 +138,52 @@ public class ServiceService {
 		if (StringUtils.isNotBlank(input.getDataSource())) {
 			model.setDataSource(input.getDataSource());
 		}
-		if (StringUtils.isNotBlank(input.getConditionFields())) {
-			model.setConditionFields(input.getConditionFields());
-		}
 		if (input.getServiceType() != -1) {
 			model.setServiceType(input.getServiceType());
 		}
-		if (input.getStatus() != -1) {
-			model.setStatus(input.getStatus());
+		serviceRepository.save(model);
+	}
+
+	public void offlineService(String id) throws StatusCodeWithException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
 		}
+		if (model.getStatus() == 0) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是下线状态，无需重复操作");
+		}
+		model.setStatus(0);
+		serviceRepository.save(model);
+	}
+
+	public void onlineService(String id) throws StatusCodeWithException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
+		}
+		if (model.getStatus() == 1) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是在线状态，无需重复操作");
+		}
+		model.setStatus(1);
 		serviceRepository.save(model);
 	}
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
 			throws StatusCodeWithException {
-//		String queryParams = input.getQueryParams();
-		JObject params = JObject.create(input.getParams());
-		JSONArray dataSource = JObject.parseArray(input.getDataSource());
-		JSONArray conditionFields = JObject.parseArray(input.getConditionFields());
-		String tableName = parseTableName(dataSource, 0);
-		String dataSourceId = dataSource.getJSONObject(0).getString("id");
-		String resultfields = parseReturnFields(dataSource, 0);
-		String where = parseWhere(conditionFields, params);
-		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where;
-		System.out.println(sql);
-		Map<String, Object> result = dataSourceService.execute(dataSourceId, sql,
+		int index = 0;
+		JSONArray dataSourceArr = JObject.parseArray(input.getDataSource());
+		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
+		String sql = ServiceUtil.generateSQL(input.getParams(), dataSourceArr, index);
+		Map<String, String> result = dataSourceService.execute(dataSourceId, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
 		out.setResult(JObject.create(result));
 		return out;
 	}
 
-	private String parseTableName(JSONArray dataSource, int index) {
-		JSONObject json = dataSource.getJSONObject(index);
-		return json.getString("db") + "." + json.getString("table");
-	}
-
-	private String parseReturnFields(JSONArray dataSource, int index) {
-		JSONObject json = dataSource.getJSONObject(index);
-		JSONArray returnFields = json.getJSONArray("return_fields");
-		if (returnFields.isEmpty()) {
-			return "*";
-		} else {
-			List<String> fields = new ArrayList<>();
-			for (int i = 0; i < returnFields.size(); i++) {
-				fields.add(returnFields.getJSONObject(i).getString("name"));
-			}
-			return StringUtils.join(fields, ",");
-		}
-	}
-
-	private String parseWhere(JSONArray conditionFields, JObject params) {
-		String where = "";
-		if (conditionFields.isEmpty()) {
-			where = "1=1";
-			return where;
-		} else {
-			int size = conditionFields.size();
-			for (int i = 0; i < conditionFields.size(); i++) {
-				JSONObject tmp = conditionFields.getJSONObject(i);
-				where += (" " + tmp.getString("field_on_table") + "=\""
-						+ params.getString(tmp.getString("field_on_param")) + "\" " + " "
-						+ (size - 1 == i ? "" : tmp.getString("operator")));
-			}
-			return where;
-		}
-	}
-
 	public com.welab.wefe.serving.service.api.service.RouteApi.Output executeService(String serviceUrl,
-			com.welab.wefe.serving.service.api.service.RouteApi.Input input) {
+			com.welab.wefe.serving.service.api.service.RouteApi.Input input) throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		com.welab.wefe.serving.service.api.service.RouteApi.Output output = new com.welab.wefe.serving.service.api.service.RouteApi.Output();
 		if (model == null) {
@@ -188,9 +191,79 @@ public class ServiceService {
 			output.setMessage("invalid request");
 			return output;
 		} else {
+			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+
+			if (serviceType == 1) {// 1匿踪查询
+				List<String> ids = input.getIds();
+				Map<String, String> result = new HashMap<>();
+				// 0 根据ID查询对应的数据
+				for (String id : ids) {// params
+					JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+					int index = 0;
+					String sql = ServiceUtil.generateSQL(id, dataSourceArr, index);
+					String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
+					String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+					try {
+						Map<String, String> resultMap = dataSourceService.execute(dataSourceId, sql,
+								Arrays.asList(resultfields.split(",")));
+						String resultStr = JObject.toJSONString(resultMap);
+						System.out.println(id + "\t " + resultStr);
+						result.put(id, resultStr);
+					} catch (StatusCodeWithException e) {
+						throw e;
+					}
+				}
+				QueryKeysRequest request = new QueryKeysRequest();
+				request.setIds((List) ids);
+				request.setMethod("plain");
+				HuackKeyService service = new HuackKeyService();
+				String uuid = "";
+				try {
+					QueryKeysResponse response = service.handle(request);
+					// 3 取出 QueryKeysResponse 的uuid
+					// 将uuid传入QueryResult
+					uuid = response.getUuid();
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+				}
+				// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
+				QueryResult queryResult = new LocalResultCache();
+				queryResult.put(uuid, result);
+			}
 			output.setCode(0);
 			output.setMessage("success");
 			return output;
 		}
+	}
+
+	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "service not exists");
+		}
+		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+		if (serviceType == 1) {
+			String projectPath = System.getProperty("user.dir");
+			String sdkZipName = "sdk.zip";
+			String outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			List<File> fileList = new ArrayList<>();
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+			FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
+			ZipUtils.toZip(fileList, fos2);
+			File file = new File(outputPath);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			headers.setContentDispositionFormData("attachment", sdkZipName);
+			try {
+				return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+			}
+		}
+		return null;
 	}
 }
