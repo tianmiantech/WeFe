@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "default_tag_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/default_tag/query", name = "data_resource_default_tag_query", rsaVerify = true, login = false)
 public class DefaultTagQuery extends AbstractApi<DefaultTagQuery.Input, JObject> {
 
 
