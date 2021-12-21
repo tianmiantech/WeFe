@@ -33,6 +33,7 @@ import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
@@ -42,7 +43,7 @@ import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
@@ -51,14 +52,15 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class ClientActuator extends PsiClientActuator {
+@SuppressWarnings("SynchronizeOnNonFinalField")
+public class ClientActuator extends AbstractPsiClientActuator {
     public List<String> columnList;
 
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 1000;
-    private Integer current_index = 0;
+    private int shardSize = 1000;
+    private Integer currentIndex = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
@@ -81,7 +83,7 @@ public class ClientActuator extends PsiClientActuator {
         /**
          * Calculate the fragment size based on the number of fields
          */
-        shard_size = shard_size / columnList.size();
+        shardSize = shardSize / columnList.size();
 
         /**
          * Supplementary trace field
@@ -131,13 +133,13 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public List<JObject> next() {
-        synchronized (current_index) {
+        synchronized (currentIndex) {
             long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(current_index, shard_size)
+                    new PageInputModel(currentIndex, shardSize)
             );
 
             List<DataItemModel> list = model.getData();
@@ -155,9 +157,9 @@ public class ClientActuator extends PsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
+            LOG.info("cursor {} spend: {} curList {}", currentIndex, System.currentTimeMillis() - start, curList.size());
 
-            current_index++;
+            currentIndex++;
 
 
             return curList;
@@ -177,11 +179,11 @@ public class ClientActuator extends PsiClientActuator {
 
     @Override
     public Boolean hasNext() {
-        synchronized (current_index) {
+        synchronized (currentIndex) {
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(current_index, shard_size)
+                    new PageInputModel(currentIndex, shardSize)
             );
             return model.getData().size() > 0;
         }
@@ -208,7 +210,7 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public byte[][] queryFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) throws StatusCodeWithException {
 
         LOG.info("queryFusionData start");
 
@@ -221,10 +223,13 @@ public class ClientActuator extends PsiClientActuator {
         try {
             result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/crypto", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
-            LOG.info("error: {}", e);
+            LOG.info("error: ", e);
             e.printStackTrace();
         }
 
+        if (result == null || !result.success() || result.data == null) {
+            throw new StatusCodeWithException("fusion failed error" + result.message, StatusCode.REMOTE_SERVICE_ERROR);
+        }
         JSONArray response = result.data.getJSONArray("bs");
 
         byte[][] ss = new byte[response.size()][];
@@ -232,7 +237,6 @@ public class ClientActuator extends PsiClientActuator {
             ss[i] = Base64Util.base64ToByteArray(response.getString(i));
         }
 
-        LOG.info("qureyFusionData end,{}", JSON.toJSONString(ss));
         return ss;
     }
 
@@ -246,7 +250,7 @@ public class ClientActuator extends PsiClientActuator {
         try {
             gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
         } catch (MemberGatewayException e) {
-            LOG.info("sendFusionData error: {}", e);
+            LOG.info("sendFusionData error: ", e);
             e.printStackTrace();
         }
     }

@@ -29,7 +29,7 @@ import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
-import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.ActionType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-public class ClientActuator extends PsiClientActuator {
+public class ClientActuator extends AbstractPsiClientActuator {
 
     protected String ip;
     protected int port;

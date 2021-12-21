@@ -16,7 +16,8 @@
 package com.welab.wefe.common.file.compression;
 
 import com.welab.wefe.common.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import java.nio.file.Paths;
  * @date 2021/11/29
  */
 public abstract class AbstractCompression {
-    protected final Logger LOG = Logger.getLogger(this.getClass());
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 压缩文件夹至指定目录

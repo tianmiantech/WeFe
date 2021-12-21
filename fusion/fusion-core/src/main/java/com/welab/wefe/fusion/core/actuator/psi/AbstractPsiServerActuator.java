@@ -30,22 +30,22 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public abstract class PsiServerActuator extends AbstractPsiActuator {
+public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
 
-    protected BigInteger N;
+    protected BigInteger n;
     protected BigInteger d;
     protected BigInteger e;
 
-    public PsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger N, BigInteger e, BigInteger d) {
+    public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d) {
         super(businessId);
-        this.N = N;
+        this.n = n;
         this.e = e;
         this.d = d;
         this.bf = bloomFilters;
     }
 
     public PsiActuatorMeta getActuatorParam() {
-        return PsiActuatorMeta.of(e, N, bf);
+        return PsiActuatorMeta.of(e, n, bf);
     }
 
     public byte[][] compute(List<String> bsList) {
@@ -61,7 +61,7 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         try {
 
             //Encrypted again
-            return CryptoUtils.sign(N, d, bs);
+            return CryptoUtils.sign(n, d, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }

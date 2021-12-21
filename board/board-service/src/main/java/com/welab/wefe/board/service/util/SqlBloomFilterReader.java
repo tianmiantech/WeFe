@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,8 @@ import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.*;
@@ -34,7 +35,7 @@ import java.util.List;
  * @author jacky.jiang
  */
 public class SqlBloomFilterReader extends AbstractBloomFilterReader {
-    private static final Logger log = Logger.getLogger(SqlBloomFilterReader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SqlBloomFilterReader.class);
     private long totalRowCount;
     private List<String> headers;
     private final Connection conn;
@@ -114,21 +115,21 @@ public class SqlBloomFilterReader extends AbstractBloomFilterReader {
             try {
                 rs.close();
             } catch (SQLException e) {
-                log.error("ResultSet is null" + e);
+                LOG.error("ResultSet is null" + e);
             }
         }
         if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {
-                log.error("PreparedStatement is null" + e);
+                LOG.error("PreparedStatement is null" + e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                log.error("Connection is null" + e);
+                LOG.error("Connection is null" + e);
             }
         }
     }

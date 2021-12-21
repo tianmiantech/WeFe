@@ -47,8 +47,7 @@ public class FusionResultStorageService extends AbstractService {
      */
     public boolean containsKey(String dataSetId, String key) {
         String table = createRawDataSetTableName(dataSetId);
-        boolean contains = storageService.getByKey(DATABASE_NAME, table, key) != null;
-        return contains;
+        return storageService.getByKey(DATABASE_NAME, table, key) != null;
     }
 
     /**
@@ -185,5 +184,10 @@ public class FusionResultStorageService extends AbstractService {
 
     public DataItemModel getByKey(String databaseName, String tableName, String key) {
         return storageService.getByKey(databaseName, tableName, key);
+    }
+
+
+    public Boolean isExists(String tableName) {
+        return storageService.isExists(DATABASE_NAME, tableName);
     }
 }
