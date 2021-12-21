@@ -19,20 +19,17 @@ package com.welab.wefe.gateway.service.processors.available;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
-import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 import com.welab.wefe.gateway.service.processors.available.checkpoint.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,13 +43,14 @@ import java.util.List;
  **/
 @Processor(type = GatewayProcessorType.gatewayAvailableProcessor, desc = "Gateway availability processor")
 public class GatewayAvailableProcessor extends AbstractProcessor {
-    private final Logger LOG = LoggerFactory.getLogger(GatewayAvailableProcessor.class);
+    @Autowired
+    private CheckpointManager checkpointManager;
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         // Check self
         if (isCheckSelf(transferMeta)) {
-            ServerAvailableCheckOutput result = checkService();
+            ServerAvailableCheckOutput result = checkpointManager.checkAll();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         }
 
@@ -61,7 +59,7 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
-        ServerAvailableCheckOutput result = checkService();
+        ServerAvailableCheckOutput result = checkpointManager.checkAll();
         result.cleanValues();
         return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
     }
@@ -73,24 +71,6 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
             BoardCheckpoint.class,
             FileSystemCheckpoint.class
     );
-
-
-    /**
-     * Check whether relevant services are normal
-     *
-     * @return check result list
-     */
-    private ServerAvailableCheckOutput checkService() {
-        List<ServerCheckPointOutput> list = new ArrayList<>();
-
-        for (Class<? extends AbstractCheckpoint> clazz : CHECKPOINT_LIST) {
-            AbstractCheckpoint checkpoint = GatewayServer.CONTEXT.getBean(clazz);
-            ServerCheckPointOutput result = checkpoint.check();
-            list.add(result);
-        }
-
-        return new ServerAvailableCheckOutput(list);
-    }
 
 
     /**

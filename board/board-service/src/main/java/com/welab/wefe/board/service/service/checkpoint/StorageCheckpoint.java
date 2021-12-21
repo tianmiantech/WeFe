@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.available.checkpoint;
+package com.welab.wefe.board.service.service.checkpoint;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
@@ -49,9 +49,14 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    public String value() {
+    public String getConfigValue() {
         JdbcParamConfig storageConfig = Launcher.getBean(JdbcParamConfig.class);
         return storageConfig.getUrl();
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return null;
     }
 
     @Override

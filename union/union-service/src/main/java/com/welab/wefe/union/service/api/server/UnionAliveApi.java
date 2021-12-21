@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.common;
+package com.welab.wefe.union.service.api.server;
 
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.NoneApiOutput;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.common.ServiceAvailableOutput;
-import com.welab.wefe.union.service.service.CommonService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Check service availability
+ * Check service survivability
  *
  * @author aaron.li
  **/
-@Api(path = "union/available", name = "available", rsaVerify = true, login = false)
-public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServiceAvailableOutput> {
-    @Autowired
-    private CommonService commonService;
+@Api(path = "server/alive", name = "alive", rsaVerify = false, login = false)
+public class UnionAliveApi extends AbstractApi<UnionAliveApi.Input, NoneApiOutput> {
 
     @Override
-    protected ApiResult<ServiceAvailableOutput> handle(Input input) {
-        return success(commonService.checkUnionAvailable());
+    protected ApiResult<NoneApiOutput> handle(Input input) {
+        return success();
     }
 
     public static class Input extends BaseInput {

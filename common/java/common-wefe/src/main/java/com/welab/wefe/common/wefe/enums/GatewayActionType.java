@@ -39,5 +39,5 @@ public enum GatewayActionType {
      * Placeholder action (no business meaning, just taking a place)
      * tips：In the ProBuffer, the value of the field must be filled in instead of null. Therefore, when the Processor field is added in the later gateway to replace the action, the action in the message should use this field
      */
-    not_null
+    none
 }

@@ -341,7 +341,7 @@ public class GatewayService extends BaseGatewayService {
             gatewayUri = globalConfigService.getGatewayConfig().intranetBaseUri;
         }
 
-        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.not_null, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
+        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
         if (!result.success()) {
             throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
         }

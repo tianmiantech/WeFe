@@ -49,8 +49,13 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected String value() {
+    protected String getConfigValue() {
         return jdbcParamConfig.getUrl();
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return null;
     }
 
     @Override

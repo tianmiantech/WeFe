@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.test;
 
-import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+package com.welab.wefe.board.service.service.checkpoint;
+
+import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.common.wefe.checkpoint.AbstractUnionConnectionCheckpoint;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @date 2021/12/20
  */
-public class AvailableTest {
-    public static void main(String[] args) throws Exception {
-        Client.callLocalGateway(
-                GatewayProcessorType.gatewayAvailableProcessor,
-                ""
-        );
+@Service
+public class UnionConnectionCheckpoint extends AbstractUnionConnectionCheckpoint {
+    @Autowired
+    protected Config config;
+
+    @Override
+    public String getConfigValue() {
+        return config.getUNION_BASE_URL();
     }
+
 }
