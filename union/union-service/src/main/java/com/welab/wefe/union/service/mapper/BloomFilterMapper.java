@@ -46,8 +46,4 @@ public interface BloomFilterMapper {
 
     DataResource transferPutInputToDataResource(PutApi.Input input);
 
-
-    DataResourcePutInput transferPutInputToDataResourcePutInput(PutApi.Input input);
-
-
 }

@@ -33,7 +33,8 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  **/
-public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRepo {
+@Repository
+public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
 
     @Autowired
     protected MongoTemplate mongoUnionTemplate;
@@ -44,10 +45,8 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
     }
 
 
-    protected abstract String getTableName();
-
-    public <T> List<T> findAll(Class<T> t) {
-        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), t);
+    public List<DataSetDefaultTag> findAll() {
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), DataSetDefaultTag.class);
     }
 
     public boolean deleteByTagId(String tagId) {
@@ -56,7 +55,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataSetDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -70,7 +69,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
                 .append("extJson", extJson)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataSetDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -80,7 +79,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 }
