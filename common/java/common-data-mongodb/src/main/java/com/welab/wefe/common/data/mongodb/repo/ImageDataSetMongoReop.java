@@ -158,8 +158,9 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 .like("member_name", dataResourceQueryInput.getMemberName())
                 .getCriteria();
 
+        String forJobType = dataResourceQueryInput.getDataResourceType() == null ? null : dataResourceQueryInput.getDataResourceType().name();
         Criteria imageDataSetCriteria = new QueryBuilder()
-                .append("image_data_set.name", dataResourceQueryInput.getDataResourceType())
+                .append("image_data_set.for_job_type", forJobType)
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
