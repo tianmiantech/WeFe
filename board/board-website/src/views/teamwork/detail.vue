@@ -162,7 +162,7 @@
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
-    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN';
 
     let timer = null;
 
