@@ -112,94 +112,17 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
         Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
                 unwindBloomFilter,
-                addFieldsOperation
+                addFieldsOperation,
+                dataResourceMatch
+
         );
 
         DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
         return result;
-    }
-
-    /**
-     * Query the BloomFilter visible to the current member
-     */
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
-        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
-                from(MongodbTable.Union.BLOOM_FILTER).
-                localField("data_resource_id").
-                foreignField("data_resource_id").
-                as("extra_data");
-
-        LookupOperation lookupToMember = LookupOperation.newLookup().
-                from(MongodbTable.Union.MEMBER).
-                localField("member_id").
-                foreignField("member_id").
-                as("member");
-
-
-        Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable", "1")
-                .like("name", dataResourceQueryInput.getName())
-                .like("tags", dataResourceQueryInput.getTag())
-                .append("member_id", dataResourceQueryInput.getCurMemberId())
-                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
-                .getCriteria();
-
-        Criteria or = new Criteria();
-        or.orOperator(
-                new QueryBuilder().append("public_level", "Public").getCriteria(),
-                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
-        );
-
-        dataResouceCriteria.andOperator(or);
-
-        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
-
-        Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataResourceQueryInput.getMemberName())
-                .getCriteria();
-
-        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
-        UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
-        Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.name");
-
-        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwind,
-                unwindExtraData,
-                addFieldsOperation
-        );
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataSetQueryOutput.class).getMappedResults().size();
-
-        SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
-        LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
-
-        aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwind,
-                unwindExtraData,
-                skipOperation,
-                limitOperation,
-                addFieldsOperation
-        );
-
-        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
     }
 
 
