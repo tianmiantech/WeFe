@@ -40,10 +40,10 @@ public class MongodbTable {
         public static final String UNION_NODE_CONFIG = "UnionNodeConfig";
         public static final String IMAGE_DATASET = "ImageDataSet";
         public static final String IMAGE_DATASET_LABELEDCOUNT = "ImageDataSetLabeledCount";
-        public static final String IMAGE_DATA_SET_DEFAULT_TAG = "ImageDataSetDefaultTag";
         public static final String DATA_RESOURCE = "DataResource";
         public static final String TABLE_DATASET = "TableDataSet";
         public static final String BLOOM_FILTER = "BloomFilter";
+        public static final String DATA_RESOURCE_DEFAULT_TAG = "DataResourceDefaultTag";
     }
 
     public static final class Sms {

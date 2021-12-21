@@ -77,7 +77,7 @@ public enum StatusCode {
 
     INVALID_DATASET(10039, "Invalid dataset id (%s)"),
 
-    INVALID_PARAMETER(10040, "Invalid parameter (%s)"),
+    INVALID_PARAMETER(10040, "Invalid (%s)"),
     MISSING_DATA(10041, "Missing data (%s)"),
     /**
      * Database related error status code
