@@ -141,12 +141,12 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
         Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
                 unwindExtraData,
-                addFieldsOperation
+                addFieldsOperation,
+                dataResourceMatch
         );
 
         DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
@@ -217,8 +217,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
         Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
                 lookupToDataImageDataSet,
                 lookupToDataTableDataSet,
                 lookupToDataBloomFilter,
@@ -227,7 +225,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 unwindImageDataSet,
                 unwindTableDataSet,
                 unwindBloomFilter,
-                addFieldsOperation
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch
+
         );
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults().size();
 
@@ -235,18 +236,19 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
 
         aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
                 lookupToDataImageDataSet,
                 lookupToDataTableDataSet,
                 lookupToDataBloomFilter,
                 lookupToMember,
+                unwindMember,
                 unwindImageDataSet,
                 unwindTableDataSet,
                 unwindBloomFilter,
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch,
                 skipOperation,
-                limitOperation,
-                addFieldsOperation
+                limitOperation
         );
 
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
