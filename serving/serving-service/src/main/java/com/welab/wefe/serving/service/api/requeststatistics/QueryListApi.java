@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.serving.service.api.requeststatistics;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -11,16 +27,14 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.RequestStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.Entity;
 import java.io.IOException;
 import java.util.Date;
 
 /**
  * @author ivenn.zheng
  */
-@Api(path = "requeststatistics/query-list", name = "query request statistics list",login = false)
+@Api(path = "requeststatistics/query-list", name = "query request statistics list")
 public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<RequestStatisticsMysqlModel>> {
-
 
     @Autowired
     private RequestStatisticsService requestStatisticsService;
@@ -30,18 +44,17 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<R
         return success(requestStatisticsService.queryList(input));
     }
 
-
     public static class Input extends AbstractApiInput {
 
         /**
          * 开始时间
          */
-        private Date startDate;
+        private Long startTime;
 
         /**
          * 结束时间
          */
-        private Date endDate;
+        private Long endTime;
 
         /**
          * 服务名称
@@ -53,20 +66,20 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<R
          */
         private String clientId;
 
-        public Date getStartDate() {
-            return startDate;
+        public Long getStartTime() {
+            return startTime;
         }
 
-        public void setStartDate(Date startDate) {
-            this.startDate = startDate;
+        public void setStartTime(Long startTime) {
+            this.startTime = startTime;
         }
 
-        public Date getEndDate() {
-            return endDate;
+        public Long getEndTime() {
+            return endTime;
         }
 
-        public void setEndDate(Date endDate) {
-            this.endDate = endDate;
+        public void setEndTime(Long endTime) {
+            this.endTime = endTime;
         }
 
         public String getServiceId() {

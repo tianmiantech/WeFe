@@ -21,8 +21,8 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
      *
      * @param serviceId
      * @param clientId
-     * @param startDate
-     * @param endDate
+     * @param startTime
+     * @param endTime
      * @return
      */
     @Query(value = "select rand() as id , s.name as serviceName, c.name as clientName, t.total_spend as totalSpend, " +
@@ -33,15 +33,15 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "from api_request_record arr " +
             "where if(:service_id is not null, arr.service_id = :service_id ,1=1) and " +
             "      if(:client_id is not null, arr.client_id = :client_id ,1=1) and " +
-            "      arr.created_time  between if(:start_date is not null, :start_date , '1900-01-01 00:00:00' ) and " +
-            "      if(:end_date is not null, :end_date , NOW())  " +
+            "      arr.created_time  between if(:start_time is not null, :start_time , '1900-01-01 00:00:00' ) and " +
+            "      if(:end_time is not null, :end_time , NOW())  " +
             "group by arr.service_id, arr.client_id " +
             ")as t left join service s on t.service_id = s.id " +
             "      left join client c on t.client_id = c.id " +
             "      left join fee_config fc on fc.service_id = t.service_id and fc.client_id = t.client_id ", nativeQuery = true, countProjection = "1")
     List<RequestStatisticsMysqlModel> groupByServiceIdAndClientId(@Param("service_id") String serviceId,
                                                                   @Param("client_id") String clientId,
-                                                                  @Param("start_date") Date startDate,
-                                                                  @Param("end_date") Date endDate);
+                                                                  @Param("start_time") Long startTime,
+                                                                  @Param("end_time") Long endTime);
 
 }

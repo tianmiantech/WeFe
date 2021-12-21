@@ -80,6 +80,35 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}fee`,
+        meta: {
+            title: '计费中心',
+            icon: 'el-icon-monitor',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children: [
+            {
+                path: `${prefixPath}request-statistics`,
+                name: 'request-statistics',
+                meta: {
+                    title: '调用信息',
+                    loginAndRefresh: true,
+                    active: `${prefixPath}request-statistics`,
+                },
+                component: () => import('@views/fee/request-statistics.vue'),
+            },
+            {
+                path: `${prefixPath}client-add`,
+                name: 'client-add',
+                meta: {
+                    title: '新增客户',
+                },
+                component: () =>
+                    import('@views/client/client-add.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}member`,
         meta: {
             title: 'member管理',

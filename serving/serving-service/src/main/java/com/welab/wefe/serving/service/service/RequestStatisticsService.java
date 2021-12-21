@@ -26,7 +26,7 @@ public class RequestStatisticsService {
      */
     public PagingOutput<RequestStatisticsMysqlModel> queryList(QueryListApi.Input input) {
         List<RequestStatisticsMysqlModel> list = requestStatisticsRepository.groupByServiceIdAndClientId(input.getServiceId(),
-                input.getClientId(), input.getStartDate(), input.getEndDate());
+                input.getClientId(), input.getStartTime(), input.getEndTime());
         return PagingOutput.of(list.size(), list);
     }
 
