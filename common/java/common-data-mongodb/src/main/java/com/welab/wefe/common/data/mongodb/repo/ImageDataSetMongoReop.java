@@ -89,6 +89,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable", "1")
                 .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
@@ -134,6 +135,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 as("member");
 
         Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
@@ -152,10 +154,16 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataResourceQueryInput.getMemberName())
+                .like("member_name", dataResourceQueryInput.getMemberName())
+                .getCriteria();
+
+        Criteria imageDataSetCriteria = new QueryBuilder()
+                .append("image_data_set.name", dataResourceQueryInput.getDataResourceType())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+
+        AggregationOperation imageDataSetMatch = Aggregation.match(imageDataSetCriteria);
         UnwindOperation unwind = Aggregation.unwind("member");
         UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set");
         Map<String, Object> addfieldsMap = new HashMap<>();
@@ -166,6 +174,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         Aggregation aggregation = Aggregation.newAggregation(
                 dataResourceMatch,
                 memberMatch,
+                imageDataSetMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
@@ -180,6 +189,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         aggregation = Aggregation.newAggregation(
                 dataResourceMatch,
                 memberMatch,
+                imageDataSetMatch,
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
