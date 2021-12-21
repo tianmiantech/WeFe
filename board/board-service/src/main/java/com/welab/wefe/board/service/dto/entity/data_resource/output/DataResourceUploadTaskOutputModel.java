@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,9 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataResourceUploadStatus;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataResourceUploadStatus;
 
 /**
  * @author zane
@@ -30,7 +30,7 @@ public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
     @Check(name = "数据资源名称")
     private String dataResourceName;
     @Check(name = "资源类型")
-    private DataResourceType resourceType;
+    private DataResourceType dataResourceType;
     @Check(name = "总数据行数")
     private Long totalDataCount;
     @Check(name = "已写入数据行数")
@@ -64,12 +64,12 @@ public class DataResourceUploadTaskOutputModel extends AbstractBaseMySqlModel {
         this.dataResourceName = dataResourceName;
     }
 
-    public DataResourceType getResourceType() {
-        return resourceType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setResourceType(DataResourceType resourceType) {
-        this.resourceType = resourceType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public Long getTotalDataCount() {

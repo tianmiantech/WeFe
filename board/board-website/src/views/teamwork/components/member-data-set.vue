@@ -334,7 +334,7 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing'"
+                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
                             content="预览数据"
                             placement="top"
                         >

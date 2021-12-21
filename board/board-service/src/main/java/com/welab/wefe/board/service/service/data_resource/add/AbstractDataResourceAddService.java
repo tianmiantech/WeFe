@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,11 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -75,7 +75,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
-        model.setResourceType(getDataResourceType());
+        model.setDataResourceType(getDataResourceType());
         model.setTags(dataResourceService.standardizeTags(input.getTags()));
         dataResourceService.handlePublicMemberList(model);
         checkAndSetStorageLocation(model);
@@ -84,7 +84,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             try {
                 doAdd(input, task, model);
-                unionService.uploadDataResource(model);
+                unionService.upsertDataResource(model);
                 dataResourceUploadTaskService.complete(task.getDataResourceId());
             } catch (StatusCodeWithException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
@@ -118,7 +118,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             model.setStorageNamespace(
                     Paths.get(
                                     config.getFileUploadDir(),
-                                    StringUtil.stringToUnderLineLowerCase(model.getResourceType().name()),
+                                    StringUtil.stringToUnderLineLowerCase(model.getDataResourceType().name()),
                                     model.getId()
                             )
                             .toAbsolutePath()

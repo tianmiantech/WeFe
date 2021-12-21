@@ -1,13 +1,13 @@
 package com.welab.wefe.data.fusion.service.actuator.test;
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,14 +26,14 @@ import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
-import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.ActionType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-import com.welab.wefe.fusion.core.utils.SocketUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 import org.apache.commons.compress.utils.Lists;
 
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-public class ClientActuator extends PsiClientActuator {
+public class ClientActuator extends AbstractPsiClientActuator {
 
     protected String ip;
     protected int port;
@@ -246,7 +246,7 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public byte[][] qureyFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) {
         Socket socket = null;
         try {
             LOG.info("Server@" + ip + ":" + port + " connecting!");
@@ -307,6 +307,11 @@ public class ClientActuator extends PsiClientActuator {
     public String hashValue(JObject value) {
         return PrimaryKeyUtils.create(value, fieldInfoList);
 //        return value.getString("id");
+    }
+
+    @Override
+    public void notifyServerClose() {
+
     }
 
 

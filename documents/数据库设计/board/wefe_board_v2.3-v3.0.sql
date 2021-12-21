@@ -15,7 +15,7 @@ CREATE TABLE `data_resource`
     `updated_by`              varchar(32) COMMENT '更新人',
     `updated_time`            datetime(6) COMMENT '更新时间',
     `name`                    varchar(256)  NOT NULL COMMENT '资源名称',
-    `resource_type`           varchar(32)   NOT NULL COMMENT '资源类型',
+    `data_resource_type`      varchar(32)   NOT NULL COMMENT '资源类型',
     `description`             varchar(3072) COMMENT '描述',
     `tags`                    varchar(128) COMMENT '标签',
     `storage_type`            varchar(32) COMMENT '存储类型',
@@ -48,7 +48,7 @@ CREATE TABLE `data_resource_upload_task`
     `updated_time`            datetime(6) COMMENT '更新时间',
     `data_resource_id`        varchar(32)  DEFAULT NULL COMMENT '数据资源id',
     `data_resource_name`      varchar(128) DEFAULT NULL COMMENT '数据资源名称',
-    `resource_type`           varchar(32) COMMENT '资源类型',
+    `data_resource_type`      varchar(32) COMMENT '资源类型',
     `total_data_count`        bigint(20) DEFAULT NULL COMMENT '总数据行数',
     `completed_data_count`    bigint(20) DEFAULT 0 COMMENT '已写入数据行数',
     `progress_ratio`          int(10) DEFAULT NULL COMMENT '任务进度百分比',
@@ -175,7 +175,7 @@ SELECT `id`,
        `usage_count_in_flow`,
        `usage_count_in_project`,
        0,
-       `source_type` is null,
+       length(`source_type`) > 0,
        `source_type`,
        `source_flow_id`,
        `source_job_id`,
@@ -251,3 +251,8 @@ CREATE TABLE `job_apply_result`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+
+INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`, `comment`)
+VALUES
+	('07ab31c0f41e45e2998d0315fbaac7ab', NULL, '2021-12-16 10:34:30.725000', NULL, '2021-12-16 10:34:30.725000', 'wefe_flow', 'visual_fl_base_url', 'http://10.90.0.86:10002', NULL);

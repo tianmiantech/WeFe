@@ -270,7 +270,7 @@
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
-                } else if(paneName === 'params' && child.vData.inited === false) {
+                } else if(paneName === 'params' && (child.vData.inited === false || this.jobGraphShow)) {
                     // never inited
                     child.methods.readData && child.methods.readData(this.nodeModel);
                 }
@@ -291,12 +291,16 @@
                 if(data.componentType) {
                     // cache last node id
                     const lastNodeId = this.currentObj.nodeId;
+                    const cfg = this.componentsList[data.componentType];
 
                     if(lastNodeId === id) return;
 
                     if(type) {
                         this.tabName = type;
-                    } else if (this.componentsList[data.componentType].params) {
+                        if(type === 'result' && !cfg.result) {
+                            this.tabName = 'params';
+                        }
+                    } else if (cfg.params) {
                         this.tabName = 'params';
                     } else if(this.jobGraphShow) {
                         this.tabName = 'result';

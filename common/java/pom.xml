@@ -20,6 +20,7 @@
         <module>common-data-storage</module>
         <module>common-proto</module>
         <module>common-data-mongodb</module>
+        <module>common-wefe</module>
     </modules>
 
 </project>

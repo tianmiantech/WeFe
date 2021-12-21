@@ -69,11 +69,11 @@ class FcBudgetScheduler(threading.Thread):
                 day_cost = budget_util.get_day_cost()
 
                 # Overspend daily or monthly
-                if self.month_budget <= month_cost:
+                if int(self.month_budget) <= month_cost:
                     task_list = self.get_running_task()
                     self.stop_tasks(task_list)
                     break
-                elif self.day_budget <= day_cost:
+                elif float(self.day_budget) <= day_cost:
                     task_list = self.get_running_task()
                     self.stop_tasks(task_list, is_month=False)
                     break

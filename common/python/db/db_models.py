@@ -142,6 +142,11 @@ class GlobalSetting(object):
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
 
+    @staticmethod
+    def get_visualfl_base_url():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return GlobalConfigDao.get('wefe_flow', 'visual_fl_base_url')
+
 
 # DataSet
 class DataSet(ModelBase):

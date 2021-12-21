@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,13 @@ package com.welab.wefe.board.service.api.data_resource;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -38,7 +39,7 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
 
     @Override
     protected ApiResult<PagingOutput<?>> handle(Input input) throws StatusCodeWithException {
-        PagingOutput<?> output = dataResourceService.queryDataResource(input);
+        PagingOutput<?> output = dataResourceService.query(input);
         return success(output);
 
     }
@@ -54,6 +55,14 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
         private String creator;
         @Check(name = "资源类型")
         private DataResourceType dataResourceType;
+
+        /***********↓ TableDataSet ↓***********/
+        @Check(name = "是否包含 Y 值")
+        private Boolean containsY;
+
+        /***********↓ ImageDataSet ↓***********/
+        @Check(name = "任务类型（分类、目标检测）")
+        private DeepLearningJobType forJobType;
 
         // region getter/setter
 
@@ -97,6 +106,21 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
             this.dataResourceType = dataResourceType;
         }
 
+        public Boolean getContainsY() {
+            return containsY;
+        }
+
+        public void setContainsY(Boolean containsY) {
+            this.containsY = containsY;
+        }
+
+        public DeepLearningJobType getForJobType() {
+            return forJobType;
+        }
+
+        public void setForJobType(DeepLearningJobType forJobType) {
+            this.forJobType = forJobType;
+        }
 
         // endregion
     }

@@ -232,7 +232,7 @@
             };
             // chat connection
             const getConnect = () => {
-                const key = `${window.api.prefixPath}_chat`;
+                const key = `${window.api.baseUrl}_chat`;
                 const inited = window.localStorage.getItem(key);
 
                 if(inited !== 'connect') {
@@ -395,6 +395,7 @@
             height: 30px;
             line-height: 30px;
             cursor: pointer;
+            .el-icon-arrow-left{top:-2px;}
         }
         .el-dropdown{
             line-height: 30px;

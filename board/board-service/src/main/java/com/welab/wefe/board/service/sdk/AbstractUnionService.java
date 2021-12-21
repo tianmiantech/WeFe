@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,22 +21,31 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
+import com.welab.wefe.board.service.api.union.MemberRealnameAuthApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.SmsBusinessType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.UrlUtil;
+import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import net.jodah.expiringmap.ExpiringMap;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -237,7 +246,7 @@ public abstract class AbstractUnionService extends AbstractService {
         return errorMsg;
     }
 
-    protected JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+    public JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
         return request(api, params, true);
     }
 
@@ -294,5 +303,114 @@ public abstract class AbstractUnionService extends AbstractService {
         return json;
     }
 
+
+    public JSONObject queryMemberAuthTypeList() throws StatusCodeWithException {
+        return request("member/authtype/query", JObject.create(), true);
+    }
+
+    public JSONObject realnameAuth(MemberRealnameAuthApi.Input input) throws StatusCodeWithException {
+        return request("member/realname/auth", JObject.create(input), true);
+    }
+
+    public JSONObject realnameAuthInfoQuery() throws StatusCodeWithException {
+        return request("member/realname/authInfo/query", JObject.create(), true);
+    }
+
+
+    public JSONObject realnameAuthAgreementTemplateQuery() throws StatusCodeWithException {
+        return request("realname/auth/agreement/template/query", JObject.create(), true);
+    }
+
+    public JSONObject uploadFile(MultiValueMap<String, MultipartFile> files, JObject params) throws StatusCodeWithException {
+
+        return request("member/file/upload", params, files, true);
+    }
+
+    private JSONObject request(String api, JSONObject params, MultiValueMap<String, MultipartFile> files, boolean needSign) throws StatusCodeWithException {
+        /**
+         * Prevent the map from being out of order, causing the verification to fail.
+         */
+        params = new JSONObject(new TreeMap(params));
+
+        String data = params.toJSONString();
+        String sign = null;
+        // rsa signature
+        JSONObject body = new JSONObject();
+        if (needSign) {
+            try {
+                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            }
+
+
+            body.put("member_id", CacheObjects.getMemberId());
+            body.put("sign", sign);
+            body.put("data", data);
+
+            data = body.toJSONString();
+        }
+        HttpResponse response;
+        String url = config.getUNION_BASE_URL() + "/" + api;
+        // send http request without files
+        if (files == null) {
+            response = HttpRequest
+                    .create(url)
+                    .setBody(data)
+                    .postJson();
+        }
+        // send http request with files
+        else {
+            url = UrlUtil.appendQueryParameters(url, body);
+            HttpRequest request = HttpRequest
+                    .create(url)
+                    .setContentType(HttpContentType.MULTIPART);
+
+            for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
+                try {
+                    MultipartFile file = item.getValue();
+                    ContentType contentType = StringUtil.isEmpty(file.getContentType())
+                            ? ContentType.DEFAULT_BINARY
+                            : ContentType.create(file.getContentType());
+
+                    InputStreamBody streamBody = new InputStreamBody(
+                            file.getInputStream(),
+                            contentType,
+                            file.getOriginalFilename()
+                    );
+
+
+                    request.appendParameter(item.getKey(), streamBody);
+                } catch (IOException e) {
+                    StatusCode.FILE_IO_ERROR.throwException(e);
+                }
+            }
+
+            response = request.post();
+        }
+
+
+        if (!response.success()) {
+            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+        }
+
+        JSONObject json;
+        try {
+            json = response.getBodyAsJson();
+        } catch (JSONException e) {
+            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+        }
+
+        if (json == null) {
+            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+        }
+
+        Integer code = json.getInteger("code");
+        if (code == null || !code.equals(0)) {
+            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+        }
+        return json;
+    }
 
 }

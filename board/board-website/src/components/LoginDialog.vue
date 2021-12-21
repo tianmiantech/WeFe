@@ -90,13 +90,15 @@
         },
         created () {
             this.$bus.$on('show-login-dialog', () => {
-                // hide the chat room
-                window.localStorage.setItem(`${window.api.prefixPath}_chat`, 'disconnect');
-                this.$store.commit('SYSTEM_INITED', false);
-                this.form.code = '';
-                this.show = true;
-                this.getImgCode();
-                clearUserInfo();
+                if(!this.show) {
+                    // hide the chat room
+                    window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
+                    this.$store.commit('SYSTEM_INITED', false);
+                    this.form.code = '';
+                    this.show = true;
+                    this.getImgCode();
+                    clearUserInfo();
+                }
             });
         },
         methods: {

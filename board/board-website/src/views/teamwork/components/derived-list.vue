@@ -64,7 +64,7 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ derived.typeObj[scope.row.source_type] || scope.row.source_type }}
+                    {{ scope.row.source_type_cn }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -169,19 +169,18 @@
                         label: '特征筛选',
                         value: 'FeatureSelection',
                     }, {
+                        label: '特征标准化',
+                        value: 'FeatureStandardized',
+                    }, {
+                        label: '分箱并编码',
+                        value: 'HorzFeatureBinning',
+                    }, {
                         label: '缺失值填充',
                         value: 'FillMissingValue',
                     }, {
                         label: '混合分箱',
                         value: 'MixBinning',
                     }],
-                    typeObj: {
-                        Intersection:     '样本对齐',
-                        FeatureSelection: '特征筛选',
-                        Binning:          '分箱',
-                        FillMissingValue: '缺失值填充',
-                        MixBinning:       '混合分箱',
-                    },
                     list:       [],
                     total:      0,
                     page_index: 1,

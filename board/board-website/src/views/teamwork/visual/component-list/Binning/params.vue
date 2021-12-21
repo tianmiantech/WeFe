@@ -121,6 +121,7 @@
     import {
         ref,
         reactive,
+        getCurrentInstance,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -142,6 +143,8 @@
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
             const CheckFeatureDialogRef = ref();
+            const { appContext } = getCurrentInstance();
+            const { $alert } = appContext.config.globalProperties;
 
             let vData = reactive({
                 inited:               false,
@@ -253,6 +256,31 @@
                         item.$indeterminate = false;
                         item.$checkedAll = true;
                     }
+                },
+
+                paramsCheck() {
+                    let featureName = '';
+
+                    for(const index in vData.featureSelectTab) {
+                        const member = vData.featureSelectTab[index];
+
+                        for(const i in member.$feature_list) {
+                            const row = member.$feature_list[i];
+
+                            if(row.method) {
+                                if(featureName === '' && row.method === 'custom' && !row.points) {
+                                    featureName = row.name;
+                                    $alert(`<p class="color-danger">${member.member_name} 特征 ${featureName} 未填写, 请检查</p>`, '警告', {
+                                        type:                     'warning',
+                                        dangerouslyUseHTMLString: true,
+                                    });
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                    return true;
                 },
             };
 

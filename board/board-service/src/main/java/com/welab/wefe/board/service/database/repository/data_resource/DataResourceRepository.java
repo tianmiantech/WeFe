@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,8 +31,11 @@ import java.util.List;
 @Repository("dataResourceRepository")
 public interface DataResourceRepository<T extends DataResourceMysqlModel> extends BaseRepository<T, String> {
 
-    @Query(value = "select tags,count(tags) as count from #{#entityName} where resource_type=?1 and tags<>'' group by tags;", nativeQuery = true)
+    @Query(value = "select tags,count(tags) as count from #{#entityName} where data_resource_type=?1 and tags<>'' group by tags;", nativeQuery = true)
     List<Object[]> listAllTags(String resourceType);
+
+    @Query(value = "select tags,count(tags) as count from #{#entityName} where tags<>'' group by tags;", nativeQuery = true)
+    List<Object[]> listAllTags();
 
     @Query(value = "select count(*) from #{#entityName} where name=?1", nativeQuery = true)
     int countByName(String name);
