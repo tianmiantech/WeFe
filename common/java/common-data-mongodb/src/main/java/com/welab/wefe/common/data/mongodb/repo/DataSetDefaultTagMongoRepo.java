@@ -17,6 +17,7 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
