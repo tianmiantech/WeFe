@@ -16,14 +16,12 @@
 
 package com.welab.wefe.board.service.fusion.manager;
 
+import com.google.common.collect.Lists;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,7 +47,7 @@ public class ActuatorManager {
             throw new RuntimeException(businessId + " This actuator already exists");
         }
 
-        LOG.info("Set actuator successfully, bussinessId is {}", businessId);
+        LOG.info("Set actuator successfully, businessId is {}", businessId);
         ACTUATORS.put(businessId, task);
 
     }
@@ -61,7 +59,7 @@ public class ActuatorManager {
 
     public synchronized static List<JObject> dashboard() {
 
-        List<JObject> list = new ArrayList<>();
+        List<JObject> list = Lists.newArrayList();
         Object[] keys = ACTUATORS.keySet().toArray();
 
         for (Object key : keys) {
@@ -82,36 +80,23 @@ public class ActuatorManager {
             return null;
         }
 
-        JObject info = JObject
+        return JObject
                 .create()
                 .append("business_id", businessId)
 //                .append("fusion_count", actuator.getFusionCount())
 //                .append("processed_count", actuator.getProcessedCount())
 //                .append("data_count", actuator.getDataCount())
                 .append("spend", actuator.getSpend())
-                .append("stimated_spend", actuator.getEstimatedSpend())
+                .append("estimated_spend", actuator.getEstimatedSpend())
                 .append("progress", actuator.progress());
-
-        return info;
     }
 
     /**
      * Number of tasks
+     *
      * @return Number of tasks
      */
     public static int size() {
         return ACTUATORS.size();
-    }
-
-    public static String ip() {
-        InetAddress addr = null;
-        try {
-            addr = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            LOG.error("get ip error : " + e.getMessage());
-        }
-
-        return addr.getHostAddress();
     }
 }

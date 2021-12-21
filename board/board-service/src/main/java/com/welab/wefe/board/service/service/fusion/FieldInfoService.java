@@ -57,12 +57,10 @@ public class FieldInfoService extends AbstractService {
 
         List<FieldInfoMySqlModel> modelList = findByBusinessId(businessId);
 
-        List<FieldInfo> models = modelList
+        return modelList
                 .stream()
                 .map(x -> ModelMapper.map(x, FieldInfo.class))
                 .collect(Collectors.toList());
-
-        return models;
     }
 
     private List<FieldInfoMySqlModel> findByBusinessId(String businessId) {

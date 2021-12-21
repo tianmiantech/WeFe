@@ -162,8 +162,8 @@ public class BloomFilterService extends DataResourceService {
     }
 
 
-    public BloomFilterMysqlModel findOne(String bloomfilterId) {
-        return repo.findById(bloomfilterId).orElse(null);
+    public BloomFilterMysqlModel findOne(String bloomFilterId) {
+        return repo.findById(bloomFilterId).orElse(null);
     }
 
     /**
