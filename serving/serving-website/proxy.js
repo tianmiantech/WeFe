@@ -7,7 +7,7 @@
 
 module.exports = {
     '/api': {
-        target:       'https://***.wolaidai.com/serving-service-01',
+        target:       'http://localhost:8080/serving-service',
         secure:       false,
         timeout:      1000000,
         changeOrigin: true,

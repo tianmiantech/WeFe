@@ -22,13 +22,20 @@
             </el-form-item>
 
             <el-form-item>
-                <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
                             name: 'client-list',
                         }"
                 >
-                    <el-button>取消</el-button>
+
+                    <el-button type="primary" @click="onSubmit">提交</el-button>
+                </router-link>
+                <router-link
+                    :to="{
+                            name: 'client-list',
+                        }"
+                >
+                    <el-button>返回</el-button>
                 </router-link>
             </el-form-item>
         </el-form>
@@ -71,8 +78,8 @@ export default {
                 data: {
                     name: this.client.name,
                     email: this.client.email,
-                    ipAdd: this.client.ipAdd,
-                    pubKey: this.client.pubKey,
+                    ipAdd: this.client.ip_add,
+                    pubKey: this.client.pub_key,
                     remark: this.client.remark,
                     createdBy: this.userInfo.nickname,
                 },

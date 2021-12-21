@@ -2,8 +2,8 @@
 
     <el-card class="page" shadow="never">
         <el-form class="mb20" inline>
-            <el-form-item label="创建者名称：">
-                <el-input v-model="search.createdBy" clearable/>
+            <el-form-item label="客户名称：">
+                <el-input v-model="search.clientName" clearable/>
             </el-form-item>
 
             <el-form-item label="创建时间：">
@@ -123,7 +123,7 @@ export default {
     data() {
         return {
             search: {
-                createdBy: '',
+                clientName: '',
                 status: '',
                 startTime: '',
                 endTime: '',

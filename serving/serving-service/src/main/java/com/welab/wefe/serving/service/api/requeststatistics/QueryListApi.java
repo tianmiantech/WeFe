@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
+import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.RequestStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<R
         return success(requestStatisticsService.queryList(input));
     }
 
-    public static class Input extends AbstractApiInput {
+    public static class Input extends PagingInput {
 
         /**
          * 开始时间

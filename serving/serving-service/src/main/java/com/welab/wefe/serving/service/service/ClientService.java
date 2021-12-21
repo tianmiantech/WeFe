@@ -51,7 +51,7 @@ public class ClientService {
 
         Specification<ClientMysqlModel> where = Where
                 .create()
-                .contains("createdBy", input.getCreatedBy())
+                .contains("name", input.getClientName())
                 .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime(),
                         input.getEndTime() == null ? null : input.getEndTime())
                 .equal("status", ClientStatusEnum.NORMAL.getValue())

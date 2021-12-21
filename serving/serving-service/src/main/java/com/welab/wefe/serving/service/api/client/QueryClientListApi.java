@@ -46,8 +46,8 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
 
     public static class Input extends PagingInput {
 
-        @Check(name = "由谁创建")
-        private String createdBy;
+        @Check(name = "客户名称")
+        private String clientName;
 
         @Check(name = "开始时间")
         private Long startTime;
@@ -55,12 +55,12 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
         @Check(name = "结束时间")
         private Long endTime;
 
-        public String getCreatedBy() {
-            return createdBy;
+        public String getClientName() {
+            return clientName;
         }
 
-        public void setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
+        public void setClientName(String clientName) {
+            this.clientName = clientName;
         }
 
         public Long getStartTime() {
