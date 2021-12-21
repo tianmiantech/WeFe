@@ -17,7 +17,8 @@
 package com.welab.wefe.common.util;
 
 import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -30,7 +31,7 @@ import java.util.zip.ZipOutputStream;
  * @author Zane
  */
 public class ZipUtil {
-    private static final Logger LOG = Logger.getLogger(ZipUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
     private static final int BUFFER_SIZE = 2 * 1024;
 
     /**
