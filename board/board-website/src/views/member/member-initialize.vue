@@ -76,7 +76,6 @@
                     >
                         <template slot="append">
                             <el-button
-                                plain
                                 type="primary"
                                 :disabled="!form.gateway_uri"
                                 @click="check"
@@ -231,11 +230,10 @@
                             });
 
                             if(res.code === 0) {
-                                this.userInfo.member_id = res.data.member_id;
-                                this.userInfo.member_name = res.data.member_name;
-                                this.userInfo.member_email = res.data.member_email;
+                                const info = Object.assign(this.userInfo, res.data);
+
                                 this.$store.commit('SYSTEM_INITED', true); // system initialized
-                                this.$store.commit('UPDATE_USERINFO', this.userInfo);
+                                this.$store.commit('UPDATE_USERINFO', info);
                                 this.$message.success('欢迎来到 WeFe 联邦! ');
                                 this.initMemberCard();
                             } else {

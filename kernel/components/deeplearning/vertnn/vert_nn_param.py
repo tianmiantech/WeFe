@@ -40,6 +40,9 @@ from kernel.base.params.encrypt_param import EncryptParam
 from kernel.base.params.encrypted_mode_calculation_param import EncryptedModeCalculatorParam
 from kernel.base.params.predict_param import PredictParam
 from kernel.utils import consts
+import json
+import tensorflow
+from tensorflow.keras.models import Sequential
 
 
 class SelectorParam(object):
@@ -178,6 +181,18 @@ class VertNNParam(BaseParam):
 
         self.drop_out_keep_rate = drop_out_keep_rate
 
+    def build_nn_layers(self, nn_define):
+        model = Sequential()
+        if nn_define:
+            layers = nn_define["layers"]
+            for layer_config in layers:
+                layer = getattr(tensorflow.keras.layers, layer_config["class_name"])
+                layer_params = layer_config["config"]
+                model.add(layer(**layer_params))
+            return json.loads(model.to_json())
+        else:
+            return []
+
     def check(self):
         self.optimizer = self._parse_optimizer(self.optimizer)
         supported_config_type = ["keras"]
@@ -248,6 +263,9 @@ class VertNNParam(BaseParam):
         self.encrypted_model_calculator_param.check()
         self.predict_param.check()
         self.selector_param.check()
+        self.bottom_nn_define = self.build_nn_layers(self.bottom_nn_define)
+        self.interactive_layer_define = self.build_nn_layers(self.interactive_layer_define)
+        self.top_nn_define = self.build_nn_layers(self.top_nn_define)
 
     @staticmethod
     def _parse_optimizer(opt):

@@ -13,7 +13,7 @@
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
@@ -31,7 +31,7 @@ const baseRoutes = [
                 name: 'index',
                 meta: {
                     title:           '主页',
-                    icon:            'el-icon-monitor',
+                    icon:            'monitor',
                     loginAndRefresh: true,
                 },
                 component: () => import('../views/index/dashboard.vue'),
@@ -42,7 +42,7 @@ const baseRoutes = [
         path: `${prefixPath}union-center`,
         meta: {
             title: '联邦',
-            icon:  'el-icon-connection',
+            icon:  'connection',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -81,7 +81,7 @@ const baseRoutes = [
         path: `${prefixPath}data-center`,
         meta: {
             title: '数据中心',
-            icon:  'el-icon-coin',
+            icon:  'coin',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -128,7 +128,7 @@ const baseRoutes = [
         path: `${prefixPath}teamwork`,
         meta: {
             title: '合作中心',
-            icon:  'el-icon-s-claim',
+            icon:  'list',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -234,10 +234,29 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}modeling-list`,
+        meta: {
+            title:  '模型列表',
+            hidden: true,
+        },
+        component: () => import('@comp/LayoutFullScreen.vue'),
+        children:  [
+            {
+                path: `${prefixPath}modeling-list`,
+                name: 'modeling-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '模型列表',
+                },
+                component: () => import('../views/teamwork/modeling-list.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}account`,
         meta: {
             title: '用户管理',
-            icon:  'el-icon-user',
+            icon:  'user',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -262,13 +281,13 @@ const baseRoutes = [
                 component: () => import('../views/account/log-list'),
             },
             {
-                path: `${prefixPath}change-password`,
-                name: 'change-password',
+                path: `${prefixPath}account-setting`,
+                name: 'account-setting',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '修改密码',
+                    title:           '账户设置',
                 },
-                component: () => import('../views/system-config/change-password'),
+                component: () => import('../views/system-config/account-setting'),
             },
         ],
     },
@@ -276,7 +295,7 @@ const baseRoutes = [
         path: `${prefixPath}global`,
         meta: {
             title: '全局设置',
-            icon:  'el-icon-setting',
+            icon:  'setting',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -285,16 +304,27 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '成员信息',
+                    title:           '成员设置',
                 },
-                component: () => import('../views/member/member-view'),
+                component: () => import('../views/system-config/member-view'),
+            },
+            {
+                path: `${prefixPath}enterprise-certification`,
+                name: 'enterprise-certification',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}member-view`,
+                    title:           '企业认证',
+                },
+                component: () => import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
                 name: 'blacklist',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '黑名单管理',
+                    title:           '成员黑名单',
                 },
                 component: () => import('../views/blacklist/blacklist-list'),
             },

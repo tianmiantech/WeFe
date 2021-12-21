@@ -113,7 +113,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
@@ -125,10 +124,10 @@
 
             let methods = {
                 showResult(data) {
-                    if(data.result) {
+                    if(data[0].result) {
                         const list = [];
 
-                        data.result.result.forEach(member => {
+                        data[0].result.result.forEach(member => {
                             const { binningResult } = member;
                             const dataList = [];
 

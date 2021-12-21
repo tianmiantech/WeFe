@@ -78,6 +78,7 @@ export default (function () {
 
                         this[key] = val;
                     }
+                    this.getListApi = this.vData.getListApi;
                 }
                 if (!this.getListApi) return;
 
@@ -112,7 +113,9 @@ export default (function () {
                         },
                     });
                     if (watchRoute) {
-                        this.watchRoute = true;
+                        setTimeout(_ => {
+                            this.watchRoute = true;
+                        });
                     }
                 }
                 // watch $route

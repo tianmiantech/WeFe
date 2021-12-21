@@ -79,6 +79,13 @@ public abstract class AbstractDataSetReader implements Closeable {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+        if (list.size() == 0) {
+            throw new StatusCodeWithException("数据集首行为空", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (list.size() == 1) {
+            throw new StatusCodeWithException("数据集仅一列，不支持仅有 Id 列的数据集上传。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         // Convert uppercase Y to lowercase y
         list = list.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
 
