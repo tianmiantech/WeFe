@@ -57,8 +57,8 @@ public class UnionService extends AbstractUnionService {
     }
 
     public void upsertDataResource(DataResourceMysqlModel model) {
-        JObject params = JObject
-                .create(model);
+        JObject params = JObject.create(model)
+                .append("data_resource_id", model.getId());
 
         MemberInfoModel member = globalConfigService.getMemberInfo();
         // If data exposure is prohibited globally, it will not be reported.
