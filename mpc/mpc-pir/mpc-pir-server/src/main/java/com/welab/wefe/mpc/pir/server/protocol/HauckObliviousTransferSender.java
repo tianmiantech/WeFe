@@ -26,21 +26,17 @@ import com.welab.wefe.mpc.pir.server.cache.HauckTargetCache;
 import com.welab.wefe.mpc.pir.server.trasfer.PrivateInformationRetrievalTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Component
 public class HauckObliviousTransferSender extends HauckObliviousTransfer implements ObliviousTransfer {
     private static final Logger LOG = LoggerFactory.getLogger(HauckObliviousTransferSender.class);
 
     HauckTarget mHauckTarget = null;
 
-    @Autowired
     PrivateInformationRetrievalTransferVariable mTransferVariable;
 
     public HauckObliviousTransferSender(String uuid) {

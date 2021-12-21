@@ -21,17 +21,13 @@ import com.welab.wefe.mpc.cache.CacheOperation;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryRandomRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @Author eval
  * @Date 2021/12/14
  **/
-@Service
 public class HauckRandomService {
 
-    @Autowired
     CacheOperation mCacheOperation;
 
     public QueryRandomResponse handle(QueryRandomRequest request) {
