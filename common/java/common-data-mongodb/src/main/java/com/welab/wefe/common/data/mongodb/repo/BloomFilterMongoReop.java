@@ -126,6 +126,87 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
+    /**
+     * Query the BloomFilter visible to the current member
+     */
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.BLOOM_FILTER).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("bloom_filter");
+
+        LookupOperation lookupToMember = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+
+        Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
+                .append("enable", "1")
+                .like("name", dataResourceQueryInput.getName())
+                .like("tags", dataResourceQueryInput.getTag())
+                .append("member_id", dataResourceQueryInput.getCurMemberId())
+                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
+                .getCriteria();
+
+        Criteria or = new Criteria();
+        or.orOperator(
+                new QueryBuilder().append("public_level", "Public").getCriteria(),
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
+        );
+
+        dataResouceCriteria.andOperator(or);
+
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
+
+        Criteria memberCriteria = new QueryBuilder()
+                .like("member_name", dataResourceQueryInput.getMemberName())
+                .getCriteria();
+
+        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+        UnwindOperation unwind = Aggregation.unwind("member");
+        UnwindOperation unwindExtraData = Aggregation.unwind("bloom_filter");
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindExtraData,
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch
+
+        );
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults().size();
+
+        SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+
+        aggregation = Aggregation.newAggregation(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindExtraData,
+                dataResourceMatch,
+                memberMatch,
+                skipOperation,
+                limitOperation,
+                addFieldsOperation
+        );
+
+        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
+
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
+    }
+
+
     public void deleteByDataResourceId(String dataResourceId) {
         Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
