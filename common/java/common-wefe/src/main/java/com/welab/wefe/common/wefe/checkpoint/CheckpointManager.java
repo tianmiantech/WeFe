@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 这里会自动扫描所有 AbstractCheckpoint 的子类
+ * 并在 checkAll() 时对所有检查点进行检查。
+ *
  * @author zane
  * @date 2021/12/21
  */
