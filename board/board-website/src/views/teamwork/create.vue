@@ -618,7 +618,7 @@
                             member_role:   'promoter',
                             member_id:     this.userInfo.member_id,
                             data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                 }
@@ -635,7 +635,7 @@
                             member_role:   'promoter',
                             member_id:     item.member_id,    // promoter Id
                             data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     promoterList.push(promoter);
@@ -653,7 +653,7 @@
                             member_role:   'provider',
                             member_id:     item.member_id,    // provider Id
                             data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     providerList.push(provider);
