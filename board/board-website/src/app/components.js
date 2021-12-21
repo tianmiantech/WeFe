@@ -51,9 +51,9 @@ export default {
             app.component(component.name, component);
         });
         app.component('VirtualList', VirtualList);
+        app.component('Konva', Konva);
         app.use(VueSimpleUploader);
         app.use(VueDragResize);
         app.use(CGrid);
-        app.use(Konva);
     },
 };

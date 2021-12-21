@@ -193,8 +193,8 @@ public class MemberMongoReop extends AbstractMongoRepo {
         return new PageOutput<>(pageIndex, total, query.getLimit(), list);
     }
 
-    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name, Boolean hidden, Boolean freezed, Boolean lostContact) {
-        return query(pageIndex, pageSize, memberId, name, hidden, freezed, lostContact, false);
+    public PageOutput<Member> query(Integer pageIndex, Integer pageSize, String memberId, String name) {
+        return query(pageIndex, pageSize, memberId, name, false, false, false, false);
     }
 
 
