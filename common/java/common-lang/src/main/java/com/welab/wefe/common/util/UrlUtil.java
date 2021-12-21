@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,8 @@
 package com.welab.wefe.common.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
  * @author Zane
  */
 public class UrlUtil {
-    private static final Logger LOG = Logger.getLogger(UrlUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
     private static final Pattern PATTERN_MATCH_QUERY_STRING = Pattern.compile("(?<name>[^?&]+)=(?<value>[^?&]+)");
 
     /**
@@ -185,7 +186,7 @@ public class UrlUtil {
         try {
             return URLEncoder.encode(str, charsetName);
         } catch (UnsupportedEncodingException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
         return "";
     }
@@ -239,7 +240,7 @@ public class UrlUtil {
         try {
             return URLDecoder.decode(str, charsetName);
         } catch (UnsupportedEncodingException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
         return "";
     }

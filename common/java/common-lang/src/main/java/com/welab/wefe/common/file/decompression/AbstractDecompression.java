@@ -17,7 +17,8 @@ package com.welab.wefe.common.file.decompression;
 
 import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.io.IOException;
  * @date 2021/11/29
  */
 public abstract class AbstractDecompression {
-    protected final Logger LOG = Logger.getLogger(this.getClass());
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 解压文件至指定目录

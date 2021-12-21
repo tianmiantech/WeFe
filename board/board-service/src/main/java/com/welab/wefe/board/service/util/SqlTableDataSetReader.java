@@ -20,7 +20,8 @@ import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.*;
@@ -34,7 +35,8 @@ import java.util.List;
  * @author jacky.jiang
  */
 public class SqlTableDataSetReader extends AbstractTableDataSetReader {
-    private static final Logger log = Logger.getLogger(SqlTableDataSetReader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SqlTableDataSetReader.class);
+
     private long totalRowCount;
     private List<String> headers;
     private final Connection conn;
@@ -114,21 +116,21 @@ public class SqlTableDataSetReader extends AbstractTableDataSetReader {
             try {
                 rs.close();
             } catch (SQLException e) {
-                log.error("ResultSet is null" + e);
+                LOG.error("ResultSet is null" + e);
             }
         }
         if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {
-                log.error("PreparedStatement is null" + e);
+                LOG.error("PreparedStatement is null" + e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                log.error("Connection is null" + e);
+                LOG.error("Connection is null" + e);
             }
         }
     }

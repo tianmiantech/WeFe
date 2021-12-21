@@ -52,7 +52,7 @@ public class CallbackService {
     private FusionTaskRepository fusionTaskRepository;
 
     @Autowired
-    private BloomFilterService bloomfilterService;
+    private BloomFilterService bloomFilterService;
     @Autowired
     private TableDataSetService tableDataSetService;
 
@@ -87,10 +87,6 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId) throws StatusCodeWithException {
-//        if (ActuatorManager.get(businessId) != null) {
-//            return;
-//        }
-
         FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
@@ -167,7 +163,7 @@ public class CallbackService {
         /**
          * Find your party by task ID
          */
-        BloomFilterMysqlModel bf = bloomfilterService.findOne(task.getDataResourceId());
+        BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
         if (bf == null) {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }

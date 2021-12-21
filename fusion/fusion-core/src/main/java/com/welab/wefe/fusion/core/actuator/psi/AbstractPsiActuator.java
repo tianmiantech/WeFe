@@ -34,11 +34,7 @@ public abstract class AbstractPsiActuator extends AbstractActuator {
 
     @Override
     public boolean isFinish() {
-        if (PSIActuatorStatus.running != status
-                && PSIActuatorStatus.uninitialized != status) {
-            return true;
-        }
-
-        return false;
+        return PSIActuatorStatus.running != status
+                && PSIActuatorStatus.uninitialized != status;
     }
 }

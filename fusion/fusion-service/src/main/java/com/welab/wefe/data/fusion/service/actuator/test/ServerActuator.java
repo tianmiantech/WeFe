@@ -25,7 +25,7 @@ import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
-import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiServerActuator;
 import com.welab.wefe.fusion.core.enums.ActionType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-public class ServerActuator extends PsiServerActuator {
+public class ServerActuator extends AbstractPsiServerActuator {
 
     private ServerSocket serverSocket;
 
@@ -199,7 +199,7 @@ public class ServerActuator extends PsiServerActuator {
 
             byte[][] ret = new byte[2][];
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
-            ret[1] = PSIUtils.bigIntegerToBytes(N, false);
+            ret[1] = PSIUtils.bigIntegerToBytes(n, false);
 
             PSIUtils.send2DBytes(socket, ret);
             PSIUtils.sendInteger(d_out, bf.count());
@@ -227,7 +227,7 @@ public class ServerActuator extends PsiServerActuator {
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, query);
+            byte[][] result = CryptoUtils.sign(n, d, query);
 
             LOG.info("server a.mod(N) spend :  {} ms size: {}", (System.currentTimeMillis() - start1), result.length);
 
