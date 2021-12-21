@@ -52,6 +52,7 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
         if (dataResource == null) {
             if (imageDataSet == null) {
                 imageDataSetContractService.add(imageDataSetMapper.transferPutInputToImageDataSet(input));
+                dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
             } else {
                 dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
             }
