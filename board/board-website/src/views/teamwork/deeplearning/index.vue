@@ -626,7 +626,7 @@
                         ref.searchField.member_id = vData.currentItem.member_id;
                         ref.searchField.member_role = vData.currentItem.member_role;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
-                        ref.searchField.data_set_type = 'ImageDataSet';
+                        ref.searchField.data_resource_type = 'ImageDataSet';
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',

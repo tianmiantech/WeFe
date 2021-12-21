@@ -604,10 +604,10 @@
                     if (batchlist.length) {
                         batchlist.forEach(item => {
                             vData.batchDataSetList.push({
-                                member_role:   row.member_role,
-                                member_id:     row.member_id,
-                                data_set_id:   item.id || item.data_set_id,
-                                data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                member_role:        row.member_role,
+                                member_id:          row.member_id,
+                                data_set_id:        item.id || item.data_set_id,
+                                data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });
                         const { code } = await $http.post({
@@ -638,10 +638,10 @@
                                 project_id:  props.form.project_id,
                                 dataSetList: [
                                     {
-                                        member_role:   row.member_role,
-                                        member_id:     row.member_id,
-                                        data_set_id:   item.id,
-                                        data_set_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                        member_role:        row.member_role,
+                                        member_id:          row.member_id,
+                                        data_set_id:        item.id,
+                                        data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                     },
                                 ],
                             },
