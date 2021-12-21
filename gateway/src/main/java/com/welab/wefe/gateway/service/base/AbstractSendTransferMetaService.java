@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.base;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -55,11 +56,7 @@ public abstract class AbstractSendTransferMetaService {
      * @return Forwarding results
      */
     public BasicMetaProto.ReturnStatus send(GatewayMetaProto.TransferMeta transferMeta) {
-        // Special treatment shall be taken for survival and activity inspection, and no parameter validity inspection shall be conducted
-        String aliveProcessor = "gatewayAliveProcessor";
-        if (aliveProcessor.equals(transferMeta.getProcessor())) {
-            return doHandle(transferMeta);
-        }
+
         // Handle the compatibility between the old version of action and the new version of processor
         transferMeta = actionMappingProcessor(transferMeta);
         // Check the validity of parameters
@@ -73,7 +70,17 @@ public abstract class AbstractSendTransferMetaService {
         // Set the receiver and sender of the message
         transferMeta = setMemberInfo(transferMeta);
 
-        return doHandle(transferMeta);
+        try {
+            return doHandle(transferMeta);
+        } catch (StatusCodeWithException e) {
+
+            return ReturnStatusBuilder
+                    .create(
+                            e.getStatusCode().getCode(),
+                            e.getMessage(),
+                            transferMeta.getSessionId()
+                    );
+        }
     }
 
     /**
@@ -90,7 +97,7 @@ public abstract class AbstractSendTransferMetaService {
      * @param transferMeta Metadata message to be forwarded
      * @return Forwarding results
      */
-    public abstract BasicMetaProto.ReturnStatus doHandle(GatewayMetaProto.TransferMeta transferMeta);
+    public abstract BasicMetaProto.ReturnStatus doHandle(GatewayMetaProto.TransferMeta transferMeta) throws StatusCodeWithException;
 
 
     /**

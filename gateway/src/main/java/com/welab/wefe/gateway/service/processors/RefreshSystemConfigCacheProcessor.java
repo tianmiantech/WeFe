@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -27,10 +28,10 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
  *
  * @author aaron.li
  **/
-@Processor(name = "refreshSystemConfigCacheProcessor", desc = "Refresh system configuration cache processor")
+@Processor(type = GatewayProcessorType.refreshSystemConfigCacheProcessor, desc = "Refresh system configuration cache processor")
 public class RefreshSystemConfigCacheProcessor extends AbstractProcessor {
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         boolean ret = SystemConfigCache.getInstance().refreshCache();
         return ret ? ReturnStatusBuilder.ok(transferMeta.getSessionId()) : ReturnStatusBuilder.sysExc("刷新系统配置缓存失败", transferMeta.getSessionId());
     }

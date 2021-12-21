@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,9 +43,19 @@ public abstract class AbstractCheckpoint {
     public ServerCheckPointOutput check() {
         long start = System.currentTimeMillis();
 
+        String value = null;
+        try {
+            value = value();
+        } catch (Exception e) {
+            throw new RuntimeException("获取 value 失败，" + e.getClass().getSimpleName() + ":" + e.getMessage());
+        }
+
+        String finalValue = value;
         Future<Exception> future = CommonThreadPool.submit(() -> {
             try {
-                if (value() == null) {
+
+
+                if (finalValue == null) {
                     StatusCode
                             .PARAMETER_CAN_NOT_BE_EMPTY
                             .throwException("相关配置为空，请进行设置后再进行检查。");
@@ -67,7 +77,7 @@ public abstract class AbstractCheckpoint {
         ServerCheckPointOutput output = new ServerCheckPointOutput();
         output.setService(service());
         output.setDesc(desc());
-        output.setValue(value());
+        output.setValue(value);
         output.setSpend(System.currentTimeMillis() - start);
 
         if (e == null) {

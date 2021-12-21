@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
@@ -30,7 +31,7 @@ import com.welab.wefe.gateway.service.MessageQueueService;
  *
  * @author aaron.li
  **/
-@Processor(name = "dbChatTableProcessor", desc = "The message is saved to the exchange center queue list processor of MySQL")
+@Processor(type = GatewayProcessorType.dbChatTableProcessor, desc = "The message is saved to the exchange center queue list processor of MySQL")
 public class DbChatTableProcessor extends AbstractProcessor {
 
     @Override

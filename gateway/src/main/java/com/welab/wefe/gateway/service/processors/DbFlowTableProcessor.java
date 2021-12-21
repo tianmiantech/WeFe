@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
@@ -30,7 +31,7 @@ import com.welab.wefe.gateway.service.FlowActionQueueService;
  *
  * @author aaron.li
  **/
-@Processor(name = "dbFlowTableProcessor", desc = "The message is saved to the flow action queue list processor of MySQL")
+@Processor(type = GatewayProcessorType.dbFlowTableProcessor, desc = "The message is saved to the flow action queue list processor of MySQL")
 public class DbFlowTableProcessor extends AbstractProcessor {
 
     @Override
