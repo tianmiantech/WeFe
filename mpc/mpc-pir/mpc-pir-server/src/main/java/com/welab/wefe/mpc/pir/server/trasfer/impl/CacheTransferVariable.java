@@ -21,16 +21,12 @@ import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.server.trasfer.PrivateInformationRetrievalTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class CacheTransferVariable implements PrivateInformationRetrievalTransferVariable {
     private static final Logger LOG = LoggerFactory.getLogger(CacheTransferVariable.class);
 
-    @Autowired
     public static CacheOperation mCacheOperation;
 
     @Override
