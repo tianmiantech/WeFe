@@ -21,10 +21,10 @@ import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
  * @author zane
  * @date 2021/12/20
  */
-public class AvailableTest {
+public class AliveTest {
     public static void main(String[] args) throws Exception {
-        Client.callLocalGateway(
-                GatewayProcessorType.gatewayAvailableProcessor,
+        String response = Client.callLocalGateway(
+                GatewayProcessorType.gatewayAliveProcessor,
                 ""
         );
     }
