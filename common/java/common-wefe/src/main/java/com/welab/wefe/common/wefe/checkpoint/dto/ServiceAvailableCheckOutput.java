@@ -34,7 +34,17 @@ public class ServiceAvailableCheckOutput {
         if (list == null) {
             this.available = false;
         } else {
-            this.available = list.stream().allMatch(x -> x.isSuccess());
+            ServiceCheckPointOutput failedCheckpoint = list.stream()
+                    .filter(x -> !x.isSuccess())
+                    .findAny()
+                    .orElse(null);
+
+            if (failedCheckpoint == null) {
+                this.available = true;
+            } else {
+                this.available = false;
+                this.message = failedCheckpoint.getMessage();
+            }
         }
     }
 
