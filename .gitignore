@@ -3,7 +3,7 @@
 *.iml
 out
 gen
-
+**/bin/
 *.project
 .settings/
 .classpath
