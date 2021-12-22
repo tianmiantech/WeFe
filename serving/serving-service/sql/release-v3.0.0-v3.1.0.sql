@@ -59,6 +59,7 @@ CREATE TABLE client_service(
                                id VARCHAR(32) NOT NULL   COMMENT '客户服务id' ,
                                service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                                client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                               fee_config_id VARCHAR(32) COMMENT '计费配置id' ,
                                created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
@@ -79,6 +80,7 @@ CREATE TABLE fee_config(
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
                            unit_price double (10,6) NOT NULL   COMMENT '调用单价' ,
+                           pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '计费配置';
 CREATE INDEX service_client_index ON fee_config(service_id,client_id);

@@ -1,6 +1,7 @@
 package com.welab.wefe.serving.service.database.serving.entity;
 
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -12,6 +13,9 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "client_id")
     private String clientId;
+
+    @Column(name = "fee_config_id")
+    private String feeConfigId;
 
     /**
      * status: false means unused, true means used, default = true
@@ -40,5 +44,13 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getFeeConfigId() {
+        return feeConfigId;
+    }
+
+    public void setFeeConfigId(String feeConfigId) {
+        this.feeConfigId = feeConfigId;
     }
 }

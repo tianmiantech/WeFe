@@ -115,16 +115,15 @@
             />
         </div>
     </el-card>
-
 </template>
 
 <script>
-
-import table from '@src/mixins/table.js';
 import RoleTag from "../components/role-tag";
+import table from '@src/mixins/table.js';
 
 export default {
-    name: "request-statistics",
+    name: "fee-detail",
+
     components: {
         RoleTag,
     },
@@ -150,53 +149,7 @@ export default {
                 3: "安全聚合",
             },
         }
-
     },
-
-    created() {
-        this.getServices()
-        this.getClients()
-    },
-
-    methods: {
-        handleServices(data) {
-            for (let i = 0; i < data.length; i++) {
-                this.services.push({
-                    label: data[i].name,
-                    value: data[i].id
-                })
-            }
-        },
-
-        handleClients(data) {
-            for (let i = 0; i < data.length; i++) {
-                this.clients.push({
-                    label: data[i].name,
-                    value: data[i].id
-                })
-            }
-        },
-
-        async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
-            });
-
-            if (code === 0) {
-                this.handleServices(data.list)
-            }
-        },
-
-        async getClients() {
-            const {code, data} = await this.$http.post({
-                url: '/client/query-list',
-            });
-
-            if (code === 0) {
-                this.handleClients(data.list)
-            }
-        }
-    }
 }
 </script>
 

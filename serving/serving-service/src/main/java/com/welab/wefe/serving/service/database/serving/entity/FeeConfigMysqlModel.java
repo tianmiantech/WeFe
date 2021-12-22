@@ -1,5 +1,7 @@
 package com.welab.wefe.serving.service.database.serving.entity;
 
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
@@ -19,6 +21,12 @@ public class FeeConfigMysqlModel extends AbstractBaseMySqlModel {
      */
     @Column(name = "unit_price")
     private Double unitPrice;
+
+    /**
+     * pay type: 1 预付费、0 后付费
+     */
+    @Column(name = "pay_type")
+    private int payType = PayTypeEnum.POSTPAID.getValue();
 
     public String getServiceId() {
         return serviceId;
@@ -42,5 +50,13 @@ public class FeeConfigMysqlModel extends AbstractBaseMySqlModel {
 
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public int getPayType() {
+        return payType;
+    }
+
+    public void setPayType(int payType) {
+        this.payType = payType;
     }
 }

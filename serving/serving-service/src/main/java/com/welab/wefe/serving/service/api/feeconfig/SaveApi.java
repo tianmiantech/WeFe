@@ -52,6 +52,9 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "计费单价", require = true)
         private Double unitPrice;
 
+        @Check(name = "付费方式")
+        private Integer payType;
+
         public String getId() {
             return id;
         }
@@ -82,6 +85,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setUnitPrice(Double unitPrice) {
             this.unitPrice = unitPrice;
+        }
+
+        public Integer getPayType() {
+            return payType;
+        }
+
+        public void setPayType(Integer payType) {
+            this.payType = payType;
         }
     }
 

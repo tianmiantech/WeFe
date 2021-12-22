@@ -98,13 +98,13 @@ const baseRoutes = [
                 component: () => import('@views/fee/request-statistics.vue'),
             },
             {
-                path: `${prefixPath}client-add`,
-                name: 'client-add',
+                path: `${prefixPath}fee-detail`,
+                name: 'fee-detail',
                 meta: {
-                    title: '新增客户',
+                    title: '计费概览',
                 },
                 component: () =>
-                    import('@views/client/client-add.vue'),
+                    import('@views/fee/fee-detail.vue'),
             },
         ],
     },

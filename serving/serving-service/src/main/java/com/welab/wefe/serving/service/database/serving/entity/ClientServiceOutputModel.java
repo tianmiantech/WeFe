@@ -26,6 +26,16 @@ public class ClientServiceOutputModel {
     private String clientName;
 
     /**
+     * 单价
+     */
+    private Double unitPrice;
+
+    /**
+     * 付费类型
+     */
+    private int payType;
+
+    /**
      * 启用状态
      */
     private Integer status;
@@ -44,6 +54,22 @@ public class ClientServiceOutputModel {
      * 请求地址
      */
     private String url;
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public int getPayType() {
+        return payType;
+    }
+
+    public void setPayType(int payType) {
+        this.payType = payType;
+    }
 
     public String getId() {
         return id;

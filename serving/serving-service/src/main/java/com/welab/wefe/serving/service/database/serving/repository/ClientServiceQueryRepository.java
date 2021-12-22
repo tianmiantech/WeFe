@@ -41,12 +41,14 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
      */
     @Query(value = "select * from " +
             "(SELECT cs.id , s.name as serviceName, c.name as clientName, cs.status ," +
-            " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url " +
+            " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url, " +
+            "fc.unit_price as unitPrice, fc.pay_type as payType " +
             "FROM wefe_serving.client_service cs " +
             "left join service s on cs.service_id = s.id " +
-            "left join client c on cs.client_id = c.id ) as t " +
-            "where if(:service_name is not null ,t.serviceName = :service_name, 1=1) " +
-            "and if(:client_name is not null ,t.clientName = :client_name, 1=1) " +
+            "left join client c on cs.client_id = c.id " +
+            "left join fee_config fc on cs.fee_config_id = fc.id ) as t " +
+            "where if(:service_name != '' ,t.serviceName = :service_name, 1=1) " +
+            "and if(:client_name != '' ,t.clientName = :client_name, 1=1) " +
             "and if(:status is not null ,t.status = :status, 1=1) ", nativeQuery = true ,countProjection = "1")
     List<ClientServiceOutputModel> queryClientServiceList(@Param("service_name") String serviceName,
                                                           @Param("client_name") String clientName,

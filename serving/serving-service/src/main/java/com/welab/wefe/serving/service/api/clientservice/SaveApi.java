@@ -28,20 +28,17 @@ import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-@Api(path = "clientservice/save", name = "save client service model", login = false)
+@Api(path = "clientservice/save", name = "save client service model")
 public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
-
 
     @Autowired
     private ClientServiceService clientServiceService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-
         clientServiceService.save(input);
         return success();
     }
-
 
     public static class Input extends AbstractApiInput {
 
@@ -56,6 +53,39 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         @Check(name = "use status")
         private Integer status;
+
+        @Check(name = "fee config id")
+        private String feeConfigId;
+
+        @Check(name = "unit price")
+        private Double unitPrice;
+
+        @Check(name = "pay type")
+        private int payType;
+
+        public Double getUnitPrice() {
+            return unitPrice;
+        }
+
+        public void setUnitPrice(Double unitPrice) {
+            this.unitPrice = unitPrice;
+        }
+
+        public int getPayType() {
+            return payType;
+        }
+
+        public void setPayType(int payType) {
+            this.payType = payType;
+        }
+
+        public String getFeeConfigId() {
+            return feeConfigId;
+        }
+
+        public void setFeeConfigId(String feeConfigId) {
+            this.feeConfigId = feeConfigId;
+        }
 
         public String getId() {
             return id;

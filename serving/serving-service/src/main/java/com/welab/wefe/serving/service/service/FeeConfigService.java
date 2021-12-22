@@ -3,6 +3,7 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.serving.service.api.feeconfig.SaveApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +27,15 @@ public class FeeConfigService {
 
         }
 
-
         model.setServiceId(input.getServiceId());
         model.setClientId(input.getClientId());
-        model.setUnitPrice(input.getUnitPrice());
-
+        if (null != input.getUnitPrice()) {
+            model.setUnitPrice(input.getUnitPrice());
+        }
+        // 预留字段
+        if (null != input.getPayType()) {
+            model.setPayType(input.getPayType());
+        }
         feeConfigRepository.save(model);
     }
 }
