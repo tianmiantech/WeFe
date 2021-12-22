@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.api.union.MemberRealnameAuthApi;
+import com.welab.wefe.board.service.api.union.member_auth.MemberRealnameAuthApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
