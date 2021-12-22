@@ -79,26 +79,21 @@ public class ServiceCheckService extends AbstractService {
     }
 
     public ServiceAvailableCheckOutput getServiceAvailableInfo(ServiceType serviceType) {
-        ServiceAvailableCheckOutput output = null;
         try {
             switch (serviceType) {
                 case BoardService:
-                    output = checkpointManager.checkAll();
-                    break;
+                    return checkpointManager.checkAll();
                 case GatewayService:
-                    output = gatewayService.getLocalGatewayAvailable();
-                    break;
+                    return gatewayService.getLocalGatewayAvailable();
                 case UnionService:
-                    output = unionService.getAvailable();
-                    break;
+                    return unionService.getAvailable();
                 default:
                     StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
         } catch (Exception e) {
-            output = new ServiceAvailableCheckOutput(e.getMessage());
+            return new ServiceAvailableCheckOutput(e.getMessage());
         }
-
-        return output;
+        return null;
     }
 
     /**
