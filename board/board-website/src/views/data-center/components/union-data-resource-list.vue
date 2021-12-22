@@ -109,11 +109,7 @@
                 <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     特征量：{{ scope.row.feature_count }}
                     <br>
-                    样本量：{{ scope.row.row_count }}
-                    <br>
-                    正例样本数量：{{ scope.row.y_positive_sample_count }}
-                    <br>
-                    正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                    样本量：{{ scope.row.total_data_count }}
                 </p>
                 <p v-else>{{scope.row.total_data_count}}</p>
             </template>
@@ -166,7 +162,7 @@
             :page-size="pagination.page_size"
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="currentPageChange"
+            @current-change="methods.currentPageChange"
             @size-change="pageSizeChange"
         />
     </div>
@@ -175,7 +171,7 @@
 <script>
     import table from '@src/mixins/table';
     import { reactive, getCurrentInstance } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
 
     export default {
         mixins: [table],
@@ -191,6 +187,7 @@
         setup(props, context) {
             const { ctx } = getCurrentInstance();
             const route = useRoute();
+            const router = useRouter();
             const vData = reactive({
                 getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
@@ -209,6 +206,19 @@
                 },
                 checkCard(id) {
                     context.emit('check-card', id);
+                },
+                currentPageChange (val) {
+                    if (ctx.watchRoute) {
+                        router.push({
+                            query: {
+                                ...ctx.search,
+                                page_index: val,
+                            },
+                        });
+                    } else {
+                        ctx.pagination.page_index = val;
+                        ctx.getList();
+                    }
                 },
             };
 
