@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.api.union.through;
 
+package com.welab.wefe.union.service.api.server;
+
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.NoneApiOutput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 
 /**
- * @author zane
- * @date 2021/12/17
- */
-@Api(path = "union/data_resource/tags/query", name = "")
-public class ListTagsApi extends AbstractThroughUnionApi {
-    private static final String API = "data_resource/tags/query";
+ * Check service survivability
+ *
+ * @author aaron.li
+ **/
+@Api(path = "server/alive", name = "alive", rsaVerify = false, login = false)
+public class UnionAliveApi extends AbstractApi<UnionAliveApi.Input, NoneApiOutput> {
 
     @Override
-    protected String api() {
-        return API;
+    protected ApiResult<NoneApiOutput> handle(Input input) {
+        return success();
+    }
+
+    public static class Input extends BaseInput {
+
     }
 }

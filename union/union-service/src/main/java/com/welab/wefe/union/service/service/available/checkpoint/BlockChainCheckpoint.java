@@ -13,44 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.union.service.service.available.checkpoint;
 
-package com.welab.wefe.board.service.service.available.checkpoint;
-
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
+import com.welab.wefe.union.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author zane
+ * @date 2021/12/21
  */
 @Service
-public class UnionConnectionCheckpoint extends AbstractCheckpoint {
-    @Autowired
-    protected Config config;
+public class BlockChainCheckpoint extends AbstractCheckpoint {
 
     @Autowired
-    private UnionService unionService;
+    private MemberContractService memberContractService;
 
     @Override
-    public ServiceType service() {
-        return ServiceType.UnionService;
+    protected ServiceType service() {
+        return ServiceType.BlockChainService;
     }
 
     @Override
-    public String desc() {
-        return "检查 board 与 union 服务的连通性";
+    protected String desc() {
+        return "检查区块链服务是否运行良好";
     }
 
     @Override
-    public String value() {
-        return config.getUNION_BASE_URL();
+    protected String getConfigValue() {
+        return null;
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return null;
     }
 
     @Override
     protected void doCheck(String value) throws Exception {
-        unionService.request("union/available", null);
+        memberContractService.isExist("test_member_id");
     }
 }

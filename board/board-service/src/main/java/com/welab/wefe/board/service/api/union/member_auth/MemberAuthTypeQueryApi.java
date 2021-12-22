@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.common;
+package com.welab.wefe.board.service.api.union.member_auth;
 
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.common.ServiceAvailableOutput;
-import com.welab.wefe.union.service.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Check service availability
- *
- * @author aaron.li
- **/
-@Api(path = "union/available", name = "available", rsaVerify = true, login = false)
-public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServiceAvailableOutput> {
+ * @author Zane
+ */
+@Api(path = "union/member/authtype/query", name = "Query member authtype from union")
+public class MemberAuthTypeQueryApi extends AbstractApi<AbstractApiInput, Object> {
+
     @Autowired
-    private CommonService commonService;
+    UnionService unionService;
 
     @Override
-    protected ApiResult<ServiceAvailableOutput> handle(Input input) {
-        return success(commonService.checkUnionAvailable());
+    protected ApiResult<Object> handle(AbstractApiInput input) throws StatusCodeWithException {
+        JSONObject result = unionService.queryMemberAuthTypeList();
+        return unionApiResultToBoardApiResult(result);
     }
 
-    public static class Input extends BaseInput {
 
-    }
 }

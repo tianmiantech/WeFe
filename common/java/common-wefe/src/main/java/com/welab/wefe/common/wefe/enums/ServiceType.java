@@ -30,5 +30,7 @@ public enum ServiceType {
     StorageService,
     ServingService,
     MysqlService,
-    FileSystem
+    FileSystem,
+    BlockChainService,
+    MongodbService
 }

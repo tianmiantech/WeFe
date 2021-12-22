@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.service.processors.available.checkpoint;
+package com.welab.wefe.union.service.service.available.checkpoint;
 
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
-import com.welab.wefe.gateway.service.base.AbstractMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @date 2021/12/20
+ * @date 2021/12/21
  */
 @Service
-public class MysqlCheckpoint extends AbstractCheckpoint {
+public class MongoCheckpoint extends AbstractCheckpoint {
     @Autowired
-    private AbstractMemberService memberService;
+    private MemberMongoReop memberMongoReop;
 
     @Override
     protected ServiceType service() {
-        return ServiceType.MysqlService;
+        return ServiceType.MongodbService;
     }
 
     @Override
     protected String desc() {
-        return "检查 mysql 服务的可用性";
+        return "检查 mongodb 服务是否运行良好";
     }
 
     @Override
@@ -52,6 +52,6 @@ public class MysqlCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
-        memberService.findSelf();
+        memberMongoReop.existsByMemberId("checkMongo");
     }
 }
