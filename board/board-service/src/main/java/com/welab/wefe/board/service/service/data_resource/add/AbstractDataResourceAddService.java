@@ -105,7 +105,9 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         if (mysqlModelClass == TableDataSetMysqlModel.class) {
             ServiceAvailableCheckOutput availableInfo = serviceCheckService.getServiceAvailableInfo(ServiceType.StorageService);
             if (!availableInfo.available) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
+                StatusCode
+                        .DATABASE_LOST
+                        .throwException("storage 服务访问失败，请检服务是否正常：" + config.getDbType());
             }
 
             model.setStorageType(DataSetStorageType.StorageService);
