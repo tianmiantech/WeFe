@@ -105,6 +105,54 @@
                     >
                         <p class="mb10">名片预览：</p>
                         <MemberCard />
+
+                        <div v-if="enterpriseAuth !== ''" class="mt40">
+                            <el-form-item label="企业认证：">
+                                <p
+                                    v-if="enterpriseAuth === -1"
+                                    class="color-danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    已拒绝 (原因: {{ audit_comment }})
+                                </p>
+                                <span
+                                    v-if="enterpriseAuth === 0"
+                                    class="el-link el-link--danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    未认证
+                                </span>
+                                <span
+                                    v-if="enterpriseAuth === 1"
+                                    class="el-link el-link--danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    审核中
+                                </span>
+                                <span
+                                    v-if="enterpriseAuth === 2"
+                                    class="el-link el-link--success"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    已认证
+                                </span>
+                                <router-link
+                                    v-if="userInfo.super_admin_role && enterpriseAuth !== 1"
+                                    :to="{ name: 'enterprise-certification' }"
+                                    class="f12 ml20"
+                                >
+                                    {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
+                                </router-link>
+                            </el-form-item>
+                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -127,9 +175,9 @@
             <el-alert
                 title="未雨绸缪总是好的："
                 description="当 union 服务出现意外导致您的数据丢失时，可以使用此功能将数据同步到 union。"
-                style="max-width:600px;"
-                type="info"
+                style="max-width:550px;"
                 close-text=" "
+                type="info"
                 show-icon
             />
             <br>
@@ -169,6 +217,7 @@
                 member_logo: '',
                 form:        {
                     member_name:                  '',
+                    member_logo:                  '',
                     member_email:                 '',
                     member_mobile:                '',
                     member_hidden:                false,
@@ -176,16 +225,15 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                memberCard: {
-                    visible:    true,
-                    transition: false,
-                },
+                enterpriseAuth: '',
+                audit_comment:  '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -195,20 +243,27 @@
                     url: '/member/detail',
                 });
 
-                console.info(data);
                 if (code === 0) {
                     this.form = { ...data };
                     this.form.member_logo = '';
 
                     this.member_logo = data.member_logo;
-                    this.userInfo.member_logo = data.member_logo;
-                    this.userInfo.member_name = this.form.member_name;
-                    this.userInfo.member_email = this.form.member_email;
-                    this.$store.commit('UPDATE_USERINFO', this.userInfo);
+
+                    const info = Object.assign({
+                        ...this.userInfo,
+                    }, {
+                        member_logo:  data.member_logo,
+                        member_name:  this.form.member_name,
+                        member_email: this.form.member_email,
+                    });
+
+                    this.$store.commit('UPDATE_USERINFO', info);
 
                     const res = await this.$http.post({
                         url:  '/union/member/query',
-                        data: { id: data.member_id },
+                        data: {
+                            id: data.member_id,
+                        },
                     });
 
                     this.loading = false;
@@ -219,6 +274,15 @@
                 }
 
                 this.loading = false;
+            },
+
+            async getAuthStatus() {
+                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
+
+                if(code === 0) {
+                    this.enterpriseAuth = data.real_name_auth_status;
+                    this.audit_comment = data.audit_comment;
+                }
             },
 
             // upload avatar
@@ -289,14 +353,10 @@
                 }
             },
             resetRsaKey() {
-                this.$confirm(
-                    '此操作将重置成员在 union 中的密钥, <strong style="color:#F85564;">[请在密钥泄露时进行操作]</strong>, 是否继续?',
-                    '警告',
-                    {
-                        type:                     'warning',
-                        dangerouslyUseHTMLString: true,
-                    },
-                ).then(async action => {
+                this.$confirm('此操作将重置成员在 union 中的密钥, <strong class="color-danger">[请在密钥泄露时进行操作]</strong>, 是否继续?', '警告', {
+                    type:                     'warning',
+                    dangerouslyUseHTMLString: true,
+                }).then(async action => {
                     if (action === 'confirm') {
                         const { code } = await this.$http.post({
                             url: '/member/reset_rsa_key',

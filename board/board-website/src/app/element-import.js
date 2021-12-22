@@ -1,3 +1,7 @@
+// icons
+import * as elIcons from '@element-plus/icons';
+
+// components
 import {
     ElAutocomplete,
     ElDescriptions,
@@ -96,4 +100,4 @@ const elComponents = {
     ElTable,
 };
 
-export default elComponents;
+export { elIcons, elComponents };

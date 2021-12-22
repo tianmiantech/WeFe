@@ -100,7 +100,7 @@ class Server(secure_sum_aggregator.Server, secure_mean_aggregator.Server):
         tables = self._table_sync.get_tables(suffix=suffix)
         result = tables[0]
         for table in tables[1:]:
-            result = result.join(table, lambda x1, x2: x1 + x2)
+            result = result.join(table, lambda x1, x2: x1 + x2, need_send=True)
         # LOGGER.debug(f"aggregate_result: {list(result.collect())[0]}")
         return result
 
@@ -108,7 +108,7 @@ class Server(secure_sum_aggregator.Server, secure_mean_aggregator.Server):
         tables = self._table_sync.get_tables(suffix=suffix)
         result = tables[0]
         for table in tables[1:]:
-            result = result.join(table, lambda x1, x2: np.array(x1) + np.array(x2))
+            result = result.join(table, lambda x1, x2: np.array(x1) + np.array(x2), need_send=True)
         return result
 
     def send_aggregated_tables(self, table, suffix=tuple()):
