@@ -162,7 +162,7 @@
             :page-size="pagination.page_size"
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="currentPageChange"
+            @current-change="methods.currentPageChange"
             @size-change="pageSizeChange"
         />
     </div>
@@ -171,7 +171,7 @@
 <script>
     import table from '@src/mixins/table';
     import { reactive, getCurrentInstance } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
 
     export default {
         mixins: [table],
@@ -187,6 +187,7 @@
         setup(props, context) {
             const { ctx } = getCurrentInstance();
             const route = useRoute();
+            const router = useRouter();
             const vData = reactive({
                 getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
@@ -205,6 +206,19 @@
                 },
                 checkCard(id) {
                     context.emit('check-card', id);
+                },
+                currentPageChange (val) {
+                    if (ctx.watchRoute) {
+                        router.push({
+                            query: {
+                                ...ctx.search,
+                                page_index: val,
+                            },
+                        });
+                    } else {
+                        ctx.pagination.page_index = val;
+                        ctx.getList();
+                    }
                 },
             };
 
