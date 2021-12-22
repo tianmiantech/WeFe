@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -147,6 +148,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
         aggregation = Aggregation.newAggregation(
                 lookupToDataImageDataSet,
@@ -158,7 +160,8 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 memberMatch,
                 tableDataSetMatch,
                 skipOperation,
-                limitOperation
+                limitOperation,
+                sortOperation
         );
 
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
