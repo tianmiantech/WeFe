@@ -162,17 +162,14 @@
             :page-size="pagination.page_size"
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="methods.currentPageChange"
-            @size-change="methods.pageSizeChange"
+            @current-change="currentPageChange"
+            @size-change="pageSizeChange"
         />
     </div>
 </template>
 
 <script>
     import table from '@src/mixins/table';
-    import { reactive, getCurrentInstance } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-
     export default {
         mixins: [table],
         props:  {
@@ -184,61 +181,27 @@
             },
         },
         emits: ['add-data-set', 'check-card'],
-        setup(props, context) {
-            const { ctx } = getCurrentInstance();
-            const route = useRoute();
-            const router = useRouter();
-            const vData = reactive({
+        data() {
+            return {
                 getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
                 watchRoute:    false,
-            });
-            const methods = {
-                getDataList(opt) {
-                    ctx.search = props.searchField;
-                    ctx.getListApi = vData.getListApi;
-                    // ctx.pagination.page_index = +route.query.page_index || 1;
-                    // ctx.pagination.page_size = +route.query.page_size || 20;
-                    ctx.getList(opt);
-                },
-                addDataSet(ev, item) {
-                    context.emit('add-data-set', ev, item);
-                },
-                checkCard(id) {
-                    context.emit('check-card', id);
-                },
-                currentPageChange (val) {
-                    if (ctx.watchRoute) {
-                        router.push({
-                            query: {
-                                ...ctx.search,
-                                page_index: val,
-                            },
-                        });
-                    } else {
-                        ctx.pagination.page_index = val;
-                        ctx.getList();
-                    }
-                },
-                pageSizeChange (val) {
-                    if (ctx.watchRoute) {
-                        router.push({
-                            query: {
-                                ...ctx.search,
-                                page_size: val,
-                            },
-                        });
-                    } else {
-                        ctx.pagination.page_size = val;
-                        ctx.getList();
-                    }
-                },
+                turnPageRoute: false,
             };
-
-            return {
-                vData,
-                methods,
-            };
+        },
+        methods: {
+            getDataList(opt) {
+                this.search = this.searchField;
+                this.pagination.page_index = +this.$route.query.page_index || 1;
+                this.pagination.page_size = +this.$route.query.page_size || 20;
+                this.getList(opt);
+            },
+            addDataSet(ev, item) {
+                this.$emit('add-data-set', ev, item);
+            },
+            checkCard(id) {
+                this.$emit('check-card', id);
+            },
         },
     };
 </script>
