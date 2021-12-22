@@ -23,6 +23,7 @@ import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputMo
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
+import com.welab.wefe.board.service.service.checkpoint.StorageCheckpoint;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.CommonThreadPool;
@@ -30,10 +31,9 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetStorageType;
-import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -96,6 +96,9 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         return new DataResourceAddOutputModel(task.getDataResourceId(), task.getId());
     }
 
+    @Autowired
+    private StorageCheckpoint storageCheckpoint;
+
     /**
      * 检查并设置资源的存储位置
      */
@@ -103,9 +106,11 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         Class<? extends DataResourceMysqlModel> mysqlModelClass = getMysqlModelClass();
         // table data set
         if (mysqlModelClass == TableDataSetMysqlModel.class) {
-            ServiceAvailableCheckOutput availableInfo = serviceCheckService.getServiceAvailableInfo(ServiceType.StorageService);
-            if (!availableInfo.available) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
+            ServiceCheckPointOutput availableInfo = storageCheckpoint.check();
+            if (!availableInfo.isSuccess()) {
+                StatusCode
+                        .DATABASE_LOST
+                        .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
             }
 
             model.setStorageType(DataSetStorageType.StorageService);
