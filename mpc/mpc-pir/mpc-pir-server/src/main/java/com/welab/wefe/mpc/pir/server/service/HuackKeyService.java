@@ -26,7 +26,6 @@ import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalServer;
 import com.welab.wefe.mpc.pir.server.thread.PrivateInformationRetrievalThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
@@ -34,11 +33,9 @@ import java.util.UUID;
  * @Author eval
  * @Date 2021/12/14
  **/
-@Service
 public class HuackKeyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(HuackKeyService.class);
-
 
     public QueryKeysResponse handle(QueryKeysRequest request) throws Exception {
         // TODO

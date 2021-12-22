@@ -18,7 +18,6 @@ package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,9 +52,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		ServiceMySqlModel entity = serviceMySqlModel.get();
 
 		DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
-		if (StringUtils.isNotBlank(entity.getConditionFields())) {
-			output.setConditionFields(JObject.parseArray(entity.getConditionFields()));
-		}
 		if (StringUtils.isNotBlank(entity.getDataSource())) {
 			output.setDataSource(JObject.parseArray(entity.getDataSource()));
 		}
@@ -86,7 +82,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private int serviceType;
 		private String queryParams;// json
 		private JSONArray dataSource;// json
-		private JSONArray conditionFields;// json
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
@@ -139,14 +134,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		public void setDataSource(JSONArray dataSource) {
 			this.dataSource = dataSource;
-		}
-
-		public JSONArray getConditionFields() {
-			return conditionFields;
-		}
-
-		public void setConditionFields(JSONArray conditionFields) {
-			this.conditionFields = conditionFields;
 		}
 
 		public String getCreatedBy() {

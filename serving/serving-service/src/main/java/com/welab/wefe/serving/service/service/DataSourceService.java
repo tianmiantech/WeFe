@@ -185,7 +185,7 @@ public class DataSourceService {
 		return result;
 	}
 
-	public Map<String, Object> execute(String dataSourceId, String sql, List<String> returnFields)
+	public Map<String, String> execute(String dataSourceId, String sql, List<String> returnFields)
 			throws StatusCodeWithException {
 		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {

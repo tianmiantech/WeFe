@@ -18,14 +18,10 @@ package com.welab.wefe.mpc.pir.flow;
 
 
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public abstract class BasePrivateInformationRetrieval {
     public String uuid;
 
-    @Autowired
     public ObliviousTransfer mObliviousTransfer;
 
     public void setUuid(String uuid) {

@@ -16,11 +16,8 @@
 
 package com.welab.wefe.mpc.pir.server.data;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
-@Component
 public interface QueryResult {
 
     /**

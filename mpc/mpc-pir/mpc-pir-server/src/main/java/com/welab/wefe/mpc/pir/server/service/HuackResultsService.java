@@ -24,18 +24,15 @@ import com.welab.wefe.mpc.pir.request.QueryResultsRequest;
 import com.welab.wefe.mpc.pir.request.QueryResultsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @Author eval
  * @Date 2021/12/14
  **/
-@Service
 public class HuackResultsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(HuackResultsService.class);
-    @Autowired
+
     CacheOperation mCacheOperation;
 
     public QueryResultsResponse handle(QueryResultsRequest request) {

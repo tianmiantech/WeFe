@@ -8,7 +8,7 @@ gen
 .settings/
 .classpath
 .vscode/
-
+**/sdk.zip
 
 # 排除编译输出
 *.class
