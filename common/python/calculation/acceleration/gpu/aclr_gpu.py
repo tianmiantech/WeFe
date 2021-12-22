@@ -34,7 +34,7 @@ class ACLR_GPU(ACLR_ABC):
     def __init__(self, check_gpu_result=False):
         self.check_gpu_result = check_gpu_result
 
-    def powm(self, batch_param_4_gpu: list, batch_param_4_local: list, bits):
+    def powm(self, batch_param_4_gpu: list, batch_param_4_local: list, bits, after_func=None):
         """
         Large-number modular exponentiation in bulk
 
@@ -74,7 +74,11 @@ class ACLR_GPU(ACLR_ABC):
                     if cpu_result != biginteger:
                         raise GPUCalcError(calc=f'powm_{bits}', param=batch_param_4_gpu[i],
                                            result=(biginteger, cpu_result))
-                total_result.append(batch_param_4_local[i][0].gpu_mul_after(biginteger, batch_param_4_local[i][1]))
+                if after_func:
+                    total_result.append(after_func(batch_param_4_local[i], biginteger))
+                else:
+                    total_result.append(batch_param_4_local[i][0].gpu_mul_after(biginteger, batch_param_4_local[i][1],
+                                                                                new_instance=True))
 
         return total_result
 
@@ -115,7 +119,8 @@ class ACLR_GPU(ACLR_ABC):
                     if cpu_result != biginteger:
                         raise GPUCalcError(calc=f'mulm_{bits}', param=batch_param_4_gpu[i],
                                            result=(biginteger, cpu_result))
-                total_result.append(batch_param_4_local[i][0].gpu_add_after(biginteger, batch_param_4_local[i][1]))
+                total_result.append(
+                    batch_param_4_local[i][0].gpu_add_after(biginteger, batch_param_4_local[i][1], new_instance=True))
 
         return total_result
 

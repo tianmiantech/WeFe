@@ -14,6 +14,7 @@
 import datetime
 
 import math
+
 import numpy as np
 import multiprocessing
 from scipy.sparse import csr_matrix
@@ -25,6 +26,7 @@ from kernel.base.instance import Instance
 from kernel.security.paillier import PaillierEncryptedNumber
 
 BATCH_SIZE = 20000
+MIN_ADD_BATCH_SIZE = 1000
 
 
 def table_dot(it, bits):
@@ -127,6 +129,7 @@ def dot(value, w, bits):
         else:
             # GPU acceleration is used here, w is ciphertext, X is plaintext
             process_count = multiprocessing.cpu_count()
+            process_count = 1
             pool = multiprocessing.Pool(processes=process_count)
             each_size = math.ceil(len(X) / process_count)
             process_list = []
@@ -156,12 +159,12 @@ def _gpu_dot_4_batch(X, w, bits):
 
     # Record the length of each x,
     # in order to restore the calculation result of the corresponding number according to the length
-    x_length_to_restore = []
+    x_shape_to_restore = []
     batch_result = []
     result_array = []
 
     for x in X:
-        x_length_to_restore.append(len(x))
+        x_shape_to_restore.append(len(x))
         for j in range(len(x)):
             batch_w.append(w[j])
             batch_x.append(x[j])
@@ -176,11 +179,13 @@ def _gpu_dot_4_batch(X, w, bits):
     # submit residue to gpu
     if len(batch_w) > 0:
         batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
-    _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
+    _restore_batch_result_2_array(x_shape_to_restore, batch_result, result_array)
 
-    print(f'start:{datetime.datetime.now()}')
+    import uuid
+
+    print(f'reduce_add start:{datetime.datetime.now()}')
     _result_array_reduce_add(result_array, bits)
-    print(f'end:{datetime.datetime.now()}')
+    print(f'reduce_add end_1:{datetime.datetime.now()}')
 
     # Submit the remaining batches that are not enough to use CPU calculation and return the result
     for item_result_array in result_array:
@@ -189,6 +194,7 @@ def _gpu_dot_4_batch(X, w, bits):
             item_result += item
         res.append(item_result)
 
+    print(f'reduce_add end_2:{datetime.datetime.now()}')
     return res
     # return np.array(res)
 
@@ -259,6 +265,46 @@ def _dot_list_to_restore(x_length_to_restore: list, res: list, batch_result: lis
             break
 
 
+def _to_align_exponent(to_align_exponent_list, bits):
+    param_4_gpu = [] # to call powm
+    param_4_local = [] #(PaillierEncryptNumber, exponent, is_left)
+
+    to_restore_index = []
+
+    for i in range(len(to_align_exponent_list)):
+        item_pair = to_align_exponent_list[i]
+        left = item_pair[0]
+        right = item_pair[1]
+
+        if left.exponent < right.exponent:
+            param = left.gpu_increase_exponent_before(right.exponent)
+            param_4_gpu.append(param[0])
+            param_4_local.append((left,param[1], True))
+            to_restore_index.append(i)
+        elif left.exponent > right.exponent:
+            param = right.gpu_increase_exponent_before(left.exponent)
+            param_4_gpu.append(param[0])
+            param_4_local.append((right, param[1],False))
+            to_restore_index.append(i)
+
+    aclr_client = RuntimeInstance.get_alcr_ins()
+    result = aclr_client.powm(param_4_gpu, param_4_local, bits,
+                     lambda item_local, ciphertext: item_local[0].gpu_increase_exponent_after(ciphertext,
+                                                                                              item_local[1],
+                                                                                              False))
+    for i in range(len(to_restore_index)):
+        is_left  = param_4_local[i][2]
+        src_list_index = to_restore_index[i]
+        item_pair = to_align_exponent_list[src_list_index]
+        if is_left:
+            item_pair = (result[i], item_pair[1])
+        else:
+            item_pair = (item_pair[0], result[i])
+        to_align_exponent_list[src_list_index] = item_pair
+
+    return to_align_exponent_list
+
+
 def _result_array_reduce_add(result_array: list, bits):
     """
     PaillierEncryptedNumber result add
@@ -280,7 +326,7 @@ def _result_array_reduce_add(result_array: list, bits):
             vaild_pair_cnt += len(item_array) // 2
 
         # Determine whether the conditions for batch submission are met
-        if vaild_pair_cnt >= BATCH_SIZE:
+        if vaild_pair_cnt >= MIN_ADD_BATCH_SIZE:
 
             # Store the Modular multiplication parameters that need to be provided to the gpu operation
             param_4_gpu = []
@@ -292,6 +338,8 @@ def _result_array_reduce_add(result_array: list, bits):
             to_restore_size = []
             current_batch_size = 0
 
+            to_align_exponent_list = []
+
             for item_array in result_array:
                 item_array_length = len(item_array)
                 item_submit_count = 0
@@ -301,15 +349,24 @@ def _result_array_reduce_add(result_array: list, bits):
                 for i in range(0, item_array_length, 2):
                     if i == item_array_length - 1:
                         break
-                    param = item_array[i].gpu_add_before(item_array[i + 1])
-                    param_4_gpu.append(param[0])
-                    param_4_local.append((item_array[i], param[1]))
+
+                    to_align_exponent_list.append((item_array[i], item_array[i + 1]))
+                    # param = item_array[i].gpu_add_before(item_array[i + 1])
+                    # param_4_gpu.append(param[0])
+                    # param_4_local.append((item_array[i], param[1]))
                     item_submit_count += 1
                     current_batch_size += 1
                     if current_batch_size == BATCH_SIZE:
                         break
 
                 to_restore_size.append(item_submit_count)
+
+            # first align exponent
+            _to_align_exponent(to_align_exponent_list, bits)
+            for item in to_align_exponent_list:
+                param = item[0].gpu_add_before(item[1])
+                param_4_gpu.append(param[0])
+                param_4_local.append((item[0], param[1]))
 
             aclr_client = RuntimeInstance.get_alcr_ins()
             gpu_result = aclr_client.mulm(param_4_gpu, param_4_local, bits)
@@ -444,4 +501,4 @@ def test_range():
 
 
 if __name__ == '__main__':
-    test_range()
+    pass
