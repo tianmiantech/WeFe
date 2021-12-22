@@ -1,5 +1,5 @@
-job_id: job_0003
-task_id: task_0001
+job_id: job_clas00001
+task_id: job_clas00001
 job_type: paddle_fl
 role: promoter
 member_id: master1
