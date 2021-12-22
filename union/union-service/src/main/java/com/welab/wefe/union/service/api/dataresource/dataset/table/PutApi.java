@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected TableDataSetContractService tableDataSetContractService;
+    @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
 
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
