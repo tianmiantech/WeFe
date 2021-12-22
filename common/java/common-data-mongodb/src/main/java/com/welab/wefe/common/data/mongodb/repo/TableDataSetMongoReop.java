@@ -25,6 +25,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.JObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -135,23 +136,12 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwindMember,
-                unwindTableDataSet,
-                addFieldsOperation,
-                dataResourceMatch,
-                memberMatch,
-                tableDataSetMatch
-        );
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults().size();
-
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
         SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
-        aggregation = Aggregation.newAggregation(
+        CountOperation countOperation = Aggregation.count().as("count");
+        FacetOperation facetOperation = Aggregation.facet(
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwindMember,
@@ -163,11 +153,16 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 skipOperation,
                 limitOperation,
                 sortOperation
-        );
+        ).as("data").and(countOperation).as("total");
 
-        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
+        JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
+        Long total = 0L;
+        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        if(list != null && !list.isEmpty()){
+            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        }
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 
     public void deleteByDataResourceId(String dataResourceId) {
