@@ -201,6 +201,18 @@ public class JObject extends JSONObject implements Serializable {
         return new ArrayList<>();
     }
 
+    public <T> List<T> getJSONList(String jsonPath,Class<T> clazz) {
+        Object obj = getObjectByPath(jsonPath);
+
+        if (obj != null && obj instanceof JSONArray) {
+            return ((JSONArray) obj).stream()
+                    .map(item -> TypeUtils.castToJavaBean(item, clazz))
+                    .collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
     //region end: get value by JSONPath
 
     public void renameKey(String srcKey, String desKey) {
