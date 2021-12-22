@@ -357,7 +357,8 @@ public class HttpRequest {
             paramMap.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(", "));
             sb.append("]");
 
-            LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
+            // LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
+            LOG.info("Request : URL = {}, paramMap = {}, body = {}", url, sb, body);
             try (CloseableHttpResponse httpResponse = httpClient.execute(httpUriRequest)) {
                 response = HttpResponse.create(this, System.currentTimeMillis() - startTime)
                         .message(httpResponse.getStatusLine().getReasonPhrase())

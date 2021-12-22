@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.board.service.api.union.through;
-
+package com.welab.wefe.board.service.api.union.member_auth;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.NoneApiInput;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author Zane
- */
-public abstract class AbstractThroughUnionApi extends AbstractApi<NoneApiInput, Object> {
+import java.io.IOException;
 
+/**
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/3
+ */
+@Api(path = "union/member/realname/authInfo/query", name = "realname auth agreement template query")
+public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, Object> {
     @Autowired
     private UnionService unionService;
 
-    protected abstract String api();
-
     @Override
-    protected ApiResult<Object> handle(NoneApiInput input) throws StatusCodeWithException {
-        JSONObject response = unionService.request(api(), input.rawRequestParams);
-        return super.unionApiResultToBoardApiResult(response);
+    protected ApiResult<Object> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
+        JSONObject result = unionService.realnameAuthInfoQuery();
+        return unionApiResultToBoardApiResult(result);
     }
-
 }

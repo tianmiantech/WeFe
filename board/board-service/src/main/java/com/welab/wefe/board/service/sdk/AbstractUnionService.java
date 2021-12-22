@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.api.union.MemberRealnameAuthApi;
+import com.welab.wefe.board.service.api.union.member_auth.MemberRealnameAuthApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -246,11 +246,18 @@ public abstract class AbstractUnionService extends AbstractService {
         return errorMsg;
     }
 
+    public JSONObject request(String api) throws StatusCodeWithException {
+        return request(api, null, true);
+    }
+
     public JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
         return request(api, params, true);
     }
 
     protected JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+        if (params == null) {
+            params = new JSONObject();
+        }
         /**
          * Prevent the map from being out of order, causing the verification to fail.
          */

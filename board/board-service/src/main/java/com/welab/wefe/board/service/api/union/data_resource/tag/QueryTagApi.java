@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.service.processors.available.checkpoint;
+package com.welab.wefe.board.service.api.union.data_resource.tag;
 
-import com.welab.wefe.common.wefe.checkpoint.AbstractUnionConnectionCheckpoint;
-import com.welab.wefe.gateway.sdk.UnionHelper;
-import org.springframework.stereotype.Service;
+import com.welab.wefe.board.service.api.union.AbstractThroughUnionApi;
+import com.welab.wefe.common.web.api.base.Api;
 
 /**
  * @author zane
- * @date 2021/12/20
+ * @date 2021/12/17
  */
-@Service
-public class UnionCheckpoint extends AbstractUnionConnectionCheckpoint {
-    @Override
-    protected String getConfigValue() {
-        return UnionHelper.BASE_URL;
-    }
+@Api(path = "union/data_resource/tags/query", name = "")
+public class QueryTagApi extends AbstractThroughUnionApi {
+    private static final String API = "data_resource/tags/query";
 
+    @Override
+    protected String api() {
+        return API;
+    }
 }

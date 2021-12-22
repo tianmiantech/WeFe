@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.board.service.api.union.member_auth;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.sdk.UnionService;

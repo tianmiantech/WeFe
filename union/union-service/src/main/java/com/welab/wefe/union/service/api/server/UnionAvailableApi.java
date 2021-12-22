@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.union.service.api.server;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.sdk.UnionService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Zane
- */
-@Api(path = "union/member/authtype/query", name = "Query member authtype from union")
-public class MemberAuthTypeQueryApi extends AbstractApi<AbstractApiInput, Object> {
+ * Check service availability
+ *
+ * @author aaron.li
+ **/
+@Api(path = "server/available", name = "available", rsaVerify = true, login = false)
+public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServerAvailableCheckOutput> {
 
     @Autowired
-    UnionService unionService;
+    private CheckpointManager checkpointManager;
 
     @Override
-    protected ApiResult<Object> handle(AbstractApiInput input) throws StatusCodeWithException {
-        JSONObject result = unionService.queryMemberAuthTypeList();
-        return unionApiResultToBoardApiResult(result);
+    protected ApiResult<ServerAvailableCheckOutput> handle(Input input) {
+        ServerAvailableCheckOutput output = checkpointManager.checkAll();
+
+        return success(output);
     }
 
+    public static class Input extends BaseInput {
 
+    }
 }

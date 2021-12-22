@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.available.checkpoint;
+package com.welab.wefe.board.service.service.checkpoint;
 
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,8 @@ import org.springframework.stereotype.Service;
  * @author zane
  */
 @Service
-public class GatewayInternetCheckpoint extends AbstractCheckpoint {
+public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
+
     @Autowired
     protected GlobalConfigService globalConfigService;
 
@@ -38,20 +40,26 @@ public class GatewayInternetCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String desc() {
-        return "检查 board 与 gateway 服务在公网的连通性";
+        return "检查 board 与 gateway 服务在内网的连通性";
     }
 
     @Override
-    public String value() {
-        MemberInfoModel memberInfo = globalConfigService.getMemberInfo();
-        if (memberInfo == null) {
-            return null;
-        }
-        return memberInfo.getMemberGatewayUri();
+    public String getConfigValue() {
+        return globalConfigService.getGatewayConfig().intranetBaseUri;
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return "请在[全局设置]-[系统设置]中对 gateway 的内网地址进行设置";
     }
 
     @Override
     protected void doCheck(String value) throws Exception {
+        GatewayService gatewayService = Launcher.getBean(GatewayService.class);
+
+        // Since the gateway does not currently have an alive interface,
+        // temporarily adjust a method to test the connectivity between the board and the gateway.
+        gatewayService.refreshMemberBlacklistCache();
 
     }
 }

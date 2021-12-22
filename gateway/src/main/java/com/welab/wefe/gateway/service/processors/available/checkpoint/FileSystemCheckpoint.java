@@ -47,10 +47,18 @@ public class FileSystemCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected String value() {
+    protected String getConfigValue() {
         String sendDir = mConfigProperties.getSendTransferMetaPersistentTempDir();
         String recvDir = mConfigProperties.getRecvTransferMetaPersistentTempDir();
         return sendDir + " | " + recvDir;
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return "配置文件中的配置项" +
+                " send.transfer.meta.persistent.temp.dir 或 " +
+                "recv.transfer.meta.persistent.temp.dir 尚未配置，" +
+                "请在 config.properties 中进行设置。";
     }
 
     @Override

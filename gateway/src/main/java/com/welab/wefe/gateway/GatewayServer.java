@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway;
 
 import com.welab.wefe.common.data.storage.StorageManager;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,7 +31,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * @author aaron.li
  **/
-@ComponentScan(basePackageClasses = {GatewayServer.class, StorageManager.class})
+@ComponentScan(basePackageClasses = {GatewayServer.class, StorageManager.class, CheckpointManager.class})
 @EnableScheduling
 @EnableAsync
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})

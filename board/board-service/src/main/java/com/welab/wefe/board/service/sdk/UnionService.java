@@ -27,6 +27,7 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UnionService extends AbstractUnionService {
+
+    public ServerAvailableCheckOutput getAvailable() throws StatusCodeWithException {
+        JSONObject result = request("server/available");
+
+        return result
+                .getJSONObject("data")
+                .toJavaObject(ServerAvailableCheckOutput.class);
+    }
+
     /**
      * 更新资源信息，使用此接口更新时，数据不会立即更新，有延迟。
      */

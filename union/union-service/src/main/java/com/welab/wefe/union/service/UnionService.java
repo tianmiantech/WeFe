@@ -29,6 +29,7 @@ import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
@@ -60,7 +61,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                UnionService.class
+                UnionService.class,
+                CheckpointManager.class
         }
 )
 public class UnionService implements ApplicationContextAware {
