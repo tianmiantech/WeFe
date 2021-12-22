@@ -242,10 +242,12 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         ).as("data").and(countOperation).as("total");
 
         Aggregation aggregation = Aggregation.newAggregation(facetOperation);
-
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
-        Long total = result.getJSONList("total").get(0).getLongValue("totalCount");
+        Long total = 0L;
         List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        if(list != null && !list.isEmpty()){
+            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        }
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 

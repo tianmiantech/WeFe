@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected BloomFilterContractService bloomFilterContractService;
+    @Autowired
     protected BloomFilterMongoReop bloomFilterMongoReop;
 
     protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
