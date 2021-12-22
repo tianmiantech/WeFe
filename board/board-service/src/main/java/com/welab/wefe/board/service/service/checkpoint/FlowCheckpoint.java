@@ -21,11 +21,13 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author zane
- * @dateG2021/12/22
+ * @date 2021/12/22
  */
+@Service
 public class FlowCheckpoint extends AbstractCheckpoint {
     @Autowired
     private GlobalConfigService globalConfigService;
