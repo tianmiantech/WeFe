@@ -73,7 +73,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         int countByName = 0;
         DataResourceRepository repository = Launcher.getBean(DataResourceRepository.class);
         if (StringUtil.isEmpty(id)) {
-            countByName = repository.countByName(id);
+            countByName = repository.countByName(name);
         } else {
             countByName = repository.countByName(name, id);
         }
