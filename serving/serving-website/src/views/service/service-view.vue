@@ -69,7 +69,8 @@
                         type="primary"
                         @click="add_params()"
                     >新增参数</el-button>
-
+            <br/><br/><br/>
+            SQL 配置：
             <el-form-item
                 prop="data_source"
                 style="max-width:500px"
@@ -202,9 +203,8 @@
                     if (data) {
                         const resData = data;
                         this.form = resData;
-                        this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x}});
+                        this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x,value:''}});
                         this.sql_test.return_fields = this.form.data_source[0].return_fields;
-                        this.form.data_source = JSON.stringify(this.form.data_source);
                     }
                 }
             },
@@ -227,7 +227,7 @@
 
                 if (code === 0) {
                     this.$message.success(JSON.stringify(this.form));
-                    this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x}});
+                    this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x,value:''}});
                 }
                 this.saveLoading = false;
             },
