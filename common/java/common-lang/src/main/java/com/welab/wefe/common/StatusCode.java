@@ -60,7 +60,7 @@ public enum StatusCode {
     IP_REQUESTS_OUT_OF_RATE_LIMIT(10022, "IP request frequency exceeds the upper limit"),
     USER_REQUESTS_OUT_OF_RATE_LIMIT(10023, "User request frequency exceeds the upper limit"),
     PRIMARY_KEY_CONFLICT(10026, "Data with value (%s) already exists for parameter (%s)"),
-    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item：(%s)"),
+    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item"),
     DIRECTORY_NOT_FOUND(10028, "directory does not exist"),
     PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s can not be empty!"),
     SQL_ERROR(10030, "SQL execution failed"),

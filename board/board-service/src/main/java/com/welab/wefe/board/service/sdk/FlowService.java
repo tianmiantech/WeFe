@@ -27,6 +27,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,11 @@ import org.springframework.stereotype.Service;
 public class FlowService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    public ServiceAvailableCheckOutput getAvailable() throws StatusCodeWithException {
+        return request("/service/available", null)
+                .toJavaObject(ServiceAvailableCheckOutput.class);
+    }
 
     public JObject alive() throws StatusCodeWithException {
         return request("/service/alive", null);

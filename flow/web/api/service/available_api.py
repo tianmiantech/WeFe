@@ -23,8 +23,8 @@ class Input(BaseApiInput):
 
 class Api(BaseApi):
     """
-    该接口不做任何动作，仅用于检查服务存活和连通性。
+    检查当前 flow 服务是否可用
     """
 
     def run(self, input):
-        return BaseApiOutput.success("ok")
+        return BaseApiOutput.success("")
