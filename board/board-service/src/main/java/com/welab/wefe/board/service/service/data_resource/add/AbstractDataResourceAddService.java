@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.service.data_resource.add;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -31,8 +30,10 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetStorageType;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -102,11 +103,10 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         Class<? extends DataResourceMysqlModel> mysqlModelClass = getMysqlModelClass();
         // table data set
         if (mysqlModelClass == TableDataSetMysqlModel.class) {
-            MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
-            if (!storageServiceStatus.isSuccess()) {
+            ServiceAvailableCheckOutput availableInfo = serviceCheckService.getServiceAvailableInfo(ServiceType.StorageService);
+            if (!availableInfo.available) {
                 throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
             }
-
 
             model.setStorageType(DataSetStorageType.StorageService);
             model.setStorageNamespace(DataSetStorageService.DATABASE_NAME);

@@ -16,8 +16,8 @@
 package com.welab.wefe.common.wefe.checkpoint;
 
 import com.welab.wefe.common.util.ReflectionsUtil;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -44,16 +44,16 @@ public class CheckpointManager {
         CHECKPOINT_LIST = ReflectionsUtil.getClassesExtending(AbstractCheckpoint.class);
     }
 
-    public ServerAvailableCheckOutput checkAll() {
-        List<ServerCheckPointOutput> list = new ArrayList<>();
+    public ServiceAvailableCheckOutput checkAll() {
+        List<ServiceCheckPointOutput> list = new ArrayList<>();
 
         for (Class<?> clazz : CHECKPOINT_LIST) {
             AbstractCheckpoint checkpoint = (AbstractCheckpoint) applicationContext.getBean(clazz);
-            ServerCheckPointOutput result = checkpoint.check();
+            ServiceCheckPointOutput result = checkpoint.check();
             list.add(result);
         }
 
-        return new ServerAvailableCheckOutput(list);
+        return new ServiceAvailableCheckOutput(list);
     }
 
 }

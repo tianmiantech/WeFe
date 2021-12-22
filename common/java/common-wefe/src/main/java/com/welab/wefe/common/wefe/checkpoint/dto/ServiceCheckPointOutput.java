@@ -22,7 +22,7 @@ import com.welab.wefe.common.wefe.enums.ServiceType;
 /**
  * @author zane
  */
-public class ServerCheckPointOutput {
+public class ServiceCheckPointOutput {
     private ServiceType service;
     private String desc;
     private boolean success;
@@ -30,11 +30,11 @@ public class ServerCheckPointOutput {
     private String value;
     private Long spend;
 
-    public ServerCheckPointOutput() {
+    public ServiceCheckPointOutput() {
     }
 
-    public static ServerCheckPointOutput success(ServiceType service, String desc, String value, long spend) {
-        ServerCheckPointOutput output = new ServerCheckPointOutput();
+    public static ServiceCheckPointOutput success(ServiceType service, String desc, String value, long spend) {
+        ServiceCheckPointOutput output = new ServiceCheckPointOutput();
         output.setService(service);
         output.setDesc(desc);
         output.setSuccess(false);
@@ -44,8 +44,8 @@ public class ServerCheckPointOutput {
         return output;
     }
 
-    public static ServerCheckPointOutput fail(ServiceType service, String desc, String value, long spend, Exception e) {
-        ServerCheckPointOutput output = new ServerCheckPointOutput();
+    public static ServiceCheckPointOutput fail(ServiceType service, String desc, String value, long spend, Exception e) {
+        ServiceCheckPointOutput output = new ServiceCheckPointOutput();
         output.setDesc(desc);
         output.setSuccess(false);
         output.setMessage(e.getMessage());

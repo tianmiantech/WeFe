@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.server;
+package com.welab.wefe.board.service.api.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
@@ -24,7 +24,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author zane
  */
-@Api(path = "server/alive", name = "")
+@Api(path = "service/alive", name = "")
 public class AliveApi extends AbstractNoneInputApi<Object> {
 
     @Override
