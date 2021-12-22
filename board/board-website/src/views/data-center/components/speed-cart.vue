@@ -217,7 +217,6 @@
             };
 
             const addDataSet = (item) => {
-                console.log(item);
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
                     data_set_id: item.id ? item.id : item.data_resource_id,

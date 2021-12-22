@@ -109,11 +109,7 @@
                 <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     特征量：{{ scope.row.feature_count }}
                     <br>
-                    样本量：{{ scope.row.row_count }}
-                    <br>
-                    正例样本数量：{{ scope.row.y_positive_sample_count }}
-                    <br>
-                    正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                    样本量：{{ scope.row.total_data_count }}
                 </p>
                 <p v-else>{{scope.row.total_data_count}}</p>
             </template>
