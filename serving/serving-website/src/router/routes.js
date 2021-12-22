@@ -62,7 +62,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-souce-list`,
                 name: 'data-resouce-list',
                 meta: {
-                    title:  '数据库配置',
+                    title:  '数据源配置',
                     index:  '4-1',
                     active: `${prefixPath}data-souce-list`,
                 },
@@ -72,7 +72,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-source-view`,
                 name: 'data-source-view',
                 meta: {
-                    title:  '数据库配置详情',
+                    title:  '数据源配置详情',
                     index:  '4-2',
                     hidden: true,
                     active: `${prefixPath}data-source-view`,
