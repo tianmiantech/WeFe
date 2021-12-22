@@ -32,19 +32,36 @@ import java.util.UUID;
  */
 public class Client {
 
-    public static String send(String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) throws Exception {
+    public static String callLocalGateway(GatewayProcessorType processorType, String data) throws Exception {
+        return callGateway(
+                // dev03
+                "290007c2a71d470ba00f486b18875d31",
+                "local_test",
+                GatewayActionType.none,
+                processorType,
+                data
+        );
+    }
+
+    public static String callGateway(String dstMemberId, String dstMemberName, GatewayActionType action, GatewayProcessorType processorType, String data) throws Exception {
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
         ManagedChannel grpcChannel = ManagedChannelBuilder
                 .forTarget("127.0.0.1:50051")
                 .usePlaintext()
                 .build();
         TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
-        BasicMetaProto.ReturnStatus returnStatus = clientStub.send(transferMeta);
-        if (returnStatus.getCode() != 0) {
-            throw new Exception(returnStatus.getMessage());
+        BasicMetaProto.ReturnStatus result = clientStub.send(transferMeta);
+
+        System.out.println("sessionId: " + result.getSessionId());
+        System.out.println("code: " + result.getCode());
+        System.out.println("message: " + result.getMessage());
+        System.out.println("data: " + result.getData());
+
+        if (result.getCode() != 0) {
+            throw new Exception(result.getMessage());
         }
 
-        return returnStatus.getData();
+        return result.getData();
 
     }
 

@@ -96,11 +96,7 @@
                     imgObj.onload = () => {
                         const imgW= imgObj.width, imgH = imgObj.height;
 
-                        // const scale = imgW < imgH ? vData.width / imgW : imgW > imgH ? vData.height / imgH : 1;
-                        // const scaleX = imgW > vData.width ? vData.width / imgW : imgW < vData.width ? imgW / vData.width : 1;
-                        // const scaleY = imgH > vData.height ? vData.height / imgH : imgH < vData.height ? imgH / vData.height : 1;
                         imgOptions = {
-                            // x:      imgW > vData.width ? imgW/2 - vData.width/2 : vData.width/2 - imgW/2, // 显示在画布中间，标注框跟随图片
                             x:      0,
                             y:      0,
                             image:  imgObj,
@@ -162,56 +158,55 @@
                             }
                         });
                     /* 后续再加
-                    vData.stage.on('wheel', function(e) {
-                        const bgx = imageLayer.x(), bgy = imageLayer.y();
-                        const scaleBy = 1.2;
-                        // 这里用鼠标位置减去图片的位置，然后除以缩放的比例
-                        const mousePointTo = {
-                            x: (e.evt.x - bgx) / vData.imgScaleConfig.scaleX,
-                            y: (e.evt.y - bgy) / vData.imgScaleConfig.scaleY,
-                        };
+	                    vData.stage.on('wheel', function(e) {
+	                        const bgx = imageLayer.x(), bgy = imageLayer.y();
+	                        const scaleBy = 1.2;
+	                        // 这里用鼠标位置减去图片的位置，然后除以缩放的比例
+	                        const mousePointTo = {
+	                            x: (e.evt.x - bgx) / vData.imgScaleConfig.scaleX,
+	                            y: (e.evt.y - bgy) / vData.imgScaleConfig.scaleY,
+	                        };
 
-                        if (e.evt.deltaY > 0) {
-                            // 缩小
-                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX / scaleBy;
-                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY / scaleBy;
-                            if (vData.imgScaleConfig.scaleX < 1) vData.imgScaleConfig.scaleX = 1;
-                            if (vData.imgScaleConfig.scaleY < 1) vData.imgScaleConfig.scaleY = 1;
-                            vData.stage.container().style.cursor = 'move';
-                        } else {
-                            // 放大
-                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX * scaleBy;
-                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY * scaleBy;
-                            if (vData.imgScaleConfig.scaleX > 1) {
-                                imageLayer.setAttrs({
-                                    draggable: true,
-                                });
-                                vData.stage.container().style.cursor = 'move';
-                            }
-                            if (vData.imgScaleConfig.scaleX > 1.6) vData.imgScaleConfig.scaleX = 1.6;
-                            if (vData.imgScaleConfig.scaleY > 1.6) vData.imgScaleConfig.scaleY = 1.6;
-                        }
+	                        if (e.evt.deltaY > 0) {
+	                            // 缩小
+	                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX / scaleBy;
+	                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY / scaleBy;
+	                            if (vData.imgScaleConfig.scaleX < 1) vData.imgScaleConfig.scaleX = 1;
+	                            if (vData.imgScaleConfig.scaleY < 1) vData.imgScaleConfig.scaleY = 1;
+	                            vData.stage.container().style.cursor = 'move';
+	                        } else {
+	                            // 放大
+	                            vData.imgScaleConfig.scaleX = vData.imgScaleConfig.scaleX * scaleBy;
+	                            vData.imgScaleConfig.scaleY = vData.imgScaleConfig.scaleY * scaleBy;
+	                            if (vData.imgScaleConfig.scaleX > 1) {
+	                                imageLayer.setAttrs({
+	                                    draggable: true,
+	                                });
+	                                vData.stage.container().style.cursor = 'move';
+	                            }
+	                            if (vData.imgScaleConfig.scaleX > 1.6) vData.imgScaleConfig.scaleX = 1.6;
+	                            if (vData.imgScaleConfig.scaleY > 1.6) vData.imgScaleConfig.scaleY = 1.6;
+	                        }
 
-                        // vData.imgScaleConfig.x = e.evt.x - mousePointTo.x * vData.imgScaleConfig.scaleX;
-                        // vData.imgScaleConfig.y = e.evt.y - mousePointTo.y * vData.imgScaleConfig.scaleY;
-                        imageLayer.setAttrs({
-                            x:      vData.imgScaleConfig.x,
-                            y:      vData.imgScaleConfig.y,
-                            scaleX: vData.imgScaleConfig.scaleX,
-                            scaleY: vData.imgScaleConfig.scaleY,
-                        });
-                        vData.layer.draw();
-                    });
-                    vData.stage.on('click', function() {
-                        vData.stage.container().style.cursor = 'crosshair';
-                        imageLayer.setAttrs({
-                            draggable: false,
-                        });
-                    });
+	                        // vData.imgScaleConfig.x = e.evt.x - mousePointTo.x * vData.imgScaleConfig.scaleX;
+	                        // vData.imgScaleConfig.y = e.evt.y - mousePointTo.y * vData.imgScaleConfig.scaleY;
+	                        imageLayer.setAttrs({
+	                            x:      vData.imgScaleConfig.x,
+	                            y:      vData.imgScaleConfig.y,
+	                            scaleX: vData.imgScaleConfig.scaleX,
+	                            scaleY: vData.imgScaleConfig.scaleY,
+	                        });
+	                        vData.layer.draw();
+	                    });
+	                    vData.stage.on('click', function() {
+	                        vData.stage.container().style.cursor = 'crosshair';
+	                        imageLayer.setAttrs({
+	                            draggable: false,
+	                        });
+	                    });
                     */
                     }
                 },
-                stageMouseWheel(e) {},
                 stageMousedown(e) {
                     const x = e.evt.offsetX, y = e.evt.offsetY;
 
@@ -238,6 +233,7 @@
                     vData.layer.draw();
                     vData.labelNowPos = vData.rectLayer;
                     vData.rectLayer.on('dragmove', function(e) {
+                        if (vData.currentRect && vData.currentText) console.log(vData.currentRect.attrs.traceId, vData.currentText.attrs.traceId);
                         vData.labelNowPos.setAttrs({
                             x: vData.rectLayer.x(),
                             y: vData.rectLayer.y(),
@@ -278,6 +274,10 @@
                     });
                     vData.rectLayer.on('transform', function(e) {
                         if (e.target.attrs.isLabeled) {
+                            vData.currentRect.setAttrs({
+                                width:  vData.rectLayer.width(),
+                                height: vData.rectLayer.height(),
+                            });
                             vData.currentRect.setAttrs({
                                 width:  vData.rectLayer.width(),
                                 height: vData.rectLayer.height(),
@@ -330,7 +330,7 @@
                         borderStroke:       '#fff',
                         keepRatio:          false, // 不等比缩放
                         anchorCornerRadius: 10,
-                        anchorSize:         10, //
+                        anchorSize:         10,
                         rotateEnabled:      false, // 是否可调节框选区域角度
                         resizeEnabled:      true, // 是否可调节框选区域大小
                         anchorFill:         '#fff',
@@ -476,7 +476,6 @@
                             });
                         }
                     });
-                    console.log(labe_list);
                     context.emit('save-label', labe_list, props.currentImage.item.id);
                     vData.stage.find('Transformer').destroy();
                     vData.stage.find('Rect').destroy();

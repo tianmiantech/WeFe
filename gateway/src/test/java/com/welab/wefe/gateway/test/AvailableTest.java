@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.gateway.test;
 
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 
 /**
@@ -24,13 +23,9 @@ import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
  */
 public class AvailableTest {
     public static void main(String[] args) throws Exception {
-        String response = Client.send(
-                "290007c2a71d470ba00f486b18875d31",
-                "local_test",
-                GatewayActionType.refresh_system_config_cache,
-                "",
-                GatewayProcessorType.gatewayAvailableProcessor
+        Client.callLocalGateway(
+                GatewayProcessorType.gatewayAvailableProcessor,
+                ""
         );
-        System.out.println(response);
     }
 }

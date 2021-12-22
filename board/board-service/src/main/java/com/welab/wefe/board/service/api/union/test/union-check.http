@@ -1,7 +1,0 @@
-### 检查union访问状态
-POST http://localhost:8080/board-service/union/online/check
-Content-Type: application/json
-
-{}
-
-###

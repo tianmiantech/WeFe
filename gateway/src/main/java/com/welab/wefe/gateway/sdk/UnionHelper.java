@@ -37,11 +37,6 @@ public class UnionHelper {
 
     private final static String RESP_CODE_SUCCESS = "0";
 
-    /**
-     * Query all member addresses
-     */
-    private static String QUERY_ALL_URL;
-
     public static String BASE_URL;
 
 
@@ -50,11 +45,10 @@ public class UnionHelper {
             ConfigProperties configProperties = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
             BASE_URL = configProperties.getWefeUnionBaseUrl();
             BASE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/");
-            QUERY_ALL_URL = BASE_URL + "member/query_all";
+
         } catch (Exception e) {
             LOG.error("Failed to initialize private key：", e);
         }
-
     }
 
 
@@ -71,7 +65,7 @@ public class UnionHelper {
             }
             data.append("includeLogo", false);
             String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
-            HttpResponse httpResponse = HttpRequest.create(QUERY_ALL_URL)
+            HttpResponse httpResponse = HttpRequest.create(BASE_URL + "member/query_all")
                     .appendParameters(generateReqParam(verifyMemberId, data.toString()))
                     .closeLog()
                     .postJson();

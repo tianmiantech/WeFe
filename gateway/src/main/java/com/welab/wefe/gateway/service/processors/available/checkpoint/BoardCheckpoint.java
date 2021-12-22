@@ -50,13 +50,18 @@ public class BoardCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected String value() {
+    protected String getConfigValue() {
         BoardConfigModel boardConfig = globalConfigService.getBoardConfig();
         if (boardConfig == null) {
             return null;
         }
         return boardConfig.intranetBaseUri;
 
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return "请在[全局设置]-[系统设置]中对 board-service 的后台内网地址进行设置";
     }
 
     @Override

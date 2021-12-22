@@ -246,9 +246,8 @@
                     const { code, data } = await $http.post({
                         url:  '/union/member/query',
                         data: {
-                            page_size:          100,
-                            name:               keyward,
-                            requestFromRefresh: true,
+                            page_size: 100,
+                            name:      keyward,
                         },
                     });
 
@@ -260,8 +259,7 @@
                     const res = await $http.post({
                         url:  '/union/member/query',
                         data: {
-                            id:                 member_id,
-                            requestFromRefresh: true,
+                            id: member_id,
                         },
                     });
 

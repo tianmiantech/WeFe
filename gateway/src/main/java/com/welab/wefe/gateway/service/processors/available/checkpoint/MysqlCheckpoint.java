@@ -19,7 +19,6 @@ import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import com.welab.wefe.gateway.service.base.AbstractMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,10 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MysqlCheckpoint extends AbstractCheckpoint {
     @Autowired
-    private Environment env;
-    @Autowired
     private AbstractMemberService memberService;
-
 
     @Override
     protected ServiceType service() {
@@ -45,8 +41,13 @@ public class MysqlCheckpoint extends AbstractCheckpoint {
     }
 
     @Override
-    protected String value() {
-        return env.getProperty("");
+    protected String getConfigValue() {
+        return null;
+    }
+
+    @Override
+    protected String messageWhenConfigValueEmpty() {
+        return null;
     }
 
     @Override

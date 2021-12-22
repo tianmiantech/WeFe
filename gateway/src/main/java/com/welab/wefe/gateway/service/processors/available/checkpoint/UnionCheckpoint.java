@@ -15,10 +15,7 @@
  */
 package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
-import com.welab.wefe.common.http.HttpRequest;
-import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
-import com.welab.wefe.common.wefe.enums.ServiceType;
+import com.welab.wefe.common.wefe.checkpoint.AbstractUnionConnectionCheckpoint;
 import com.welab.wefe.gateway.sdk.UnionHelper;
 import org.springframework.stereotype.Service;
 
@@ -27,30 +24,10 @@ import org.springframework.stereotype.Service;
  * @date 2021/12/20
  */
 @Service
-public class UnionCheckpoint extends AbstractCheckpoint {
+public class UnionCheckpoint extends AbstractUnionConnectionCheckpoint {
     @Override
-    protected ServiceType service() {
-        return ServiceType.UnionService;
-    }
-
-    @Override
-    protected String desc() {
-        return "检查 gateway 与 union 服务的连通性";
-    }
-
-    @Override
-    protected String value() {
+    protected String getConfigValue() {
         return UnionHelper.BASE_URL;
     }
 
-    @Override
-    protected void doCheck(String value) throws Exception {
-        HttpResponse httpResponse = HttpRequest.create(UnionHelper.BASE_URL + "union/alive")
-                .closeLog()
-                .postJson();
-
-        if (httpResponse.getError() != null) {
-            throw httpResponse.getError();
-        }
-    }
 }
