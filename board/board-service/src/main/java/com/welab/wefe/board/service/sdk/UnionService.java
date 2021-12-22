@@ -27,7 +27,7 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.springframework.stereotype.Service;
@@ -39,12 +39,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UnionService extends AbstractUnionService {
 
-    public ServerAvailableCheckOutput getAvailable() throws StatusCodeWithException {
-        JSONObject result = request("server/available");
+    public ServiceAvailableCheckOutput getAvailable() throws StatusCodeWithException {
+        JSONObject result = request("service/available");
 
         return result
                 .getJSONObject("data")
-                .toJavaObject(ServerAvailableCheckOutput.class);
+                .toJavaObject(ServiceAvailableCheckOutput.class);
     }
 
     /**

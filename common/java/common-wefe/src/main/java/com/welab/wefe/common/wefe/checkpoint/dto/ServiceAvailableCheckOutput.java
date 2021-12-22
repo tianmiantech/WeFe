@@ -21,15 +21,15 @@ import java.util.List;
  * @author zane
  * @date 2021/12/16
  */
-public class ServerAvailableCheckOutput {
+public class ServiceAvailableCheckOutput {
     public boolean available;
     public String message;
-    public List<ServerCheckPointOutput> list;
+    public List<ServiceCheckPointOutput> list;
 
-    public ServerAvailableCheckOutput() {
+    public ServiceAvailableCheckOutput() {
     }
 
-    public ServerAvailableCheckOutput(List<ServerCheckPointOutput> list) {
+    public ServiceAvailableCheckOutput(List<ServiceCheckPointOutput> list) {
         this.list = list;
         if (list == null) {
             this.available = false;
@@ -38,7 +38,7 @@ public class ServerAvailableCheckOutput {
         }
     }
 
-    public ServerAvailableCheckOutput(String message) {
+    public ServiceAvailableCheckOutput(String message) {
         this.message = message;
     }
 
@@ -50,7 +50,7 @@ public class ServerAvailableCheckOutput {
             return;
         }
 
-        for (ServerCheckPointOutput item : list) {
+        for (ServiceCheckPointOutput item : list) {
             item.setValue(null);
         }
     }
