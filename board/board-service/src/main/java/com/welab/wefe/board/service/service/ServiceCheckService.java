@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.sdk.FlowService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -47,6 +48,8 @@ public class ServiceCheckService extends AbstractService {
     private CheckpointManager checkpointManager;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private FlowService flowService;
 
     /**
      * 检查指定成员的服务是否可用
@@ -87,6 +90,8 @@ public class ServiceCheckService extends AbstractService {
                     return gatewayService.getLocalGatewayAvailable();
                 case UnionService:
                     return unionService.getAvailable();
+                case FlowService:
+                    return flowService.getAvailable();
                 default:
                     StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
