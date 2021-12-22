@@ -163,7 +163,7 @@
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
             @current-change="methods.currentPageChange"
-            @size-change="pageSizeChange"
+            @size-change="methods.pageSizeChange"
         />
     </div>
 </template>
@@ -197,8 +197,8 @@
                 getDataList(opt) {
                     ctx.search = props.searchField;
                     ctx.getListApi = vData.getListApi;
-                    ctx.pagination.page_index =+route.query.page_index || 1;
-                    ctx.pagination.page_size =+route.query.page_size || 20;
+                    ctx.pagination.page_index = +route.query.page_index || 1;
+                    ctx.pagination.page_size = +route.query.page_size || 20;
                     ctx.getList(opt);
                 },
                 addDataSet(ev, item) {
@@ -217,6 +217,19 @@
                         });
                     } else {
                         ctx.pagination.page_index = val;
+                        ctx.getList();
+                    }
+                },
+                pageSizeChange (val) {
+                    if (ctx.watchRoute) {
+                        router.push({
+                            query: {
+                                ...ctx.search,
+                                page_size: val,
+                            },
+                        });
+                    } else {
+                        ctx.pagination.page_size = val;
                         ctx.getList();
                     }
                 },

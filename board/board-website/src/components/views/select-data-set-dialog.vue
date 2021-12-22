@@ -282,6 +282,7 @@
                         // search from union
                         url = `/union/data_resource/query?member_id=${this.memberId}`;
                     }
+
                 }
 
                 const $ref = this.$refs['raw'];
