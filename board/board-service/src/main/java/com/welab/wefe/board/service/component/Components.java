@@ -69,9 +69,13 @@ public class Components {
     @Autowired
     private OotComponent ootComponent;
     @Autowired
-    private HorzNNComponent horzNNComponent;
+    private HorzFeatureBinningComponent horzFeatureBinningComponent;
+    @Autowired
+    private HorzStatisticComponent horzStatisticComponent;
     @Autowired
     private VertNNComponent vertNNComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
     @Autowired
     private MixBinningComponent mixBinningComponent;
     
@@ -124,6 +128,10 @@ public class Components {
                 return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case HorzFeatureBinning:
+                return Launcher.CONTEXT.getBean(Components.class).horzFeatureBinningComponent;
+            case HorzStatistic:
+                return Launcher.CONTEXT.getBean(Components.class).horzStatisticComponent;
             case HorzNN:
                 return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
             case VertNN:
@@ -141,6 +149,8 @@ public class Components {
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
                 || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzStatistic
+                || type == ComponentType.HorzFeatureBinning
                 || type == ComponentType.HorzNN
                 || type == ComponentType.MixBinning;
     }

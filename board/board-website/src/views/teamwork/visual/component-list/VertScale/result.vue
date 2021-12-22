@@ -27,14 +27,13 @@
     const mixin = resultMixin();
 
     export default {
-        name:       'VertFilter',
+        name:       'VertScale',
         components: {
             CommonResult,
         },
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             let vData = reactive({
                 tabName:     '',
@@ -45,8 +44,8 @@
             let methods = {
                 showResult(data) {
                     vData.members = [];
-                    if (data.result && data.result.members) {
-                        const { members } = data.result;
+                    if (data[0].result && data[0].result.members) {
+                        const { members } = data[0].result;
 
                         vData.tabName = `${members[0].member_id}-${members[0].role}`;
                     }

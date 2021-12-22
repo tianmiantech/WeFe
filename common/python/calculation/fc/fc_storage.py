@@ -105,6 +105,29 @@ class FCStorage(object):
         temp_auth_duration_seconds = conf_utils.get_comm_config(
             consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS)
 
+        fc_policy = {
+            "Version": "1",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "oss:Get*",
+                    "Resource": [
+                        "acs:oss:*:*:" + self._bucket_name + "/" + self._namespace + "/*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": "oss:ListObjects",
+                    "Resource": "acs:oss:*:*:" + self._bucket_name,
+                    "Condition": {
+                        "StringLike": {
+                            "oss:Prefix": self._namespace + "/" + self._name + "/*"
+                        }
+                    }
+                }
+            ]
+        }
+
         # build an Alibaba Cloud client to initiate requests.
         client = AcsClient(access_key_id, access_key_secret, region_id)
         request = AssumeRoleRequest()
@@ -112,6 +135,9 @@ class FCStorage(object):
         request.set_RoleArn(role_arn)
         request.set_RoleSessionName(role_session_name)
         request.set_DurationSeconds(temp_auth_duration_seconds)
+        # set policy
+        request.set_Policy(json.dumps(fc_policy))
+
         response = client.do_action_with_exception(request)
         result = json.loads(str(response, encoding='utf-8'))
         temp_access_key_id = result.get('Credentials').get('AccessKeyId')
