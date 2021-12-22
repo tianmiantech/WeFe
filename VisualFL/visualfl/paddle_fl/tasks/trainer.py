@@ -94,7 +94,7 @@ class FLTrainer(Task):
                 f"--feeds=feeds",
                 f"--strategy=strategy",
                 f"--config config.json",
-                f"--algorithm-config algorithm_config.yaml"
+                f"--algorithm-config algorithm_config.json"
                 f">{executor.stdout} 2>{executor.stderr}",
             ]
         )
@@ -116,7 +116,7 @@ class FLTrainer(Task):
             f.write(self._feeds)
         with executor.working_dir.joinpath("config.json").open("w") as f:
             f.write(self._config_string)
-        with executor.working_dir.joinpath("algorithm_config.yaml").open("w") as f:
+        with executor.working_dir.joinpath("algorithm_config.json").open("w") as f:
             f.write(self._algorithm_config_string)
         returncode = await executor.execute(cmd)
         if returncode is None or returncode != 0:

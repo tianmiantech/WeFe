@@ -26,17 +26,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import logging
-import os
 
 import click
 import paddle
-import yaml
 
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl.algorithm.paddle_clas import data_loader
-from visualfl.db.task_progress_dao import TaskProgressDao
+from visualfl.db.task_dao import TaskDao
 from visualfl.utils.tools import *
 
 @click.command()
@@ -126,101 +122,108 @@ def fl_trainer(
         level=logging.DEBUG,
     )
 
-    with open(config) as f:
-        config_json = json.load(f)
-    device = config_json.get("device", "cpu")
-    use_vdl = config_json.get("use_vdl", False)
-    resume_checkpoint = config_json.get("resume", True)
-    save_model_dir = "model"
-    save_checkpoint_dir = "checkpoint"
-    log_dir = "vdl_log"
+    try:
 
-    with open(algorithm_config) as f:
-        algorithm_config_dict = yaml.safe_load(f)
-    batch_size = algorithm_config_dict.get("batch_size", 1024)
-    need_shuffle = algorithm_config_dict.get("need_shuffle", True)
-    max_iter = algorithm_config_dict.get("max_iter")
+        with open(config) as f:
+            config_json = json.load(f)
+        device = config_json.get("device", "cpu")
+        use_vdl = config_json.get("use_vdl", False)
+        resume_checkpoint = config_json.get("resume", True)
+        save_model_dir = "model"
+        save_checkpoint_dir = "checkpoint"
+        log_dir = "vdl_log"
 
+        with open(algorithm_config) as f:
+            algorithm_config_dict = json.load(f)
 
-    logging.debug(f"training program begin")
-    trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
-    logging.debug(f"job program loading")
-    trainer.load_job(
-        main_program=main_program,
-        startup_program=startup_program,
-        send_program=send_program,
-        recv_program=recv_program,
-        feed_names=feed_names,
-        target_names=target_names,
-        strategy=strategy,
-    )
-    logging.debug(f"job program loaded")
-    place = fluid.CPUPlace() if device != "cuda" else fluid.CUDAPlace(0)
-
-    logging.debug(f"trainer starting with place {place}")
-    trainer.start(place)
-    logging.debug(f"trainer stared")
+        batch_size = algorithm_config_dict.get("batch_size", 1024)
+        need_shuffle = algorithm_config_dict.get("need_shuffle", True)
+        max_iter = algorithm_config_dict.get("max_iter")
 
 
-    logging.debug(f"loading data")
-    feed_list = trainer.load_feed_list(feeds)
-    feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
-    logging.debug(f"data loader ready")
-
-    epoch_id = 0
-    step = 0
-    TaskProgressDao.init_task_progress(task_id,max_iter)
-    if resume_checkpoint:
-        epoch_id = checkpoint.global_step()
-        checkpoint.load_checkpoint(trainer.exe, trainer._main_program,os.path.join(save_checkpoint_dir,str(epoch_id)))
-        logging.debug(f"checkpoint epoch {epoch_id}")
-        TaskProgressDao.set_task_progress(task_id, epoch_id)
-
-    #TODO download the data based on the download_url
-    reader = data_loader.train()
-    if need_shuffle:
-        reader = fluid.io.shuffle(
-            reader=reader,
-            buf_size=1000,
+        logging.debug(f"training program begin")
+        trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
+        logging.debug(f"job program loading")
+        trainer.load_job(
+            main_program=main_program,
+            startup_program=startup_program,
+            send_program=send_program,
+            recv_program=recv_program,
+            feed_names=feed_names,
+            target_names=target_names,
+            strategy=strategy,
         )
+        logging.debug(f"job program loaded")
+        place = fluid.CPUPlace() if device != "cuda" else fluid.CUDAPlace(0)
 
-    train_loader = paddle.batch(reader=reader, batch_size=batch_size)
-
-    if use_vdl:
-        from visualdl import LogWriter
-        vdl_writer = LogWriter("vdl_log")
+        logging.debug(f"trainer starting with place {place}")
+        trainer.start(place)
+        logging.debug(f"trainer stared")
 
 
-    while epoch_id < max_iter:
-        if not trainer.scheduler_agent.join(epoch_id):
-            logging.debug(f"not join, waiting next round")
-            continue
+        logging.debug(f"loading data")
+        feed_list = trainer.load_feed_list(feeds)
+        feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
+        logging.debug(f"data loader ready")
 
-        logging.debug(f"epoch {epoch_id} start train")
+        epoch_id = 0
+        step = 0
+        TaskDao(task_id).init_task_progress(max_iter)
+        # if resume_checkpoint:
+        #     epoch_id = checkpoint.global_step()
+        #     checkpoint.load_checkpoint(trainer.exe, trainer._main_program,os.path.join(save_checkpoint_dir,str(epoch_id)))
+        #     logging.debug(f"checkpoint epoch {epoch_id}")
+        #     TaskProgressDao.set_task_progress(task_id, epoch_id)
 
-        for step_id, data in enumerate(train_loader()):
-            outs = trainer.run(feeder.feed(data), fetch=trainer._target_names)
-            if use_vdl:
-                stats = {
-                    k: np.array(v).mean() for k, v in zip(trainer._target_names, outs)
-                }
-                for loss_name, loss_value in stats.items():
-                    vdl_writer.add_scalar(loss_name, loss_value, step)
-                    get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_clas")
-            step += 1
-            logging.debug(f"step: {step}, outs: {outs}")
+        #TODO download the data based on the download_url
+        reader = data_loader.train()
+        if need_shuffle:
+            reader = fluid.io.shuffle(
+                reader=reader,
+                buf_size=1000,
+            )
 
-        # save model
-        logging.debug(f"saving model at {epoch_id}-th epoch")
-        trainer.save_model(os.path.join(save_model_dir,str(epoch_id)))
+        train_loader = paddle.batch(reader=reader, batch_size=batch_size)
 
-        # info scheduler
+        if use_vdl:
+            from visualdl import LogWriter
+            vdl_writer = LogWriter("vdl_log")
+
+
+        while epoch_id < max_iter:
+            if not trainer.scheduler_agent.join(epoch_id):
+                logging.debug(f"not join, waiting next round")
+                continue
+
+            logging.debug(f"epoch {epoch_id} start train")
+
+            for step_id, data in enumerate(train_loader()):
+                outs = trainer.run(feeder.feed(data), fetch=trainer._target_names)
+                if use_vdl:
+                    stats = {
+                        k: np.array(v).mean() for k, v in zip(trainer._target_names, outs)
+                    }
+                    for loss_name, loss_value in stats.items():
+                        vdl_writer.add_scalar(loss_name, loss_value, step)
+                        get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_clas")
+                step += 1
+                logging.debug(f"step: {step}, outs: {outs}")
+
+            # save model
+            logging.debug(f"saving model at {epoch_id}-th epoch")
+            trainer.save_model(os.path.join(save_model_dir,str(epoch_id)))
+
+            # info scheduler
+            # trainer.scheduler_agent.finish()
+            checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
+            epoch_id += 1
+            TaskDao(task_id).add_task_progress(1)
+
+        logging.debug(f"reach max iter, finish training")
+    except Exception as e:
+        logging.error(f"task id {task_id} train error {e}")
+    finally:
         trainer.scheduler_agent.finish()
-        checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
-        epoch_id += 1
-        TaskProgressDao.add_task_progress(task_id, 1)
-
-    logging.debug(f"reach max iter, finish training")
 
 
 if __name__ == "__main__":

@@ -8,12 +8,9 @@ import json
 import traceback
 from datetime import datetime
 from typing import Optional, MutableMapping, List
-import yaml
 import attr
 import grpc
 from aiohttp import web
-import requests
-from visualfl import __basedir__
 from visualfl import extensions
 from visualfl.paddle_fl.abs.job import Job
 from visualfl.protobuf import (
@@ -23,9 +20,7 @@ from visualfl.protobuf import (
 )
 from visualfl.utils.exception import VisualFLExtensionException
 from visualfl.utils.logger import Logger
-from ppdet.core.workspace import load_config
 from visualfl.utils.tools import *
-import visualfl.utils.consts
 from visualfl.utils.consts import TaskStatus
 
 
@@ -143,24 +138,6 @@ class RESTService(Logger):
     def web_response(self,code,message,job_id=None):
         return web.json_response(data=dict(code=code,message=message,job_id=job_id), status=code)
 
-    def parse_detection_config(self,algorithm_config):
-        program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
-        default_config_name = 'default_algorithm_config.yml'
-        architecture = algorithm_config["architecture"]
-        default_algorithm_config = os.path.join(program_full_path, "configs", architecture.lower(), default_config_name)
-        with open(default_algorithm_config) as f:
-            default_algorithm_dict = yaml.load(f, Loader=yaml.Loader)
-        default_algorithm_dict["program"] = algorithm_config["program"]
-        default_algorithm_dict["max_iter"] = algorithm_config["max_iter"]
-        default_algorithm_dict["inner_step"] = algorithm_config["inner_step"]
-        default_algorithm_dict["num_classes"] = algorithm_config["num_classes"]
-        default_algorithm_dict["LearningRate"]["base_lr"] = algorithm_config["base_lr"]
-        default_algorithm_dict["TrainReader"]["inputs_def"]["image_shape"] = algorithm_config["image_shape"]
-        default_algorithm_dict["TrainReader"]["batch_size"] = algorithm_config["batch_size"]
-
-        return default_algorithm_dict
-
-
     async def _restful_submit(self, request: web.Request) -> web.Response:
         """
         handle submit request
@@ -188,8 +165,6 @@ class RESTService(Logger):
             program = algorithm_config["program"]
             config["max_iter"] = algorithm_config["max_iter"]
             algorithm_config["download_url"] = download_url
-            if program == "paddle_detection":
-                algorithm_config = self.parse_detection_config(algorithm_config)
 
         except Exception:
             return self.web_response(400, traceback.format_exc(),job_id)
@@ -274,8 +249,6 @@ class RESTService(Logger):
             program = algorithm_config["program"]
             config["max_iter"] = algorithm_config["max_iter"]
             algorithm_config["download_url"] = download_url
-            if program == "paddle_detection":
-                algorithm_config = self.parse_detection_config(algorithm_config)
 
         except Exception:
             return self.web_response(400, traceback.format_exc(),job_id)
@@ -415,6 +388,7 @@ class Master(Logger):
             aggregator_endpoint=job._aggregator_endpoint,
             aggregator_assignee=job._aggregator_assignee
         )
+        self.debug(f"callback json data is {json_data}")
         post(
             job._callback_url,
             json_data
@@ -450,7 +424,7 @@ class Master(Logger):
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
-                TaskDao.update_task_status(job._web_task_id, TaskStatus.ERROR, str(e))
+                TaskDao(job._web_task_id).update_task_status(TaskStatus.ERROR, str(e))
 
 
         while True:
@@ -502,7 +476,7 @@ class Master(Logger):
 
             except Exception as e:
                 self.exception(f"run jobs failed: {e}")
-                TaskDao.update_task_status(task_id=job._web_task_id,status=TaskStatus.ERROR, message=str(e))
+                TaskDao(job._web_task_id).update_task_status(status=TaskStatus.ERROR, message=str(e))
 
         while True:
             submitted_job = await self.shared_status.job_queue.get()

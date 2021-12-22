@@ -15,13 +15,11 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+import os
 import json
 import logging
-
 import click
 from paddle import fluid
-
 from visualfl.algorithm.paddle_detection._empty_optimizer import (
     EmptyOptimizer,
 )
@@ -29,6 +27,9 @@ from paddle_fl.core.master.job_generator import JobGenerator
 from paddle_fl.core.strategy.fl_strategy_base import (
     FedAvgStrategy,
 )
+from ppdet.core.workspace import load_config, create
+from ppdet.utils.check import check_version, check_config
+from visualfl.algorithm.paddle_detection._merge_config import merger_algorithm_config
 
 
 class Model(object):
@@ -38,10 +39,11 @@ class Model(object):
         self.loss = None
 
     def build_program(self, config):
-        from ppdet.core.workspace import load_config, create
-        from ppdet.utils.check import check_version, check_config
 
-        cfg = load_config(config)
+        with open(config) as f:
+            algorithm_config_dict = json.load(f)
+
+        cfg = merger_algorithm_config(algorithm_config_dict)
         check_config(cfg)
         check_version()
 

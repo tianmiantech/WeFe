@@ -13,7 +13,6 @@
 # limitations under the License.
 import json
 import logging
-import yaml
 import importlib
 
 import click
@@ -67,7 +66,8 @@ def fl_master(algorithm_config, ps_endpoint, config):
     worker_num = config_json["worker_num"]
 
     with open(algorithm_config) as f:
-        algorithm_config_dict = yaml.load(f)
+        algorithm_config_dict = json.load(f)
+
     inner_step = algorithm_config_dict.get("inner_step")
     base_lr = algorithm_config_dict.get("base_lr", 0.001)
     image_shape = algorithm_config_dict.get("image_shape")

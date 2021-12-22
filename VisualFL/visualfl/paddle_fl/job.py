@@ -37,7 +37,7 @@ class PaddleFLJob(Job):
         self._program = algorithm_config["program"]
         self._trainer_entrypoint = f"visualfl.algorithm.{self._program}.fl_trainer"
         self._config_string = json.dumps(config)
-        self._algorithm_config = yaml.dump(algorithm_config)
+        self._algorithm_config = json.dumps(algorithm_config)
         self._server_endpoint = config.get("server_endpoint",None)
         self._aggregator_endpoint = config.get("aggregator_endpoint",None)
         self._aggregator_assignee = config.get("aggregator_assignee",None)
@@ -59,7 +59,7 @@ class PaddleFLJob(Job):
 
     async def compile(self):
         executor = ProcessExecutor(self.compile_path)
-        with self.compile_path.joinpath("algorithm_config.yaml").open("w") as f:
+        with self.compile_path.joinpath("algorithm_config.json").open("w") as f:
             f.write(self._algorithm_config)
         with self.compile_path.joinpath("config.json").open("w") as f:
             f.write(self._config_string)
@@ -68,7 +68,7 @@ class PaddleFLJob(Job):
             [
                 f"{executable} -m visualfl.algorithm.{self._program}.fl_master",
                 f"--ps-endpoint {self._server_endpoint}",
-                f"--algorithm-config algorithm_config.yaml",
+                f"--algorithm-config algorithm_config.json",
                 f"--config config.json",
                 f">{executor.stdout} 2>{executor.stderr}",
             ]
