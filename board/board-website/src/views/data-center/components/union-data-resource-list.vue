@@ -197,8 +197,8 @@
                 getDataList(opt) {
                     ctx.search = props.searchField;
                     ctx.getListApi = vData.getListApi;
-                    ctx.pagination.page_index = +route.query.page_index || 1;
-                    ctx.pagination.page_size = +route.query.page_size || 20;
+                    // ctx.pagination.page_index = +route.query.page_index || 1;
+                    // ctx.pagination.page_size = +route.query.page_size || 20;
                     ctx.getList(opt);
                 },
                 addDataSet(ev, item) {
