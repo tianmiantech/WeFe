@@ -236,7 +236,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
-        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
         aggregation = Aggregation.newAggregation(
                 lookupToDataImageDataSet,
@@ -251,8 +250,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 dataResourceMatch,
                 memberMatch,
                 skipOperation,
-                limitOperation,
-                sortOperation
+                limitOperation
         );
 
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
