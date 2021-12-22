@@ -11,11 +11,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mpc-sa</artifactId>
+    <packaging>pom</packaging>
     <description>Secure Aggregation</description>
+    <modules>
+        <module>mpc-sa-server</module>
+        <module>mpc-sa-sdk</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>mpc-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

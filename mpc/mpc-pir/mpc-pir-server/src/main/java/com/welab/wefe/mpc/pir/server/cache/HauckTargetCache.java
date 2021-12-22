@@ -18,7 +18,6 @@
 package com.welab.wefe.mpc.pir.server.cache;
 
 import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckTarget;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -27,7 +26,6 @@ import java.util.concurrent.BlockingQueue;
  * @Author eval
  * @Date 2021/12/14
  **/
-@Component
 public class HauckTargetCache {
 
     private static HauckTargetCache sHauckTargetCache = new HauckTargetCache();
@@ -37,7 +35,7 @@ public class HauckTargetCache {
     private HauckTargetCache() {
     }
 
-    public static HauckTargetCache getInstance(){
+    public static HauckTargetCache getInstance() {
         return sHauckTargetCache;
     }
 
@@ -49,7 +47,7 @@ public class HauckTargetCache {
         return sHauckTargetCaches.poll();
     }
 
-    public int size(){
+    public int size() {
         return sHauckTargetCaches.size();
     }
 }

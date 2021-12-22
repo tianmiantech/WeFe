@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,19 +15,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.flow;
+package com.welab.wefe.mpc.sa.server;
 
-
-import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
-
-public abstract class BasePrivateInformationRetrieval {
-    public String uuid;
-
-    public ObliviousTransfer mObliviousTransfer;
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public abstract void initObliviousTransfer();
+/**
+ * @Author eval
+ * @Date 2021/12/17
+ **/
+public class SecureAggregation {
 }

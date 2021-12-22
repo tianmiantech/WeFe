@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,19 +15,40 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.flow;
+package com.welab.wefe.mpc.sa.request;
 
+import java.util.List;
 
-import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
+/**
+ * @Author eval
+ * @Date 2021/12/17
+ **/
+public class QueryResultRequest {
+    private String uuid;
+    private List<String> diffieHellmanValues;
+    private int index;
 
-public abstract class BasePrivateInformationRetrieval {
-    public String uuid;
-
-    public ObliviousTransfer mObliviousTransfer;
+    public String getUuid() {
+        return uuid;
+    }
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public abstract void initObliviousTransfer();
+    public List<String> getDiffieHellmanValues() {
+        return diffieHellmanValues;
+    }
+
+    public void setDiffieHellmanValues(List<String> diffieHellmanValues) {
+        this.diffieHellmanValues = diffieHellmanValues;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

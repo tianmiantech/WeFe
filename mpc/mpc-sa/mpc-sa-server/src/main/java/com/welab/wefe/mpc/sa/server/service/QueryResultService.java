@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,19 +15,24 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.flow;
+package com.welab.wefe.mpc.sa.server.service;
 
+import com.welab.wefe.mpc.cache.CacheOperation;
+import com.welab.wefe.mpc.cache.impl.LocalCache;
+import com.welab.wefe.mpc.sa.request.QueryResultRequest;
+import com.welab.wefe.mpc.sa.request.QueryResultResponse;
 
-import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
+/**
+ * @Author eval
+ * @Date 2021/12/17
+ **/
+public class QueryResultService {
 
-public abstract class BasePrivateInformationRetrieval {
-    public String uuid;
+    CacheOperation mCacheOperation = new LocalCache();
 
-    public ObliviousTransfer mObliviousTransfer;
+    public QueryResultResponse handle(QueryResultRequest request) {
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+        QueryResultResponse response = new QueryResultResponse();
+        return response;
     }
-
-    public abstract void initObliviousTransfer();
 }
