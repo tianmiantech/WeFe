@@ -1,8 +1,9 @@
 
 ###
-POST http://localhost:8080/board-service/server/available
+POST http://localhost:8080/board-service/service/available
 Content-Type: application/json
 token: {{token}}
 
 {
+  "serviceType": "BoardService"
 }
