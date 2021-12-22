@@ -92,6 +92,7 @@ public class CsvTableDataSetReader extends AbstractTableDataSetReader {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         try {
             CsvRow row = parser.nextRow();
+
             if (row == null) {
                 return null;
             }
@@ -104,7 +105,7 @@ public class CsvTableDataSetReader extends AbstractTableDataSetReader {
                 map.put(header.get(i), value);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new StatusCodeWithException("读取数据集中的数据行失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
