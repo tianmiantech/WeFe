@@ -1,12 +1,12 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,31 +214,17 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set", true);
         UnwindOperation unwindTableDataSet = Aggregation.unwind("table_data_set", true);
         UnwindOperation unwindBloomFilter = Aggregation.unwind("bloom_filter", true);
+
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
-
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                lookupToDataImageDataSet,
-                lookupToDataTableDataSet,
-                lookupToDataBloomFilter,
-                lookupToMember,
-                unwindMember,
-                unwindImageDataSet,
-                unwindTableDataSet,
-                unwindBloomFilter,
-                addFieldsOperation,
-                dataResourceMatch,
-                memberMatch
-
-        );
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
-        aggregation = Aggregation.newAggregation(
+        CountOperation countOperation = Aggregation.count().as("count");
+        FacetOperation facetOperation = Aggregation.facet(
                 lookupToDataImageDataSet,
                 lookupToDataTableDataSet,
                 lookupToDataBloomFilter,
@@ -250,12 +237,16 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 dataResourceMatch,
                 memberMatch,
                 skipOperation,
-                limitOperation
-        );
+                limitOperation,
+                sortOperation
+        ).as("data").and(countOperation).as("total");
 
-        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
 
-        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
+        JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
+        Long total = result.getJSONList("total").get(0).getLongValue("totalCount");
+        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 
 }
