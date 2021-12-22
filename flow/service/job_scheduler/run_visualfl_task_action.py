@@ -134,7 +134,7 @@ class RunVisualFLTaskAction:
 
     def is_task_progress_done(self) -> bool:
         apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None or apply_result.status == '待运行' or apply_result.status == '运行中':
+        if apply_result is None or apply_result.status == 'wait_run' or apply_result.status == 'running':
             return False
         return True
 

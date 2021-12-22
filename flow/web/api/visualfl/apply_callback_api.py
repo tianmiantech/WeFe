@@ -43,7 +43,7 @@ class Api(BaseApi):
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
             apply_result.status = input.status
-        if '待运行' == input.status or '运行中' == input.status:
+        if 'wait_run' == input.status or 'running' == input.status:
             apply_result.server_endpoint = input.server_endpoint
             apply_result.aggregator_endpoint = input.aggregator_endpoint
             apply_result.aggregator_assignee = input.aggregator_assignee
