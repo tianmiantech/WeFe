@@ -48,7 +48,7 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (dataResource == null) {
             if (imageDataSet == null) {
                 imageDataSetContractService.add(imageDataSetMapper.transferPutInputToImageDataSet(input));

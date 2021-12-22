@@ -27,6 +27,7 @@ import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -109,7 +110,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String curMemeberId, String joinCollectionName) {
+    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String joinCollectionName) {
 
         String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
@@ -128,7 +129,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
                 .append("enable", "1")
-                .append("member_id", curMemeberId)
                 .append("data_resource_id", dataResourceId)
                 .getCriteria();
 
@@ -190,7 +190,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
-                .append("member_id", dataResourceQueryInput.getCurMemberId())
+                .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
                 .getCriteria();
 
@@ -236,6 +236,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
         aggregation = Aggregation.newAggregation(
                 lookupToDataImageDataSet,
@@ -250,7 +251,8 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 dataResourceMatch,
                 memberMatch,
                 skipOperation,
-                limitOperation
+                limitOperation,
+                sortOperation
         );
 
         List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
