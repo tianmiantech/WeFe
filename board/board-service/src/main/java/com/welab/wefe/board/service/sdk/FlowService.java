@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,8 +38,8 @@ public class FlowService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
-    public JObject dashboard() throws StatusCodeWithException {
-        return request("/flow/dashboard", null);
+    public JObject alive() throws StatusCodeWithException {
+        return request("/service/alive", null);
     }
 
     private JObject request(String api, JSONObject params) throws StatusCodeWithException {

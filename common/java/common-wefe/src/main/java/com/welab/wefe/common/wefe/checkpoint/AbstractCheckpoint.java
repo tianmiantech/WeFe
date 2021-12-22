@@ -18,7 +18,7 @@ package com.welab.wefe.common.wefe.checkpoint;
 
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerCheckPointOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public abstract class AbstractCheckpoint {
 
     protected String configValue;
 
-    public ServerCheckPointOutput check() {
+    public ServiceCheckPointOutput check() {
         long start = System.currentTimeMillis();
         Exception exception = null;
 
@@ -66,7 +66,7 @@ public abstract class AbstractCheckpoint {
         }
 
 
-        ServerCheckPointOutput output = new ServerCheckPointOutput();
+        ServiceCheckPointOutput output = new ServiceCheckPointOutput();
         output.setService(service());
         output.setDesc(desc());
         output.setValue(configValue);

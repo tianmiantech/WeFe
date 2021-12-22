@@ -25,6 +25,9 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * 这个类中的字段大多数情况下都需要加上 @JSONField(serialize = false)
+ * 避免在序列化输出时输出不应该传递的参数
+ *
  * @author Zane
  */
 public class AbstractApiInput extends AbstractCheckModel {

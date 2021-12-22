@@ -71,7 +71,7 @@ public class BoardCheckpoint extends AbstractCheckpoint {
         JObject reqBody = JObject.create()
                 .append("callerMemberId", selfMember.getId())
                 .append("callerMemberName", selfMember.getName())
-                .append("api", "server/alive")
+                .append("api", "service/alive")
                 .append("data", JObject.create());
 
         HttpResponse httpResponse = BoardHelper.push(

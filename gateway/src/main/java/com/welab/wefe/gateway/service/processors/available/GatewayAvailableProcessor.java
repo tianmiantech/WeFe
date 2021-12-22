@@ -20,7 +20,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -50,7 +50,7 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         // Check self
         if (isCheckSelf(transferMeta)) {
-            ServerAvailableCheckOutput result = checkpointManager.checkAll();
+            ServiceAvailableCheckOutput result = checkpointManager.checkAll();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         }
 
@@ -59,7 +59,7 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
-        ServerAvailableCheckOutput result = checkpointManager.checkAll();
+        ServiceAvailableCheckOutput result = checkpointManager.checkAll();
         result.cleanValues();
         return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
     }
