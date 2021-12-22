@@ -41,7 +41,7 @@ public abstract class AbstractUnionConnectionCheckpoint extends AbstractCheckpoi
 
     @Override
     protected void doCheck(String configValue) throws Exception {
-        HttpResponse httpResponse = HttpRequest.create(configValue + "server/alive")
+        HttpResponse httpResponse = HttpRequest.create(configValue + "/server/alive")
                 .closeLog()
                 .postJson();
 

@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.union;
+package com.welab.wefe.board.service.api.union.member_auth;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.service.CacheObjects;

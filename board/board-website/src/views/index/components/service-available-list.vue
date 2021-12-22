@@ -5,15 +5,14 @@
                 服务状态
             </div>
         </template>
-        <ServiceStatusItem service="union" />
-        <ServiceStatusItem service="gateway" />
-        <ServiceStatusItem service="storage" />
-        <ServiceStatusItem service="flow" />
+        <ServiceStatusItem serviceType="BoardService" />
+        <ServiceStatusItem serviceType="UnionService" />
+        <ServiceStatusItem serviceType="GatewayService" />
     </el-card>
 </template>
 
 <script>
-    import ServiceStatusItem from './service-status-item.vue';
+    import ServiceStatusItem from './service-available.vue';
 
     export default {
         components: {

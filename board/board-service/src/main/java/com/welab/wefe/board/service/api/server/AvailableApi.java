@@ -16,27 +16,61 @@
 
 package com.welab.wefe.board.service.api.server;
 
+import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
 
 /**
  * @author zane
  */
 @Api(path = "server/available", name = "list all checkpoint in board service to show its availability.")
-public class AvailableApi extends AbstractNoneInputApi<ServerAvailableCheckOutput> {
+public class AvailableApi extends AbstractApi<AvailableApi.Input, ServerAvailableCheckOutput> {
 
     @Autowired
     private CheckpointManager checkpointManager;
+    @Autowired
+    private GatewayService gatewayService;
+    @Autowired
+    private UnionService unionService;
 
     @Override
-    protected ApiResult<ServerAvailableCheckOutput> handle() throws StatusCodeWithException {
-        ServerAvailableCheckOutput output = checkpointManager.checkAll();
+    protected ApiResult<ServerAvailableCheckOutput> handle(Input input) throws StatusCodeWithException, IOException {
+        ServerAvailableCheckOutput output = null;
+        try {
+            switch (input.serviceType) {
+                case BoardService:
+                    output = checkpointManager.checkAll();
+                    break;
+                case GatewayService:
+                    output = gatewayService.getLocalGatewayAvailable();
+                    break;
+                case UnionService:
+                    output = unionService.getAvailable();
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
+            }
+        } catch (Exception e) {
+            output = new ServerAvailableCheckOutput(e.getMessage());
+        }
+
         return success(output);
     }
 
+    public static class Input extends AbstractApiInput {
+        @Check(name = "服务类型", require = true)
+        public ServiceType serviceType;
+    }
 }
