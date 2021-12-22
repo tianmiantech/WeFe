@@ -18,7 +18,6 @@ package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  */
 @Api(path = "data_resource/default_tag/query", name = "data_resource_default_tag_query", rsaVerify = true, login = false)
-public class DefaultTagQuery extends AbstractApi<DefaultTagQuery.Input, JObject> {
+public class DefaultTagQueryApi extends AbstractApi<DefaultTagQueryApi.Input, JObject> {
     @Autowired
     protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
 

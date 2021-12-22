@@ -68,6 +68,7 @@ public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataRe
                 break;
             case ImageDataSet:
                 dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId(), MongodbTable.Union.IMAGE_DATASET);
+                break;
             default:
                 throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
         }
