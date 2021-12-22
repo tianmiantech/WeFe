@@ -89,6 +89,7 @@
                         type="primary"
                         @click="add_return_fields(index)"
                     >新增返回字段</el-button>
+            <br/>
             查询字段:
                 <el-form-item  v-for="(condition_field, index2) in item.condition_fields"
                   :key="`condition_field-${index2}`"
@@ -272,7 +273,46 @@
                 this.query_param_arr.push({key:"",value:""})
             },
             async add_return_fields(index){
-                console.log(index);
+                this.query_data_source();
+                this.query_tables("f563de38a60e4be8aa5286af6db052c3");
+                this.query_tables_fields("f563de38a60e4be8aa5286af6db052c3","account");
+            },
+            async query_data_source(){
+                const { code, data } = await this.$http.post({
+                    url:  '/data_source/query'
+                });
+                if (code === 0) {
+                    console.log(data);
+                }
+                else{
+                    this.$message.success('获取数据源失败');
+                }
+            },
+            async query_tables(data_source_id){
+                const { code, data } = await this.$http.post({
+                    url:  '/data_source/query_table_fields',
+                    data: { id: data_source_id},
+                });
+
+                if (code === 0) {
+                    console.log(data);
+                }
+                else{
+                    this.$message.success('获取数据表失败');
+                }
+            },
+            async query_tables_fields(data_source_id, table_name){
+                const { code, data } = await this.$http.post({
+                    url:  '/data_source/query_table_fields',
+                    data: { id: data_source_id,table_name:table_name},
+                });
+
+                if (code === 0) {
+                    console.log(data);
+                }
+                else{
+                    this.$message.success('获取数据表字段失败');
+                }
             },
             async delete_params(index){
                 this.query_param_arr.splice(index, 1);
