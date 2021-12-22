@@ -106,7 +106,7 @@ public class CsvTableDataSetReader extends AbstractTableDataSetReader {
             }
 
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集中的数据行失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("读取数据集中的第" + (readDataRows + 1) + "行失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
         return map;
