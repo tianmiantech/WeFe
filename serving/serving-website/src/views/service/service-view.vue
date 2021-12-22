@@ -71,18 +71,34 @@
                     >新增参数</el-button>
             <br/><br/><br/>
             SQL 配置：
-            <el-form-item
-                prop="data_source"
-                style="max-width:500px"
-                label="数据源"
+            <el-form-item  v-for="(item, index) in data_source"
+                :key="`data_source-${index}`"
             >
-                <el-input
-                    type="textarea"
-                    resize="both"
-                    rows="10"
-                    v-model="form.data_source"
-                    size="medium"
-                />
+            数据源:
+                <el-input v-model="item.db" />
+            数据表:
+                <el-input v-model="item.table" />
+            返回字段:
+                <el-form-item  v-for="(return_field, index1) in item.return_fields"
+                  :key="`return_field-${index1}`"
+                   label-width="100px"
+                >
+                    <el-input v-model="return_field.name" />
+                </el-form-item>
+                <el-button
+                        type="primary"
+                        @click="add_return_fields(index)"
+                    >新增返回字段</el-button>
+            查询字段:
+                <el-form-item  v-for="(condition_field, index2) in item.condition_fields"
+                  :key="`condition_field-${index2}`"
+                   label-width="100px"
+                >
+                    <el-input v-model="condition_field.operator" />
+                    <el-input v-model="condition_field.field_on_table" />
+                    <el-input v-model="condition_field.field_on_param" />
+                </el-form-item>
+
             </el-form-item>
 
             <div class="form-inline">
@@ -171,6 +187,26 @@
                     name:  '安全聚合',
                     value: 3,
                 }],
+                data_source:[
+                    {
+                        "id":"",
+                        "db":"",
+                        "table":"",
+                        "return_fields":[
+                            {
+                                "name":"",
+                                "type":""
+                            }
+                        ],
+                        "condition_fields":[
+                            {
+                                "field_on_param":"",
+                                "field_on_table":"",
+                                "operator":""
+                            }
+                        ]
+                    }
+                ],
                 currentItem: {},
                 testLoading: false,
                 saveLoading: false,
@@ -205,6 +241,7 @@
                         this.form = resData;
                         this.query_param_arr = this.sql_test.params=this.form.query_params.split(",").map(x => {return {key: x,value:''}});
                         this.sql_test.return_fields = this.form.data_source[0].return_fields;
+                        this.data_source = this.form.data_source;
                     }
                 }
             },
@@ -233,6 +270,9 @@
             },
             async add_params(){
                 this.query_param_arr.push({key:"",value:""})
+            },
+            async add_return_fields(index){
+                console.log(index);
             },
             async delete_params(index){
                 this.query_param_arr.splice(index, 1);
