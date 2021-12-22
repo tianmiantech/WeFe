@@ -27,4 +27,4 @@ class Api(BaseApi):
     """
 
     def run(self, input):
-        return BaseApiOutput.success("ok")
+        return BaseApiOutput.success("")
