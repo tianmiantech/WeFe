@@ -17,17 +17,14 @@
 package com.welab.wefe.union.service.api.dataresource.dataset.table;
 
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
-import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import com.welab.wefe.union.service.service.TableDataSetContractService;
@@ -48,7 +45,7 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (dataResource == null) {
             if (tableDataSet == null) {
                 tableDataSetContractService.add(tableDataSetMapper.transferPutInputToTableDataSet(input));

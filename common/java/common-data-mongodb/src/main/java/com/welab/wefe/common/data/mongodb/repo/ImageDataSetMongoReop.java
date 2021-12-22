@@ -97,7 +97,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
-                .append("member_id", dataResourceQueryInput.getCurMemberId())
+                .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
                 .getCriteria();
 

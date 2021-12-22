@@ -30,6 +30,7 @@ public class DataResourceQueryInput extends PageInput {
     protected String name;
     protected String tag;
     protected String curMemberId;
+    protected String memberId;
     protected DataResourceType dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
@@ -106,5 +107,13 @@ public class DataResourceQueryInput extends PageInput {
 
     public void setContainsY(Boolean containsY) {
         this.containsY = containsY;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 }
