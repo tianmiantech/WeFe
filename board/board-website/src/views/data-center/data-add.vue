@@ -728,18 +728,16 @@
             async checkStorage() {
                 this.loading = true;
                 const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/service/available',
                     data: {
                         requestFromRefresh: true,
-                        member_id:          this.userInfo.member_id,
+                        serviceType:        'StorageService',
                     },
                 });
 
                 this.loading = false;
                 if(code === 0) {
-                    const { success } = data.status.storage;
-
-                    if(!success) {
+                    if(!data.available) {
                         this.$alert('存储不可用! 请联系管理员', '警告!');
                     }
                 }
