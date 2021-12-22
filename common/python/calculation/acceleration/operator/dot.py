@@ -129,7 +129,7 @@ def dot(value, w, bits):
         else:
             # GPU acceleration is used here, w is ciphertext, X is plaintext
             process_count = multiprocessing.cpu_count()
-            process_count = 1
+            process_count = int(process_count / 2) or 1
             pool = multiprocessing.Pool(processes=process_count)
             each_size = math.ceil(len(X) / process_count)
             process_list = []
@@ -181,11 +181,11 @@ def _gpu_dot_4_batch(X, w, bits):
         batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
     _restore_batch_result_2_array(x_shape_to_restore, batch_result, result_array)
 
-    import uuid
-
-    print(f'reduce_add start:{datetime.datetime.now()}')
+    import uuid,os
+    uid =  f'{os.getpid()}-{uuid.uuid1()}'
+    print(f'reduce_add start:{datetime.datetime.now()},{uid}')
     _result_array_reduce_add(result_array, bits)
-    print(f'reduce_add end_1:{datetime.datetime.now()}')
+    print(f'reduce_add end_1:{datetime.datetime.now()},{uid}')
 
     # Submit the remaining batches that are not enough to use CPU calculation and return the result
     for item_result_array in result_array:
@@ -194,7 +194,7 @@ def _gpu_dot_4_batch(X, w, bits):
             item_result += item
         res.append(item_result)
 
-    print(f'reduce_add end_2:{datetime.datetime.now()}')
+    print(f'reduce_add end_2:{datetime.datetime.now()},{uid}')
     return res
     # return np.array(res)
 
@@ -491,13 +491,6 @@ def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list, bits):
     else:
         for i in range(len(x_batch)):
             yield np.tensordot(x_batch[i], y_batch[i], [[], []])
-
-
-def test_range():
-    a = [1, 2, 3, 4, 5, 6, 7]
-    for i in range(0, len(a), 2):
-        print(i)
-        # print(a[i])
 
 
 if __name__ == '__main__':
