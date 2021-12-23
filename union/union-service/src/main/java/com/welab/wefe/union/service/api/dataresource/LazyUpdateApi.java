@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset.image;
+package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/update_labeled_count", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
-public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Input, AbstractApiOutput> {
+@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
+public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiOutput> {
     @Autowired
     private ImageDataSetMongoReop imageDataSetMongoReop;
 
