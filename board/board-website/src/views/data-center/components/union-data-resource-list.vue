@@ -162,7 +162,7 @@
             :page-size="pagination.page_size"
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="methods.currentPageChange"
+            @current-change="currentPageChange"
             @size-change="pageSizeChange"
         />
     </div>
@@ -170,9 +170,6 @@
 
 <script>
     import table from '@src/mixins/table';
-    import { reactive, getCurrentInstance } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-
     import { mapGetters } from 'vuex';
     export default {
         mixins: [table],
@@ -185,47 +182,12 @@
             },
         },
         emits: ['add-data-set', 'check-card'],
-        setup(props, context) {
-            const { ctx } = getCurrentInstance();
-            const route = useRoute();
-            const router = useRouter();
-            const vData = reactive({
+        data() {
+            return {
                 getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
                 watchRoute:    false,
-            });
-            const methods = {
-                getDataList(opt) {
-                    ctx.search = props.searchField;
-                    ctx.getListApi = vData.getListApi;
-                    ctx.pagination.page_index =+route.query.page_index || 1;
-                    ctx.pagination.page_size =+route.query.page_size || 20;
-                    ctx.getList(opt);
-                },
-                addDataSet(ev, item) {
-                    context.emit('add-data-set', ev, item);
-                },
-                checkCard(id) {
-                    context.emit('check-card', id);
-                },
-                currentPageChange (val) {
-                    if (ctx.watchRoute) {
-                        router.push({
-                            query: {
-                                ...ctx.search,
-                                page_index: val,
-                            },
-                        });
-                    } else {
-                        ctx.pagination.page_index = val;
-                        ctx.getList();
-                    }
-                },
-            };
-
-            return {
-                vData,
-                methods,
+                turnPageRoute: false,
             };
         },
         computed: {

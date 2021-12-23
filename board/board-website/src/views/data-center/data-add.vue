@@ -553,7 +553,7 @@
                     dataResourceType: '',
                 },
                 sourceTypes: {
-                    table:  'TableDataSet',
+                    csv:    'TableDataSet',
                     image:  'ImageDataSet',
                     filter: 'BloomFilter',
                 },
@@ -587,10 +587,10 @@
                     waiting:   '等待中',
                 },
                 file_upload_attrs: {
-                    accept: '.csv .xls .xlsx',
+                    accept: 'text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // csv, xls, xlsx
                 },
                 img_upload_attrs: {
-                    accept: '.zip, .rar, .tar, .7z',
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed', // zip, rar, tar, 7z
                 },
 
                 http_upload_filename: '',
@@ -710,10 +710,10 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            const sourceType = this.$route.query.type;
+            const sourceType = this.$route.query.type || 'csv';
 
             this.search.dataResourceType = this.sourceTypes[sourceType];
-            this.addDataType = sourceType || 'csv';
+            this.addDataType = sourceType;
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
