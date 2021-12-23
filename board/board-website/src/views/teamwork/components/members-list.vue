@@ -36,7 +36,7 @@
                 >
                     + 添加资源到此项目
                 </el-button>
-                {{ promoter.$data_set }}
+
                 <el-table
                     v-if="promoter.$data_set.length"
                     :data="promoter.$data_set"
