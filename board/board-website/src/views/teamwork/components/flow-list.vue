@@ -387,11 +387,11 @@
                         });
                         this.list = data.list;
                         this.afterTableRender();
+                        clearTimeout(this.flowTimer);
+                        this.flowTimer = setTimeout(() => {
+                            this.getFlowList({ requestFromRefresh: true });
+                        }, 5000);
                     }
-                    clearTimeout(this.flowTimer);
-                    this.flowTimer = setTimeout(() => {
-                        this.getFlowList({ requestFromRefresh: true });
-                    }, 5000);
                 }
             },
 
