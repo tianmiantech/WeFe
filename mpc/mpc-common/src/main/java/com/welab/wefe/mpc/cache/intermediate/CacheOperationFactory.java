@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.request;
+package com.welab.wefe.mpc.cache.intermediate;
 
-import java.io.Serializable;
+import com.welab.wefe.mpc.cache.intermediate.impl.LocalIntermediateCache;
 
-public class QueryResultsRequest implements Serializable {
-    private String uuid;
+/**
+ * @Author: eval
+ * @Date: 2021-12-23
+ **/
+public class CacheOperationFactory {
 
-    public String getUuid() {
-        return uuid;
-    }
+    public static CacheOperation getCacheOperation() {
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+        return new LocalIntermediateCache();
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,50 +14,31 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa.request;
+package com.welab.wefe.mpc.key;
 
-import com.alibaba.fastjson.JSONObject;
+import java.math.BigInteger;
 
 /**
- * @Author eval
- * @Date 2021/12/17
+ * @Author: eval
+ * @Date: 2021-12-22
  **/
-public class QueryDiffieHellmanKeyRequest {
-    private String uuid;
-    private String p;
-    private String g;
+public class DiffieHellmanKey {
+    private BigInteger p;
+    private BigInteger g;
 
-    private JSONObject queryParams;
-
-    public String getP() {
+    public BigInteger getP() {
         return p;
     }
 
-    public void setP(String p) {
+    public void setP(BigInteger p) {
         this.p = p;
     }
 
-    public String getG() {
+    public BigInteger getG() {
         return g;
     }
 
-    public void setG(String g) {
+    public void setG(BigInteger g) {
         this.g = g;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public JSONObject getQueryParams() {
-        return queryParams;
-    }
-
-    public void setQueryParams(JSONObject queryParams) {
-        this.queryParams = queryParams;
     }
 }

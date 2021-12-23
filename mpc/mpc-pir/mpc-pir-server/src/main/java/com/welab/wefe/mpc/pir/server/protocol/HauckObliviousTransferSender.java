@@ -24,6 +24,7 @@ import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckObliviousTransfer;
 import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckTarget;
 import com.welab.wefe.mpc.pir.server.cache.HauckTargetCache;
 import com.welab.wefe.mpc.pir.server.trasfer.PrivateInformationRetrievalTransferVariable;
+import com.welab.wefe.mpc.pir.server.trasfer.impl.CacheTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * @author eval
+ */
 public class HauckObliviousTransferSender extends HauckObliviousTransfer implements ObliviousTransfer {
     private static final Logger LOG = LoggerFactory.getLogger(HauckObliviousTransferSender.class);
 
     HauckTarget mHauckTarget = null;
 
-    PrivateInformationRetrievalTransferVariable mTransferVariable;
+    PrivateInformationRetrievalTransferVariable mTransferVariable = new CacheTransferVariable();
 
     public HauckObliviousTransferSender(String uuid) {
         super(uuid);

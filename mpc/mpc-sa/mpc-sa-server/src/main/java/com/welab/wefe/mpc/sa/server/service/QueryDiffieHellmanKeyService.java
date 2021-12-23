@@ -17,8 +17,9 @@
 
 package com.welab.wefe.mpc.sa.server.service;
 
-import com.welab.wefe.mpc.cache.CacheOperation;
-import com.welab.wefe.mpc.cache.impl.LocalCache;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 
@@ -31,15 +32,13 @@ import java.util.Random;
  **/
 public class QueryDiffieHellmanKeyService {
 
-    CacheOperation mCacheOperation = new LocalCache();
-
     public QueryDiffieHellmanKeyResponse handle(QueryDiffieHellmanKeyRequest request) {
+        CacheOperation<BigInteger> mCacheOperation = CacheOperationFactory.getCacheOperation();
         Random rand = new Random();
         BigInteger random = new BigInteger(1024, rand);
-        mCacheOperation.put(request.getUuid(), "sa_key", random.toString(16));
-        mCacheOperation.put(request.getUuid(), "sa_mod", request.getP());
-        mCacheOperation.put(request.getUuid(), "sa_index", request.getIndex()+"");
+        mCacheOperation.save(request.getUuid(), Constants.SA.SA_KEY, random);
         BigInteger p = new BigInteger(request.getP(), 16);
+        mCacheOperation.save(request.getUuid(), Constants.SA.SA_MOD, p);
         BigInteger g = new BigInteger(request.getG(), 16);
         BigInteger result = g.modPow(random, p);
         QueryDiffieHellmanKeyResponse response = new QueryDiffieHellmanKeyResponse();

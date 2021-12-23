@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,11 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa.server;
+package com.welab.wefe.mpc.pir.request;
 
-/**
- * @Author eval
- * @Date 2021/12/17
- **/
-public class SecureAggregation {
+import java.io.Serializable;
+import java.util.List;
+
+public class QueryPIRResultsResponse implements Serializable {
+    private String uuid;
+    private List<String> results;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public List<String> getResults() {
+        return results;
+    }
+
+    public void setResults(List<String> results) {
+        this.results = results;
+    }
 }

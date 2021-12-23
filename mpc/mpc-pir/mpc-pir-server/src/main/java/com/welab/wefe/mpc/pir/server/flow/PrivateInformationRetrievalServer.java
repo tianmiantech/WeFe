@@ -17,14 +17,16 @@
 package com.welab.wefe.mpc.pir.server.flow;
 
 import com.alibaba.fastjson.JSON;
+import com.welab.wefe.mpc.cache.result.QueryDataResult;
+import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.flow.BasePrivateInformationRetrieval;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
 import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
 import com.welab.wefe.mpc.pir.protocol.se.aes.AESEncryptKey;
-import com.welab.wefe.mpc.pir.server.data.QueryResult;
 import com.welab.wefe.mpc.pir.server.protocol.HauckObliviousTransferSender;
 import com.welab.wefe.mpc.pir.server.trasfer.PrivateInformationRetrievalTransferVariable;
+import com.welab.wefe.mpc.pir.server.trasfer.impl.CacheTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * @author eval
+ */
 public class PrivateInformationRetrievalServer extends BasePrivateInformationRetrieval {
     private static final Logger LOG = LoggerFactory.getLogger(PrivateInformationRetrievalServer.class);
 
-    QueryResult mQueryResult;
-
-    PrivateInformationRetrievalTransferVariable mTransferVariable;
+    PrivateInformationRetrievalTransferVariable mTransferVariable = new CacheTransferVariable();
 
     @Override
     public void setUuid(String uuid) {
@@ -52,7 +55,8 @@ public class PrivateInformationRetrievalServer extends BasePrivateInformationRet
 
     public void process(List<Object> ids, String idCryptMethod) {
         LOG.info("uuid:{} start process data size:{}", uuid, ids.size());
-        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> mQueryResult.query(uuid));
+        QueryDataResult<Map<String, String>> queryDataResult = QueryDataResultFactory.getQueryDataResult();
+        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> queryDataResult.query(uuid));
         List<ObliviousTransferKey> keyList = mObliviousTransfer.keyDerivation(ids.size());
         LOG.info("uuid:{} keyDerivation finish", uuid);
         cf.join();

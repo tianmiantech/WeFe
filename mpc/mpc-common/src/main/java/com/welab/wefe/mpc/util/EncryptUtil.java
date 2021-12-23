@@ -18,6 +18,12 @@ package com.welab.wefe.mpc.util;
 
 
 import com.welab.wefe.mpc.commom.AccountEncryptionType;
+import com.welab.wefe.mpc.key.DiffieHellmanKey;
+
+import javax.crypto.interfaces.DHPublicKey;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 
 public class EncryptUtil {
 
@@ -34,4 +40,21 @@ public class EncryptUtil {
                 return id;
         }
     }
+
+
+    public static DiffieHellmanKey generateDHKey(int keySize) {
+        try {
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
+            generator.initialize(keySize);
+            KeyPair pair = generator.generateKeyPair();
+            DHPublicKey publicKey = (DHPublicKey) pair.getPublic();
+            DiffieHellmanKey dhKey = new DiffieHellmanKey();
+            dhKey.setG(publicKey.getParams().getG());
+            dhKey.setP(publicKey.getParams().getP());
+            return dhKey;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
