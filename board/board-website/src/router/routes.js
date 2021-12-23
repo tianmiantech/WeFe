@@ -335,25 +335,6 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}modeling-list`,
-        meta: {
-            title:  '模型列表',
-            hidden: true,
-        },
-        component: () => import('@comp/LayoutFullScreen.vue'),
-        children:  [
-            {
-                path: `${prefixPath}modeling-list`,
-                name: 'modeling-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           '模型列表',
-                },
-                component: () => import('../views/teamwork/modeling-list.vue'),
-            },
-        ],
-    },
-    {
         path: `${prefixPath}account`,
         meta: {
             title: '用户管理',
@@ -395,8 +376,9 @@ const baseRoutes = [
     {
         path: `${prefixPath}global`,
         meta: {
-            title: '全局设置',
-            icon:  'setting',
+            title:   '全局设置',
+            icon:    'setting',
+            tooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -405,7 +387,7 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '成员设置',
+                    title:           '成员信息',
                 },
                 component: () => import('../views/system-config/member-view'),
             },

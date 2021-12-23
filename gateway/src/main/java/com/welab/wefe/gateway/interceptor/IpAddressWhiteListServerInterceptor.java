@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.IpAddressUtil;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.SystemConfigCache;
@@ -66,7 +67,7 @@ public class IpAddressWhiteListServerInterceptor extends AbstractServerIntercept
                             remoteIpAddr = IpAddressUtil.getIpAddress(remoteSocketAddress);
                             GatewayMetaProto.TransferMeta transferMeta = (GatewayMetaProto.TransferMeta) message;
                             // It is equivalent to Ping and does not intercept the request
-                            String ping = "gatewayAliveProcessor";
+                            String ping = GatewayProcessorType.gatewayAliveProcessor.name();
                             if (!ping.equals(transferMeta.getProcessor()) && !isValidRemoteAddr(localSocketAddress, remoteSocketAddress)) {
                                 LOG.info("IpAddressServerInterceptor called, localIpAddr: {}, remoteIpAddr: {}", IpAddressUtil.getIpAddress(localSocketAddress), remoteIpAddr);
                                 LOG.info("The remote address is illegal. Close this connection");

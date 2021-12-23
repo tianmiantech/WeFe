@@ -305,14 +305,33 @@ public class DataResourceService extends AbstractDataResourceService {
                 .equal("createdBy", input.getCreator())
                 .orderBy("createdTime", OrderBy.asc);
 
+        // 查所有资源
         if (input.getDataResourceType() == null) {
-            return dataResourceRepository.paging(
+            PagingOutput<?> page = dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
-                    input,
-                    Object.class
+                    input
             );
+
+            // 将查到的数据按类型转换为 output 类型
+            List<DataResourceOutputModel> list = new ArrayList<>();
+            for (Object item : page.getList()) {
+
+                Class<? extends DataResourceOutputModel> targetClass = null;
+                if (item instanceof TableDataSetMysqlModel) {
+                    targetClass = TableDataSetOutputModel.class;
+                } else if (item instanceof ImageDataSetMysqlModel) {
+                    targetClass = ImageDataSetOutputModel.class;
+                } else if (item instanceof BloomFilterMysqlModel) {
+                    targetClass = BloomFilterOutputModel.class;
+                }
+
+                list.add(ModelMapper.map(item, targetClass));
+            }
+
+            return PagingOutput.of(page.getTotal(), list);
         }
 
+        // 查所指定类型的资源
         switch (input.getDataResourceType()) {
             case TableDataSet:
                 return tableDataSetRepository.paging(

@@ -18,7 +18,9 @@ package com.welab.wefe.common.web;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.util.StringUtil;
@@ -45,6 +47,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ApiExecutor {
     protected static final Logger LOG = LoggerFactory.getLogger(ApiExecutor.class);
+    protected static final SamplingLogger SLOG;
+
+    private static final String REQUEST_FROM_REFRESH = "request-from-refresh";
+
+    static {
+        SLOG = new SamplingLogger(LOG, 1000, TimeSpan.MINUTE);
+    }
 
     /**
      * Implement the API
@@ -70,7 +79,7 @@ public class ApiExecutor {
                 LOG.debug("request({}):{}", apiPath, params.toString());
                 break;
             default:
-                LOG.info("request({}):{}", apiPath, params.toString());
+                LOG.info("request({}):{}", apiPath, params);
         }
         ApiResult<?> result = null;
         try {

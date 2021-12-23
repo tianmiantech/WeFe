@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.common.wefe.checkpoint.dto;
 
+import com.welab.wefe.common.wefe.enums.ServiceType;
+
 import java.util.List;
 
 /**
@@ -24,6 +26,7 @@ import java.util.List;
 public class ServiceAvailableCheckOutput {
     public boolean available;
     public String message;
+    public ServiceType errorServiceType;
     public List<ServiceCheckPointOutput> list;
 
     public ServiceAvailableCheckOutput() {
@@ -34,7 +37,18 @@ public class ServiceAvailableCheckOutput {
         if (list == null) {
             this.available = false;
         } else {
-            this.available = list.stream().allMatch(x -> x.isSuccess());
+            ServiceCheckPointOutput failedCheckpoint = list.stream()
+                    .filter(x -> !x.isSuccess())
+                    .findAny()
+                    .orElse(null);
+
+            if (failedCheckpoint == null) {
+                this.available = true;
+            } else {
+                this.errorServiceType = failedCheckpoint.getService();
+                this.available = false;
+                this.message = failedCheckpoint.getMessage();
+            }
         }
     }
 
