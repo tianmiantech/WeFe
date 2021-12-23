@@ -24,7 +24,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author zane
  */
-@Api(path = "service/alive", name = "")
+@Api(path = "service/alive", name = "", login = false)
 public class AliveApi extends AbstractNoneInputApi<Object> {
 
     @Override
