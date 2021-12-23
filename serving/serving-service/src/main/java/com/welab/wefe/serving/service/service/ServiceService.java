@@ -44,10 +44,10 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.mpc.cache.result.QueryDataResult;
+import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
-import com.welab.wefe.mpc.pir.server.data.QueryResult;
-import com.welab.wefe.mpc.pir.server.data.impl.LocalResultCache;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
@@ -228,8 +228,8 @@ public class ServiceService {
 					throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 				}
 				// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-				QueryResult queryResult = new LocalResultCache();
-				queryResult.put(uuid, result);
+				QueryDataResult<Map<String, String>> queryResult =  QueryDataResultFactory.getQueryDataResult();
+				queryResult.save(uuid, result);
 			}
 			output.setCode(0);
 			output.setMessage("success");
