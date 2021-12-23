@@ -25,7 +25,6 @@ import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -124,7 +123,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
         //notify the server that the task has ended
         try {
             gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
-        } catch (MemberGatewayException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -196,7 +195,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
         JSONObject result = null;
         try {
             result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-        } catch (MemberGatewayException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -247,7 +246,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                     ReceiveResultApi.class,
                     new ReceiveResultApi.Input(businessId, stringList)
             );
-        } catch (MemberGatewayException e) {
+        } catch (Exception e) {
             LOG.info("sendFusionData error: ", e);
             e.printStackTrace();
         }

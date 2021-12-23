@@ -1,8 +1,9 @@
 POST http://localhost:8080/board-service/member/available
 Content-Type: application/json
+token:{{token}}
 
 {
-  "member_id": "cbd2c82da50d4408877061e3e981f8ae"
+  "member_id": "290007c2a71d470ba00f486b18875d31"
 }
 
 
