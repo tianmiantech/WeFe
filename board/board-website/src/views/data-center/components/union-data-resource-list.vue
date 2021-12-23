@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -170,6 +170,7 @@
 
 <script>
     import table from '@src/mixins/table';
+    import { mapGetters } from 'vuex';
     export default {
         mixins: [table],
         props:  {
@@ -188,6 +189,9 @@
                 watchRoute:    false,
                 turnPageRoute: false,
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         methods: {
             getDataList(opt) {
