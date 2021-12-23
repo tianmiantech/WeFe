@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author lonnie
  */
-@Api(path = "/member/available", name = "Check whether the member’s system services are available")
+@Api(path = "member/available", name = "Check whether the member’s system services are available")
 public class MemberAvailableCheckApi extends AbstractApi<MemberAvailableCheckApi.Input, MemberAvailableCheckOutput> {
 
     @Autowired
