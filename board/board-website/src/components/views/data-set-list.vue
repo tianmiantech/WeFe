@@ -14,7 +14,7 @@
                     :style="containsY != 'true' || containsY !== 'false' ? 'width: 100%;':''"
                 >
                     <router-link
-                        :to="{ name: 'data-add' }"
+                        :to="{ name: 'data-add-transition' }"
                         target="_blank"
                     >
                         <el-button style="display:block;" type="primary" size="mini">

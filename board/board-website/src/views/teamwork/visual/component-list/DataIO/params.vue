@@ -78,11 +78,11 @@
                         {{ row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
-                        <el-form-item v-if="row.y_positive_example_count" label="正例样本数量：">
-                            {{ row.y_positive_example_count }}
+                        <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
+                            {{ row.y_positive_sample_count }}
                         </el-form-item>
-                        <el-form-item v-if="row.y_positive_example_ratio" label="正例样本比例：">
-                            {{ (row.y_positive_example_ratio * 100).toFixed(1) }}%
+                        <el-form-item v-if="row.y_positive_sample_ratio" label="正例样本比例：">
+                            {{ (row.y_positive_sample_ratio * 100).toFixed(1) }}%
                         </el-form-item>
                     </template>
                     <el-form-item label="选择特征：">

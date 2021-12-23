@@ -101,15 +101,17 @@ const baseRoutes = [
                 meta: {
                     title: '添加数据集',
                 },
-                component: () => import('../views/data-center/data-add-transition.vue'),
+                component: () =>
+                    import('../views/data-center/data-add-transition.vue'),
             },
             {
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title:        '添加数据集',
                     hidden:       true,
                     notshowattag: true,
+                    title:        '添加数据集',
+                    active:       `${prefixPath}data-add-transition`,
                 },
                 component: () => import('../views/data-center/data-add.vue'),
             },
@@ -141,7 +143,8 @@ const baseRoutes = [
                     title:  '查看与标注',
                     active: `${prefixPath}data-list`,
                 },
-                component: () => import('../views/data-center/data-check-label.vue'),
+                component: () =>
+                    import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
@@ -311,7 +314,8 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/fusion/fusion-task-detail.vue'),
+                component: () =>
+                    import('../views/fusion/fusion-task-detail.vue'),
             },
         ],
     },
@@ -369,7 +373,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '账户设置',
                 },
-                component: () => import('../views/system-config/account-setting'),
+                component: () =>
+                    import('../views/system-config/account-setting'),
             },
         ],
     },
@@ -378,7 +383,8 @@ const baseRoutes = [
         meta: {
             title:   '全局设置',
             icon:    'setting',
-            tooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
+            tooltip:
+                '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -400,7 +406,8 @@ const baseRoutes = [
                     active:          `${prefixPath}member-view`,
                     title:           '企业认证',
                 },
-                component: () => import('../views/system-config/enterprise-certification'),
+                component: () =>
+                    import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
@@ -418,7 +425,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '系统设置',
                 },
-                component: () => import('../views/system-config/system-config-view'),
+                component: () =>
+                    import('../views/system-config/system-config-view'),
             },
             {
                 path: `${prefixPath}calculation-engine-config`,
@@ -427,7 +435,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '计算引擎设置',
                 },
-                component: () => import('../views/system-config/calculation-engine-config'),
+                component: () =>
+                    import('../views/system-config/calculation-engine-config'),
             },
         ],
     },
