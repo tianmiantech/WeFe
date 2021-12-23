@@ -27,10 +27,10 @@
             <template v-if="addDataType === 'csv'">
                 <template v-if="dataInfo.contains_y">
                     <el-descriptions-item label="正例样本数量：">
-                        {{ dataInfo.y_positive_example_count }}
+                        {{ dataInfo.y_positive_sample_count }}
                     </el-descriptions-item>
                     <el-descriptions-item label="正例样本比例：">
-                        {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                        {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                     </el-descriptions-item>
                 </template>
                 <el-descriptions-item label="样本量/特征量：">
@@ -99,7 +99,7 @@
                                 特征名称: name,
                             };
                         });
-                    
+
                         this.$nextTick(_ => {
                             const featuresRef = this.$refs['DataSetFeatures'];
 
