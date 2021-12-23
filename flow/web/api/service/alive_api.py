@@ -23,7 +23,7 @@ class Input(BaseApiInput):
 
 class Api(BaseApi):
     """
-    该接口不做任何动作，仅用于检查服务存活和连通性。
+    The API do nothing，just present the python web service is connectable
     """
 
     def run(self, input):

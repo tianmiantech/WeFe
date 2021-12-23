@@ -20,6 +20,11 @@ from common.python.utils import conf_utils
 class JsonField:
     CODE = "code"
     MESSAGE = "message"
+    DESC = 'desc'
+    SERVICE = 'service'
+    SPEND = 'spend'
+    SUCCESS = 'success'
+    VALUE = 'value'
 
 
 class ServiceStatusCode:
@@ -69,3 +74,8 @@ class GatewayConfig:
     # Get from the environment variable or database
     HOST = env_host or GlobalSetting.get_gateway_host()
     PORT = env_port or GlobalSetting.get_gateway_port()
+
+
+class ServiceName:
+    BOARD_SERVICE = 'BoardService',
+    GATEWAY_SERVICE = 'GatewayService'
