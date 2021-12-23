@@ -336,7 +336,7 @@
             };
             const searchList = (opt = {}) => {
                 UnionDataResourceListRef.value.search = vData.search;
-                UnionDataResourceListRef.value.methods.getDataList();
+                UnionDataResourceListRef.value.getDataList();
             };
             const resourceTypeChange = () => {
                 vData.search.containsY = '';
@@ -346,7 +346,7 @@
             onMounted(async () => {
                 await methods.loadTags();
                 await methods.loadMemberList();
-                UnionDataResourceListRef.value.methods.getDataList();
+                UnionDataResourceListRef.value.getDataList();
             });
 
             return {

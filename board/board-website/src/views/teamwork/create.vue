@@ -88,7 +88,7 @@
                     >
                         {{ promoter.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-show="promoter.$data_set.length"
                         :data="promoter.$data_set"
@@ -172,7 +172,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -254,7 +254,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -396,8 +396,10 @@
                     $online:        'loading',
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 dataSets: {
@@ -426,7 +428,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            this.checkAllService();
+            await this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -479,8 +481,8 @@
                         $online:        'loading',
                         $error:         '',
                         $serviceStatus: {
-                            all_status_is_success: null,
-                            status:                null,
+                            available: null,
+                            details:   null,
                         },
                     };
                     this.checkAllService(currentMembersList);
@@ -496,9 +498,9 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                         requestFromRefresh: true,
@@ -506,6 +508,11 @@
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                 } else {

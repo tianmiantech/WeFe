@@ -521,13 +521,18 @@
             async serviceStatusCheck(role, member_id) {
                 role.$serviceStatus.all_status_is_success = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                     // cache service current state
