@@ -287,7 +287,12 @@
                 this.getProjectStatistic();
                 this.search.my_role = this.filter[this.activeTab];
                 this.searchRequest.member_name = '';
-                this.$refs[this.activeTab][0].searchList({ to: false, resetPagination: false });
+
+                //! compatible for instance
+                const $ref = this.$refs[this.activeTab];
+                const instance = Array.isArray($ref) ? $ref[0]: $ref;
+
+                instance.searchList({ to: false, resetPagination: false });
             },
             timeChange(value) {
                 if(value) {
