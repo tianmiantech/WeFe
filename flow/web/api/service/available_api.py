@@ -15,6 +15,7 @@
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
+from flow.web.service.status_service import StatusService
 
 
 class Input(BaseApiInput):
@@ -23,8 +24,10 @@ class Input(BaseApiInput):
 
 class Api(BaseApi):
     """
-    检查当前 flow 服务是否可用
+    Check the  python service whether available.
     """
 
     def run(self, input):
-        return BaseApiOutput.success("")
+        return BaseApiOutput.success(
+            StatusService.all_status()
+        )

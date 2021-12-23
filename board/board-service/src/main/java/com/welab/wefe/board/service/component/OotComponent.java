@@ -40,7 +40,6 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -374,11 +373,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 input.setJobId(params.jobId);
                 input.setRole(jobMemberRole);
                 try {
-                    ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(memberId, JobMemberRole.promoter, input, QueryDataIoTaskConfigApi.class);
-                    if (0 != apiResult.code) {
-                        throw new FlowNodeException(node, "获取成员[" + memberName + "]的原入模特征列失败,原因：" + apiResult.message);
-                    }
-                    JObject data = JObject.create(apiResult.data);
+
+                    JObject data = gatewayService.callOtherMemberBoard(
+                            memberId,
+                            JobMemberRole.promoter,
+                            QueryDataIoTaskConfigApi.class,
+                            input,
+                            JObject.class
+                    );
                     if (null == data || data.isEmpty()) {
                         throw new FlowNodeException(node, "获取成员[" + memberName + "]的原入模特征列为空。");
                     }
