@@ -19,7 +19,32 @@
                 </router-link>
             </div>
         </template>
-
+        <el-table-column
+            label="资源类型"
+            prop="data_resource_type"
+            width="130"
+            align="center"
+        >
+            <template v-slot="scope">
+                <p style="display:flex; align-items: center;">
+                    <el-icon><elicon-medal :style="{color: scope.row.data_resource_type === 'ImageDataSet' ? 'rgb(232, 155, 0)': scope.row.data_resource_type === 'BloomFilter' ? '#35c895':'rgb(67, 139, 255)'}" /></el-icon>
+                    {{scope.row.data_resource_type}}
+                </p>
+            </template>
+        </el-table-column>
+        <el-table-column
+            label="任务类型"
+            width="100"
+            v-if="search.dataResourceType === 'ImageDataSet'"
+            align="center"
+        >
+            <template v-slot="scope">
+                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
+                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
+                <p v-else>-</p>
+            </template>
+        </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
                 <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
@@ -61,25 +86,6 @@
                 >
                     指定成员可见
                 </span>
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="资源类型"
-            prop="data_resource_type"
-            width="130"
-            align="center"
-        />
-        <el-table-column
-            label="任务类型"
-            width="100"
-            v-if="search.dataResourceType === 'ImageDataSet'"
-            align="center"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
-                </p>
-                <p v-else>-</p>
             </template>
         </el-table-column>
         <el-table-column
@@ -139,7 +145,7 @@
             label="操作"
             fixed="right"
             align="center"
-            min-width="250"
+            min-width="120"
         >
             <template v-slot="scope">
                 <router-link
@@ -148,17 +154,27 @@
                         query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }
                     }"
                 >
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="编辑"
+                        placement="top"
+                    >
+                        <el-icon class="el-icon-edit-outline">
+                            <elicon-edit />
+                        </el-icon>
+                    </el-tooltip>
                 </router-link>
-                <el-button
-                    type="danger"
-                    class="ml10 mr10"
-                    @click="deleteData(scope.row)"
+                <el-tooltip
+                    class="item"
+                    effect="light"
+                    content="删除"
+                    placement="top"
                 >
-                    删除
-                </el-button>
+                    <el-icon class="el-icon-delete ml10 mr10" style="color: red;cursor:pointer;" @click="deleteData(scope.row)">
+                        <elicon-delete />
+                    </el-icon>
+                </el-tooltip>
                 <router-link
                     v-if="scope.row.data_resource_type === 'ImageDataSet'"
                     :to="{
@@ -166,9 +182,16 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain>
-                        查看与标注
-                    </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="查看与标注"
+                        placement="top"
+                    >
+                        <el-icon>
+                            <elicon-view />
+                        </el-icon>
+                    </el-tooltip>
                 </router-link>
             </template>
         </el-table-column>
