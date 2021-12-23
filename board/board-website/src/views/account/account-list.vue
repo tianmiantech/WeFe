@@ -306,7 +306,7 @@
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
                 {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
             </strong>?
-            <p class="mt10 color-danger">只有管理员能对“全局设置”中的配置项进行变更</p>
+            <p class="mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
             <template #footer>
                 <el-button
                     type="danger"
