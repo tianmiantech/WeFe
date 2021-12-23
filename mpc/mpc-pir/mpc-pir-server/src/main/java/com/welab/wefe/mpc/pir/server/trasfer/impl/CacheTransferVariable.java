@@ -16,7 +16,8 @@
 
 package com.welab.wefe.mpc.pir.server.trasfer.impl;
 
-import com.welab.wefe.mpc.cache.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.server.trasfer.PrivateInformationRetrievalTransferVariable;
 import org.slf4j.Logger;
@@ -24,19 +25,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author eval
+ */
 public class CacheTransferVariable implements PrivateInformationRetrievalTransferVariable {
     private static final Logger LOG = LoggerFactory.getLogger(CacheTransferVariable.class);
 
-    public static CacheOperation mCacheOperation;
+    public static CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
 
     @Override
     public void processHauckRandom(String key, int count, String value) {
-        mCacheOperation.put(key, Constants.PIR.RANDOM + "_" + count, value);
+        mCacheOperation.save(key, Constants.PIR.RANDOM + "_" + count, value);
     }
 
     @Override
     public void processResult(String key, String value) {
-        mCacheOperation.put(key, Constants.PIR.RESULT, value);
+        mCacheOperation.save(key, Constants.PIR.RESULT, value);
     }
 
     @Override

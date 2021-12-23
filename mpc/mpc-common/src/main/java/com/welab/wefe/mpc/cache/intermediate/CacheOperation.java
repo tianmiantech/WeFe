@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,12 +14,35 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa;
+package com.welab.wefe.mpc.cache.intermediate;
 
 /**
  * @Author eval
- * @Date 2021/12/17
+ * @Date 2021/12/14
  **/
-public class SecureAggregationApiName {
-    public static final String SA_RESULT = "SecureAggregationForResult";
+public interface CacheOperation<T> {
+    /**
+     * 存储数据
+     *
+     * @param key   uuid
+     * @param name  数据name
+     * @param value 值
+     */
+    void save(String key, String name, T value);
+
+    /**
+     * 获取数据
+     *
+     * @param key  uuid
+     * @param name 数据name
+     * @return
+     */
+    T get(String key, String name);
+
+    /**
+     * 删除 key值
+     *
+     * @param key uuid
+     */
+    void delete(String key);
 }

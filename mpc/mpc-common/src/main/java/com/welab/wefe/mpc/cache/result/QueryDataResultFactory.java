@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,31 +14,17 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa.request;
+package com.welab.wefe.mpc.cache.result;
 
-import java.util.List;
+import com.welab.wefe.mpc.cache.result.impl.QueryDataResultImpl;
 
 /**
- * @Author eval
- * @Date 2021/12/17
+ * @Author: eval
+ * @Date: 2021-12-23
  **/
-public class QueryResultResponse {
-    private String uuid;
-    private List<Double> results;
+public class QueryDataResultFactory {
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public List<Double> getResults() {
-        return results;
-    }
-
-    public void setResults(List<Double> results) {
-        this.results = results;
+    public static QueryDataResult getQueryDataResult() {
+        return new QueryDataResultImpl();
     }
 }

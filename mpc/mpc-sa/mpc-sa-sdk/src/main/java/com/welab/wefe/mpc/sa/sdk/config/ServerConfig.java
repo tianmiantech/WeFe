@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,43 +14,37 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa.request;
+package com.welab.wefe.mpc.sa.sdk.config;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.mpc.commom.Operator;
 
 /**
- * @Author eval
- * @Date 2021/12/17
+ * @Author: eval
+ * @Date: 2021-12-22
  **/
-public class QueryDiffieHellmanKeyRequest {
-    private String uuid;
-    private String p;
-    private String g;
+public class ServerConfig {
+    private String serverName;
+    private String serverUrl;
+    private Operator operator = Operator.ADD;
+    private float weight = 1.0f;
 
     private JSONObject queryParams;
 
-    public String getP() {
-        return p;
+    public String getServerName() {
+        return serverName;
     }
 
-    public void setP(String p) {
-        this.p = p;
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 
-    public String getG() {
-        return g;
+    public String getServerUrl() {
+        return serverUrl;
     }
 
-    public void setG(String g) {
-        this.g = g;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
     }
 
     public JSONObject getQueryParams() {
@@ -60,5 +53,21 @@ public class QueryDiffieHellmanKeyRequest {
 
     public void setQueryParams(JSONObject queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
     }
 }

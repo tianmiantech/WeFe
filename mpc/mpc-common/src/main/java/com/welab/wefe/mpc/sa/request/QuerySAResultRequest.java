@@ -17,16 +17,40 @@
 
 package com.welab.wefe.mpc.sa.request;
 
+import com.welab.wefe.mpc.commom.Operator;
+
 import java.util.List;
 
 /**
  * @Author eval
  * @Date 2021/12/17
  **/
-public class QueryResultRequest {
+public class QuerySAResultRequest {
+    /**
+     * 请求标识
+     */
     private String uuid;
+    /**
+     * 所有参与方的DH公钥
+     */
     private List<String> diffieHellmanValues;
+    /**
+     * 操作符，+ or -
+     */
+    private Operator operator = Operator.ADD;
+    /**
+     * 权重
+     */
+    private float weight = 1.0f;
+    /**
+     * 当前参与方序号
+     * [0, diffieHellmanValues.size() - 1]
+     */
     private int index;
+    /**
+     * DH的mode
+     */
+    private String p;
 
     public String getUuid() {
         return uuid;
@@ -50,5 +74,29 @@ public class QueryResultRequest {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public String getP() {
+        return p;
+    }
+
+    public void setP(String p) {
+        this.p = p;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
     }
 }
