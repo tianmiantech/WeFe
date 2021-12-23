@@ -38,7 +38,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-public abstract class DataResourceContractService extends AbstractContractService {
+public class DataResourceContractService extends AbstractContractService {
 
     @Autowired
     private DataResourceContract dataResourceContract;
