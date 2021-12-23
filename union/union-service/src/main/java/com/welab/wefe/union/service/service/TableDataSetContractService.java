@@ -40,7 +40,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-public class TableDataSetContractService extends DataResourceContractService {
+public class TableDataSetContractService extends AbstractContractService {
 
     @Autowired
     private TableDataSetContract tableDataSetContract;

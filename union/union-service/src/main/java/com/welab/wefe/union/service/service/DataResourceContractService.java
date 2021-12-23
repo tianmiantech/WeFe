@@ -18,7 +18,6 @@ package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
@@ -30,7 +29,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +38,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-public abstract class DataResourceContractService extends AbstractContractService {
+public class DataResourceContractService extends AbstractContractService {
 
     @Autowired
     private DataResourceContract dataResourceContract;
