@@ -119,7 +119,6 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -185,9 +184,6 @@
                 checkedDataList: [],
             };
         },
-        computed: {
-            ...mapGetters(['userInfo']),
-        },
         watch: {
             show: {
                 handler(val) {
@@ -237,7 +233,7 @@
                 this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
             },
 
-            loadDataList({
+            async loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
@@ -252,17 +248,23 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-                this.$nextTick((_)=>{
-                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                    this.isTypeDisabled = true;
+                await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
+                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
+                this.isTypeDisabled = true;
 
-                    if (memberId) {
-                        this.memberId = memberId;
-                    }
+                if (memberId) {
+                    this.memberId = memberId;
+                }
 
-                    this.myMemberId = this.userInfo.member_id;
-                    this.searchList({ resetPagination, $data_set });
+                const { code, data } = await this.$http.get({
+                    url: '/member/detail',
                 });
+
+                if(code === 0) {
+                    this.myMemberId = data.member_id;
+
+                    this.searchList({ resetPagination, $data_set });
+                }
             },
 
             searchList(opt = {}) {
