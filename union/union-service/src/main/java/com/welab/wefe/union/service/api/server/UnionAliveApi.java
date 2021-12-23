@@ -27,7 +27,7 @@ import com.welab.wefe.union.service.dto.base.BaseInput;
  *
  * @author aaron.li
  **/
-@Api(path = "server/alive", name = "alive", rsaVerify = false, login = false)
+@Api(path = "service/alive", name = "alive", rsaVerify = false, login = false)
 public class UnionAliveApi extends AbstractApi<UnionAliveApi.Input, NoneApiOutput> {
 
     @Override

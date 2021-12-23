@@ -20,7 +20,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
-import com.welab.wefe.common.wefe.checkpoint.dto.ServerAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,15 +29,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "server/available", name = "available", rsaVerify = true, login = false)
-public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServerAvailableCheckOutput> {
+@Api(path = "service/available", name = "available", rsaVerify = true, login = false)
+public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServiceAvailableCheckOutput> {
 
     @Autowired
     private CheckpointManager checkpointManager;
 
     @Override
-    protected ApiResult<ServerAvailableCheckOutput> handle(Input input) {
-        ServerAvailableCheckOutput output = checkpointManager.checkAll();
+    protected ApiResult<ServiceAvailableCheckOutput> handle(Input input) {
+        ServiceAvailableCheckOutput output = checkpointManager.checkAll();
 
         return success(output);
     }

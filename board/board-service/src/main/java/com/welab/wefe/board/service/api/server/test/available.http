@@ -1,8 +1,0 @@
-
-###
-POST http://localhost:8080/board-service/server/available
-Content-Type: application/json
-token: {{token}}
-
-{
-}

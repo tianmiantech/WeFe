@@ -278,7 +278,6 @@
                 },
                 // add dataset to cart
                 addDataSet(ev, row) {
-                    console.log(row);
                     const id = row.data_resource_id ? row.data_resource_id : row.id;
 
                     vData.balls.push({

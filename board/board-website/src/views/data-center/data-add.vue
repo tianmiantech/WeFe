@@ -536,9 +536,8 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                getListApi:    '/union/table_data_set/default_tags',
+                getListApi:    '/union/data_resource/default_tag/query',
                 fillUrlQuery:  false,
-                defaultSearch: true,
                 watchRoute:    false,
                 turnPageRoute: false,
                 tagList:       [],
@@ -549,6 +548,15 @@
                 data_set_header:   [],
                 dataTypeFillVal:   '',
                 data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
+
+                search: {
+                    dataResourceType: '',
+                },
+                sourceTypes: {
+                    table:  'TableDataSet',
+                    image:  'ImageDataSet',
+                    filter: 'BloomFilter',
+                },
 
                 // help：https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
                 file_upload_options: {
@@ -577,6 +585,9 @@
                     uploading: '上传中',
                     paused:    '已暂停',
                     waiting:   '等待中',
+                },
+                file_upload_attrs: {
+                    accept: '.csv .xls .xlsx',
                 },
                 img_upload_attrs: {
                     accept: '.zip, .rar, .tar, .7z',
@@ -699,10 +710,14 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addDataType = this.$route.query.type || 'csv';
+            const sourceType = this.$route.query.type;
+
+            this.search.dataResourceType = this.sourceTypes[sourceType];
+            this.addDataType = sourceType || 'csv';
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
+            this.getList();
             this.getDataSouceList();
             this.checkStorage();
 
@@ -728,18 +743,16 @@
             async checkStorage() {
                 this.loading = true;
                 const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/service/available',
                     data: {
                         requestFromRefresh: true,
-                        member_id:          this.userInfo.member_id,
+                        serviceType:        'StorageService',
                     },
                 });
 
                 this.loading = false;
                 if(code === 0) {
-                    const { success } = data.status.storage;
-
-                    if(!success) {
+                    if(!data.available) {
                         this.$alert('存储不可用! 请联系管理员', '警告!');
                     }
                 }
@@ -1092,7 +1105,6 @@
                 });
 
                 if (code === 0) {
-                    // if (this.addDataType === 'csv') {
                     if (data.repeat_data_count > 0) {
                         this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
@@ -1101,13 +1113,6 @@
                     setTimeout(() => {
                         this.getAddTask(data.data_resource_id);
                     }, 500);
-                    // } else {
-                    //     canLeave = true;
-                    //     this.$router.push({
-                    //         name:  'data-view',
-                    //         query: { id: data.data_resource_id, type: this.addDataType },
-                    //     });
-                    // }
                 }
                 this.loading = false;
             },

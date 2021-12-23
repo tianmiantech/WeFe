@@ -1,0 +1,27 @@
+job_id: job_clas00001
+task_id: job_clas00001
+job_type: paddle_fl
+role: promoter
+member_id: master1
+callback_url: https://www.xxx.com
+env:
+  worker_num: 2
+  local_worker_num: 2
+  local_trainer_indexs: [0,1]
+  device: cpu
+  use_vdl: true
+  server_endpoint: 127.0.0.1:12000
+  aggregator_endpoint: 127.0.0.1:12001
+  aggregator_assignee: worker2
+data_set:
+  download_url: http://x.x
+algorithm_config:
+  program: paddle_clas
+  max_iter: 10
+  inner_step: 10
+  architecture: LeNet
+  num_classes:  102
+  base_lr: 0.01
+  batch_size: 128
+  need_shuffle: True
+  image_shape: [3, 224, 224]

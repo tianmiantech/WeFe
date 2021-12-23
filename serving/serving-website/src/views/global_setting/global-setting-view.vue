@@ -20,19 +20,6 @@
                         />
                     </el-form-item>
 
-
-                    <el-form-item
-                        v-if="is_display"
-                        label="私钥："
-                    >
-                        <el-input
-                            v-model="form.rsa_private_key"
-                            type="textarea"
-                            :disabled="is_update"
-                            autosize
-                        />
-                    </el-form-item>
-
                     <el-form-item
                         v-if="is_display"
                         label="公钥："
@@ -44,17 +31,6 @@
                             autosize
                         />
                     </el-form-item>
-                    <el-form-item
-                        label="Gateway Uri："
-                    >
-                        <el-input
-                            v-model="form.gateway_uri"
-                            :disabled="is_update"
-                        />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <p>名片预览：</p>
                 </el-col>
             </el-row>
             <el-row :gutter="100">
