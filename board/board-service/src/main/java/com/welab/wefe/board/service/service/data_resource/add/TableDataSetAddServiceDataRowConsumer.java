@@ -206,7 +206,7 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
             throw new RuntimeException(
                     "y 列必须为整数，数据集第 "
                             + dataSetReader.getReadDataRows()
-                            + " 行，发现非整数："
+                            + " 行附近发现非整数："
                             + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
                             + "，请修正数据集后重试。"
             );

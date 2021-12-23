@@ -704,7 +704,6 @@
                 this.form.publicLevel = 'OnlyMyself';
             }
             this.getDataSouceList();
-            this.checkStorage();
 
             this.$bus.$on('loginAndRefresh', () => {
                 this.getDataSouceList();
@@ -725,24 +724,6 @@
             }
         },
         methods: {
-            async checkStorage() {
-                this.loading = true;
-                const { code, data } = await this.$http.post({
-                    url:  '/service/available',
-                    data: {
-                        requestFromRefresh: true,
-                        serviceType:        'StorageService',
-                    },
-                });
-
-                this.loading = false;
-                if(code === 0) {
-                    if(!data.available) {
-                        this.$alert('存储不可用! 请联系管理员', '警告!');
-                    }
-                }
-            },
-
             afterTableRender(list) {
                 this.tagList = list.map(item => {
                     return {
