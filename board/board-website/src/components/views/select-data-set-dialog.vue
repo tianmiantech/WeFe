@@ -166,7 +166,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -251,7 +251,7 @@
                 await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
                 this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
                 this.isTypeDisabled = true;
-                
+
                 if (memberId) {
                     this.memberId = memberId;
                 }
