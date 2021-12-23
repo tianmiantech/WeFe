@@ -55,20 +55,10 @@ public class ServiceSQLTestApi extends AbstractApi<ServiceSQLTestApi.Input, Serv
 	}
 
 	public static class Input extends AbstractApiInput {
-		@Check(name = "查询参数配置")
-		private String queryParams;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
 		@Check(name = "查询参数")
 		private String params;
-
-		public String getQueryParams() {
-			return queryParams;
-		}
-
-		public void setQueryParams(String queryParams) {
-			this.queryParams = queryParams;
-		}
 
 		public String getDataSource() {
 			return dataSource;

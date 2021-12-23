@@ -24,19 +24,19 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
-import com.welab.wefe.mpc.pir.request.QueryResultsRequest;
-import com.welab.wefe.mpc.pir.request.QueryResultsResponse;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackResultsService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RESULTS, name = "results")
 public class PrivateInformationRetrievalForResultsApi
-		extends AbstractApi<PrivateInformationRetrievalForResultsApi.Input, QueryResultsResponse> {
+		extends AbstractApi<PrivateInformationRetrievalForResultsApi.Input, QueryPIRResultsResponse> {
 
 	@Override
-	protected ApiResult<QueryResultsResponse> handle(Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<QueryPIRResultsResponse> handle(Input input) throws StatusCodeWithException, IOException {
 		HuackResultsService service = new HuackResultsService();
-		QueryResultsRequest request = ModelMapper.map(input, QueryResultsRequest.class);
+		QueryPIRResultsRequest request = ModelMapper.map(input, QueryPIRResultsRequest.class);
 		return success(service.handle(request));
 	}
 
