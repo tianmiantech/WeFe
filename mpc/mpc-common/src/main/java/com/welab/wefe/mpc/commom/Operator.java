@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.server.data;
+package com.welab.wefe.mpc.commom;
 
-import java.util.Map;
+/**
+ * @Author: eval
+ * @Date: 2021-12-22
+ **/
+public enum Operator {
+    ADD("addition"),
+    SUB("subtraction");
 
-public interface QueryResult {
+    private String desc;
 
-    /**
-     * @param uuid
-     * @return
-     */
-    Map<String, String> query(String uuid);
+    Operator(String desc) {
+        this.desc = desc;
+    }
 
-    void put(String uuid, Map<String, String> result);
+    public String getDesc() {
+        return desc;
+    }
 }

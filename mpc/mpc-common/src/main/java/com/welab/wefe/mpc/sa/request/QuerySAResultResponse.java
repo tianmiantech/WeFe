@@ -15,30 +15,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.server.data.impl;
-
-import com.welab.wefe.mpc.pir.server.data.QueryResult;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+package com.welab.wefe.mpc.sa.request;
 
 /**
  * @Author eval
- * @Date 2021/12/15
+ * @Date 2021/12/17
  **/
-public class LocalResultCache implements QueryResult {
+public class QuerySAResultResponse {
+    private String uuid;
+    private Double result;
 
-    private static Map<String, Map<String, String>> caches = new ConcurrentHashMap<>();
+    public String getUuid() {
+        return uuid;
+    }
 
-    @Override
-    public Map<String, String> query(String uuid) {
-        Map<String, String> result = caches.getOrDefault(uuid, null);
-        caches.remove(uuid);
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Double getResult() {
         return result;
     }
 
-    @Override
-    public void put(String uuid, Map<String, String> result) {
-        caches.put(uuid, result);
+    public void setResult(Double result) {
+        this.result = result;
     }
 }

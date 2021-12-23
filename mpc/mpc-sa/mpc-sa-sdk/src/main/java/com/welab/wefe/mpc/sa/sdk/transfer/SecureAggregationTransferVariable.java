@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,12 +14,22 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.sa;
+package com.welab.wefe.mpc.sa.sdk.transfer;
+
+import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
+import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
+import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
+import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
 
 /**
- * @Author eval
- * @Date 2021/12/17
+ * @Author: eval
+ * @Date: 2021-12-22
  **/
-public class SecureAggregationApiName {
-    public static final String SA_RESULT = "SecureAggregationForResult";
+public interface SecureAggregationTransferVariable {
+
+    QueryDiffieHellmanKeyResponse queryDiffieHellmanKey(String url, QueryDiffieHellmanKeyRequest request);
+
+    QuerySAResultResponse queryResult(String url, QuerySAResultRequest request);
+
+
 }

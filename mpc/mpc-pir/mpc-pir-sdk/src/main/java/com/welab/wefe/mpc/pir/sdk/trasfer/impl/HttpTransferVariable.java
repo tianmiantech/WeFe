@@ -54,8 +54,8 @@ public class HttpTransferVariable implements PrivateInformationRetrievalTransfer
     }
 
     @Override
-    public QueryResultsResponse queryResults(QueryResultsRequest request) {
-        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.RESULTS)), QueryResultsResponse.class);
+    public QueryPIRResultsResponse queryResults(QueryPIRResultsRequest request) {
+        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.RESULTS)), QueryPIRResultsResponse.class);
     }
 
     private JSONObject javaBeanToRequestJsonString(Object data, String apiName) {

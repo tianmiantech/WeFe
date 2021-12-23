@@ -17,11 +17,9 @@
 package com.welab.wefe.mpc.pir.request;
 
 import java.io.Serializable;
-import java.util.List;
 
-public class QueryResultsResponse implements Serializable {
+public class QueryPIRResultsRequest implements Serializable {
     private String uuid;
-    private List<String> results;
 
     public String getUuid() {
         return uuid;
@@ -29,13 +27,5 @@ public class QueryResultsResponse implements Serializable {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public List<String> getResults() {
-        return results;
-    }
-
-    public void setResults(List<String> results) {
-        this.results = results;
     }
 }

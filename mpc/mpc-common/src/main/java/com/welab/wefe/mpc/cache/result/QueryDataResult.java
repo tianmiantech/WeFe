@@ -14,35 +14,25 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.cache;
+package com.welab.wefe.mpc.cache.result;
 
 /**
- * @Author eval
- * @Date 2021/12/14
- **/
-public interface CacheOperation {
+ * @author eval
+ */
+public interface QueryDataResult<T> {
     /**
-     * 存储数据
+     * 查询结果数据
      *
-     * @param key   任务ID
-     * @param name  数据name
-     * @param value 值
-     */
-    void put(String key, String name, String value);
-
-    /**
-     * 获取数据
-     *
-     * @param key  任务ID
-     * @param name 数据name
+     * @param key uuid
      * @return
      */
-    String get(String key, String name);
+    T query(String key);
 
     /**
-     * 删除 key值
+     * 保存结果数据
      *
-     * @param key
+     * @param key   uuid
+     * @param value 数据值
      */
-    void delete(String key);
+    void save(String key, T value);
 }

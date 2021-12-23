@@ -31,5 +31,9 @@ public class Constants {
         public static final String AES_IV = "pir_iv";
     }
 
+    public static class SA {
+        public static final String SA_KEY = "sa_key";
+        public static final String SA_MOD = "sa_mod";
+    }
 
 }

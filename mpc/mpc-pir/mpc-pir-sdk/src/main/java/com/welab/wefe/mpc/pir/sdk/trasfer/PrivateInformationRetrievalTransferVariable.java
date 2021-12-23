@@ -54,5 +54,5 @@ public interface PrivateInformationRetrievalTransferVariable {
      * @param request
      * @return
      */
-    QueryResultsResponse queryResults(QueryResultsRequest request);
+    QueryPIRResultsResponse queryResults(QueryPIRResultsRequest request);
 }
