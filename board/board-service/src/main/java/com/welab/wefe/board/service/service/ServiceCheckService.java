@@ -61,7 +61,7 @@ public class ServiceCheckService extends AbstractService {
             return gatewayService.callOtherMemberBoard(
                     memberId,
                     MemberAvailableCheckApi.class,
-                    new MemberAvailableCheckApi.Input(),
+                    new MemberAvailableCheckApi.Input(memberId),
                     MemberAvailableCheckOutput.class
             );
         }
