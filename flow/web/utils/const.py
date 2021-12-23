@@ -25,6 +25,7 @@ class JsonField:
     SPEND = 'spend'
     SUCCESS = 'success'
     VALUE = 'value'
+    DATA = 'data'
 
 
 class ServiceStatusCode:
