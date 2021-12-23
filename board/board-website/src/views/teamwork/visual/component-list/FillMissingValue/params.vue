@@ -145,12 +145,16 @@
                     'const':  '常量',
                     'mean':   '平均值',
                     'median': '中位数',
-                    // 'mode':   '众数',
+                    'mode':   '众数',
                 },
                 columnListType:   'max',
                 selectListIndex:  0,
                 featureSelectTab: [],
             });
+
+            if(props.learningType === 'vertical') {
+                vData.methodList.push({ value: 'mode', label: '众数' });
+            }
 
             let methods = {
                 addPolicy () {
