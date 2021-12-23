@@ -63,10 +63,10 @@ class BoardStatusService:
         resp = BoardService.request(api, data)
         return get_result_json(
             des=desc,
-            mess=resp[1],
+            mess=resp[JsonField.MESSAGE],
             service='BoardService',
-            spend=resp[2],
-            success=resp[0],
+            spend=resp[JsonField.SPEND],
+            success=resp[JsonField.SUCCESS],
             value=GlobalConfigDao.getBoardConfig().intranet_base_uri
         )
 
@@ -123,4 +123,4 @@ def get_result_json(des, mess, service, spend, success, value):
 
 
 if __name__ == '__main__':
-    StatusService.all_status()
+    print(StatusService.all_status())

@@ -23,8 +23,10 @@ from common.python.utils.log_utils import LoggerFactory
 from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
 from flow.web.util.const import ServiceStatusMessage
+from flow.web.utils.const import JsonField
 
 BOARD_BASE_URL = GlobalConfigDao.getBoardConfig().intranet_base_uri
+
 
 class BoardService:
     LOG = LoggerFactory.get_logger("BoardService")
@@ -45,11 +47,11 @@ class BoardService:
         params = {"job_id": job_id}
         data = BoardService.request("/flow/job/get_progress", params)
 
-        if len(data) == 3:
+        if data[JsonField.SUCCESS] is False:
             return []
         output = []
 
-        for item in data[3]:
+        for item in data[JsonField.DATA]:
             output.append(
                 BeanUtil.dict_to_model(JobProgressOutput(), **item)
             )
@@ -100,13 +102,21 @@ class BoardService:
         except Exception as e:
             mess = "board response fail url:{}, {}".format(url, repr(e))
             BoardService.LOG.error(mess)
-            return False, e, spend
+            return {
+                JsonField.SUCCESS: False,
+                JsonField.MESSAGE: e,
+                JsonField.SPEND: spend
+            }
 
         # http error
         if response.status_code < 200 or response.status_code > 299:
             mess = "board response fail({}ms) url:{}, {}, {}".format(spend, url, response.status_code, response.text)
             BoardService.LOG.error(mess)
-            return False, response.text, spend
+            return {
+                JsonField.SUCCESS: False,
+                JsonField.MESSAGE: response.reason,
+                JsonField.SPEND: spend
+            }
 
         root = response.json()
         code = root.get("code")
@@ -116,8 +126,17 @@ class BoardService:
         if code != 0:
             mess = "board response fail({}ms) url:{}, {}, {}".format(spend, url, message, response.text)
             BoardService.LOG.error(mess)
-            return False, message, spend
+            return {
+                JsonField.SUCCESS: False,
+                JsonField.MESSAGE: message,
+                JsonField.SPEND: spend
+            }
         else:
             mess = "board response success({}ms) url:{}, {}".format(spend, url, response.text)
             BoardService.LOG.info(mess)
-            return True, ServiceStatusMessage.SUCCESS_MESSAGE, spend, data
+            return {
+                JsonField.SUCCESS: False,
+                JsonField.MESSAGE: response.text,
+                JsonField.SPEND: spend,
+                JsonField: data
+            }
