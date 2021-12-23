@@ -77,7 +77,7 @@ public class ServiceService {
 			throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), ServiceMySqlModel.class);
 		if (model != null) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "url exists");
+			throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getUrl(), "url");
 		}
 		model = ModelMapper.map(input, ServiceMySqlModel.class);
 		model.setCreatedBy(CurrentAccount.id());
@@ -195,46 +195,50 @@ public class ServiceService {
 
 			if (serviceType == 1) {// 1匿踪查询
 				List<String> ids = input.getIds();
-				Map<String, String> result = new HashMap<>();
-				// 0 根据ID查询对应的数据
-				for (String id : ids) {// params
-					JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-					int index = 0;
-					String sql = ServiceUtil.generateSQL(id, dataSourceArr, index);
-					String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-					String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
-					try {
-						Map<String, String> resultMap = dataSourceService.execute(dataSourceId, sql,
-								Arrays.asList(resultfields.split(",")));
-						String resultStr = JObject.toJSONString(resultMap);
-						System.out.println(id + "\t " + resultStr);
-						result.put(id, resultStr);
-					} catch (StatusCodeWithException e) {
-						throw e;
-					}
-				}
-				QueryKeysRequest request = new QueryKeysRequest();
-				request.setIds((List) ids);
-				request.setMethod("plain");
-				HuackKeyService service = new HuackKeyService();
-				String uuid = "";
-				try {
-					QueryKeysResponse response = service.handle(request);
-					// 3 取出 QueryKeysResponse 的uuid
-					// 将uuid传入QueryResult
-					uuid = response.getUuid();
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-				}
-				// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-				QueryDataResult<Map<String, String>> queryResult =  QueryDataResultFactory.getQueryDataResult();
-				queryResult.save(uuid, result);
+				obliviousTransfer(ids, model);
 			}
 			output.setCode(0);
 			output.setMessage("success");
 			return output;
 		}
+	}
+
+	private void obliviousTransfer(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
+		Map<String, String> result = new HashMap<>();
+		// 0 根据ID查询对应的数据
+		for (String id : ids) {// params
+			JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+			int index = 0;
+			String sql = ServiceUtil.generateSQL(id, dataSourceArr, index);
+			String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
+			String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+			try {
+				Map<String, String> resultMap = dataSourceService.execute(dataSourceId, sql,
+						Arrays.asList(resultfields.split(",")));
+				String resultStr = JObject.toJSONString(resultMap);
+				System.out.println(id + "\t " + resultStr);
+				result.put(id, resultStr);
+			} catch (StatusCodeWithException e) {
+				throw e;
+			}
+		}
+		QueryKeysRequest request = new QueryKeysRequest();
+		request.setIds((List) ids);
+		request.setMethod("plain");
+		HuackKeyService service = new HuackKeyService();
+		String uuid = "";
+		try {
+			QueryKeysResponse response = service.handle(request);
+			// 3 取出 QueryKeysResponse 的uuid
+			// 将uuid传入QueryResult
+			uuid = response.getUuid();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+		}
+		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
+		QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
+		queryResult.save(uuid, result);
 	}
 
 	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
@@ -243,27 +247,28 @@ public class ServiceService {
 			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "service not exists");
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+		String projectPath = System.getProperty("user.dir");
+		String outputPath = "";
+		List<File> fileList = new ArrayList<>();
+		String sdkZipName = "";
 		if (serviceType == 1) {
-			String projectPath = System.getProperty("user.dir");
-			String sdkZipName = "sdk.zip";
-			String outputPath = projectPath + "/sdk_dir/" + sdkZipName;
-			List<File> fileList = new ArrayList<>();
+			sdkZipName = "sdk.zip";
+			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
 			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
-			FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
-			ZipUtils.toZip(fileList, fos2);
-			File file = new File(outputPath);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-			headers.setContentDispositionFormData("attachment", sdkZipName);
-			try {
-				return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-			}
 		}
-		return null;
+		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
+		ZipUtils.toZip(fileList, fos2);
+		File file = new File(outputPath);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		headers.setContentDispositionFormData("attachment", sdkZipName);
+		try {
+			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+		}
 	}
 }
