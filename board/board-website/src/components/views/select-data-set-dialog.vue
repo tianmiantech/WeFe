@@ -103,7 +103,6 @@
 
         <DataSetList
             ref="raw"
-            source-type="Raw"
             :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
@@ -223,7 +222,6 @@
                     };
 
                     if(this.containsY) {
-                        this.search.source_type = 'Raw';
                         this.search.contains_y = true;
                     }
 
