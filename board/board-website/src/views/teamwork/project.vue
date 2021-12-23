@@ -207,6 +207,8 @@
                         this.search[key] = val[key] || '';
                         this.searchRequest[key] = val[key] || '';
                     }
+                    this.search.closed = val.closed || 'false';
+                    this.search.searchRequest = val.closed || 'false';
                     this.getProjectList();
                 },
                 deep: true,
@@ -220,6 +222,8 @@
                 this.search[key] = query[key] || '';
                 this.searchRequest[key] = query[key] || '';
             }
+            this.search.closed = query.closed || 'false';
+            this.search.searchRequest = query.closed || 'false';
             this.$nextTick(() => {
                 this.$router.replace({
                     query: {
