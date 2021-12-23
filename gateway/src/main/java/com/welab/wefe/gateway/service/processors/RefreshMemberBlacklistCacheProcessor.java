@@ -34,6 +34,8 @@ public class RefreshMemberBlacklistCacheProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         boolean ret = MemberBlacklistCache.getInstance().refreshCache();
-        return ret ? ReturnStatusBuilder.ok(transferMeta.getSessionId()) : ReturnStatusBuilder.sysExc("刷新成员黑名单缓存失败", transferMeta.getSessionId());
+        return ret
+                ? ReturnStatusBuilder.ok(transferMeta.getSessionId())
+                : ReturnStatusBuilder.sysExc("刷新成员黑名单缓存失败", transferMeta.getSessionId());
     }
 }
