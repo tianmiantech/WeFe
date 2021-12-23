@@ -47,9 +47,10 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
             "left join service s on cs.service_id = s.id " +
             "left join client c on cs.client_id = c.id " +
             "left join fee_config fc on cs.fee_config_id = fc.id ) as t " +
-            "where if(:service_name != '' ,t.serviceName = :service_name, 1=1) " +
-            "and if(:client_name != '' ,t.clientName = :client_name, 1=1) " +
-            "and if(:status is not null ,t.status = :status, 1=1) ", nativeQuery = true ,countProjection = "1")
+            "where if(:service_name != '' ,t.serviceName like CONCAT('%',:service_name,'%'), 1=1) " +
+            "and if(:client_name != '' ,t.clientName like CONCAT('%',:client_name,'%') , 1=1) " +
+            "and if(:status is not null ,t.status = :status, 1=1) " +
+            "order by t.createdTime desc ", nativeQuery = true ,countProjection = "1")
     List<ClientServiceOutputModel> queryClientServiceList(@Param("service_name") String serviceName,
                                                           @Param("client_name") String clientName,
                                                           @Param("status") Integer status);

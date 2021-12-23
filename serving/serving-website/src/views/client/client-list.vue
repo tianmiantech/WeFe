@@ -81,8 +81,10 @@
                             name: 'client-add',
                             query: {
                                 id: scope.row.id
-                            }
+                            },
+
                         }"
+
                     >
                         <el-button type="primary">
                             修改
@@ -130,6 +132,9 @@ export default {
             },
             getListApi: '/client/query-list',
         };
+    },
+    methods: {
+
     },
 };
 </script>

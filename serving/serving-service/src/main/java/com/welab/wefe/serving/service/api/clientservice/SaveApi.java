@@ -54,7 +54,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "use status")
         private Integer status;
 
-        @Check(name = "fee config id")
+        @Check(name = "fee config id", require = true)
         private String feeConfigId;
 
         @Check(name = "unit price")
@@ -119,8 +119,6 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
             this.status = status;
         }
     }
-
-
 
 
 }

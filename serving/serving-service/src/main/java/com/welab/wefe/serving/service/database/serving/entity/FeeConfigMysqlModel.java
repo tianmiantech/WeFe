@@ -10,12 +10,6 @@ import java.math.BigDecimal;
 public class FeeConfigMysqlModel extends AbstractBaseMySqlModel {
 
 
-    @Column(name = "service_id")
-    private String serviceId;
-
-    @Column(name = "client_id")
-    private String clientId;
-
     /**
      * unit price
      */
@@ -27,22 +21,6 @@ public class FeeConfigMysqlModel extends AbstractBaseMySqlModel {
      */
     @Column(name = "pay_type")
     private int payType = PayTypeEnum.POSTPAID.getValue();
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
 
     public Double getUnitPrice() {
         return unitPrice;

@@ -31,7 +31,7 @@ import java.io.IOException;
 /**
  * @author ivenn.zheng
  */
-@Api(path = "clientservice/query-list", name = "query list", login = false)
+@Api(path = "clientservice/query-list", name = "query list")
 public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<ClientServiceOutputModel>> {
 
     @Autowired

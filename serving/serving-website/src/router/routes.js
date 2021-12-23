@@ -77,6 +77,30 @@ const baseRoutes = [
                 component: () =>
                     import('@views/client/client-add.vue'),
             },
+
+            {
+                path: `${prefixPath}client-service-list`,
+                name: 'client-service-list',
+                meta: {
+                    title: '客户服务列表',
+                    loginAndRefresh: true,
+                },
+                component: () =>
+                    import('@views/client/client-service-list.vue'),
+            },
+            {
+                path: `${prefixPath}client-service-add`,
+                name: 'client-service-add',
+                meta: {
+                    title: '新增客户服务',
+                    loginAndRefresh: true,
+                    hidden: true,
+                },
+
+                component: () =>
+                    import('@views/client/client-service-add.vue'),
+            },
+
         ],
     },
     {

@@ -1,8 +1,5 @@
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.serving.sdk.model.BaseModel;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -33,7 +30,7 @@ public class ClientServiceOutputModel {
     /**
      * 付费类型
      */
-    private int payType;
+    private Integer payType;
 
     /**
      * 启用状态
@@ -63,11 +60,11 @@ public class ClientServiceOutputModel {
         this.unitPrice = unitPrice;
     }
 
-    public int getPayType() {
+    public Integer getPayType() {
         return payType;
     }
 
-    public void setPayType(int payType) {
+    public void setPayType(Integer payType) {
         this.payType = payType;
     }
 

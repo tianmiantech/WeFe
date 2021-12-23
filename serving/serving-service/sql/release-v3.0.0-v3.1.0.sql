@@ -67,14 +67,12 @@ CREATE TABLE client_service(
                                status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
-CREATE UNIQUE INDEX service_client_index ON client_service(service_id,client_id);
+CREATE UNIQUE INDEX service_client_feeconfig_index ON client_service(service_id,client_id,fee_config_id);
 
 -- 计费规则配置表
 DROP TABLE IF EXISTS fee_config;
 CREATE TABLE fee_config(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
-                           service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
-                           client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
@@ -83,7 +81,6 @@ CREATE TABLE fee_config(
                            pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '计费配置';
-CREATE INDEX service_client_index ON fee_config(service_id,client_id);
 
 -- API 调用统计表
 DROP TABLE IF EXISTS api_request_record;

@@ -49,7 +49,7 @@ import {mapGetters} from 'vuex';
 
 
 export default {
-    name: "client",
+    name: "client-add",
     data() {
         return {
             client: {

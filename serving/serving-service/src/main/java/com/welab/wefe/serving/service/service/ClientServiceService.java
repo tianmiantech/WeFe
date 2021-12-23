@@ -12,9 +12,10 @@ import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepos
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * @author ivenn.zheng
@@ -40,8 +41,14 @@ public class ClientServiceService {
             model = new ClientServiceMysqlModel();
         }
 
-        model.setServiceId(input.getServiceId());
-        model.setClientId(input.getClientId());
+        if (null != input.getClientId()) {
+            model.setClientId(input.getClientId());
+
+        }
+        if (null != input.getServiceId()) {
+            model.setServiceId(input.getServiceId());
+
+        }
         model.setUpdatedTime(new Date());
         if (null != input.getStatus()) {
             model.setStatus(input.getStatus());
@@ -51,8 +58,9 @@ public class ClientServiceService {
             FeeConfigMysqlModel feeConfigMysqlModel = feeConfigRepository.findOne("id", input.getFeeConfigId(), FeeConfigMysqlModel.class);
             // 暂不设置付费类型
             // feeConfigMysqlModel.setPayType();
-            feeConfigMysqlModel.setUnitPrice(null != input.getUnitPrice()? input.getUnitPrice() : feeConfigMysqlModel.getUnitPrice() );
-            feeConfigRepository.save(feeConfigMysqlModel);
+            feeConfigMysqlModel.setUnitPrice(null != input.getUnitPrice() ? input.getUnitPrice() : feeConfigMysqlModel.getUnitPrice());
+            FeeConfigMysqlModel feeConfigModel = feeConfigRepository.save(feeConfigMysqlModel);
+            model.setFeeConfigId(feeConfigModel.getId());
         }
 
         clientServiceRepository.save(model);
