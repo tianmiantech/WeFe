@@ -88,7 +88,7 @@
                     >
                         {{ promoter.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-show="promoter.$data_set.length"
                         :data="promoter.$data_set"
@@ -172,7 +172,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -254,7 +254,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
