@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -173,6 +173,7 @@
     import { reactive, getCurrentInstance } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
 
+    import { mapGetters } from 'vuex';
     export default {
         mixins: [table],
         props:  {
@@ -226,6 +227,23 @@
                 vData,
                 methods,
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
+        methods: {
+            getDataList(opt) {
+                this.search = this.searchField;
+                this.pagination.page_index = +this.$route.query.page_index || 1;
+                this.pagination.page_size = +this.$route.query.page_size || 20;
+                this.getList(opt);
+            },
+            addDataSet(ev, item) {
+                this.$emit('add-data-set', ev, item);
+            },
+            checkCard(id) {
+                this.$emit('check-card', id);
+            },
         },
     };
 </script>

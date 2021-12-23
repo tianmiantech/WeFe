@@ -166,7 +166,7 @@
                 const { code, data } = await this.$http.get({
                     url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: this.id,
+                        dataResourceId: this.id,
                     },
                 });
 
