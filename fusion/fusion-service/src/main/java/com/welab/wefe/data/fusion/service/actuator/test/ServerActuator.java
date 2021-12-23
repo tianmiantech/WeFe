@@ -1,13 +1,13 @@
 package com.welab.wefe.data.fusion.service.actuator.test;
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.manager.TaskResultManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
-import com.welab.wefe.fusion.core.actuator.psi.PsiServerActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiServerActuator;
 import com.welab.wefe.fusion.core.enums.ActionType;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-public class ServerActuator extends PsiServerActuator {
+public class ServerActuator extends AbstractPsiServerActuator {
 
     private ServerSocket serverSocket;
 
@@ -199,7 +199,7 @@ public class ServerActuator extends PsiServerActuator {
 
             byte[][] ret = new byte[2][];
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
-            ret[1] = PSIUtils.bigIntegerToBytes(N, false);
+            ret[1] = PSIUtils.bigIntegerToBytes(n, false);
 
             PSIUtils.send2DBytes(socket, ret);
             PSIUtils.sendInteger(d_out, bf.count());
@@ -227,7 +227,7 @@ public class ServerActuator extends PsiServerActuator {
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, query);
+            byte[][] result = CryptoUtils.sign(n, d, query);
 
             LOG.info("server a.mod(N) spend :  {} ms size: {}", (System.currentTimeMillis() - start1), result.length);
 

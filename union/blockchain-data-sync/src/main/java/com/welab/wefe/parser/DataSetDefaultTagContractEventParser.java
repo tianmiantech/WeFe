@@ -1,8 +1,9 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetDefaultTag;
+import com.welab.wefe.BlockchainDataSyncApp;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -13,21 +14,24 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataSetDefaultTagContractEventParser extends AbstractParser {
-    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo = App.CONTEXT.getBean(DataSetDefaultTagMongoRepo.class);
-    protected DataSetDefaultTag.ExtJSON extJSON;
+    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(DataSetDefaultTagMongoRepo.class);
+    protected DataSetDefaultTagExtJSON extJSON;
 
     @Override
     protected void parseContractEvent() throws BusinessException {
-        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetDefaultTag.ExtJSON.class) : new DataSetDefaultTag.ExtJSON();
+        extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetDefaultTagExtJSON.class) : new DataSetDefaultTagExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
-            case EventConstant.DataSetDefaultTag.INSERT_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.DataSetDefaultTag.UPDATE_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.UPDATE_EVENT:
                 parseUpdateEvent();
                 break;
-            case EventConstant.DataSetDefaultTag.DELETE_BY_TAGID_EVENT:
+            case EventConstant.DataSetDefaultTagEvent.DELETE_BY_TAGID_EVENT:
                 parseDeleteByTagIdEvent();
+                break;
+            case EventConstant.UPDATE_EXTJSON_EVENT:
+                parseUpdateExtJson();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -49,11 +53,18 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
     private void parseUpdateEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         String tagName = eventBO.getEntity().get("tag_name").toString();
-        dataSetDefaultTagMongoRepo.update(tagId,tagName);
+        String updatedTime = eventBO.getEntity().get("updated_time").toString();
+        dataSetDefaultTagMongoRepo.update(tagId, tagName, extJSON, updatedTime);
     }
+
     private void parseDeleteByTagIdEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         dataSetDefaultTagMongoRepo.deleteByTagId(tagId);
+    }
+
+    private void parseUpdateExtJson() {
+        String tagId = eventBO.getEntity().get("tag_id").toString();
+        dataSetDefaultTagMongoRepo.updateExtJSONById(tagId, extJSON);
     }
 
 }

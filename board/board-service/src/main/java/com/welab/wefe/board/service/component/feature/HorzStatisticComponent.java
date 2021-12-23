@@ -16,14 +16,6 @@
 
 package com.welab.wefe.board.service.component.feature;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.filter.OutputDataTypesOutputFilter;
@@ -38,10 +30,17 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HorzStatisticComponent extends AbstractComponent<HorzStatisticComponent.Params> {

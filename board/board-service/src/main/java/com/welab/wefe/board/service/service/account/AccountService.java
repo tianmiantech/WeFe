@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service.account;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
@@ -31,13 +30,16 @@ import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.*;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.BoardUserSource;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
@@ -379,16 +381,13 @@ public class AccountService extends AbstractService {
         if (CacheObjects.getMemberId().equals(input.getMemberId())) {
             pagingOutput = query(input);
         } else {
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, input, QueryApi.class);
-            if (0 == apiResult.code) {
-                if (null == apiResult.data) {
-                    return null;
-                }
-                JObject dataObj = JObject.create(apiResult.data);
-                pagingOutput = JObject.parseObject(dataObj.toJSONString(), pagingOutput.getClass());
-            } else {
-                throw new StatusCodeWithException(apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
+            pagingOutput = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryApi.class,
+                    input,
+                    pagingOutput.getClass()
+            );
         }
 
         List<AccountOutputModel> accountOutputModelList = new ArrayList<>();
@@ -429,11 +428,15 @@ public class AccountService extends AbstractService {
         try {
             JObject data = JObject.create().append("memberId", input.getMemberId())
                     .append("accountId", input.getAccountId());
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, data, QueryOnlineApi.class);
-            if (apiResult.code != 0) {
-                throw new StatusCodeWithException("系统异常: " + apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
-            QueryOnlineApi.Output output = JSONObject.toJavaObject(JObject.create(apiResult.data), QueryOnlineApi.Output.class);
+
+            QueryOnlineApi.Output output = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryOnlineApi.class,
+                    data,
+                    QueryOnlineApi.Output.class
+            );
+
             return output.getList();
         } catch (Exception e) {
             throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);

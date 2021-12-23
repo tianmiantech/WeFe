@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,21 +18,22 @@ package com.welab.wefe.board.service.service.data_resource.add;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
+import com.welab.wefe.board.service.service.checkpoint.StorageCheckpoint;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataSetStorageType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -95,6 +96,9 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         return new DataResourceAddOutputModel(task.getDataResourceId(), task.getId());
     }
 
+    @Autowired
+    private StorageCheckpoint storageCheckpoint;
+
     /**
      * 检查并设置资源的存储位置
      */
@@ -102,11 +106,12 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         Class<? extends DataResourceMysqlModel> mysqlModelClass = getMysqlModelClass();
         // table data set
         if (mysqlModelClass == TableDataSetMysqlModel.class) {
-            MemberServiceStatusOutput storageServiceStatus = serviceCheckService.checkStorageServiceStatus(true);
-            if (!storageServiceStatus.isSuccess()) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, config.getDbType() + "连接失败，请检服务是否正常。");
+            ServiceCheckPointOutput availableInfo = storageCheckpoint.check();
+            if (!availableInfo.isSuccess()) {
+                StatusCode
+                        .DATABASE_LOST
+                        .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
             }
-
 
             model.setStorageType(DataSetStorageType.StorageService);
             model.setStorageNamespace(DataSetStorageService.DATABASE_NAME);

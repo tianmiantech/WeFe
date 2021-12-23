@@ -17,6 +17,7 @@ from common.python.db.job_apply_result_dao import JobApplyResultDao
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
+from common.python.utils.log_utils import schedule_logger
 
 
 class Input(BaseApiInput):
@@ -34,7 +35,7 @@ class Input(BaseApiInput):
 class Api(BaseApi):
 
     def run(self, input: Input):
-        # todo
+        schedule_logger("get request apply_callback_api:{}".format(input))
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
         if apply_result is None:
@@ -42,7 +43,7 @@ class Api(BaseApi):
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
             apply_result.status = input.status
-        if '待运行' == input.status or '运行中' == input.status:
+        if 'wait_run' == input.status or 'running' == input.status:
             apply_result.server_endpoint = input.server_endpoint
             apply_result.aggregator_endpoint = input.aggregator_endpoint
             apply_result.aggregator_assignee = input.aggregator_assignee

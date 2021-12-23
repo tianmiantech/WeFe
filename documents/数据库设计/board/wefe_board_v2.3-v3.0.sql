@@ -232,7 +232,12 @@ ALTER TABLE `project`
 ALTER TABLE `project_data_set`
     ADD COLUMN `data_resource_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型' AFTER `source_task_id`;
 
-
+-- -------------------------------------
+-- operator_log 表字段容量加大
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `operator_log`
+    MODIFY COLUMN `interface_name` varchar (1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '请求接口名称' AFTER `log_interface`;
 
 DROP TABLE IF EXISTS `job_apply_result`;
 CREATE TABLE `job_apply_result`
@@ -251,3 +256,9 @@ CREATE TABLE `job_apply_result`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+
+INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`,
+                             `comment`)
+VALUES ('07ab31c0f41e45e2998d0315fbaac7ab', NULL, '2021-12-16 10:34:30.725000', NULL, '2021-12-16 10:34:30.725000',
+        'wefe_flow', 'visual_fl_base_url', 'http://10.90.0.86:10002', NULL);

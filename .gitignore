@@ -3,7 +3,7 @@
 *.iml
 out
 gen
-
+**/bin/
 *.project
 .settings/
 .classpath
@@ -44,5 +44,5 @@ build/
 *.properties
 venv/
 /docker/
-**/assembly/
-/assembly/
+/assembly/*
+assembly/

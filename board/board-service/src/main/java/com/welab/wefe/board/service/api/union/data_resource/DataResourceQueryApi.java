@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,13 +32,13 @@ import java.io.IOException;
  * @date 2021/12/17
  */
 @Api(path = "union/data_resource/query", name = "query data resource from union service")
-public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, JSONObject> {
+public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input, Object> {
 
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<Object> handle(Input input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.request(
                 "data_resource/query",
                 input.rawRequestParams

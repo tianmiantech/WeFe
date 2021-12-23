@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,11 +24,12 @@ import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSet
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.springframework.stereotype.Service;
 
 
@@ -37,6 +38,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UnionService extends AbstractUnionService {
+
+    public ServiceAvailableCheckOutput getAvailable() throws StatusCodeWithException {
+        JSONObject result = request("service/available");
+
+        return result
+                .getJSONObject("data")
+                .toJavaObject(ServiceAvailableCheckOutput.class);
+    }
+
     /**
      * 更新资源信息，使用此接口更新时，数据不会立即更新，有延迟。
      */
@@ -57,8 +67,8 @@ public class UnionService extends AbstractUnionService {
     }
 
     public void upsertDataResource(DataResourceMysqlModel model) {
-        JObject params = JObject
-                .create(model);
+        JObject params = JObject.create(model)
+                .append("data_resource_id", model.getId());
 
         MemberInfoModel member = globalConfigService.getMemberInfo();
         // If data exposure is prohibited globally, it will not be reported.

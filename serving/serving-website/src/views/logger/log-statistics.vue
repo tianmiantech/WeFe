@@ -25,10 +25,15 @@
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="日期类型："
-                label-width="100px"
-            >
+           <el-form-item
+               label="区间："
+               label-width="100px"
+           >
+               <el-input
+                   v-model="search.interval"
+                   style="width:70px"
+                   clearable
+               />
                 <el-select
                     v-model="search.date_type"
                     clearable
@@ -116,7 +121,7 @@
                     params: this.search,
                 });
 
-                
+
                 this.chartData.legend = ['成功数', '失败数'];
                 const xAxis = [], series = [
                     {
