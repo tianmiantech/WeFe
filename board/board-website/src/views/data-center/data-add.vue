@@ -709,6 +709,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
+
+
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {

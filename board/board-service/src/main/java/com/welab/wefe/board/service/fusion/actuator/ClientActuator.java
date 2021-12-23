@@ -18,13 +18,13 @@ package com.welab.wefe.board.service.fusion.actuator;
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
 import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -33,7 +33,6 @@ import com.welab.wefe.board.service.service.fusion.FieldInfoService;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
@@ -42,7 +41,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
@@ -219,22 +217,18 @@ public class ClientActuator extends AbstractPsiClientActuator {
         for (int i = 0; i < bs.length; i++) {
             stringList.add(Base64Util.encode(bs[i]));
         }
-        ApiResult<JSONObject> result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/crypto", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
-        } catch (MemberGatewayException e) {
-            LOG.info("error: ", e);
-            e.printStackTrace();
-        }
 
-        if (result == null || !result.success() || result.data == null) {
-            throw new StatusCodeWithException("fusion failed error" + result.message, StatusCode.REMOTE_SERVICE_ERROR);
-        }
-        JSONArray response = result.data.getJSONArray("bs");
+        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId,
+                PsiCryptoApi.class,
+                new PsiCryptoApi.Input(businessId, stringList),
+                PsiMeta.class
+        );
 
-        byte[][] ss = new byte[response.size()][];
-        for (int i = 0; i < response.size(); i++) {
-            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
+        List<String> list = result.getBs();
+
+        byte[][] ss = new byte[list.size()][];
+        for (int i = 0; i < list.size(); i++) {
+            ss[i] = Base64Util.base64ToByteArray(list.get(i));
         }
 
         return ss;
@@ -248,7 +242,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
         }
 
         try {
-            gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
+            gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ReceiveResultApi.class,
+                    new ReceiveResultApi.Input(businessId, stringList)
+            );
         } catch (MemberGatewayException e) {
             LOG.info("sendFusionData error: ", e);
             e.printStackTrace();
