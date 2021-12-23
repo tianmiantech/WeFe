@@ -16,6 +16,10 @@
 
 package com.welab.wefe.mpc.commom;
 
+/**
+ * @author eval
+ */
+
 public enum AccountEncryptionType {
     /**
      * 明文
