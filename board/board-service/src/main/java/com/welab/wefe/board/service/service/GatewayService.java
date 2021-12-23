@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author seven.zeng
+ * @author zane.luo
  */
 @Service
 public class GatewayService extends BaseGatewayService {
@@ -89,8 +89,7 @@ public class GatewayService extends BaseGatewayService {
                 continue;
             }
 
-            sendToBoardRedirectApi(member.getMemberId(), me.getJobRole(), input, api);
-
+            callOtherMemberBoard(member.getMemberId(), me.getJobRole(), api, input);
         }
     }
 
@@ -160,7 +159,7 @@ public class GatewayService extends BaseGatewayService {
             if (input instanceof AddApi.Input) {
                 ((AddApi.Input) input).setRole(member.getMemberRole());
             }
-            sendToBoardRedirectApi(member.getMemberId(), me.getMemberRole(), input, api);
+            callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
 
         }
     }
@@ -253,27 +252,58 @@ public class GatewayService extends BaseGatewayService {
         return JObject.create(result.getData()).toJavaObject(ServiceAvailableCheckOutput.class);
     }
 
-    /**
-     * Call the board of other members
-     */
-    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Object params, Class<T> resultClass) throws MemberGatewayException {
-        Api annotation = api.getAnnotation(Api.class);
-        ApiResult<JSONObject> apiResult = callOtherMemberBoard(dstMemberId, annotation.path(),
-                params instanceof JSONObject
-                        ? (JSONObject) params
-                        : JObject.create(params)
-        );
+    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Class<T> resultClass) throws MemberGatewayException {
+        return callOtherMemberBoard(dstMemberId, null, api, null, resultClass);
+    }
 
-        if (apiResult.data != null) {
-            return apiResult.data.toJavaObject(resultClass);
-        }
-        return null;
+    public void callOtherMemberBoard(String dstMemberId, Class<?> api, Object params) throws MemberGatewayException {
+        callOtherMemberBoard(dstMemberId, null, api, params, Object.class);
+    }
+
+    public void callOtherMemberBoard(String dstMemberId, JobMemberRole senderRole, Class<?> api, Object params) throws MemberGatewayException {
+        callOtherMemberBoard(dstMemberId, senderRole, api, params, Object.class);
+    }
+
+    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Object params, Class<T> resultClass) throws MemberGatewayException {
+        return callOtherMemberBoard(dstMemberId, null, api, params, resultClass);
     }
 
     /**
+     * Send the request to the gateway/redirect interface in the board
+     *
+     * @param dstMemberId 接收请求的成员Id
+     * @param senderRole  发送请求的成员角色，可以为 null。
+     * @param api         被调用的接口名
+     * @param params      接口请求参数
+     * @param resultClass 响应结果的实体类型
+     */
+    public <T> T callOtherMemberBoard(String dstMemberId, JobMemberRole senderRole, Class<?> api, Object params, Class<T> resultClass) throws MemberGatewayException {
+        Api annotation = api.getAnnotation(Api.class);
+
+        ApiResult<JSONObject> result = callOtherMemberBoard(
+                dstMemberId,
+                "gateway/redirect",
+                JObject
+                        .create()
+                        .put("api", annotation.path())
+                        .put("data", params)
+                        .put("caller_member_id", CacheObjects.getMemberId())
+                        .put("caller_member_name", CacheObjects.getMemberName())
+                        .put("caller_member_role", senderRole.name())
+        );
+
+        if (resultClass == JObject.class) {
+            return (T) JObject.create(result.getData());
+        }
+
+        return result.getData().toJavaObject(resultClass);
+    }
+
+
+    /**
      * Call the board of other members
      */
-    public ApiResult<JSONObject> callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws MemberGatewayException {
+    private ApiResult<JSONObject> callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws MemberGatewayException {
 
         String request = JObject.create()
                 .append("url", api)
@@ -281,30 +311,18 @@ public class GatewayService extends BaseGatewayService {
                 .append("body", data)
                 .toStringWithNull();
 
-        ApiResult<JSONObject> result = sendToOtherGateway(dstMemberId, GatewayActionType.http_job, request, GatewayProcessorType.boardHttpProcessor);
+        ApiResult<JSONObject> result = sendToOtherGateway(
+                dstMemberId,
+                GatewayActionType.none,
+                request,
+                GatewayProcessorType.boardHttpProcessor
+        );
+
         if (!result.success()) {
             throw new MemberGatewayException(dstMemberId, result.getMessage());
         }
 
         return result;
-    }
-
-    /**
-     * Send the request to the gateway/redirect interface in the board
-     */
-    public ApiResult<?> sendToBoardRedirectApi(String receiverMemberId, JobMemberRole senderRole, Object data, Class<?> api) throws MemberGatewayException {
-        Api annotation = api.getAnnotation(Api.class);
-
-        return callOtherMemberBoard(receiverMemberId, "gateway/redirect",
-                JObject
-                        .create()
-                        .put("api", annotation.path())
-                        .put("data", data)
-                        .put("caller_member_id", CacheObjects.getMemberId())
-                        .put("caller_member_name", CacheObjects.getMemberName())
-                        .put("caller_member_role", senderRole.name())
-        );
-
     }
 
 
