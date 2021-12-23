@@ -135,7 +135,7 @@ class BoardService:
             mess = "board response success({}ms) url:{}, {}".format(spend, url, response.text)
             BoardService.LOG.info(mess)
             return {
-                JsonField.SUCCESS: False,
+                JsonField.SUCCESS: True,
                 JsonField.MESSAGE: response.text,
                 JsonField.SPEND: spend,
                 JsonField: data
