@@ -186,7 +186,7 @@
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
-                + 添加数据集到此项目
+                + 添加资源到此项目
             </el-button>
             <el-table
                 v-if="member.$data_set.length"

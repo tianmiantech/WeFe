@@ -99,7 +99,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-add-transition`,
                 name: 'data-add-transition',
                 meta: {
-                    title: '添加数据集',
+                    title: '添加资源',
                 },
                 component: () => import('../views/data-center/data-add-transition.vue'),
             },
@@ -107,7 +107,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title:        '添加数据集',
+                    title:        '添加资源',
                     hidden:       true,
                     notshowattag: true,
                 },

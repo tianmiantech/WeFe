@@ -34,7 +34,7 @@
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
-                    + 添加数据集到此项目
+                    + 添加资源到此项目
                 </el-button>
                 <el-table
                     v-if="promoter.$data_set.length"

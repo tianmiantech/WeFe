@@ -34,7 +34,7 @@
                     </el-descriptions-item>
                 </template>
                 <el-descriptions-item label="样本量/特征量：">
-                    {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
+                    {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>
             </template>
             <template v-if="addDataType === 'img'">
@@ -84,35 +84,38 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    this.addDataType === 'csv' ? '/union/table_data_set/detail' : '/union/image_data_set/detail',
+                    url:    'union/data_resource/detail',
                     params: {
-                        data_set_id: this.$route.query.id,
+                        dataResourceId:   this.$route.query.id,
+                        dataResourceType: this.$route.query.data_resource_type,
                     },
                 });
 
                 if(code === 0 && data) {
                     this.dataInfo = data;
                     if (this.addDataType === 'csv') {
-                        this.data_list = data.feature_name_list.split(',').map((name, index) => {
-                            return {
-                                序号:   String(index),
-                                特征名称: name,
-                            };
-                        });
+                        if (data.feature_name_list && data.feature_name_list.length) {
+                            this.data_list = data.feature_name_list.split(',').map((name, index) => {
+                                return {
+                                    序号:   String(index),
+                                    特征名称: name,
+                                };
+                            });
                     
-                        this.$nextTick(_ => {
-                            const featuresRef = this.$refs['DataSetFeatures'];
+                            this.$nextTick(_ => {
+                                const featuresRef = this.$refs['DataSetFeatures'];
 
-                            let { length } = this.data_list;
+                                let { length } = this.data_list;
 
-                            if(length >= 15) length = 15;
+                                if(length >= 15) length = 15;
 
-                            featuresRef.resize(length);
-                            featuresRef.loading = true;
-                            featuresRef.table_data.header = ['序号', '特征名称'];
-                            featuresRef.table_data.rows = this.data_list;
-                            featuresRef.loading = false;
-                        });
+                                featuresRef.resize(length);
+                                featuresRef.loading = true;
+                                featuresRef.table_data.header = ['序号', '特征名称'];
+                                featuresRef.table_data.rows = this.data_list;
+                                featuresRef.loading = false;
+                            });
+                        }
                     }
                 }
                 this.loading = false;
