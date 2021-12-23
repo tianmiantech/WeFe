@@ -20,7 +20,7 @@
             </div>
         </template>
         <el-table-column label="添加" width="60" v-slot="scope">
-            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="methods.addDataSet($event, scope.row)">
+            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
                 <elicon-folder-add />
             </el-icon>
         </el-table-column>
@@ -31,7 +31,7 @@
             <template v-slot="scope">
                 <span
                     class="p-name"
-                    @click="methods.checkCard(scope.row.member_id)"
+                    @click="checkCard(scope.row.member_id)"
                 >
                     <i class="iconfont icon-visiting-card" />
                     {{ scope.row.member_name }}
