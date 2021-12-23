@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @author lonnie
  */
-@Api(path = "/flow/job/task/feature", name = "get feature list", desc = "Get the feature column in the output result of feature calculation in the parent node")
+@Api(path = "flow/job/task/feature", name = "get feature list", desc = "Get the feature column in the output result of feature calculation in the parent node")
 public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureApi.Output> {
 
     @Autowired

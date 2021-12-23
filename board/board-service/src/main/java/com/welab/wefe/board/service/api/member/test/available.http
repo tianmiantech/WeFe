@@ -1,0 +1,17 @@
+POST http://localhost:8080/board-service/member/available
+Content-Type: application/json
+
+{
+  "member_id": "cbd2c82da50d4408877061e3e981f8ae"
+}
+
+
+
+### 查别人
+POST http://localhost:8080/board-service/member/available
+Content-Type: application/json
+token:{{token}}
+
+{
+  "member_id": "cbd2c82da50d4408877061e3e981f8ae"
+}

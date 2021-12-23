@@ -289,7 +289,7 @@ public class GatewayService extends BaseGatewayService {
                         .put("data", params)
                         .put("caller_member_id", CacheObjects.getMemberId())
                         .put("caller_member_name", CacheObjects.getMemberName())
-                        .put("caller_member_role", senderRole.name())
+                        .put("caller_member_role", senderRole == null ? "" : senderRole.name())
         );
 
         if (resultClass == JObject.class) {
