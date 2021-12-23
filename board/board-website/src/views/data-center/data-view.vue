@@ -48,10 +48,10 @@
             </el-descriptions-item>
             <template v-if="addDataType === 'csv' && dataInfo.contains_y">
                 <el-descriptions-item label="正例样本数量：">
-                    {{ dataInfo.y_positive_example_count }}
+                    {{ dataInfo.y_positive_sample_count }}
                 </el-descriptions-item>
                 <el-descriptions-item label="正例样本比例：">
-                    {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                    {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                 </el-descriptions-item>
             </template>
             <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
@@ -243,7 +243,7 @@
                         }
                         this.dataInfo = data;
                     }
-                    
+
                 }
                 this.loading = false;
                 if (this.addDataType === 'csv') this.loadDataSetColumnList();

@@ -24,6 +24,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -38,6 +39,9 @@ public class MemberAvailableCheckApi extends AbstractApi<MemberAvailableCheckApi
     @Override
     protected ApiResult<MemberAvailableCheckOutput> handle(Input input) throws StatusCodeWithException {
         MemberAvailableCheckOutput output = serviceCheckService.getMemberAvailableInfo(input.memberId);
+        if (input.fromGateway()) {
+            output.details.values().forEach(ServiceAvailableCheckOutput::cleanValues);
+        }
         return success(output);
     }
 

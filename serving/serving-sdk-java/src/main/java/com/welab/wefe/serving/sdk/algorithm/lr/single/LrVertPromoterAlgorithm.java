@@ -55,8 +55,8 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Pr
             PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
 
 
-            Double score = TypeUtils.castToDouble(result.getData()) + TypeUtils.castToDouble(predictModel.getData());
-            result.setData(score);
+            Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());
+            result.setScore(score);
         }
 
         return sigmod(result);
