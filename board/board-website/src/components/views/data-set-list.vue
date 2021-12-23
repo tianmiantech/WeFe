@@ -29,7 +29,6 @@
         </div>
 
         <el-table
-            v-if="list.length"
             v-loading="tableLoading"
             max-height="500"
             :data="list"
