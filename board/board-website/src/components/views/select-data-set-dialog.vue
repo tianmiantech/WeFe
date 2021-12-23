@@ -119,6 +119,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -166,7 +167,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -183,6 +184,9 @@
                 isTypeDisabled:  false,
                 checkedDataList: [],
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -233,7 +237,7 @@
                 this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
             },
 
-            async loadDataList({
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
@@ -248,23 +252,17 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-                await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                this.isTypeDisabled = true;
-                
-                if (memberId) {
-                    this.memberId = memberId;
-                }
+                this.$nextTick((_)=>{
+                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
+                    this.isTypeDisabled = true;
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
+                    if (memberId) {
+                        this.memberId = memberId;
+                    }
 
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
-
+                    this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
-                }
+                });
             },
 
             searchList(opt = {}) {
@@ -274,21 +272,15 @@
                     // define API from parent
                     url = this.interfaceApi;
                 } else {
+                    // data_resource/query
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        if (this.projectType === 'DeepLearning') {
-                            url = '/image_data_set/query';
-                        } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
-                        }
+                        url = 'data_resource/query';
                     } else {
                         // search from union
-                        if (this.projectType === 'DeepLearning') {
-                            url = `/union/image_data_set/query?member_id=${this.memberId}`;
-                        } else {
-                            url = `/union/data_set/query?member_id=${this.memberId}`;
-                        }
+                        url = `/union/data_resource/query?member_id=${this.memberId}`;
                     }
+
                 }
 
                 const $ref = this.$refs['raw'];

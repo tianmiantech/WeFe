@@ -34,7 +34,7 @@
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
-                    + 添加数据集到此项目
+                    + 添加资源到此项目
                 </el-button>
                 <el-table
                     v-if="promoter.$data_set.length"
@@ -467,10 +467,10 @@
                 if (batchlist.length) {
                     batchlist.forEach(item => {
                         this.batchDataSetList.push({
-                            member_role:   row.member_role,
-                            member_id:     row.member_id,
-                            data_set_id:   item.id,
-                            data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                            member_role:        row.member_role,
+                            member_id:          row.member_id,
+                            data_set_id:        item.id,
+                            data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     const { code } = await this.$http.post({
@@ -501,10 +501,10 @@
                             project_id:  this.form.project_id,
                             dataSetList: [
                                 {
-                                    member_role:   row.member_role,
-                                    member_id:     row.member_id,
-                                    data_set_id:   item.id,
-                                    data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                    member_role:        row.member_role,
+                                    member_id:          row.member_id,
+                                    data_set_id:        item.id,
+                                    data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                 },
                             ],
                         },

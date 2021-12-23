@@ -88,7 +88,7 @@
                     >
                         {{ promoter.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-show="promoter.$data_set.length"
                         :data="promoter.$data_set"
@@ -172,7 +172,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -254,7 +254,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -396,8 +396,10 @@
                     $online:        'loading',
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 dataSets: {
@@ -426,7 +428,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            this.checkAllService();
+            await this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -479,8 +481,8 @@
                         $online:        'loading',
                         $error:         '',
                         $serviceStatus: {
-                            all_status_is_success: null,
-                            status:                null,
+                            available: null,
+                            details:   null,
                         },
                     };
                     this.checkAllService(currentMembersList);
@@ -496,9 +498,9 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                         requestFromRefresh: true,
@@ -506,6 +508,11 @@
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                 } else {
@@ -615,10 +622,10 @@
                 if(this.promoter.$data_set.length) {
                     this.promoter.$data_set.forEach(data => {
                         promoterDataSetList.push({
-                            member_role:   'promoter',
-                            member_id:     this.userInfo.member_id,
-                            data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            member_role:        'promoter',
+                            member_id:          this.userInfo.member_id,
+                            data_set_id:        data.id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                 }
@@ -632,10 +639,10 @@
 
                     item.$data_set.forEach(data => {
                         promoter.dataSetList.push({
-                            member_role:   'promoter',
-                            member_id:     item.member_id,    // promoter Id
-                            data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            member_role:        'promoter',
+                            member_id:          item.member_id,    // promoter Id
+                            data_set_id:        data.data_resource_id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     promoterList.push(promoter);
@@ -650,10 +657,10 @@
 
                     item.$data_set.forEach(data => {
                         provider.dataSetList.push({
-                            member_role:   'provider',
-                            member_id:     item.member_id,    // provider Id
-                            data_set_id:   data.id,
-                            data_set_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                            member_role:        'provider',
+                            member_id:          item.member_id,    // provider Id
+                            data_set_id:        data.data_resource_id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     providerList.push(provider);
@@ -733,7 +740,8 @@
         :deep(.el-form-item__label){font-weight: bold;}
     }
     .member-name{
-        :deep(.iconfont) {vertical-align: initial;}
+        :deep(.iconfont),
+        :deep(.status_waiting) {vertical-align: initial;}
     }
     .service-offline{
         font-size: 14px;

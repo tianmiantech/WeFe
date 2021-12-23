@@ -12,7 +12,7 @@
                     :to="{ path: 'data-add', query: {type: 'img'} }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <i class="el-icon-top-right f12"></i>
                 </router-link>
             </div>
@@ -198,7 +198,7 @@
                 const res = await this.$http.get({
                     url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 

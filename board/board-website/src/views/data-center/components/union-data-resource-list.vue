@@ -19,14 +19,33 @@
                 </router-link>
             </div>
         </template>
-
+        <el-table-column label="添加" width="60" v-slot="scope">
+            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
+                <elicon-folder-add />
+            </el-icon>
+        </el-table-column>
+        <el-table-column
+            label="成员"
+            min-width="100"
+        >
+            <template v-slot="scope">
+                <span
+                    class="p-name"
+                    @click="checkCard(scope.row.member_id)"
+                >
+                    <i class="iconfont icon-visiting-card" />
+                    {{ scope.row.member_name }}
+                </span>
+                <span class="p-id">{{ scope.row.member_id }}</span>
+            </template>
+        </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.id }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
-                <span class="p-id">{{ scope.row.id }}</span>
+                <span class="p-id">{{ scope.row.data_resource_id }}</span>
             </template>
         </el-table-column>
         <el-table-column label="关键词">
@@ -44,7 +63,7 @@
                 </template>
             </template>
         </el-table-column>
-        <el-table-column label="可见性">
+        <el-table-column label="可见性" align="center">
             <template v-slot="scope">
                 <span
                     v-if="scope.row.public_level === 'Public'"
@@ -64,73 +83,71 @@
             </template>
         </el-table-column>
         <el-table-column
+            label="资源类型"
+            prop="data_resource_type"
+            width="130"
+            align="center"
+        />
+        <el-table-column
+            label="任务类型"
+            width="100"
+            v-if="search.dataResourceType === 'ImageDataSet'"
+            align="center"
+        >
+            <template v-slot="scope">
+                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
+                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
+                <p v-else>-</p>
+            </template>
+        </el-table-column>
+        <el-table-column
             label="数据量"
-            prop="row_count"
             width="140"
         >
             <template v-slot="scope">
-                特征量：{{ scope.row.feature_count }}
-                <br>
-                样本量：{{ scope.row.row_count }}
-                <br>
-                正例样本数量：{{ scope.row.y_positive_sample_count }}
-                <br>
-                正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
+                    特征量：{{ scope.row.feature_count }}
+                    <br>
+                    样本量：{{ scope.row.total_data_count }}
+                </p>
+                <p v-else>{{scope.row.total_data_count}}</p>
             </template>
         </el-table-column>
         <el-table-column
             label="参与项目数"
             prop="usage_count_in_project"
             width="100"
+            align="center"
         />
         <el-table-column
             label="包含Y"
             width="100"
+            align="center"
+            v-if="search.dataResourceType !== 'ImageDataSet'"
         >
             <template v-slot="scope">
-                <el-icon v-if="scope.row.contains_y" class="el-icon-check">
-                    <elicon-check />
-                </el-icon>
-                <el-icon v-else class="el-icon-close">
-                    <elicon-close />
-                </el-icon>
+                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
+                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                        <elicon-check />
+                    </el-icon>
+                    <el-icon v-else class="el-icon-close">
+                        <elicon-close />
+                    </el-icon>
+                </p>
+                <p v-else>-</p>
             </template>
         </el-table-column>
         <el-table-column
             label="上传者"
             prop="creator_nickname"
             min-width="160"
+            align="center"
         >
             <template v-slot="scope">
                 {{ scope.row.creator_nickname }}
                 <br>
                 {{ dateFormat(scope.row.created_time) }}
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="操作"
-            fixed="right"
-            align="center"
-            min-width="160"
-        >
-            <template v-slot="scope">
-                <router-link
-                    :to="{
-                        name: 'data-update',
-                        query: { id: scope.row.id }
-                    }"
-                >
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
-                </router-link>
-                <el-button
-                    type="danger"
-                    class="ml10"
-                    @click="deleteData(scope.row)"
-                >
-                    删除
-                </el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -153,7 +170,7 @@
 
 <script>
     import table from '@src/mixins/table';
-
+    import { mapGetters } from 'vuex';
     export default {
         mixins: [table],
         props:  {
@@ -164,12 +181,17 @@
                 default: _ => {},
             },
         },
+        emits: ['add-data-set', 'check-card'],
         data() {
             return {
-                getListApi:    '/table_data_set/query',
+                getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
                 watchRoute:    false,
+                turnPageRoute: false,
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         methods: {
             getDataList(opt) {
@@ -178,52 +200,11 @@
                 this.pagination.page_size = +this.$route.query.page_size || 20;
                 this.getList(opt);
             },
-            async deleteData(row) {
-                let message = '此操作将永久删除该条目, 是否继续?';
-
-                const res = await this.$http.get({
-                    url:    '/data_resource/usage_in_project_list',
-                    params: {
-                        dataResourceId: row.id,
-                    },
-                });
-
-                if(res.code === 0) {
-                    if(res.data && res.data.length) {
-                        const list = res.data.map(row => {
-                            const path = this.$router.resolve({
-                                name:  'project-detail',
-                                query: {
-                                    project_id: row.project_id,
-                                },
-                            });
-
-                            return `<a href="${path.href}" target="_blank">${row.name}</a>`;
-                        });
-
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
-                    } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
-                    }
-
-                    this.$confirm('警告', {
-                        type:                     'warning',
-                        dangerouslyUseHTMLString: true,
-                        message,
-                    }).then(async () => {
-                        const { code } = await this.$http.post({
-                            url:  '/table_data_set/delete',
-                            data: {
-                                id: row.id,
-                            },
-                        });
-
-                        if (code === 0) {
-                            this.$message.success('删除成功!');
-                            this.getList({ resetPagination: true });
-                        }
-                    });
-                }
+            addDataSet(ev, item) {
+                this.$emit('add-data-set', ev, item);
+            },
+            checkCard(id) {
+                this.$emit('check-card', id);
             },
         },
     };
@@ -235,5 +216,17 @@
         height: 260px;
         line-height: 30px;
         padding:100px 0;
+    }
+    .el-icon-folder-add{
+        cursor: pointer;
+        font-size: 16px;
+        color: $color-link-base;
+    }
+    .p-name {
+        color: $color-link-base;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        i {padding-right: 5px;}
     }
 </style>

@@ -553,7 +553,7 @@
                     dataResourceType: '',
                 },
                 sourceTypes: {
-                    table:  'TableDataSet',
+                    csv:    'TableDataSet',
                     image:  'ImageDataSet',
                     filter: 'BloomFilter',
                 },
@@ -587,10 +587,10 @@
                     waiting:   '等待中',
                 },
                 file_upload_attrs: {
-                    accept: '.csv .xls .xlsx',
+                    accept: 'text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // csv, xls, xlsx
                 },
                 img_upload_attrs: {
-                    accept: '.zip, .rar, .tar, .7z',
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed', // zip, rar, tar, 7z
                 },
 
                 http_upload_filename: '',
@@ -710,16 +710,15 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            const sourceType = this.$route.query.type;
+            const sourceType = this.$route.query.type || 'csv';
 
             this.search.dataResourceType = this.sourceTypes[sourceType];
-            this.addDataType = sourceType || 'csv';
+            this.addDataType = sourceType;
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
             this.getList();
             this.getDataSouceList();
-            this.checkStorage();
 
             this.$bus.$on('loginAndRefresh', () => {
                 this.getDataSouceList();
@@ -740,26 +739,6 @@
             }
         },
         methods: {
-            async checkStorage() {
-                this.loading = true;
-                const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
-                    data: {
-                        requestFromRefresh: true,
-                        member_id:          this.userInfo.member_id,
-                    },
-                });
-
-                this.loading = false;
-                if(code === 0) {
-                    const { success } = data.status.storage;
-
-                    if(!success) {
-                        this.$alert('存储不可用! 请联系管理员', '警告!');
-                    }
-                }
-            },
-
             afterTableRender(list) {
                 this.tagList = list.map(item => {
                     return {
@@ -1107,7 +1086,6 @@
                 });
 
                 if (code === 0) {
-                    // if (this.addDataType === 'csv') {
                     if (data.repeat_data_count > 0) {
                         this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
@@ -1116,13 +1094,6 @@
                     setTimeout(() => {
                         this.getAddTask(data.data_resource_id);
                     }, 500);
-                    // } else {
-                    //     canLeave = true;
-                    //     this.$router.push({
-                    //         name:  'data-view',
-                    //         query: { id: data.data_resource_id, type: this.addDataType },
-                    //     });
-                    // }
                 }
                 this.loading = false;
             },
