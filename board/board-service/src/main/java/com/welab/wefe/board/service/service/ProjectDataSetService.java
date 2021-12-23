@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
@@ -159,7 +158,7 @@ public class ProjectDataSetService extends AbstractService {
                                         DerivedProjectDataSetOutputModel.class
                                 );
                                 tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataSet();
-                            } catch (MemberGatewayException e) {
+                            } catch (Exception e) {
                                 super.log(e);
                             }
                         }
