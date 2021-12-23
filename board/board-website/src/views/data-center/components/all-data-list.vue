@@ -12,7 +12,7 @@
                     :to="{ path: 'data-add' }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <el-icon class="f12">
                         <elicon-top-right />
                     </el-icon>
@@ -184,7 +184,7 @@
                 const res = await this.$http.get({
                     url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 

@@ -5,14 +5,16 @@
                 服务状态
             </div>
         </template>
-        <ServiceStatusItem serviceType="BoardService" />
-        <ServiceStatusItem serviceType="UnionService" />
-        <ServiceStatusItem serviceType="GatewayService" />
+        <ServiceStatusItem service="UnionService" />
+        <ServiceStatusItem service="BoardService" />
+        <ServiceStatusItem service="GatewayService" />
+        <ServiceStatusItem service="StorageService" />
+        <ServiceStatusItem service="FlowService" />
     </el-card>
 </template>
 
 <script>
-    import ServiceStatusItem from './service-available.vue';
+    import ServiceStatusItem from './service-status-item.vue';
 
     export default {
         components: {
@@ -34,10 +36,9 @@
                 this.loading = true;
 
                 const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
-                        requestFromRefresh: true,
-                        member_id:          this.userInfo.member_id,
+                        member_id: this.userInfo.member_id,
                     },
                 });
 
@@ -51,5 +52,7 @@
 </script>
 
 <style lang="scss" scoped>
-.el-card{ :deep(.el-card__body) {padding-top: 0px;} }
+.el-card{
+    :deep(.el-card__body) {padding-top: 0px;}
+}
 </style>

@@ -12,7 +12,7 @@
                     :to="{ path: 'data-add' }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <el-icon class="f12">
                         <elicon-top-right />
                     </el-icon>
@@ -223,7 +223,7 @@
                 const res = await this.$http.get({
                     url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 
@@ -250,8 +250,8 @@
                         dangerouslyUseHTMLString: true,
                         message,
                     }).then(async () => {
-                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete' 
-                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete' 
+                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete'
+                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete'
                                 : '/data_set/delete';
                         const { code } = await this.$http.post({
                             url,
