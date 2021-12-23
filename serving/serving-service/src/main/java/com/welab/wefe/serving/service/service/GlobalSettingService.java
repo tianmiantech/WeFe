@@ -92,7 +92,6 @@ public class GlobalSettingService {
         model.setMemberName(input.getMemberName());
         model.setMemberId(input.getMemberId());
         model.setRsaPublicKey(input.getRsaPublicKey());
-        model.setRsaPrivateKey(input.getRsaPrivateKey());
 
         globalSettingRepository.save(model);
 
