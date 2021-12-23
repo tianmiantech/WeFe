@@ -108,55 +108,6 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item
-                label="资源类型："
-                label-width="100"
-            >
-                <el-select
-                    v-model="vData.search.dataResourceType"
-                    filterable
-                    clearable
-                    @change="resourceTypeChange"
-                >
-                    <el-option
-                        v-for="item in vData.sourceTypeList"
-                        :key="item.label"
-                        :value="item.label"
-                    />
-                </el-select>
-            </el-form-item>
-            <el-form-item
-                v-if="vData.search.dataResourceType === 'TableDataSet'"
-                label="是否包含Y值："
-                label-width="100"
-            >
-                <el-select
-                    v-model="vData.search.containsY"
-                    filterable
-                    clearable
-                >
-                    <el-option label="是" :value="true"></el-option>
-                    <el-option label="否" :value="false"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item
-                v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
-                label-width="100"
-            >
-                <el-select
-                    v-model="vData.search.forJobType"
-                    filterable
-                    clearable
-                >
-                    <el-option
-                        v-for="item in vData.forJobTypeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-            </el-form-item>
             <el-button
                 type="primary"
                 native-type="submit"
