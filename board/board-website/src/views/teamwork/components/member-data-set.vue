@@ -614,7 +614,7 @@
                             vData.batchDataSetList.push({
                                 member_role:        row.member_role,
                                 member_id:          row.member_id,
-                                data_set_id:        item.id || item.data_set_id,
+                                data_set_id:        item.data_resource_id,
                                 data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });
@@ -648,7 +648,7 @@
                                     {
                                         member_role:        row.member_role,
                                         member_id:          row.member_id,
-                                        data_set_id:        item.id,
+                                        data_set_id:        item.data_resource_id,
                                         data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                     },
                                 ],

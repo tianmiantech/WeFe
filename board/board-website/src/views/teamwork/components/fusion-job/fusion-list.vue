@@ -7,7 +7,7 @@
         <h3 class="mb10 card-title">
             数据融合
             <template v-if="form.isPromoter">
-                <router-link :to="{ name: 'fusion-add' }">
+                <router-link :to="{ name: 'fusion-add', query: { project_id: form.project_id } }">
                     <el-button
                         v-if="!form.closed && !form.is_exited"
                         type="primary"
@@ -234,7 +234,7 @@
                     targetProjectId: '',
                     flowRename:      '',
                 },
-                getListApi: '/project/fusion/query',
+                getListApi: '/fusion/task/paging',
                 pagination: {
                     page_index: 1,
                     page_size:  10,
