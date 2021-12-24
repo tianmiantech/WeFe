@@ -33,12 +33,12 @@ public class MemberAvailableCheckOutput {
     public MemberAvailableCheckOutput() {
     }
 
-    public void put(ServiceType serviceType, ServiceAvailableCheckOutput detail) {
-        details.put(serviceType, detail);
-        if (!detail.available) {
+    public void put(ServiceType serviceType, ServiceAvailableCheckOutput item) {
+        details.put(serviceType, item);
+        if (!item.available) {
             errorServiceType = serviceType;
             available = false;
-            message = detail.message;
+            message = item.message;
         }
     }
 }

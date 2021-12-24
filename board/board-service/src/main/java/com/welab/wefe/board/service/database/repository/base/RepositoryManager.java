@@ -16,6 +16,8 @@
 package com.welab.wefe.board.service.database.repository.base;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.common.util.ClassUtils;
 import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -45,9 +47,17 @@ public class RepositoryManager {
 
             for (Class<?> repoClass : list) {
                 Class<?> entityClass = ClassUtils.getGenericClass(repoClass, 0);
-                MAP.put(entityClass, repoClass);
+                if (entityClass != null) {
+                    MAP.put(entityClass, repoClass);
+                }
             }
         }
+
+        // 由于 DataResourceRepository 使用了泛型声明
+        // 无法获取到具体的 GenericClass
+        // 所以这里手动 put 一下
+        MAP.put(DataResourceMysqlModel.class, DataResourceRepository.class);
+
         return (T) Launcher.getBean(MAP.get(mysqlModelClass));
     }
 }
