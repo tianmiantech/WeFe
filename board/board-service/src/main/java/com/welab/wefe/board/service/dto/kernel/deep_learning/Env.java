@@ -75,6 +75,7 @@ public class Env {
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
 
+        // 计算各方的 worker 数
         LinkedHashMap<String, Integer> workerCountMap = new LinkedHashMap<>();
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(

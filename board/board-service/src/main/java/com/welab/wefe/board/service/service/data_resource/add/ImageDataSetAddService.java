@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.database.repository.ImageDataSetSampleReposi
 import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputModel;
-import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -64,7 +63,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
 
         File inputFile = new File(config.getFileUploadDir(), input.getFilename());
 
-        LOG.info("{} 获取到文件，图片数据集文件路径：{}", m.getId(), inputFile.getAbsolutePath());
+        LOG.info("{} 获取到图片数据集文件：{}", m.getId(), inputFile.getAbsolutePath());
 
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
@@ -95,11 +94,15 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         ListUtil.parallelEach(
                 sampleList,
                 sample -> {
-                    imageDataSetSampleRepository.save(sample);
-                    count.incrementAndGet();
-                    if (count.get() % 20 == 0) {
-                        dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
-                        LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
+                    try {
+                        imageDataSetSampleRepository.save(sample);
+                        count.incrementAndGet();
+                        if (count.get() % 50 == 0) {
+                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
+                            LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
+                        }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
                     }
                 }
         );
@@ -112,9 +115,6 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
 
         fileDecompressionResult.deleteAllDirAndFiles();
         LOG.info("{} 原始数据集解压后的文件夹已删除：{}", m.getId(), fileDecompressionResult.baseDir);
-
-        // Refresh the data set tag list
-        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
     private void setImageDataSetModel(ImageDataSetAddInputModel input, ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> sampleList) {
