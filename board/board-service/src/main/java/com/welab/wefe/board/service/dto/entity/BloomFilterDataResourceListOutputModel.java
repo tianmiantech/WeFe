@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author jacky.jiang
  */
-public class BloomFilterDetailOutputModel extends AbstractOutputModel {
+public class BloomFilterDataResourceListOutputModel extends AbstractOutputModel {
 
     @Check(name = "项目ID")
     private String projectId;
