@@ -15,6 +15,7 @@ import uuid
 
 from common.python.db.db_models import JobApplyResult
 from common.python.db.job_apply_result_dao import JobApplyResultDao
+from common.python.utils.core_utils import current_datetime
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
@@ -48,5 +49,7 @@ class Api(BaseApi):
         apply_result.server_endpoint = input.server_endpoint
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
+        apply_result.created_time = current_datetime()
+        apply_result.updated_time = current_datetime()
         apply_result.save()
         return BaseApiOutput.success(resp)
