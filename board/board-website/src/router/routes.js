@@ -282,6 +282,23 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/job/compare'),
             },
             {
+                path: `${prefixPath}teamwork/detail/fusion-add`,
+                name: 'fusion-add',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '新建数据融合任务',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/teamwork/components/fusion-job/fusion-add'),
+            },
+            {
                 path: `${prefixPath}fusion-task`,
                 name: 'fusion-task',
                 meta: {
@@ -296,7 +313,7 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/fusion/fusion-task.vue'),
+                component: () => import('../views/fusion/fusion-task'),
             },
             {
                 path: `${prefixPath}fusion-task-detail`,
@@ -314,7 +331,7 @@ const baseRoutes = [
                     navigation:      true,
                 },
                 component: () =>
-                    import('../views/fusion/fusion-task-detail.vue'),
+                    import('../views/fusion/fusion-task-detail'),
             },
         ],
     },
