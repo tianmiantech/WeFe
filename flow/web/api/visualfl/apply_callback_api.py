@@ -39,6 +39,7 @@ class Api(BaseApi):
         schedule_logger().info("get request apply_callback_api:{}".format(input))
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
+        apply_result.delete()
         if apply_result is None:
             apply_result = JobApplyResult()
             apply_result.job_id = str(uuid.uuid1())
