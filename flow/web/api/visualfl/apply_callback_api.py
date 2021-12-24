@@ -52,5 +52,6 @@ class Api(BaseApi):
             apply_result.status = input.status
         else:
             apply_result.status = input.status
+        apply_result.job_id = str(uuid.uuid1())
         apply_result.save()
         return BaseApiOutput.success(resp)
