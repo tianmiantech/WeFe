@@ -1,11 +1,10 @@
 import os
-import typing
-from pathlib import Path
 import aiohttp
 import asyncio
 import json
 from visualdl import LogReader
 from visualfl.db.task_dao import TaskDao
+import time
 import logging
 
 def post(url, json_data):
@@ -28,20 +27,38 @@ def get_last_file(data_dir):
 
     return filepath
 
-def get_data_to_db(task_id,log_dir,tag,metric_name,component_name):
-
-    reader = LogReader(logdir=log_dir)
-    losslist = reader.get_data('scalar', tag)
+def get_data_to_db(task_id,log_dir,tag,component_name):
+    file_path = get_last_file(log_dir)
+    reader = LogReader(file_path=file_path)
+    tags = reader.get_tags()
+    losslist = reader.get_data('scalar', 'accuracy_0.tmp_0')
 
     if len(losslist)>0:
         metric_result,train_loss,data = {},{},{}
         for loss in losslist:
             data[loss.id] = dict(value=loss.value, timestamp=loss.timestamp)
-        train_loss.update(metric_name=metric_name)
+        train_loss.update(metric_name=tag)
         train_loss.update(data=data)
         metric_result.update(train_loss=train_loss)
 
-        TaskDao(task_id).save_task_result(task_result=metric_result,component_name=component_name,type=metric_name)
+        TaskDao(task_id).save_task_result(task_result=metric_result,component_name=component_name,type=tag)
 
+def save_data_to_db(task_id,tag,value,step,component_name):
+    try:
+        result,data = {},{}
+        current_milli_time = int(round(time.time() * 1000))
+        tag = "accuracy" if "accuracy" in tag else "loss"
+
+        dao = TaskDao(task_id)
+        model = dao.get_task_result(tag)
+        if model:
+            result = json.loads(model.result)
+            data = result.get("data")
+
+        data[step] = dict(value=value, timestamp=current_milli_time)
+        result.update(data=data)
+        dao.save_task_result(task_result=result,component_name=component_name,type=tag)
+    except Exception as e:
+        logging.error(f"task {task_id} save data to db error {e}")
 
 

@@ -29,11 +29,13 @@
 
 import click
 import paddle
-
+import logging
+from visualfl import __logs_dir__
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl.algorithm.paddle_clas import data_loader
 from visualfl.db.task_dao import TaskDao
 from visualfl.utils.tools import *
+from visualfl.utils.consts import TaskStatus
 
 @click.command()
 @click.option("--job-id", type=str, required=True)
@@ -131,7 +133,7 @@ def fl_trainer(
         resume_checkpoint = config_json.get("resume", True)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
-        log_dir = "vdl_log"
+        log_dir = os.path.join(__logs_dir__,"jobs",job_id,trainer_ep,"vdl_log")
 
         with open(algorithm_config) as f:
             algorithm_config_dict = json.load(f)
@@ -205,7 +207,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, step)
-                        get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_clas")
+                        save_data_to_db(task_id, loss_name,loss_value,step,"paddle_clas")
                 step += 1
                 logging.debug(f"step: {step}, outs: {outs}")
 
@@ -222,6 +224,7 @@ def fl_trainer(
         logging.debug(f"reach max iter, finish training")
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
+        TaskDao(task_id).update_task_status(TaskStatus.ERROR, str(e))
     finally:
         trainer.scheduler_agent.finish()
 

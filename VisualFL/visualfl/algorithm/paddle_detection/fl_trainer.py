@@ -31,12 +31,12 @@ import logging
 import os
 
 import click
-
+from visualfl import __logs_dir__
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl import get_data_dir
-from ppdet.core.workspace import create
 from visualfl.db.task_dao import TaskDao
 from visualdl import LogWriter,LogReader
+from visualfl.utils.consts import TaskStatus
 from visualfl.utils.tools import *
 from visualfl.algorithm.paddle_detection._merge_config import merger_algorithm_config
 
@@ -138,7 +138,8 @@ def fl_trainer(
         resume_checkpoint = config_json.get("resume", True)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
-        log_dir = "vdl_log"
+        log_dir = os.path.join(__logs_dir__,"jobs",job_id,trainer_ep,"vdl_log")
+
 
         logging.debug(f"training program begin")
         trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
@@ -218,8 +219,8 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, vdl_loss_step)
-                        get_data_to_db(task_id,log_dir,loss_name,"loss","paddle_detection")
-                    vdl_loss_step += 1
+                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,"paddle_detection")
+                vdl_loss_step += 1
                 logging.debug(f"step: {vdl_loss_step}, outs: {outs}")
 
             # save model
@@ -235,6 +236,7 @@ def fl_trainer(
 
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
+        TaskDao(task_id).update_task_status(TaskStatus.ERROR,str(e))
     finally:
         trainer.scheduler_agent.finish()
 

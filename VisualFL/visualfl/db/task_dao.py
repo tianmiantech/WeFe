@@ -43,6 +43,30 @@ class TaskDao(Logger):
             self.exception(e)
             self.error(f"update task {self._task_id} status to {status} error as {e} ")
 
+    def get_task_result(self, result_type):
+        """
+        Get task result
+
+        Parameters
+        ----------
+        result_type
+        task_id
+
+        Returns
+        -------
+
+        """
+        with DB.connection_context():
+
+            where_condition = [TaskResult.task_id == self._task_id,TaskResult.type == result_type]
+
+            models = TaskResult.select().where(*tuple(where_condition))
+
+            if models:
+                return models[0]
+            else:
+                return None
+
     def save_task_result(self,task_result: dict,component_name: str,type: str):
         """
         Save task result
