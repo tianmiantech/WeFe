@@ -8,9 +8,7 @@
                     </div>
                 </template>
             </el-image>
-            <div class="btns">
-                <div class="l_tips">{{item.labeled ? item.label_list.split(',')[0] : '未标注'}}</div>
-            </div>
+            <div class="btns">{{item.labeled ? item.label_list.split(',')[0] : '未标注'}}</div>
         </div>
     </div>
 </template>
@@ -106,11 +104,12 @@
     min-height: 200px;
     .img_items {
         width: 124px;
-        max-height: 144px;
+        height: 144px;
         border: 1px solid #eee;
         margin-right: 10px;
         margin-bottom: 10px;
         background: #f5f5f5;
+        position: relative;
         .img_item {
             width: 120px;
             max-height: 110px;
@@ -119,13 +118,14 @@
     }
     .btns {
         @include flex_box;
-        justify-content: space-between;
+        width: 100%;
+        justify-content: center;
         align-items: center;
         padding: 0 4px;
-        color: #999;
-        .l_tips {
-            font-size: 12px;
-        }
+        font-size: 12px;
+        color: #666;
+        position: absolute;
+        bottom: 7px;
     }
 }
 </style>
