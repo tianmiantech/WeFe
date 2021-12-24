@@ -4,91 +4,98 @@
             数据集简介
         </el-divider>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
-        <el-descriptions :column="2">
-            <template #extra>
-                <p class="data-set-meta">
-                    <strong class="strong">{{ dataInfo.creator_nickname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在
-                    <el-popover
-                        v-if="dataInfo.usage_count_in_project"
-                        trigger="hover"
-                    >
-                        <template #reference>
-                            <el-link class="strong" type="primary">{{ dataInfo.usage_count_in_project }}</el-link>
-                        </template>
-                        <p class="f12">参与的合作:</p>
-                        <p v-for="item in projects" :key="item.project_id">
-                            <router-link :to="{name: 'project-detail', query: { project_id: item.project_id }}">
-                                <el-link type="primary" :underline="false">
-                                    {{ item.name }}
-                                    <el-icon>
-                                        <elicon-right />
-                                    </el-icon>
-                                </el-link>
-                            </router-link>
-                        </p>
-                    </el-popover>
-                    <strong v-else class="strong">0</strong> 个合作项目中，
-                    参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
-                </p>
-            </template>
-            <el-descriptions-item v-if="dataInfo.description" label="描述：">
-                {{ dataInfo.description }}
-            </el-descriptions-item>
-            <el-descriptions-item label="关键字：">
-                <span v-if="dataInfo.tags">
-                    <template v-for="(tag, index) in dataInfo.tags.split(',')">
-                        <el-tag
-                            v-if="tag"
-                            :key="index"
+        <div class="flex-box">
+            <el-descriptions :column="2">
+                <template #extra>
+                    <p class="data-set-meta">
+                        <strong class="strong">{{ dataInfo.creator_nickname }}</strong> 上传于 {{ dateFormat(dataInfo.created_time) }}，在
+                        <el-popover
+                            v-if="dataInfo.usage_count_in_project"
+                            trigger="hover"
                         >
-                            {{ tag }}
-                        </el-tag>
-                    </template>
-                </span>
-            </el-descriptions-item>
-            <template v-if="addDataType === 'csv' && dataInfo.contains_y">
-                <el-descriptions-item label="正例样本数量：">
-                    {{ dataInfo.y_positive_sample_count }}
+                            <template #reference>
+                                <el-link class="strong" type="primary">{{ dataInfo.usage_count_in_project }}</el-link>
+                            </template>
+                            <p class="f12">参与的合作:</p>
+                            <p v-for="item in projects" :key="item.project_id">
+                                <router-link :to="{name: 'project-detail', query: { project_id: item.project_id }}">
+                                    <el-link type="primary" :underline="false">
+                                        {{ item.name }}
+                                        <el-icon>
+                                            <elicon-right />
+                                        </el-icon>
+                                    </el-link>
+                                </router-link>
+                            </p>
+                        </el-popover>
+                        <strong v-else class="strong">0</strong> 个合作项目中，
+                        参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
+                    </p>
+                </template>
+                <el-descriptions-item v-if="dataInfo.description" label="描述：">
+                    {{ dataInfo.description }}
                 </el-descriptions-item>
-                <el-descriptions-item label="正例样本比例：">
-                    {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
+                <el-descriptions-item label="关键字：">
+                    <span v-if="dataInfo.tags">
+                        <template v-for="(tag, index) in dataInfo.tags.split(',')">
+                            <el-tag
+                                v-if="tag"
+                                :key="index"
+                            >
+                                {{ tag }}
+                            </el-tag>
+                        </template>
+                    </span>
                 </el-descriptions-item>
-            </template>
-            <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
-                {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
-            </el-descriptions-item>
-            <template v-if="addDataType === 'img'">
-                <el-descriptions-item label="数据总量：">
-                    {{ dataInfo.total_data_count }}
+                <template v-if="addDataType === 'csv' && dataInfo.contains_y">
+                    <el-descriptions-item label="正例样本数量：">
+                        {{ dataInfo.y_positive_example_count }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="正例样本比例：">
+                        {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                    </el-descriptions-item>
+                </template>
+                <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
+                    {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>
-                <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
-                    {{ dataInfo.label_list.split(',').length }}
-                </el-descriptions-item>
-                <el-descriptions-item v-if="dataInfo.label_list" label="标签分布：">
+                <template v-if="addDataType === 'img'">
+                    <el-descriptions-item label="数据总量：">
+                        {{ dataInfo.total_data_count }}
+                    </el-descriptions-item>
+                    <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
+                        {{ dataInfo.label_list.split(',').length }}
+                    </el-descriptions-item>
+                    <!-- <el-descriptions-item v-if="dataInfo.label_list" label="标签分布：">
                     <template v-for="item in dataInfo.$label_list" :key="item.name">
                         {{item.name}} ( {{item.count}} )
                     </template>
-                </el-descriptions-item>
-                <el-descriptions-item label="标注状态：">
-                    {{ completedStatus(dataInfo.label_completed) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="样本分类：">
-                    {{ dataInfo.for_job_type === 'detection' ? '目标检测' : dataInfo.for_job_type === 'classify' ? '图像分类' : '-' }}
-                </el-descriptions-item>
-                <el-descriptions-item label="数据大小：">
-                    {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
-                </el-descriptions-item>
-                <el-descriptions-item label="标注进度：">
-                    {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.total_data_count).toFixed(2) * 100 }}%)
-                    <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
-                        去标注 <i class="el-icon-right"></i>
-                    </el-button>
-                    <el-button hidden type="primary">
-                        导入标注数据包
-                    </el-button>
-                </el-descriptions-item>
-            </template>
-        </el-descriptions>
+                </el-descriptions-item> -->
+                    <el-descriptions-item label="标注状态：">
+                        {{ completedStatus(dataInfo.label_completed) }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="样本分类：">
+                        {{ dataInfo.for_job_type === 'detection' ? '目标检测' : dataInfo.for_job_type === 'classify' ? '图像分类' : '-' }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="数据大小：">
+                        {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
+                    </el-descriptions-item>
+                    <el-descriptions-item label="标注进度：">
+                        {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.total_data_count).toFixed(2) * 100 }}%)
+                        <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
+                            去标注 <i class="el-icon-right"></i>
+                        </el-button>
+                        <el-button hidden type="primary">
+                            导入标注数据包
+                        </el-button>
+                    </el-descriptions-item>
+                </template>
+            </el-descriptions>
+            <div class="pie-area">
+                <PieChart
+                    :config="labelConfig"
+                />
+            </div>
+        </div>
 
         <el-divider content-position="left">
             数据集信息
@@ -141,6 +148,13 @@
                     label:      '',
                     labeled:    '',
                     total:      1,
+                },
+                labelConfig: {
+                    titleText:    '标签分布',
+                    series:       [],
+                    legend:       [],
+                    legendLeft:   'left',
+                    legendOrient: 'vertical',
                 },
             };
         },
@@ -235,11 +249,14 @@
                             data.label_list.split(',').forEach(item => {
                                 labelList.push({
                                     name:  item,
-                                    count: 0,
+                                    value: 0,
                                 });
+                                // this.labelConfig.legend.push(item);
                                 this.getLabelListDistributed(item);
                             });
                             data.$label_list = labelList;
+                            this.labelConfig.series = data.$label_list;
+                            console.log(this.labelConfig.series.length);
                         }
                         this.dataInfo = data;
                     }
@@ -265,7 +282,7 @@
                     if (data && data.list) {
                         this.dataInfo.$label_list.forEach(item => {
                             if (item.name === label) {
-                                item.count = data.total;
+                                item.value = data.total;
                             }
                         });
                     }
@@ -305,5 +322,14 @@
     max-width: 700px;
     :deep(.el-descriptions__header) {display: block;}
     :deep(.is-bordered-label){width: 30px;}
+}
+.flex-box {
+    @include flex_box;
+    .pie-area {
+        margin-top: 15px;
+        width: 400px;
+        background: #fefefe;
+        height: 175px;
+    }
 }
 </style>
