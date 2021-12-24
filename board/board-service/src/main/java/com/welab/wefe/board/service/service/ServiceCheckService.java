@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.sdk.FlowService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -54,7 +53,7 @@ public class ServiceCheckService extends AbstractService {
     /**
      * 检查指定成员的服务是否可用
      */
-    public MemberAvailableCheckOutput getMemberAvailableInfo(String memberId) throws MemberGatewayException {
+    public MemberAvailableCheckOutput getMemberAvailableInfo(String memberId) throws StatusCodeWithException {
 
         // If you are not checking your own status, go to the gateway.
         if (!CacheObjects.getMemberId().equals(memberId)) {
