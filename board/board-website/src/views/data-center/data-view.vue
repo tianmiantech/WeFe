@@ -85,9 +85,8 @@
                     </el-descriptions-item>
                 </template>
             </el-descriptions>
-            <div class="pie-area">
+            <div v-if="addDataType === 'img' && dataInfo.labeled_count" class="pie-area">
                 <PieChart
-                    v-if="addDataType === 'img' && dataInfo.labeled_count"
                     :config="labelConfig"
                 />
             </div>

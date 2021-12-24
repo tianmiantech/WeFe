@@ -125,7 +125,7 @@
         font-size: 12px;
         color: #666;
         position: absolute;
-        bottom: 7px;
+        bottom: 4px;
     }
 }
 </style>
