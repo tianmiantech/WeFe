@@ -135,6 +135,7 @@
                 },
                 async getSampleList() {
                     vData.pageLoading = true;
+                    vData.sampleList = [];
                     const params = {
                         page_index:  vData.search.page_index - 1,
                         page_size:   vData.search.page_size,
