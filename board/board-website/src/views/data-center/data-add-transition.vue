@@ -16,7 +16,7 @@
             <el-card class="card_box" @click="methods.jumpToDataAdd('filter')">
                 <el-image :src="vData.imgData"></el-image>
                 <h3 class="text-c">过滤器数据</h3>
-                <p class="description">过滤器数据。</p>
+                <p class="description">将样本数据生成为二进制的布隆过滤器资源，生成后不可更改，如需变更需要重新上传。布隆过滤器资源只适用于样本对齐，无法参与训练模型, 布隆过滤器资源仅用于RSA-PSI样本对齐算法</p>
                 <el-button type="primary">进入</el-button>
             </el-card>
         </div>

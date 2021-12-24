@@ -478,7 +478,7 @@
                         this.batchDataSetList.push({
                             member_role:        row.member_role,
                             member_id:          row.member_id,
-                            data_set_id:        item.id,
+                            data_set_id:        item.data_resource_id,
                             data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
@@ -512,7 +512,7 @@
                                 {
                                     member_role:        row.member_role,
                                     member_id:          row.member_id,
-                                    data_set_id:        item.id,
+                                    data_set_id:        item.data_resource_id,
                                     data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                 },
                             ],
