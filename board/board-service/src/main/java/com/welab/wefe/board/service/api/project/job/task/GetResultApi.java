@@ -17,7 +17,9 @@
 package com.welab.wefe.board.service.api.project.job.task;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +27,8 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.service.TaskService;
+import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -53,6 +57,7 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
             return success();
         }
         List<TaskResultOutputModel> results = new ArrayList<>();
+        Set<String> temp = new HashSet<>();
         for (TaskMySqlModel task : tasks) {
             String taskConf = task.getTaskConf();
             JObject taskConfigJson = JObject.create(taskConf);
@@ -70,6 +75,14 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
             result.setPosition(task.getPosition());
             result.setSpend(task.getSpend());
             result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
+            if (temp.contains(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
+					&& (task.getTaskType() == ComponentType.MixStatistic
+							|| task.getTaskType() == ComponentType.MixBinning
+							|| task.getTaskType() == ComponentType.FillMissingValue
+							|| task.getTaskType() == ComponentType.MixLR)) {
+				continue;
+			}
+			temp.add(result.getResult().toJSONString());
             results.add(result);
         }
 
