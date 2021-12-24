@@ -44,7 +44,7 @@
             >
                 <template v-slot="scope">
                     {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
