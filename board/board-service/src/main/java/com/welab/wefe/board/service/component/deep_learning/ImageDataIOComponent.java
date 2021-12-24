@@ -33,6 +33,7 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -119,14 +120,14 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
 
         // 生成数据集文件
-//        AbstractImageDataSetParser
-//                .getParser(myDataSet.getForJobType())
-//                .parseSamplesToDataSetFile(
-//                        graph.getJob().getJobId(),
-//                        myDataSet,
-//                        imageDataSetSampleService.allLabeled(myDataSetConfig.dataSetId),
-//                        params.trainTestSplitRatio
-//                );
+        AbstractImageDataSetParser
+                .getParser(myDataSet.getForJobType())
+                .parseSamplesToDataSetFile(
+                        graph.getJob().getJobId(),
+                        myDataSet,
+                        imageDataSetSampleService.allLabeled(myDataSetConfig.dataSetId),
+                        params.trainTestSplitRatio
+                );
 
 
         return output;
