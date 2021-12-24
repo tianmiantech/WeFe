@@ -81,9 +81,9 @@ class RunVisualFLTaskAction:
             schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
             if result is not None:
                 result_json = json.loads(result)
-                apply_result.server_endpoint = str(result_json['server_endpoint'])
-                apply_result.aggregator_endpoint = str(result_json['aggregator_endpoint'])
-                apply_result.aggregator_assignee = str(result_json['aggregator_assignee'])
+                apply_result.server_endpoint = result_json['server_endpoint']
+                apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
+                apply_result.aggregator_assignee = result_json['aggregator_assignee']
         response = self.submit_task(apply_result)
         if response:
             schedule_logger(self.running_job).info(
@@ -143,9 +143,9 @@ class RunVisualFLTaskAction:
         submit_task_start_status = False
         task_config_json = json.loads(self.task.task_conf)
         try:
-            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint,
+            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint
             task_config_json['env']['aggregator_assignee'] = apply_result.aggregator_assignee
-            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint,
+            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint
             # task_config_json['algorithm_config']['need_shuffle'] = True
             schedule_logger(self.running_job).info('submit_task request: {}'.format(task_config_json))
             # submit
