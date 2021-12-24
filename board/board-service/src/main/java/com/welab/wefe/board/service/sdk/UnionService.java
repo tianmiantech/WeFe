@@ -121,7 +121,7 @@ public class UnionService extends AbstractUnionService {
      * 获取数据资源详情
      */
     public <OUT> OUT getDataResourceDetail(String dataResourceId, DataResourceType dataResourceType, Class<OUT> outputClass) throws StatusCodeWithException {
-        String key = dataResourceId + "getDataResourceDetail";
+        String key = dataResourceId + "getDataResourceDetail" + outputClass.getSimpleName();
         if (CACHE_MAP.containsKey(key)) {
             return (OUT) CACHE_MAP.get(key);
         }
