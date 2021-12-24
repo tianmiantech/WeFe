@@ -36,7 +36,7 @@ class Input(BaseApiInput):
 class Api(BaseApi):
 
     def run(self, input: Input):
-        schedule_logger().info("get request apply_callback_api:{}".format(input))
+        schedule_logger().info("get request apply_callback_api:{},{},{},{},{}".format(input.job_id,input.task_id,input.server_endpoint,input.aggregator_endpoint,input.aggregator_assignee))
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
         if apply_result is None:
@@ -44,14 +44,9 @@ class Api(BaseApi):
             apply_result.id = str(uuid.uuid1())
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
-            apply_result.status = input.status
-        if 'wait_run' == input.status or 'running' == input.status:
-            apply_result.server_endpoint = input.server_endpoint
-            apply_result.aggregator_endpoint = input.aggregator_endpoint
-            apply_result.aggregator_assignee = input.aggregator_assignee
-            apply_result.status = input.status
-        else:
-            apply_result.status = input.status
-        apply_result.id = str(uuid.uuid1())
+        apply_result.status = input.status
+        apply_result.server_endpoint = input.server_endpoint
+        apply_result.aggregator_endpoint = input.aggregator_endpoint
+        apply_result.aggregator_assignee = input.aggregator_assignee
         apply_result.save()
         return BaseApiOutput.success(resp)
