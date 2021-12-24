@@ -92,6 +92,7 @@
             </el-descriptions>
             <div class="pie-area">
                 <PieChart
+                    v-if="addDataType === 'img'"
                     :config="labelConfig"
                 />
             </div>
