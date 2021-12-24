@@ -83,12 +83,22 @@ public class Env {
                     )
             );
 
+            // 限制上限
+            if (workerCount > 10) {
+                workerCount = 10;
+            }
+
             // is me
             if (CacheObjects.getMemberId().equals(dataSetItem.getMemberId())) {
                 this.localWorkerNum = workerCount;
                 int startIndex = workerCountMap.values().stream().mapToInt(x -> x).sum();
                 int endIndex = startIndex + this.localWorkerNum - 1;
-                this.localTrainerIndexs = new int[]{startIndex, endIndex};
+                if (startIndex == endIndex) {
+                    this.localTrainerIndexs = new int[]{startIndex};
+                } else {
+                    this.localTrainerIndexs = new int[]{startIndex, endIndex};
+                }
+
             }
 
             workerCountMap.put(dataSetItem.getMemberId(), workerCount);
