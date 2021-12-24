@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUp
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterAddInputModel;
-import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterColumnService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
@@ -103,8 +102,6 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
             super.log(e);
         }
 
-        // Refresh the bloom_filter tag list
-        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
     /**
