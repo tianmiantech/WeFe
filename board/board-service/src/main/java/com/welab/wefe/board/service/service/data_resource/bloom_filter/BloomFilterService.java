@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
-import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDetailApi;
+import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDataResourceListApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -27,9 +27,8 @@ import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
-import com.welab.wefe.board.service.dto.entity.BloomFilterDetailOutputModel;
+import com.welab.wefe.board.service.dto.entity.BloomFilterDataResourceListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -211,7 +210,7 @@ public class BloomFilterService extends DataResourceService {
     }
 
 
-    public BloomFilterDetailOutputModel detail(BloomFilterDetailApi.Input input) throws StatusCodeWithException {
+    public BloomFilterDataResourceListOutputModel detail(BloomFilterDataResourceListApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = projectRepo.findOne("projectId", input.getProjectId(), ProjectMySqlModel.class);
         if (project == null) {
             throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
@@ -258,7 +257,7 @@ public class BloomFilterService extends DataResourceService {
         List<ProjectDetailMemberOutputModel> providers = allMemberList.stream()
                 .filter(x -> x.getMemberRole() == JobMemberRole.provider).collect(Collectors.toList());
 
-        BloomFilterDetailOutputModel output = ModelMapper.map(project, BloomFilterDetailOutputModel.class);
+        BloomFilterDataResourceListOutputModel output = ModelMapper.map(project, BloomFilterDataResourceListOutputModel.class);
 
         if (input.getRole().equals("promoter") && input.getMemberId().equals(promoter.getMemberId()) && input.getProjectId().equals(promoter.getProjectId())) {
             output.setDataSetList(promoter.getDataSetList());

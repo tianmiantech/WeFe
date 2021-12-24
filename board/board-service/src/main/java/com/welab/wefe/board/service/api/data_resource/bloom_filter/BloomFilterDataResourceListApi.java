@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 
-import com.welab.wefe.board.service.dto.entity.BloomFilterDetailOutputModel;
+import com.welab.wefe.board.service.dto.entity.BloomFilterDataResourceListOutputModel;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -32,14 +32,14 @@ import java.io.IOException;
 /**
  * @author jacky.jiang
  */
-@Api(path = "bloom_filter/detail", name = "delete bloom_filter")
-public class BloomFilterDetailApi extends AbstractApi<BloomFilterDetailApi.Input, BloomFilterDetailOutputModel> {
+@Api(path = "data_resource/member/query", name = "query data_resource")
+public class BloomFilterDataResourceListApi extends AbstractApi<BloomFilterDataResourceListApi.Input, BloomFilterDataResourceListOutputModel> {
 
     @Autowired
     private BloomFilterService bloomfilterService;
 
     @Override
-    protected ApiResult<BloomFilterDetailOutputModel> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<BloomFilterDataResourceListOutputModel> handle(Input input) throws StatusCodeWithException, IOException {
         return success(bloomfilterService.detail(input));
     }
 
