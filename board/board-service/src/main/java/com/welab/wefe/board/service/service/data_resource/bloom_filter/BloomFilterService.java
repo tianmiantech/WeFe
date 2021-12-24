@@ -210,7 +210,7 @@ public class BloomFilterService extends DataResourceService {
     }
 
 
-    public BloomFilterDataResourceListOutputModel detail(BloomFilterDataResourceListApi.Input input) throws StatusCodeWithException {
+    public BloomFilterDataResourceListOutputModel query(BloomFilterDataResourceListApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = projectRepo.findOne("projectId", input.getProjectId(), ProjectMySqlModel.class);
         if (project == null) {
             throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);

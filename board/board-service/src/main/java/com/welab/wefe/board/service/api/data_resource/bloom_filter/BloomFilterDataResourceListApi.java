@@ -40,7 +40,7 @@ public class BloomFilterDataResourceListApi extends AbstractApi<BloomFilterDataR
 
     @Override
     protected ApiResult<BloomFilterDataResourceListOutputModel> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(bloomfilterService.detail(input));
+        return success(bloomfilterService.query(input));
     }
 
     public static class Input extends AbstractApiInput {
