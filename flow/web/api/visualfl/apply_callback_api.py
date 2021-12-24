@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import uuid
 
 from common.python.db.db_models import JobApplyResult
 from common.python.db.job_apply_result_dao import JobApplyResultDao
@@ -40,6 +41,7 @@ class Api(BaseApi):
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
         if apply_result is None:
             apply_result = JobApplyResult()
+            apply_result.job_id = str(uuid.uuid1())
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
             apply_result.status = input.status
