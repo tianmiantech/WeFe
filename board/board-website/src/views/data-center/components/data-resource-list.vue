@@ -262,8 +262,8 @@
                         dangerouslyUseHTMLString: true,
                         message,
                     }).then(async () => {
-                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete' 
-                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete' 
+                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete'
+                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete'
                                 : '/data_set/delete';
                         const { code } = await this.$http.post({
                             url,

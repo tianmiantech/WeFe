@@ -69,6 +69,10 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "该数据资源相关的统计信息")
     private JSONObject statisticalInformation;
 
+    public String getDataResourceId() {
+        return super.getId();
+    }
+
     // region getter/setter
 
     public String getName() {

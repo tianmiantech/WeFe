@@ -45,6 +45,11 @@ public class ApiBeanNameGenerator extends AnnotationBeanNameGenerator {
             return super.buildDefaultBeanName(definition);
         } else {
 
+            String path = api.path();
+            if (path.startsWith("/") || path.endsWith("/")) {
+                throw new RuntimeException("根据规范，Api 的 path 开头与结尾不允许包含斜杠：" + path);
+            }
+
             List<String> pathList = new ArrayList<>();
 
             do {

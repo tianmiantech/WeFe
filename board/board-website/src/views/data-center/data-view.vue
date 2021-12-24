@@ -261,7 +261,7 @@
                         }
                         this.dataInfo = data;
                     }
-                    
+
                 }
                 this.loading = false;
                 if (this.addDataType === 'csv') this.loadDataSetColumnList();

@@ -36,7 +36,7 @@ import java.util.List;
  * @author lonnie
  */
 @Api(
-        path = "/flow/job/task/select",
+        path = "flow/job/task/select",
         name = "filter features",
         desc = "Through the passed cv/iv value and feature rate, select the features that meet the conditions"
 )
