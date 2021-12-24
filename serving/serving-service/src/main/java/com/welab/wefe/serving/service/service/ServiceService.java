@@ -196,6 +196,10 @@ public class ServiceService {
 			if (serviceType == 1) {// 1匿踪查询
 				List<String> ids = input.getIds();
 				obliviousTransfer(ids, model);
+			} else if (serviceType == 2) {// 2交集查询
+
+			} else if (serviceType == 3) {// 3安全聚合
+				
 			}
 			output.setCode(0);
 			output.setMessage("success");
