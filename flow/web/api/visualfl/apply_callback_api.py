@@ -45,11 +45,11 @@ class Api(BaseApi):
             apply_result.id = str(uuid.uuid1())
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
+            apply_result.created_time = current_datetime()
         apply_result.status = input.status
         apply_result.server_endpoint = input.server_endpoint
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
-        apply_result.created_time = current_datetime()
         apply_result.updated_time = current_datetime()
         apply_result.save()
         return BaseApiOutput.success(resp)
