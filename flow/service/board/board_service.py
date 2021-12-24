@@ -138,5 +138,5 @@ class BoardService:
                 JsonField.SUCCESS: True,
                 JsonField.MESSAGE: response.text,
                 JsonField.SPEND: spend,
-                JsonField: data
+                JsonField.DATA: data
             }
