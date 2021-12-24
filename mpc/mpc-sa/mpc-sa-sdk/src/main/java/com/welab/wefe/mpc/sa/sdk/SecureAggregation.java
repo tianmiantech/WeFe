@@ -25,7 +25,7 @@ import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
 import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
 import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
 import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
-import com.welab.wefe.mpc.util.EncryptUtil;
+import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class SecureAggregation {
     public Double query(List<ServerConfig> serverConfigs) {
         Double result = 0.0;
         String uuid = UUID.randomUUID().toString().replace("-", "");
-        DiffieHellmanKey dhKey = EncryptUtil.generateDHKey(1024);
+        DiffieHellmanKey dhKey = DiffieHellmanUtil.generateKey(1024);
 
         SecureAggregationTransferVariable transferVariable = new HttpTransferVariable();
         List<String> diffieHellmanValues = new ArrayList<>(serverConfigs.size());

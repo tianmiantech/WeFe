@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.util;
+package com.welab.wefe.mpc.psi.request;
 
-import com.welab.wefe.mpc.commom.AccountEncryptionType;
-import junit.framework.TestCase;
-import org.junit.Assert;
+import java.util.List;
 
 /**
  * @Author: eval
- * @Date: 2021-12-23
+ * @Date: 2021-12-24
  **/
-public class EncryptUtilTest extends TestCase {
+public class QueryPrivateSetIntersectionRequest {
+    private String p;
+    private List<String> clientIds;
 
-    public void testEncrypt() {
-        String value = "1234";
-        String encryptValue = EncryptUtil.encrypt(value, AccountEncryptionType.md5.name());
-        Assert.assertEquals("81dc9bdb52d04dc20036dbd8313ed055", encryptValue);
+    public String getP() {
+        return p;
     }
 
+    public void setP(String p) {
+        this.p = p;
+    }
+
+    public List<String> getClientIds() {
+        return clientIds;
+    }
+
+    public void setClientIds(List<String> clientIds) {
+        this.clientIds = clientIds;
+    }
 }
