@@ -25,9 +25,9 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
      * @param endTime
      * @return
      */
-    @Query(value = "select rand() as id , s.name as serviceName, c.name as clientName, t.total_spend as totalSpend, " +
+    @Query(value = "select replace(uuid(),'-','') as id , s.name as serviceName, c.name as clientName, t.total_spend as totalSpend, " +
             "t.success_request as totalSuccessTimes, t.total_request as totalRequestTimes, t.total_request - t.success_request as totalFailTimes, " +
-            "s.service_type as serviceType, fc.unit_price as unitPrice " +
+            "s.service_type as serviceType " +
             "from ( " +
             "SELECT sum(arr.spend) total_spend, sum(arr.request_result) success_request, count(id) total_request, arr.client_id, arr.service_id " +
             "from api_request_record arr " +
@@ -37,8 +37,7 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "      if(:end_time is not null ,:end_time ,NOW())  " +
             "group by arr.service_id, arr.client_id " +
             ")as t left join service s on t.service_id = s.id " +
-            "      left join client c on t.client_id = c.id " +
-            "      left join fee_config fc on fc.service_id = t.service_id and fc.client_id = t.client_id ", nativeQuery = true, countProjection = "1")
+            "      left join client c on t.client_id = c.id ", nativeQuery = true, countProjection = "1")
     List<RequestStatisticsMysqlModel> groupByServiceIdAndClientId(@Param("service_id") String serviceId,
                                                                   @Param("client_id") String clientId,
                                                                   @Param("start_time") Long startTime,

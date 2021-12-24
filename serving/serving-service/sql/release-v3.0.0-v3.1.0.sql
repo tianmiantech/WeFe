@@ -59,7 +59,6 @@ CREATE TABLE client_service(
                                id VARCHAR(32) NOT NULL   COMMENT '客户服务id' ,
                                service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                                client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
-                               fee_config_id VARCHAR(32) COMMENT '计费配置id' ,
                                created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
@@ -67,12 +66,14 @@ CREATE TABLE client_service(
                                status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
-CREATE UNIQUE INDEX service_client_feeconfig_index ON client_service(service_id,client_id,fee_config_id);
+CREATE UNIQUE INDEX service_client_index ON client_service(service_id,client_id);
 
 -- 计费规则配置表
 DROP TABLE IF EXISTS fee_config;
 CREATE TABLE fee_config(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
+                           service_id VARCHAR(32)  COMMENT '服务id' ,
+                           client_id VARCHAR(32)  COMMENT '客户id' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
@@ -105,13 +106,12 @@ CREATE TABLE fee_detail(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
                            service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                            client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
-                           fee_config_id VARCHAR(32) NOT NULL   COMMENT '计费配置id' ,
-                           api_call_record_id VARCHAR(32) NOT NULL   COMMENT 'API 调用记录id' ,
                            total_fee DECIMAL(24,6)    COMMENT '总费用' ,
+                           total_request_times INT NOT NULL  DEFAULT 0 COMMENT '总调用次数' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
-CREATE UNIQUE INDEX fee_detail_index ON fee_detail(service_id,client_id,fee_config_id,api_call_record_id);
+CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);

@@ -126,6 +126,7 @@ const baseRoutes = [
                 name: 'fee-detail',
                 meta: {
                     title: '计费概览',
+                    loginAndRefresh: true,
                 },
                 component: () =>
                     import('@views/fee/fee-detail.vue'),

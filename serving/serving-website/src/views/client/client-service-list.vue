@@ -74,13 +74,13 @@
             <el-table-column label="请求地址" min-width="80">
                 <template slot-scope="scope">
                     <el-tooltip class="item" effect="dark" :content="scope.row.url" placement="left-start">
-                        <p v-if="scope.row.url.length">{{ scope.row.url.substring(0, 20) }} ...</p>
-                        <p v-if="scope.row.url.length">{{ scope.row.url }} </p>
+                        <p v-if="scope.row.url.length >= 20">{{ scope.row.url.substring(0, 20) }} ...</p>
+                        <p v-if="scope.row.url.length < 20">{{ scope.row.url }} </p>
                     </el-tooltip>
                 </template>
             </el-table-column>
 
-            <el-table-column label="单价" min-width="50">
+            <el-table-column label="单价(￥)" min-width="50">
                 <template slot-scope="scope">
                     {{ scope.row.unit_price }}
                 </template>

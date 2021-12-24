@@ -2,9 +2,17 @@
     <el-card class="page" shadow="never">
         <el-form class="mb20" inline>
             <el-form-item label="服务名称：">
-                <el-select v-model="search.serviceId" filterable clearable placeholder="请选择服务">
+                <el-input v-model="search.serviceName" clearable/>
+            </el-form-item>
+
+            <el-form-item label="客户名称：">
+                <el-input v-model="search.clientName" clearable/>
+            </el-form-item>
+
+            <el-form-item label="服务类型：">
+                <el-select v-model="search.serviceType" clearable placeholder="请选择服务类型">
                     <el-option
-                        v-for="item in services"
+                        v-for="item in serviceTypes"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -12,16 +20,17 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="客户名称：">
-                <el-select v-model="search.clientId" filterable clearable placeholder="请选择客户">
+            <el-form-item label="统计方式：">
+                <el-select v-model="search.queryDateType" clearable placeholder="请选择统计方式">
                     <el-option
-                        v-for="item in clients"
+                        v-for="item in queryDateTypes"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
                     </el-option>
                 </el-select>
             </el-form-item>
+
             <el-form-item label="创建时间：">
                 <div class="demo-basic">
                     <el-time-picker
@@ -54,51 +63,53 @@
             <div slot="empty">
                 <TableEmptyData/>
             </div>
-            <el-table-column label="服务名称" min-width="80">
+
+            <el-table-column label="日期" min-width="50">
                 <template slot-scope="scope">
-                    <p class="id">{{ scope.row.service_name }}</p>
+                    <p>{{ scope.row.query_date }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="客户名称" min-width="50">
+
+            <el-table-column label="服务名称" min-width="80">
+                <template slot-scope="scope">
+                    <p>{{ scope.row.service_name }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column label="客户名称" min-width="80">
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="服务类型" min-width="80">
+            <el-table-column label="服务类型" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ serviceType[scope.row.service_type] }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总调用次数" min-width="80">
+            <el-table-column label="总调用次数" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_request_times }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总成功次数" min-width="60">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.total_success_times }}</p>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="总失败次数" min-width="60">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.total_fail_times }}</p>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="单价(￥)/次" min-width="60">
+            <el-table-column label="单价(￥)/次" min-width="40">
                 <template slot-scope="scope">
                     <p>{{ scope.row.unit_price }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总耗时(s)" min-width="60">
+            <el-table-column label="付费类型" min-width="50">
                 <template slot-scope="scope">
-                    <p>{{ scope.row.total_spend }}</p>
+                    <p>{{ payTypes[scope.row.pay_type] }}</p>
                 </template>
             </el-table-column>
+
+            <el-table-column label="总计(￥)" min-width="60">
+                <template slot-scope="scope">
+                    <p>{{ scope.row.total_fee }}</p>
+                </template>
+            </el-table-column>
+
         </el-table>
         <div
             v-if="pagination.total"
@@ -133,8 +144,10 @@ export default {
             services: [],
             clients: [],
             search: {
-                serviceId: '',
-                clientId: '',
+                serviceName: '',
+                clientName: '',
+                serviceType: '',
+                queryDateType: '',
                 startTime: '',
                 endTime: '',
             },
@@ -142,12 +155,71 @@ export default {
             clientId: '',
             startTime: '',
             endTime: '',
-            getListApi: '/requeststatistics/query-list',
+            getListApi: '/feedetail/query-list',
             serviceType: {
                 1: "匿踪查询",
                 2: "交集查询",
                 3: "安全聚合",
             },
+            serviceTypes: [
+                {value: '1', label: "匿踪查询"},
+                {value: '2', label: "交集查询"},
+                {value: '3', label: "安全聚合"},
+            ],
+            queryDateTypes: [
+                {value: '1', label: "按年"},
+                {value: '2', label: "按月"},
+                {value: '3', label: "按日"},
+            ],
+            payTypes: {
+                1: "预付费",
+                0: "后付费"
+            },
+        }
+    },
+
+    created() {
+        this.getServices()
+        this.getClients()
+    },
+
+    methods: {
+        handleServices(data) {
+            for (let i = 0; i < data.length; i++) {
+                this.services.push({
+                    label: data[i].name,
+                    value: data[i].id
+                })
+            }
+        },
+
+        handleClients(data) {
+            for (let i = 0; i < data.length; i++) {
+                this.clients.push({
+                    label: data[i].name,
+                    value: data[i].id
+                })
+            }
+        },
+
+        async getServices() {
+            const {code, data} = await this.$http.post({
+                url: '/service/query',
+            });
+
+            if (code === 0) {
+                this.handleServices(data.list)
+            }
+        },
+
+        async getClients() {
+            const {code, data} = await this.$http.post({
+                url: '/client/query-list',
+            });
+
+            if (code === 0) {
+                this.handleClients(data.list)
+            }
         }
     },
 }

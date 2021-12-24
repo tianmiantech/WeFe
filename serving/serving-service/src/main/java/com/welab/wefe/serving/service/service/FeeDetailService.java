@@ -1,8 +1,8 @@
 package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.serving.service.api.feedetail.SaveApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.FeeDetailRepository;
+import com.welab.wefe.serving.service.dto.FeeDetailInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +12,7 @@ public class FeeDetailService {
     @Autowired
     private FeeDetailRepository feeDetailRepository;
 
-
-    public void save(SaveApi.Input input) {
+    public void save(FeeDetailInput input) {
 
         FeeDetailMysqlModel model = feeDetailRepository.findOne("id", input.getId(), FeeDetailMysqlModel.class);
 
@@ -24,8 +23,7 @@ public class FeeDetailService {
         model.setServiceId(input.getServiceId());
         model.setClientId(input.getClientId());
         model.setTotalFee(input.getTotalFee());
-        model.setFeeConfigId(input.getFeeConfigId());
-        model.setApiCallRecordId(input.getApiCallRecordId());
+        model.setTotalRequestTimes(input.getTotalRequestTimes());
 
         feeDetailRepository.save(model);
     }

@@ -22,6 +22,7 @@
                     </el-option>
                 </el-select>
             </el-form-item>
+
             <el-form-item label="创建时间：">
                 <div class="demo-basic">
                     <el-time-picker
@@ -56,45 +57,39 @@
             </div>
             <el-table-column label="服务名称" min-width="80">
                 <template slot-scope="scope">
-                    <p class="id">{{ scope.row.service_name }}</p>
+                    <p >{{ scope.row.service_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="客户名称" min-width="50">
+            <el-table-column label="客户名称" min-width="80">
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="服务类型" min-width="80">
+            <el-table-column label="服务类型" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ serviceType[scope.row.service_type] }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总调用次数" min-width="80">
+            <el-table-column label="总调用次数" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_request_times }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总成功次数" min-width="60">
+            <el-table-column label="总成功次数" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_success_times }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总失败次数" min-width="60">
+            <el-table-column label="总失败次数" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_fail_times }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="单价(￥)/次" min-width="60">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.unit_price }}</p>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="总耗时(s)" min-width="60">
+            <el-table-column label="总耗时(s)" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_spend }}</p>
                 </template>
@@ -139,10 +134,6 @@ export default {
                 startTime: '',
                 endTime: '',
             },
-            serviceId: '',
-            clientId: '',
-            startTime: '',
-            endTime: '',
             getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: "匿踪查询",
@@ -150,7 +141,6 @@ export default {
                 3: "安全聚合",
             },
         }
-
     },
 
     created() {

@@ -15,17 +15,17 @@ public class RequestStatisticsMysqlModel{
     /**
      * 总调用次数
      */
-    private Integer totalRequestTimes;
+    private Long totalRequestTimes;
 
     /**
      * 总失败次数
      */
-    private Integer totalFailTimes;
+    private Long totalFailTimes;
 
     /**
      * 总成功次数
      */
-    private Integer totalSuccessTimes;
+    private Long totalSuccessTimes;
 
     /**
      * 服务名称
@@ -43,11 +43,6 @@ public class RequestStatisticsMysqlModel{
     private Integer serviceType;
 
     /**
-     * 单价
-     */
-    private Double unitPrice;
-
-    /**
      * 总耗时
      */
     private long totalSpend;
@@ -60,35 +55,27 @@ public class RequestStatisticsMysqlModel{
         this.id = id;
     }
 
-    public long getTotalSpend() {
-        return totalSpend;
-    }
-
-    public void setTotalSpend(long totalSpend) {
-        this.totalSpend = totalSpend;
-    }
-
-    public Integer getTotalRequestTimes() {
+    public Long getTotalRequestTimes() {
         return totalRequestTimes;
     }
 
-    public void setTotalRequestTimes(Integer totalRequestTimes) {
+    public void setTotalRequestTimes(Long totalRequestTimes) {
         this.totalRequestTimes = totalRequestTimes;
     }
 
-    public Integer getTotalFailTimes() {
+    public Long getTotalFailTimes() {
         return totalFailTimes;
     }
 
-    public void setTotalFailTimes(Integer totalFailTimes) {
+    public void setTotalFailTimes(Long totalFailTimes) {
         this.totalFailTimes = totalFailTimes;
     }
 
-    public Integer getTotalSuccessTimes() {
+    public Long getTotalSuccessTimes() {
         return totalSuccessTimes;
     }
 
-    public void setTotalSuccessTimes(Integer totalSuccessTimes) {
+    public void setTotalSuccessTimes(Long totalSuccessTimes) {
         this.totalSuccessTimes = totalSuccessTimes;
     }
 
@@ -116,12 +103,11 @@ public class RequestStatisticsMysqlModel{
         this.serviceType = serviceType;
     }
 
-    public Double getUnitPrice() {
-        return unitPrice;
+    public long getTotalSpend() {
+        return totalSpend;
     }
 
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setTotalSpend(long totalSpend) {
+        this.totalSpend = totalSpend;
     }
-
 }
