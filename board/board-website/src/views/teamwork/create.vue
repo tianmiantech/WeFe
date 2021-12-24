@@ -100,11 +100,11 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: 'data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
@@ -184,11 +184,11 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
@@ -266,11 +266,11 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
@@ -552,7 +552,7 @@
                 this.dataSets.list = $data_set.map(row => {
                     return {
                         ...row,
-                        data_set_id: row.id,
+                        data_set_id: row.data_resource_id,
                     };
                 });
                 ref.show = true;
@@ -568,7 +568,6 @@
 
                 if (batchlist.length) {
                     batchlist.forEach(item => {
-                        item.id = item.id || item.data_set_id;
                         list.push(item);
                     });
                 }
@@ -579,7 +578,7 @@
 
                 const row = role === 'promoter_creator' ? this.promoter : role === 'promoter' ? this.form.promoterList[index] : this.form.memberList[index];
                 const list = row.$data_set;
-                const has = list.find(row => row.id === item.id);
+                const has = list.find(row => row.data_resource_id === item.data_resource_id);
 
                 if(!has) {
                     list.push(item);
@@ -624,7 +623,7 @@
                         promoterDataSetList.push({
                             member_role:        'promoter',
                             member_id:          this.userInfo.member_id,
-                            data_set_id:        data.id,
+                            data_set_id:        data.data_resource_id,
                             data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
