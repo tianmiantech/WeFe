@@ -114,6 +114,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String joinCollectionName) {
 
         String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
+        if(joinCollectionNameAlias.startsWith("_")){
+            joinCollectionNameAlias = joinCollectionNameAlias.replaceFirst("_","");
+        }
+
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(joinCollectionName).
                 localField("data_resource_id").
@@ -250,5 +254,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
+
 
 }
