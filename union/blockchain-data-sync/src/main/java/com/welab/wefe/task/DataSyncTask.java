@@ -156,15 +156,16 @@ public class DataSyncTask {
          * Sync block data
          */
         private void startSync(long blockNumber) throws Exception {
-            List<EventBO> eventBOList;
-            int retryCount = 10;
-            do {
-                retryCount--;
+            for (int i = 0; i < 6; i++) {
                 // get block by block number
                 BcosBlock.Block block = BlockUtil.getBlock(this.client, new BigInteger(String.valueOf(blockNumber)));
                 BlockInfoBO blockInfoBO = BlockInfoParser.create(block).parse();
 
-                eventBOList = blockInfoBO.getEventBOList();
+                if (CollectionUtils.isEmpty(blockInfoBO.getEventBOList())) {
+                    // retry
+                    Thread.sleep(500);
+                    continue;
+                }
 
                 BlockInfoBO filterBlockInfoBO = filterBlockInfoBO(blockInfoBO);
 
@@ -175,7 +176,7 @@ public class DataSyncTask {
                 saveBlockSyncContractHeight(filterBlockInfoBO);
 
                 saveBlockDetailInfo(blockInfoBO);
-            } while (CollectionUtils.isEmpty(eventBOList) || retryCount > 0);
+            }
         }
 
         /**
