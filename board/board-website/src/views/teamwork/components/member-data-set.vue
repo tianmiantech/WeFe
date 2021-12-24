@@ -202,17 +202,19 @@
                     width="230"
                 >
                     <template v-slot="scope">
-                        <span v-if="scope.row.audit_status === 'auditing'" class="color-danger mr10">(待审核)</span>
-                        <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: form.project_type === 'DeepLearning' ? 'img' : 'csv' } }">
-                            {{ scope.row.data_set.name }}
-                        </router-link>
-                        <p class="p-id pt5">{{ scope.row.data_set_id }}</p>
+                        <template v-if="scope.row.data_set">
+                            <span v-if="scope.row.audit_status === 'auditing'" class="color-danger mr10">(待审核)</span>
+                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: form.project_type === 'DeepLearning' ? 'img' : 'csv' } }">
+                                {{ scope.row.data_set.name }}
+                            </router-link>
+                            <p class="p-id pt5">{{ scope.row.data_set_id }}</p>
+                        </template>
                     </template>
                 </el-table-column>
 
                 <el-table-column label="关键词">
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set.tags">
+                        <template v-if="scope.row.data_set && scope.row.data_set.tags">
                             <template v-for="(item, index) in scope.row.data_set.tags.split(',')">
                                 <el-tag
                                     v-if="item"
@@ -228,9 +230,11 @@
 
                 <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量">
                     <template v-slot="scope">
-                        特征量：{{ scope.row.data_set.feature_count }}
-                        <br>
-                        样本量：{{ scope.row.data_set.row_count }}
+                        <template v-if="scope.row.data_set">
+                            特征量：{{ scope.row.data_set.feature_count }}
+                            <br>
+                            样本量：{{ scope.row.data_set.row_count }}
+                        </template>
                     </template>
                 </el-table-column>
 
@@ -241,7 +245,9 @@
                     width="100"
                 >
                     <template v-slot="scope">
-                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        <template v-if="scope.row.data_set">
+                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
                     </template>
                 </el-table-column>
 
@@ -251,7 +257,7 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set.total_data_count }}
+                        {{ scope.row.data_set ? scope.row.data_set.total_data_count : 0 }}
                     </template>
                 </el-table-column>
 
@@ -262,7 +268,9 @@
                     width="100"
                 >
                     <template v-slot="scope">
-                        {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
+                        <template v-if="scope.row.data_set">
+                            {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
+                        </template>
                     </template>
                 </el-table-column>
 
@@ -271,7 +279,7 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set.usage_count_in_job }}
+                        {{ scope.row.data_set ? scope.row.data_set.usage_count_in_job : 0 }}
                     </template>
                 </el-table-column>
 
@@ -606,7 +614,7 @@
                             vData.batchDataSetList.push({
                                 member_role:        row.member_role,
                                 member_id:          row.member_id,
-                                data_set_id:        item.id || item.data_set_id,
+                                data_set_id:        item.data_resource_id,
                                 data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                             });
                         });
@@ -640,7 +648,7 @@
                                     {
                                         member_role:        row.member_role,
                                         member_id:          row.member_id,
-                                        data_set_id:        item.id,
+                                        data_set_id:        item.data_resource_id,
                                         data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
                                     },
                                 ],
