@@ -48,5 +48,6 @@ class Api(BaseApi):
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
         apply_result.updated_time = current_datetime()
-        apply_result.save()
+        schedule_logger().info("save apply result:{}".format(apply_result))
+        JobApplyResultDao.save(apply_result)
         return BaseApiOutput.success(resp)
