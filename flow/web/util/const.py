@@ -37,7 +37,7 @@ class ServiceType:
 
 class ServiceMeta:
     HOST = "0.0.0.0"
-    PORT = "8080"
+    PORT = "5000"
 
 
 SYNV_TIME = 30
