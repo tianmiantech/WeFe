@@ -38,7 +38,9 @@ class Api(BaseApi):
         schedule_logger().info("get request apply_callback_api:{},{},{},{},{}".format(input.job_id,input.task_id,input.server_endpoint,input.aggregator_endpoint,input.aggregator_assignee))
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
+        force_insert = False
         if apply_result is None:
+            force_insert = True
             apply_result = JobApplyResult()
             apply_result.id = str(uuid.uuid1()).replace("-", "")
             apply_result.job_id = input.job_id
@@ -48,6 +50,6 @@ class Api(BaseApi):
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
         apply_result.updated_time = current_datetime()
-        schedule_logger().info("save apply result:{}".format(apply_result))
-        JobApplyResultDao.save(apply_result)
+        schedule_logger().info("save apply result:{}".format(apply_result.id))
+        JobApplyResultDao.save(apply_result, force_insert=force_insert)
         return BaseApiOutput.success(resp)
