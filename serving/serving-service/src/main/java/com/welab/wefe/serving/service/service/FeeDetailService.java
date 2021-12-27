@@ -6,16 +6,17 @@ import com.welab.wefe.serving.service.dto.FeeDetailInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class FeeDetailService {
 
     @Autowired
     private FeeDetailRepository feeDetailRepository;
 
-    public void save(FeeDetailInput input) {
+    public void save(FeeDetailMysqlModel input) {
 
         FeeDetailMysqlModel model = feeDetailRepository.findOne("id", input.getId(), FeeDetailMysqlModel.class);
-
         if (null == model) {
             model = new FeeDetailMysqlModel();
         }
@@ -24,6 +25,7 @@ public class FeeDetailService {
         model.setClientId(input.getClientId());
         model.setTotalFee(input.getTotalFee());
         model.setTotalRequestTimes(input.getTotalRequestTimes());
+        model.setCreatedTime(new Date());
 
         feeDetailRepository.save(model);
     }

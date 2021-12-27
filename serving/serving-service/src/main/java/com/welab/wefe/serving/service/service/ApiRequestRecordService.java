@@ -1,11 +1,13 @@
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author ivenn.zheng
@@ -29,12 +31,15 @@ public class ApiRequestRecordService {
         apiRequestRecordRepository.save(model);
     }
 
+    public List<ApiRequestRecordMysqlModel> getList(Date startTime, Date endTime) {
 
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .betweenAndDate("createdTime", startTime.getTime(), endTime.getTime())
+                .build(ApiRequestRecordMysqlModel.class);
 
-
-
-
-
+        return apiRequestRecordRepository.findAll(where);
+    }
 
 
 }
