@@ -72,7 +72,8 @@
                     <el-option
                         v-for="item in vData.sourceTypeList"
                         :key="item.label"
-                        :value="item.label"
+                        :value="item.value"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
@@ -212,7 +213,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],

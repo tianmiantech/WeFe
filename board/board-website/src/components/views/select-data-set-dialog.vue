@@ -281,9 +281,11 @@
 
                 }
 
-                const $ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {

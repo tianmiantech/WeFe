@@ -22,7 +22,7 @@
 
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -46,29 +46,26 @@
         </el-table-column>
         <el-table-column label="可见性" align="center">
             <template v-slot="scope">
-                <span
-                    v-if="scope.row.public_level === 'Public'"
-                >
+                <span v-if="scope.row.public_level === 'Public'">
                     所有成员可见
                 </span>
-                <span
-                    v-else-if="scope.row.public_level === 'OnlyMyself'"
-                >
+                <span v-else-if="scope.row.public_level === 'OnlyMyself'">
                     仅自己可见
                 </span>
-                <span
-                    v-else
-                >
+                <span v-else>
                     指定成员可见
                 </span>
             </template>
         </el-table-column>
         <el-table-column
             label="资源类型"
-            prop="data_resource_type"
             width="130"
             align="center"
-        />
+        >
+            <template v-slot="scope">
+                {{ dataResourceTypeMap[scope.row.data_resource_type].label }}
+            </template>
+        </el-table-column>
         <el-table-column
             label="任务类型"
             width="100"
@@ -142,12 +139,10 @@
             min-width="250"
         >
             <template v-slot="scope">
-                <router-link
-                    :to="{
-                        name: 'data-update',
-                        query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }
-                    }"
-                >
+                <router-link :to="{
+                    name: 'data-update',
+                    query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
+                }">
                     <el-button type="primary">
                         编辑
                     </el-button>
@@ -205,9 +200,23 @@
         },
         data() {
             return {
-                getListApi:    '/data_resource/query',
-                defaultSearch: false,
-                watchRoute:    false,
+                getListApi:          '/data_resource/query',
+                defaultSearch:       false,
+                watchRoute:          false,
+                dataResourceTypeMap: {
+                    BloomFilter: {
+                        label: '布隆过滤器',
+                        type:  'BloomFilter',
+                    },
+                    ImageDataSet: {
+                        label: 'ImageDataSet',
+                        type:  'img',
+                    },
+                    TableDataSet: {
+                        label: 'TableDataSet',
+                        type:  'csv',
+                    },
+                },
             };
         },
         methods: {
@@ -246,13 +255,17 @@
                     }
 
                     this.$confirm('警告', {
+                        title:                    '警告',
                         type:                     'warning',
                         dangerouslyUseHTMLString: true,
                         message,
                     }).then(async () => {
-                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete'
-                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete'
-                                : '/data_set/delete';
+                        const map = {
+                            TableDataSet: '/table_data_set/delete',
+                            ImageDataSet: '/image_data_set/delete',
+                            BloomFilter:  '/bloom_filter/delete',
+                        };
+                        const url = map[row.data_resource_type];
                         const { code } = await this.$http.post({
                             url,
                             data: {

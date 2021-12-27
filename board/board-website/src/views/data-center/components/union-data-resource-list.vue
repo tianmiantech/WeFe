@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type] }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -65,19 +65,13 @@
         </el-table-column>
         <el-table-column label="可见性" align="center">
             <template v-slot="scope">
-                <span
-                    v-if="scope.row.public_level === 'Public'"
-                >
+                <span v-if="scope.row.public_level === 'Public'">
                     所有成员可见
                 </span>
-                <span
-                    v-else-if="scope.row.public_level === 'OnlyMyself'"
-                >
+                <span v-else-if="scope.row.public_level === 'OnlyMyself'">
                     仅自己可见
                 </span>
-                <span
-                    v-else
-                >
+                <span v-else>
                     指定成员可见
                 </span>
             </template>
@@ -184,10 +178,15 @@
         emits: ['add-data-set', 'check-card'],
         data() {
             return {
-                getListApi:    '/union/data_resource/query',
-                defaultSearch: false,
-                watchRoute:    false,
-                turnPageRoute: false,
+                getListApi:          '/union/data_resource/query',
+                defaultSearch:       false,
+                watchRoute:          false,
+                turnPageRoute:       false,
+                dataResourceTypeMap: {
+                    BloomFilter:  'BloomFilter',
+                    ImageDataSet: 'img',
+                    TableDataSet: 'csv',
+                },
             };
         },
         computed: {

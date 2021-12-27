@@ -90,30 +90,39 @@
             </template>
         </el-descriptions>
 
-        <el-divider content-position="left">
-            数据集信息
-        </el-divider>
+        <p class="mt10" v-if="addDataType === 'BloomFilter'">
+            融合公式: {{ dataInfo.hash_function }}
+        </p>
 
-        <preview-image-list v-if="addDataType === 'img'" ref="PreviewImageListRef" />
+        <template v-else>
+            <el-divider content-position="left">
+                数据集信息
+            </el-divider>
 
-        <el-tabs
-            v-if="addDataType === 'csv'"
-            class="mt20"
-            type="border-card"
-            @tab-click="tabChange"
-        >
-            <el-tab-pane label="特征列表">
-                <div class="el-descriptions">
-                    <EmptyData v-if="data_list.length === 0" />
-                    <DataSetPreview v-else ref="DataSetFeatures" />
-                </div>
-            </el-tab-pane>
+            <preview-image-list
+                v-if="addDataType === 'img'"
+                ref="PreviewImageListRef"
+            />
 
-            <el-tab-pane name="preview" label="数据预览">
-                <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
-                <DataSetPreview ref="DataSetPreview" />
-            </el-tab-pane>
-        </el-tabs>
+            <el-tabs
+                v-if="addDataType === 'csv'"
+                class="mt20"
+                type="border-card"
+                @tab-click="tabChange"
+            >
+                <el-tab-pane label="特征列表">
+                    <div class="el-descriptions">
+                        <EmptyData v-if="data_list.length === 0" />
+                        <DataSetPreview v-else ref="DataSetFeatures" />
+                    </div>
+                </el-tab-pane>
+
+                <el-tab-pane name="preview" label="数据预览">
+                    <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
+                    <DataSetPreview ref="DataSetPreview" />
+                </el-tab-pane>
+            </el-tabs>
+        </template>
     </el-card>
 </template>
 
@@ -130,7 +139,7 @@
             return {
                 loading:     false,
                 previewed:   false,
-                id:          this.$route.query.id,
+                id:          '',
                 data_list:   [],
                 dataInfo:    {},
                 addDataType: 'csv',
@@ -152,7 +161,10 @@
             },
         },
         created() {
-            this.addDataType = this.$route.query.type || 'csv';
+            const { type, id } = this.$route.query;
+
+            this.id = id;
+            this.addDataType = type || 'csv';
             this.getData();
             this.getRelativeProjects();
         },
@@ -220,13 +232,19 @@
 
             async getData() {
                 this.loading = true;
+                const dataResourceTypeMap = {
+                    BloomFilter: '/bloom_filter/detail',
+                    img:         '/image_data_set/detail',
+                    csv:         '/table_data_set/detail',
+                };
                 const { code, data } = await this.$http.get({
-                    url:    this.addDataType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail',
+                    url:    dataResourceTypeMap[this.addDataType],
                     params: {
                         id: this.id,
                     },
                 });
 
+                this.loading = false;
                 if(code === 0) {
                     if (data) {
                         if (this.addDataType === 'img') {
@@ -245,7 +263,6 @@
                     }
 
                 }
-                this.loading = false;
                 if (this.addDataType === 'csv') this.loadDataSetColumnList();
             },
             async getLabelListDistributed(label) {
