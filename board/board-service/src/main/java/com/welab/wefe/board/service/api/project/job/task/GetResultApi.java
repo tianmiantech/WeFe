@@ -39,73 +39,70 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author zane.luo
  */
-@Api(
-        path = "flow/job/task/result",
-        name = "get task result",
-        desc = "Use taskId or flowId + nodeId to get the node execution result."
-)
+@Api(path = "flow/job/task/result", name = "get task result", desc = "Use taskId or flowId + nodeId to get the node execution result.")
 public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResultOutputModel>> {
 
-    @Autowired
-    private TaskService taskService;
+	@Autowired
+	private TaskService taskService;
 
-    @Override
-    protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
+	@Override
+	protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
 
-        List<TaskMySqlModel> tasks = taskService.findAll(input);
-        if (tasks == null || tasks.isEmpty()) {
-            return success();
-        }
-        List<TaskResultOutputModel> results = new ArrayList<>();
-        Set<String> temp = new HashSet<>();
-        for (TaskMySqlModel task : tasks) {
-            String taskConf = task.getTaskConf();
-            JObject taskConfigJson = JObject.create(taskConf);
-            TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
-                    input.type);
-            if (result == null) {
-                result = new TaskResultOutputModel();
-            }
-            // put task info to TaskResultOutputModel
-            result.setStatus(task.getStatus());
-            result.setStartTime(task.getStartTime());
-            result.setFinishTime(task.getFinishTime());
-            result.setMessage(task.getMessage());
-            result.setErrorCause(task.getErrorCause());
-            result.setPosition(task.getPosition());
-            result.setSpend(task.getSpend());
-            result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
-            if (temp.contains(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
+		List<TaskMySqlModel> tasks = taskService.findAll(input);
+		if (tasks == null || tasks.isEmpty()) {
+			return success();
+		}
+		List<TaskResultOutputModel> results = new ArrayList<>();
+		Set<String> temp = new HashSet<>();
+		for (TaskMySqlModel task : tasks) {
+			String taskConf = task.getTaskConf();
+			JObject taskConfigJson = JObject.create(taskConf);
+			TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
+					input.type);
+			if (result == null) {
+				result = new TaskResultOutputModel();
+			}
+			// put task info to TaskResultOutputModel
+			result.setStatus(task.getStatus());
+			result.setStartTime(task.getStartTime());
+			result.setFinishTime(task.getFinishTime());
+			result.setMessage(task.getMessage());
+			result.setErrorCause(task.getErrorCause());
+			result.setPosition(task.getPosition());
+			result.setSpend(task.getSpend());
+			result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
+			if (!temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
 					&& (task.getTaskType() == ComponentType.MixStatistic
 							|| task.getTaskType() == ComponentType.MixBinning
 							|| task.getTaskType() == ComponentType.FillMissingValue
 							|| task.getTaskType() == ComponentType.MixLR)) {
 				continue;
 			}
-			temp.add(result.getResult().toJSONString());
-            results.add(result);
-        }
+//			System.out.println(temp.contains(result.getResult().toJSONString()));
+//			temp.add(result.getResult().toJSONString());
+			System.out.println(result.getResult().toJSONString());
+			results.add(result);
+		}
 
-        return success(results);
-    }
+		return success(results);
+	}
 
+	public static class Input extends DetailApi.Input {
 
-    public static class Input extends DetailApi.Input {
+		@Check(name = "结果类型")
+		private String type;
 
-        @Check(name = "结果类型")
-        private String type;
+		// region getter/setter
 
-        //region getter/setter
+		public String getType() {
+			return type;
+		}
 
-        public String getType() {
-            return type;
-        }
+		public void setType(String type) {
+			this.type = type;
+		}
 
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        //endregion
-    }
+		// endregion
+	}
 
 }
