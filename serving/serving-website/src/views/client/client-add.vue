@@ -4,7 +4,7 @@
 
         <h2 class="title">新增客户</h2>
 
-        <el-form ref="form" :model="client" label-width="100px">
+        <el-form ref="form" :model="client" label-width="88px" >
             <el-form-item label="客户名称">
                 <el-input v-model="client.name"></el-input>
             </el-form-item>
@@ -113,6 +113,11 @@ export default {
 
 <style lang="scss" scoped>
 .title {
+    padding: 15px;
+    margin: 5px;
+}
 
+.el-form-item__content{
+    margin: 5px;
 }
 </style>

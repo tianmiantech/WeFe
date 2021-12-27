@@ -4,8 +4,8 @@
 
         <h2 class="title">新增客户服务</h2>
 
-        <el-form ref="form" :model="clientService">
-            <el-form-item label="服务名称：" label-width="100px">
+        <el-form ref="form" :model="clientService" label-width="102px">
+            <el-form-item label="服务名称：">
                 <el-select v-model="clientService.serviceId" filterable clearable placeholder="请选择服务">
                     <el-option
                         v-for="item in services"
@@ -16,7 +16,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="客户名称：" label-width="100px">
+            <el-form-item label="客户名称：">
                 <el-select v-model="clientService.clientId" filterable clearable placeholder="请选择客户">
                     <el-option
                         v-for="item in clients"
@@ -27,16 +27,11 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item v-for="item in feeConfig" :label="item.key" label-width="100px">
-                {{ item.value }}
-            </el-form-item>
-
-
             <el-form-item>
                 <el-button type="button" @click="dialogFormVisible = true">自定义计费规则</el-button>
             </el-form-item>
 
-            <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
+            <el-dialog title="计费规则" :visible.sync="dialogFormVisible" >
                 <el-form :model="form">
                     <el-form-item label="单价：" :label-width="formLabelWidth">
                         <el-input v-model="form.unitPrice"></el-input>
@@ -52,23 +47,13 @@
                 </div>
             </el-dialog>
 
-            <!--            <el-form-item label="活动名称">-->
-            <!--                <el-input v-model="form.name" ></el-input>-->
-            <!--            </el-form-item>-->
-
             <el-form-item>
                 <el-radio v-model="clientService.status" label="1">启用</el-radio>
                 <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>
 
             </el-form-item>
             <el-form-item>
-                <!--                <router-link-->
-                <!--                    :to="{-->
-                <!--                            name: 'client-service-list',-->
-                <!--                        }"-->
-                <!--                >-->
                 <el-button type="primary" @click="onSubmit">提交</el-button>
-                <!--                </router-link>-->
                 <router-link
                     :to="{
                             name: 'client-service-list',
@@ -78,7 +63,6 @@
                 </router-link>
             </el-form-item>
         </el-form>
-
 
     </el-card>
 
@@ -226,6 +210,7 @@ export default {
 
 <style lang="scss" scoped>
 .title {
-
+    padding: 15px;
+    margin: 5px;
 }
 </style>

@@ -43,10 +43,10 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
             "(SELECT cs.id , s.name as serviceName, c.name as clientName, cs.status ," +
             " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url, " +
             "fc.unit_price as unitPrice, fc.pay_type as payType " +
-            "FROM wefe_serving.client_service cs " +
+            "FROM client_service cs " +
             "left join service s on cs.service_id = s.id " +
             "left join client c on cs.client_id = c.id " +
-            "left join fee_config fc on cs.fee_config_id = fc.id ) as t " +
+            "left join fee_config fc on cs.service_id = fc.service_id and cs.client_id = fc.client_id) as t " +
             "where if(:service_name != '' ,t.serviceName like CONCAT('%',:service_name,'%'), 1=1) " +
             "and if(:client_name != '' ,t.clientName like CONCAT('%',:client_name,'%') , 1=1) " +
             "and if(:status is not null ,t.status = :status, 1=1) " +
