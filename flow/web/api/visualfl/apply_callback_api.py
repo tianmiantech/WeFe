@@ -28,7 +28,7 @@ class Input(BaseApiInput):
     server_endpoint: str
     aggregator_endpoint: str
     aggregator_assignee: str
-    status:str
+    # status:str
 
     def check(self):
         super().required([self.task_id])
@@ -46,7 +46,7 @@ class Api(BaseApi):
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
             apply_result.created_time = current_datetime()
-        apply_result.status = input.status
+        # apply_result.status = input.status
         apply_result.server_endpoint = input.server_endpoint
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee

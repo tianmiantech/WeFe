@@ -84,6 +84,7 @@ class RunVisualFLTaskAction:
                 apply_result.server_endpoint = result_json['server_endpoint']
                 apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
                 apply_result.aggregator_assignee = result_json['aggregator_assignee']
+        schedule_logger(self.running_job).info("begin submit_task : {},{}".format(self.job.job_id, self.job.my_role))
         response = self.submit_task(apply_result)
         if response:
             schedule_logger(self.running_job).info(
