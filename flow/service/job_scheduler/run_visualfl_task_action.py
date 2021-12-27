@@ -133,10 +133,14 @@ class RunVisualFLTaskAction:
         return JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
 
     def is_task_progress_done(self) -> bool:
-        apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None or apply_result.status == 'wait_run' or apply_result.status == 'running':
-            return False
-        return True
+        # apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
+        # if apply_result is None or apply_result.status == 'wait_run' or apply_result.status == 'running':
+        #     return False
+        # return True
+        self.task = TaskDao.find_one_by_task(self.task)
+        if self.task.status != TaskStatus.WAITRUN and self.task.status != TaskStatus.RUNNING:
+            return True
+        return False
 
     # submit task
     def submit_task(self, apply_result: JobApplyResult):
