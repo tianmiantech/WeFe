@@ -69,8 +69,8 @@ class RunVisualFLTaskAction:
                 if member_id == GlobalSetting.get_member_id():
                     continue
                 schedule_logger(self.running_job).info(
-                    "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
-                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=str(aggregator_info), session_id = session_id)
+                    "send aggregator_info to {}, content is : {}".format(member_id, json.dumps(aggregator_info)))
+                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=json.dumps(aggregator_info), session_id = session_id)
         # receive
         else:
             result = None
