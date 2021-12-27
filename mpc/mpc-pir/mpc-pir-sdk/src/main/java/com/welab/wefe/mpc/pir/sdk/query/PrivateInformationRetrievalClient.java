@@ -35,6 +35,8 @@ import java.nio.charset.Charset;
 
 /**
  * 使用隐私信息检索协议查询用户数据
+ *
+ * @author eval
  */
 public class PrivateInformationRetrievalClient extends BasePrivateInformationRetrieval {
     private static final Logger LOG = LoggerFactory.getLogger(PrivateInformationRetrievalClient.class);

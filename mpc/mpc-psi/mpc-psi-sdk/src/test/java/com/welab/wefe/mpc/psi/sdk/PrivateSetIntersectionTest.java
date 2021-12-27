@@ -22,7 +22,6 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -37,7 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 
 /**
  * @Author: eval
@@ -49,11 +49,6 @@ import static org.mockito.Matchers.*;
         DiffieHellmanUtil.class
 })
 public class PrivateSetIntersectionTest {
-
-    @Before
-    public void prepare() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     private QueryPrivateSetIntersectionRequest generateRequest(DiffieHellmanKey diffieHellmanKey, List<String> ids, BigInteger clientKey) {
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
@@ -83,7 +78,7 @@ public class PrivateSetIntersectionTest {
     }
 
     @Test
-    public void testQuery() {
+    public void testQuery() throws Exception {
         int keySize = 1024;
         int clientSeed = 33333;
         int serverSeed = 44444;
@@ -108,11 +103,9 @@ public class PrivateSetIntersectionTest {
         MockitoAnnotations.initMocks(this);
         Mockito.when(PrivateSetIntersectionService.handle(anyString(), anyObject())).thenReturn(response);
 
-        PowerMockito.mockStatic(DiffieHellmanUtil.class);
-        Mockito.when(DiffieHellmanUtil.generateKey(keySize)).thenReturn(diffieHellmanKey);
-        Mockito.when(DiffieHellmanUtil.generateRandomKey(keySize)).thenReturn(clientKey);
-        Mockito.when(DiffieHellmanUtil.encrypt(anyString(), anyObject(), anyObject(), anyBoolean())).thenCallRealMethod();
-        Mockito.when(DiffieHellmanUtil.encrypt(anyString(), anyObject(), anyObject())).thenCallRealMethod();
+        PowerMockito.spy(DiffieHellmanUtil.class);
+        PowerMockito.doReturn(diffieHellmanKey).when(DiffieHellmanUtil.class, "generateKey", keySize);
+        PowerMockito.doReturn(clientKey).when(DiffieHellmanUtil.class, "generateRandomKey", keySize);
 
         PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
         List<String> result = privateSetIntersection.query(url, ids, keySize);

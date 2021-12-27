@@ -46,6 +46,7 @@ public class PrivateInformationRetrievalServer extends BasePrivateInformationRet
     @Override
     public void setUuid(String uuid) {
         super.setUuid(uuid);
+        initObliviousTransfer();
     }
 
     @Override

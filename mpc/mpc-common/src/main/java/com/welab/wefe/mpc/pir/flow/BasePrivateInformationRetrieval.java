@@ -19,6 +19,9 @@ package com.welab.wefe.mpc.pir.flow;
 
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
 
+/**
+ * @author eval
+ */
 public abstract class BasePrivateInformationRetrieval {
     public String uuid;
 
@@ -28,5 +31,8 @@ public abstract class BasePrivateInformationRetrieval {
         this.uuid = uuid;
     }
 
+    /**
+     * 初始化
+     */
     public abstract void initObliviousTransfer();
 }
