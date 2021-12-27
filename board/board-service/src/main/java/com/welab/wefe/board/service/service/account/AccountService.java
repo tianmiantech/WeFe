@@ -356,6 +356,10 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
+        if (model.getSuperAdminRole()){
+            throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
+        }
+
         String salt = createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
