@@ -21,3 +21,9 @@ class JobApplyResultDao:
     def find_one_by_job_id(job_id, task_id) -> Job:
         with DB.connection_context():
             return JobApplyResult.get_or_none(JobApplyResult.job_id == job_id, JobApplyResult.task_id == task_id)
+
+    @staticmethod
+    def save(m: JobApplyResult):
+        with DB.connection_context():
+            return m.save()
+

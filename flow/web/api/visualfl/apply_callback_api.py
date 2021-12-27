@@ -20,7 +20,6 @@ from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
 from common.python.utils.log_utils import schedule_logger
-from common.python.db.db_models import DB
 
 
 class Input(BaseApiInput):
@@ -39,9 +38,7 @@ class Api(BaseApi):
         schedule_logger().info("get request apply_callback_api:{},{},{},{},{}".format(input.job_id,input.task_id,input.server_endpoint,input.aggregator_endpoint,input.aggregator_assignee))
         resp = 'success'
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
-        schedule_logger().info(
-            "get apply_result in db , {}".format(apply_result))
-        if apply_result is None or apply_result.id is None:
+        if apply_result is None:
             apply_result = JobApplyResult()
             apply_result.id = str(uuid.uuid1())
             apply_result.job_id = input.job_id
@@ -51,6 +48,6 @@ class Api(BaseApi):
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
         apply_result.updated_time = current_datetime()
-        with DB.connection_context():
-            apply_result.save()
+        schedule_logger().info("save apply result:{}".format(apply_result))
+        JobApplyResultDao.save(apply_result)
         return BaseApiOutput.success(resp)
