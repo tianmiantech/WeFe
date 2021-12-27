@@ -369,7 +369,7 @@
                     item.$unchanged = false;
                     this.list[index] = item;
                     this.oldCheckedList.find(sitem => {
-                        if (item.id === sitem.data_set_id ) {
+                        if (item.data_resource_id === sitem.data_set_id ) {
                             item.$checked = true;
                             item.$unchanged = true;
                         }
