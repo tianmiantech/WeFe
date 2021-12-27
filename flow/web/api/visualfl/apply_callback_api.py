@@ -20,6 +20,7 @@ from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
 from common.python.utils.log_utils import schedule_logger
+from common.python.db.db_models import DB
 
 
 class Input(BaseApiInput):
@@ -50,5 +51,6 @@ class Api(BaseApi):
         apply_result.aggregator_endpoint = input.aggregator_endpoint
         apply_result.aggregator_assignee = input.aggregator_assignee
         apply_result.updated_time = current_datetime()
-        apply_result.save()
+        with DB.connection_context():
+            apply_result.save()
         return BaseApiOutput.success(resp)
