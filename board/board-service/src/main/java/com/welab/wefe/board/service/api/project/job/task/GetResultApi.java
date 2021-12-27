@@ -78,9 +78,6 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
 							|| task.getTaskType() == ComponentType.MixLR)) {
 				continue;
 			}
-//			System.out.println(temp.contains(result.getResult().toJSONString()));
-//			temp.add(result.getResult().toJSONString());
-			System.out.println(result.getResult().toJSONString());
 			results.add(result);
 		}
 
