@@ -25,6 +25,8 @@ from common.python.utils.log_utils import schedule_logger
 class Input(BaseApiInput):
     job_id: str
     task_id: str
+    status: str
+    message: str
     server_endpoint: str
     aggregator_endpoint: str
     aggregator_assignee: str
