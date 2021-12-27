@@ -42,7 +42,7 @@ class AppLauncher:
 
         # Update gateway IP whitelist
         AppLauncher.logger.info("repost ip to white list")
-        # GatewayService.report_ip_to_white_list()
+        GatewayService.report_ip_to_white_list()
         AppLauncher.logger.info("---done---")
 
         # When flow restarts, close the previously unfinished job.
