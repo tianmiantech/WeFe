@@ -40,7 +40,7 @@ class Api(BaseApi):
         apply_result = JobApplyResultDao.find_one_by_job_id(input.job_id, input.task_id)
         if apply_result is None:
             apply_result = JobApplyResult()
-            apply_result.id = str(uuid.uuid1())
+            apply_result.id = str(uuid.uuid1()).replace("-", "")
             apply_result.job_id = input.job_id
             apply_result.task_id = input.task_id
             apply_result.created_time = current_datetime()
