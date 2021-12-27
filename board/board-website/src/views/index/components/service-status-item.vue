@@ -25,6 +25,7 @@
                                         <li v-for="item in status.list" :key="item.message" class="service_list">
                                             <p v-if="!item.success" style="color: #f56c6c;">
                                                 <span>{{item.desc}}：</span>
+                                                <br>
                                                 <span>{{item.message}}</span>
                                             </p>
                                             <p v-else>{{item.desc}}</p>
