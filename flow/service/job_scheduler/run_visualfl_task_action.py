@@ -57,9 +57,9 @@ class RunVisualFLTaskAction:
                 raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(
                     self.task.task_type, self.task.task_id, current_datetime())))
             aggregator_info = {
-                'server_endpoint': apply_result.server_endpoint,
-                'aggregator_endpoint': apply_result.aggregator_endpoint,
-                'aggregator_assignee': apply_result.aggregator_assignee
+                "server_endpoint": str(apply_result.server_endpoint),
+                "aggregator_endpoint": str(apply_result.aggregator_endpoint),
+                "aggregator_assignee": str(apply_result.aggregator_assignee)
             }
             task_config_json = json.loads(self.task.task_conf)
             schedule_logger(self.running_job).info("task_config_json = {}".format(task_config_json))
