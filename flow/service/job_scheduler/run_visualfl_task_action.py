@@ -69,8 +69,8 @@ class RunVisualFLTaskAction:
                 if member_id == GlobalSetting.get_member_id():
                     continue
                 schedule_logger(self.running_job).info(
-                    "send aggregator_info to {}, content is : {}".format(member_id, aggregator_info))
-                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=aggregator_info, session_id = session_id)
+                    "send aggregator_info to {}, content is : {}".format(member_id, json.dumps(aggregator_info)))
+                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=json.dumps(aggregator_info), session_id = session_id)
         # receive
         else:
             result = None
@@ -80,9 +80,7 @@ class RunVisualFLTaskAction:
                 time.sleep(3)
             schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
             if result is not None:
-                schedule_logger(self.running_job).info("begin parse receive info , content is : {}".format(result))
                 result_json = json.loads(result)
-                schedule_logger(self.running_job).info("parse receive info , content is : {}".format(result_json))
                 apply_result.server_endpoint = result_json['server_endpoint']
                 apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
                 apply_result.aggregator_assignee = result_json['aggregator_assignee']
