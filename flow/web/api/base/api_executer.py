@@ -35,8 +35,6 @@ class ApiExecutor:
         api_params = ApiExecutor.build_api_params(request)
         # Create api and input instance
         api, input = ApiExecutor.create_api_instance(request)
-        schedule_logger().info(request.path + "======================")
-        schedule_logger().info(api_params)
         if api is None:
             return BaseApiOutput.fail(-1, '未找到 api：' + request.path)
 
@@ -109,8 +107,6 @@ class ApiExecutor:
 
         get_params = request.args
         post_params = request.get_json()
-        schedule_logger().info(request.path + "1======================")
-        schedule_logger().info(post_params)
         all_params = get_params.to_dict()
 
         if post_params is not None:
