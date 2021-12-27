@@ -81,6 +81,7 @@ class RunVisualFLTaskAction:
             schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
             if result is not None:
                 result_json = json.loads(result)
+                schedule_logger(self.running_job).info("parse receive info , content is : {}".format(result_json))
                 apply_result.server_endpoint = result_json['server_endpoint']
                 apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
                 apply_result.aggregator_assignee = result_json['aggregator_assignee']
