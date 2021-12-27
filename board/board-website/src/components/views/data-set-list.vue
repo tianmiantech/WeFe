@@ -76,7 +76,7 @@
             </el-table-column>
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
-                label="任务类型"
+                label="样本分类"
                 prop="for_job_type"
                 width="100"
             >
