@@ -107,6 +107,8 @@
             @deleteDataSetEmit="deleteDataSetEmit"
         />
 
+        <FusionList :form="form" />
+
         <FlowList :form="form" />
 
         <el-card
@@ -117,7 +119,7 @@
             <h3 class="mb10">TopN 展示</h3>
             <TopN ref="topnRef"></TopN>
         </el-card>
-        
+
         <ModelingList
             v-if="form.project_type === 'MachineLearning'"
             ref="ModelingList"
@@ -159,6 +161,7 @@
     import FlowList from './components/flow-list';
     import DerivedList from './components/derived-list';
     import MembersList from './components/members-list';
+    import FusionList from './components/fusion-job/fusion-list';
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
@@ -171,6 +174,7 @@
             FlowList,
             DerivedList,
             MembersList,
+            FusionList,
             ModelingList,
             PromoterProjectSetting,
             ProviderProjectSetting,
@@ -521,13 +525,18 @@
             async serviceStatusCheck(role, member_id) {
                 role.$serviceStatus.all_status_is_success = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                     // cache service current state

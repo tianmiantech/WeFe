@@ -144,7 +144,7 @@ export default (function () {
                         this.vData.list = data.list || [];
                     }
                     this.pagination.total = data.total;
-                    this.afterTableRender(data.list);
+                    data.list && this.afterTableRender(data.list);
                 }
 
                 setTimeout(() => {

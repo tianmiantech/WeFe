@@ -27,6 +27,8 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * @author winter.zou
  */
@@ -47,6 +49,8 @@ public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<P
         private boolean deleted = false;
         @Check(name = "项目ID 主键")
         private String projectId;
+        @Check(name = "flow id 列表")
+        private List<String> flowIdList;
 
 
         public boolean isDeleted() {
@@ -65,5 +69,12 @@ public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<P
             this.projectId = projectId;
         }
 
+        public List<String> getFlowIdList() {
+            return flowIdList;
+        }
+
+        public void setFlowIdList(List<String> flowIdList) {
+            this.flowIdList = flowIdList;
+        }
     }
 }

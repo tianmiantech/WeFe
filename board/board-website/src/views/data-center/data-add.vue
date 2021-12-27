@@ -536,9 +536,8 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                getListApi:    '/union/table_data_set/default_tags',
+                getListApi:    '/union/data_resource/default_tag/query',
                 fillUrlQuery:  false,
-                defaultSearch: true,
                 watchRoute:    false,
                 turnPageRoute: false,
                 tagList:       [],
@@ -549,6 +548,15 @@
                 data_set_header:   [],
                 dataTypeFillVal:   '',
                 data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
+
+                search: {
+                    dataResourceType: '',
+                },
+                sourceTypes: {
+                    csv:    'TableDataSet',
+                    image:  'ImageDataSet',
+                    filter: 'BloomFilter',
+                },
 
                 // help：https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
                 file_upload_options: {
@@ -578,8 +586,11 @@
                     paused:    '已暂停',
                     waiting:   '等待中',
                 },
+                file_upload_attrs: {
+                    accept: 'text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // csv, xls, xlsx
+                },
                 img_upload_attrs: {
-                    accept: '.zip, .rar, .tar, .7z',
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed', // zip, rar, tar, 7z
                 },
 
                 http_upload_filename: '',
@@ -699,10 +710,14 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addDataType = this.$route.query.type || 'csv';
+            const sourceType = this.$route.query.type || 'csv';
+
+            this.search.dataResourceType = this.sourceTypes[sourceType];
+            this.addDataType = sourceType;
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
+            this.getList();
             this.getDataSouceList();
 
             this.$bus.$on('loginAndRefresh', () => {
@@ -1071,7 +1086,6 @@
                 });
 
                 if (code === 0) {
-                    // if (this.addDataType === 'csv') {
                     if (data.repeat_data_count > 0) {
                         this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
@@ -1080,13 +1094,6 @@
                     setTimeout(() => {
                         this.getAddTask(data.data_resource_id);
                     }, 500);
-                    // } else {
-                    //     canLeave = true;
-                    //     this.$router.push({
-                    //         name:  'data-view',
-                    //         query: { id: data.data_resource_id, type: this.addDataType },
-                    //     });
-                    // }
                 }
                 this.loading = false;
             },

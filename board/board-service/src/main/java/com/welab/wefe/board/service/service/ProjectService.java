@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
@@ -46,7 +45,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -927,9 +925,13 @@ public class ProjectService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterProjectMember.getMemberId(), JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output dataInfoOutput = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
+        DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
+                promoterProjectMember.getMemberId(),
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
 
         for (ProjectMemberMySqlModel projectMemberMySqlModel : dataInfoOutput.getProjectMembers()) {
 
@@ -1146,13 +1148,17 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListInProjectApi.Input(projectId), ListInProjectApi.class);
+        ListInProjectApi.Output output = gatewayService.callOtherMemberBoard(
+                callerMemberId,
+                JobMemberRole.provider,
+                ListInProjectApi.class,
+                new ListInProjectApi.Input(projectId),
+                ListInProjectApi.Output.class
+        );
 
         // Find the promoter in the current project from all members of the sender
-        ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)
-                .getJSONList("list")
+        ProjectMemberOutputModel promoterMember = output.getList()
                 .stream()
-                .map(x -> JSONObject.toJavaObject(x, ProjectMemberOutputModel.class))
                 .filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                 .findFirst()
                 .orElse(null);
@@ -1164,11 +1170,13 @@ public class ProjectService extends AbstractService {
         String promoterMemberId = promoterMember.getMemberId();
 
         // Get project details from the promoter
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterMemberId, JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output projectOutputModel = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
-
-        return projectOutputModel;
+        return gatewayService.callOtherMemberBoard(
+                promoterMemberId,
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
     }
 
 

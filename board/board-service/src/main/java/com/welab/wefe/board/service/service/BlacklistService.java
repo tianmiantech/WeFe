@@ -83,7 +83,7 @@ public class BlacklistService extends AbstractService {
     /**
      * Add blacklist
      */
-    public void add(AddApi.Input input) {
+    public void add(AddApi.Input input) throws StatusCodeWithException {
 
         List<BlacklistMysqlModel> list = new ArrayList<>();
         if (input.getMemberIds() != null) {
@@ -105,7 +105,7 @@ public class BlacklistService extends AbstractService {
         gatewayService.refreshMemberBlacklistCache();
     }
 
-    public void deleteFromBlacklist(DeleteApi.Input input) {
+    public void deleteFromBlacklist(DeleteApi.Input input) throws StatusCodeWithException {
         blacklistRepository.deleteById(input.getId());
         CacheObjects.refreshMemberBlacklist();
         // Notify gateway to update blacklist cache

@@ -12,7 +12,7 @@
                     :to="{ path: 'data-add' }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <el-icon class="f12">
                         <elicon-top-right />
                     </el-icon>
@@ -20,18 +20,18 @@
             </div>
         </template>
         <el-table-column label="添加" width="60" v-slot="scope">
-            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="methods.addDataSet($event, scope.row)">
+            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
                 <elicon-folder-add />
             </el-icon>
         </el-table-column>
         <el-table-column
             label="成员"
-            min-width="100"
+            min-width="160"
         >
             <template v-slot="scope">
                 <span
                     class="p-name"
-                    @click="methods.checkCard(scope.row.member_id)"
+                    @click="checkCard(scope.row.member_id)"
                 >
                     <i class="iconfont icon-visiting-card" />
                     {{ scope.row.member_name }}
@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -89,20 +89,7 @@
             align="center"
         />
         <el-table-column
-            label="任务类型"
-            width="100"
-            v-if="search.dataResourceType === 'ImageDataSet'"
-            align="center"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="数据量"
+            label="数据信息"
             width="140"
         >
             <template v-slot="scope">
@@ -110,8 +97,24 @@
                     特征量：{{ scope.row.feature_count }}
                     <br>
                     样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    <el-tag type="success" class="mr5">包含Y</el-tag> 
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                            <elicon-check />
+                        </el-icon>
+                        <el-icon v-else class="el-icon-close" style="color: #f85564">
+                            <elicon-close />
+                        </el-icon>
+                    </span>
                 </p>
-                <p v-else>{{scope.row.total_data_count}}</p>
+                <p v-else>
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    任务类型：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
             </template>
         </el-table-column>
         <el-table-column
@@ -121,27 +124,9 @@
             align="center"
         />
         <el-table-column
-            label="包含Y"
-            width="100"
-            align="center"
-            v-if="search.dataResourceType !== 'ImageDataSet'"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                        <elicon-check />
-                    </el-icon>
-                    <el-icon v-else class="el-icon-close">
-                        <elicon-close />
-                    </el-icon>
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
-        <el-table-column
             label="上传者"
             prop="creator_nickname"
-            min-width="160"
+            min-width="110"
             align="center"
         >
             <template v-slot="scope">
@@ -162,7 +147,7 @@
             :page-size="pagination.page_size"
             :current-page="pagination.page_index"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="methods.currentPageChange"
+            @current-change="currentPageChange"
             @size-change="pageSizeChange"
         />
     </div>
@@ -170,9 +155,7 @@
 
 <script>
     import table from '@src/mixins/table';
-    import { reactive, getCurrentInstance } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-
+    import { mapGetters } from 'vuex';
     export default {
         mixins: [table],
         props:  {
@@ -184,48 +167,30 @@
             },
         },
         emits: ['add-data-set', 'check-card'],
-        setup(props, context) {
-            const { ctx } = getCurrentInstance();
-            const route = useRoute();
-            const router = useRouter();
-            const vData = reactive({
+        data() {
+            return {
                 getListApi:    '/union/data_resource/query',
                 defaultSearch: false,
                 watchRoute:    false,
-            });
-            const methods = {
-                getDataList(opt) {
-                    ctx.search = props.searchField;
-                    ctx.getListApi = vData.getListApi;
-                    ctx.pagination.page_index =+route.query.page_index || 1;
-                    ctx.pagination.page_size =+route.query.page_size || 20;
-                    ctx.getList(opt);
-                },
-                addDataSet(ev, item) {
-                    context.emit('add-data-set', ev, item);
-                },
-                checkCard(id) {
-                    context.emit('check-card', id);
-                },
-                currentPageChange (val) {
-                    if (ctx.watchRoute) {
-                        router.push({
-                            query: {
-                                ...ctx.search,
-                                page_index: val,
-                            },
-                        });
-                    } else {
-                        ctx.pagination.page_index = val;
-                        ctx.getList();
-                    }
-                },
+                turnPageRoute: false,
             };
-
-            return {
-                vData,
-                methods,
-            };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
+        methods: {
+            getDataList(opt) {
+                this.search = this.searchField;
+                this.pagination.page_index = +this.$route.query.page_index || 1;
+                this.pagination.page_size = +this.$route.query.page_size || 20;
+                this.getList(opt);
+            },
+            addDataSet(ev, item) {
+                this.$emit('add-data-set', ev, item);
+            },
+            checkCard(id) {
+                this.$emit('check-card', id);
+            },
         },
     };
 </script>

@@ -5,5 +5,5 @@ Content-Type: application/json
 token: {{token}}
 
 {
-  "serviceType": "BoardService"
+  "serviceType": "GatewayService"
 }

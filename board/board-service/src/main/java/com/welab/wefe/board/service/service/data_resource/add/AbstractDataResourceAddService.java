@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMy
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.DataResourceAddOutputModel;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.ServiceCheckService;
 import com.welab.wefe.board.service.service.checkpoint.StorageCheckpoint;
@@ -92,6 +93,9 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
                 dataResourceUploadTaskService.onError(model.getId(), e);
             }
         });
+
+        // Refresh the data set tag list
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
         return new DataResourceAddOutputModel(task.getDataResourceId(), task.getId());
     }

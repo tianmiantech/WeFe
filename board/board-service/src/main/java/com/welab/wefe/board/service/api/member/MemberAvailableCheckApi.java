@@ -24,12 +24,13 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author lonnie
  */
-@Api(path = "/member/available", name = "Check whether the member’s system services are available")
+@Api(path = "member/available", name = "Check whether the member’s system services are available")
 public class MemberAvailableCheckApi extends AbstractApi<MemberAvailableCheckApi.Input, MemberAvailableCheckOutput> {
 
     @Autowired
@@ -38,6 +39,9 @@ public class MemberAvailableCheckApi extends AbstractApi<MemberAvailableCheckApi
     @Override
     protected ApiResult<MemberAvailableCheckOutput> handle(Input input) throws StatusCodeWithException {
         MemberAvailableCheckOutput output = serviceCheckService.getMemberAvailableInfo(input.memberId);
+        if (input.fromGateway()) {
+            output.details.values().forEach(ServiceAvailableCheckOutput::cleanValues);
+        }
         return success(output);
     }
 

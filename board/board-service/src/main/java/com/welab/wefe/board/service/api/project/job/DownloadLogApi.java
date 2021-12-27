@@ -33,7 +33,7 @@ import org.springframework.web.client.RestTemplate;
 /**
  * @author zane.luo
  */
-@Api(path = "/job/log/download", name = "download job log")
+@Api(path = "job/log/download", name = "download job log")
 public class DownloadLogApi extends AbstractApi<DownloadLogApi.Input, ResponseEntity> {
 
     @Autowired

@@ -26,7 +26,7 @@
                     placement="bottom"
                 >
                     <template #content>
-                        <p>1, 添加数据集到此处可快速创建项目</p>
+                        <p>1, 添加资源到此处可快速创建项目</p>
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
 

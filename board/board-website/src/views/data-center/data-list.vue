@@ -5,7 +5,7 @@
     >
         <el-form
             inline
-            class="mb20 clearfix"
+            class="clearfix"
             @submit.prevent
         >
             <el-form-item
@@ -83,6 +83,7 @@
             >
                 <el-select
                     v-model="vData.search.containsY"
+                    style="width:90px;"
                     filterable
                     clearable
                 >
@@ -97,6 +98,7 @@
             >
                 <el-select
                     v-model="vData.search.forJobType"
+                    style="width:120px;"
                     filterable
                     clearable
                 >
@@ -115,7 +117,7 @@
             >
                 查询
             </el-button>
-            <el-button plain native-type="submit" class="fr" @click="checkUploadingData">
+            <el-button native-type="submit" class="mb20 fr" @click="checkUploadingData">
                 上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
@@ -279,8 +281,6 @@
                 await methods.getTags();
                 await methods.getUploaders();
                 searchList();
-                // Get the list of data sets being uploaded and display corner markers
-                // await methods.getImagesList();
             });
 
             onBeforeUnmount(() => {

@@ -1,26 +1,26 @@
 <template>
     <el-card
-        name="训练列表"
+        name="数据融合"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            训练列表
+            数据融合
             <template v-if="form.isPromoter">
-                <el-button
-                    v-if="!form.closed && !form.is_exited"
-                    class="ml10"
-                    type="primary"
-                    @click="addFlowMethod"
-                >
-                    新建训练流程
-                </el-button>
+                <router-link :to="{ name: 'fusion-add', query: { project_id: form.project_id } }">
+                    <el-button
+                        v-if="!form.closed && !form.is_exited"
+                        type="primary"
+                        class="ml10"
+                    >
+                        新建数据融合任务
+                    </el-button>
+                </router-link>
             </template>
-            <span v-else class="ml10 f12">(协作方无法添加流程)</span>
+            <span v-else class="ml10 f12">(协作方无法创建任务)</span>
         </h3>
 
         <el-table
-            ref="multipleTable"
             max-height="500px"
             :data="list"
             stripe
@@ -37,13 +37,12 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <router-link :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="form.project_type === 'MachineLearning'"
                 label="进度"
                 min-width="130px"
             >
@@ -77,9 +76,9 @@
             </el-table-column>
             <el-table-column
                 v-if="form.audit_status !== 'disagree'"
-                label="操作"
                 min-width="200px"
                 fixed="right"
+                label="操作"
             >
                 <template v-slot="scope">
                     <el-button type="text" @click="checkDetail(scope.row.flow_id)" style="margin-right: 4px;">
@@ -203,75 +202,6 @@
                 </div>
             </el-form>
         </el-dialog>
-
-        <el-dialog
-            v-model="addFlow"
-            destroy-on-close
-        >
-            <template #title>
-                选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
-            </template>
-
-            <div
-                v-loading="loading"
-                class="model-list"
-            >
-                <el-button
-                    type="text"
-                    class="li empty-flow"
-                    @click="createFlow($event, { federated_learning_type: 'vertical' })"
-                >
-                    <span class="model-img f30">
-                        纵向
-                    </span>
-                    空白流程
-                </el-button>
-                <el-button
-                    type="text"
-                    class="li empty-flow"
-                    @click="createFlow($event, { federated_learning_type: 'horizontal' })"
-                >
-                    <span class="model-img f30">
-                        横向
-                    </span>
-                    空白流程
-                </el-button>
-                <el-button
-                    type="text"
-                    class="li empty-flow"
-                    @click="createFlow($event, { federated_learning_type: 'mix' })"
-                >
-                    <span class="model-img f30">
-                        混合
-                    </span>
-                    空白流程
-                </el-button>
-
-                <template
-                    v-for="item in templateList"
-                    :key="item.id"
-                >
-                    <el-tooltip
-                        v-if="item.enname !== 'oot'"
-                        :content="item.description"
-                        effect="dark"
-                    >
-                        <el-button
-                            class="li"
-                            type="text"
-                            @click="createFlow($event, item)"
-                        >
-                            <span class="model-img">
-                                <img :src="flowImgs[item.enname]">
-                            </span>
-                            {{ item.name }}
-                            {{ item.desc }}
-                        </el-button>
-                    </el-tooltip>
-                </template>
-            </div>
-        </el-dialog>
     </el-card>
 </template>
 
@@ -304,32 +234,14 @@
                     targetProjectId: '',
                     flowRename:      '',
                 },
-                getListApi: '/project/flow/query',
+                getListApi: '/fusion/task/paging',
                 pagination: {
                     page_index: 1,
                     page_size:  10,
                     total:      0,
                 },
                 multipleFlow: [],
-                templateList: [],
-                flowImgs:     {
-                    dq:       require('@assets/images/dq.png'),
-                    lbsjdqqf: require('@assets/images/lbsjdqqf.png'),
-                    ljhg:     require('@assets/images/ljhg.png'),
-                    mxxl:     require('@assets/images/mxxl.png'),
-                    sjqf:     require('@assets/images/sjqf.png'),
-                    sjqg:     require('@assets/images/sjqg.png'),
-                    tzsx:     require('@assets/images/tzsx.png'),
-                    fx:       require('@assets/images/fx.png'),
-                    horz_lr:  require('@assets/images/horz_lr.png'),
-                    vert_lr:  require('@assets/images/vert_lr.png'),
-                    vert_xgb: require('@assets/images/vert_xgb.png'),
-                    horz_xgb: require('@assets/images/horz_xgb.png'),
-                    mix_lr:   require('@assets/images/mix_lr.png'),
-                    mix_xgb:  require('@assets/images/mix_xgb.png'),
-                },
-                flowTimer: null,
-                config:    {}, // deeplearning config
+                flowTimer:    null,
             };
         },
         computed: {
@@ -348,8 +260,6 @@
         created() {
             this.project_id = this.$route.query.project_id;
             this.getFlowList();
-            this.getTemplateList();
-            this.getConfigInfo();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
@@ -390,11 +300,11 @@
                         this.list = data.list;
                         this.afterTableRender();
                     }
-                    clearTimeout(this.flowTimer);
-                    this.flowTimer = setTimeout(() => {
-                        this.getFlowList({ requestFromRefresh: true });
-                    }, 5000);
                 }
+                clearTimeout(this.flowTimer);
+                this.flowTimer = setTimeout(() => {
+                    this.getFlowList({ requestFromRefresh: true });
+                }, 5000);
             },
 
             currentPageChange (val) {
@@ -405,16 +315,6 @@
             pageSizeChange (val) {
                 this.pagination.page_size = val;
                 this.getFlowList();
-            },
-
-            async getTemplateList() {
-                const { code, data } = await this.$http.get({
-                    url: '/project/flow/templates',
-                });
-
-                if(code === 0) {
-                    this.templateList = data.templates;
-                }
             },
 
             customColorMethod(percentage) {
@@ -560,36 +460,11 @@
                     });
             },
 
-            addFlowMethod() {
-                if (this.form.project_type === 'MachineLearning') {
-                    this.addFlow = true;
-                } else {
-                    // 创建深度学习流程
-                    this.createFlow();
-                }
-            },
-
-            async getConfigInfo() {
-                const { code, data } = await this.$http.post({
-                    url:  '/global_config/get',
-                    data: { groups: ['deep_learning_config'] },
-                });
-
-                if (code === 0) {
-                    this.config = data;
-                }
-            },
             checkDetail(flow_id) {
-                if (this.form.project_type === 'DeepLearning') {
-                    const url = this.config.deep_learning_config.paddle_visual_dl_base_url;
-
-                    window.open(`${url}?id=${flow_id}`, '_blank');
-                } else {
-                    this.$router.replace({
-                        name:  'project-flow',
-                        query: { flow_id },
-                    });
-                }
+                this.$router.replace({
+                    name:  'project-flow',
+                    query: { flow_id },
+                });
             },
         },
     };

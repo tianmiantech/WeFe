@@ -103,7 +103,6 @@
 
         <DataSetList
             ref="raw"
-            source-type="Raw"
             :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
@@ -119,6 +118,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -166,7 +166,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -183,6 +183,9 @@
                 isTypeDisabled:  false,
                 checkedDataList: [],
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -219,7 +222,6 @@
                     };
 
                     if(this.containsY) {
-                        this.search.source_type = 'Raw';
                         this.search.contains_y = true;
                     }
 
@@ -233,7 +235,7 @@
                 this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
             },
 
-            async loadDataList({
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
@@ -248,23 +250,17 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-                await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                this.isTypeDisabled = true;
-                
-                if (memberId) {
-                    this.memberId = memberId;
-                }
+                this.$nextTick((_)=>{
+                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
+                    this.isTypeDisabled = true;
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
+                    if (memberId) {
+                        this.memberId = memberId;
+                    }
 
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
-
+                    this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
-                }
+                });
             },
 
             searchList(opt = {}) {

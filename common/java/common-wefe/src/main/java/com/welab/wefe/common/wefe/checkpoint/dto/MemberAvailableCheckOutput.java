@@ -25,7 +25,7 @@ import java.util.Map;
  * @date 2021/12/16
  */
 public class MemberAvailableCheckOutput {
-    public boolean available;
+    public boolean available = true;
     public ServiceType errorServiceType;
     public String message;
     public Map<ServiceType, ServiceAvailableCheckOutput> details = new LinkedHashMap<>();
@@ -33,12 +33,12 @@ public class MemberAvailableCheckOutput {
     public MemberAvailableCheckOutput() {
     }
 
-    public void put(ServiceType serviceType, ServiceAvailableCheckOutput detail) {
-        details.put(serviceType, detail);
-        if (!detail.available) {
+    public void put(ServiceType serviceType, ServiceAvailableCheckOutput item) {
+        details.put(serviceType, item);
+        if (!item.available) {
             errorServiceType = serviceType;
             available = false;
-            message = detail.message;
+            message = item.message;
         }
     }
 }
