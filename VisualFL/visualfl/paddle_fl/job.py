@@ -72,7 +72,7 @@ class PaddleFLJob(Job):
                 f">{executor.stdout} 2>{executor.stderr}",
             ]
         )
-        returncode = await executor.execute(cmd)
+        returncode,pid = await executor.execute(cmd)
         if returncode != 0:
             raise VisualFLJobCompileException("compile error")
 

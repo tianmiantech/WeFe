@@ -26,10 +26,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import logging
 import os
-
+import traceback
 import click
 from visualfl import __logs_dir__
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
@@ -232,10 +230,13 @@ def fl_trainer(
             checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
             epoch_id += 1
             TaskDao(task_id).add_task_progress(1)
+
+        TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         logging.debug(f"reach max iter, finish training")
 
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
+        logging.error(traceback.format_exc())
         TaskDao(task_id).update_task_status(TaskStatus.ERROR,str(e))
     finally:
         trainer.scheduler_agent.finish()

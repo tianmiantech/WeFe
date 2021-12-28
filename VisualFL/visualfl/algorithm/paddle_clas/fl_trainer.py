@@ -26,11 +26,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import os
 import click
 import paddle
-import logging
-from visualfl import __logs_dir__
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl.algorithm.paddle_clas import data_loader
 from visualfl.db.task_dao import TaskDao
@@ -133,7 +131,6 @@ def fl_trainer(
         resume_checkpoint = config_json.get("resume", True)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
-        log_dir = os.path.join(__logs_dir__,"jobs",job_id,trainer_ep,"vdl_log")
 
         with open(algorithm_config) as f:
             algorithm_config_dict = json.load(f)
@@ -221,6 +218,7 @@ def fl_trainer(
             epoch_id += 1
             TaskDao(task_id).add_task_progress(1)
 
+        TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         logging.debug(f"reach max iter, finish training")
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
