@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.serving.service.database.serving.repository;
 
-import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
 import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;

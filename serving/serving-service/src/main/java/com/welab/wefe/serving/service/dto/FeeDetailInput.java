@@ -15,8 +15,6 @@
  */
 package com.welab.wefe.serving.service.dto;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 

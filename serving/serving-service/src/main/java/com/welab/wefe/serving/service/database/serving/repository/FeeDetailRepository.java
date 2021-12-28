@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.database.serving.repository;
 
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;
