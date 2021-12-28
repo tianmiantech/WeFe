@@ -17,7 +17,7 @@ package com.welab.wefe.board.service.api.union.data_resource;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;

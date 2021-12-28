@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/delete", name = "删除合作方", desc = "删除合作方", login = true)
+@Api(path = "fusion/task/delete", name = "删除任务", desc = "删除任务")
 public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
     @Autowired
     FusionTaskService fusionTaskService;

@@ -28,7 +28,7 @@ import java.util.EnumSet;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/status", name = "任务状态", desc = "任务状态", login = true)
+@Api(path = "fusion/task/status", name = "任务状态", desc = "任务状态")
 public class TaskStatusApi extends AbstractApi<TaskStatusApi.Input, EnumSet<FusionTaskStatus>> {
 
     @Override

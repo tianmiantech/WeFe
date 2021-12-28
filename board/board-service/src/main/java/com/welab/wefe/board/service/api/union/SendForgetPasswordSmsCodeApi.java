@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.union;
 
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
