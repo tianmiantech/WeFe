@@ -65,7 +65,8 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
                 });
             }
         });
-        taskParam.put("params", JObject.create().append("transform_col_names", transformColNames));
+		taskParam.put("params",
+				JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true));
 
         return taskParam;
     }

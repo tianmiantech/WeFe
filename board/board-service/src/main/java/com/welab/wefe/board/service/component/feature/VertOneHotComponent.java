@@ -61,7 +61,8 @@ public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.P
                 });
             }
         });
-        taskParam.put("params", JObject.create().append("transform_col_names", transformColNames));
+		taskParam.put("params",
+				JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true));
 
         return taskParam;
     }
