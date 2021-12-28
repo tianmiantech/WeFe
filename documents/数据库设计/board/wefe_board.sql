@@ -822,34 +822,78 @@ global max_allowed_packet = 1024*1024*32;
 
 -- ↓ v3.0.0 ↓ 2021年11月05日 ↓
 
+DROP TABLE IF EXISTS `data_resource`;
+CREATE TABLE `data_resource`
+(
+    `id`                      varchar(32)   NOT NULL COMMENT '全局唯一标识',
+    `created_by`              varchar(32) COMMENT '创建人',
+    `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`              varchar(32) COMMENT '更新人',
+    `updated_time`            datetime(6) COMMENT '更新时间',
+    `name`                    varchar(256)  NOT NULL COMMENT '资源名称',
+    `data_resource_type`      varchar(32)   NOT NULL COMMENT '资源类型',
+    `description`             varchar(3072) COMMENT '描述',
+    `tags`                    varchar(128) COMMENT '标签',
+    `storage_type`            varchar(32) COMMENT '存储类型',
+    `storage_namespace`       varchar(1000) NOT NULL COMMENT '资源在存储中的命名空间（库名、目录路径）',
+    `storage_resource_name`   varchar(1000) COMMENT '资源在存储中的名称（表名、文件名）',
+    `total_data_count`        bigint(20) NOT NULL COMMENT '总数据量',
+    `public_level`            varchar(32) COMMENT '资源的可见性',
+    `public_member_list`      varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该资源的基本信息',
+    `usage_count_in_job`      int(11) NOT NULL DEFAULT '0' COMMENT '该资源在多少个job中被使用',
+    `usage_count_in_flow`     int(11) NOT NULL DEFAULT '0' COMMENT '该资源在多少个flow中被使用',
+    `usage_count_in_project`  int(11) NOT NULL DEFAULT '0' COMMENT '该资源在多少个project中被使用',
+    `usage_count_in_member`   int(11) NOT NULL DEFAULT '0' COMMENT '该资源被多少个其他成员被使用',
+    `derived_resource`        bool default false comment '是否是衍生资源',
+    `derived_from`            varchar(32) COMMENT '衍生来源，枚举（原始、对齐、分箱）',
+    `derived_from_flow_id`    varchar(64) COMMENT '衍生来源流程id',
+    `derived_from_job_id`     varchar(64) COMMENT '衍生来源任务id',
+    `derived_from_task_id`    varchar(100) COMMENT '衍生来源子任务id',
+    `statistical_information` longtext COMMENT '该数据资源相关的统计信息',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='数据资源';
+
+DROP TABLE IF EXISTS `data_resource_upload_task`;
+CREATE TABLE `data_resource_upload_task`
+(
+    `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`              varchar(32) COMMENT '创建人',
+    `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`              varchar(32) COMMENT '更新人',
+    `updated_time`            datetime(6) COMMENT '更新时间',
+    `data_resource_id`        varchar(32)  DEFAULT NULL COMMENT '数据资源id',
+    `data_resource_name`      varchar(128) DEFAULT NULL COMMENT '数据资源名称',
+    `data_resource_type`      varchar(32) COMMENT '资源类型',
+    `total_data_count`        bigint(20) DEFAULT NULL COMMENT '总数据行数',
+    `completed_data_count`    bigint(20) DEFAULT 0 COMMENT '已写入数据行数',
+    `progress_ratio`          int(10) DEFAULT NULL COMMENT '任务进度百分比',
+    `estimate_remaining_time` bigint(20) DEFAULT NULL COMMENT '预计剩余耗时',
+    `invalid_data_count`      bigint(20) DEFAULT 0 COMMENT '无效数据量（主键重复条数）',
+    `error_message`           text         DEFAULT NULL COMMENT '错误消息',
+    `status`                  varchar(32) NOT NULL COMMENT '状态：上传中、已完成、已失败',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_data_set_task` (`data_resource_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  DEFAULT CHARSET = utf8mb4 COMMENT ='数据资源上传进度';
+
 DROP TABLE IF EXISTS `image_data_set`;
 CREATE TABLE `image_data_set`
 (
-    `id`                     varchar(32)   NOT NULL COMMENT '全局唯一标识',
-    `created_by`             varchar(32) COMMENT '创建人',
-    `created_time`           datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`             varchar(32) COMMENT '更新人',
-    `updated_time`           datetime(6) COMMENT '更新时间',
-    `name`                   varchar(128)  NOT NULL COMMENT '数据集名称',
-    `tags`                   varchar(128) COMMENT '标签',
-    `description`            varchar(3072) COMMENT '描述',
-    `storage_type`           varchar(32) COMMENT '存储类型',
-    `namespace`              varchar(1000) NOT NULL COMMENT '命名空间',
-    `for_job_type`           varchar(32) COMMENT '任务类型（物体检测...）',
-    `label_list`             varchar(1000) COMMENT 'label 列表',
-    `sample_count`           bigint(20) NOT NULL COMMENT '样本数量',
-    `labeled_count`          bigint(20) NOT NULL COMMENT '已标注数量',
-    `label_completed`        bool COMMENT '是否已标注完毕',
-    `files_size`             bigint(20) NOT NULL DEFAULT '0' COMMENT '数据集大小',
-    `public_level`           varchar(32) COMMENT '数据集的可见性',
-    `public_member_list`     varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该数据集的基本信息',
-    `usage_count_in_job`     int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_flow`    int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_project` int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
+    `id`              varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`      varchar(32) COMMENT '创建人',
+    `created_time`    datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`      varchar(32) COMMENT '更新人',
+    `updated_time`    datetime(6) COMMENT '更新时间',
+    `for_job_type`    varchar(32) COMMENT '任务类型（物体检测...）',
+    `label_list`      varchar(1000) COMMENT 'label 列表',
+    `labeled_count`   bigint(20) NOT NULL COMMENT '已标注数量',
+    `label_completed` bool COMMENT '是否已标注完毕',
+    `files_size`      bigint(20) NOT NULL DEFAULT '0' COMMENT '数据集大小',
+
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
-
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集';
 
 DROP TABLE IF EXISTS `image_data_set_sample`;
 CREATE TABLE `image_data_set_sample`
@@ -871,3 +915,47 @@ CREATE TABLE `image_data_set_sample`
     UNIQUE KEY `index_unique`(`data_set_id`,`file_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集中的样本';
+
+DROP TABLE IF EXISTS `table_data_set`;
+CREATE TABLE `table_data_set`
+(
+    `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`              varchar(32) COMMENT '创建人',
+    `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`              varchar(32) COMMENT '更新人',
+    `updated_time`            datetime(6) COMMENT '更新时间',
+    `column_name_list`        text        NOT NULL COMMENT '数据集字段列表',
+    `column_count`            int(11) NOT NULL COMMENT '数据集列数',
+    `primary_key_column`      varchar(32) NOT NULL COMMENT '主键字段',
+    `feature_name_list`       text COMMENT '特征列表',
+    `feature_count`           int(11) NOT NULL COMMENT '特征数量',
+    `contains_y`              bool        NOT NULL COMMENT '是否包含 Y 值',
+    `y_name_list`             text COMMENT 'y列名称列表',
+    `y_count`                 int(11) NOT NULL COMMENT 'y列的数量',
+    `positive_sample_value`   varchar(32) COMMENT '正样本的值',
+    `y_positive_sample_count` bigint(20) COMMENT '正例数量',
+    `y_positive_sample_ratio` double(10, 4
+) COMMENT '正例比例',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
+
+DROP TABLE IF EXISTS `bloom_filter`;
+CREATE TABLE `bloom_filter`
+(
+    `id`             varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`     varchar(32) COMMENT '创建人',
+    `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`     varchar(32) COMMENT '更新人',
+    `updated_time`   datetime(6) COMMENT '更新时间',
+    `rsa_e`          text COMMENT '密钥e',
+    `rsa_n`          text COMMENT '密钥n',
+    `rsa_d`          text COMMENT '密钥e',
+    `data_source_id` varchar(32)  DEFAULT NULL COMMENT '数据源id',
+    `source_path`    varchar(255) DEFAULT NULL COMMENT '数据源地址',
+    `hash_function`  text COMMENT '主键hash生成方法',
+    `add_method`     varchar(255) DEFAULT NULL COMMENT '布隆过滤器添加方式',
+    `sql_script`     varchar(255) DEFAULT NULL COMMENT 'sql语句',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='布隆过滤器';

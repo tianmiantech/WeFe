@@ -212,6 +212,12 @@ public class ProjectDataSetService extends AbstractService {
                         } else if (x.getDataResourceType() == DataResourceType.ImageDataSet) {
                             dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         }
+                        // 如果这里没有拿到数据集信息，说明数据集已经被删除或者不可见。
+                        if (dataSet == null) {
+                            dataSet = new DataResourceOutputModel();
+                            dataSet.setId(projectDataSet.getDataSetId());
+                            dataSet.setDeleted(true);
+                        }
                         projectDataSet.setDataSet(dataSet);
                         return projectDataSet;
                     } catch (StatusCodeWithException e) {

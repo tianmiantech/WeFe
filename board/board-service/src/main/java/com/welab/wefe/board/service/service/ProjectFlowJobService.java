@@ -488,6 +488,7 @@ public class ProjectFlowJobService extends AbstractService {
             } catch (FlowNodeException e) {
                 throw e;
             } catch (Exception e) {
+                super.log(e);
                 throw new FlowNodeException(node, e.getClass() + " " + e.getMessage());
             }
         }

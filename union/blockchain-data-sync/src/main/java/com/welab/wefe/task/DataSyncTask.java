@@ -156,19 +156,27 @@ public class DataSyncTask {
          * Sync block data
          */
         private void startSync(long blockNumber) throws Exception {
-            // get block by block number
-            BcosBlock.Block block = BlockUtil.getBlock(this.client, new BigInteger(String.valueOf(blockNumber)));
-            BlockInfoBO blockInfoBO = BlockInfoParser.create(block).parse();
+            for (int i = 0; i < 6; i++) {
+                // get block by block number
+                BcosBlock.Block block = BlockUtil.getBlock(this.client, new BigInteger(String.valueOf(blockNumber)));
+                BlockInfoBO blockInfoBO = BlockInfoParser.create(block).parse();
 
-            BlockInfoBO filterBlockInfoBO = filterBlockInfoBO(blockInfoBO);
+                if (CollectionUtils.isEmpty(blockInfoBO.getEventBOList())) {
+                    // retry
+                    Thread.sleep(500);
+                    continue;
+                }
 
-            DataProcessor.parseBlockData(filterBlockInfoBO);
+                BlockInfoBO filterBlockInfoBO = filterBlockInfoBO(blockInfoBO);
 
-            saveBlockSyncHeight(blockInfoBO);
+                DataProcessor.parseBlockData(filterBlockInfoBO);
 
-            saveBlockSyncContractHeight(filterBlockInfoBO);
+                saveBlockSyncHeight(blockInfoBO);
 
-            saveBlockDetailInfo(blockInfoBO);
+                saveBlockSyncContractHeight(filterBlockInfoBO);
+
+                saveBlockDetailInfo(blockInfoBO);
+            }
         }
 
         /**
