@@ -216,8 +216,10 @@
                     $data_set:      [],
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 promoterService: {},
@@ -363,8 +365,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: promoterService[member.member_id] ? promoterService[member.member_id].all_status_is_success : null,
-                                status:                promoterService[member.member_id] ? promoterService[member.member_id].status : null,
+                                available: promoterService[member.member_id] ? promoterService[member.member_id].available : null,
+                                details:   promoterService[member.member_id] ? promoterService[member.member_id].details : null,
                             }, // services state
                             $other_audit:   [], // audit comment from others
                             $audit_comment: '', // audit other members
@@ -386,8 +388,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: providerService[member.member_id] ? providerService[member.member_id].all_status_is_success : null,
-                                status:                providerService[member.member_id] ? providerService[member.member_id].status : null,
+                                available: providerService[member.member_id] ? providerService[member.member_id].available : null,
+                                details:   providerService[member.member_id] ? providerService[member.member_id].details : null,
                             }, // service state
                             $other_audit:   [], // audit from other members
                             $audit_comment: '', // audit other members
@@ -523,7 +525,7 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
                     url:  '/member/available',
                     data: {

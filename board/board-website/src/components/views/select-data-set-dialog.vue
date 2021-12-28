@@ -66,7 +66,7 @@
             </el-form-item>
             <el-form-item
                 v-if="search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
+                label="样本分类："
                 label-width="100"
             >
                 <el-select
@@ -149,10 +149,11 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:         '',
-                    name:       '',
-                    creator:    '',
-                    contains_y: '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    contains_y:       '',
+                    dataResourceType: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
@@ -251,9 +252,12 @@
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
                 this.$nextTick((_)=>{
-                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                    this.isTypeDisabled = true;
+                    const type = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
 
+                    setTimeout(_=>{
+                        this.search.dataResourceType = type;
+                        this.isTypeDisabled = true;
+                    }, 200);
                     if (memberId) {
                         this.memberId = memberId;
                     }

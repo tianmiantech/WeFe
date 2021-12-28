@@ -956,6 +956,8 @@
                 this.loading = true;
                 this.data_preview_finished = true;
                 const file = arguments[0].file;
+
+                this.img_upload_options.headers.token = JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
@@ -978,6 +980,8 @@
                 this.loading = true;
                 this.data_preview_finished = false;
                 const file = arguments[0].file;
+
+                this.file_upload_options = localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '';
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,

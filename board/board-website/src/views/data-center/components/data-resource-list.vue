@@ -104,7 +104,7 @@
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>
-                    任务类型：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>
             </template>
         </el-table-column>
