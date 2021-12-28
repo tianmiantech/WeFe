@@ -50,8 +50,8 @@
                     </el-tag> : {{ item.available ? "正常" : item.message }}
                     <ol v-if="item.list" class="service_list">
                         <li v-for="sitem in item.list" :key="sitem.message">
-                            <p v-if="!sitem.success">
-                                <span style="color: #f56c6c;">{{item.error_service_type}}：</span>
+                            <p v-if="!sitem.success" style="color: #f56c6c;">
+                                <span>{{sitem.desc}}：</span>
                                 <span>{{sitem.message}}</span>
                             </p>
                             <p v-else>{{sitem.desc}}</p>
@@ -87,9 +87,10 @@
                     </el-tag> : {{ item.available ? "正常" : item.message }}
                     <ol v-if="item.list" class="service_list">
                         <li v-for="sitem in item.list" :key="sitem.message">
-                            <p v-if="!sitem.success">
-                                <span style="color: #f56c6c;">{{item.error_service_type}}：</span>
-                                <span>{{sitem.message}}</span>
+                            <p v-if="!sitem.success" style="color: #f56c6c;">
+                                <span>{{sitem.desc}}：</span>
+                                <!-- <br>
+                                <span>{{sitem.message}}</span> -->
                             </p>
                             <p v-else>{{sitem.desc}}</p>
                         </li>
