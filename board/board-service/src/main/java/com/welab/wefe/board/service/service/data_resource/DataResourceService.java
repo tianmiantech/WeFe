@@ -68,6 +68,18 @@ public class DataResourceService extends AbstractDataResourceService {
     private ProjectRepository projectRepository;
     @Autowired
     private DataResourceRepository dataResourceRepository;
+    @Autowired
+    private TableDataSetService tableDataSetService;
+    @Autowired
+    private ImageDataSetService imageDataSetService;
+    @Autowired
+    private BloomFilterService bloomFilterSetService;
+    @Autowired
+    private TableDataSetRepository tableDataSetRepository;
+    @Autowired
+    private ImageDataSetRepository imageDataSetRepository;
+    @Autowired
+    private BloomFilterRepository bloomFilterRepository;
 
     /**
      * Update the number of data sets used in the project
@@ -268,18 +280,23 @@ public class DataResourceService extends AbstractDataResourceService {
         }
     }
 
-    @Autowired
-    private TableDataSetService tableDataSetService;
-    @Autowired
-    private ImageDataSetService imageDataSetService;
-    @Autowired
-    private BloomFilterService bloomFilterSetService;
-    @Autowired
-    private TableDataSetRepository tableDataSetRepository;
-    @Autowired
-    private ImageDataSetRepository imageDataSetRepository;
-    @Autowired
-    private BloomFilterRepository bloomFilterRepository;
+    public DataResourceOutputModel findDataResourceFromLocalOrUnion(ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
+
+        if (CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
+            Object obj = dataResourceRepository.findById(projectDataSet).orElse(null);
+            if (obj == null) {
+                return null;
+            }
+            return ModelMapper.map(obj, DataResourceOutputModel.class);
+        } else {
+            return unionService.getDataResourceDetail(
+                    projectDataSet.getDataSetId(),
+                    projectDataSet.getDataResourceType(),
+                    DataResourceOutputModel.class
+            );
+        }
+    }
+
 
     public void delete(String dataResourceId, DataResourceType dataResourceType) throws StatusCodeWithException {
         switch (dataResourceType) {

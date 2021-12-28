@@ -68,6 +68,13 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     private String derivedFromTaskId;
     @Check(name = "该数据资源相关的统计信息")
     private JSONObject statisticalInformation;
+    @Check(name = "数据集是否已被删除")
+    private boolean deleted;
+
+
+    public String getDataResourceId() {
+        return super.getId();
+    }
 
     // region getter/setter
 
@@ -231,6 +238,13 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.statisticalInformation = statisticalInformation;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
 
-    // endregion
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+// endregion
 }

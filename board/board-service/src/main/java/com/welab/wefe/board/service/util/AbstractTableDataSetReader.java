@@ -190,7 +190,8 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                         "数据集的特征 " + column.getName()
                                 + " 声明为 " + column.getDataType()
                                 + " 类型，但在 " + (readDataRows + 1)
-                                + " 行发现不满足类型的值：" + value
+                                // 由于有并发，所以这里的行号会不准确，必须表达为附近。
+                                + " 行附近发现不满足类型的值：" + value
                 );
             }
         }

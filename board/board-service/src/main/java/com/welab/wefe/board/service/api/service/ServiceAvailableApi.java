@@ -41,6 +41,9 @@ public class ServiceAvailableApi extends AbstractApi<ServiceAvailableApi.Input, 
     @Override
     protected ApiResult<ServiceAvailableCheckOutput> handle(Input input) throws StatusCodeWithException, IOException {
         ServiceAvailableCheckOutput output = serviceCheckService.getServiceAvailableInfo(input.serviceType);
+        if (input.fromGateway()) {
+            output.cleanValues();
+        }
         return success(output);
     }
 

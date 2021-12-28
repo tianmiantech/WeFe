@@ -278,7 +278,6 @@
                 },
                 // add dataset to cart
                 addDataSet(ev, row) {
-                    console.log(row);
                     const id = row.data_resource_id ? row.data_resource_id : row.id;
 
                     vData.balls.push({
@@ -337,7 +336,7 @@
             };
             const searchList = (opt = {}) => {
                 UnionDataResourceListRef.value.search = vData.search;
-                UnionDataResourceListRef.value.methods.getDataList();
+                UnionDataResourceListRef.value.getDataList();
             };
             const resourceTypeChange = () => {
                 vData.search.containsY = '';
@@ -347,7 +346,7 @@
             onMounted(async () => {
                 await methods.loadTags();
                 await methods.loadMemberList();
-                UnionDataResourceListRef.value.methods.getDataList();
+                UnionDataResourceListRef.value.getDataList();
             });
 
             return {

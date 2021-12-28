@@ -21,7 +21,6 @@ import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -43,7 +42,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author seven.zeng
+ * @author zane.luo
  */
 @Service
 public class GatewayService extends BaseGatewayService {
@@ -89,8 +88,7 @@ public class GatewayService extends BaseGatewayService {
                 continue;
             }
 
-            sendToBoardRedirectApi(member.getMemberId(), me.getJobRole(), input, api);
-
+            callOtherMemberBoard(member.getMemberId(), me.getJobRole(), api, input);
         }
     }
 
@@ -160,7 +158,7 @@ public class GatewayService extends BaseGatewayService {
             if (input instanceof AddApi.Input) {
                 ((AddApi.Input) input).setRole(member.getMemberRole());
             }
-            sendToBoardRedirectApi(member.getMemberId(), me.getMemberRole(), input, api);
+            callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
 
         }
     }
@@ -214,7 +212,7 @@ public class GatewayService extends BaseGatewayService {
     /**
      * Notify the gateway to update the system configuration cache
      */
-    public void refreshSystemConfigCache() {
+    public void refreshSystemConfigCache() throws StatusCodeWithException {
         sendToMyselfGateway(
                 GatewayActionType.none,
                 "",
@@ -225,7 +223,7 @@ public class GatewayService extends BaseGatewayService {
     /**
      * Notify the gateway to update the member blacklist cache
      */
-    public void refreshMemberBlacklistCache() {
+    public void refreshMemberBlacklistCache() throws StatusCodeWithException {
         sendToMyselfGateway(
                 GatewayActionType.none,
                 "",
@@ -236,7 +234,7 @@ public class GatewayService extends BaseGatewayService {
     /**
      * Notify the gateway to update the IP whitelist cache
      */
-    public void refreshIpWhiteListCache() {
+    public void refreshIpWhiteListCache() throws StatusCodeWithException {
         sendToMyselfGateway(
                 GatewayActionType.none,
                 "",
@@ -244,36 +242,77 @@ public class GatewayService extends BaseGatewayService {
         );
     }
 
-    public ServiceAvailableCheckOutput getLocalGatewayAvailable() {
-        ApiResult<?> result = sendToMyselfGateway(
+    public ServiceAvailableCheckOutput getLocalGatewayAvailable() throws StatusCodeWithException {
+        return sendToMyselfGateway(
                 GatewayActionType.none,
                 "",
                 GatewayProcessorType.gatewayAvailableProcessor
-        );
-        return JObject.create(result.getData()).toJavaObject(ServiceAvailableCheckOutput.class);
+        ).toJavaObject(ServiceAvailableCheckOutput.class);
+    }
+
+    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Class<T> resultClass) throws StatusCodeWithException {
+        return callOtherMemberBoard(dstMemberId, null, api, null, resultClass);
+    }
+
+    public void callOtherMemberBoard(String dstMemberId, Class<?> api, Object params) throws StatusCodeWithException {
+        callOtherMemberBoard(dstMemberId, null, api, params, Object.class);
+    }
+
+    public void callOtherMemberBoard(String dstMemberId, JobMemberRole senderRole, Class<?> api, Object params) throws StatusCodeWithException {
+        callOtherMemberBoard(dstMemberId, senderRole, api, params, Object.class);
+    }
+
+    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Object params, Class<T> resultClass) throws StatusCodeWithException {
+        return callOtherMemberBoard(dstMemberId, null, api, params, resultClass);
     }
 
     /**
-     * Call the board of other members
+     * Send the request to the gateway/redirect interface in the board
+     *
+     * @param dstMemberId 接收请求的成员Id
+     * @param senderRole  发送请求的成员角色，可以为 null。
+     * @param api         被调用的接口名
+     * @param params      接口请求参数
+     * @param resultClass 响应结果的实体类型
      */
-    public <T> T callOtherMemberBoard(String dstMemberId, Class<?> api, Object params, Class<T> resultClass) throws MemberGatewayException {
+    public <T> T callOtherMemberBoard(String dstMemberId, JobMemberRole senderRole, Class<?> api, Object params, Class<T> resultClass) throws StatusCodeWithException {
         Api annotation = api.getAnnotation(Api.class);
-        ApiResult<JSONObject> apiResult = callOtherMemberBoard(dstMemberId, annotation.path(),
-                params instanceof JSONObject
-                        ? (JSONObject) params
-                        : JObject.create(params)
+
+        JSONObject result = callOtherMemberBoard(
+                dstMemberId,
+                "gateway/redirect",
+                JObject
+                        .create()
+                        .put("api", annotation.path())
+                        .put("data", params)
+                        .put("caller_member_id", CacheObjects.getMemberId())
+                        .put("caller_member_name", CacheObjects.getMemberName())
+                        .put("caller_member_role", senderRole == null ? "" : senderRole.name())
         );
 
-        if (apiResult.data != null) {
-            return apiResult.data.toJavaObject(resultClass);
+        ApiResult<?> apiResult = result.toJavaObject(ApiResult.class);
+        if (!apiResult.success()) {
+            StatusCode.RPC_ERROR.throwException(apiResult.message);
         }
-        return null;
+
+        JSONObject data = result.getJSONObject("data");
+
+        if (data == null) {
+            return null;
+        }
+
+        if (resultClass == JObject.class) {
+            return (T) JObject.create(data);
+        }
+
+        return data.toJavaObject(resultClass);
     }
+
 
     /**
      * Call the board of other members
      */
-    public ApiResult<JSONObject> callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws MemberGatewayException {
+    private JSONObject callOtherMemberBoard(String dstMemberId, String api, JSONObject data) throws StatusCodeWithException {
 
         String request = JObject.create()
                 .append("url", api)
@@ -281,30 +320,15 @@ public class GatewayService extends BaseGatewayService {
                 .append("body", data)
                 .toStringWithNull();
 
-        ApiResult<JSONObject> result = sendToOtherGateway(dstMemberId, GatewayActionType.http_job, request, GatewayProcessorType.boardHttpProcessor);
-        if (!result.success()) {
-            throw new MemberGatewayException(dstMemberId, result.getMessage());
-        }
-
-        return result;
-    }
-
-    /**
-     * Send the request to the gateway/redirect interface in the board
-     */
-    public ApiResult<?> sendToBoardRedirectApi(String receiverMemberId, JobMemberRole senderRole, Object data, Class<?> api) throws MemberGatewayException {
-        Api annotation = api.getAnnotation(Api.class);
-
-        return callOtherMemberBoard(receiverMemberId, "gateway/redirect",
-                JObject
-                        .create()
-                        .put("api", annotation.path())
-                        .put("data", data)
-                        .put("caller_member_id", CacheObjects.getMemberId())
-                        .put("caller_member_name", CacheObjects.getMemberName())
-                        .put("caller_member_role", senderRole.name())
+        JSONObject result = sendToOtherGateway(
+                dstMemberId,
+                GatewayActionType.none,
+                request,
+                GatewayProcessorType.boardHttpProcessor
         );
 
+
+        return result;
     }
 
 
@@ -333,11 +357,7 @@ public class GatewayService extends BaseGatewayService {
                 )
                 .toStringWithNull();
 
-        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.http_job, data, GatewayProcessorType.boardHttpProcessor);
-        if (!result.success()) {
-            throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
-        }
-
+        sendToMyselfGateway(gatewayUri, GatewayActionType.http_job, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
     }
 
     /**
@@ -351,10 +371,7 @@ public class GatewayService extends BaseGatewayService {
             gatewayUri = globalConfigService.getGatewayConfig().intranetBaseUri;
         }
 
-        ApiResult<?> result = sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
-        if (!result.success()) {
-            throw new MemberGatewayException(CacheObjects.getMemberId(), result.getMessage());
-        }
+        sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
 
 

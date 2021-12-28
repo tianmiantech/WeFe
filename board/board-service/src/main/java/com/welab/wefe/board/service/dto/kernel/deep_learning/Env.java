@@ -75,6 +75,7 @@ public class Env {
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
 
+        // 计算各方的 worker 数
         LinkedHashMap<String, Integer> workerCountMap = new LinkedHashMap<>();
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
@@ -83,12 +84,22 @@ public class Env {
                     )
             );
 
+            // 限制上限
+            if (workerCount > 10) {
+                workerCount = 10;
+            }
+
             // is me
             if (CacheObjects.getMemberId().equals(dataSetItem.getMemberId())) {
                 this.localWorkerNum = workerCount;
                 int startIndex = workerCountMap.values().stream().mapToInt(x -> x).sum();
                 int endIndex = startIndex + this.localWorkerNum - 1;
-                this.localTrainerIndexs = new int[]{startIndex, endIndex};
+                if (startIndex == endIndex) {
+                    this.localTrainerIndexs = new int[]{startIndex};
+                } else {
+                    this.localTrainerIndexs = new int[]{startIndex, endIndex};
+                }
+
             }
 
             workerCountMap.put(dataSetItem.getMemberId(), workerCount);

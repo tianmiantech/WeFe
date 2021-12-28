@@ -207,6 +207,8 @@
                         this.search[key] = val[key] || '';
                         this.searchRequest[key] = val[key] || '';
                     }
+                    this.search.closed = val.closed || 'false';
+                    this.search.searchRequest = val.closed || 'false';
                     this.getProjectList();
                 },
                 deep: true,
@@ -220,6 +222,8 @@
                 this.search[key] = query[key] || '';
                 this.searchRequest[key] = query[key] || '';
             }
+            this.search.closed = query.closed || 'false';
+            this.search.searchRequest = query.closed || 'false';
             this.$nextTick(() => {
                 this.$router.replace({
                     query: {
@@ -283,7 +287,12 @@
                 this.getProjectStatistic();
                 this.search.my_role = this.filter[this.activeTab];
                 this.searchRequest.member_name = '';
-                this.$refs[this.activeTab][0].searchList({ to: false, resetPagination: false });
+
+                //! compatible for instance
+                const $ref = this.$refs[this.activeTab];
+                const instance = Array.isArray($ref) ? $ref[0]: $ref;
+
+                instance.searchList({ to: false, resetPagination: false });
             },
             timeChange(value) {
                 if(value) {

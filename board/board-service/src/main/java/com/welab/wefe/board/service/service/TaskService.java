@@ -30,7 +30,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
@@ -335,11 +334,15 @@ public class TaskService {
                     }
                 } else if (JobMemberRole.provider.equals(jobMemberMySqlModel.getJobRole())) {
                     // The provider needs to send a request to the other party to obtain
-                    ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(jobMemberMySqlModel.getMemberId(), JobMemberRole.promoter, queryTaskConfigInput, QueryDataIoTaskConfigApi.class);
-                    if (0 != apiResult.code) {
-                        throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征失败,原因：" + apiResult.message, StatusCode.SYSTEM_ERROR);
-                    }
-                    JObject data = JObject.create(apiResult.data);
+                    Object result = gatewayService.callOtherMemberBoard(
+                            jobMemberMySqlModel.getMemberId(),
+                            JobMemberRole.promoter,
+                            QueryDataIoTaskConfigApi.class,
+                            queryTaskConfigInput,
+                            Object.class
+                    );
+
+                    JObject data = JObject.create(result);
                     if (null == data || data.isEmpty()) {
                         throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征为空。", StatusCode.DATA_NOT_FOUND);
                     }

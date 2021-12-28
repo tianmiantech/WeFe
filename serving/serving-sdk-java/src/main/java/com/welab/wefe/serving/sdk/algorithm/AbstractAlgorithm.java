@@ -72,6 +72,7 @@ public abstract class AbstractAlgorithm<T, R> {
 
     /**
      * A single prediction
+     *
      * @param federatedParams
      * @param predictParams
      * @param params
