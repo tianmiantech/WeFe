@@ -43,7 +43,7 @@
             <div slot="empty">
                 <TableEmptyData/>
             </div>
-            <el-table-column label="客户 ID" min-width="80">
+            <el-table-column label="序号 ID" min-width="80">
                 <template slot-scope="scope">
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
@@ -96,9 +96,13 @@
 
 
                 <template slot-scope="scope">
-                    <el-button v-if="scope.row.status === 0" type="success" @click="open(scope.row.id,1)">启用</el-button>
+                    <el-button v-if="scope.row.status === 0" type="success"
+                               @click="open(scope.row.service_id,scope.row.client_id,1)">启用
+                    </el-button>
 
-                    <el-button v-if="scope.row.status === 1" type="danger" @click="open(scope.row.id,0)">禁用</el-button>
+                    <el-button v-if="scope.row.status === 1" type="danger"
+                               @click="open(scope.row.service_id,scope.row.client_id,0)">禁用
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -166,11 +170,11 @@ export default {
         };
     },
     methods: {
-        open(id, status) {
+        open(service_id, client_id, status) {
             this.$alert('是否确定修改启用状态？', '修改启用状态', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.changeStatus(id, status)
+                    this.changeStatus(service_id, client_id, status)
                     setTimeout(() => {
                         this.refresh()
                     }, 1000)
@@ -182,17 +186,19 @@ export default {
             });
         },
 
-        async changeStatus(id, status) {
+        async changeStatus(service_id, client_id, status) {
             const {code} = await this.$http.post({
                 url: '/clientservice/save',
                 data: {
-                    id: id,
+                    serviceId: service_id,
+                    clientId: client_id,
                     status: status
                 }
             });
 
             if (code === 0) {
                 this.success("修改成功")
+
             }
         }
     }

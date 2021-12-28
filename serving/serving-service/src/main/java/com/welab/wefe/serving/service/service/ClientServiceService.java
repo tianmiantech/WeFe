@@ -1,5 +1,7 @@
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
@@ -11,10 +13,12 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientServiceR
 import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -35,35 +39,60 @@ public class ClientServiceService {
 
     public void save(SaveApi.Input input) {
 
-        ClientServiceMysqlModel model = clientServiceRepository.findOne("id", input.getId(), ClientServiceMysqlModel.class);
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId())
+                .build(ClientServiceMysqlModel.class);
 
-        if (null == model) {
-            model = new ClientServiceMysqlModel();
-        }
+        // check the client-service by ids
+        Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
+        ClientServiceMysqlModel model = new ClientServiceMysqlModel();
 
-        if (null != input.getClientId()) {
-            model.setClientId(input.getClientId());
-
-        }
-        if (null != input.getServiceId()) {
-            model.setServiceId(input.getServiceId());
-
-        }
-        model.setUpdatedTime(new Date());
         if (null != input.getStatus()) {
             model.setStatus(input.getStatus());
         }
 
-        if (null != input.getFeeConfigId()) {
-            FeeConfigMysqlModel feeConfigMysqlModel = feeConfigRepository.findOne("id", input.getFeeConfigId(), FeeConfigMysqlModel.class);
-            // 暂不设置付费类型
-            // feeConfigMysqlModel.setPayType();
-            feeConfigMysqlModel.setUnitPrice(null != input.getUnitPrice() ? input.getUnitPrice() : feeConfigMysqlModel.getUnitPrice());
-            FeeConfigMysqlModel feeConfigModel = feeConfigRepository.save(feeConfigMysqlModel);
-            model.setFeeConfigId(feeConfigModel.getId());
+        if (!clientServiceMysqlModel.isPresent()) {
+            model = new ClientServiceMysqlModel();
+            if (StringUtil.isNotEmpty(input.getClientId())) {
+                model.setClientId(input.getClientId());
+            }
+            if (StringUtil.isNotEmpty(input.getServiceId())) {
+                model.setServiceId(input.getServiceId());
+            }
+            clientServiceRepository.save(model);
+
+            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+            feeConfigMysqlModel.setServiceId(input.getServiceId());
+            feeConfigMysqlModel.setPayType(input.getPayType());
+            feeConfigMysqlModel.setClientId(input.getClientId());
+            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+            feeConfigRepository.save(feeConfigMysqlModel);
+
+        } else {
+            // exist, then update client-service
+            model = clientServiceMysqlModel.get();
+            model.setUpdatedTime(new Date());
+            clientServiceRepository.updateByParam(model.getServiceId(), model.getClientId(), model.getStatus(),
+                    model.getUpdatedBy(), model.getUpdatedTime());
+
+
+            Specification<FeeConfigMysqlModel> feeWhere = Where.create()
+                    .equal("serviceId", input.getServiceId())
+                    .equal("clientId", input.getClientId())
+                    .build(FeeConfigMysqlModel.class);
+
+            Optional<FeeConfigMysqlModel> one = feeConfigRepository.findOne(feeWhere);
+            if (one.isPresent()) {
+                FeeConfigMysqlModel feeConfigMysqlModel = one.get();
+                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+                feeConfigMysqlModel.setPayType(input.getPayType());
+                feeConfigMysqlModel.setUpdatedTime(new Date());
+                feeConfigRepository.save(feeConfigMysqlModel);
+            }
+
         }
 
-        clientServiceRepository.save(model);
 
     }
 

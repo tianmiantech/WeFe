@@ -19,15 +19,12 @@ package com.welab.wefe.serving.service.api.feeconfig;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.service.FeeConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.IOException;
 
 
@@ -37,12 +34,10 @@ public class SaveApi extends AbstractApi<SaveApi.Input, FeeConfigMysqlModel> {
     @Autowired
     private FeeConfigService feeConfigService;
 
-
     @Override
     protected ApiResult<FeeConfigMysqlModel> handle(Input input) throws StatusCodeWithException, IOException {
         return success(feeConfigService.save(input));
     }
-
 
     public static class Input extends AbstractApiInput {
 

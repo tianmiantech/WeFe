@@ -27,6 +27,8 @@ import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+
 
 @Api(path = "clientservice/save", name = "save client service model")
 public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
@@ -45,23 +47,20 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "id")
         private String id;
 
-        @Check(name = "服务 id", require = true)
+        @Check(name = "服务 id", require = true, messageOnEmpty = "请选择服务")
         private String serviceId;
 
-        @Check(name = "客户 id", require = true)
+        @Check(name = "客户 id", require = true, messageOnEmpty = "请选择客户")
         private String clientId;
 
         @Check(name = "use status")
         private Integer status;
 
-        @Check(name = "fee config id", require = true)
-        private String feeConfigId;
+        @Check(name = "pay type")
+        private int payType;
 
         @Check(name = "unit price")
         private Double unitPrice;
-
-        @Check(name = "pay type")
-        private int payType;
 
         public Double getUnitPrice() {
             return unitPrice;
@@ -77,14 +76,6 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setPayType(int payType) {
             this.payType = payType;
-        }
-
-        public String getFeeConfigId() {
-            return feeConfigId;
-        }
-
-        public void setFeeConfigId(String feeConfigId) {
-            this.feeConfigId = feeConfigId;
         }
 
         public String getId() {

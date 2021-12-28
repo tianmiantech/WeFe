@@ -14,9 +14,6 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "client_id")
     private String clientId;
 
-    @Column(name = "fee_config_id")
-    private String feeConfigId;
-
     /**
      * status: false means unused, true means used, default = true
      */
@@ -46,11 +43,4 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
         this.status = status;
     }
 
-    public String getFeeConfigId() {
-        return feeConfigId;
-    }
-
-    public void setFeeConfigId(String feeConfigId) {
-        this.feeConfigId = feeConfigId;
-    }
 }

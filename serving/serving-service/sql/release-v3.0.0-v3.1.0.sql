@@ -66,7 +66,7 @@ CREATE TABLE client_service(
                                status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
-CREATE UNIQUE INDEX service_client_index ON client_service(service_id,client_id);
+CREATE UNIQUE INDEX service_client_index ON client_service(id,service_id,client_id);
 
 -- 计费规则配置表
 DROP TABLE IF EXISTS fee_config;
