@@ -28,7 +28,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/info", name = "查询任务进度", desc = "查询任务进度", login = true)
+@Api(path = "fusion/task/info", name = "查询任务进度", desc = "查询任务进度")
 public class InfoApi extends AbstractApi<InfoApi.Input, JObject> {
 
 

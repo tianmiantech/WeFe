@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/update", name = "修改对齐任务", desc = "修改对齐任务", login = true)
+@Api(path = "task/update", name = "修改对齐任务", desc = "修改对齐任务")
 public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
     @Autowired

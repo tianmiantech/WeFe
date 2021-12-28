@@ -1,3 +1,5 @@
+package com.welab.wefe.board.service.api.fusion;
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,41 +16,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.task;
 
-import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welab.wefe.common.wefe.enums.HashOptions;
+
+import java.util.EnumSet;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/delete", name = "删除任务", desc = "删除任务")
-public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
-    @Autowired
-    FusionTaskService fusionTaskService;
+@Api(path = "fusion/hash_options_enum", name = "任务状态", desc = "任务状态")
+public class HashOptionsEnumApi extends AbstractApi<HashOptionsEnumApi.Input, EnumSet<HashOptions>> {
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
-        fusionTaskService.delete(input.id);
-        return success();
+    protected ApiResult<EnumSet<HashOptions>> handle(Input input) throws StatusCodeWithException {
+        EnumSet<HashOptions> hashOptions = EnumSet.allOf(HashOptions.class);
+        return success(hashOptions);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "id", require = true)
-        String id;
 
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
     }
 }

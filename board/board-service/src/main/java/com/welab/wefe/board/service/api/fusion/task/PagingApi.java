@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/paging", name = "任务列表", desc = "任务列表", login = true)
+@Api(path = "fusion/task/paging", name = "任务列表", desc = "任务列表")
 public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<FusionTaskOutput>> {
     @Autowired
     FusionTaskService fusionTaskService;
