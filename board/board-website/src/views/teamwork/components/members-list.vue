@@ -284,7 +284,7 @@
             append-to-body
             width="60%"
         >
-            <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreviewRef" />
+            <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreview" />
             <PreviewImageList v-if="form.project_type === 'DeepLearning'" ref="PreviewImageList" />
         </el-dialog>
 

@@ -114,9 +114,6 @@
             status:   Object,
             onlyIcon: Boolean,
         },
-        created() {
-            console.log(this.status);
-        },
         methods: {
             recheck() {
                 this.$bus.$emit('check-service-status');
