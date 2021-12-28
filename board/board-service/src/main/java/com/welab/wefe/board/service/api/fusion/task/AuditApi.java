@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/audit", name = "任务处理", desc = "任务处理", login = false)
+@Api(path = "fusion/task/audit", name = "任务处理", desc = "任务处理")
 public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
 
     @Autowired

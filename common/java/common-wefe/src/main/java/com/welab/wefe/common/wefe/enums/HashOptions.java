@@ -19,7 +19,7 @@ package com.welab.wefe.common.wefe.enums;
 /**
  * @author hunter.zhao
  */
-public enum Options {
+public enum HashOptions {
     MD5,
 
     SHA1,
