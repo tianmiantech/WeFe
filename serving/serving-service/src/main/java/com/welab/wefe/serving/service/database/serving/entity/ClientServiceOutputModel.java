@@ -1,4 +1,3 @@
-package com.welab.wefe.serving.service.database.serving.entity;
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,6 +13,8 @@ package com.welab.wefe.serving.service.database.serving.entity;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.serving.service.database.serving.entity;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
