@@ -48,11 +48,6 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
 
         private String rsaPublicKey;
 
-        private String rsaPrivateKey;
-
-        private String gatewayUri;
-
-
         //region getter/setter
 
         public String getMemberId() {
@@ -78,23 +73,6 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
         public void setRsaPublicKey(String rsaPublicKey) {
             this.rsaPublicKey = rsaPublicKey;
         }
-
-        public String getRsaPrivateKey() {
-            return rsaPrivateKey;
-        }
-
-        public void setRsaPrivateKey(String rsaPrivateKey) {
-            this.rsaPrivateKey = rsaPrivateKey;
-        }
-
-        public String getGatewayUri() {
-            return gatewayUri;
-        }
-
-        public void setGatewayUri(String gatewayUri) {
-            this.gatewayUri = gatewayUri;
-        }
-
 
         //endregion
     }
