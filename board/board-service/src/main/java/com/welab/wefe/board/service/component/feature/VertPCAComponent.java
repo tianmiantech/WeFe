@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.component.feature.VertPCAComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.MemberModel;
@@ -49,6 +50,11 @@ public class VertPCAComponent extends AbstractComponent<VertPCAComponent.Params>
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
+        }
+        
+        List<MemberInfoModel> members = params.getMembers();
+        if (members.size() > 2) {
+            throw new FlowNodeException(node, "两方纵向PCA参与成员不能超过两方。");
         }
     }
 

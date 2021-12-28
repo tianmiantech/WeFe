@@ -71,7 +71,7 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
 			result.setPosition(task.getPosition());
 			result.setSpend(task.getSpend());
 			result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
-			if (!temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
+			if (result.getResult() != null && !temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
 					&& (task.getTaskType() == ComponentType.MixStatistic
 							|| task.getTaskType() == ComponentType.MixBinning
 							|| task.getTaskType() == ComponentType.FillMissingValue
