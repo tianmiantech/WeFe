@@ -33,7 +33,7 @@ public class PrivateSetIntersectionService {
             String res = HttpUtil.post(url, JSONObject.toJSONString(request));
             return JSON.parseObject(res, QueryPrivateSetIntersectionResponse.class);
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             return null;
         }
     }

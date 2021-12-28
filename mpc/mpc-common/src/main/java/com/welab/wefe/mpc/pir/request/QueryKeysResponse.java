@@ -18,6 +18,9 @@ package com.welab.wefe.mpc.pir.request;
 
 import java.io.Serializable;
 
+/**
+ * @author eval
+ */
 public class QueryKeysResponse implements Serializable {
     private String uuid;
     private String s;

@@ -22,6 +22,9 @@ import com.welab.wefe.mpc.pir.server.cache.HauckTargetCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author eval
+ */
 public class ProduceHauckTargetThread extends Thread {
     private static final Logger LOG = LoggerFactory.getLogger(ProduceHauckTargetThread.class);
 
