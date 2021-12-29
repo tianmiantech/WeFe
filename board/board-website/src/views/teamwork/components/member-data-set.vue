@@ -199,7 +199,7 @@
                 <el-table-column label="序号" type="index" />
                 <el-table-column
                     label="数据资源"
-                    width="230"
+                    width="260"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_set">

@@ -274,10 +274,9 @@
                     // define API from parent
                     url = this.interfaceApi;
                 } else {
-                    // data_resource/query
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = 'data_resource/query';
+                        url = '/data_resource/query';
                     } else {
                         // search from union
                         url = `/union/data_resource/query?member_id=${this.memberId}`;
