@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/add", name = "添加对齐任务", desc = "添加对齐任务", login = false)
+@Api(path = "fusion/task/add", name = "添加对齐任务", desc = "添加对齐任务")
 public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
     @Autowired

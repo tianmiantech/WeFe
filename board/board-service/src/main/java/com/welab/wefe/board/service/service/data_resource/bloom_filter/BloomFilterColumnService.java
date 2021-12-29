@@ -65,7 +65,6 @@ public class BloomFilterColumnService extends AbstractService {
             BloomFilterColumnInputModel item = list.get(i);
 
             BloomFilterColumnMysqlModel column = new ModelMapper().map(item, BloomFilterColumnMysqlModel.class);
-            column.setCreatedBy("test");
             column.setBloomFilterId(dataSetId);
             column.setIndex(i);
 

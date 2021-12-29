@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -386,5 +386,19 @@ public class ProjectMemberService {
         return resultList;
     }
 
+    /**
+     * Get the list of official providers in the project
+     */
+    public List<ProjectMemberMySqlModel> listFormalProjectProviders(String projectId) {
+        Specification<ProjectMemberMySqlModel> where = Where
+                .create()
+                .equal("projectId", projectId)
+                .equal("auditStatus", AuditStatus.agree)
+                .equal("exited", false)
+                .equal("memberRole", JobMemberRole.provider)
+                .build(ProjectMemberMySqlModel.class);
+
+        return projectMemberRepo.findAll(where);
+    }
 
 }

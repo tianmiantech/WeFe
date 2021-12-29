@@ -17,7 +17,13 @@
 package com.welab.wefe.board.service.fusion.manager;
 
 import com.google.common.collect.Lists;
+import com.welab.wefe.board.service.database.entity.fusion.FusionActuatorInfoMySqlModel;
+import com.welab.wefe.board.service.database.repository.fusion.FusionActuatorInfoRepository;
+import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
+import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +44,11 @@ public class ActuatorManager {
 
     public static AbstractActuator get(String businessId) {
         return ACTUATORS.get(businessId);
+    }
+
+    private static final FusionActuatorInfoRepository fusionActuatorInfoRepository;
+    static {
+        fusionActuatorInfoRepository = Launcher.CONTEXT.getBean(FusionActuatorInfoRepository.class);
     }
 
     public static void set(AbstractActuator task) {
@@ -98,5 +109,53 @@ public class ActuatorManager {
      */
     public static int size() {
         return ACTUATORS.size();
+    }
+
+    public static void refresh(AbstractActuator actuator) {
+        if (actuator instanceof ClientActuator) {
+            FusionActuatorInfoMySqlModel info = new FusionActuatorInfoMySqlModel();
+            info.setType(actuator.getClass().getSimpleName());
+            info.setBusinessId(actuator.getBusinessId());
+            info.setProgress(((ClientActuator) actuator).currentIndex);
+            fusionActuatorInfoRepository.save(info);
+        } else if (actuator instanceof ServerActuator) {
+            FusionActuatorInfoMySqlModel info = new FusionActuatorInfoMySqlModel();
+            info.setType(actuator.getClass().getSimpleName());
+            info.setBusinessId(actuator.getBusinessId());
+            fusionActuatorInfoRepository.save(info);
+        }
+    }
+    public static void main(String[] args) {
+        AbstractActuator actuator = new AbstractActuator("1") {
+            @Override
+            public void close() throws Exception {
+
+            }
+
+            @Override
+            public boolean isFinish() {
+                return false;
+            }
+
+            @Override
+            public void init() throws StatusCodeWithException {
+
+            }
+
+            @Override
+            public void fusion() throws StatusCodeWithException {
+
+            }
+
+            @Override
+            public void dump(List<JObject> fruit) {
+
+            }
+        };
+
+        AbstractActuator actuator1 = new ClientActuator(null, null, null, null, null);
+        System.out.println("test: " + actuator.getClass().getSimpleName());
+        System.out.println("test: " + actuator1.getClass().getSimpleName());
+
     }
 }

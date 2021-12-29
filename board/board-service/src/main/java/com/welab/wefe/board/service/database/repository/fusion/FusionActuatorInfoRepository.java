@@ -1,3 +1,5 @@
+package com.welab.wefe.board.service.database.repository.fusion;
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,20 +16,14 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.wefe.enums;
+
+import com.welab.wefe.board.service.database.entity.fusion.FusionActuatorInfoMySqlModel;
+import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author hunter.zhao
  */
-public enum Options {
-    MD5,
-
-    SHA1,
-
-    SUBSTRING,
-
-    /**
-     * Don't deal with
-     */
-    NONE
+@Repository
+public interface FusionActuatorInfoRepository extends BaseRepository<FusionActuatorInfoMySqlModel, String> {
 }

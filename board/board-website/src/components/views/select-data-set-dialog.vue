@@ -2,7 +2,7 @@
     <el-dialog
         v-model="show"
         width="75%"
-        title="请选择数据集"
+        title="请选择数据资源"
         destroy-on-close
         :close-on-click-modal="false"
     >
@@ -285,9 +285,11 @@
 
                 }
 
-                const $ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {

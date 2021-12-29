@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/detail", name = "任务列表", desc = "任务列表", login = true)
+@Api(path = "fusion/task/detail", name = "任务列表", desc = "任务列表")
 public class DetailApi extends AbstractApi<DetailApi.Input, FusionTaskOutput> {
     @Autowired
     FusionTaskService fusionTaskService;

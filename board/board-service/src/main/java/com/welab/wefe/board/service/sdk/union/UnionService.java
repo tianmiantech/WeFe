@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.sdk;
+package com.welab.wefe.board.service.sdk.union;
 
 
 import com.alibaba.fastjson.JSONObject;
@@ -23,6 +23,8 @@ import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterO
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.sdk.AbstractUnionService;
+import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -32,12 +34,29 @@ import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+
 
 /**
  * @author Zane
  */
 @Service
 public class UnionService extends AbstractUnionService {
+
+    public LinkedHashMap<String, MemberBaseInfo> getMemberMap() throws StatusCodeWithException {
+        JSONObject result = request("member/map");
+        JSONObject data = result.getJSONObject("data");
+
+        LinkedHashMap<String, MemberBaseInfo> map = new LinkedHashMap<>();
+        for (String memberId : data.keySet()) {
+            map.put(
+                    memberId,
+                    data.getJSONObject(memberId).toJavaObject(MemberBaseInfo.class)
+            );
+        }
+
+        return map;
+    }
 
     public ServiceAvailableCheckOutput getAvailable() throws StatusCodeWithException {
         JSONObject result = request("service/available");
