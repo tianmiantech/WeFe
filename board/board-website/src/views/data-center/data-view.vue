@@ -1,7 +1,7 @@
 <template>
     <el-card v-loading="loading">
         <el-divider content-position="left">
-            数据集简介
+            数据资源简介
         </el-divider>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <el-descriptions :column="2">
@@ -96,7 +96,7 @@
 
         <template v-else>
             <el-divider content-position="left">
-                数据集信息
+                数据资源信息
             </el-divider>
 
             <preview-image-list
@@ -232,13 +232,13 @@
 
             async getData() {
                 this.loading = true;
-                const dataResourceTypeMap = {
+                const map = {
                     BloomFilter: '/bloom_filter/detail',
                     img:         '/image_data_set/detail',
                     csv:         '/table_data_set/detail',
                 };
                 const { code, data } = await this.$http.get({
-                    url:    dataResourceTypeMap[this.addDataType],
+                    url:    map[this.addDataType],
                     params: {
                         id: this.id,
                     },

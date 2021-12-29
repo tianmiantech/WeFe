@@ -119,7 +119,7 @@
                 查询
             </el-button>
             <el-button native-type="submit" class="mb20 fr" @click="checkUploadingData">
-                上传中的数据集 <i class="el-icon-right"></i>
+                上传中的数据资源 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
 
@@ -131,7 +131,7 @@
         />
 
         <el-dialog
-            title="上传中的数据集"
+            title="上传中的数据资源"
             v-model="vData.showUploadingDialog"
             custom-class="dialog-min-width"
             :close-on-click-modal="false"

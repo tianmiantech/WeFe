@@ -7,7 +7,7 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add' }"
                     class="ml10"

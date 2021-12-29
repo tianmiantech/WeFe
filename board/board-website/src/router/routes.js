@@ -118,7 +118,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-view`,
                 name: 'data-view',
                 meta: {
-                    title:  '查看数据集',
+                    title:  '查看数据资源',
                     hidden: true,
                     active: `${prefixPath}data-list`,
                 },
@@ -129,7 +129,7 @@ const baseRoutes = [
                 name: 'data-update',
                 meta: {
                     hidden: true,
-                    title:  '编辑数据集',
+                    title:  '编辑数据资源',
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),

@@ -2,7 +2,7 @@
     <el-dialog
         v-model="show"
         width="75%"
-        title="请选择数据集"
+        title="请选择数据资源"
         destroy-on-close
         :close-on-click-modal="false"
     >
