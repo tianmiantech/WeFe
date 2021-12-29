@@ -44,7 +44,7 @@
                                 class="link"
                                 :to="{ name: member.id === userInfo.member_id ? 'data-list' : 'union-data-list', query: { member_id: member.id }}"
                             >
-                                查看数据集
+                                查看数据资源
                             </router-link>
                         </div>
                     </MemberCard>
@@ -78,8 +78,8 @@
         data() {
             return {
                 search: {
-                    name:               '',
                     // id: '',
+                    name:               '',
                     requestFromRefresh: true,
                 },
                 defaultSearch: true,
