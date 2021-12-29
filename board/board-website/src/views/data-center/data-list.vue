@@ -94,7 +94,7 @@
             </el-form-item>
             <el-form-item
                 v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
+                label="样本分类："
                 label-width="100"
             >
                 <el-select

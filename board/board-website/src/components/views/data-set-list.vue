@@ -44,7 +44,7 @@
             >
                 <template v-slot="scope">
                     {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -76,7 +76,7 @@
             </el-table-column>
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
-                label="任务类型"
+                label="样本分类"
                 prop="for_job_type"
                 width="100"
             >
@@ -369,7 +369,7 @@
                     item.$unchanged = false;
                     this.list[index] = item;
                     this.oldCheckedList.find(sitem => {
-                        if (item.id === sitem.data_set_id ) {
+                        if (item.data_resource_id === sitem.data_set_id ) {
                             item.$checked = true;
                             item.$unchanged = true;
                         }

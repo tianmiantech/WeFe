@@ -55,7 +55,7 @@ public abstract class AbstractAlgorithm<T, R> {
      * single sigmod function
      */
     protected PredictModel sigmod(PredictModel model) {
-        model.setData(1. / (1. + exp(-model.getScore())));
+        model.setScore(1. / (1. + exp(-model.getScore())));
         return model;
     }
 
