@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,12 +20,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskDetailApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.api.file.FileUploadApi;
-import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
+import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.api.operation.LogQueryApi;
 import com.welab.wefe.board.service.api.project.flow.FlowQueryApi;
 import com.welab.wefe.board.service.api.project.job.GetJobProgressApi;
 import com.welab.wefe.board.service.api.project.job.task.TaskProgressDetailApi;
 import com.welab.wefe.board.service.api.project.member.audit.ProjectMemberAuditListApi;
+import com.welab.wefe.board.service.api.service.ServiceAvailableApi;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.repository.OperationLogRepository;
 import com.welab.wefe.common.CommonThreadPool;
@@ -65,7 +66,8 @@ public class OperationLogAfterApiExecute implements AfterApiExecuteFunction {
             FlowQueryApi.class.getAnnotation(Api.class).path(),
             ProjectMemberAuditListApi.class.getAnnotation(Api.class).path(),
             GetJobProgressApi.class.getAnnotation(Api.class).path(),
-            ServiceStatusCheckApi.class.getAnnotation(Api.class).path(),
+            ServiceAvailableApi.class.getAnnotation(Api.class).path(),
+            MemberAvailableCheckApi.class.getAnnotation(Api.class).path(),
             TaskProgressDetailApi.class.getAnnotation(Api.class).path(),
             DataResourceUploadTaskQueryApi.class.getAnnotation(Api.class).path(),
             DataResourceUploadTaskDetailApi.class.getAnnotation(Api.class).path(),

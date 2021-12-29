@@ -39,19 +39,21 @@ class VisualFLJobStartAction(object):
         self.task_executor_pool = ThreadPoolExecutor(max_workers=2)
 
     def do(self):
-
+        running_job = self.job.job_id + '_' + self.job.my_role
         if self.job is None:
             return
 
         if self.job.status != JobStatus.WAIT_RUN:
+            schedule_logger(running_job).info("job status not wait_run, {},{}".format(self.job.job_id, self.job.my_role))
             return
 
         try:
             if not self.wait_for_all_members_are_ready():
                 message = "等待其他成员 Job Ready 超时"
+                schedule_logger(running_job).info("等待其他成员 Job Ready 超时, {},{}".format(self.job.job_id, self.job.my_role))
                 JobStopAction(self.job.job_id, self.job.my_role).do(JobStatus.ERROR_ON_RUNNING, message)
                 return
-
+            schedule_logger(running_job).info("update job status to running, {},{}".format(self.job.job_id, self.job.my_role))
             # 更新 job 状态
             self.job.status = JobStatus.RUNNING
             self.job.status_updated_time = current_datetime()
@@ -61,6 +63,11 @@ class VisualFLJobStartAction(object):
             # 获取 Job 中的 Task
             tasks = TaskDao.list_by_job(self.job)
             for task in tasks:
+                # DeepLearning
+                if task.task_type != 'DeepLearning':
+                    schedule_logger(running_job).info("not DeepLearning task, pass {},{}".format(task.task_id, task.task_type))
+                    continue
+                schedule_logger(running_job).info("run_task_action begin, {},{}".format(task.task_id,task.task_type))
                 run_task_action = RunVisualFLTaskAction(self.job, task)
                 self.task_executor_pool.submit(run_task_action.do)
 
@@ -68,7 +75,7 @@ class VisualFLJobStartAction(object):
             self.job.status = JobStatus.ERROR_ON_RUNNING
             self.job.status_updated_time = current_datetime()
             JobDao.save(self.job)
-            schedule_logger(self.job.job_id + '_' + self.my_role).exception(e)
+            schedule_logger(running_job).exception(e)
         finally:
             self.after_start()
 

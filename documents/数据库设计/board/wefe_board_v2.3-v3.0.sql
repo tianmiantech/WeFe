@@ -79,7 +79,26 @@ CREATE TABLE `image_data_set`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集';
 
-
+DROP TABLE IF EXISTS `image_data_set_sample`;
+CREATE TABLE `image_data_set_sample`
+(
+    `id`             varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`     varchar(32) COMMENT '创建人',
+    `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`     varchar(32) COMMENT '更新人',
+    `updated_time`   datetime(6) COMMENT '更新时间',
+    `data_set_id`    varchar(36) NOT NULL COMMENT '数据集id',
+    `file_name`      varchar(128) COMMENT '文件名',
+    `file_path`      varchar(512) COMMENT '文件路径',
+    `file_size`      bigint(20) NOT NULL DEFAULT '0' COMMENT '文件大小',
+    `label_list`     varchar(1000) COMMENT 'label 列表',
+    `labeled`        bool        NOT NULL DEFAULT false COMMENT '是否已标注',
+    `label_info`     text COMMENT 'json形式的标注信息',
+    `xml_annotation` text COMMENT 'xml形式的标注信息',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique`(`data_set_id`,`file_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片数据集中的样本';
 
 DROP TABLE IF EXISTS `table_data_set`;
 CREATE TABLE `table_data_set`
@@ -232,7 +251,12 @@ ALTER TABLE `project`
 ALTER TABLE `project_data_set`
     ADD COLUMN `data_resource_type` varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型' AFTER `source_task_id`;
 
-
+-- -------------------------------------
+-- operator_log 表字段容量加大
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `operator_log`
+    MODIFY COLUMN `interface_name` varchar (1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '请求接口名称' AFTER `log_interface`;
 
 DROP TABLE IF EXISTS `job_apply_result`;
 CREATE TABLE `job_apply_result`
@@ -251,3 +275,9 @@ CREATE TABLE `job_apply_result`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+
+INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`,
+                             `comment`)
+VALUES ('07ab31c0f41e45e2998d0315fbaac7ab', NULL, '2021-12-16 10:34:30.725000', NULL, '2021-12-16 10:34:30.725000',
+        'wefe_flow', 'visual_fl_base_url', 'http://10.90.0.86:10002', NULL);

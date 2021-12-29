@@ -17,17 +17,16 @@ import json
 from common.python.common.consts import TaskStatus, JobStatus
 from common.python.db.job_dao import JobDao
 from common.python.utils.core_utils import current_datetime
-from common.python.utils.log_utils import LoggerFactory, schedule_logger
 from common.python.db.db_models import Task, Job, GlobalSetting, JobApplyResult
 from common.python.db.task_dao import TaskDao
 from common.python.db.job_apply_result_dao import JobApplyResultDao
 from flow.service.visualfl.visualfl_service import VisualFLService
 from flow.service.job_scheduler.job_service import JobService
 from flow.utils import job_utils
+from common.python.utils.log_utils import schedule_logger
 
 
 class RunVisualFLTaskAction:
-    logger = LoggerFactory.get_logger("RunVisualFLTaskAction")
     job: Job
     task: Task
     running_job: str
@@ -39,58 +38,65 @@ class RunVisualFLTaskAction:
         self.running_job = self.job.job_id + '_' + self.job.my_role
 
     def do(self):
-        self.logger.info(
+        schedule_logger(self.running_job).info(
             "Task apply resource {}（{}）start，time：{}".format(self.task.task_type, self.task.task_id,
                                                              current_datetime()))
-        response = self.apply_resource()
+        session_id = self.job.job_id + "_visual_fl_aggregator_info"
         apply_result = JobApplyResult()
-        if response is not None and response['job_id'] is not None:
-            # 等待 apply resource 执行完成
-            while apply_result is None or apply_result.server_endpoint is None:
-                self.logger.info("Wait apply resource {}（{}）done".format(self.task.task_type, self.task.task_id))
-                time.sleep(3)
-                apply_result = self.query_apply_progress_result()
-        else:
-            raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(self.task.task_type, self.task.task_id, current_datetime())))
         # send
         if self.job.my_role == 'promoter':
-            aggregator_info= {
-                'server_endpoint': apply_result.server_endpoint,
-                'aggregator_endpoint': apply_result.aggregator_endpoint,
-                'aggregator_assignee': apply_result.aggregator_assignee
+            response = self.apply_resource()
+            if response is not None:
+                # wait apply resource
+                while apply_result is None or apply_result.server_endpoint is None:
+                    schedule_logger(self.running_job).info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
+                    time.sleep(3)
+                    apply_result = self.query_apply_progress_result()
+                schedule_logger(self.running_job).info("Wait apply resource finished, apply_result={}".format(str(apply_result)))
+            else:
+                raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(
+                    self.task.task_type, self.task.task_id, current_datetime())))
+            aggregator_info = {
+                "server_endpoint": str(apply_result.server_endpoint),
+                "aggregator_endpoint": str(apply_result.aggregator_endpoint),
+                "aggregator_assignee": str(apply_result.aggregator_assignee)
             }
             task_config_json = json.loads(self.task.task_conf)
+            schedule_logger(self.running_job).info("task_config_json = {}".format(task_config_json))
             members = task_config_json['members']
             for m in members:
                 member_id = m['member_id']
-                self.logger.info(
-                    "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
-                job_utils.send(dst_member_id=member_id, content_str=str(aggregator_info))
+                if member_id == GlobalSetting.get_member_id():
+                    continue
+                schedule_logger(self.running_job).info(
+                    "send aggregator_info to {}, content is : {}".format(member_id, json.dumps(aggregator_info)))
+                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=json.dumps(aggregator_info), session_id = session_id)
         # receive
         else:
             result = None
-            while result is None:
-                self.logger.info("wait aggregator_info")
-                result = job_utils.receive()
+            while result is None or len(result) <= 10:
+                schedule_logger(self.running_job).info("wait aggregator_info")
+                result = job_utils.receive_fl(session_id = session_id)
                 time.sleep(3)
-            self.logger.info("receive aggregator_info , content is : {}".format(str(result)))
-        # append result to apply_result
-        if result is not None:
-            result_json = json.loads(str(result))
-            apply_result.append(result_json)
-        self.logger.info("receive aggregator_info , content is : {}".format(apply_result))
+            schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
+            if result is not None:
+                result_json = json.loads(result)
+                apply_result.server_endpoint = result_json['server_endpoint']
+                apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
+                apply_result.aggregator_assignee = result_json['aggregator_assignee']
+        schedule_logger(self.running_job).info("begin submit_task : {},{}".format(self.job.job_id, self.job.my_role))
         response = self.submit_task(apply_result)
         if response:
-            self.logger.info(
+            schedule_logger(self.running_job).info(
                 "Task apply resource {}（{}）start，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             # update job progress
             JobService.update_progress(self.job)
             # wait task finished
             while not self.is_task_progress_done():
-                self.logger.info("Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
+                schedule_logger(self.running_job).info("Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
         else:
-            self.logger.info(
+            schedule_logger(self.running_job).info(
                 "Task {}（{}）failed， submit task request error, time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             self.error_on_task('submit task error')
             raise RuntimeError('submit task error')
@@ -128,29 +134,34 @@ class RunVisualFLTaskAction:
         return JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
 
     def is_task_progress_done(self) -> bool:
-        apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None or apply_result.status == '待运行' or apply_result.status == '运行中':
-            return False
-        return True
+        # apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
+        # if apply_result is None or apply_result.status == 'wait_run' or apply_result.status == 'running':
+        #     return False
+        # return True
+        self.task = TaskDao.find_one_by_task(self.task)
+        if self.task.status != TaskStatus.WAITRUN and self.task.status != TaskStatus.RUNNING:
+            return True
+        return False
 
     # submit task
     def submit_task(self, apply_result: JobApplyResult):
         submit_task_start_status = False
         task_config_json = json.loads(self.task.task_conf)
         try:
-            params = task_config_json['params']
-            env = params['env']
-            # todo 将apply_result 填充到 params里面
-            env.append(apply_result)
-            self.log_job_info('submit_task params:' + str(params))
+            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint
+            task_config_json['env']['aggregator_assignee'] = apply_result.aggregator_assignee
+            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint
+            # task_config_json['algorithm_config']['need_shuffle'] = True
+            schedule_logger(self.running_job).info('submit_task request: {}'.format(task_config_json))
             # submit
-            response = VisualFLService.request('submit', params)
-            submit_task_start_status = response is not None and response['job_id'] is not None
+            response = VisualFLService.request('submit', task_config_json)
+            schedule_logger(self.running_job).info('submit response: {}'.format(response))
+            submit_task_start_status = response is not None
             return response
         except Exception as e:
             schedule_logger(self.running_job).exception(e)
         finally:
-            self.log_job_info('success' if submit_task_start_status else 'failed')
+            schedule_logger(self.running_job).info('success' if submit_task_start_status else 'failed')
 
     # apply resource
     def apply_resource(self):
@@ -162,10 +173,17 @@ class RunVisualFLTaskAction:
                 'job_type': 'paddle_fl',
                 'role': self.job.my_role,
                 'member_id': GlobalSetting.get_member_id(),
-                'callback_url': GlobalSetting.get_flow_base_url() + '/visualfl/apply_callback'
+                'callback_url': GlobalSetting.get_flow_base_url().value + '/visualfl/apply_callback'
             }
-            self.log_job_info('apply_resource params:' + str(params))
+            task_config_json = json.loads(self.task.task_conf)
+            params['env'] = task_config_json['env']
+            params['data_set'] = task_config_json['data_set']
+            params['algorithm_config'] = task_config_json['algorithm_config']
+            # params['algorithm_config']['need_shuffle'] = True
+            schedule_logger(self.running_job).info('apply_resource request : {}'.format(params))
+            # return job_id
             response = VisualFLService.request('apply', params)
+            schedule_logger(self.running_job).info('apply_resource response: {}'.format(response))
             if response:
                 apply_resource_start_status = True
                 # self.task.pid = p.pid
@@ -177,7 +195,7 @@ class RunVisualFLTaskAction:
         except Exception as e:
             schedule_logger(self.running_job).exception(e)
         finally:
-            self.log_job_info('success' if apply_resource_start_status else 'failed')
+            schedule_logger(self.running_job).info('success' if apply_resource_start_status else 'failed')
 
     def log_job_info(self, message):
         message = 'job {} on {} {} start task subprocess:{}'.format(
@@ -186,4 +204,4 @@ class RunVisualFLTaskAction:
             GlobalSetting.get_member_id(),
             message
         )
-        schedule_logger(self.running_job).info(message)
+        schedule_logger(self.running_job).info.info(message)

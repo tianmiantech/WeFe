@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,18 +28,17 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -94,7 +93,7 @@ public class ProjectDataSetService extends AbstractService {
         Where where = Where
                 .create()
                 .equal("projectId", input.getProjectId())
-                .equal("dataResourceType", input.getDataSetType())
+                .equal("dataResourceType", input.getDataResourceType())
                 .equal("dataSetId", input.getDataSetId())
                 .equal("sourceFlowId", input.getSourceFlowId())
                 .equal("sourceJobId", input.getSourceJobId());
@@ -159,7 +158,7 @@ public class ProjectDataSetService extends AbstractService {
                                         DerivedProjectDataSetOutputModel.class
                                 );
                                 tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataSet();
-                            } catch (MemberGatewayException e) {
+                            } catch (Exception e) {
                                 super.log(e);
                             }
                         }
@@ -208,10 +207,16 @@ public class ProjectDataSetService extends AbstractService {
                     try {
                         ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                         DataResourceOutputModel dataSet = null;
-                        if (x.getDataSetType() == DataResourceType.TableDataSet) {
+                        if (x.getDataResourceType() == DataResourceType.TableDataSet) {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        } else if (x.getDataSetType() == DataResourceType.ImageDataSet) {
+                        } else if (x.getDataResourceType() == DataResourceType.ImageDataSet) {
                             dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        }
+                        // 如果这里没有拿到数据集信息，说明数据集已经被删除或者不可见。
+                        if (dataSet == null) {
+                            dataSet = new DataResourceOutputModel();
+                            dataSet.setId(projectDataSet.getDataSetId());
+                            dataSet.setDeleted(true);
                         }
                         projectDataSet.setDataSet(dataSet);
                         return projectDataSet;

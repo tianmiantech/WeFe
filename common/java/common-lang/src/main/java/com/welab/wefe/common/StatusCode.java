@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,7 +60,7 @@ public enum StatusCode {
     IP_REQUESTS_OUT_OF_RATE_LIMIT(10022, "IP request frequency exceeds the upper limit"),
     USER_REQUESTS_OUT_OF_RATE_LIMIT(10023, "User request frequency exceeds the upper limit"),
     PRIMARY_KEY_CONFLICT(10026, "Data with value (%s) already exists for parameter (%s)"),
-    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item：(%s)"),
+    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item"),
     DIRECTORY_NOT_FOUND(10028, "directory does not exist"),
     PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s can not be empty!"),
     SQL_ERROR(10030, "SQL execution failed"),
@@ -70,7 +70,15 @@ public enum StatusCode {
     REPEAT_SUBSCRIPTION(10034, "Do not repeat subscription"),
     FILE_IO_ERROR(10035, "File read / write failed"),
     RSA_ERROR(10036, "Rsa error"),
+    DUPLICATE_RESOURCE_ERROR(10037, "Duplicate resource"),
 
+
+    FILE_DOES_NOT_EXIST(10038, "file does not exist error fileId: (%s)"),
+
+    INVALID_DATASET(10039, "Invalid dataset id (%s)"),
+
+    INVALID_PARAMETER(10040, "Invalid (%s)"),
+    MISSING_DATA(10041, "Missing data (%s)"),
     /**
      * Database related error status code
      */

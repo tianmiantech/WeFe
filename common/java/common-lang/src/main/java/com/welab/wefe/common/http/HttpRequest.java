@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,6 +37,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -356,7 +357,8 @@ public class HttpRequest {
             paramMap.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(", "));
             sb.append("]");
 
-            LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
+            // LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
+            LOG.info("Request : URL = {}, paramMap = {}, body = {}", url, sb, body);
             try (CloseableHttpResponse httpResponse = httpClient.execute(httpUriRequest)) {
                 response = HttpResponse.create(this, System.currentTimeMillis() - startTime)
                         .message(httpResponse.getStatusLine().getReasonPhrase())
@@ -391,13 +393,15 @@ public class HttpRequest {
             if (CollectionUtils.isNotEmpty(paramMap.keySet())) {
 
                 paramMap.forEach((key, value) -> {
-
-                    if (value instanceof byte[]) {
+                    if (value instanceof InputStreamBody) {
+                        builder.addPart(key, (InputStreamBody) value);
+                    } else if (value instanceof byte[]) {
                         builder.addBinaryBody(key, (byte[]) value);
                     } else if (value instanceof InputStream) {
                         builder.addBinaryBody(key, (InputStream) value);
                     } else if (value instanceof File) {
-                        builder.addBinaryBody(key, (File) value);
+                        File file = (File) value;
+                        builder.addBinaryBody(key, file);
                     } else {
                         builder.addTextBody(key,
                                 String.valueOf(value),

@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column
             label="成员"
-            min-width="100"
+            min-width="160"
         >
             <template v-slot="scope">
                 <span
@@ -83,20 +83,7 @@
             align="center"
         />
         <el-table-column
-            label="任务类型"
-            width="100"
-            v-if="search.dataResourceType === 'ImageDataSet'"
-            align="center"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="数据量"
+            label="数据信息"
             width="140"
         >
             <template v-slot="scope">
@@ -104,8 +91,24 @@
                     特征量：{{ scope.row.feature_count }}
                     <br>
                     样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    <el-tag type="success" class="mr5">包含Y</el-tag> 
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                            <elicon-check />
+                        </el-icon>
+                        <el-icon v-else class="el-icon-close" style="color: #f85564">
+                            <elicon-close />
+                        </el-icon>
+                    </span>
                 </p>
-                <p v-else>{{scope.row.total_data_count}}</p>
+                <p v-else>
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
             </template>
         </el-table-column>
         <el-table-column
@@ -115,27 +118,9 @@
             align="center"
         />
         <el-table-column
-            label="包含Y"
-            width="100"
-            align="center"
-            v-if="search.dataResourceType !== 'ImageDataSet'"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                        <elicon-check />
-                    </el-icon>
-                    <el-icon v-else class="el-icon-close">
-                        <elicon-close />
-                    </el-icon>
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
-        <el-table-column
             label="上传者"
             prop="creator_nickname"
-            min-width="160"
+            min-width="110"
             align="center"
         >
             <template v-slot="scope">

@@ -1,0 +1,69 @@
+# standalone deploy config demo
+# deploy machine: single
+# coordinator: name=coordinator1, port=10000
+# clusters: single, name=cluster1, port=10001, single worker
+# masters: 4, share cluster `cluster1`
+# deploy structure:
+#
+#+----------------------------------------------------------------------------------------+
+#|                                                                                        |
+#|          +-----+------+    +-----+------+     +-----+------+    +-----+------+         |
+#|          |  master1   |    |  master2   |     |  master3   |    |  master4   |         |
+#|          |            |    |            |     |            |    |            |         |
+#|          +-----+------+    +-----+------+     +-----+------+    +-----+------+         |
+#|                |                 |                  |                 |                |
+#|                v                 v                  v                 v                |
+#|          +-----+-----------------+------------------+-----------------+-------+        |
+#|          |                                                                    |        |
+#|          |   +-----------+       +-----------+     +-----------+              |        |
+#|          |   |worker1    |       |worker2    |     |worker3    |              |        |                    |        |
+#|          |   |           |       |           |     |           |              |        |                  |        |
+#|          |   +-----------+       +-----------+     +-----------+    cluster1  |        |
+#|          |                                                                    |        |
+#|          +--------------------------------------------------------------------+        |
+#|                                                                                        |
+#|                                                                               machine1 |
+#|                                                                                        |
+#+----------------------------------------------------------------------------------------+
+
+
+machines:
+  - name: machine1
+    ip: 127.0.0.1
+    base_dir: /data
+    python_for_venv_create: python3 # use to create venv, python3.7+ required
+
+
+clusters:
+  - name: cluster1
+    manager:
+      machine: machine1
+      port: 10001
+    workers:
+      - name: worker1
+        machine: machine1
+        ports: 12000-12099
+        max_tasks: 10
+      - name: worker2
+        machine: machine1
+        ports: 12000-12099
+        max_tasks: 10
+      - name: worker3
+        machine: machine1
+        ports: 12000-12099
+        max_tasks: 10
+      - name: worker4
+        machine: machine1
+        ports: 12000-12099
+        max_tasks: 10
+
+
+masters:
+  - name: master1
+    machine: machine1
+    submit_port: 10002
+    cluster: cluster1
+    standalone: True
+
+
+

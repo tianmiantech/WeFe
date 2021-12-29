@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@ package com.welab.wefe.board.service.util;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.Arrays;
@@ -35,7 +37,7 @@ import java.util.stream.Collectors;
  * @author zane.luo
  */
 public abstract class AbstractTableDataSetReader implements Closeable {
-
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
 
     private final static Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^([+\\-])?\\d{1,10}(\\.0+)?$");
@@ -159,6 +161,10 @@ public abstract class AbstractTableDataSetReader implements Closeable {
             }
 
             DataSetColumnInputModel column = this.metadataMap.get(entry.getKey());
+            if (column == null) {
+                continue;
+            }
+
             Pattern pattern;
             switch (column.getDataType()) {
                 case Long:
@@ -184,7 +190,8 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                         "数据集的特征 " + column.getName()
                                 + " 声明为 " + column.getDataType()
                                 + " 类型，但在 " + (readDataRows + 1)
-                                + " 行发现不满足类型的值：" + value
+                                // 由于有并发，所以这里的行号会不准确，必须表达为附近。
+                                + " 行附近发现不满足类型的值：" + value
                 );
             }
         }

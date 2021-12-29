@@ -1,18 +1,18 @@
 
 ### 添加数据集-xlsx
-POST http://localhost:8080/board-service/data_set/add
+POST http://localhost:8080/board-service/table_data_set/add
 Content-Type: application/json
 token: {{token}}
 
 {
   "publicLevel": "Public",
-  "name": "zane test",
+  "name": "zane test01",
   "tags": [
     "12321"
   ],
   "description": "",
   "public_member_list": "",
-  "filename": "afc512de-2625-4f9b-9ebd-385fd05eaeb2-data0 - 缺失.csv",
+  "filename": "056a1d7d-2a95-483d-b5eb-f7ce43853b0e-YYY--1000行--20特征--ID01.csv",
   "data_set_add_method": "HttpUpload",
   "metadata_list": [
     {

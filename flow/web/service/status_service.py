@@ -11,23 +11,43 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
+from common.python.db.global_config_dao import GlobalConfigDao
+from flow.service.board.board_service import BoardService
 from flow.service.gateway.gateway_service import GatewayService
+from flow.settings import GATEWAY_INTRANET_HOST, GATEWAY_INTRANET_PORT
 from flow.web.utils.const import *
+from datetime import datetime
 
 
-def all_status():
-    """
-    Check all of service status
+class StatusService:
 
-    Returns
-    -------
-    { ServiceName ：Data }
-    """
-    res = {}
-    res.update({ServiceType.BOARD: BoardStatusService.flow_board_status()})
-    res.update({ServiceType.GATEWAY: GatewayStatusService.flow_gateway_status_json()})
-    return res
+    @staticmethod
+    def all_status():
+        """
+        Check all of service status
+
+        Returns
+        -------
+        { ServiceName ：Data }
+        """
+        res = {
+            "available": True,
+            "list": [],
+            "message": '',
+            "errorServiceType": ''
+        }
+        res['list'].append(BoardStatusService.flow_board_status())
+        res['list'].append(GatewayStatusService.flow_gateway_status_json())
+
+        for item in res['list']:
+            if not item[JsonField.SUCCESS]:
+                res["available"] = False
+                res["message"] = item[JsonField.MESSAGE]
+                res["errorServiceType"] = item[JsonField.SERVICE]
+
+        return res
 
 
 class BoardStatusService:
@@ -37,7 +57,18 @@ class BoardStatusService:
 
     @staticmethod
     def flow_board_status():
-        return get_success_json()
+        desc = '检查 flow 对 board 服务的访问是否正常'
+        api = '/service/alive'
+        data = {}
+        resp = BoardService.request(api, data)
+        return get_result_json(
+            des=desc,
+            mess=resp[JsonField.MESSAGE],
+            service='BoardService',
+            spend=resp[JsonField.SPEND],
+            success=resp[JsonField.SUCCESS],
+            value=GlobalConfigDao.getBoardConfig().intranet_base_uri
+        )
 
 
 class GatewayStatusService:
@@ -50,22 +81,46 @@ class GatewayStatusService:
         """
         check connectivity to gateway service
         """
-        return GatewayService.alive()
+        start = datetime.now()
+        check_info = GatewayService.alive()
+        end = datetime.now()
+        spend = round((end - start).total_seconds() * 1000)
+        return check_info[1], spend
 
     @staticmethod
     def flow_gateway_status_json():
-        if GatewayStatusService.flow_gateway_status()[0] is True:
-            return get_success_json()
+        desc = "检查 flow 对 gateway 服务的访问是否正常"
+        res = GatewayStatusService.flow_gateway_status()
+        if res[0]["code"] == 0:
+            return get_result_json(
+                des=desc,
+                mess=ServiceStatusMessage.SUCCESS_MESSAGE,
+                service=ServiceName.GATEWAY_SERVICE,
+                spend=GatewayStatusService.flow_gateway_status()[1],
+                success=True,
+                value=GATEWAY_INTRANET_HOST + ':' + GATEWAY_INTRANET_PORT
+            )
         else:
-            return GatewayStatusService.flow_gateway_status()[1]
+            return get_result_json(
+                des=desc,
+                mess=GatewayStatusService.flow_gateway_status()[0]["message"],
+                service=ServiceName.GATEWAY_SERVICE,
+                spend=GatewayStatusService.flow_gateway_status()[1],
+                success=False,
+                value=GATEWAY_INTRANET_HOST + ':' + GATEWAY_INTRANET_PORT
+            )
 
 
-def get_success_json():
+def get_result_json(des, mess, service, spend, success, value):
     return {
-        JsonField.CODE: ServiceStatusCode.SUCCESS_CODE,
-        JsonField.MESSAGE: ServiceStatusMessage.SUCCESS_MESSAGE
+        JsonField.DESC: des,
+        JsonField.MESSAGE: mess,
+        JsonField.SERVICE: service,
+        JsonField.SPEND: spend,
+        JsonField.SUCCESS: success,
+        JsonField.VALUE: value
     }
 
 
 if __name__ == '__main__':
-    print(all_status())
+    print(StatusService.all_status())
