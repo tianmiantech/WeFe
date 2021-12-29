@@ -18,6 +18,7 @@
 import datetime
 import json
 import os
+import random
 
 import numpy as np
 from google.protobuf.json_format import MessageToJson
@@ -29,7 +30,9 @@ from common.python.calculation.fc.fc_storage import FCStorage
 from common.python.common.consts import NAMESPACE, TaskResultDataType, \
     ProjectStatus, ModelType, TaskStatus
 from common.python.common.enums import FlowQueueActionType
-from common.python.db.data_set_dao import DataSetDao
+# from common.python.db.data_set_dao import DataSetDao
+from common.python.db.data_resource_dao import DataResourceDao
+from common.python.db.table_data_set_dao import TableDataSetDao
 from common.python.db.data_set_column_dao import DataSetColumnDao
 from common.python.db.db_models import *
 from common.python.db.job_member_dao import JobMemberDao
@@ -604,66 +607,78 @@ class Tracking(object):
         if not job_member:
             return
 
-        data_set_old = DataSetDao.get(
-            DataSet.id == job_member.data_set_id
+        data_resource_old = DataResourceDao.get(
+            DataResource.id == job_member.data_set_id
         )
-        if not data_set_old:
+        data_set_old = TableDataSetDao.get(
+            TableDataSet.id == job_member.data_set_id
+        )
+        if not data_set_old or not data_resource_old:
             return
 
-        data_set = DataSet()
+        data_resource = DataResource()
+        table_data_set = TableDataSet()
+
         # data_set_id = get_commit_id()
         unit_id = generate_unit_id(self.task_id)
-        data_set.id = md5(unit_id)
-        data_set.created_time = current_datetime()
-        data_set.updated_time = current_datetime()
-        data_set.name = job.name + self.show_name
-        data_set.source_type = self.module_name
-        data_set.source_job_id = job.job_id
-        data_set.name = data_set.name + '_' + timestamp_to_date(format_string='%Y%m%d%H%M%S')
-        data_set.storage_type = data_set_old.storage_type
+        data_resource.id = md5(unit_id)
+        data_resource.created_time = datetime.datetime.now()
+        data_resource.updated_time = data_resource.created_time
+        data_resource.name = job.name + self.show_name
+        data_resource.derived_resource = 1
+        data_resource.derived_from = self.module_name
+        data_resource.derived_from_job_id = job.job_id
+        data_resource.name = data_resource.name + '_' + timestamp_to_date(format_string='%Y%m%d%H%M%S')
+        data_resource.storage_type = data_resource_old.storage_type
+        data_resource.data_resource_type = data_resource_old.data_resource_type
 
-        data_set.public_member_list = data_set_old.public_member_list
-        data_set.tags = data_set_old.tags
-        data_set.description = data_set_old.description
-        data_set.source_flow_id = data_set_old.source_flow_id
-        data_set.source_task_id = self.task_id
-        data_set.y_name_list = data_set.y_name_list
-        data_set.usage_count_in_job = 0
-        data_set.usage_count_in_flow = 0
-        data_set.usage_count_in_project = 0
+        data_resource.public_member_list = data_resource_old.public_member_list
+        data_resource.tags = data_resource_old.tags
+        data_resource.description = data_resource_old.description
+        data_resource.derived_from_flow_id = data_resource_old.derived_from_flow_id
+        data_resource.derived_from_task_id = self.task_id
 
-        data_set.namespace = data_input['table_namespace']
-        data_set.table_name = data_input['table_name']
-        data_set.row_count = data_input['table_create_count']
+        data_resource.usage_count_in_job = 0
+        data_resource.usage_count_in_flow = 0
+        data_resource.usage_count_in_project = 0
 
-        data_set.feature_name_list = ",".join(header_list)
-        data_set.y_name_list = data_set_old.y_name_list
-        data_set.primary_key_column = data_set_old.primary_key_column
+        data_resource.storage_namespace = data_input['table_namespace']
+        data_resource.storage_resource_name = data_input['table_name']
+        data_resource.total_data_count = data_input['table_create_count']
+
+        table_data_set.id = data_resource.id
+        table_data_set.created_time = data_resource.created_time
+        table_data_set.updated_time = data_resource.updated_time
+        table_data_set.feature_name_list = ",".join(header_list)
+        table_data_set.y_name_list = data_set_old.y_name_list
+        table_data_set.primary_key_column = data_set_old.primary_key_column
+        table_data_set.y_count = data_set_old.y_count
 
         # column = primary_key + y + feature
-        if data_set.y_name_list is None:
-            data_set.column_name_list = data_set.primary_key_column + "," + ",".join(header_list)
+        if table_data_set.y_name_list is None:
+            table_data_set.column_name_list = table_data_set.primary_key_column + "," + ",".join(header_list)
         else:
-            data_set.column_name_list = f"{data_set.primary_key_column},{data_set.y_name_list},{','.join(header_list)}"
+            table_data_set.column_name_list = f"{table_data_set.primary_key_column},{table_data_set.y_name_list},{','.join(header_list)}"
 
             # y positive count
             y_positive_count = data_table.filter(lambda k, v: int(v.label) > 0).count()
             y_positive_ratio = round(y_positive_count / data_input['table_create_count'], 4)
-            data_set.y_positive_example_count = y_positive_count
-            data_set.y_positive_example_ratio = y_positive_ratio
+            table_data_set.y_positive_example_count = y_positive_count
+            table_data_set.y_positive_example_ratio = y_positive_ratio
 
         if len(header_list) == 0:
-            data_set.column_name_list = data_set.column_name_list[1:]
-        data_set.contains_y = data_set_old.contains_y
-        data_set.column_count = len(data_set.column_name_list.split(","))
-        data_set.feature_count = len(data_set.feature_name_list.split(","))
+            table_data_set.column_name_list = table_data_set.column_name_list[1:]
+        table_data_set.contains_y = data_set_old.contains_y
+        table_data_set.column_count = len(table_data_set.column_name_list.split(","))
+        table_data_set.feature_count = len(table_data_set.feature_name_list.split(","))
 
-        DataSetDao.save(data_set, force_insert=True)
+        DataResourceDao.save(data_resource, force_insert=True)
+        TableDataSetDao.save(table_data_set, force_insert=True)
 
-        self.save_project_data_set(data_set.id, self.job_id, self.task_id, self.component_name)
-        self.save_data_set_column(data_set, schema, data_set_old.id)
+        self.save_project_data_set(table_data_set.id, self.job_id, self.task_id, self.component_name)
+        self.save_data_set_column(table_data_set, schema, data_set_old.id)
 
-        return data_set
+        return table_data_set
 
     @staticmethod
     def generate_task_id(job_id, role, component_name):
