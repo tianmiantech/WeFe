@@ -38,7 +38,6 @@ public class HuackKeyService {
     private static final Logger LOG = LoggerFactory.getLogger(HuackKeyService.class);
 
     public QueryKeysResponse handle(QueryKeysRequest request) throws Exception {
-        // TODO
         long start = System.currentTimeMillis();
         if (request.getIds() == null || request.getIds().isEmpty()) {
             throw new Exception("ids is empty");

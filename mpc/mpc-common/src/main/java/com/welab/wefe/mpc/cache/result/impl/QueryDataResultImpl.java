@@ -27,14 +27,23 @@ import java.util.concurrent.TimeUnit;
  */
 public class QueryDataResultImpl implements QueryDataResult {
 
-    private final Cache<String, Object> resultCache =
+    private final static Cache<String, Object> resultCache =
             CacheBuilder.newBuilder()
                     .expireAfterAccess(5, TimeUnit.MINUTES)
                     .build();
 
     @Override
     public Object query(String key) {
-        return resultCache.getIfPresent(key);
+        Object value = null;
+        while (value == null) {
+            value = resultCache.getIfPresent(key);
+            try {
+                TimeUnit.MILLISECONDS.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return value;
     }
 
     @Override

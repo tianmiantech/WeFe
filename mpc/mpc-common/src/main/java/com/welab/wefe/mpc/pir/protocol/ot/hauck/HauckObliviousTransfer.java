@@ -30,6 +30,9 @@ import com.welab.wefe.mpc.pir.protocol.ro.mac.Sha256MAC;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+/**
+ * @author eval
+ */
 public class HauckObliviousTransfer {
 
     public String uuid;

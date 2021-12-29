@@ -18,7 +18,7 @@ CREATE TABLE `service` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
 
 -- 数据源
-
+DROP TABLE IF EXISTS data_source;
 CREATE TABLE `data_source` (
    `database_type` varchar(255) DEFAULT NULL,
    `host` varchar(255) DEFAULT NULL,
@@ -48,6 +48,7 @@ CREATE TABLE client(
                        ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
                        pub_key VARCHAR(255) NOT NULL   COMMENT '公钥' ,
                        remark VARCHAR(255)    COMMENT '备注' ,
+                       status INT NOT NULL  DEFAULT 1 COMMENT '客户状态;1正常、0删除' ,
                        PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '客户基本信息表';
 
@@ -62,42 +63,42 @@ CREATE TABLE client_service(
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                                updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                               status VARCHAR(255) NOT NULL   COMMENT '是否启用' ,
+                               status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
-CREATE UNIQUE INDEX service_client_index ON client_service(service_id,client_id);
+CREATE UNIQUE INDEX service_client_index ON client_service(id,service_id,client_id);
 
 -- 计费规则配置表
 DROP TABLE IF EXISTS fee_config;
 CREATE TABLE fee_config(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
-                           service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
-                           client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                           service_id VARCHAR(32)  COMMENT '服务id' ,
+                           client_id VARCHAR(32)  COMMENT '客户id' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                           unit_price DECIMAL(24,6) NOT NULL   COMMENT '调用单价' ,
+                           unit_price double (10,6) NOT NULL   COMMENT '调用单价' ,
+                           pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '计费配置';
-CREATE INDEX service_client_index ON fee_config(service_id,client_id);
 
 -- API 调用统计表
-DROP TABLE IF EXISTS api_call_record;
-CREATE TABLE api_call_record(
-                                id VARCHAR(32) NOT NULL   COMMENT '租户号' ,
-                                service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
-                                client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
-                                created_by varchar(32) DEFAULT NULL COMMENT '创建人',
-                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
-                                updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                                call_success_times INT    COMMENT '提交成功次数' ,
-                                call_fail_times INT    COMMENT '提交失败次数' ,
-                                call_total_times INT    COMMENT '总提交次数' ,
-                                PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = 'API 调用记录';
-CREATE UNIQUE INDEX service_client_index ON api_call_record(service_id,client_id);
+DROP TABLE IF EXISTS api_request_record;
+CREATE TABLE api_request_record(
+                                   id VARCHAR(32) NOT NULL   COMMENT '租户号' ,
+                                   service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
+                                   client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                                   ip_add VARCHAR(255) NOT NULL   COMMENT '请求ip地址' ,
+                                   spend BIGINT NOT NULL   COMMENT '耗时' ,
+                                   request_result INT NOT NULL   COMMENT '请求结果' ,
+                                   created_by varchar(32) DEFAULT NULL COMMENT '创建人',
+                                   created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                   updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
+                                   updated_time datetime DEFAULT NULL COMMENT '更新时间',
+                                   PRIMARY KEY (id)
+)  COMMENT = 'API 调用记录';
+CREATE UNIQUE INDEX service_client_index ON api_request_record(service_id,client_id,id);
 
 -- 计费详情表
 DROP TABLE IF EXISTS fee_detail;
@@ -105,13 +106,12 @@ CREATE TABLE fee_detail(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
                            service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                            client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
-                           fee_config_id VARCHAR(32) NOT NULL   COMMENT '计费配置id' ,
-                           api_call_record_id VARCHAR(32) NOT NULL   COMMENT 'API 调用记录id' ,
                            total_fee DECIMAL(24,6)    COMMENT '总费用' ,
+                           total_request_times INT NOT NULL  DEFAULT 0 COMMENT '总调用次数' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
-CREATE UNIQUE INDEX fee_detail_index ON fee_detail(service_id,client_id,fee_config_id,api_call_record_id);
+CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);

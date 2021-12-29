@@ -11,11 +11,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mpc-psi</artifactId>
+    <packaging>pom</packaging>
     <description>Private Set Intersection</description>
+    <modules>
+        <module>mpc-psi-server</module>
+        <module>mpc-psi-sdk</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>mpc-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

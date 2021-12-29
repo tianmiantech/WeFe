@@ -17,6 +17,8 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
@@ -40,8 +42,13 @@ public class HauckRandomLegalService {
             String r = request.getR();
             mCacheOperation.save(uuid, Constants.PIR.R, r);
         }
+        String result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
+
         QueryRandomLegalResponse response = new QueryRandomLegalResponse();
         response.setUuid(uuid);
+        if (StrUtil.isNotEmpty(result)) {
+            response.setResults(JSON.parseArray(result, String.class));
+        }
         return response;
     }
 

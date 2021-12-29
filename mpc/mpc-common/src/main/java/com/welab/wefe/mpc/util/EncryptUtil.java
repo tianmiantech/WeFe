@@ -21,10 +21,15 @@ import com.welab.wefe.mpc.commom.AccountEncryptionType;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 
 import javax.crypto.interfaces.DHPublicKey;
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
+/**
+ * @author eval
+ */
 public class EncryptUtil {
 
     public static String encrypt(String id, String method) {
@@ -38,22 +43,6 @@ public class EncryptUtil {
                 return SHAUtil.SHA512(id);
             default:
                 return id;
-        }
-    }
-
-
-    public static DiffieHellmanKey generateDHKey(int keySize) {
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
-            generator.initialize(keySize);
-            KeyPair pair = generator.generateKeyPair();
-            DHPublicKey publicKey = (DHPublicKey) pair.getPublic();
-            DiffieHellmanKey dhKey = new DiffieHellmanKey();
-            dhKey.setG(publicKey.getParams().getG());
-            dhKey.setP(publicKey.getParams().getP());
-            return dhKey;
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
         }
     }
 

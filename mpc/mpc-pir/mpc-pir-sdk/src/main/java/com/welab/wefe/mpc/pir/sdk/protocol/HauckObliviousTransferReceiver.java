@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * @author eval
+ */
 public class HauckObliviousTransferReceiver extends HauckObliviousTransfer implements ObliviousTransfer {
     private static final Logger LOG = LoggerFactory.getLogger(HauckObliviousTransferReceiver.class);
 
