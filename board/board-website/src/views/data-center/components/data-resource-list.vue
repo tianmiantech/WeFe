@@ -80,20 +80,36 @@
             </template>
         </el-table-column>
         <el-table-column
-            label="数据量"
-            width="140"
+            label="数据信息"
+            width="150"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     特征量：{{ scope.row.feature_count }}
                     <br>
-                    样本量：{{ scope.row.row_count }}
+                    样本量：{{ scope.row.total_data_count }}
                     <br>
                     正例样本数量：{{ scope.row.y_positive_sample_count }}
                     <br>
                     正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                    <br>
+                    <el-tag type="success" class="mr5">包含Y</el-tag>
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                            <elicon-check />
+                        </el-icon>
+                        <el-icon v-else class="el-icon-close" style="color: #f85564">
+                            <elicon-close />
+                        </el-icon>
+                    </span>
                 </p>
-                <p v-else>{{scope.row.total_data_count}}</p>
+                <p v-else>
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    任务类型：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
             </template>
         </el-table-column>
         <el-table-column
@@ -102,24 +118,6 @@
             width="100"
             align="center"
         />
-        <el-table-column
-            label="包含Y"
-            width="100"
-            align="center"
-            v-if="search.dataResourceType !== 'ImageDataSet'"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                        <elicon-check />
-                    </el-icon>
-                    <el-icon v-else class="el-icon-close">
-                        <elicon-close />
-                    </el-icon>
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
         <el-table-column
             label="上传者"
             prop="creator_nickname"
@@ -136,24 +134,36 @@
             label="操作"
             fixed="right"
             align="center"
-            min-width="250"
+            min-width="120"
         >
             <template v-slot="scope">
-                <router-link :to="{
-                    name: 'data-update',
-                    query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
-                }">
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
-                </router-link>
-                <el-button
-                    type="danger"
-                    class="ml10 mr10"
-                    @click="deleteData(scope.row)"
+                <router-link
+                    :to="{
+                        name: 'data-update',
+                        query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
+                    }"
                 >
-                    删除
-                </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="编辑"
+                        placement="top"
+                    >
+                        <el-icon class="el-icon-edit-outline" style="font-size:16px;">
+                            <elicon-edit />
+                        </el-icon>
+                    </el-tooltip>
+                </router-link>
+                <el-tooltip
+                    class="item"
+                    effect="light"
+                    content="删除"
+                    placement="top"
+                >
+                    <el-icon class="el-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
+                        <elicon-delete />
+                    </el-icon>
+                </el-tooltip>
                 <router-link
                     v-if="scope.row.data_resource_type === 'ImageDataSet'"
                     :to="{
@@ -161,9 +171,20 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain>
-                        查看与标注
-                    </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="查看与标注"
+                        placement="top"
+                    >
+                        <el-icon>
+                            <i
+                                title="查看与标注"
+                                class="iconfont icon-mark"
+                            />
+                        </el-icon>
+                        
+                    </el-tooltip>
                 </router-link>
             </template>
         </el-table-column>

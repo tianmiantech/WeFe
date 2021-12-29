@@ -396,13 +396,13 @@
 
             async getData() {
                 this.loading = true;
-                const dataResourceTypeMap = {
+                const map = {
                     BloomFilter: '/bloom_filter/detail',
                     img:         '/image_data_set/detail',
                     csv:         '/table_data_set/detail',
                 };
                 const { code, data } = await this.$http.get({
-                    url:    dataResourceTypeMap[this.addType],
+                    url:    map[this.addType],
                     params: {
                         id: this.id,
                     },
