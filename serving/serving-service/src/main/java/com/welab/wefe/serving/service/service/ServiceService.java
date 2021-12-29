@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -195,7 +196,11 @@ public class ServiceService {
 
 			if (serviceType == 1) {// 1匿踪查询
 				List<String> ids = input.getIds();
-				obliviousTransfer(ids, model);
+				QueryKeysResponse result = pir(ids, model);
+				output.setCode(0);
+				output.setMessage("success");
+				output.setResult((JSONObject)JObject.toJSON(result));
+				return output;
 			} else if (serviceType == 2) {// 2交集查询
 
 			} else if (serviceType == 3) {// 3安全聚合
@@ -207,7 +212,7 @@ public class ServiceService {
 		}
 	}
 
-	private void obliviousTransfer(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
+	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
 		Map<String, String> result = new HashMap<>();
 		// 0 根据ID查询对应的数据
 		for (String id : ids) {// params
@@ -231,8 +236,9 @@ public class ServiceService {
 		request.setMethod("plain");
 		HuackKeyService service = new HuackKeyService();
 		String uuid = "";
+		QueryKeysResponse response = null;
 		try {
-			QueryKeysResponse response = service.handle(request);
+			response = service.handle(request);
 			// 3 取出 QueryKeysResponse 的uuid
 			// 将uuid传入QueryResult
 			uuid = response.getUuid();
@@ -243,6 +249,7 @@ public class ServiceService {
 		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
 		QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
 		queryResult.save(uuid, result);
+		return response;
 	}
 
 	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {

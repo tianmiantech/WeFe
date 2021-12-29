@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,7 +31,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "api", name = "api service", forward = true)
+@Api(path = "api", name = "api service", forward = true, login = false)
 public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
 
 	@Autowired
@@ -59,7 +60,7 @@ public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
 	public static class Output extends AbstractApiOutput {
 		private int code;
 		private String message;
-		private JObject result;
+		private JSONObject result;
 
 		public int getCode() {
 			return code;
@@ -77,11 +78,11 @@ public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
 			this.message = message;
 		}
 
-		public JObject getResult() {
+		public JSONObject getResult() {
 			return result;
 		}
 
-		public void setResult(JObject result) {
+		public void setResult(JSONObject result) {
 			this.result = result;
 		}
 
