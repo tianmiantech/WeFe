@@ -30,15 +30,6 @@ import java.util.List;
 public class BloomFilterUpdateInputModel extends AbstractDataResourceUpdateInputModel {
     private List<BloomFilterColumnInputModel> metadataList;
 
-    @Override
-    public void checkAndStandardize() throws StatusCodeWithException {
-        super.checkAndStandardize();
-
-        if (CollectionUtils.isEmpty(metadataList)) {
-            throw new StatusCodeWithException("请设置该过滤器的元数据", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-    }
-
     // region getter/setter
 
     public List<BloomFilterColumnInputModel> getMetadataList() {
