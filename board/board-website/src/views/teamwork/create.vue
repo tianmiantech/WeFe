@@ -99,10 +99,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据集id"
+                            label="数据资源id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据集名称">
+                        <el-table-column label="数据资源名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
@@ -183,10 +183,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据集id"
+                            label="数据资源id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据集名称">
+                        <el-table-column label="数据资源名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
@@ -265,10 +265,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据集id"
+                            label="数据资源id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据集名称">
+                        <el-table-column label="数据资源名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}

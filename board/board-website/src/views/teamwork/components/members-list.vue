@@ -47,7 +47,7 @@
                 >
                     <el-table-column type="index" />
                     <el-table-column
-                        label="数据集"
+                        label="数据资源"
                         width="260"
                     >
                         <template v-slot="scope">
@@ -169,7 +169,7 @@
                                 </el-button>
                             </el-tooltip>
                             <!--
-                                1. 数据集未被删除
+                                1. 数据资源未被删除
                                 2. 成员是 promoter or 成员是自己
                             -->
                             <el-button
@@ -181,7 +181,7 @@
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
                             <template v-if="scope.row.deleted">
-                                该数据集已被移除
+                                该数据资源已被移除
                             </template>
                         </template>
                     </el-table-column>
@@ -492,7 +492,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 }
             },
@@ -521,7 +521,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 } else {
                     this.loading = false;

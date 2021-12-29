@@ -34,8 +34,8 @@
             </el-form-item>
         </div>
 
-        <h4>选择验证数据集:</h4>
-        <p class="f12 mt5 mb15">tips: 数据集需包含原流程数据集中的所有列</p>
+        <h4>选择验证数据资源:</h4>
+        <p class="f12 mt5 mb15">tips: 数据资源需包含原流程数据资源中的所有列</p>
         <div
             v-for="(member, index) in vData.member_list"
             :key="member.id"
@@ -73,7 +73,7 @@
                     class="ml10 mr30"
                     @click="methods.checkDataSet(member, index)"
                 >
-                    选择数据集
+                    选择数据资源
                 </el-button>
                 <a
                     class="el-link el-link--info f12"
@@ -90,7 +90,7 @@
                     :key="row.id"
                     label-width="100px"
                 >
-                    <el-form-item label="数据集名称：">
+                    <el-form-item label="数据资源名称：">
                         {{ row.name }}
                         <el-tag
                             v-if="row.contains_y"
@@ -107,7 +107,7 @@
                             <elicon-circle-close />
                         </el-icon>
                     </el-form-item>
-                    <el-form-item label="数据集id：">
+                    <el-form-item label="数据资源id：">
                         {{ row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
@@ -138,7 +138,7 @@
 
         <!-- Select the dataset for the specified member -->
         <el-dialog
-            title="选择数据集"
+            title="选择数据资源"
             v-model="vData.showSelectDataSet"
             custom-class="dialog-min-width"
             :close-on-click-modal="false"
@@ -151,7 +151,7 @@
                 @tab-click="methods.dataSetTabChange"
             >
                 <el-tab-pane
-                    label="原始数据集"
+                    label="原始数据资源"
                     name="raw"
                 >
                     <el-form
@@ -214,7 +214,7 @@
                 </el-tab-pane>
                 <el-tab-pane
                     ref="derivedRef"
-                    label="衍生数据集"
+                    label="衍生数据资源"
                     name="derived"
                 >
                     <el-alert
@@ -222,7 +222,7 @@
                         effect="dark"
                         type="success"
                         :closable="false"
-                        title="使用衍生数据集将 自动替换 关联成员已选的数据集"
+                        title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
                     <el-form inline>
                         <el-form-item label="名称">
@@ -609,7 +609,7 @@
                                 member.$data_set_list.push(data_set);
                             }
                         });
-                        $notify({ type: 'success', message: '已自动关联相关数据集', duration: 1000 });
+                        $notify({ type: 'success', message: '已自动关联相关数据资源', duration: 1000 });
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
@@ -629,7 +629,7 @@
                                     item.$data_set_list = [];
                                 }
                             });
-                            $notify({ type: 'success', message: '已自动关联相关数据集', duration: 1000 });
+                            $notify({ type: 'success', message: '已自动关联相关数据资源', duration: 1000 });
                         }
                         currentMember.$data_set_list = [];
                         currentMember.$data_set_list.push(dataset);
@@ -657,10 +657,10 @@
                     if(code === 0) {
                         const list = data.data_io_task_feature_info_list;
 
-                        $alert('原入模数据集特征列:', {
-                            title:   '原入模数据集特征列:',
+                        $alert('原入模数据资源特征列:', {
+                            title:   '原入模数据资源特征列:',
                             message: `<div style="max-height: 80vh;overflow:auto;">
-                            <p>数据集id: <span class="p-id">${list && list[0] ? list[0].data_set_id : ''}</span></p>
+                            <p>数据资源id: <span class="p-id">${list && list[0] ? list[0].data_set_id : ''}</span></p>
                             特征列: ${list && list[0] ? list[0].features.join(',') : ''}
                             </div>`,
                             dangerouslyUseHTMLString: true,
