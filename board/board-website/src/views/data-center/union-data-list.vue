@@ -360,8 +360,8 @@
                 ballEnter,
                 ballAfterEnter,
                 UnionDataResourceListRef,
-                searchList,
                 resourceTypeChange,
+                searchList,
             };
         },
     };

@@ -313,6 +313,7 @@ export default () => {
                                 column.method = vData.columnListType;
                                 column.points = selected.points;
                                 column.count = selected.count;
+                                column.point = selected.point;
                                 column.id = selected.id;
                             }
                         });
