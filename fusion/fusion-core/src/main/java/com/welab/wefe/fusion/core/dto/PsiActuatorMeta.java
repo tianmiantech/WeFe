@@ -1,13 +1,13 @@
 package com.welab.wefe.fusion.core.dto;
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import java.util.BitSet;
 public class PsiActuatorMeta {
 
     private BigInteger e;
-    private BigInteger N;
+    private BigInteger n;
 
     private BloomFilters bf;
 
@@ -42,11 +42,11 @@ public class PsiActuatorMeta {
     }
 
     public BigInteger getN() {
-        return N;
+        return n;
     }
 
     public void setN(BigInteger n) {
-        N = n;
+        this.n = n;
     }
 
     public BloomFilterDto getBfDto() {
@@ -65,11 +65,11 @@ public class PsiActuatorMeta {
         this.bf = bf;
     }
 
-    public static PsiActuatorMeta of(BigInteger e, BigInteger N, BloomFilters bf) {
+    public static PsiActuatorMeta of(BigInteger e, BigInteger n, BloomFilters bf) {
         PsiActuatorMeta psiActuatorMeta = new PsiActuatorMeta();
         psiActuatorMeta.bfDto = BloomFilterDto.ofBloomFilters(bf);
         psiActuatorMeta.e = e;
-        psiActuatorMeta.N = N;
+        psiActuatorMeta.n = n;
         return psiActuatorMeta;
     }
 

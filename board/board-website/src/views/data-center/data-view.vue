@@ -65,11 +65,6 @@
                     <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
                         {{ dataInfo.label_list.split(',').length }}
                     </el-descriptions-item>
-                    <!-- <el-descriptions-item v-if="dataInfo.label_list" label="标签分布：">
-                    <template v-for="item in dataInfo.$label_list" :key="item.name">
-                        {{item.name}} ( {{item.count}} )
-                    </template>
-                </el-descriptions-item> -->
                     <el-descriptions-item label="标注状态：">
                         {{ completedStatus(dataInfo.label_completed) }}
                     </el-descriptions-item>
@@ -90,9 +85,8 @@
                     </el-descriptions-item>
                 </template>
             </el-descriptions>
-            <div class="pie-area">
+            <div v-if="addDataType === 'img' && dataInfo.labeled_count" class="pie-area">
                 <PieChart
-                    v-if="addDataType === 'img'"
                     :config="labelConfig"
                 />
             </div>

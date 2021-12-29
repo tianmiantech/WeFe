@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,12 +42,12 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DataResourceType;
-import com.welab.wefe.common.enums.DataSetPublicLevel;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +68,18 @@ public class DataResourceService extends AbstractDataResourceService {
     private ProjectRepository projectRepository;
     @Autowired
     private DataResourceRepository dataResourceRepository;
+    @Autowired
+    private TableDataSetService tableDataSetService;
+    @Autowired
+    private ImageDataSetService imageDataSetService;
+    @Autowired
+    private BloomFilterService bloomFilterSetService;
+    @Autowired
+    private TableDataSetRepository tableDataSetRepository;
+    @Autowired
+    private ImageDataSetRepository imageDataSetRepository;
+    @Autowired
+    private BloomFilterRepository bloomFilterRepository;
 
     /**
      * Update the number of data sets used in the project
@@ -268,21 +280,26 @@ public class DataResourceService extends AbstractDataResourceService {
         }
     }
 
-    @Autowired
-    private TableDataSetService tableDataSetService;
-    @Autowired
-    private ImageDataSetService imageDataSetService;
-    @Autowired
-    private BloomFilterService bloomFilterSetService;
-    @Autowired
-    private TableDataSetRepository tableDataSetRepository;
-    @Autowired
-    private ImageDataSetRepository imageDataSetRepository;
-    @Autowired
-    private BloomFilterRepository bloomFilterRepository;
+    public DataResourceOutputModel findDataResourceFromLocalOrUnion(ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
 
-    public void delete(String dataResourceId, DataResourceType dataSetType) throws StatusCodeWithException {
-        switch (dataSetType) {
+        if (CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
+            Object obj = dataResourceRepository.findById(projectDataSet).orElse(null);
+            if (obj == null) {
+                return null;
+            }
+            return ModelMapper.map(obj, DataResourceOutputModel.class);
+        } else {
+            return unionService.getDataResourceDetail(
+                    projectDataSet.getDataSetId(),
+                    projectDataSet.getDataResourceType(),
+                    DataResourceOutputModel.class
+            );
+        }
+    }
+
+
+    public void delete(String dataResourceId, DataResourceType dataResourceType) throws StatusCodeWithException {
+        switch (dataResourceType) {
             case ImageDataSet:
                 imageDataSetService.delete(dataResourceId);
                 break;
@@ -305,14 +322,33 @@ public class DataResourceService extends AbstractDataResourceService {
                 .equal("createdBy", input.getCreator())
                 .orderBy("createdTime", OrderBy.asc);
 
+        // 查所有资源
         if (input.getDataResourceType() == null) {
-            return dataResourceRepository.paging(
+            PagingOutput<?> page = dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
-                    input,
-                    Object.class
+                    input
             );
+
+            // 将查到的数据按类型转换为 output 类型
+            List<DataResourceOutputModel> list = new ArrayList<>();
+            for (Object item : page.getList()) {
+
+                Class<? extends DataResourceOutputModel> targetClass = null;
+                if (item instanceof TableDataSetMysqlModel) {
+                    targetClass = TableDataSetOutputModel.class;
+                } else if (item instanceof ImageDataSetMysqlModel) {
+                    targetClass = ImageDataSetOutputModel.class;
+                } else if (item instanceof BloomFilterMysqlModel) {
+                    targetClass = BloomFilterOutputModel.class;
+                }
+
+                list.add(ModelMapper.map(item, targetClass));
+            }
+
+            return PagingOutput.of(page.getTotal(), list);
         }
 
+        // 查所指定类型的资源
         switch (input.getDataResourceType()) {
             case TableDataSet:
                 return tableDataSetRepository.paging(

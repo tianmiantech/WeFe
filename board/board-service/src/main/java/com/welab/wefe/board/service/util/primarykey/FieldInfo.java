@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.util.primarykey;
 
 
-import com.welab.wefe.common.enums.Options;
+import com.welab.wefe.common.wefe.enums.HashOptions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
 public class FieldInfo {
     private String columns;
 
-    private Options options;
+    private HashOptions options;
 
     private Integer fristIndex;
 
@@ -48,11 +48,11 @@ public class FieldInfo {
         this.columns = columns;
     }
 
-    public Options getOptions() {
+    public HashOptions getOptions() {
         return options;
     }
 
-    public void setOptions(Options options) {
+    public void setOptions(HashOptions options) {
         this.options = options;
     }
 

@@ -99,6 +99,9 @@
                                         <el-form-item label="数据总量：">
                                             {{ row.data_set.total_data_count }}
                                         </el-form-item>
+                                        <el-form-item label="样本分类：">
+                                            {{row.data_set.for_job_type === 'classify' ? '图像分类' : row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                        </el-form-item>
                                     </el-form>
                                 </div>
                             </div>

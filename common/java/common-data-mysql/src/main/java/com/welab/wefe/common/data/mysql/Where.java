@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.data.mysql;
 
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
 import org.hibernate.query.criteria.internal.OrderImpl;
 import org.springframework.data.jpa.domain.Specification;
@@ -243,7 +243,7 @@ public class Where {
      * @param name
      * @param value
      */
-    public Where in(String name, List<Object> value) {
+    public Where in(String name, List<?> value) {
         return in(name, value, true);
     }
 
@@ -254,7 +254,7 @@ public class Where {
      * @param value
      * @param skipWhenValueEmpty Whether to skip the generation of this clause if value is null
      */
-    public Where in(String name, List<Object> value, boolean skipWhenValueEmpty) {
+    public Where in(String name, List<?> value, boolean skipWhenValueEmpty) {
 
         if (skipWhenValueEmpty && (value == null || value.isEmpty())) {
             return this;

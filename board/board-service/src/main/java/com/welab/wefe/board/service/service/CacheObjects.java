@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,19 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.MemberListApi;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.board.service.sdk.AbstractUnionService;
+import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.domain.Sort;
 
 import java.util.*;
@@ -81,9 +79,9 @@ public class CacheObjects {
     private static final List<String> ACCOUNT_ID_LIST = new ArrayList<>();
 
     /**
-     * accountId : member name
+     * memberId : member base info
      */
-    private static final LinkedHashMap<String, String> MEMBER_MAP = new LinkedHashMap<>();
+    private static LinkedHashMap<String, MemberBaseInfo> MEMBER_MAP = new LinkedHashMap<>();
 
     /**
      * member blacklist
@@ -197,7 +195,7 @@ public class CacheObjects {
         return getAccountIdList().contains(accountId);
     }
 
-    private static LinkedHashMap<String, String> getMemberMap() throws StatusCodeWithException {
+    private static LinkedHashMap<String, MemberBaseInfo> getMemberMap() throws StatusCodeWithException {
         if (MEMBER_MAP.isEmpty()) {
             refreshMemberMap();
         }
@@ -221,12 +219,16 @@ public class CacheObjects {
         }
 
         try {
-            String memberName = getMemberMap().get(memberId);
-            if (memberName == null) {
+            MemberBaseInfo member = getMemberMap().get(memberId);
+            if (member == null) {
                 CacheObjects.refreshMemberMap();
-                memberName = getMemberMap().get(memberId);
+                member = getMemberMap().get(memberId);
             }
-            return memberName;
+
+            if (member == null) {
+                return null;
+            }
+            return member.name;
 
         } catch (StatusCodeWithException e) {
             return null;
@@ -305,34 +307,9 @@ public class CacheObjects {
         }
         LAST_REFRESH_MEMBER_MAP_TIME = System.currentTimeMillis();
 
-        AbstractUnionService service = Launcher.getBean(AbstractUnionService.class);
+        UnionService service = Launcher.getBean(UnionService.class);
         MEMBER_MAP.clear();
-        MemberListApi.Input input = new MemberListApi.Input();
-        while (true) {
-
-            JSONObject json = service.queryMembers(input);
-
-            JSONArray list = json
-                    .getJSONObject("data")
-                    .getJSONArray("list");
-
-            if (list.isEmpty()) {
-                break;
-            }
-
-            list
-                    .stream()
-                    .map(x -> (JSONObject) x)
-                    .forEach(x -> MEMBER_MAP.put(x.getString("id"), x.getString("name")));
-
-            if (list.size() < input.getPageSize()) {
-                break;
-            }
-
-            input.setPageIndex(input.getPageIndex() + 1);
-
-
-        }
+        MEMBER_MAP = service.getMemberMap();
 
     }
 

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package com.welab.wefe.union.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -50,10 +50,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
                     input.getPageIndex(),
                     input.getPageSize(),
                     input.getId(),
-                    input.getName(),
-                    input.getHidden(),
-                    input.getFreezed(),
-                    input.getLostContact()
+                    input.getName()
             );
 
             List<MemberQueryOutput> list = page.getList().stream()
@@ -78,9 +75,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
         private String id;
         private String name;
 
-        private Boolean lostContact;
-        private Boolean hidden;
-        private Boolean freezed;
 
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
@@ -101,30 +95,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public Boolean getLostContact() {
-            return lostContact;
-        }
-
-        public void setLostContact(Boolean lostContact) {
-            this.lostContact = lostContact;
-        }
-
-        public Boolean getHidden() {
-            return hidden;
-        }
-
-        public void setHidden(Boolean hidden) {
-            this.hidden = hidden;
-        }
-
-        public Boolean getFreezed() {
-            return freezed;
-        }
-
-        public void setFreezed(Boolean freezed) {
-            this.freezed = freezed;
         }
 
         public Integer getPageIndex() {

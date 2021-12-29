@@ -320,6 +320,7 @@
                     v-if="!form.closed && !member.exited && (member.audit_status !== 'disagree' && member.member_id === userInfo.member_id || (form.isPromoter && member.audit_status !== 'disagree'))"
                     min-width="220"
                     label="操作"
+                    fixed="right"
                 >
                     <template v-slot="scope">
                         <!-- The current member is a provider -->

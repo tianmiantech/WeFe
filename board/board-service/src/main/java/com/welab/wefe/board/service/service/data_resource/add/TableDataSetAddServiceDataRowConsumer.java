@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -206,7 +206,7 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
             throw new RuntimeException(
                     "y 列必须为整数，数据集第 "
                             + dataSetReader.getReadDataRows()
-                            + " 行，发现非整数："
+                            + " 行附近发现非整数："
                             + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
                             + "，请修正数据集后重试。"
             );

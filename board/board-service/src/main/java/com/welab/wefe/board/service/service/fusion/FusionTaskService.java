@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,35 +27,25 @@ import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.TaskResultService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.model.PageInputModel;
-import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
-import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
-import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -76,6 +66,9 @@ public class FusionTaskService extends AbstractService {
 
     @Autowired
     private TableDataSetService tableDataSetService;
+
+    @Autowired
+    private DataResourceService dataResourceService;
 
     @Autowired
     ThirdPartyService thirdPartyService;
@@ -125,7 +118,7 @@ public class FusionTaskService extends AbstractService {
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
-        //Add fieldinfo
+        //Add fieldInfo
         fieldInfoService.saveAll(businessId, input.getFieldInfoList());
 
         //Add tasks
@@ -153,6 +146,8 @@ public class FusionTaskService extends AbstractService {
 
         task.setRowCount(dataSet.getTotalDataCount());
         fusionTaskRepository.save(task);
+
+        dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
 
         thirdPartyService.alignApply(task);
     }
@@ -254,7 +249,7 @@ public class FusionTaskService extends AbstractService {
 //            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
 //        }
 
-        //Add fieldinfo
+        //Add fieldInfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
         task.setStatus(FusionTaskStatus.Running);
@@ -361,6 +356,8 @@ public class FusionTaskService extends AbstractService {
         model.setStatus(FusionTaskStatus.Pending);
 
         fusionTaskRepository.save(model);
+
+        dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
     }
 
     /**
