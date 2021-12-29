@@ -224,6 +224,10 @@ public class ServiceService {
 			try {
 				Map<String, String> resultMap = dataSourceService.execute(dataSourceId, sql,
 						Arrays.asList(resultfields.split(",")));
+				if(resultMap == null || resultMap.isEmpty()) {
+					resultMap =  new HashMap<>();
+					resultMap.put("rand", "thisisrandomstring");
+				}
 				String resultStr = JObject.toJSONString(resultMap);
 				System.out.println(id + "\t " + resultStr);
 				result.put(id, resultStr);
