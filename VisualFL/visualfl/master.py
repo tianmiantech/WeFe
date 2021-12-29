@@ -382,17 +382,19 @@ class Master(Logger):
     def callback(self,job,status=None,message=None):
         json_data = dict(
             job_id=job.job_id,
+            task_id = job._web_task_id,
             status=status,
             message=message,
             server_endpoint=job._server_endpoint,
             aggregator_endpoint=job._aggregator_endpoint,
             aggregator_assignee=job._aggregator_assignee
         )
-        self.debug(f"callback json data is {json_data}")
-        post(
-            job._callback_url,
-            json_data
-        )
+
+        self.debug(f"callback url {job._callback_url} , json data is {json_data}")
+        import requests
+        r = requests.post(job._callback_url,json=json_data)
+        self.debug(f"callback {job._callback_url} result: {r.text}")
+
 
     async def _apply_job_handler(self):
         """

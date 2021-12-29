@@ -50,8 +50,6 @@ class FLAggregator(Task):
         cmd = " ".join(
             [
                 f"{python_executable} -m visualfl.paddle_fl.scheduler.fl_scheduler",
-                # f"--job-id={self.job_id}",
-                # f"--task-id={self.web_task_id}",
                 f"--scheduler-ep={self._scheduler_ep}",
                 f"--startup-program=startup_program",
                 f"--main-program=main_program",
@@ -65,7 +63,7 @@ class FLAggregator(Task):
             f.write(self._startup_program)
         with executor.working_dir.joinpath("config.json").open("w") as f:
             f.write(self._config_string)
-        returncode = await executor.execute(cmd)
+        returncode,pid = await executor.execute(cmd)
         if returncode != 0:
             raise VisualFLWorkerException(
                 f"execute task: {self.task_id} failed, return code: {returncode}"
