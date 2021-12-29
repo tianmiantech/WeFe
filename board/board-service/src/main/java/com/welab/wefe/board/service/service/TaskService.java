@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskFeaturesApi;
 import com.welab.wefe.board.service.api.project.job.task.DetailApi;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.database.entity.job.*;
+import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.DataIoTaskFeatureInfoOutputModel;
 import com.welab.wefe.common.StatusCode;
@@ -75,6 +76,8 @@ public class TaskService {
 
     @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
+    @Autowired
+    private JobRepository jobRepository;
 
     /**
      * Query all execution records of a node
@@ -93,18 +96,38 @@ public class TaskService {
                 );
     }
 
-    public TaskMySqlModel findOne(DetailApi.Input input) {
+
+    public TaskMySqlModel findOne(DetailApi.Input input) throws StatusCodeWithException {
         if (StringUtil.isNotEmpty(input.getTaskId())) {
             return findOne(input.getTaskId());
         } else {
 
-            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+            String jobId = input.getJobId();
+            ProjectMySqlModel project;
+            if (StringUtil.isEmpty(jobId)) {
+                if (StringUtil.isEmpty(input.getFlowNodeId())) {
+                    StatusCode
+                            .PARAMETER_VALUE_INVALID
+                            .throwException("job_id 不传的时候 flow_id 必须要指定");
+                }
+
+                // 通过 flow_id 获取最后一个 job
+                ProjectFlowMySqlModel flow = projectFlowService.findOne(input.getFlowNodeId());
+                project = projectService.findByProjectId(flow.getProjectId());
+                JobMySqlModel job = jobRepository.findLastByFlowId(input.getFlowId(), project.getMyRole().name());
+                if (job == null) {
+                    return null;
+                }
+                jobId = job.getJobId();
+            } else {
+                project = projectService.findProjectByJobId(input.getJobId());
+            }
 
             if (project == null) {
                 return null;
             }
 
-            return taskRepo.findOne(input.getJobId(), input.getFlowNodeId(), project.getMyRole().name());
+            return taskRepo.findOne(jobId, input.getFlowNodeId(), project.getMyRole().name());
         }
     }
 
