@@ -61,7 +61,7 @@ const baseRoutes = [
                 name: 'union-data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/union-data-list'),
             },
@@ -71,7 +71,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}union-data-list`,
                 },
                 component: () => import('../views/data-center/union-data-view'),
@@ -282,8 +282,8 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/job/compare'),
             },
             {
-                path: `${prefixPath}teamwork/detail/fusion-add`,
-                name: 'fusion-add',
+                path: `${prefixPath}teamwork/detail/fusion-edit`,
+                name: 'fusion-edit',
                 meta: {
                     hidden:          true,
                     loginAndRefresh: true,
@@ -296,15 +296,15 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/teamwork/components/fusion-job/fusion-add'),
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
             {
-                path: `${prefixPath}fusion-task`,
-                name: 'fusion-task',
+                path: `${prefixPath}teamwork/detail/fusion-detail`,
+                name: 'fusion-detail',
                 meta: {
-                    hidden:          true,
                     loginAndRefresh: true,
-                    title:           '数据融合',
+                    hidden:          true,
+                    title:           '数据融合详情',
                     active:          `${prefixPath}teamwork`,
                     /* titleParams:     {
                         params: ['flow_id', 'project_id'],
@@ -313,25 +313,8 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/fusion/fusion-task'),
-            },
-            {
-                path: `${prefixPath}fusion-task-detail`,
-                name: 'fusion-task-detail',
-                meta: {
-                    loginAndRefresh: true,
-                    hidden:          true,
-                    title:           '数据融合详情',
-                    active:          `${prefixPath}fusion-task`,
-                    /* titleParams:     {
-                        params: ['flow_id', 'project_id'],
-                        name:   'fusion-task',
-                        title:  '数据融合',
-                    }, */
-                    navigation:      true,
-                },
                 component: () =>
-                    import('../views/fusion/fusion-task-detail'),
+                    import('../views/teamwork/components/fusion-job/fusion-detail'),
             },
         ],
     },
