@@ -2,7 +2,7 @@
     <el-dialog
         v-model="show"
         width="75%"
-        title="请选择数据集"
+        title="请选择数据资源"
         destroy-on-close
         :close-on-click-modal="false"
     >
@@ -274,10 +274,9 @@
                     // define API from parent
                     url = this.interfaceApi;
                 } else {
-                    // data_resource/query
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = 'data_resource/query';
+                        url = '/data_resource/query';
                     } else {
                         // search from union
                         url = `/union/data_resource/query?member_id=${this.memberId}`;

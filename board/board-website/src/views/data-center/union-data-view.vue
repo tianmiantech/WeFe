@@ -1,6 +1,6 @@
 <template>
     <el-card v-loading="loading">
-        <h4 class="mb10">数据集简介</h4>
+        <h4 class="mb10">数据资源简介</h4>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <el-descriptions class="dataset-desc" :column="2">
             <template #extra>

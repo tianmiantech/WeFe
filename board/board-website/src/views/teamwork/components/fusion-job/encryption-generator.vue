@@ -3,6 +3,7 @@
         <el-form-item v-for="(li, i) in vData.encryptionList" :key="i">
             <el-select
                 v-model="li.features"
+                :class="{ 'error': li.encryption && li.features.length === 0 }"
                 placeholder="特征列, 支持多选"
                 style="min-width:300px;"
                 multiple
@@ -16,9 +17,9 @@
             </el-select>
             <el-select
                 v-model="li.encryption"
+                :class="['ml10', 'mr20', { 'error': li.features.length && !li.encryption }]"
                 placeholder="加密方式"
                 style="width:130px"
-                class="ml10 mr20"
             >
                 <el-option
                     v-for="item in vData.encryptions"
@@ -140,6 +141,11 @@
 </script>
 
 <style lang="scss" scoped>
+    .el-select.error{
+        :deep(.el-input__inner){
+            border: 1px solid $--color-danger;
+        }
+    }
     .iconfont{
         font-size: 20px;
         vertical-align: middle;

@@ -26,10 +26,12 @@ import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.ProjectRepository;
+import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.entity.BloomFilterDataResourceListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterUpdateInputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
@@ -272,4 +274,29 @@ public class BloomFilterService extends DataResourceService {
         }
         return output;
     }
+
+    /**
+     * update bloom filter info
+     */
+    public void update(BloomFilterUpdateInputModel input) throws StatusCodeWithException {
+        BloomFilterMysqlModel model = findOne(input.getId());
+        if (model == null) {
+            return;
+        }
+
+        model.setUpdatedBy(input);
+        model.setName(input.getName());
+        model.setDescription(input.getDescription());
+        model.setPublicMemberList(input.getPublicMemberList());
+        model.setPublicLevel(input.getPublicLevel());
+        model.setTags(standardizeTags(input.getTags()));
+        handlePublicMemberList(model);
+
+        RepositoryManager.get(model.getClass()).save(model);
+
+
+        unionService.upsertDataResource(model);
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
+    }
+
 }

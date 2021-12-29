@@ -7,7 +7,7 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add' }"
                     class="ml10"
@@ -19,19 +19,7 @@
                 </router-link>
             </div>
         </template>
-        <el-table-column
-            label="资源类型"
-            prop="data_resource_type"
-            width="130"
-            align="center"
-        >
-            <template v-slot="scope">
-                <p style="display:flex; align-items: center;">
-                    <el-icon><elicon-medal :style="{color: scope.row.data_resource_type === 'ImageDataSet' ? 'rgb(232, 155, 0)': scope.row.data_resource_type === 'BloomFilter' ? '#35c895':'rgb(67, 139, 255)'}" /></el-icon>
-                    {{scope.row.data_resource_type}}
-                </p>
-            </template>
-        </el-table-column>
+
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
                 <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }}">
@@ -92,8 +80,8 @@
             </template>
         </el-table-column>
         <el-table-column
-            label="数据量"
-            width="140"
+            label="数据信息"
+            width="150"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'TableDataSet'">
@@ -149,13 +137,22 @@
             min-width="120"
         >
             <template v-slot="scope">
-                <router-link :to="{
-                    name: 'data-update',
-                    query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
-                }">
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
+                <router-link
+                    :to="{
+                        name: 'data-update',
+                        query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
+                    }"
+                >
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="编辑"
+                        placement="top"
+                    >
+                        <el-icon class="el-icon-edit-outline" style="font-size:16px;">
+                            <elicon-edit />
+                        </el-icon>
+                    </el-tooltip>
                 </router-link>
                 <el-tooltip
                     class="item"
@@ -273,9 +270,9 @@
                             return `<a href="${path.href}" target="_blank">${row.name}</a>`;
                         });
 
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
                     } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
                     }
 
                     this.$confirm('警告', {

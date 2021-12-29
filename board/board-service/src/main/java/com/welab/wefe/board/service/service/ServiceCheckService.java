@@ -95,7 +95,7 @@ public class ServiceCheckService extends AbstractService {
                     StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
         } catch (Exception e) {
-            return new ServiceAvailableCheckOutput(e.getMessage());
+            return new ServiceAvailableCheckOutput("获取 " + serviceType + " 服务可用性状态失败：" + e.getMessage());
         }
         return null;
     }

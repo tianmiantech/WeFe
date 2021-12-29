@@ -1,6 +1,7 @@
 
 from __future__ import annotations
-
+import os
+import signal
 import asyncio
 import json
 import random
@@ -46,6 +47,8 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
         self._stop_event = asyncio.Event()
 
+        self._max_delay = 1800
+
         self._fl_server_watcher = FLServerWatched(
             main_program=main_program, startup_program=startup_program
         )
@@ -60,6 +63,16 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
         # start server
         await self._fl_server_watcher.start()
+
+        async def _healthy_watcher():
+            while True:
+                await asyncio.sleep(self._max_delay)
+                if not self._inited_workers:
+                    self._stop_event.set()
+                    logging.debug(f"no workers init")
+                    break
+
+        asyncio.create_task(_healthy_watcher())
 
     async def stop(self):
         logging.info(f"stopping gRPC server gracefully")
@@ -115,12 +128,10 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
         self._current_step = request.step
 
-        return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
+        if request.name not in self._inited_workers:
+            return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+        await self._ready.wait()
 
-        # if request.name not in self._inited_workers:
-        #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
-        # await self._ready.wait()
-        #
         # if request.step < self._current_step:
         #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
         #
@@ -142,8 +153,8 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
         #             status=scheduler_pb2.WorkerJoin.NOT_SELECTED
         #         )
         #     return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.ACCEPT)
-        #
-        # return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
+
+        return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
 
     async def WorkerFinish(self, request, context):
         if request.name not in self._candidate:
@@ -163,7 +174,7 @@ class FLServerWatched(object):
     def __init__(self, main_program, startup_program):
         self._main_program = main_program
         self._startup_program = startup_program
-        self.sub = None
+        self.sub_pid = None
 
     async def start(self):
         executor = ProcessExecutor(Path("."))
@@ -176,15 +187,19 @@ class FLServerWatched(object):
                 f">{executor.stdout} 2>{executor.stderr} &",
             ]
         )
-        returncode = await executor.execute(cmd)
+        returncode,pid = await executor.execute(cmd)
         if returncode != 0:
             raise VisualFLWorkerException(
                 f"execute task {cmd} failed, return code: {returncode}"
             )
+        self.sub_pid = pid
 
     async def stop(self):
-        if self.sub is not None:
-            self.sub.kill()
+        if self.sub_pid is not None:
+            try:
+                os.kill(int(self.sub_pid)+1,signal.SIGKILL)
+            except ProcessLookupError as e:
+                logging.debug(f"kill {self.sub_pid} ProcessLookupError {e}")
 
 
 @click.command()

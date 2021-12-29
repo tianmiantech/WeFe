@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.dto.vo.data_resource;
 import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -29,17 +28,7 @@ import java.util.List;
  * @date 2021/12/2
  */
 public class BloomFilterUpdateInputModel extends AbstractDataResourceUpdateInputModel {
-    @Check(require = true)
     private List<BloomFilterColumnInputModel> metadataList;
-
-    @Override
-    public void checkAndStandardize() throws StatusCodeWithException {
-        super.checkAndStandardize();
-
-        if (CollectionUtils.isEmpty(metadataList)) {
-            throw new StatusCodeWithException("请设置该过滤器的元数据", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-    }
 
     // region getter/setter
 

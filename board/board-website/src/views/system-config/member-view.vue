@@ -47,7 +47,7 @@
                             </el-radio>
                             <p class="tips-alert" v-if="form.member_hidden"> ※ 隐身后其他成员从联邦中不能看到关于您的所有信息</p>
                         </el-form-item>
-                        <el-form-item label="是否允许对外公开数据集基础信息：">
+                        <el-form-item label="是否允许对外公开数据资源基础信息：">
                             <el-radio
                                 v-model="form.member_allow_public_data_set"
                                 :label="true"
@@ -62,7 +62,7 @@
                             >
                                 否
                             </el-radio>
-                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据集</p>
+                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据资源</p>
                         </el-form-item>
                         <el-form-item label="邮箱：">
                             <el-input

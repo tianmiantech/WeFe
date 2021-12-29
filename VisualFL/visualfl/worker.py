@@ -237,7 +237,6 @@ class ClusterWorker(Logger):
                     exec_result=response,
                 )
             )
-            TaskDao(_task.web_task_id).update_task_status(TaskStatus.SUCCESS)
             self.info(
                 f"task status success updated to {cluster_pb2.UpdateStatus.TASK_FINISH}. "
                 f"job_id={_task.job_id}, task_id={_task.task_id}"

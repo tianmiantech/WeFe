@@ -118,7 +118,7 @@ class FLTrainer(Task):
             f.write(self._config_string)
         with executor.working_dir.joinpath("algorithm_config.json").open("w") as f:
             f.write(self._algorithm_config_string)
-        returncode = await executor.execute(cmd)
+        returncode,pid = await executor.execute(cmd)
         if returncode is None or returncode != 0:
             raise VisualFLWorkerException(
                 f"execute task: {self.task_id} failed, return code: {returncode}"

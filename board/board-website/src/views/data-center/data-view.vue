@@ -1,7 +1,7 @@
 <template>
     <el-card v-loading="loading">
         <el-divider content-position="left">
-            数据集简介
+            数据资源简介
         </el-divider>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <div class="flex-box">
@@ -49,10 +49,10 @@
                 </el-descriptions-item>
                 <template v-if="addDataType === 'csv' && dataInfo.contains_y">
                     <el-descriptions-item label="正例样本数量：">
-                        {{ dataInfo.y_positive_example_count }}
+                        {{ dataInfo.y_positive_sample_count }}
                     </el-descriptions-item>
                     <el-descriptions-item label="正例样本比例：">
-                        {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                        {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                     </el-descriptions-item>
                 </template>
                 <el-descriptions-item v-if="addDataType === 'csv'" label="样本量/特征量：">
@@ -98,7 +98,7 @@
 
         <template v-else>
             <el-divider content-position="left">
-                数据集信息
+                数据资源信息
             </el-divider>
 
             <preview-image-list
@@ -241,13 +241,13 @@
 
             async getData() {
                 this.loading = true;
-                const dataResourceTypeMap = {
+                const map = {
                     BloomFilter: '/bloom_filter/detail',
                     img:         '/image_data_set/detail',
                     csv:         '/table_data_set/detail',
                 };
                 const { code, data } = await this.$http.get({
-                    url:    dataResourceTypeMap[this.addDataType],
+                    url:    map[this.addDataType],
                     params: {
                         id: this.id,
                     },
@@ -264,12 +264,10 @@
                                     name:  item,
                                     value: 0,
                                 });
-                                // this.labelConfig.legend.push(item);
                                 this.getLabelListDistributed(item);
                             });
                             data.$label_list = labelList;
                             this.labelConfig.series = data.$label_list;
-                            console.log(this.labelConfig.series.length);
                         }
                         this.dataInfo = data;
                     }

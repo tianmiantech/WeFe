@@ -1,7 +1,7 @@
 <template>
     <CommonHelp>
         <template #intro>
-            使用多种方式对各数据集的特征进行过滤
+            使用多种方式对各数据资源的特征进行过滤
         </template>
         <template #params>
             无
@@ -11,7 +11,7 @@
         </template>
 
         <template #output>
-            基于选择后的特征列表重新加载的数据集
+            基于选择后的特征列表重新加载的数据资源
         </template>
         <template #error-tip>
             暂无
