@@ -20,6 +20,9 @@ import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalServer;
 
 import java.util.List;
 
+/**
+ * @author eval
+ */
 public class PrivateInformationRetrievalEvent {
     String uuid;
     List<Object> keys;

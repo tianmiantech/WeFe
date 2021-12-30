@@ -17,7 +17,7 @@
 package com.welab.wefe.mpc.pir.sdk;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.mpc.pir.sdk.config.CommunicationConfig;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import org.junit.Test;
 
@@ -28,8 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 /**
  * @Author: eval

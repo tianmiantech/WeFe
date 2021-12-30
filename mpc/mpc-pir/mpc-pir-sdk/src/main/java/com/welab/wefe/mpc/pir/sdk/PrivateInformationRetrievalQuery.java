@@ -17,14 +17,11 @@
 
 package com.welab.wefe.mpc.pir.sdk;
 
-import com.welab.wefe.mpc.pir.sdk.config.CommunicationConfig;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
-import com.welab.wefe.mpc.pir.sdk.confuse.GenerateConfuse;
 import com.welab.wefe.mpc.pir.sdk.query.PrivateInformationRetrievalClient;
 import com.welab.wefe.mpc.pir.sdk.trasfer.impl.HttpTransferVariable;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
-
-import java.util.List;
 
 /**
  * @Author eval

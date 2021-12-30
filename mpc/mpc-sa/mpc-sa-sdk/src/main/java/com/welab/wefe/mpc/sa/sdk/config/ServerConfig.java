@@ -18,6 +18,7 @@ package com.welab.wefe.mpc.sa.sdk.config;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.commom.Operator;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 
 /**
  * @Author: eval
@@ -30,6 +31,8 @@ public class ServerConfig {
     private float weight = 1.0f;
 
     private JSONObject queryParams;
+
+    private CommunicationConfig communicationConfig;
 
     public String getServerName() {
         return serverName;
@@ -69,5 +72,13 @@ public class ServerConfig {
 
     public void setWeight(float weight) {
         this.weight = weight;
+    }
+
+    public CommunicationConfig getCommunicationConfig() {
+        return communicationConfig;
+    }
+
+    public void setCommunicationConfig(CommunicationConfig communicationConfig) {
+        this.communicationConfig = communicationConfig;
     }
 }

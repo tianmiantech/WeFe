@@ -16,6 +16,7 @@
 
 package com.welab.wefe.mpc.sa.sdk;
 
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.sa.SecureAggregationApiName;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
@@ -36,12 +37,11 @@ import java.util.UUID;
  */
 public class SecureAggregation {
 
-    public Double query(List<ServerConfig> serverConfigs) {
+    public Double query(List<ServerConfig> serverConfigs, SecureAggregationTransferVariable transferVariable) {
         Double result = 0.0;
         String uuid = UUID.randomUUID().toString().replace("-", "");
         DiffieHellmanKey dhKey = DiffieHellmanUtil.generateKey(1024);
 
-        SecureAggregationTransferVariable transferVariable = new HttpTransferVariable();
         List<String> diffieHellmanValues = new ArrayList<>(serverConfigs.size());
         for (int i = 0; i < serverConfigs.size(); i++) {
             ServerConfig serverConfig = serverConfigs.get(i);
@@ -50,8 +50,7 @@ public class SecureAggregation {
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
-            String url = serverConfig.getServerUrl() + "/" + serverConfig.getServerName();
-            QueryDiffieHellmanKeyResponse response = transferVariable.queryDiffieHellmanKey(url, request);
+            QueryDiffieHellmanKeyResponse response = transferVariable.queryDiffieHellmanKey(request);
             diffieHellmanValues.add(response.getDiffieHellmanValue());
         }
 
@@ -64,8 +63,7 @@ public class SecureAggregation {
             saResultRequest.setP(dhKey.getP().toString(16));
             saResultRequest.setOperator(serverConfig.getOperator());
             saResultRequest.setWeight(serverConfig.getWeight());
-            String url = serverConfig.getServerUrl() + "/" + SecureAggregationApiName.SA_RESULT;
-            QuerySAResultResponse response = transferVariable.queryResult(url, saResultRequest);
+            QuerySAResultResponse response = transferVariable.queryResult(saResultRequest);
             result += response.getResult();
         }
 
