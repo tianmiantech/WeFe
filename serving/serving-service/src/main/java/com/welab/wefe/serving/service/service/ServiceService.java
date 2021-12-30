@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,6 +43,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -54,10 +56,13 @@ import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
+import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.utils.MD5Util;
 import com.welab.wefe.serving.service.utils.ModelMapper;
+import com.welab.wefe.serving.service.utils.SHA256Utils;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
 import com.welab.wefe.serving.service.utils.ZipUtils;
 
@@ -85,13 +90,91 @@ public class ServiceService {
 		model.setCreatedTime(new Date());
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
+//		serviceRepository.save(model);
+		String idsTableName = generateIdsTable(model);
+		model.setIdsTableName(idsTableName);
 		serviceRepository.save(model);
-
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
 		output.setParams(model.getQueryParams());
 		output.setUrl(SERVICE_PRE_URL + model.getUrl());
 		return output;
+	}
+
+	private String generateIdsTable(ServiceMySqlModel model) {
+		String keysTableName = "";
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		if (model.getServiceType() != 2) {// 对于 交集查询 需要额外生成对应的主键数据
+			return keysTableName;
+		}
+		int index = 0;
+		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+		if (dataSourceModel == null) {
+			return keysTableName;
+		}
+		keysTableName = dataSource.getString("db") + "_" + dataSource.getString("table");
+		JSONObject keyCalcRules = dataSource.getJSONObject("key_calc_rules");
+		int size = keyCalcRules.getIntValue("size");
+		List<String> needFields = new ArrayList<>();
+		for (int i = 1; i <= size; i++) {
+			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
+//			String operator = item.getString("operator");
+			String[] fields = item.getString("field").split(",");
+			needFields.addAll(Arrays.asList(fields));
+		}
+		keysTableName += ("_" + format.format(new Date()));
+		String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSource.getString("db") + "."
+				+ dataSource.getString("table");
+		List<String> ids = new ArrayList<>();
+		try {
+			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+			for (Map<String, String> item : result) {
+				String id = calcKey(keyCalcRules, item);
+				ids.add(id);
+			}
+			String createTableSql = String.format(
+					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB",
+					keysTableName);
+			try {
+				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
+						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+						dataSource.getString("db"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String insertSql = String.format("insert into %s values (?)", keysTableName);
+			dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
+					dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+					dataSource.getString("db"), ids);
+
+		} catch (StatusCodeWithException e) {
+			e.printStackTrace();
+		}
+		return keysTableName;
+	}
+
+	private String calcKey(JSONObject keyCalcRules, Map<String, String> data) {
+		int size = keyCalcRules.getIntValue("size");
+		StringBuffer encodeValue = new StringBuffer("");
+		for (int i = 1; i <= size; i++) {
+			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
+			String operator = item.getString("operator");
+			String[] fields = item.getString("field").split(",");
+			StringBuffer value = new StringBuffer();
+
+			for (String field : fields) {
+				value.append(data.get(field));
+			}
+			if ("md5".equalsIgnoreCase(operator)) {
+				encodeValue.append(MD5Util.getMD5String(value.toString()));
+			} else if ("sha256".equalsIgnoreCase(operator)) {
+				encodeValue.append(SHA256Utils.getSHA256(value.toString()));
+			}
+		}
+		return encodeValue.toString();
+
 	}
 
 	/**
@@ -176,7 +259,7 @@ public class ServiceService {
 		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
 		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
 		String sql = ServiceUtil.generateSQL(input.getParams(), dataSourceArr, index);
-		Map<String, String> result = dataSourceService.execute(dataSourceId, sql,
+		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
 		out.setResult(JObject.create(result));
@@ -199,12 +282,12 @@ public class ServiceService {
 				QueryKeysResponse result = pir(ids, model);
 				output.setCode(0);
 				output.setMessage("success");
-				output.setResult((JSONObject)JObject.toJSON(result));
+				output.setResult((JSONObject) JObject.toJSON(result));
 				return output;
 			} else if (serviceType == 2) {// 2交集查询
 
 			} else if (serviceType == 3) {// 3安全聚合
-				
+
 			}
 			output.setCode(0);
 			output.setMessage("success");
@@ -222,10 +305,10 @@ public class ServiceService {
 			String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
 			String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
 			try {
-				Map<String, String> resultMap = dataSourceService.execute(dataSourceId, sql,
+				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
 						Arrays.asList(resultfields.split(",")));
-				if(resultMap == null || resultMap.isEmpty()) {
-					resultMap =  new HashMap<>();
+				if (resultMap == null || resultMap.isEmpty()) {
+					resultMap = new HashMap<>();
 					resultMap.put("rand", "thisisrandomstring");
 				}
 				String resultStr = JObject.toJSONString(resultMap);
