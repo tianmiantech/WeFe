@@ -299,7 +299,7 @@ public class ServiceService {
 				output.setMessage("success");
 				output.setResult((JSONObject) JObject.toJSON(result));
 				return output;
-			} else if (serviceType == 3) {// 3安全聚合
+			} else if (serviceType == 3) {// 3 安全聚合 被查询方
 
 			}
 			output.setCode(0);
