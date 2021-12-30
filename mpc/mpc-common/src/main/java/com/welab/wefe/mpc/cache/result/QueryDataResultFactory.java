@@ -24,7 +24,26 @@ import com.welab.wefe.mpc.cache.result.impl.QueryDataResultImpl;
  **/
 public class QueryDataResultFactory {
 
+    private static QueryDataResult queryDataResult = null;
+    private static boolean isInit = false;
+
+    public synchronized static void init(QueryDataResult queryDataResult) {
+        if (QueryDataResultFactory.queryDataResult != null) {
+            isInit = true;
+            return;
+        }
+        if (queryDataResult == null) {
+            QueryDataResultFactory.queryDataResult = new QueryDataResultImpl();
+        } else {
+            QueryDataResultFactory.queryDataResult = queryDataResult;
+        }
+        isInit = true;
+    }
+
     public static QueryDataResult getQueryDataResult() {
-        return new QueryDataResultImpl();
+        if (!isInit) {
+            init(null);
+        }
+        return queryDataResult;
     }
 }

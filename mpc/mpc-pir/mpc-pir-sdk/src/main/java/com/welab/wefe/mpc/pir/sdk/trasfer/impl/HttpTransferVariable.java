@@ -17,78 +17,45 @@
 
 package com.welab.wefe.mpc.pir.sdk.trasfer.impl;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.*;
-import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
-import com.welab.wefe.mpc.util.SignUtil;
+import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
+/**
+ * @author eval
+ */
+public class HttpTransferVariable extends AbstractHttpTransferVariable implements PrivateInformationRetrievalTransferVariable {
 
-public class HttpTransferVariable implements PrivateInformationRetrievalTransferVariable {
+    private CommunicationConfig mConfig;
 
-    private PrivateInformationRetrievalConfig mConfig;
-
-    public HttpTransferVariable(PrivateInformationRetrievalConfig config) {
+    public HttpTransferVariable(CommunicationConfig config) {
         mConfig = config;
     }
 
     @Override
     public QueryRandomResponse queryRandom(QueryRandomRequest request) {
-        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.RANDOM)), QueryRandomResponse.class);
+        return query(request, PrivateInformationRetrievalApiName.RANDOM, QueryRandomResponse.class);
     }
 
     @Override
     public QueryRandomLegalResponse queryRandomLegal(QueryRandomLegalRequest request) {
-        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.RANDOM_LEGAL)), QueryRandomLegalResponse.class);
+        return query(request, PrivateInformationRetrievalApiName.RANDOM_LEGAL, QueryRandomLegalResponse.class);
     }
 
     @Override
     public QueryKeysResponse queryKeys(QueryKeysRequest request) {
-        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.KEYS)), QueryKeysResponse.class);
+        return query(request, mConfig.getApiName(), QueryKeysResponse.class);
     }
 
     @Override
     public QueryPIRResultsResponse queryResults(QueryPIRResultsRequest request) {
-        return JSON.parseObject(query(mConfig.getServerUrl(), javaBeanToRequestJsonString(request, PrivateInformationRetrievalApiName.RESULTS)), QueryPIRResultsResponse.class);
+        return query(request, PrivateInformationRetrievalApiName.RESULTS, QueryPIRResultsResponse.class);
     }
 
-    private JSONObject javaBeanToRequestJsonString(Object data, String apiName) {
-        JSONObject jsonData = new JSONObject();
-        if (data != null) {
-            jsonData.put("jsonData", JSON.toJSONString(data));
-        }
-        jsonData.put("apiName", apiName);
-        return jsonData;
+    private <T> T query(Object request, String apiName, Class<T> clz) {
+        return query(request, apiName, mConfig, clz);
     }
 
-    private String query(String url, JSONObject params) {
-        params = new JSONObject(new TreeMap(params));
-        String data = params.toJSONString();
-        if (mConfig.isNeedSign()) {
-            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
-            JSONObject body = new JSONObject();
-            body.put("member_id", mConfig.getCommercialId());
-            body.put("sign", sign);
-            body.put("data", data);
-            data = body.toJSONString();
-        }
-
-        String response = HttpUtil.post(url, data);
-        while (StrUtil.isEmpty(response)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            response = HttpUtil.post(url, data);
-        }
-
-        return response;
-    }
 }

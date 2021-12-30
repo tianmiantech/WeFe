@@ -17,27 +17,24 @@
 
 package com.welab.wefe.mpc.pir.sdk;
 
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
-import com.welab.wefe.mpc.pir.sdk.confuse.GenerateConfuse;
 import com.welab.wefe.mpc.pir.sdk.query.PrivateInformationRetrievalClient;
 import com.welab.wefe.mpc.pir.sdk.trasfer.impl.HttpTransferVariable;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
-
-import java.util.List;
 
 /**
  * @Author eval
  * @Date 2021/12/15
  **/
 public class PrivateInformationRetrievalQuery {
-    PrivateInformationRetrievalConfig mConfig;
 
-    public PrivateInformationRetrievalQuery(String apiName, String serverUrl, Integer targetIndex, List<Object> primaryKeys, int confuseCount, String commercialId, String signPrivateKey, GenerateConfuse generateConfuse, boolean needSign, boolean needGenerateConfuse) {
-        mConfig = new PrivateInformationRetrievalConfig(apiName, serverUrl, targetIndex, primaryKeys, confuseCount, commercialId, signPrivateKey, generateConfuse, needSign, needGenerateConfuse);
+    public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig) throws Exception {
+        PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
+        return query(config, transferVariable);
     }
 
-    public String query() throws Exception {
-        PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(mConfig);
-        return new PrivateInformationRetrievalClient(transferVariable, mConfig).query();
+    public String query(PrivateInformationRetrievalConfig config, PrivateInformationRetrievalTransferVariable transferVariable) throws Exception {
+        return new PrivateInformationRetrievalClient(transferVariable, config).query();
     }
 }

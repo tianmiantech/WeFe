@@ -101,7 +101,16 @@ export default {
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-                callback();
+
+                let reg = /^\d+(\.\d+)?$/;
+
+                if (reg.test(this.clientService.unitPrice)) {
+                    callback();
+                } else {
+                    return callback(new Error('单价要求输入数值'));
+                }
+
+
             }
         };
 
@@ -218,11 +227,9 @@ export default {
         },
 
         onSubmit() {
-            console.log('进入submit')
 
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
-                    console.log('通过')
                     const {code} = await this.$http.post({
                         url: '/clientservice/save',
                         data: {
@@ -242,7 +249,6 @@ export default {
                         })
                     }
                 } else {
-                    console.log('不通过')
                     return false;
                 }
             });

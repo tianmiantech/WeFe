@@ -17,57 +17,46 @@
 
 package com.welab.wefe.mpc.sa.sdk.transfer.impl;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.mpc.config.CommunicationConfig;
+import com.welab.wefe.mpc.sa.SecureAggregationApiName;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
 import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
+import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
 import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
-
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
+import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
 /**
  * @author eval
  */
-public class HttpTransferVariable implements SecureAggregationTransferVariable {
-    @Override
-    public QueryDiffieHellmanKeyResponse queryDiffieHellmanKey(String url, QueryDiffieHellmanKeyRequest request) {
-        return JSON.parseObject(query(url, (JSONObject) JSONObject.toJSON(request)), QueryDiffieHellmanKeyResponse.class);
-    }
+public class HttpTransferVariable extends AbstractHttpTransferVariable implements SecureAggregationTransferVariable {
 
-    @Override
-    public QuerySAResultResponse queryResult(String url, QuerySAResultRequest request) {
-        return JSON.parseObject(query(url, (JSONObject) JSONObject.toJSON(request)), QuerySAResultResponse.class);
-    }
+    ServerConfig config;
 
-    private String query(String url, JSONObject params) {
-        params = new JSONObject(new TreeMap(params));
-        String data = params.toJSONString();
-        // TOdo
-//        if (mConfig.isNeedSign()) {
-//            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
-//            JSONObject body = new JSONObject();
-//            body.put("member_id", mConfig.getCommercialId());
-//            body.put("sign", sign);
-//            body.put("data", data);
-//            data = body.toJSONString();
-//        }
-
-        String response = HttpUtil.post(url, data);
-        while (StrUtil.isEmpty(response)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            response = HttpUtil.post(url, data);
+    public HttpTransferVariable(ServerConfig config) {
+        this.config = config;
+        CommunicationConfig communicationConfig = config.getCommunicationConfig();
+        if (communicationConfig == null) {
+            communicationConfig = new CommunicationConfig();
+            communicationConfig.setServerUrl(config.getServerUrl());
+            communicationConfig.setNeedSign(false);
+            config.setCommunicationConfig(communicationConfig);
         }
+    }
 
-        return response;
+    @Override
+    public QueryDiffieHellmanKeyResponse queryDiffieHellmanKey(QueryDiffieHellmanKeyRequest request) {
+        return query(request, config.getServerName(), QueryDiffieHellmanKeyResponse.class);
+    }
+
+    @Override
+    public QuerySAResultResponse queryResult(QuerySAResultRequest request) {
+        return query(request, SecureAggregationApiName.SA_RESULT, QuerySAResultResponse.class);
+    }
+
+    private <T> T query(Object request, String apiName, Class<T> clz) {
+        return query(request, apiName, config.getCommunicationConfig(), clz);
     }
 
 }

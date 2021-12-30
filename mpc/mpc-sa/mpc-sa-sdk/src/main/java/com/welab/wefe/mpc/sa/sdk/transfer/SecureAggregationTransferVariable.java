@@ -27,9 +27,20 @@ import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
  **/
 public interface SecureAggregationTransferVariable {
 
-    QueryDiffieHellmanKeyResponse queryDiffieHellmanKey(String url, QueryDiffieHellmanKeyRequest request);
+    /**
+     * 获取服务器 Diffie hellman值
+     *
+     * @param request 请求参数
+     * @return
+     */
+    QueryDiffieHellmanKeyResponse queryDiffieHellmanKey(QueryDiffieHellmanKeyRequest request);
 
-    QuerySAResultResponse queryResult(String url, QuerySAResultRequest request);
-
+    /**
+     * 获取混淆结果数据
+     *
+     * @param request 请求参数
+     * @return
+     */
+    QuerySAResultResponse queryResult(QuerySAResultRequest request);
 
 }
