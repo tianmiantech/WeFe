@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
@@ -31,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The front end uses the simple-uploader component
@@ -93,12 +96,36 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
 
         File outFile = new File(config.getFileUploadDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
 
-
         try {
             InputStream inputStream = file.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (IOException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+
+        // 对文件进行安检
+        try {
+            AtomicBoolean isOk = new AtomicBoolean(true);
+            Files
+                    .readAllLines(outFile.toPath())
+                    .parallelStream()
+                    .forEach(line -> {
+                        if (!isOk.get()) {
+                            return;
+                        }
+
+                        if (line.contains("<") || line.contains(">")) {
+                            isOk.set(false);
+                        }
+                    });
+            if (!isOk.get()) {
+                FileUtil.deleteFile(outFile.getParent());
+                ApiResult<Output> fail = fail(StatusCode.ILLEGAL_REQUEST.getCode(), "不安全的文件，拒绝上传。");
+                fail.setHttpCode(555);
+                return fail;
+            }
+        } catch (IOException e) {
+            StatusCode.FILE_IO_ERROR.throwException(e);
         }
 
         return success(new Output(file.getSize()));
