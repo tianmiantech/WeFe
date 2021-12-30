@@ -84,7 +84,7 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         SymmetricKey aesKey = new AESDecryptKey(targetKey.key, iv);
         byte[] result = aesKey.encrypt(enResult);
         String resultValue = new String(result, Charset.defaultCharset());
-        LOG.info("uuid:{} finish", uuid);
+        LOG.info("uuid:{}, result:{} finish", uuid, resultValue);
         return resultValue;
     }
 

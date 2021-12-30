@@ -23,9 +23,26 @@ import com.welab.wefe.mpc.cache.intermediate.impl.LocalIntermediateCache;
  * @Date: 2021-12-23
  **/
 public class CacheOperationFactory {
+    private static CacheOperation cacheOperation = null;
+    private static boolean isInit = false;
+
+    public synchronized static void init(CacheOperation cacheOperation) {
+        if (CacheOperationFactory.cacheOperation != null) {
+            isInit = true;
+            return;
+        }
+        if (cacheOperation == null) {
+            CacheOperationFactory.cacheOperation = new LocalIntermediateCache();
+        } else {
+            CacheOperationFactory.cacheOperation = cacheOperation;
+        }
+        isInit = true;
+    }
 
     public static CacheOperation getCacheOperation() {
-
-        return new LocalIntermediateCache();
+        if (!isInit) {
+            init(null);
+        }
+        return cacheOperation;
     }
 }
