@@ -297,7 +297,7 @@
         position: relative;
         .tabs_nav_btns {
             position: absolute;
-            right: 20px;
+            right: 0;
             z-index: 2;
         }
         .el-tab-pane {
