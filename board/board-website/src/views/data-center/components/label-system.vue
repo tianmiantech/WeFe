@@ -73,8 +73,8 @@
                             list.forEach(item => {
                                 const x = item.points[0].x,
                                       y = item.points[0].y,
-                                      w = item.points[1].x - item.points[0].x,
-                                      h = item.points[1].y - item.points[0].y;
+                                      w = Math.abs(item.points[1].x) - item.points[0].x,
+                                      h = Math.abs(item.points[1].y) - item.points[0].y;
 
                                 methods.drawRect(x*scaleX, y*scaleY, w, h, vData.graphColor, 0, scaleX, scaleY);
                                 methods.labelNode(item);
@@ -119,6 +119,9 @@
                         } else if (imgW < vData.width && imgH > vData.height) {
                             labelScaleY = vData.height / imgH;
                             vData.labelScale.y = vData.height / imgH;
+                        } else {
+                            vData.labelScale.x = 1;
+                            vData.labelScale.y = 1;
                         }
                     };
                     setTimeout(() => {
