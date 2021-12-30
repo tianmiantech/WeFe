@@ -170,7 +170,7 @@ def fl_trainer(
         feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
         logging.debug(f"data loader ready")
 
-        epoch_id = 0
+        epoch_id = -1
         vdl_loss_step = 0
         # vdl_mAP_step = 0
         TaskDao(task_id).init_task_progress(max_iter)
@@ -203,6 +203,7 @@ def fl_trainer(
             vdl_writer = LogWriter("vdl_log")
 
         while epoch_id < max_iter:
+            epoch_id += 1
             if not trainer.scheduler_agent.join(epoch_id):
                 logging.debug(f"not join, waiting next round")
                 continue
@@ -226,20 +227,18 @@ def fl_trainer(
             trainer.save_model(os.path.join(save_model_dir,str(epoch_id)))
 
             # info scheduler
-            # trainer.scheduler_agent.finish()
+            trainer.scheduler_agent.finish()
             checkpoint.save(trainer.exe, trainer._main_program, os.path.join(save_checkpoint_dir,str(epoch_id)))
-            epoch_id += 1
             TaskDao(task_id).add_task_progress(1)
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
+        TaskDao(task_id).finish_task_progress()
         logging.debug(f"reach max iter, finish training")
 
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
         logging.error(traceback.format_exc())
         TaskDao(task_id).update_task_status(TaskStatus.ERROR,str(e))
-    finally:
-        trainer.scheduler_agent.finish()
 
 
 if __name__ == "__main__":
