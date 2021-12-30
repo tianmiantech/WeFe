@@ -52,6 +52,7 @@ import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
+import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
@@ -276,16 +277,20 @@ public class ServiceService {
 			return output;
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-
+			System.out.println(input.getData());
 			if (serviceType == 1) {// 1匿踪查询
-				List<String> ids = input.getIds();
+				List<String> ids = JObject.parseArray(input.getData(), String.class);
+//				List<String> ids = input.getIds();
 				QueryKeysResponse result = pir(ids, model);
 				output.setCode(0);
 				output.setMessage("success");
 				output.setResult((JSONObject) JObject.toJSON(result));
 				return output;
 			} else if (serviceType == 2) {// 2交集查询
-
+				JObject data = JObject.create(input.getData());
+				String p = data.getString("p");
+				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				
 			} else if (serviceType == 3) {// 3安全聚合
 
 			}
@@ -293,6 +298,10 @@ public class ServiceService {
 			output.setMessage("success");
 			return output;
 		}
+	}
+
+	private QueryPrivateSetIntersectionResponse psi(String p, List<String> clientIds, ServiceMySqlModel model) {
+		return null;
 	}
 
 	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {

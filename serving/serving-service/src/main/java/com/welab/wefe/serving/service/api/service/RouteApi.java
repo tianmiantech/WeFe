@@ -17,13 +17,11 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -45,14 +43,14 @@ public class RouteApi extends AbstractApi<RouteApi.Input, RouteApi.Output> {
 	}
 
 	public static class Input extends AbstractApiInput {
-		private List<String> ids; // 这里的string是一个json字符串
+		private String data;
 
-		public List<String> getIds() {
-			return ids;
+		public String getData() {
+			return data;
 		}
 
-		public void setIds(List<String> ids) {
-			this.ids = ids;
+		public void setData(String data) {
+			this.data = data;
 		}
 
 	}
