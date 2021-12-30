@@ -17,18 +17,22 @@
 
 package com.welab.wefe.mpc.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @Author eval
  * @Date 2021/12/15
  **/
 public class SignUtil {
+    private static final Logger logger = LoggerFactory.getLogger(SignUtil.class);
 
     public static String sign(String data, String signPrivateKey) {
         String signStr = null;
         try {
             signStr = RSAUtil.sign(data, signPrivateKey, "UTF-8");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("sign error: " + e.getMessage(), e);
         }
         return signStr;
     }

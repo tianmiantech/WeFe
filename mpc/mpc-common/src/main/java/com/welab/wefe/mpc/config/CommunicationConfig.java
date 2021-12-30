@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.pir.sdk.config;
+package com.welab.wefe.mpc.config;
 
 /**
  * 与服务通信配置
