@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +54,9 @@ import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
+import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
@@ -290,7 +294,11 @@ public class ServiceService {
 				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-				
+				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
+				output.setCode(0);
+				output.setMessage("success");
+				output.setResult((JSONObject) JObject.toJSON(result));
+				return output;
 			} else if (serviceType == 3) {// 3安全聚合
 
 			}
@@ -300,8 +308,37 @@ public class ServiceService {
 		}
 	}
 
-	private QueryPrivateSetIntersectionResponse psi(String p, List<String> clientIds, ServiceMySqlModel model) {
-		return null;
+	private QueryPrivateSetIntersectionResponse psi(String p, List<String> clientIds, ServiceMySqlModel model)
+			throws StatusCodeWithException {
+		QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
+		request.setClientIds(clientIds);
+		request.setP(p);
+		QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+		BigInteger mod = new BigInteger(request.getP(), 16);
+		int keySize = 1024;
+		BigInteger serverKey = new BigInteger(keySize, new Random());
+		int index = 0;
+		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		String sql = "select id from " + model.getIdsTableName();
+		List<String> needFields = new ArrayList<>();
+		needFields.add("id");
+		List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+		List<String> serverIds = new ArrayList<>();
+		for (Map<String, String> item : result) {
+			serverIds.add(item.get("id"));
+		}
+		System.out.println(serverIds);
+		List<String> encryptServerIds = new ArrayList<>(serverIds.size());
+		serverIds.forEach(
+				serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
+		response.setServerEncryptIds(encryptServerIds);
+
+		List<String> encryptClientIds = new ArrayList<>(request.getClientIds().size());
+		request.getClientIds()
+				.forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
+		response.setClientIdByServerKeys(encryptClientIds);
+		return response;
 	}
 
 	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {

@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
@@ -77,6 +78,9 @@ public class Serving {
 
         //Initialize verification code memory
         CaptchaService.init();
+        
+        // init PrivateInformationRetrievalServer
+        PrivateInformationRetrievalServer.init(100);
     }
 
     /**
