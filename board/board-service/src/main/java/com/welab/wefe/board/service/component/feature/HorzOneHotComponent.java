@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -36,30 +35,10 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 
 @Service
 public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
-
-	@Override
-	public boolean stopCreateTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
-		VertOneHotComponent.Params params = (VertOneHotComponent.Params) node.getParamsModel();
-		// When no feature is selected, stop creating the task.
-		if (CollectionUtils.isNotEmpty(params.getMembers()) && params.getMembers().size() > 0) {
-			boolean selectFeature = false;
-			for (VertOneHotComponent.Params.MemberInfoModel member : params.getMembers()) {
-				if (CollectionUtils.isNotEmpty(member.getFeatures()) && member.getFeatures().size() > 0) {
-					selectFeature = true;
-				}
-			}
-			// No feature selected, stop creating task.
-			return !selectFeature;
-		} else {
-			// If there is no member node, then there is no feature, stop creating tasks.
-			return true;
-		}
-	}
 
 	@Override
 	protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
