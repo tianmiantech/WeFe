@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,6 @@ import com.welab.wefe.board.service.api.dataset.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
-import com.welab.wefe.board.service.api.project.project.DataInfoApi;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
@@ -590,7 +590,6 @@ public class TaskResultService extends AbstractService {
 			}
 		}
 		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(), node.getComponentType());
-		LOG.info("myTmpDataSet : " + JObject.toJSONString(myTmpDataSet));
 		for (MemberFeatureInfoModel member : members) {
 			if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
 				DetailApi.Input input = new DetailApi.Input();
@@ -603,7 +602,24 @@ public class TaskResultService extends AbstractService {
 						DataSetOutputModel output = JObject.create(apiResult.data)
 								.toJavaObject(DataSetOutputModel.class);
 						LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-						LOG.info("getOneHotFeature result : " + JObject.toJSONString(output));
+						List<String> newColumnNameList = Arrays.asList(output.getColumnNameList().split(","));
+						List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+						
+						List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+						for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+							if (newColumnNameList.contains(feature.getName())) {
+								newFeatures.add(feature);
+								newColumnNameList.remove(feature.getName());
+							}
+						}
+						if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+							for (String s : newColumnNameList) {
+								MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+								f.setName(s);
+								newFeatures.add(f);
+							}
+						}
+						member.setFeatures(newFeatures);
 					}
 				} catch (MemberGatewayException e) {
 					throw new FlowNodeException(node, member.getMemberId());
