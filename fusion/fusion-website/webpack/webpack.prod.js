@@ -6,10 +6,10 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const argv = require('minimist')(process.argv.slice(2));
 const argvs = argv._[0] ? argv._[0].split('=') : '';
+const tailSplit = argv._[1] ? argv._[1].split('=')[1] : '';
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
-// const WebpackZipPlugin = require('webpack-zip-plugin');
 const webpackConfig = require('./webpack.common');
 const { context } = require('../package.json');
 
@@ -24,6 +24,7 @@ module.exports = merge(webpackConfig, {
             'process.env.NODE_ENV':    JSON.stringify('production'),
             'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
             'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
+            'process.env.TAIL':        JSON.stringify(`${tailSplit}`),
         }),
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['**/js*', '**/css*', '!**/*vendor*.js'],

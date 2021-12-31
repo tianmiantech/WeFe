@@ -16,7 +16,7 @@
             @submit.native.prevent
         >
             <el-form-item label="手机号">
-                <el-input v-model="form.phone_number" />
+                <el-input v-model="form.phone_number"/>
             </el-form-item>
             <el-form-item label="密码">
                 <el-input
@@ -73,17 +73,17 @@ export default {
     data() {
         return {
             loading: false,
-            show:    false,
-            form:    {
+            show: false,
+            form: {
                 phone_number: '',
-                password:     '',
-                code:         '',
-                key:          '',
+                password: '',
+                code: '',
+                key: '',
             },
             imgCode: '',
         };
     },
-    created () {
+    created() {
         this.$bus.$on('show-login-dialog', () => {
             this.show = true;
         });
@@ -91,7 +91,7 @@ export default {
     },
     methods: {
         async getImgCode() {
-            const { code, data } = await this.$http.get('/account/captcha');
+            const {code, data} = await this.$http.get('/account/captcha');
 
             if (code === 0) {
                 this.imgCode = data.image;
@@ -99,8 +99,8 @@ export default {
             }
         },
         async login() {
-            if(!this.form.code) return this.$message.error('请输入验证码!');
-            if(this.loading) return;
+            if (!this.form.code) return this.$message.error('请输入验证码!');
+            if (this.loading) return;
 
             this.loading = true;
 
@@ -112,50 +112,62 @@ export default {
                 this.form.password.substr(this.form.password.length - 3),
             ].join('');
 
-            const { code, data } = await this.$http.post({
-                url:  '/account/login',
+            const {code, data} = await this.$http.post({
+                url: '/account/login',
                 data: {
                     phone_number: this.form.phone_number,
-                    password:     md5(password),
-                    key:          this.form.key,
-                    code:         this.form.code,
+                    password: md5(password),
+                    key: this.form.key,
+                    code: this.form.code,
                 },
             });
 
-           if (code === 0) {
+            if (code === 0) {
                 this.$store.commit('UPDATE_USERINFO', data);
                 window.$app.$message.success('登录成功');
                 this.show = false;
+                if (this.$route.meta.loginAndRefresh) {
+                    this.refresh();
+                    this.$bus.$emit('loginAndRefresh'); // notice other components
+                }
             } else {
                 this.getImgCode();
             }
             this.loading = false;
         },
         register() {
-            this.$router.push({ name: 'register' });
+            this.$router.push({name: 'register'});
         },
     },
 };
 </script>
 
 <style lang="scss" scoped>
-.form-code{
-    ::v-deep .el-input-group__append{
-        padding:0;
+.form-code {
+    ::v-deep .el-input-group__append {
+        padding: 0;
         width: 85px;
         overflow: hidden;
     }
 }
-.code-img{
+
+.code-img {
     width: 85px;
     height: 30px;
 }
-.login-form ::v-deep .el-input {width: 80%;}
+
+.login-form ::v-deep .el-input {
+    width: 80%;
+}
+
 .login-form ::v-deep .login-btn {
     width: 100px;
     display: block;
     margin: 20px auto 10px;
     font-size: 14px;
 }
-.el-button + .el-button{margin-left:0;}
+
+.el-button + .el-button {
+    margin-left: 0;
+}
 </style>
