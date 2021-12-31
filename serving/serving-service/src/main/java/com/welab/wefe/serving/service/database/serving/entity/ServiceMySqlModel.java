@@ -55,6 +55,9 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	@Column(name = "status")
 	private int status = 0;
 
+	@Column(name = "ids_table_name")
+	private String idsTableName;
+
 	public String getName() {
 		return name;
 	}
@@ -101,6 +104,14 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String getIdsTableName() {
+		return idsTableName;
+	}
+
+	public void setIdsTableName(String idsTableName) {
+		this.idsTableName = idsTableName;
 	}
 
 }

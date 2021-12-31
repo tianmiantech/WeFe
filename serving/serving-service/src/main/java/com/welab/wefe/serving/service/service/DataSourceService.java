@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -147,7 +148,7 @@ public class DataSourceService {
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
 		if (conn != null) {
-			boolean success = jdbcManager.testQuery(conn);
+			boolean success = jdbcManager.testQuery(conn, "select 1", false);
 			if (!success) {
 				throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
 			}
@@ -156,6 +157,33 @@ public class DataSourceService {
 		TestDBConnectApi.Output output = new TestDBConnectApi.Output();
 		output.setResult(true);
 		return output;
+	}
+
+	public void createTable(String sql, DatabaseType databaseType, String host, int port, String userName,
+			String password, String databaseName) throws StatusCodeWithException {
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
+		if (conn != null) {
+			boolean success = jdbcManager.execute(conn, sql);
+			if (!success) {
+				throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
+			}
+		}
+	}
+
+	public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
+			String password, String databaseName, List<String> ids) throws StatusCodeWithException {
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
+		if (conn != null) {
+			try {
+				jdbcManager.batchInsert(conn, sql, ids);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return;
+		}
+		throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
 	}
 
 	/**
@@ -185,7 +213,7 @@ public class DataSourceService {
 		return result;
 	}
 
-	public Map<String, String> execute(String dataSourceId, String sql, List<String> returnFields)
+	public Map<String, String> queryOne(String dataSourceId, String sql, List<String> returnFields)
 			throws StatusCodeWithException {
 		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
@@ -196,6 +224,18 @@ public class DataSourceService {
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
 				model.getUserName(), model.getPassword(), model.getDatabaseName());
 		return jdbcManager.query(conn, sql, returnFields);
+	}
+
+	public List<Map<String, String>> queryList(String dataSourceId, String sql, List<String> returnFields)
+			throws StatusCodeWithException {
+		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+		if (model == null) {
+			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+		}
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+				model.getUserName(), model.getPassword(), model.getDatabaseName());
+		return jdbcManager.queryList(conn, sql, returnFields);
 	}
 
 	public Output queryTables(Input input) throws StatusCodeWithException {

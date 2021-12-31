@@ -131,10 +131,6 @@ public class JdbcManager {
 		return conn;
 	}
 
-	public boolean testQuery(Connection conn) throws StatusCodeWithException {
-		return testQuery(conn, "select 1", false);
-	}
-
 	public List<String> queryTables(Connection conn) {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -159,7 +155,7 @@ public class JdbcManager {
 		}
 		return tables;
 	}
-	
+
 	public Map<String, String> query(Connection conn, String sql, List<String> returnFields) {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -182,7 +178,31 @@ public class JdbcManager {
 		}
 		return fieldMap;
 	}
-	
+
+	public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		List<Map<String, String>> result = new ArrayList<>();
+		try {
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				Map<String, String> fieldMap = new LinkedHashMap<>();
+				for (String field : returnFields) {
+					String value = rs.getString(field);
+					fieldMap.put(field, value);
+				}
+				result.add(fieldMap);
+			}
+
+		} catch (SQLException e) {
+			log.error(e);
+			return result;
+		} finally {
+			close(conn, ps, rs);
+		}
+		return result;
+	}
 
 	public Map<String, String> queryTableFields(Connection conn, String tableName) {
 		PreparedStatement ps = null;
@@ -208,6 +228,51 @@ public class JdbcManager {
 			close(conn, ps, rs);
 		}
 		return fieldMap;
+	}
+
+	public boolean execute(Connection conn, String sql) throws StatusCodeWithException {
+		PreparedStatement ps = null;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			close(conn, ps, null);
+		}
+		return true;
+	}
+
+	public void batchInsert(Connection conn, String sql, List<String> ids) throws SQLException {
+		long start = System.currentTimeMillis();
+		conn.setAutoCommit(false);
+		PreparedStatement ps = null;
+		try {
+			ps = conn.prepareStatement(sql); // 批量插入时ps对象必须放到for循环外面
+			int count = 0;
+			for (String s : ids) {
+				ps.setString(1, s);
+				ps.addBatch();
+				count++;
+				// 每1000条记录插入一次
+				if (count % 1000 == 0) {
+					ps.executeBatch();
+					conn.commit();
+					ps.clearBatch();
+				}
+			}
+			// 剩余数量不足1000
+			ps.executeBatch();
+			conn.commit();
+			ps.clearBatch();
+			long end = System.currentTimeMillis();
+			System.out.println("batch insert duration : " + (end - start));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(conn, ps, null);
+		}
 	}
 
 	public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
