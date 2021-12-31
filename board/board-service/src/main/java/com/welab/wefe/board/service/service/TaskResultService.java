@@ -41,6 +41,7 @@ import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
 import com.welab.wefe.board.service.component.feature.HorzOneHotComponent;
 import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
+import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -588,11 +589,12 @@ public class TaskResultService extends AbstractService {
 				}
 			}
 		}
-
+		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getJob().getJobId(), node.getComponentType());
+		LOG.info("myTmpDataSet : " + JObject.toJSONString(myTmpDataSet));
 		for (MemberFeatureInfoModel member : members) {
-			if (member.getMemberId() != CacheObjects.getMemberId()) {
+			if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
 				DetailApi.Input input = new DetailApi.Input();
-				input.setId(member.getDataSetId());
+				input.setId(myTmpDataSet.getId());
 				try {
 					ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
 							JobMemberRole.promoter, input, DetailApi.class);
@@ -600,6 +602,7 @@ public class TaskResultService extends AbstractService {
 					if (apiResult.data != null) {
 						DataSetOutputModel output = JObject.create(apiResult.data)
 								.toJavaObject(DataSetOutputModel.class);
+						LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
 						LOG.info("getOneHotFeature result : " + JObject.toJSONString(output));
 					}
 				} catch (MemberGatewayException e) {
