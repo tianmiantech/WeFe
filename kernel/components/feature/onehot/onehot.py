@@ -292,9 +292,11 @@ class OneHotEncoder(ModelBase):
                 _transformed_value[new_col_name] = 1
 
         new_feature = [_transformed_value[x] if x in _transformed_value else 0 for x in result_header]
-
-        feature_array = np.array(new_feature, dtype='float64')
-        instance.features = feature_array
+        try:
+            feature_array = np.array(new_feature, dtype='float64')
+            instance.features = feature_array
+        except Exception as e:
+            raise ValueError(e.message)
         return instance
 
     def set_schema(self, data_instance):
