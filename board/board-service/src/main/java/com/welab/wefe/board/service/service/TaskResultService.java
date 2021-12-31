@@ -34,6 +34,7 @@ import com.welab.wefe.board.service.api.dataset.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
+import com.welab.wefe.board.service.api.project.project.DataInfoApi;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
@@ -593,8 +594,9 @@ public class TaskResultService extends AbstractService {
 				DetailApi.Input input = new DetailApi.Input();
 				input.setId(member.getDataSetId());
 				try {
-					ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(), DetailApi.class,
-							input);
+					ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
+							JobMemberRole.promoter, input, DetailApi.class);
+//					ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(), DetailApi.class, input);
 					if (apiResult.data != null) {
 						DataSetOutputModel output = JObject.create(apiResult.data)
 								.toJavaObject(DataSetOutputModel.class);
