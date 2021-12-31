@@ -51,11 +51,14 @@ def select_columns(self, data_instance):
             selected.add(name_to_idx[name])
             continue
         raise ValueError(f"{name} not found")
-    for idx in self.model_param.column_indexes:
-        if 0 <= idx < len(col_names):
-            selected.add(idx)
-            continue
-        raise ValueError(f"idx={idx} out of bound")
+    if self.model_param.column_indexes == -1:
+        pass
+    else:
+        for idx in self.model_param.column_indexes:
+            if 0 <= idx < len(col_names):
+                selected.add(idx)
+                continue
+            raise ValueError(f"idx={idx} out of bound")
     selected = sorted(list(selected))
     if len(selected) == len(col_names):
         self.names = col_names
@@ -85,7 +88,7 @@ def set_parties(self):
     parties = []
     promoter_parties = RuntimeInstance.FEDERATION.roles_to_parties([consts.PROMOTER])
     provider_parties = RuntimeInstance.FEDERATION.roles_to_parties([consts.PROVIDER])
-    if len(promoter_parties) != 1 or len(provider_parties) != 1:
+    if len(promoter_parties) != 1 or len(provider_parties) < 1:
         raise ValueError(f"one promoter and one provider required, "
                          f"while {len(promoter_parties)} promoter and {len(provider_parties)} provider provided")
     parties.extend(promoter_parties)
@@ -97,3 +100,5 @@ def set_parties(self):
     self.parties = parties
     self.local_party = local_party
     self.other_party = other_party
+
+    return promoter_parties[0], provider_parties

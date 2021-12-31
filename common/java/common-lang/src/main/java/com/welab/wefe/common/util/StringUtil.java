@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,8 @@ package com.welab.wefe.common.util;
 
 import com.welab.wefe.common.function.CharFunction;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +34,7 @@ import java.util.regex.Pattern;
  * @author zane.luo
  */
 public class StringUtil extends StringUtils {
-    private static final Logger LOG = Logger.getLogger(StringUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
     /**
      * Matching Chinese characters
      */

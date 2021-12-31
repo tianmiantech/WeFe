@@ -90,19 +90,23 @@
                         v-if="scope.row.status == 'success'"
                         class="super_admin_role"
                     >
-                        <i
+                        <el-icon
                             class="el-icon-check"
                             style="color: #67C23A;font-size: 25px"
-                        />
+                        >
+                            <elicon-check />
+                        </el-icon>
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <i
+                        <el-icon
                             class="el-icon-close color-danger"
                             style="font-size: 25px;"
-                        />
+                        >
+                            <elicon-close />
+                        </el-icon>
                     </span>
                 </template>
             </el-table-column>

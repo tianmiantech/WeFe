@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 package com.welab.wefe.common.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +29,7 @@ import java.util.zip.ZipOutputStream;
  * @author Zane
  */
 public class ZipUtil {
-    private static final Logger LOG = Logger.getLogger(ZipUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
 
     /**
      * unzip

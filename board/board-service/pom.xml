@@ -142,13 +142,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- impala -->
-        <!-- <dependency>
-            <groupId>com.cloudera</groupId>
-            <artifactId>ImpalaJDBC41</artifactId>
-            <version>2.6.4.1005</version>
-        </dependency> -->
-
     </dependencies>
 
     <build>
