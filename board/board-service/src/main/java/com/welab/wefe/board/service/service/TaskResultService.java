@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.board.service.api.dataset.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
@@ -45,7 +46,9 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.database.repository.TaskResultRepository;
 import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
+import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
+import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -56,6 +59,7 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.dto.ApiResult;
 
 /**
  * @author zane.luo
@@ -86,6 +90,9 @@ public class TaskResultService extends AbstractService {
     
     @Autowired
     private DataSetService datasetService;
+    
+    @Autowired
+    private GatewayService gatewayService;
 
     /**
      * There are multiple results for mixed federations
@@ -452,8 +459,6 @@ public class TaskResultService extends AbstractService {
      * Get feature list
      */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
-
-        JObject result = JObject.create();
         GetFeatureApi.Output out = new GetFeatureApi.Output();
         FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
 
@@ -545,20 +550,19 @@ public class TaskResultService extends AbstractService {
         }
     }
 
-    private List<MemberFeatureInfoModel> getOneHotFeature(FlowGraphNode node, FlowGraph flowGraph) {
-    	List<MemberFeatureInfoModel> members = new ArrayList<>();
-    	
-    	FlowGraphNode dataIONode = flowGraph.findOneNodeFromParent(node, ComponentType.DataIO);
-        DataIOComponent.Params dataIOParams = JObject
-                .create(dataIONode.getParams())
-                .toJavaObject(DataIOComponent.Params.class);
+	private List<MemberFeatureInfoModel> getOneHotFeature(FlowGraphNode node, FlowGraph flowGraph)
+			throws FlowNodeException {
+		List<MemberFeatureInfoModel> members = new ArrayList<>();
 
-        List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
+		FlowGraphNode dataIONode = flowGraph.findOneNodeFromParent(node, ComponentType.DataIO);
+		DataIOComponent.Params dataIOParams = JObject.create(dataIONode.getParams())
+				.toJavaObject(DataIOComponent.Params.class);
 
-        // need filter
+		List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
+
+		// need filter
 		HorzOneHotComponent.Params params = JObject.create(node.getParams())
 				.toJavaObject(HorzOneHotComponent.Params.class);
-//        DataSetMysqlModel tempDataSet = datasetService.query(flowGraph.getJob().getJobId(), node.getComponentType());
 		for (MemberInfoModel memberInfoModel : params.getMembers()) {
 			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
 				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
@@ -584,7 +588,25 @@ public class TaskResultService extends AbstractService {
 			}
 		}
 
-        return members;
+		for (MemberFeatureInfoModel member : members) {
+			if (member.getMemberId() != CacheObjects.getMemberId()) {
+				DetailApi.Input input = new DetailApi.Input();
+				input.setId(member.getDataSetId());
+				try {
+					ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(), DetailApi.class,
+							input);
+					if (apiResult.data != null) {
+						DataSetOutputModel output = JObject.create(apiResult.data)
+								.toJavaObject(DataSetOutputModel.class);
+						LOG.info("getOneHotFeature result : " + JObject.toJSONString(output));
+					}
+				} catch (MemberGatewayException e) {
+					throw new FlowNodeException(node, member.getMemberId());
+				}
+			}
+		}
+
+		return members;
 	}
 
 
