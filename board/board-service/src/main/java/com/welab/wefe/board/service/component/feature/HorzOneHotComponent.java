@@ -82,6 +82,11 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
     }
     
     @Override
+    protected boolean needIntersectedDataSetBeforeMe() {
+        return true;
+    }
+    
+    @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
         return null;
     }

@@ -30,102 +30,75 @@ import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 @Service
-public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
-    @Override
-    protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-    }
+public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.Params> {
+	@Override
+	protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+			HorzOneHotComponent.Params params) throws FlowNodeException {
+	}
 
-    @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
-        List<Params.MemberInfoModel> members = params.getMembers();
+	@Override
+	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+			HorzOneHotComponent.Params params) throws FlowNodeException {
+		JSONObject taskParam = new JSONObject();
+		List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
 
-        List<String> transformColNames = new ArrayList<>();
-        members.forEach(member -> {
-            if (CacheObjects.getMemberId().equals(member.getMemberId()) && graph.getJob().getMyRole() == member.getMemberRole()) {
-                List<String> features = member.getFeatures();
+		List<String> transformColNames = new ArrayList<>();
+		members.forEach(member -> {
+			if (CacheObjects.getMemberId().equals(member.getMemberId())
+					&& graph.getJob().getMyRole() == member.getMemberRole()) {
+				List<String> features = member.getFeatures();
 
-                features.forEach(feature -> {
-                    transformColNames.add(feature);
-                });
-            }
-        });
+				features.forEach(feature -> {
+					transformColNames.add(feature);
+				});
+			}
+		});
 		taskParam.put("params",
 				JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true));
 
-        return taskParam;
-    }
+		return taskParam;
+	}
 
-    @Override
-    public ComponentType taskType() {
-        return ComponentType.VertOneHot;
-    }
+	@Override
+	public ComponentType taskType() {
+		return ComponentType.VertOneHot;
+	}
 
-    @Override
-    protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-        return null;
-    }
+	@Override
+	protected List<TaskResultMySqlModel> getAllResult(String taskId) {
+		return null;
+	}
 
-    @Override
-    protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
-    }
+	@Override
+	protected TaskResultMySqlModel getResult(String taskId, String type) {
+		return null;
+	}
 
-    @Override
-    public boolean canSelectFeatures() {
-        return true;
-    }
-    
-    @Override
-    protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
-        return Arrays.asList(
-                InputMatcher.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance)
-        );
-    }
+	@Override
+	public boolean canSelectFeatures() {
+		return true;
+	}
 
-    @Override
-    public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
-        return Arrays.asList(
-                OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance)
-        );
-    }
+	@Override
+	protected boolean needIntersectedDataSetBeforeMe() {
+		return true;
+	}
 
-    public static class Params extends AbstractApiInput {
+	@Override
+	protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
+		return Arrays.asList(InputMatcher.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
+	}
 
-        @Check(name = "成员信息", require = true)
-        private List<MemberInfoModel> members;
-
-        public List<MemberInfoModel> getMembers() {
-            return members;
-        }
-
-        public void setMembers(List<MemberInfoModel> members) {
-            this.members = members;
-        }
-
-        public static class MemberInfoModel extends MemberModel {
-            @Check(name = "特征列", require = true)
-            private List<String> features = new ArrayList<>();
-
-            public List<String> getFeatures() {
-                return features;
-            }
-
-            public void setFeatures(List<String> features) {
-                this.features = features;
-            }
-        }
-    }
+	@Override
+	public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
+		return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
+	}
 }
-

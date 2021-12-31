@@ -16,6 +16,18 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.io.File;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.board.service.api.dataset.DeleteApi;
 import com.welab.wefe.board.service.api.dataset.QueryApi;
 import com.welab.wefe.board.service.api.dataset.UpdateApi;
@@ -25,7 +37,12 @@ import com.welab.wefe.board.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
-import com.welab.wefe.board.service.database.repository.*;
+import com.welab.wefe.board.service.database.repository.DataSetRepository;
+import com.welab.wefe.board.service.database.repository.DataSourceRepository;
+import com.welab.wefe.board.service.database.repository.JobMemberRepository;
+import com.welab.wefe.board.service.database.repository.JobRepository;
+import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
+import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectUsageDetailOutputModel;
@@ -35,22 +52,12 @@ import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
 import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -125,6 +132,14 @@ public class DataSetService extends AbstractService {
 
         return repo.paging(where, input, DataSetOutputModel.class);
     }
+    
+	public DataSetMysqlModel query(String sourceJobId, ComponentType sourceType) {
+
+		Specification<DataSetMysqlModel> where = Where.create().equal("id", sourceJobId)
+				.equal("sourceType", sourceType.name()).build(DataSetMysqlModel.class);
+
+		return repo.findOne(where).orElse(null);
+	}
 
     /**
      * delete data set

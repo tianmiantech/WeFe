@@ -16,6 +16,19 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
@@ -24,6 +37,8 @@ import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -41,14 +56,6 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -76,6 +83,9 @@ public class TaskResultService extends AbstractService {
 
     @Autowired
     private TaskService taskService;
+    
+    @Autowired
+    private DataSetService datasetService;
 
     /**
      * There are multiple results for mixed federations
@@ -528,12 +538,57 @@ public class TaskResultService extends AbstractService {
         } else if (trainDataSetNodeOutputItem.getComponentType() == ComponentType.FeatureSelection) {
 
             return getFeatureSelectFeature(graph.getNode(trainDataSetNodeOutputItem.getNodeId()), graph);
+        } else if (trainDataSetNodeOutputItem.getComponentType() == ComponentType.HorzOneHot || trainDataSetNodeOutputItem.getComponentType() == ComponentType.VertOneHot){
+        	return getOneHotFeature(graph.getNode(trainDataSetNodeOutputItem.getNodeId()), graph);
         } else {
             return getMemberFeatures(graph, graph.getNode(trainDataSetNodeOutputItem.getNodeId()));
         }
     }
 
-    /**
+    private List<MemberFeatureInfoModel> getOneHotFeature(FlowGraphNode node, FlowGraph flowGraph) {
+    	List<MemberFeatureInfoModel> members = new ArrayList<>();
+    	
+    	FlowGraphNode dataIONode = flowGraph.findOneNodeFromParent(node, ComponentType.DataIO);
+        DataIOComponent.Params dataIOParams = JObject
+                .create(dataIONode.getParams())
+                .toJavaObject(DataIOComponent.Params.class);
+
+        List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
+
+        // need filter
+		HorzOneHotComponent.Params params = JObject.create(node.getParams())
+				.toJavaObject(HorzOneHotComponent.Params.class);
+//        DataSetMysqlModel tempDataSet = datasetService.query(flowGraph.getJob().getJobId(), node.getComponentType());
+		for (MemberInfoModel memberInfoModel : params.getMembers()) {
+			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
+				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
+						&& memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
+					List<String> needPassFeatures = memberInfoModel.getFeatures();
+					MemberFeatureInfoModel member = new MemberFeatureInfoModel();
+					member.setMemberId(dataSetItem.getMemberId());
+					member.setMemberRole(dataSetItem.getMemberRole());
+					List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
+					for (String name : dataSetItem.getFeatures()) {
+						if (needPassFeatures != null && needPassFeatures.contains(name)) {
+							continue; // pass
+						}
+						MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
+						feature.setName(name);
+						features.add(feature);
+					}
+					member.setFeatures(features);
+					member.setDataSetId(dataSetItem.getDataSetId());
+					member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
+					members.add(member);
+				}
+			}
+		}
+
+        return members;
+	}
+
+
+	/**
      * From the feature column in the DataIO node params
      */
     public List<MemberFeatureInfoModel> getDataIOFeature(FlowGraphNode node) {
