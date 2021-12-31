@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -28,6 +29,8 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -35,10 +38,31 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 
 @Service
 public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.Params> {
+	
+	@Override
+	public boolean stopCreateTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
+		HorzOneHotComponent.Params params = (Params) node.getParamsModel();
+		// When no feature is selected, stop creating the task.
+		if (CollectionUtils.isNotEmpty(params.getMembers()) && params.getMembers().size() > 0) {
+			boolean selectFeature = false;
+			for (MemberInfoModel member : params.getMembers()) {
+				if (CollectionUtils.isNotEmpty(member.getFeatures()) && member.getFeatures().size() > 0) {
+					selectFeature = true;
+				}
+			}
+			// No feature selected, stop creating task.
+			return !selectFeature;
+		} else {
+			// If there is no member node, then there is no feature, stop creating tasks.
+			return true;
+		}
+	}
+
 	@Override
 	protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
 			HorzOneHotComponent.Params params) throws FlowNodeException {
@@ -84,11 +108,6 @@ public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 
 	@Override
 	public boolean canSelectFeatures() {
-		return true;
-	}
-
-	@Override
-	protected boolean needIntersectedDataSetBeforeMe() {
 		return true;
 	}
 
