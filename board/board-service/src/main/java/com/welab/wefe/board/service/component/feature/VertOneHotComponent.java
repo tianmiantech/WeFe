@@ -29,28 +29,29 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
-import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params;
-import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 @Service
-public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.Params> {
+public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
 	
 	@Override
 	public boolean stopCreateTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
-		HorzOneHotComponent.Params params = (Params) node.getParamsModel();
+		VertOneHotComponent.Params params = (Params) node.getParamsModel();
 		// When no feature is selected, stop creating the task.
 		if (CollectionUtils.isNotEmpty(params.getMembers()) && params.getMembers().size() > 0) {
 			boolean selectFeature = false;
-			for (MemberInfoModel member : params.getMembers()) {
+			for (VertOneHotComponent.Params.MemberInfoModel member : params.getMembers()) {
 				if (CollectionUtils.isNotEmpty(member.getFeatures()) && member.getFeatures().size() > 0) {
 					selectFeature = true;
 				}
@@ -65,14 +66,14 @@ public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 
 	@Override
 	protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			HorzOneHotComponent.Params params) throws FlowNodeException {
+			VertOneHotComponent.Params params) throws FlowNodeException {
 	}
 
 	@Override
 	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			HorzOneHotComponent.Params params) throws FlowNodeException {
+			VertOneHotComponent.Params params) throws FlowNodeException {
 		JSONObject taskParam = new JSONObject();
-		List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
+		List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
 
 		List<String> transformColNames = new ArrayList<>();
 		members.forEach(member -> {
@@ -119,5 +120,33 @@ public class VertOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 	@Override
 	public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
 		return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
+	}
+	
+
+	public static class Params extends AbstractApiInput {
+
+		@Check(name = "成员信息", require = true)
+		private List<MemberInfoModel> members;
+
+		public List<MemberInfoModel> getMembers() {
+			return members;
+		}
+
+		public void setMembers(List<MemberInfoModel> members) {
+			this.members = members;
+		}
+
+		public static class MemberInfoModel extends MemberModel {
+			@Check(name = "特征列", require = true)
+			private List<String> features = new ArrayList<>();
+
+			public List<String> getFeatures() {
+				return features;
+			}
+
+			public void setFeatures(List<String> features) {
+				this.features = features;
+			}
+		}
 	}
 }

@@ -39,8 +39,8 @@ import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
-import com.welab.wefe.board.service.component.feature.HorzOneHotComponent;
-import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
@@ -563,8 +563,8 @@ public class TaskResultService extends AbstractService {
 		List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
 		// need filter
-		HorzOneHotComponent.Params params = JObject.create(node.getParams())
-				.toJavaObject(HorzOneHotComponent.Params.class);
+		VertOneHotComponent.Params params = JObject.create(node.getParams())
+				.toJavaObject(VertOneHotComponent.Params.class);
 		for (MemberInfoModel memberInfoModel : params.getMembers()) {
 			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
 				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()

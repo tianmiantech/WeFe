@@ -39,16 +39,16 @@ import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.util.JObject;
 
 @Service
-public class VertPCAComponent extends AbstractComponent<HorzOneHotComponent.Params> {
+public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Params> {
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		HorzOneHotComponent.Params params) throws FlowNodeException {
+    		VertOneHotComponent.Params params) throws FlowNodeException {
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
         
-        List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
+        List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
         if (members.size() > 2) {
             throw new FlowNodeException(node, "两方纵向PCA参与成员不能超过两方。");
         }
@@ -56,7 +56,7 @@ public class VertPCAComponent extends AbstractComponent<HorzOneHotComponent.Para
 
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		HorzOneHotComponent.Params params) throws FlowNodeException {
+    		VertOneHotComponent.Params params) throws FlowNodeException {
 
         JSONObject taskParam = new JSONObject();
 
