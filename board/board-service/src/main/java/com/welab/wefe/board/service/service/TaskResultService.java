@@ -589,7 +589,7 @@ public class TaskResultService extends AbstractService {
 				}
 			}
 		}
-		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getJob().getJobId(), node.getComponentType());
+		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(), node.getComponentType());
 		LOG.info("myTmpDataSet : " + JObject.toJSONString(myTmpDataSet));
 		for (MemberFeatureInfoModel member : members) {
 			if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {

@@ -135,8 +135,8 @@ public class DataSetService extends AbstractService {
     
 	public DataSetMysqlModel query(String sourceJobId, ComponentType sourceType) {
 
-		Specification<DataSetMysqlModel> where = Where.create().equal("id", sourceJobId)
-				.equal("sourceType", sourceType.name()).build(DataSetMysqlModel.class);
+		Specification<DataSetMysqlModel> where = Where.create().equal("sourceJobId", sourceJobId)
+				.equal("sourceType", sourceType).build(DataSetMysqlModel.class);
 
 		return repo.findOne(where).orElse(null);
 	}
