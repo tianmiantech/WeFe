@@ -602,7 +602,7 @@ public class TaskResultService extends AbstractService {
 						DataSetOutputModel output = JObject.create(apiResult.data)
 								.toJavaObject(DataSetOutputModel.class);
 						LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-						List<String> newColumnNameList = Arrays.asList(output.getColumnNameList().split(","));
+						List<String> newColumnNameList = new ArrayList<>(Arrays.asList(output.getColumnNameList().split(",")));
 						List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 						
 						List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
