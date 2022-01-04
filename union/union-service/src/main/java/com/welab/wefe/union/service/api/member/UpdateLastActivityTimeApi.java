@@ -37,7 +37,7 @@ public class UpdateLastActivityTimeApi extends AbstractApi<UpdateLastActivityTim
 
     @Override
     protected ApiResult<MemberOutput> handle(UpdateLastActivityTimeApi.Input input) throws StatusCodeWithException {
-        memberContractService.updateLastActivityTimeById(input.getId(), String.valueOf(input.lastActivityTime));
+        memberContractService.updateLastActivityTimeById(input.curMemberId, String.valueOf(input.lastActivityTime));
         return success();
     }
 

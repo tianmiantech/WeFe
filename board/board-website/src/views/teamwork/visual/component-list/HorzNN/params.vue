@@ -2,7 +2,7 @@
     <el-form
         ref="form"
         :model="vData.form"
-        :disabled="disabled"
+        :disabled="vData.disabled"
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -31,15 +31,6 @@
                     <el-input
                         v-model="vData.form.learning_rate"
                         placeholder="learning_rate"
-                    />
-                </el-form-item>
-                <el-form-item
-                    prop="decay"
-                    label="学习速率的衰减率："
-                >
-                    <el-input
-                        v-model="vData.form.decay"
-                        placeholder="decay"
                     />
                 </el-form-item>
                 <el-form-item prop="optimizer" label="优化算法：">
@@ -136,7 +127,6 @@
         max_iter:      10,
         batch_size:    320,
         learning_rate: 0.1,
-        decay:         0.1,
         optimizer:     'Adam',
         loss:          'binary_crossentropy',
         nn_define:     {
@@ -152,8 +142,8 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        'units':      1,
-                        'activation': 'sigmoid',
+                        'units':      10,
+                        'activation': 'relu',
                     },
                 },
             ],
@@ -246,8 +236,8 @@
                     vData.form.nn_define.layers.push({
                         class_name: 'Dense',
                         config:     {
-                            'units':      1,
-                            'activation': 'sigmoid',
+                            'units':      10,
+                            'activation': 'relu',
                         },
                     });
                 },

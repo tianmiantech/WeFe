@@ -17,12 +17,35 @@
 package com.welab.wefe.union.service.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 
 /**
  * @author yuxin.zhang
  */
 public class AbstractContractService {
+    protected void transactionIsSuccess(TransactionResponse transactionResponse) throws StatusCodeWithException {
+        String responseValues = transactionResponse.getValues();
+        JSONArray values = JObject.parseArray(responseValues);
+        if(null == values || values.isEmpty()){
+            throw new StatusCodeWithException("transaction error，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+        }
+        int retCode = values.getIntValue(0);
+        switch (retCode){
+            case 0:
+                return;
+            case -1:
+                throw new StatusCodeWithException("data already exists", StatusCode.SYSTEM_BUSY);
+            case -2:
+                throw new StatusCodeWithException("transaction failed: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+            case -3:
+                throw new StatusCodeWithException("data does not exist", StatusCode.SYSTEM_BUSY);
+            default:
+                throw new StatusCodeWithException("unknown response code", StatusCode.SYSTEM_BUSY);
+        }
+    }
 
     /**
      * Whether the transaction was executed successfully

@@ -17,7 +17,7 @@
 package com.welab.wefe.union.service.listener;
 
 import cn.hutool.core.thread.ThreadUtil;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.Member;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.union.service.UnionService;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.service.MemberContractService;

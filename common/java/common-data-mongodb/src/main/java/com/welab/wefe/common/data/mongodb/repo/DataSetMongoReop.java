@@ -22,14 +22,16 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetTagsQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -49,6 +51,14 @@ import java.util.stream.Collectors;
 public class DataSetMongoReop extends AbstractMongoRepo {
 
     @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
+
+    @Autowired
     private DataSetMemberPermissionMongoRepo dataSetMemberPermissionMongoRepo;
 
     public boolean deleteByDataSetId(String dataSetId) {
@@ -57,7 +67,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, udpate, DataSet.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataSet.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -67,7 +77,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
             return false;
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
-        return mongoTemplate.exists(query, DataSet.class);
+        return mongoUnionTemplate.exists(query, DataSet.class);
     }
 
     public DataSet findDataSetId(String dataSetId) {
@@ -75,7 +85,54 @@ public class DataSetMongoReop extends AbstractMongoRepo {
             return null;
         }
         Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
-        return mongoTemplate.findOne(query, DataSet.class);
+        return mongoUnionTemplate.findOne(query, DataSet.class);
+    }
+
+
+    /**
+     * Query the data set visible to the current member
+     */
+    public PageOutput<DataSetQueryOutput> find(DataSetQueryInput dataSetQueryInput) {
+        LookupOperation lookupToLots = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+        Criteria dataSetCriteria = new QueryBuilder()
+                .like("name", dataSetQueryInput.getName())
+                .like("tags", dataSetQueryInput.getTag())
+                .append("member_id", dataSetQueryInput.getMemberId())
+                .append("data_set_id", dataSetQueryInput.getDataSetId())
+                .append("contains_y", null == dataSetQueryInput.getContainsY() ? null : String.valueOf(dataSetQueryInput.getContainsY() ? 1 : 0))
+                .append("ext_json.enable",dataSetQueryInput.getEnable())
+                .append("status", dataSetQueryInput.getStatus() != null ? (dataSetQueryInput.getStatus() ? 1 : 0) : null)
+                .getCriteria();
+
+
+        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
+
+        Criteria memberCriteria = new QueryBuilder()
+                .like("name", dataSetQueryInput.getMemberName())
+                .getCriteria();
+
+        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+        UnwindOperation unwind = Aggregation.unwind("member");
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
+
+        SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
+        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+
+        List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
+
+        return new PageOutput<>(dataSetQueryInput.getPageIndex(), (long) total, dataSetQueryInput.getPageSize(), result);
     }
 
 
@@ -126,13 +183,13 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
         Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
-        int total = mongoTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
         aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
 
-        List<DataSetQueryOutput> result = mongoTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
+        List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
 
         return new PageOutput<>(dataSetQueryInput.getPageIndex(), (long) total, dataSetQueryInput.getPageSize(), result);
     }
@@ -152,7 +209,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
 
         );
 
-        List<DataSetTagsQueryOutput> result = mongoTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetTagsQueryOutput.class).getMappedResults();
+        List<DataSetTagsQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetTagsQueryOutput.class).getMappedResults();
 
         return result;
     }
@@ -162,6 +219,16 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         if (dbDataSet != null) {
             dataSet.setId(dbDataSet.getId());
         }
-        mongoTemplate.save(dataSet);
+        mongoUnionTemplate.save(dataSet);
+    }
+
+    public boolean updateExtJSONById(String dataSetId, DataSetExtJSON extJSON) {
+        if (StringUtils.isEmpty(dataSetId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
+        Update update = new UpdateBuilder().append("extJson", extJSON).build();
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSet.class);
+        return updateResult.wasAcknowledged();
     }
 }

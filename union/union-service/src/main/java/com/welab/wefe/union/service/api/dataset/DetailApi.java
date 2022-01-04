@@ -16,7 +16,7 @@
 
 package com.welab.wefe.union.service.api.dataset;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
