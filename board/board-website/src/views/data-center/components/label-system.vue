@@ -60,6 +60,8 @@
                     x: 1,
                     y: 1,
                 },
+                labelScaleX: 1,
+                labelScaleY: 1,
             });
 
             let imageLayer = null;
@@ -111,18 +113,19 @@
                         if (imgW > vData.width && imgH > vData.height) {
                             labelScaleX = vData.width / imgW;
                             labelScaleY = vData.height / imgH;
-                            vData.labelScale.x = vData.width / imgW;
-                            vData.labelScale.y = vData.height / imgH;
                         } else if (imgW > vData.width && imgH < vData.height) {
                             labelScaleX = vData.width / imgW;
-                            vData.labelScale.x = vData.width / imgW;
+                            labelScaleY = 1;
                         } else if (imgW < vData.width && imgH > vData.height) {
                             labelScaleY = vData.height / imgH;
-                            vData.labelScale.y = vData.height / imgH;
+                            vData.labelScaleY = vData.height / imgH;
+                            labelScaleX = 1;
                         } else {
-                            vData.labelScale.x = 1;
-                            vData.labelScale.y = 1;
+                            labelScaleX = 1;
+                            labelScaleY = 1;
                         }
+                        vData.labelScaleX = labelScaleX;
+                        vData.labelScaleY = labelScaleY;
                     };
                     setTimeout(() => {
                         imageLayer = new Konva.Image(imgOptions);
@@ -492,8 +495,8 @@
                             labe_list.push({
                                 label:  item.attrs.labelName,
                                 points: [
-                                    { x: item.attrs.x, y: item.attrs.y },
-                                    { x: item.attrs.x + item.attrs.width, y: item.attrs.y + item.attrs.height },
+                                    { x: item.attrs.x/vData.labelScaleX, y: item.attrs.y/vData.labelScaleY },
+                                    { x: (item.attrs.x + item.attrs.width)/vData.labelScaleX, y: (item.attrs.y + item.attrs.height)/vData.labelScaleY },
                                 ],
                             });
                         }
