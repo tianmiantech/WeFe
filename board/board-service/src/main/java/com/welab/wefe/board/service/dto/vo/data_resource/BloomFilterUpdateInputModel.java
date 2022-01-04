@@ -15,11 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-
 import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 

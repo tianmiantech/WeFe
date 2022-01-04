@@ -317,13 +317,14 @@ public class DataResourceService extends AbstractDataResourceService {
         Where where = Where
                 .create()
                 .equal("id", input.getId())
+                .in("dataResourceType", input.getDataResourceType())
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
                 .orderBy("createdTime", OrderBy.asc);
 
         // 查所有资源
-        if (input.getDataResourceType() == null) {
+        if (input.getDataResourceType() == null || input.getDataResourceType().size() > 1) {
             PagingOutput<?> page = dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
                     input
@@ -349,7 +350,7 @@ public class DataResourceService extends AbstractDataResourceService {
         }
 
         // 查所指定类型的资源
-        switch (input.getDataResourceType()) {
+        switch (input.getDataResourceType().get(0)) {
             case TableDataSet:
                 return tableDataSetRepository.paging(
                         where
