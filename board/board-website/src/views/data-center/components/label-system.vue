@@ -56,12 +56,18 @@
                     scaleY: 1,
                 },
                 imgLoading: false,
+                labelScale: {
+                    x: 1,
+                    y: 1,
+                },
+                labelScaleX: 1,
+                labelScaleY: 1,
             });
 
             let imageLayer = null;
             const labelModalRef = ref();
             const methods = {
-                editLabelStage() {
+                editLabelStage(scaleX, scaleY) {
                     if (props.currentImage.item) {
                         if (props.currentImage.item.label_info.labeled) {
                             const list = props.currentImage.item.label_info.objects;
@@ -69,10 +75,10 @@
                             list.forEach(item => {
                                 const x = item.points[0].x,
                                       y = item.points[0].y,
-                                      w = item.points[1].x - item.points[0].x,
-                                      h = item.points[1].y - item.points[0].y;
+                                      w = Math.abs(item.points[1].x) - item.points[0].x,
+                                      h = Math.abs(item.points[1].y) - item.points[0].y;
 
-                                methods.drawRect(x, y, w, h, vData.graphColor, 0);
+                                methods.drawRect(x*scaleX, y*scaleY, w, h, vData.graphColor, 0, scaleX, scaleY);
                                 methods.labelNode(item);
                             });
                         }
@@ -91,7 +97,7 @@
                     vData.stage.add(vData.layer);
                     const imgObj = new Image();
 
-                    let imgOptions = {};
+                    let imgOptions = {}, labelScaleX = 1, labelScaleY = 1;
 
                     imgObj.onload = () => {
                         const imgW= imgObj.width, imgH = imgObj.height;
@@ -103,12 +109,29 @@
                             width:  vData.width > imgW ? imgW : vData.width,
                             height: vData.height > imgH ? imgH : vData.height,
                         };
+                        
+                        if (imgW > vData.width && imgH > vData.height) {
+                            labelScaleX = vData.width / imgW;
+                            labelScaleY = vData.height / imgH;
+                        } else if (imgW > vData.width && imgH < vData.height) {
+                            labelScaleX = vData.width / imgW;
+                            labelScaleY = 1;
+                        } else if (imgW < vData.width && imgH > vData.height) {
+                            labelScaleY = vData.height / imgH;
+                            vData.labelScaleY = vData.height / imgH;
+                            labelScaleX = 1;
+                        } else {
+                            labelScaleX = 1;
+                            labelScaleY = 1;
+                        }
+                        vData.labelScaleX = labelScaleX;
+                        vData.labelScaleY = labelScaleY;
                     };
                     setTimeout(() => {
                         imageLayer = new Konva.Image(imgOptions);
                         vData.layer.add(imageLayer);
                         vData.layer.batchDraw();
-                        if (props.forJobType === 'detection') methods.editLabelStage();
+                        if (props.forJobType === 'detection') methods.editLabelStage(labelScaleX, labelScaleY);
                     }, 100);
                     if(props.currentImage.item) imgObj.src = props.currentImage.item.img_src;
                     vData.imgLoading = !(props.currentImage.item && props.currentImage.item.img_src);
@@ -214,7 +237,7 @@
                     methods.drawRect(x, y, 0, 0, vData.graphColor, 0);
                     vData.drawing = true;
                 },
-                drawRect(x, y, w, h, c, sw) {
+                drawRect(x, y, w, h, c, sw, scaleX=1, scaleY=1) {
                     vData.rectLayer = new Konva.Rect({
                         name:        'rect',
                         x,
@@ -227,13 +250,14 @@
                         strokeWidth: sw,
                         opacity:     sw === 0 ? 0.5 : 1,
                         draggable:   true,
+                        scaleX,
+                        scaleY,
                     });
                     vData.graphNow = vData.rectLayer;
                     vData.layer.add(vData.rectLayer);
                     vData.layer.draw();
                     vData.labelNowPos = vData.rectLayer;
                     vData.rectLayer.on('dragmove', function(e) {
-                        if (vData.currentRect && vData.currentText) console.log(vData.currentRect.attrs.traceId, vData.currentText.attrs.traceId);
                         vData.labelNowPos.setAttrs({
                             x: vData.rectLayer.x(),
                             y: vData.rectLayer.y(),
@@ -275,12 +299,8 @@
                     vData.rectLayer.on('transform', function(e) {
                         if (e.target.attrs.isLabeled) {
                             vData.currentRect.setAttrs({
-                                width:  vData.rectLayer.width(),
-                                height: vData.rectLayer.height(),
-                            });
-                            vData.currentRect.setAttrs({
-                                width:  vData.rectLayer.width(),
-                                height: vData.rectLayer.height(),
+                                width:  vData.rectLayer.width() * vData.rectLayer.scaleX(),
+                                height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
                             });
                             methods.setLabelTextPosition();
                         } else {
@@ -291,6 +311,11 @@
                                 height: vData.rectLayer.height() * vData.rectLayer.scaleY(),
                             });
                         }
+                        // reset zoom ratio after each zoom.
+                        vData.rectLayer.setAttrs({
+                            scaleX: 1,
+                            scaleY: 1,
+                        });
                     });
                     vData.rectLayer.on('mouseenter', function() {
                         vData.stage.container().style.cursor = 'move';
@@ -418,8 +443,8 @@
                         vData.currentText = null;
                     } else {
                         vData.labelLayer = new Konva.Text({
-                            x:        vData.labelNowPos.x() + vData.labelNowPos.width()/2,
-                            y:        vData.labelNowPos.y() + vData.labelNowPos.height()/2 - 18/2,
+                            x:        vData.labelNowPos.x() + vData.labelNowPos.width()*vData.labelNowPos.scaleX()/2,
+                            y:        vData.labelNowPos.y() + vData.labelNowPos.height()*vData.labelNowPos.scaleY()/2 - 18/2,
                             text:     data.label,
                             fontSize: 18,
                             fill:     'rgba(255, 255, 255, .7)',
@@ -470,8 +495,8 @@
                             labe_list.push({
                                 label:  item.attrs.labelName,
                                 points: [
-                                    { x: item.attrs.x, y: item.attrs.y },
-                                    { x: item.attrs.x + item.attrs.width, y: item.attrs.y + item.attrs.height },
+                                    { x: item.attrs.x/vData.labelScaleX, y: item.attrs.y/vData.labelScaleY },
+                                    { x: (item.attrs.x + item.attrs.width)/vData.labelScaleX, y: (item.attrs.y + item.attrs.height)/vData.labelScaleY },
                                 ],
                             });
                         }
