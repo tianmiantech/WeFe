@@ -271,40 +271,43 @@ public class ServiceService {
 		return out;
 	}
 
-	public com.welab.wefe.serving.service.api.service.RouteApi.Output executeService(String serviceUrl,
-			com.welab.wefe.serving.service.api.service.RouteApi.Input input) throws StatusCodeWithException {
+	public JObject executeService(String serviceUrl, com.welab.wefe.serving.service.api.service.RouteApi.Input input)
+			throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
-		com.welab.wefe.serving.service.api.service.RouteApi.Output output = new com.welab.wefe.serving.service.api.service.RouteApi.Output();
 		if (model == null) {
-			output.setCode(-1);
-			output.setMessage("invalid request");
-			return output;
+			return JObject.create("message", "invalid request");
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-			System.out.println(input.getData());
 			if (serviceType == 1) {// 1匿踪查询
-				List<String> ids = JObject.parseArray(input.getData(), String.class);
+				JObject data = JObject.create(input.getData());
+				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 //				List<String> ids = input.getIds();
 				QueryKeysResponse result = pir(ids, model);
-				output.setCode(0);
-				output.setMessage("success");
-				output.setResult((JSONObject) JObject.toJSON(result));
-				return output;
+				return JObject.create(result);
 			} else if (serviceType == 2) {// 2交集查询
+				/**
+				 * 交集查询 0.小范围数据（10W内） 1.创建一个服务，要生成数据源的ID到一个新表 2.根据用户传来的参数，生成
+				 * QueryPrivateSetIntersectionRequest ，然后调用
+				 * PrivateSetIntersectionTest.generateResponse 3.返回结果
+				 */
 				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
-				output.setCode(0);
-				output.setMessage("success");
-				output.setResult((JSONObject) JObject.toJSON(result));
-				return output;
+				return JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
-
+				/**
+				 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
+				 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
+				 * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
+				 * QueryResultService.handle ，然后返回结果
+				 */
+			} else if (serviceType == 4) {
+				/**
+				 * 安全聚合（查询方） 0.参考 SecureAggregation.query 返回结果
+				 */
 			}
-			output.setCode(0);
-			output.setMessage("success");
-			return output;
+			return JObject.create();
 		}
 	}
 
