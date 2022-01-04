@@ -50,6 +50,7 @@ public class PrivateSetIntersection {
 		params.put("data", request);
 		params.put("customerId", "");
 		params.put("sign", "");
+		System.out.println(params);
 		QueryPrivateSetIntersectionResponse response = PrivateSetIntersectionService.handle(url, params);
 		List<String> encryptServerIds = response.getServerEncryptIds();
 		List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();

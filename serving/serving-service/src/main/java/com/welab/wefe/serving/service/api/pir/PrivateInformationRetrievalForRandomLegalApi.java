@@ -25,21 +25,21 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
+import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
 import com.welab.wefe.mpc.pir.server.service.HauckRandomLegalService;
-import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRandomApi.Output;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RANDOM_LEGAL, name = "random_legal", login = false)
 public class PrivateInformationRetrievalForRandomLegalApi extends
-		AbstractApi<PrivateInformationRetrievalForRandomLegalApi.Input, PrivateInformationRetrievalForRandomApi.Output> {
+		AbstractApi<PrivateInformationRetrievalForRandomLegalApi.Input, QueryRandomLegalResponse> {
 
 	@Override
-	protected ApiResult<PrivateInformationRetrievalForRandomApi.Output> handle(
+	protected ApiResult<QueryRandomLegalResponse> handle(
 			PrivateInformationRetrievalForRandomLegalApi.Input input) throws StatusCodeWithException, IOException {
 		HauckRandomLegalService service = new HauckRandomLegalService();
 		QueryRandomLegalRequest request = ModelMapper.map(input.getData(), QueryRandomLegalRequest.class);
 
-		return success(Output.success(service.handle(request)));
+		return success(service.handle(request));
 	}
 
 	public static class Input extends AbstractApiInput {
