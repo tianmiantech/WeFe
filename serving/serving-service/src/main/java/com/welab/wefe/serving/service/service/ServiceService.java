@@ -335,7 +335,7 @@ public class ServiceService {
 			System.out.println(queryParams.toJSONString() + "\t " + resultStr);
 			// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
 			QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
-			queryResult.save(request, resultStr);
+//			queryResult.save(request, resultStr);
 		} catch (StatusCodeWithException e) {
 			throw e;
 		}
