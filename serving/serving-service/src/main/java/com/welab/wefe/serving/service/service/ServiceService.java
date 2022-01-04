@@ -56,6 +56,9 @@ import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
+import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
+import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
@@ -281,21 +284,23 @@ public class ServiceService {
 			if (serviceType == 1) {// 1匿踪查询
 				JObject data = JObject.create(input.getData());
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-//				List<String> ids = input.getIds();
 				QueryKeysResponse result = pir(ids, model);
 				return JObject.create(result);
-			} else if (serviceType == 2) {// 2交集查询
-				/**
-				 * 交集查询 0.小范围数据（10W内） 1.创建一个服务，要生成数据源的ID到一个新表 2.根据用户传来的参数，生成
-				 * QueryPrivateSetIntersectionRequest ，然后调用
-				 * PrivateSetIntersectionTest.generateResponse 3.返回结果
-				 */
+			} else if (serviceType == 2) {// 2交集查询（10W内）
 				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
 				return JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
+				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
+				JObject data = JObject.create(input.getData());
+				request.setP(data.getString("p"));
+				request.setG(data.getString("g"));
+				request.setUuid(data.getString("uuid"));
+				request.setQueryParams(data.getJSONObject("queryParams"));
+				QueryDiffieHellmanKeyResponse result = sa(request, model);
+				return JObject.create(result);
 				/**
 				 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
 				 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
@@ -309,6 +314,33 @@ public class ServiceService {
 			}
 			return JObject.create();
 		}
+	}
+
+	private QueryDiffieHellmanKeyResponse sa(QueryDiffieHellmanKeyRequest request, ServiceMySqlModel model)
+			throws StatusCodeWithException {
+		QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();
+		JSONObject queryParams = request.getQueryParams();
+		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+		int index = 0;
+		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSourceArr, index);
+		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
+		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+		try {
+			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
+					Arrays.asList(resultfields.split(",")));
+			if (resultMap == null || resultMap.isEmpty()) {
+				resultMap = new HashMap<>();
+			}
+			String resultStr = JObject.toJSONString(resultMap);
+			System.out.println(queryParams.toJSONString() + "\t " + resultStr);
+			// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
+			QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
+			queryResult.save(request, resultStr);
+		} catch (StatusCodeWithException e) {
+			throw e;
+		}
+		QueryDiffieHellmanKeyResponse response = service.handle(request);
+		return response;
 	}
 
 	private QueryPrivateSetIntersectionResponse psi(String p, List<String> clientIds, ServiceMySqlModel model)
