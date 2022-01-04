@@ -39,11 +39,23 @@ public class PrivateInformationRetrievalForRandomApi extends
 	protected ApiResult<PrivateInformationRetrievalForRandomApi.Output> handle(Input input)
 			throws StatusCodeWithException, IOException {
 		HauckRandomService service = new HauckRandomService();
-		QueryRandomRequest request = ModelMapper.map(input, QueryRandomRequest.class);
+		QueryRandomRequest request = ModelMapper.map(input.getData(), QueryRandomRequest.class);
 		return success(Output.success(service.handle(request)));
 	}
 
 	public static class Input extends AbstractApiInput {
+		private InputData data;
+
+		public InputData getData() {
+			return data;
+		}
+
+		public void setData(InputData data) {
+			this.data = data;
+		}
+
+	}
+	public static class InputData extends AbstractApiInput {
 
 		private String uuid;
 		private int attemptCount;

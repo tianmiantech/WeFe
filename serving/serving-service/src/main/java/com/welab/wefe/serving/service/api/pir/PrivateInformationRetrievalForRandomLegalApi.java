@@ -37,12 +37,25 @@ public class PrivateInformationRetrievalForRandomLegalApi extends
 	protected ApiResult<PrivateInformationRetrievalForRandomApi.Output> handle(
 			PrivateInformationRetrievalForRandomLegalApi.Input input) throws StatusCodeWithException, IOException {
 		HauckRandomLegalService service = new HauckRandomLegalService();
-		QueryRandomLegalRequest request = ModelMapper.map(input, QueryRandomLegalRequest.class);
+		QueryRandomLegalRequest request = ModelMapper.map(input.getData(), QueryRandomLegalRequest.class);
 
 		return success(Output.success(service.handle(request)));
 	}
 
 	public static class Input extends AbstractApiInput {
+		private InputData data;
+
+		public InputData getData() {
+			return data;
+		}
+
+		public void setData(InputData data) {
+			this.data = data;
+		}
+
+	}
+	
+	public static class InputData extends AbstractApiInput {
 		private String uuid;
 		private Boolean sLegal;
 		private int attemptCount;

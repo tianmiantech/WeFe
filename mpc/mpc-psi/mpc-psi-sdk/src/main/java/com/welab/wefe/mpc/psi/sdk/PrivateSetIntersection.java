@@ -16,15 +16,18 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
-import com.welab.wefe.mpc.util.EncryptUtil;
-
-import java.math.BigInteger;
-import java.util.*;
 
 /**
  * @Author: eval
@@ -32,31 +35,35 @@ import java.util.*;
  **/
 public class PrivateSetIntersection {
 
-    public List<String> query(String url, List<String> ids, int keySize) {
-        List<String> result = new ArrayList<>();
-        DiffieHellmanKey diffieHellmanKey = DiffieHellmanUtil.generateKey(keySize);
-        BigInteger key = DiffieHellmanUtil.generateRandomKey(keySize);
-        List<String> encryptIds = new ArrayList<>(ids.size());
-        for (String id : ids) {
-            encryptIds.add(DiffieHellmanUtil.encrypt(id, key, diffieHellmanKey.getP()).toString(16));
-        }
-        QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-        request.setP(diffieHellmanKey.getP().toString(16));
-        request.setClientIds(encryptIds);
-        QueryPrivateSetIntersectionResponse response = PrivateSetIntersectionService.handle(url, request);
-        List<String> encryptServerIds = response.getServerEncryptIds();
-        List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();
-        Set<Integer> intersectionIndex = new HashSet<>();
-        for (String serverId : encryptServerIds) {
-            String encryptValue = DiffieHellmanUtil.encrypt(serverId, key, diffieHellmanKey.getP(), false).toString(16);
-            int index = encryptIdWithServerKeys.indexOf(encryptValue);
-            if (index >= 0) {
-                intersectionIndex.add(index);
-            }
-        }
+	public List<String> query(String url, List<String> ids, int keySize) {
+		List<String> result = new ArrayList<>();
+		DiffieHellmanKey diffieHellmanKey = DiffieHellmanUtil.generateKey(keySize);
+		BigInteger key = DiffieHellmanUtil.generateRandomKey(keySize);
+		List<String> encryptIds = new ArrayList<>(ids.size());
+		for (String id : ids) {
+			encryptIds.add(DiffieHellmanUtil.encrypt(id, key, diffieHellmanKey.getP()).toString(16));
+		}
+		QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
+		request.setP(diffieHellmanKey.getP().toString(16));
+		request.setClientIds(encryptIds);
+		JSONObject params = new JSONObject();
+		params.put("data", request);
+		params.put("customerId", "");
+		params.put("sign", "");
+		QueryPrivateSetIntersectionResponse response = PrivateSetIntersectionService.handle(url, params);
+		List<String> encryptServerIds = response.getServerEncryptIds();
+		List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();
+		Set<Integer> intersectionIndex = new HashSet<>();
+		for (String serverId : encryptServerIds) {
+			String encryptValue = DiffieHellmanUtil.encrypt(serverId, key, diffieHellmanKey.getP(), false).toString(16);
+			int index = encryptIdWithServerKeys.indexOf(encryptValue);
+			if (index >= 0) {
+				intersectionIndex.add(index);
+			}
+		}
 
-        intersectionIndex.stream().forEach(i -> result.add(ids.get(i)));
+		intersectionIndex.stream().forEach(i -> result.add(ids.get(i)));
 
-        return result;
-    }
+		return result;
+	}
 }

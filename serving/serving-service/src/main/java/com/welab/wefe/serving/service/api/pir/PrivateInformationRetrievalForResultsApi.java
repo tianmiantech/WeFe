@@ -36,12 +36,25 @@ public class PrivateInformationRetrievalForResultsApi
 	@Override
 	protected ApiResult<PrivateInformationRetrievalForRandomApi.Output> handle(Input input) throws StatusCodeWithException, IOException {
 		HuackResultsService service = new HuackResultsService();
-		QueryPIRResultsRequest request = ModelMapper.map(input, QueryPIRResultsRequest.class);
+		QueryPIRResultsRequest request = ModelMapper.map(input.getData(), QueryPIRResultsRequest.class);
 
 		return success(Output.success(service.handle(request)));
 	}
-
+	
 	public static class Input extends AbstractApiInput {
+		private InputData data;
+
+		public InputData getData() {
+			return data;
+		}
+
+		public void setData(InputData data) {
+			this.data = data;
+		}
+
+	}
+
+	public static class InputData extends AbstractApiInput {
 
 		private String uuid;
 
