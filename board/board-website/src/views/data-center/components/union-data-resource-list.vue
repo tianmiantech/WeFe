@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type] }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
