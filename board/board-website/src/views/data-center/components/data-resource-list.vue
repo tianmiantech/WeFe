@@ -89,14 +89,9 @@
                     <br>
                     正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
                     <br>
-                    <el-tag type="success" class="mr5">包含Y</el-tag>
                     <span v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                            <elicon-check />
-                        </el-icon>
-                        <el-icon v-else class="el-icon-close" style="color: #f85564">
-                            <elicon-close />
-                        </el-icon>
+                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                     </span>
                 </p>
                 <p v-else>

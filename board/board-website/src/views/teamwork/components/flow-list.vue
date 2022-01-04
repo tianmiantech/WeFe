@@ -82,9 +82,19 @@
                 fixed="right"
             >
                 <template v-slot="scope">
-                    <el-button type="text" @click="checkDetail(scope.row.flow_id)" style="margin-right: 4px;">
+                    <router-link
+                        class="link mr10"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id }}"
+                    >
                         查看
-                    </el-button>
+                    </router-link>
+                    <router-link
+                        v-if="form.project_type === 'DeepLearning'"
+                        class="link mr10"
+                        :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id }}"
+                    >
+                        校验
+                    </router-link>
                     <router-link
                         v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
@@ -577,18 +587,6 @@
 
                 if (code === 0) {
                     this.config = data;
-                }
-            },
-            checkDetail(flow_id) {
-                if (this.form.project_type === 'DeepLearning') {
-                    const url = this.config.deep_learning_config.paddle_visual_dl_base_url;
-
-                    window.open(`${url}?id=${flow_id}`, '_blank');
-                } else {
-                    this.$router.replace({
-                        name:  'project-flow',
-                        query: { flow_id },
-                    });
                 }
             },
         },

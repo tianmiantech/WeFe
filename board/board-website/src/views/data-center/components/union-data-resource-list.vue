@@ -98,14 +98,9 @@
                     <br>
                     样本量：{{ scope.row.total_data_count }}
                     <br>
-                    <el-tag type="success" class="mr5">包含Y</el-tag> 
                     <span v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                            <elicon-check />
-                        </el-icon>
-                        <el-icon v-else class="el-icon-close" style="color: #f85564">
-                            <elicon-close />
-                        </el-icon>
+                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                     </span>
                 </p>
                 <p v-else>
