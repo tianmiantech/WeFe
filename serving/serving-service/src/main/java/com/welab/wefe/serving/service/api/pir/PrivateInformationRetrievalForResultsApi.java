@@ -25,23 +25,36 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackResultsService;
-import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRandomApi.Output;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RESULTS, name = "results", login = false)
 public class PrivateInformationRetrievalForResultsApi
-		extends AbstractApi<PrivateInformationRetrievalForResultsApi.Input, PrivateInformationRetrievalForRandomApi.Output> {
+		extends AbstractApi<PrivateInformationRetrievalForResultsApi.Input, QueryPIRResultsResponse> {
 
 	@Override
-	protected ApiResult<PrivateInformationRetrievalForRandomApi.Output> handle(Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<QueryPIRResultsResponse> handle(Input input) throws StatusCodeWithException, IOException {
 		HuackResultsService service = new HuackResultsService();
-		QueryPIRResultsRequest request = ModelMapper.map(input, QueryPIRResultsRequest.class);
+		QueryPIRResultsRequest request = ModelMapper.map(input.getData(), QueryPIRResultsRequest.class);
 
-		return success(Output.success(service.handle(request)));
+		return success(service.handle(request));
 	}
 
 	public static class Input extends AbstractApiInput {
+		private InputData data;
+
+		public InputData getData() {
+			return data;
+		}
+
+		public void setData(InputData data) {
+			this.data = data;
+		}
+
+	}
+
+	public static class InputData extends AbstractApiInput {
 
 		private String uuid;
 

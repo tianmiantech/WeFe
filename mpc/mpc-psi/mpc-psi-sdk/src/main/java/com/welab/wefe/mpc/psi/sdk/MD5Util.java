@@ -1,12 +1,12 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.psi.sdk.service;
+package com.welab.wefe.mpc.psi.sdk;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 
-import cn.hutool.http.HttpUtil;
+public class MD5Util {
 
-/**
- * @Author: eval
- * @Date: 2021-12-24
- **/
-public class PrivateSetIntersectionService {
-
-	public static QueryPrivateSetIntersectionResponse handle(String url, JSONObject request) {
+	public static String getMD5String(String str) {
 		try {
-			String res = HttpUtil.post(url, JSONObject.toJSONString(request));
-			return JSON.parseObject(JSONObject.parseObject(res).getString("data"),
-					QueryPrivateSetIntersectionResponse.class);
+			// 生成一个MD5加密计算摘要
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			// 计算md5函数
+			md.update(str.getBytes());
+			return new BigInteger(1, md.digest()).toString(16);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
