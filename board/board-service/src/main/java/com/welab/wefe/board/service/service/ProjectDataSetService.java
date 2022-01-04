@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
+import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
@@ -57,6 +58,8 @@ public class ProjectDataSetService extends AbstractService {
     private TableDataSetService tableDataSetService;
     @Autowired
     private ImageDataSetService imageDataSetService;
+    @Autowired
+    private BloomFilterService bloomFilterService;
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
 
@@ -211,6 +214,8 @@ public class ProjectDataSetService extends AbstractService {
                             dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         } else if (x.getDataResourceType() == DataResourceType.ImageDataSet) {
                             dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                        } else if (x.getDataResourceType() == DataResourceType.BloomFilter) {
+                            dataSet = bloomFilterService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         }
                         // 如果这里没有拿到数据集信息，说明数据集已经被删除或者不可见。
                         if (dataSet == null) {

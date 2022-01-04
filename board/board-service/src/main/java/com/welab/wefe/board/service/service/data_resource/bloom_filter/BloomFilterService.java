@@ -29,6 +29,7 @@ import com.welab.wefe.board.service.database.repository.ProjectRepository;
 import com.welab.wefe.board.service.database.repository.base.RepositoryManager;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.dto.entity.BloomFilterDataResourceListOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterUpdateInputModel;
@@ -76,6 +77,20 @@ public class BloomFilterService extends DataResourceService {
     private ProjectMemberService projectMemberService;
     @Autowired
     private ProjectDataSetService projectDataSetService;
+
+
+    public BloomFilterOutputModel findDataSetFromLocalOrUnion(String memberId, String dataSetId) throws StatusCodeWithException {
+
+        if (memberId.equals(CacheObjects.getMemberId())) {
+            BloomFilterMysqlModel dataSet = repo.findById(dataSetId).orElse(null);
+            if (dataSet == null) {
+                return null;
+            }
+            return ModelMapper.map(dataSet, BloomFilterOutputModel.class);
+        } else {
+            return unionService.getDataResourceDetail(dataSetId, BloomFilterOutputModel.class);
+        }
+    }
 
     /**
      * Get uploaded file
