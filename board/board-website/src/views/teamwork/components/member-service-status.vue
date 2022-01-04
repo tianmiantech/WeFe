@@ -89,8 +89,6 @@
                         <li v-for="sitem in item.list" :key="sitem.message">
                             <p v-if="!sitem.success" style="color: #f56c6c;">
                                 <span>{{sitem.desc}}：</span>
-                                <!-- <br>
-                                <span>{{sitem.message}}</span> -->
                             </p>
                             <p v-else>{{sitem.desc}}</p>
                         </li>

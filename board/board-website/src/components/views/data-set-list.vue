@@ -3,7 +3,7 @@
         <div class="flexbox">
             <el-alert
                 v-if="search.dataResourceType === 'TableDataSet' && containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
+                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据资源' : ''"
                 :closable="false"
                 type="warning"
             />
@@ -18,7 +18,7 @@
                         target="_blank"
                     >
                         <el-button style="display:block;" type="primary" size="mini">
-                            上传数据集
+                            上传数据资源
                             <el-icon>
                                 <elicon-arrow-right />
                             </el-icon>
@@ -188,7 +188,7 @@
             </el-table-column>
             <el-table-column
                 fixed="right"
-                label="选择数据集"
+                label="选择数据资源"
                 width="140px"
             >
                 <template v-slot="scope">
@@ -428,7 +428,7 @@
                     return this.$message({
                         type:                     'error',
                         dangerouslyUseHTMLString: true,
-                        message:                  '数据集暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
+                        message:                  '数据资源暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
                     });
                 }
                 item.$source_page = this.emitEventName;

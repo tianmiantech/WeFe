@@ -115,7 +115,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             String endpoint = dstMember.getEndpoint().getIp() + ":" + dstMember.getEndpoint().getPort();
             // Signature issue
             if (GrpcUtil.checkIsSignPermissionExp(e)) {
-                return ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过，请检查您的公私钥是否匹配以及公钥是否已上报", transferMeta.getSessionId());
+                return ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过，请检查您的公私钥是否匹配以及公钥是否已上报到 union", transferMeta.getSessionId());
             }
             if (GrpcUtil.checkIsConnectionDisableExp(e)) {
                 return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通，请检查网络连接是否正常以及对方网关是否已启动", transferMeta.getSessionId());

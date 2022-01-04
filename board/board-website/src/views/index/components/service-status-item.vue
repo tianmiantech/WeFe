@@ -51,7 +51,7 @@
                     </el-col>
                     <el-col
                         :span="4"
-                        style="text-align:right"
+                        class="text-r"
                     >
                         <el-button
                             class="test-btn"
@@ -146,7 +146,6 @@
     .tip-error{
         background-color: #fef0f0;
         border-left: 5px solid #f56c6c;
-        // align-items: center;
     }
 
     .tip-success{

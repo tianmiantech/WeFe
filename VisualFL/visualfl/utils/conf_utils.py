@@ -17,8 +17,7 @@ import os
 
 from cachetools import cached, LRUCache
 
-from visualfl import __basedir__
-
+from visualfl import __config_path__
 
 @cached(cache=LRUCache(maxsize=64))
 def get_comm_config(key, default=None):
@@ -34,7 +33,7 @@ def get_comm_config(key, default=None):
     -------
 
     """
-    comm_file_path = os.path.join(__basedir__,"db","config.properties")
+    comm_file_path = __config_path__
     if os.path.exists(comm_file_path):
         with open(comm_file_path, encoding="utf8") as fp:
             lines = fp.readlines()

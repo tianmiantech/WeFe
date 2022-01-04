@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.TaskResultService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
@@ -65,6 +66,9 @@ public class FusionTaskService extends AbstractService {
 
     @Autowired
     private TableDataSetService tableDataSetService;
+
+    @Autowired
+    private DataResourceService dataResourceService;
 
     @Autowired
     ThirdPartyService thirdPartyService;
@@ -142,6 +146,8 @@ public class FusionTaskService extends AbstractService {
 
         task.setRowCount(dataSet.getTotalDataCount());
         fusionTaskRepository.save(task);
+
+        dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
 
         thirdPartyService.alignApply(task);
     }
@@ -350,6 +356,8 @@ public class FusionTaskService extends AbstractService {
         model.setStatus(FusionTaskStatus.Pending);
 
         fusionTaskRepository.save(model);
+
+        dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
     }
 
     /**

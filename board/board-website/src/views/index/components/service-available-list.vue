@@ -8,6 +8,7 @@
         <ServiceStatusItem service="UnionService" />
         <ServiceStatusItem service="BoardService" />
         <ServiceStatusItem service="GatewayService" />
+        <ServiceStatusItem service="StorageService" />
         <ServiceStatusItem service="FlowService" />
     </el-card>
 </template>
@@ -51,7 +52,5 @@
 </script>
 
 <style lang="scss" scoped>
-.el-card{
-    :deep(.el-card__body) {padding-top: 0px;}
-}
+.el-card{ :deep(.el-card__body) {padding-top: 0px;} }
 </style>

@@ -7,26 +7,14 @@ from typing import Optional
 
 from visualfl.utils.logger import Logger
 from visualfl import VISUALFL_DATA_BASE_ENV
+from visualfl.paddle_fl.abs.executor import Executor
 
 
-class ProcessExecutor(Logger):
+class ProcessExecutor(Executor,Logger):
 
     def __init__(self, working_dir: Path, data_dir=None):
-        self._working_dir = working_dir
-        self._working_dir.mkdir(parents=True, exist_ok=True)
+        super().__init__(working_dir)
         self._data_dir = data_dir
-
-    @property
-    def stderr(self):
-        return "stderr"
-
-    @property
-    def stdout(self):
-        return "stdout"
-
-    @property
-    def working_dir(self):
-        return self._working_dir
 
     async def execute(self, cmd) -> Optional[int]:
         self.info(f"execute cmd {cmd} at {self.working_dir}")
@@ -38,7 +26,7 @@ class ProcessExecutor(Logger):
                 cmd, shell=True, cwd=self.working_dir, env=env
             )
             await sub.communicate()
-            return sub.returncode
+            return sub.returncode,sub.pid
 
         except Exception as e:
             self.error(e)
@@ -52,7 +40,7 @@ class ProcessExecutor(Logger):
 
             p = subprocess.Popen(cmd,shell=True, cwd=self.working_dir, env=env)
             p.communicate()
-            return p.returncode
+            return p.returncode,p.pid
         except Exception as e:
             self.error(e)
 

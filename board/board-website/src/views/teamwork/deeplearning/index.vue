@@ -151,7 +151,7 @@
                             </el-tab-pane>
                         </el-tabs>
                         <el-dialog
-                            title="选择数据集"
+                            title="选择数据资源"
                             v-model="vData.showSelectDataSet"
                             custom-class="dialog-min-width"
                             :close-on-click-modal="false"
@@ -462,7 +462,7 @@
                             if(!data.graph) {
                                 methods.createNode();
                             } else {
-                                // 查看选择数据集节点信息
+                                // 查看选择数据资源节点信息
                                 methods.getDataIONodeDetail(data.graph.nodes[1].id);
                                 methods.getDeeplearningNodeDetail(data.graph.nodes[2].id);
                             }
@@ -513,7 +513,7 @@
                                 },
                                 {
                                     id:    methods.generateNodeId(),
-                                    label: '选择数据集',
+                                    label: '选择数据资源',
                                     type:  'flow-node',
                                     data:  {
                                         componentType: 'ImageDataIO',
@@ -557,7 +557,7 @@
                 prev() {
                     if (vData.active-- === 0) vData.active = 0;
                     if (vData.active === 0) {
-                        // 保存数据集信息
+                        // 保存数据资源信息
                         methods.saveImageDataIOInfo();
                     }
                 },
@@ -565,7 +565,7 @@
                     vData.prevActive = vData.active;
                     if (vData.active++ > 2) vData.active = 0;
                     if (vData.prevActive === 1 && vData.active === 2) {
-                        // 保存数据集信息
+                        // 保存数据资源信息
                         methods.saveImageDataIOInfo();
                     }
                 },
@@ -736,7 +736,7 @@
                                 item.$data_set_list = [];
                             }
                         });
-                        $notify({ type: 'success', message: '已自动关联相关数据集', duration: 1000 });
+                        $notify({ type: 'success', message: '已自动关联相关数据资源', duration: 1000 });
                     }
                     currentMember.$data_set_list = [];
                     currentMember.$data_set_list.push(dataset);

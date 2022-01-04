@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.database.entity.fusion;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.wefe.enums.Options;
+import com.welab.wefe.common.wefe.enums.HashOptions;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,7 +33,7 @@ public class FieldInfoMySqlModel extends AbstractBaseMySqlModel {
     private String columns;
 
     @Enumerated(EnumType.STRING)
-    private Options options;
+    private HashOptions options;
 
     private int fristIndex;
 
@@ -57,11 +57,11 @@ public class FieldInfoMySqlModel extends AbstractBaseMySqlModel {
         this.columns = columns;
     }
 
-    public Options getOptions() {
+    public HashOptions getOptions() {
         return options;
     }
 
-    public void setOptions(Options options) {
+    public void setOptions(HashOptions options) {
         this.options = options;
     }
 

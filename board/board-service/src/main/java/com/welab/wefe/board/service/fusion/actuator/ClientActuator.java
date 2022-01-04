@@ -56,8 +56,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shardSize = 1000;
-    private Integer currentIndex = 0;
+    public int shardSize = 1000;
+    public Integer currentIndex = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
@@ -130,7 +130,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public List<JObject> next() {
-        synchronized (currentIndex) {
+        synchronized (dataSetStorageService) {
             long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
@@ -172,11 +172,13 @@ public class ClientActuator extends AbstractPsiClientActuator {
         LOG.info("fruit insert end...");
 
         System.out.println("测试结果：" + JSON.toJSONString(fruit));
+
+        //记录进度
     }
 
     @Override
     public Boolean hasNext() {
-        synchronized (currentIndex) {
+        synchronized (dataSetStorageService) {
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),

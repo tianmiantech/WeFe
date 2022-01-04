@@ -61,7 +61,7 @@ const baseRoutes = [
                 name: 'union-data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/union-data-list'),
             },
@@ -71,7 +71,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}union-data-list`,
                 },
                 component: () => import('../views/data-center/union-data-view'),
@@ -118,7 +118,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-view`,
                 name: 'data-view',
                 meta: {
-                    title:  '查看数据集',
+                    title:  '查看数据资源',
                     hidden: true,
                     active: `${prefixPath}data-list`,
                 },
@@ -129,7 +129,7 @@ const baseRoutes = [
                 name: 'data-update',
                 meta: {
                     hidden: true,
-                    title:  '编辑数据集',
+                    title:  '编辑数据资源',
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),
@@ -282,8 +282,8 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/job/compare'),
             },
             {
-                path: `${prefixPath}teamwork/detail/fusion-add`,
-                name: 'fusion-add',
+                path: `${prefixPath}teamwork/detail/fusion-edit`,
+                name: 'fusion-edit',
                 meta: {
                     hidden:          true,
                     loginAndRefresh: true,
@@ -296,15 +296,15 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/teamwork/components/fusion-job/fusion-add'),
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
             {
-                path: `${prefixPath}fusion-task`,
-                name: 'fusion-task',
+                path: `${prefixPath}teamwork/detail/fusion-detail`,
+                name: 'fusion-detail',
                 meta: {
-                    hidden:          true,
                     loginAndRefresh: true,
-                    title:           '数据融合',
+                    hidden:          true,
+                    title:           '数据融合详情',
                     active:          `${prefixPath}teamwork`,
                     /* titleParams:     {
                         params: ['flow_id', 'project_id'],
@@ -313,25 +313,8 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () => import('../views/fusion/fusion-task'),
-            },
-            {
-                path: `${prefixPath}fusion-task-detail`,
-                name: 'fusion-task-detail',
-                meta: {
-                    loginAndRefresh: true,
-                    hidden:          true,
-                    title:           '数据融合详情',
-                    active:          `${prefixPath}fusion-task`,
-                    /* titleParams:     {
-                        params: ['flow_id', 'project_id'],
-                        name:   'fusion-task',
-                        title:  '数据融合',
-                    }, */
-                    navigation:      true,
-                },
                 component: () =>
-                    import('../views/fusion/fusion-task-detail'),
+                    import('../views/teamwork/components/fusion-job/fusion-detail'),
             },
         ],
     },
@@ -389,8 +372,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '账户设置',
                 },
-                component: () =>
-                    import('../views/system-config/account-setting'),
+                component: () => import('../views/system-config/account-setting'),
             },
         ],
     },
@@ -399,8 +381,7 @@ const baseRoutes = [
         meta: {
             title:   '全局设置',
             icon:    'setting',
-            tooltip:
-                '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
+            tooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -422,8 +403,7 @@ const baseRoutes = [
                     active:          `${prefixPath}member-view`,
                     title:           '企业认证',
                 },
-                component: () =>
-                    import('../views/system-config/enterprise-certification'),
+                component: () => import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
