@@ -475,7 +475,20 @@ public class ServiceService {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
 			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+		} else if (serviceType == 2) {
+			sdkZipName = "sdk.zip";
+			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-psi-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+		} else if (serviceType == 3 || serviceType == 4) {
+			sdkZipName = "sdk.zip";
+			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-sa-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
 		}
+
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
