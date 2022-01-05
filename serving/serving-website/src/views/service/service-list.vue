@@ -78,19 +78,14 @@
                 width="45px"
             />
             <el-table-column
-                label="ID"
-                min-width="120px"
+                label="名称"
+                min-width="240px"
             >
                 <template slot-scope="scope">
+                    {{ scope.row.name }}
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-
-            <el-table-column
-                label="名称"
-                prop="name"
-                width="300px"
-            />
 
             <el-table-column
                 label="服务类型"
@@ -124,10 +119,9 @@
                 </template>
             </el-table-column>
 
-
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="160px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -136,7 +130,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="160px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -156,20 +150,22 @@
                         编辑
                     </el-button>
                     <el-button
+                        v-if="scope.row.status == 0"
                         type="primary"
                         @click="online(scope.row.id)"
-                     v-if="scope.row.status == 0">
+                    >
                         上线
                     </el-button>
                     <el-button
+                        v-else
                         type="danger"
-                        @click="offline(scope.row.id)" v-else>
+                        @click="offline(scope.row.id)"
+                    >
                         下线
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
-
 
         <div
             v-if="pagination.total"
@@ -196,9 +192,9 @@
         data() {
             return {
                 search: {
-                    name:   '',
+                    name:         '',
                     service_type: '',
-                    status: '',
+                    status:       '',
                 },
                 headers: {
                     token: localStorage.getItem('token') || '',
@@ -210,8 +206,8 @@
                     visible: false,
                     list:    [],
                 },
-                dataDialog: false,
-                jsonData:   '',
+                dataDialog:      false,
+                jsonData:        '',
                 ServiceTypeList: [{
                     name:  '匿踪查询',
                     value: '1',
@@ -224,14 +220,14 @@
                     name:  '安全聚合',
                     value: '3',
                 }],
-                StatusList:[{
+                StatusList: [{
                     name:  '在线',
                     value: '1',
                 },
                 {
                     name:  '离线',
                     value: '0',
-                }]
+                }],
             };
         },
         created() {
@@ -247,9 +243,9 @@
             },
 
             editService(row) {
-                this.$router.replace({
+                this.$router.push({
                     name:  'service-view',
-                    query: { id: row.id},
+                    query: { id: row.id },
                 });
             },
 

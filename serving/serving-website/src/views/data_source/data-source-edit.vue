@@ -1,9 +1,12 @@
 <template>
-    <el-card
-        class="page"
-        shadow="never"
+    <el-dialog
+        :visible.sync="visible"
+        :title="`${ id ? '编辑' : '新增' }数据源`"
     >
-        <el-form :model="form">
+        <el-form
+            ref="form"
+            :model="form"
+        >
             <el-form-item
                 prop="name"
                 label="源名称:"
@@ -92,75 +95,69 @@
                 >
                     <el-input
                         v-model="form.password"
+                        type="password"
                         size="medium"
-                    />
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
+                    >
+                        <template slot="append">
+                            <el-button
+                                size="small"
+                                @click="testConnection"
+                            >
+                                测试连接
+                            </el-button>
+                        </template>
+                    </el-input>
                 </el-form-item>
+            </div>
+            <div class="mt20 text-r">
                 <el-button
-                    :loading="testLoading"
-                    size="small"
-                    @click="testConnection"
+                    class="save-btn"
+                    @click="visible = false;"
                 >
-                    测试连接
+                    取消
+                </el-button>
+                <el-button
+                    class="save-btn"
+                    type="primary"
+                    @click="save"
+                >
+                    保存
                 </el-button>
             </div>
-            <el-button
-                class="save-btn mt20"
-                type="primary"
-                size="medium"
-                :loading="saveLoading"
-                @click="add(currentItem.id)"
-            >
-                保存
-            </el-button>
         </el-form>
-    </el-card>
+    </el-dialog>
 </template>
 
 <script>
     export default {
+        props: {
+            id: String,
+        },
         data() {
             return {
                 loading:          false,
+                visible:          false,
                 // model
                 form:             {},
                 DatabaseTypeList: [{
                     name:  'MySql',
                     value: 'MySql',
                 }],
-                currentItem: {},
-                testLoading: false,
-                saveLoading: false,
             };
-        },
-        created() {
-            this.currentItem.id = this.$route.query.id;
-            this.currentItem.name = this.$route.query.name;
-            if (this.currentItem.id) {
-                this.getSqlConfigDetail();
-            }
         },
 
         methods: {
-
-            async getSqlConfigDetail() {
-                const { code, data } = await this.$http.post({
-                    url:  '/data_source/query',
-                    data: { id: this.currentItem.id, name: this.currentItem.name },
+            show(row) {
+                this.visible = true;
+                this.$nextTick(_ => {
+                    this.form = row || {};
+                    this.$refs['form'].resetFields();
                 });
-
-                if (code === 0) {
-                    console.log(data);
-                    if (data.list) {
-                        const resData = data.list[0];
-
-                        this.form = resData;
-                        // this.form.databaseType = resData.database_type;
-                        // this.form.databaseName = resData.database_name;
-                        // this.form.userName = resData.user_name;
-                    }
-                }
             },
-            async add(id = '') {
+            async save() {
                 if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
                     this.$message.error('请将必填项填写完整！');
                     return;
@@ -169,21 +166,19 @@
                     return;
                 }
 
-                this.saveLoading = true;
                 const { code } = await this.$http.post({
-                    url:     id ? '/data_source/update' : '/data_source/add',
+                    url:     this.id ? '/data_source/update' : '/data_source/add',
                     timeout: 1000 * 60 * 24 * 30,
                     data:    this.form,
                 });
 
                 if (code === 0) {
                     this.$message.success('保存成功!');
-                    this.$router.replace({ name: 'data-resouce-list', query: {} });
-
+                    this.$emit('data-source-add');
+                    this.visible = false;
                 }
-                this.saveLoading = false;
             },
-            async testConnection() {
+            async testConnection(event) {
                 if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
                     this.$message.error('请将必填项填写完整！');
                     return;
@@ -191,18 +186,19 @@
                     this.$message.error('源名称长度不能少于4，不能大于30');
                     return;
                 }
-                this.testLoading = true;
-                const { code, data } = await this.$http.post({
-                    url:     '/data_source/test_db_connect',
-                    timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
 
+                const { code } = await this.$http.post({
+                    url:      '/data_source/test_db_connect',
+                    timeout:  1000 * 60 * 24 * 30,
+                    data:     this.form,
+                    btnState: {
+                        target: event,
+                    },
                 });
 
                 if (code === 0) {
                     this.$message.success('数据库可连接!');
                 }
-                this.testLoading = false;
             },
 
         },
@@ -210,23 +206,9 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        max-width: 300px;
-        ::v-deep .el-form-item__label{
-            text-align: left;
-            display: block;
-            float: none;
-        }
-    }
-    .form-inline{
+    .el-form{
         .el-form-item{
-            display: inline-block;
-            vertical-align: top;
-            margin-right: 10px;
-            width: 200px;
-        }
-        .el-button{
-            margin-top: 33px;
+            margin-bottom: 10px;
         }
     }
     .save-btn {

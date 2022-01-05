@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="源Id:"
-                label-width="80px"
-            >
+            <el-form-item label="数据源Id:">
                 <el-input v-model="search.id" />
             </el-form-item>
 
-            <el-form-item
-                label="源名称:"
-                label-width="100px"
-            >
+            <el-form-item label="数据源名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
@@ -28,13 +22,9 @@
                 查询
             </el-button>
 
-            <router-link
-                :to="{name: 'data-source-view'}"
-            >
-                <el-button>
-                    新增
-                </el-button>
-            </router-link>
+            <el-button @click="editSource">
+                新增
+            </el-button>
         </el-form>
 
         <el-table
@@ -78,7 +68,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="160px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -87,7 +77,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="160px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -102,16 +92,10 @@
                 <template slot-scope="scope">
                     <el-button
                         type="primary"
-                        @click="editSource(scope.row)"
+                        @click="editSource($event, scope.row)"
                     >
                         编辑
                     </el-button>
-                    <!-- <router-link
-                        :to="{ name: 'data-source-view', query: {id: scope.row.id} }"
-                        class="tags-li-title"
-                    >
-                        编辑
-                    </router-link> -->
                     <el-button
                         type="danger"
                         @click="deleteSource(scope.row.id)"
@@ -138,70 +122,40 @@
             />
         </div>
 
-        <!--  <el-dialog
-                      :title="策略"
-                      :visible.sync="dataDialog"
-                  >
-                  <json-view :data="jsonData"/>
-           </el-dialog> -->
+        <DataSourceEditor
+            :id="dataSourceEditorId"
+            ref="DataSourceEditor"
+        />
     </el-card>
 </template>
 
 <script>
     import table from '@src/mixins/table.js';
-    // import jsonView from 'vue-json-views';
+    import DataSourceEditor from './data-source-edit';
 
     export default {
-        // components: {
-        //             jsonView,
-        // },
+        components: {
+            DataSourceEditor,
+        },
         mixins: [table],
+        inject: ['refresh'],
         data() {
             return {
                 search: {
                     id:     '',
                     status: '',
                 },
-                headers: {
-                    token: localStorage.getItem('token') || '',
-                },
-                getListApi:     '/data_source/query',
-                userList:       [],
-                taskStatusList: [],
-                viewDataDialog: {
-                    visible: false,
-                    list:    [],
-                },
-                dataDialog: false,
-                jsonData:   '',
-
-                dataSet: {
-                    editor:             false,
-                    id:                 '',
-                    name:               '',
-                    partner_id:         '',
-                    data_resource_id:   '',
-                    data_resource_type: '',
-                },
+                getListApi:         '/data_source/query',
+                dataSourceEditorId: '',
             };
         },
-        created() {
-            this.getList();
-        },
         methods: {
+            editSource(event, row) {
+                this.dataSourceEditorId = row? row.id : '';
 
-            showStrategys (string) {
-                this.dataDialog = true;
-                setTimeout(() => {
-                    this.jsonData = string;
-                });
-            },
+                const ref = this.$refs['DataSourceEditor'];
 
-            editSource(row) {
-                this.$router.replace({
-                    name:  'data-source-view',
-                    query: { id: row.id},
-                });
+                ref.show(row);
             },
 
             async deleteSource (id) {
@@ -217,7 +171,7 @@
 
                     if (code === 0) {
                         this.$message('删除成功!');
-                        this.getList();
+                        this.refresh();
                     }
                 });
             },

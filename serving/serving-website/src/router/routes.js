@@ -146,17 +146,6 @@ const baseRoutes = [
                 },
                 component: () => import('@views/data_source/data-source-list.vue'),
             },
-            {
-                path: `${prefixPath}data-source-view`,
-                name: 'data-source-view',
-                meta: {
-                    title:  '数据源配置详情',
-                    index:  '4-2',
-                    hidden: true,
-                    active: `${prefixPath}data-source-view`,
-                },
-                component: () => import('@views/data_source/data-source-view.vue'),
-            },
         ],
     },
     {
