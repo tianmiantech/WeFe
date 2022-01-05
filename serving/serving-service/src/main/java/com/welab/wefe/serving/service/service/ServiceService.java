@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -51,6 +52,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.mpc.cache.result.QueryDataResult;
 import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
@@ -58,6 +60,10 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
+import com.welab.wefe.mpc.sa.sdk.SecureAggregation;
+import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
+import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
+import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
 import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
@@ -302,7 +308,7 @@ public class ServiceService {
 				return JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
 				JObject data = JObject.create(input.getData());
-				Double result = sa1(data, model);
+				Double result = sa_query(data, model);
 				return JObject.create(result);
 			}
 			return JObject.create();
@@ -312,11 +318,41 @@ public class ServiceService {
 	/**
 	 * 0.参考 SecureAggregation.query 返回结果
 	 */
-	private Double sa1(JObject data, ServiceMySqlModel model) {
-		String queryParams = model.getQueryParams();
-		JObject params = data.getJObject("queryParams");
+	private Double sa_query(JObject data, ServiceMySqlModel model) {
+		JObject userParams = data.getJObject("queryParams");
+//		String queryParams = model.getQueryParams();
+//		String operator = model.getOperator();
+		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
+		int size = dataSourceArr.size();
+		List<ServerConfig> serverConfigs = new LinkedList<>();
+		List<SecureAggregationTransferVariable> transferVariables = new LinkedList<>();
 
-		return null;
+		for (int i = 0; i < size; i++) {
+			JSONObject dataSource = dataSourceArr.getJSONObject(i);
+			String memberId = dataSource.getString("member_id");
+//			String memberName = dataSource.getString("member_name");
+			String name = dataSource.getString("name");
+//			String params = dataSource.getString("params");
+			String url = dataSource.getString("url");
+			ServerConfig config = new ServerConfig();
+			config.setServerName(name);
+			config.setServerUrl(url);
+			config.setQueryParams(userParams);
+			CommunicationConfig communicationConfig = new CommunicationConfig();
+			communicationConfig.setApiName(name);
+			communicationConfig.setServerUrl(url);
+			communicationConfig.setCommercialId(memberId);
+			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setSignPrivateKey("");// TODO
+			config.setCommunicationConfig(communicationConfig);
+
+			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
+			transferVariables.add(httpTransferVariable);
+			serverConfigs.add(config);
+		}
+
+		SecureAggregation secureAggregation = new SecureAggregation();
+		return secureAggregation.query(serverConfigs, transferVariables);
 	}
 
 	/**
