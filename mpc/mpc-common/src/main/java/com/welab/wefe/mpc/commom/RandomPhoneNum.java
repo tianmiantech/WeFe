@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Random;
 
 
+/**
+ * @author eval
+ */
 public class RandomPhoneNum {
 
     final static int LEN_PHONE = 8;

@@ -16,16 +16,13 @@
 
 package com.welab.wefe.mpc.sa.sdk;
 
-import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
-import com.welab.wefe.mpc.sa.SecureAggregationApiName;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
 import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
 import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
 import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
-import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
 import java.util.ArrayList;
