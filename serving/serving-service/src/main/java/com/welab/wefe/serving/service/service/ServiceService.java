@@ -373,7 +373,7 @@ public class ServiceService {
 			if (resultMap == null || resultMap.isEmpty()) {
 				resultMap = new HashMap<>();
 			}
-			resultStr = JObject.toJSONString(resultMap);
+			resultStr = resultMap.get(resultfields);// 目前只支持一个返回值
 			System.out.println(queryParams.toJSONString() + "\t " + resultStr);
 		} catch (StatusCodeWithException e) {
 			throw e;
@@ -381,7 +381,7 @@ public class ServiceService {
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
 		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
 		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(response.getUuid(), Double.valueOf(resultStr));
+		queryResult.save(request.getUuid(), Double.valueOf(resultStr));
 		return response;
 	}
 
