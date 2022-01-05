@@ -303,6 +303,7 @@ public class ServiceService {
 				/**
 				 * 0.参考 SecureAggregation.query 返回结果
 				 */
+				
 			}
 			return JObject.create();
 		}
@@ -337,8 +338,8 @@ public class ServiceService {
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
 		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Float> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(response.getUuid(), Float.valueOf(resultStr));
+		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
+		queryResult.save(response.getUuid(), Double.valueOf(resultStr));
 		return response;
 	}
 
