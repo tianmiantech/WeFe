@@ -24,21 +24,27 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "api", name = "api service", forward = true, login = false)
+@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = false, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Autowired
 	private ServiceService service;
+	@Autowired
+	private ApiRequestRecordService apiRequestRecordService;
 
 	@Override
 	protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
 		String uri = input.request.getRequestURI();
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-		return success(service.executeService(serviceUrl, input));
+		JObject result = service.executeService(serviceUrl, input);
+
+		return success(result);
 	}
 
 	public static class Input extends AbstractApiInput {
