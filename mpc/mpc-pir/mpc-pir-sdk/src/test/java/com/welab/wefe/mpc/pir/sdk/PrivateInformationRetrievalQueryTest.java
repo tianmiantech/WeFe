@@ -39,8 +39,11 @@ public class PrivateInformationRetrievalQueryTest {
     public void query() throws Exception {
         CommunicationConfig communicationConfig = new CommunicationConfig();
         communicationConfig.setApiName("api/query/social_score");
-        communicationConfig.setNeedSign(false);
-        communicationConfig.setServerUrl("http://localhost:8080/serving-service/");
+        communicationConfig.setNeedSign(true);
+        communicationConfig.setCommercialId("tianmain");
+        String privateKey = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKUOtGj39LY9PABvGuFNwZu520TNsRBCQSt0XCqqNsD+TsfUg8OMdaJVbzASrXeI57W5Za322dVirSTAgEekJIRU04zHfDeKc/JhQvuR0+5vMqDrFZ89KzfsN9TUJxHESwwZ0CV0ZOywCEH5VzcOa4cBjJtEGfJWExUBDKdlqXH/AgMBAAECgYBOXzMOfF23gk/RLPAodpEtbgxNGRWv0KW9Cl0Q7Q1eieHCRIfj+/eHAuXuf4/aKClNQiCjf4hjJ51qy/SdD7U+U+dm+UiBcgHrOhYm2Co9KNEGJKF978vv+CSngXtmOF/ZUdofW6yfTez9ZpsbtQYxmXYGQYVnooLbHEe9tCCioQJBAOUCWy4H8BjluZDFADb5jbwrQfVvtBdHmOu4Uu+WR/EgGBLTVMu4kpwKK6go9631Q47FdO2dWfoIzNvv6ZACPQkCQQC4gs1Tf4sx4r/2ou3C/qnLJerM+mLaYpQG3EZtw4zEjndtaklldftAh5xu019P3HessoT3NQ/xuuWUQ947jADHAkAhhz3IOHtLed64Nk94vQKmSQMIJwmL2vyljj/+Oddgkx1TLEOe6+/zDn4jyZOxkVYJwhkDbOUueTlc/fwJDHrZAkEAqzbFbWv3MG1nEGiUFNPXn2kp/teBj4DWN5+DwysonuRMsj1kqj/WzESKxtRhp2u/qYNmmzaj+v4hN3na6Iq71QJATMZBjksGzILd9oSwzVN8iQREkdtHdZnvakT44pp9a1UrgPEHS6YGI3BqVoPjJkiJSWr3S3OwzbMo5EKkAZ6fqw==";
+        communicationConfig.setSignPrivateKey(privateKey);
+        communicationConfig.setServerUrl("http://172.29.20.150:8080/serving-service/");
 
         JSONObject object = new JSONObject();
         object.put("mobile", "13168730657");
