@@ -50,6 +50,12 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	private String dataSource;// json
 
 	/**
+	 * SQL配置
+	 */
+	@Column(name = "service_config")
+	private String serviceConfig;// json
+
+	/**
 	 * 是否在线 1在线 0离线
 	 */
 	@Column(name = "status")
@@ -57,7 +63,7 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	@Column(name = "ids_table_name")
 	private String idsTableName;
-	
+
 	@Column(name = "operator")
 	private String operator;
 
@@ -124,4 +130,13 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	public void setOperator(String operator) {
 		this.operator = operator;
 	}
+
+	public String getServiceConfig() {
+		return serviceConfig;
+	}
+
+	public void setServiceConfig(String serviceConfig) {
+		this.serviceConfig = serviceConfig;
+	}
+
 }

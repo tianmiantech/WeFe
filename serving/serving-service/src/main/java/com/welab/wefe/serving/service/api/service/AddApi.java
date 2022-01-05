@@ -96,6 +96,8 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 		private List<String> queryParams;
 		@Check(name = "SQL配置")
 		private String dataSource;// json
+		@Check(name = "服务配置")
+		private String serviceConfig;// json
 
 		public String getName() {
 			return name;
@@ -143,6 +145,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
 		public void setOperator(String operator) {
 			this.operator = operator;
+		}
+
+		public String getServiceConfig() {
+			return serviceConfig;
+		}
+
+		public void setServiceConfig(String serviceConfig) {
+			this.serviceConfig = serviceConfig;
 		}
 
 	}

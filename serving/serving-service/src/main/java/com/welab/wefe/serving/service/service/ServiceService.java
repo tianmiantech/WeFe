@@ -121,9 +121,7 @@ public class ServiceService {
 		if (model.getServiceType() != 2) {// 对于 交集查询 需要额外生成对应的主键数据
 			return keysTableName;
 		}
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
 		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
 		if (dataSourceModel == null) {
 			return keysTableName;
@@ -267,11 +265,10 @@ public class ServiceService {
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
 			throws StatusCodeWithException {
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(input.getDataSource());
-		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
-		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-		String sql = ServiceUtil.generateSQL(input.getParams(), dataSourceArr, index);
+		JSONObject dataSource = JObject.parseObject(input.getDataSource());
+		String resultfields = ServiceUtil.parseReturnFields(dataSource);
+		String dataSourceId = dataSource.getString("id");
+		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource);
 		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
@@ -322,18 +319,18 @@ public class ServiceService {
 		JObject userParams = data.getJObject("queryParams");
 //		String queryParams = model.getQueryParams();
 //		String operator = model.getOperator();
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		int size = dataSourceArr.size();
+		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
+		int size = serviceConfigs.size();
 		List<ServerConfig> serverConfigs = new LinkedList<>();
 		List<SecureAggregationTransferVariable> transferVariables = new LinkedList<>();
 
 		for (int i = 0; i < size; i++) {
-			JSONObject dataSource = dataSourceArr.getJSONObject(i);
-			String memberId = dataSource.getString("member_id");
-//			String memberName = dataSource.getString("member_name");
-			String name = dataSource.getString("name");
-//			String params = dataSource.getString("params");
-			String url = dataSource.getString("url");
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			String memberId = serviceConfig.getString("member_id");
+//			String memberName = serviceConfig.getString("member_name");
+			String name = serviceConfig.getString("name");
+//			String params = serviceConfig.getString("params");
+			String url = serviceConfig.getString("url");
 			ServerConfig config = new ServerConfig();
 			config.setServerName(name);
 			config.setServerUrl(url);
@@ -365,11 +362,10 @@ public class ServiceService {
 			throws StatusCodeWithException {
 		QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();
 		JSONObject queryParams = request.getQueryParams();
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		int index = 0;
-		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSourceArr, index);
-		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
+		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource);
+		String dataSourceId = dataSource.getString("id");
+		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String resultStr = "";
 		try {
 			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
@@ -398,9 +394,7 @@ public class ServiceService {
 		BigInteger mod = new BigInteger(request.getP(), 16);
 		int keySize = 1024;
 		BigInteger serverKey = new BigInteger(keySize, new Random());
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
 		String sql = "select id from " + model.getIdsTableName();
 		List<String> needFields = new ArrayList<>();
 		needFields.add("id");
@@ -426,11 +420,10 @@ public class ServiceService {
 		Map<String, String> result = new HashMap<>();
 		// 0 根据ID查询对应的数据
 		for (String id : ids) {// params
-			JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-			int index = 0;
-			String sql = ServiceUtil.generateSQL(id, dataSourceArr, index);
-			String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-			String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+			JSONObject dataSource = JObject.parseObject(model.getDataSource());
+			String sql = ServiceUtil.generateSQL(id, dataSource);
+			String dataSourceId = dataSource.getString("id");
+			String resultfields = ServiceUtil.parseReturnFields(dataSource);
 			try {
 				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
 						Arrays.asList(resultfields.split(",")));
