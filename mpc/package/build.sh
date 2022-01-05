@@ -2,7 +2,7 @@
 cd ..
 rm -rf libs/
 mkdir libs
-mvn clean package -Dmaven.test.skip=true
+mvn clean package install -Dmaven.test.skip=true
 
 cp mpc-pir/mpc-pir-server/target/mpc-pir-server-1.0.0-shaded.jar libs/mpc-pir-server-1.0.0.jar
 cp mpc-pir/mpc-pir-sdk/target/mpc-pir-sdk-1.0.0-shaded.jar libs/mpc-pir-sdk-1.0.0.jar
