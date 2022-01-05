@@ -17,7 +17,8 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
-import com.welab.wefe.mpc.cache.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryRandomRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomResponse;
@@ -28,9 +29,8 @@ import com.welab.wefe.mpc.pir.request.QueryRandomResponse;
  **/
 public class HauckRandomService {
 
-    CacheOperation mCacheOperation;
-
     public QueryRandomResponse handle(QueryRandomRequest request) {
+        CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
         QueryRandomResponse response = new QueryRandomResponse();
         String uuid = request.getUuid();
         int attemptCount = request.getAttemptCount();

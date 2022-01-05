@@ -20,6 +20,9 @@ package com.welab.wefe.mpc.pir.request;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * @author eval
+ */
 public class QueryRandomLegalResponse implements Serializable {
     private String uuid;
     /**

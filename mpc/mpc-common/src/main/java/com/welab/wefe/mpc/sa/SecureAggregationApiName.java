@@ -22,5 +22,5 @@ package com.welab.wefe.mpc.sa;
  * @Date 2021/12/17
  **/
 public class SecureAggregationApiName {
-
+    public static final String SA_RESULT = "SecureAggregationForResult";
 }

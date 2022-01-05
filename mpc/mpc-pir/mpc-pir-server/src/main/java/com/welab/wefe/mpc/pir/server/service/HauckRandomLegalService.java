@@ -17,7 +17,10 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
-import com.welab.wefe.mpc.cache.CacheOperation;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
@@ -28,20 +31,24 @@ import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
  **/
 public class HauckRandomLegalService {
 
-    CacheOperation mCacheOperation;
-
     public QueryRandomLegalResponse handle(QueryRandomLegalRequest request) {
+        CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
         String uuid = request.getUuid();
         int attemptCount = request.getAttemptCount();
         boolean sLegal = request.getsLegal();
         String name = Constants.PIR.RANDOM_LEGAL + "_" + attemptCount;
-        mCacheOperation.put(uuid, name, Boolean.toString(sLegal));
+        mCacheOperation.save(uuid, name, Boolean.toString(sLegal));
         if (!request.getR().isEmpty()) {
             String r = request.getR();
-            mCacheOperation.put(uuid, Constants.PIR.R, r);
+            mCacheOperation.save(uuid, Constants.PIR.R, r);
         }
+        String result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
+
         QueryRandomLegalResponse response = new QueryRandomLegalResponse();
         response.setUuid(uuid);
+        if (StrUtil.isNotEmpty(result)) {
+            response.setResults(JSON.parseArray(result, String.class));
+        }
         return response;
     }
 

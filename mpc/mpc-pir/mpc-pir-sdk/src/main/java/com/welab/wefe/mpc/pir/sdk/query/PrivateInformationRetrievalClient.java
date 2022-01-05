@@ -23,8 +23,8 @@ import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
 import com.welab.wefe.mpc.pir.protocol.se.aes.AESDecryptKey;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
-import com.welab.wefe.mpc.pir.request.QueryResultsRequest;
-import com.welab.wefe.mpc.pir.request.QueryResultsResponse;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.sdk.protocol.HauckObliviousTransferReceiver;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
@@ -35,6 +35,8 @@ import java.nio.charset.Charset;
 
 /**
  * 使用隐私信息检索协议查询用户数据
+ *
+ * @author eval
  */
 public class PrivateInformationRetrievalClient extends BasePrivateInformationRetrieval {
     private static final Logger LOG = LoggerFactory.getLogger(PrivateInformationRetrievalClient.class);
@@ -71,9 +73,9 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         LOG.info("uuid:{} start key derivation", uuid);
         ObliviousTransferKey targetKey = mObliviousTransfer.keyDerivation(targetIndex).get(0);
         LOG.info("uuid:{} query results", uuid);
-        QueryResultsRequest resultsRequest = new QueryResultsRequest();
+        QueryPIRResultsRequest resultsRequest = new QueryPIRResultsRequest();
         resultsRequest.setUuid(uuid);
-        QueryResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
+        QueryPIRResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
         LOG.info("uuid:{} obtain results", uuid);
         String enResults = resultsResponse.getResults().get(targetIndex);
         String[] realResult = enResults.split(",");
@@ -82,7 +84,7 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         SymmetricKey aesKey = new AESDecryptKey(targetKey.key, iv);
         byte[] result = aesKey.encrypt(enResult);
         String resultValue = new String(result, Charset.defaultCharset());
-        LOG.info("uuid:{} finish", uuid);
+        LOG.info("uuid:{}, result:{} finish", uuid, resultValue);
         return resultValue;
     }
 

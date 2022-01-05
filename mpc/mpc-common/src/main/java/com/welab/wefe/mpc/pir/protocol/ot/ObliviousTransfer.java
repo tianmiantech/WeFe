@@ -20,10 +20,22 @@ import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckTarget;
 
 import java.util.List;
 
+/**
+ * @author eval
+ */
 public interface ObliviousTransfer {
 
+    /**
+     * 生成密钥
+     * @param num 数量
+     * @return
+     */
     List<ObliviousTransferKey> keyDerivation(int num);
 
+    /**
+     * 获取 Hauck 对象
+     * @return
+     */
     default HauckTarget getHauckTarget() {
         return null;
     }

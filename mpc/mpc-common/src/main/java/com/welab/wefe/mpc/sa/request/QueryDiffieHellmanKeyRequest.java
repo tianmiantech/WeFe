@@ -17,15 +17,18 @@
 
 package com.welab.wefe.mpc.sa.request;
 
+import com.alibaba.fastjson.JSONObject;
+
 /**
  * @Author eval
  * @Date 2021/12/17
  **/
 public class QueryDiffieHellmanKeyRequest {
+    private String uuid;
     private String p;
     private String g;
-    private String uuid;
-    private int index;
+
+    private JSONObject queryParams;
 
     public String getP() {
         return p;
@@ -51,11 +54,11 @@ public class QueryDiffieHellmanKeyRequest {
         this.uuid = uuid;
     }
 
-    public int getIndex() {
-        return index;
+    public JSONObject getQueryParams() {
+        return queryParams;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setQueryParams(JSONObject queryParams) {
+        this.queryParams = queryParams;
     }
 }

@@ -17,10 +17,19 @@
 
 package com.welab.wefe.mpc.sa.server.service;
 
-import com.welab.wefe.mpc.cache.CacheOperation;
-import com.welab.wefe.mpc.cache.impl.LocalCache;
-import com.welab.wefe.mpc.sa.request.QueryResultRequest;
-import com.welab.wefe.mpc.sa.request.QueryResultResponse;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.cache.result.QueryDataResult;
+import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.commom.Constants;
+import com.welab.wefe.mpc.commom.Operator;
+import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
+import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
+import com.welab.wefe.mpc.util.DiffieHellmanUtil;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @Author eval
@@ -28,11 +37,40 @@ import com.welab.wefe.mpc.sa.request.QueryResultResponse;
  **/
 public class QueryResultService {
 
-    CacheOperation mCacheOperation = new LocalCache();
+    public QuerySAResultResponse handle(QuerySAResultRequest request) {
+        return handle(request, 1000);
+    }
 
-    public QueryResultResponse handle(QueryResultRequest request) {
+    public QuerySAResultResponse handle(QuerySAResultRequest request, int factor) {
+        CacheOperation<BigInteger> mCacheOperation = CacheOperationFactory.getCacheOperation();
+        BigInteger key = mCacheOperation.get(request.getUuid(), Constants.SA.SA_KEY);
+        BigInteger p = new BigInteger(request.getP(), 16);
 
-        QueryResultResponse response = new QueryResultResponse();
+        QueryDataResult<Double> queryDataResult = QueryDataResultFactory.getQueryDataResult();
+        Double dataResult = queryDataResult.query(request.getUuid());
+        List<String> diffieHellmanValues = request.getDiffieHellmanValues();
+        int index = request.getIndex();
+        Double result = dataResult;
+        if (request.getOperator() == Operator.SUB) {
+            result *= -1.0;
+        }
+        for (int i = 0; i < diffieHellmanValues.size(); i++) {
+            if (index == i) {
+                continue;
+            }
+            BigInteger randSeed = DiffieHellmanUtil.encrypt(diffieHellmanValues.get(i), key, p, false);
+            Random random = new Random(randSeed.longValue());
+            float randomValue = random.nextFloat() * factor;
+            if (i < index) {
+                result += randomValue;
+            } else {
+                result -= randomValue;
+            }
+
+        }
+        QuerySAResultResponse response = new QuerySAResultResponse();
+        response.setUuid(request.getUuid());
+        response.setResult(result);
         return response;
     }
 }

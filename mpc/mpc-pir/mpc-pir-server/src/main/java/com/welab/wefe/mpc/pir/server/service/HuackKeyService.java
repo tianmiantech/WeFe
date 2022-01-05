@@ -17,13 +17,13 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckTarget;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.event.PrivateInformationRetrievalEvent;
 import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalServer;
-import com.welab.wefe.mpc.pir.server.thread.PrivateInformationRetrievalThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +38,9 @@ public class HuackKeyService {
     private static final Logger LOG = LoggerFactory.getLogger(HuackKeyService.class);
 
     public QueryKeysResponse handle(QueryKeysRequest request) throws Exception {
-        // TODO
         long start = System.currentTimeMillis();
         if (request.getIds() == null || request.getIds().isEmpty()) {
-            throw new Exception("ids is empty");
+            throw new IllegalArgumentException("ids is empty");
         }
         QueryKeysResponse response = new QueryKeysResponse();
         String uuid = UUID.randomUUID().toString().replace("-", "");
@@ -52,7 +51,7 @@ public class HuackKeyService {
         HauckTarget hauckTarget = privateInformationRetrievalServer.mObliviousTransfer.getHauckTarget();
         response.setS(Conversion.groupElementToString(hauckTarget.s));
         PrivateInformationRetrievalEvent event = new PrivateInformationRetrievalEvent(uuid, request.getIds(), privateInformationRetrievalServer);
-        PrivateInformationRetrievalThreadPool.getInstance().execute(() -> event.getPrivateInformationRetrieval().process(event.getKeys(), request.getMethod()));
+        ThreadUtil.execute(() -> event.getPrivateInformationRetrieval().process(event.getKeys(), request.getMethod()));
         LOG.info("uuid:{} keys cost:{}", uuid, (System.currentTimeMillis() - start));
         return response;
     }

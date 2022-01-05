@@ -18,7 +18,18 @@ package com.welab.wefe.mpc.util;
 
 
 import com.welab.wefe.mpc.commom.AccountEncryptionType;
+import com.welab.wefe.mpc.key.DiffieHellmanKey;
 
+import javax.crypto.interfaces.DHPublicKey;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
+/**
+ * @author eval
+ */
 public class EncryptUtil {
 
     public static String encrypt(String id, String method) {
@@ -34,4 +45,5 @@ public class EncryptUtil {
                 return id;
         }
     }
+
 }

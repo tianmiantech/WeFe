@@ -29,18 +29,31 @@ import com.welab.wefe.mpc.pir.request.QueryRandomResponse;
 import com.welab.wefe.mpc.pir.server.service.HauckRandomService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
-@Api(path = PrivateInformationRetrievalApiName.RANDOM, name = "random")
-public class PrivateInformationRetrievalForRandomApi
-		extends AbstractApi<PrivateInformationRetrievalForRandomApi.Input, QueryRandomResponse> {
+@Api(path = PrivateInformationRetrievalApiName.RANDOM, name = "random", login = false)
+public class PrivateInformationRetrievalForRandomApi extends
+		AbstractApi<PrivateInformationRetrievalForRandomApi.Input, QueryRandomResponse> {
 
 	@Override
-	protected ApiResult<QueryRandomResponse> handle(Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<QueryRandomResponse> handle(Input input)
+			throws StatusCodeWithException, IOException {
 		HauckRandomService service = new HauckRandomService();
-		QueryRandomRequest request = ModelMapper.map(input, QueryRandomRequest.class);
+		QueryRandomRequest request = ModelMapper.map(input.getData(), QueryRandomRequest.class);
 		return success(service.handle(request));
 	}
 
 	public static class Input extends AbstractApiInput {
+		private InputData data;
+
+		public InputData getData() {
+			return data;
+		}
+
+		public void setData(InputData data) {
+			this.data = data;
+		}
+
+	}
+	public static class InputData extends AbstractApiInput {
 
 		private String uuid;
 		private int attemptCount;

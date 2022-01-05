@@ -18,10 +18,11 @@
 package com.welab.wefe.mpc.pir.server.service;
 
 import com.alibaba.fastjson.JSON;
-import com.welab.wefe.mpc.cache.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
-import com.welab.wefe.mpc.pir.request.QueryResultsRequest;
-import com.welab.wefe.mpc.pir.request.QueryResultsResponse;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
+import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +34,11 @@ public class HuackResultsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(HuackResultsService.class);
 
-    CacheOperation mCacheOperation;
-
-    public QueryResultsResponse handle(QueryResultsRequest request) {
+    public QueryPIRResultsResponse handle(QueryPIRResultsRequest request) {
+        CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
         // TODO
         long start = System.currentTimeMillis();
-        QueryResultsResponse response = new QueryResultsResponse();
+        QueryPIRResultsResponse response = new QueryPIRResultsResponse();
         String uuid = request.getUuid();
         String result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
         while (result == null || result.isEmpty()) {

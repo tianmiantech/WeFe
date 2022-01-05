@@ -37,15 +37,93 @@ const baseRoutes = [
             },
             {
                 path: `${prefixPath}model-view`,
-                    name: 'model-view',
+                name: 'model-view',
                 meta: {
-                title:  '模型详情',
+                    title:  '模型详情',
                     index:  '0-1',
                     hidden: true,
                     active: `${prefixPath}model-view`,
+                },
+                component: () => import('@views/model/model-view.vue'),
             },
-                component: () =>
-                import('@views/model/model-view.vue'),
+        ],
+    },
+    {
+        path: `${prefixPath}client`,
+        meta: {
+            title: '客户中心',
+            icon:  'el-icon-monitor',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}client-list`,
+                name: 'client-list',
+                meta: {
+                    title:           '客户列表',
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}client-list`,
+                },
+                component: () => import('@views/client/client-list.vue'),
+            },
+            {
+                path: `${prefixPath}client-add`,
+                name: 'client-add',
+                meta: {
+                    title: '新增客户',
+                },
+                component: () => import('@views/client/client-add.vue'),
+            },
+
+            {
+                path: `${prefixPath}client-service-list`,
+                name: 'client-service-list',
+                meta: {
+                    title:           '客户服务列表',
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/client/client-service-list.vue'),
+            },
+            {
+                path: `${prefixPath}client-service-add`,
+                name: 'client-service-add',
+                meta: {
+                    title:           '新增客户服务',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/client/client-service-add.vue'),
+            },
+
+        ],
+    },
+    {
+        path: `${prefixPath}fee`,
+        meta: {
+            title: '计费中心',
+            icon:  'el-icon-monitor',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}request-statistics`,
+                name: 'request-statistics',
+                meta: {
+                    title:           '调用信息',
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}request-statistics`,
+                },
+                component: () => import('@views/fee/request-statistics.vue'),
+            },
+            {
+                path: `${prefixPath}fee-detail`,
+                name: 'fee-detail',
+                meta: {
+                    title:           '计费概览',
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/fee/fee-detail.vue'),
             },
         ],
     },
@@ -116,9 +194,8 @@ const baseRoutes = [
     {
         path: `${prefixPath}member`,
         meta: {
-        title: 'member管理',
+            title: 'member管理',
             icon:  'el-icon-user-solid',
-            index: 1,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -135,13 +212,12 @@ const baseRoutes = [
                 path: `${prefixPath}member-view`,
                 name: 'member-view',
                 meta: {
-                title:  '模型详情',
+                    title:  '模型详情',
                     index:  '1-1',
                     hidden: true,
                     active: `${prefixPath}member-view`,
-            },
-                component: () =>
-                import('@views/member/member-view.vue'),
+                },
+                component: () => import('@views/member/member-view.vue'),
             },
         ],
     },
@@ -150,7 +226,6 @@ const baseRoutes = [
         meta: {
             title: '日志管理',
             icon:  'el-icon-notebook-1',
-            index: 2,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -159,42 +234,38 @@ const baseRoutes = [
                 name: 'log-list',
                 meta: {
                     title: '调用记录',
-                    index: '2-0',
                 },
                 component: () => import('@views/logger/log-list.vue'),
             },
             {
                 path: `${prefixPath}log-statistics`,
-                    name: 'log-statistics',
+                name: 'log-statistics',
                 meta: {
-                title:  '调用统计',
+                    title:  '调用统计',
                     index:  '2-1',
                     active: `${prefixPath}log-statistics`,
-            },
-                component: () =>
-                import('@views/logger/log-statistics.vue'),
+                },
+                component: () => import('@views/logger/log-statistics.vue'),
             },
             {
                 path: `${prefixPath}log-view`,
-                    name: 'log-view',
+                name: 'log-view',
                 meta: {
-                title:  '调用详情',
+                    title:  '调用详情',
                     index:  '2-2',
                     hidden: true,
                     active: `${prefixPath}log-view`,
-            },
-                component: () =>
-                import('@views/logger/log-view.vue'),
+                },
+                component: () => import('@views/logger/log-view.vue'),
             },
 
         ],
     },
     {
         path: `${prefixPath}global-setting`,
-            meta: {
+        meta: {
             title: '全局设置',
             icon:  'el-icon-setting',
-            index: 3,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -205,8 +276,7 @@ const baseRoutes = [
                     title: 'member信息',
                     index: '3-0',
                 },
-                component: () =>
-            import('@views/global_setting/global-setting-view.vue'),
+                component: () => import('@views/global_setting/global-setting-view.vue'),
             },
         ],
     },
@@ -260,7 +330,7 @@ const baseRoutes = [
     },
     {
         path:      `${prefixPath}init`,
-            name:      'init',
+        name:      'init',
         component: () => import('@views/global_setting/global-setting-initialize.vue'),
     },
     {
