@@ -300,13 +300,22 @@ public class ServiceService {
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
 				return JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
-				/**
-				 * 0.参考 SecureAggregation.query 返回结果
-				 */
-				
+				JObject data = JObject.create(input.getData());
+				Double result = sa1(data, model);
+				return JObject.create(result);
 			}
 			return JObject.create();
 		}
+	}
+
+	/**
+	 * 0.参考 SecureAggregation.query 返回结果
+	 */
+	private Double sa1(JObject data, ServiceMySqlModel model) {
+		String queryParams = model.getQueryParams();
+		JObject params = data.getJObject("queryParams");
+		
+		return null;
 	}
 
 	/**
