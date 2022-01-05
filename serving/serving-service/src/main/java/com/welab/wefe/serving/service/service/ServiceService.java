@@ -325,21 +325,22 @@ public class ServiceService {
 		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSourceArr, index);
 		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
 		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+		String resultStr = "";
 		try {
 			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
 					Arrays.asList(resultfields.split(",")));
 			if (resultMap == null || resultMap.isEmpty()) {
 				resultMap = new HashMap<>();
 			}
-			String resultStr = JObject.toJSONString(resultMap);
+			resultStr = JObject.toJSONString(resultMap);
 			System.out.println(queryParams.toJSONString() + "\t " + resultStr);
-			// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-			QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
-//			queryResult.save(request, resultStr);
 		} catch (StatusCodeWithException e) {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
+		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
+		QueryDataResult<Float> queryResult = QueryDataResultFactory.getQueryDataResult();
+		queryResult.save(response.getUuid(), Float.valueOf(resultStr));
 		return response;
 	}
 
