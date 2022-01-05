@@ -14,7 +14,6 @@
     <packaging>pom</packaging>
     <description>Private Set Intersection</description>
     <modules>
-        <module>mpc-psi-server</module>
         <module>mpc-psi-sdk</module>
     </modules>
 
