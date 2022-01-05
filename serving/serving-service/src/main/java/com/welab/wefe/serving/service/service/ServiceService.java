@@ -100,6 +100,7 @@ public class ServiceService {
 		model.setUpdatedTime(new Date());
 		String idsTableName = generateIdsTable(model);
 		model.setIdsTableName(idsTableName);
+		model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
@@ -314,7 +315,7 @@ public class ServiceService {
 	private Double sa1(JObject data, ServiceMySqlModel model) {
 		String queryParams = model.getQueryParams();
 		JObject params = data.getJObject("queryParams");
-		
+
 		return null;
 	}
 

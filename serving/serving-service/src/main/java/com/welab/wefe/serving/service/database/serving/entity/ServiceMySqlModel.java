@@ -41,7 +41,7 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	 * 查询参数配置
 	 */
 	@Column(name = "query_params")
-	private String queryParams;// json
+	private String queryParams;
 
 	/**
 	 * SQL配置
