@@ -98,7 +98,6 @@ public class ServiceService {
 		model.setCreatedTime(new Date());
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-//		serviceRepository.save(model);
 		String idsTableName = generateIdsTable(model);
 		model.setIdsTableName(idsTableName);
 		serviceRepository.save(model);
@@ -128,7 +127,6 @@ public class ServiceService {
 		List<String> needFields = new ArrayList<>();
 		for (int i = 1; i <= size; i++) {
 			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
-//			String operator = item.getString("operator");
 			String[] fields = item.getString("field").split(",");
 			needFields.addAll(Arrays.asList(fields));
 		}
@@ -301,21 +299,21 @@ public class ServiceService {
 				request.setQueryParams(data.getJSONObject("queryParams"));
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
 				return JObject.create(result);
+			} else if (serviceType == 4) {// 安全聚合（查询方）
 				/**
-				 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
-				 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
-				 * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
-				 * QueryResultService.handle ，然后返回结果
-				 */
-			} else if (serviceType == 4) {
-				/**
-				 * 安全聚合（查询方） 0.参考 SecureAggregation.query 返回结果
+				 * 0.参考 SecureAggregation.query 返回结果
 				 */
 			}
 			return JObject.create();
 		}
 	}
 
+	/**
+	 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
+	 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
+	 * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
+	 * QueryResultService.handle ，然后返回结果
+	 */
 	private QueryDiffieHellmanKeyResponse sa(QueryDiffieHellmanKeyRequest request, ServiceMySqlModel model)
 			throws StatusCodeWithException {
 		QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();

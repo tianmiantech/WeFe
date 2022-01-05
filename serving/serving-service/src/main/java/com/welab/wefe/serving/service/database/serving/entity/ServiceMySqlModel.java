@@ -57,6 +57,9 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	@Column(name = "ids_table_name")
 	private String idsTableName;
+	
+	@Column(name = "operator")
+	private String operator;
 
 	public String getName() {
 		return name;
@@ -114,4 +117,11 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 		this.idsTableName = idsTableName;
 	}
 
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
 }

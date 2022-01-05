@@ -89,6 +89,8 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 		private String url;
 		@Check(require = true, name = "服务类型")
 		private int serviceType;
+		@Check(require = true, name = "操作")
+		private String operator;
 		@Check(name = "查询参数配置")
 		private String queryParams;// json
 		@Check(name = "SQL配置")
@@ -132,6 +134,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
 		public void setDataSource(String dataSource) {
 			this.dataSource = dataSource;
+		}
+
+		public String getOperator() {
+			return operator;
+		}
+
+		public void setOperator(String operator) {
+			this.operator = operator;
 		}
 
 	}
