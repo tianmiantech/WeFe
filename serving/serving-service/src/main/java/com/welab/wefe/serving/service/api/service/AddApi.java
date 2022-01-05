@@ -90,7 +90,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 		private String url;
 		@Check(require = true, name = "服务类型")
 		private int serviceType;
-		@Check(require = true, name = "操作")
+		@Check(name = "操作")
 		private String operator;
 		@Check(name = "查询参数配置")
 		private List<String> queryParams;
