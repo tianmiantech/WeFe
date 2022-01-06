@@ -172,11 +172,17 @@ public class ProjectFlowJobService extends AbstractService {
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
+
+        JObject params =
+                project.getProjectType() == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
         flowActionQueueService.notifyFlow(
                 input,
                 input.getJobId(),
                 FlowActionType.run_job,
-                JObject.create("type", "visualfl")
+                params
         );
 
         //update flow
