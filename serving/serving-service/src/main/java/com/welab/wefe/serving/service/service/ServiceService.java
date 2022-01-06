@@ -289,26 +289,24 @@ public class ServiceService {
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
 		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+		JObject data = JObject.create(input.getData());
 		if (model == null) {
 			long duration = System.currentTimeMillis() - start;
-			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
+			apiRequestRecordService.save(model.getId(), data.getString("customer_id"), duration, clientIp, 0);
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 			if (serviceType == 1) {// 1匿踪查询
-				JObject data = JObject.create(input.getData());
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, model);
 				res = JObject.create(result);
 			} else if (serviceType == 2) {// 2交集查询（10W内）
-				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
 				res = JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-				JObject data = JObject.create(input.getData());
 				request.setP(data.getString("p"));
 				request.setG(data.getString("g"));
 				request.setUuid(data.getString("uuid"));
@@ -316,14 +314,13 @@ public class ServiceService {
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
 				res = JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
-				JObject data = JObject.create(input.getData());
 				Double result = sa_query(data, model);
 				res = JObject.create("result", result);
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
 		try {
-			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+			apiRequestRecordService.save(model.getId(), data.getString("customer_id"), duration, clientIp, 1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}
