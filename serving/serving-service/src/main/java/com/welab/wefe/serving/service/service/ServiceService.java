@@ -90,6 +90,8 @@ public class ServiceService {
 	private ServiceRepository serviceRepository;
 	@Autowired
 	private DataSourceService dataSourceService;
+	@Autowired
+	private ApiRequestRecordService apiRequestRecordService;
 
 	@Transactional(rollbackFor = Exception.class)
 	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -275,10 +277,17 @@ public class ServiceService {
 		return out;
 	}
 
-	public JObject executeService(String serviceUrl, com.welab.wefe.serving.service.api.service.RouteApi.Input input)
+	public JObject executeService(com.welab.wefe.serving.service.api.service.RouteApi.Input input)
 			throws StatusCodeWithException {
+		long start = System.currentTimeMillis();
+		String clientIp = ServiceUtil.getIpAddr(input.request);
+		String uri = input.request.getRequestURI();
+		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		if (model == null) {
+			long duration = System.currentTimeMillis() - start;
+			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
@@ -286,13 +295,13 @@ public class ServiceService {
 				JObject data = JObject.create(input.getData());
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, model);
-				return JObject.create(result);
+				res = JObject.create(result);
 			} else if (serviceType == 2) {// 2交集查询（10W内）
 				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
-				return JObject.create(result);
+				res = JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
 				JObject data = JObject.create(input.getData());
@@ -301,14 +310,16 @@ public class ServiceService {
 				request.setUuid(data.getString("uuid"));
 				request.setQueryParams(data.getJSONObject("query_params"));
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
-				return JObject.create(result);
+				res = JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
 				JObject data = JObject.create(input.getData());
 				Double result = sa_query(data, model);
-				return JObject.create("result", result);
+				res = JObject.create("result", result);
 			}
-			return JObject.create();
 		}
+		long duration = System.currentTimeMillis() - start;
+		apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+		return res;
 	}
 
 	/**
@@ -348,7 +359,7 @@ public class ServiceService {
 		}
 
 		SecureAggregation secureAggregation = new SecureAggregation();
-		if (model.getOperator().equalsIgnoreCase("add")) {
+		if (model.getOperator().equalsIgnoreCase("sum")) {
 			return secureAggregation.query(serverConfigs, transferVariables);
 		} else {
 			return secureAggregation.query(serverConfigs, transferVariables) / size;
