@@ -72,10 +72,10 @@ public class ApiExecutor {
 		}
         switch (annotation.logLevel()) {
             case "debug":
-                LOG.debug("request({}):{}", apiPath, params.toString());
+                LOG.debug("request({}):{}", apiName.toLowerCase(), params.toString());
                 break;
             default:
-                LOG.info("request({}):{}", apiPath, params.toString());
+                LOG.info("request({}):{}", apiName.toLowerCase(), params.toString());
         }
         ApiResult<?> result = null;
         try {
