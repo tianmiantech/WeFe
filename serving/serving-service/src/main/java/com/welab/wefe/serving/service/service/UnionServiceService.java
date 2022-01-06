@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
+import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 
 @Service
@@ -38,6 +39,26 @@ public class UnionServiceService {
 			list.add(output);
 		}
 		return PagingOutput.of(2, list);
+	}
+
+	public void publish2Union(ServiceMySqlModel model) {
+		model.getId();
+		model.getName();
+		String supplierId = "";
+		String supplierName = "";
+		String baseUrl = "http://xbd-dev.wolaidai.com/serving-service-01";
+		String apiName = "api/" + model.getUrl();
+		List<String> params = Arrays.asList(model.getQueryParams().split(","));
+		model.getCreatedTime();
+		model.getServiceType();
+		// TODO publish
+	}
+
+	public void offline2Union(ServiceMySqlModel model) {
+		model.getId();
+		model.getName();
+		String supplierId = "";
+		// TODO offline
 	}
 
 }

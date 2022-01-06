@@ -29,8 +29,9 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import com.welab.wefe.serving.service.service.ServiceService;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
 
-@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = false, domain = Caller.Customer)
+@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Autowired
@@ -40,16 +41,30 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Override
 	protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
+		long start = System.currentTimeMillis();
 		String uri = input.request.getRequestURI();
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
 		LOG.info("request service = " + serviceUrl + "\t request =" + JObject.toJSONString(input));
 		JObject result = service.executeService(serviceUrl, input);
-		LOG.info("request service = " + serviceUrl + "\t response =" + JObject.toJSONString(result));
+		long duration = System.currentTimeMillis() - start;
+		LOG.info("request service = " + serviceUrl + "\t response =" + JObject.toJSONString(result) + "\t duration = "
+				+ duration);
+		String clientIp = ServiceUtil.getIpAddr(input.request);
+		apiRequestRecordService.save(serviceUrl, input.customerId, duration, clientIp, 1);
 		return success(result);
 	}
 
 	public static class Input extends AbstractApiInput {
+		private String customerId;
 		private String data;
+
+		public String getCustomerId() {
+			return customerId;
+		}
+
+		public void setCustomerId(String customerId) {
+			this.customerId = customerId;
+		}
 
 		public String getData() {
 			return data;

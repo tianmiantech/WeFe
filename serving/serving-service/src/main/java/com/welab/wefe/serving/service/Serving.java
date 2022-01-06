@@ -98,19 +98,19 @@ public class Serving {
 		 * Find signature information
 		 */
 		// TODO
-		MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
-		MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
-
-		if (member == null) {
-			throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(),
-					StatusCode.PARAMETER_VALUE_INVALID);
-		}
-
-		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
-				RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
-		if (!verified) {
-			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
-		}
+//		MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
+//		MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
+//
+//		if (member == null) {
+//			throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(),
+//					StatusCode.PARAMETER_VALUE_INVALID);
+//		}
+//
+//		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+//				RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
+//		if (!verified) {
+//			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+//		}
 
 		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
 		params.put("customerId", signedApiInput.getCustomerId());
