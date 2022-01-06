@@ -329,15 +329,16 @@ public class ServiceService {
 			String memberId = serviceConfig.getString("member_id");
 //			String memberName = serviceConfig.getString("member_name");
 			String name = serviceConfig.getString("name");
+			String apiName = serviceConfig.getString("api_name");
 //			String params = serviceConfig.getString("params");
-			String url = serviceConfig.getString("url");
+			String base_url = serviceConfig.getString("base_url");
 			ServerConfig config = new ServerConfig();
-			config.setServerName(name);
-			config.setServerUrl(url);
+			config.setServerName(apiName);
+			config.setServerUrl(base_url);
 			config.setQueryParams(userParams);
 			CommunicationConfig communicationConfig = new CommunicationConfig();
-			communicationConfig.setApiName(name);
-			communicationConfig.setServerUrl(url);
+			communicationConfig.setApiName(apiName);
+			communicationConfig.setServerUrl(base_url);
 			communicationConfig.setCommercialId(memberId);
 			communicationConfig.setNeedSign(false);// TODO
 			communicationConfig.setSignPrivateKey("");// TODO
