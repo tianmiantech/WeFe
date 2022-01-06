@@ -348,7 +348,11 @@ public class ServiceService {
 		}
 
 		SecureAggregation secureAggregation = new SecureAggregation();
-		return secureAggregation.query(serverConfigs, transferVariables);
+		if (model.getOperator().equalsIgnoreCase("add")) {
+			return secureAggregation.query(serverConfigs, transferVariables);
+		} else {
+			return secureAggregation.query(serverConfigs, transferVariables) / size;
+		}
 	}
 
 	/**
