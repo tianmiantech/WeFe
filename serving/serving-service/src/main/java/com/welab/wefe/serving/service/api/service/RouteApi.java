@@ -42,8 +42,9 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 	protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
 		String uri = input.request.getRequestURI();
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+		LOG.info("request service = " + serviceUrl + "\t request =" + JObject.toJSONString(input));
 		JObject result = service.executeService(serviceUrl, input);
-
+		LOG.info("request service = " + serviceUrl + "\t response =" + JObject.toJSONString(result));
 		return success(result);
 	}
 

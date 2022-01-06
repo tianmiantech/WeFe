@@ -280,7 +280,7 @@ public class ServiceService {
 			throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		if (model == null) {
-			return JObject.create("message", "invalid request");
+			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 			if (serviceType == 1) {// 1匿踪查询
