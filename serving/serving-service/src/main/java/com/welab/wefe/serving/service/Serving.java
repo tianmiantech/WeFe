@@ -113,7 +113,7 @@ public class Serving {
 //		}
 
 		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
-		params.put("customerId", signedApiInput.getCustomerId());
+		params.put("customer_id", signedApiInput.getCustomerId());
 	}
 
 	/**

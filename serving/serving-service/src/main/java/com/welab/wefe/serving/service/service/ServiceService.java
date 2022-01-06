@@ -33,6 +33,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
@@ -84,6 +86,8 @@ import com.welab.wefe.serving.service.utils.ZipUtils;
  */
 @Service
 public class ServiceService {
+
+	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 	public static final String SERVICE_PRE_URL = "api/";
 	@Autowired
@@ -318,7 +322,11 @@ public class ServiceService {
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
-		apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+		try {
+			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+		} catch (Exception e) {
+			LOG.error(e.toString());
+		}
 		return res;
 	}
 
