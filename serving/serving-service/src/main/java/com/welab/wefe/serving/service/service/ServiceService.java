@@ -336,14 +336,13 @@ public class ServiceService {
 			config.setServerName(apiName);
 			config.setServerUrl(base_url);
 			config.setQueryParams(userParams);
-			CommunicationConfig communicationConfig = new CommunicationConfig();
-			communicationConfig.setApiName(apiName);
-			communicationConfig.setServerUrl(base_url);
-			communicationConfig.setCommercialId(memberId);
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setSignPrivateKey("");// TODO
-			config.setCommunicationConfig(communicationConfig);
-
+//			CommunicationConfig communicationConfig = new CommunicationConfig();
+//			communicationConfig.setApiName(apiName);
+//			communicationConfig.setServerUrl(base_url);
+//			communicationConfig.setCommercialId(memberId);
+//			communicationConfig.setNeedSign(false);// TODO
+//			communicationConfig.setSignPrivateKey("");// TODO
+//			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
 			serverConfigs.add(config);
