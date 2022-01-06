@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -23,8 +24,12 @@ public class SecureAggregationForResultApi
 	protected ApiResult<QuerySAResultResponse> handle(SecureAggregationForResultApi.Input input)
 			throws StatusCodeWithException, IOException {
 		QueryResultService service = new QueryResultService();
+		LOG.info("request path = " + SecureAggregationApiName.SA_RESULT + "\t request =" + JObject.toJSONString(input));
 		QuerySAResultRequest request = ModelMapper.map(input.getData(), QuerySAResultRequest.class);
-		return success(service.handle(request));
+		QuerySAResultResponse response = service.handle(request);
+		LOG.info("request path = " + SecureAggregationApiName.SA_RESULT + "\t response ="
+				+ JObject.toJSONString(response));
+		return success(response);
 	}
 
 	public static class Input extends AbstractApiInput {
