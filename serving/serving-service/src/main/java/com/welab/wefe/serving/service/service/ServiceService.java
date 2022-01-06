@@ -54,6 +54,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.mpc.cache.result.QueryDataResult;
 import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
@@ -289,6 +290,7 @@ public class ServiceService {
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
 		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+		JObject data = JObject.create(input.getData());
 		if (model == null) {
 			long duration = System.currentTimeMillis() - start;
 			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
@@ -296,19 +298,16 @@ public class ServiceService {
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 			if (serviceType == 1) {// 1匿踪查询
-				JObject data = JObject.create(input.getData());
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, model);
 				res = JObject.create(result);
 			} else if (serviceType == 2) {// 2交集查询（10W内）
-				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
 				res = JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-				JObject data = JObject.create(input.getData());
 				request.setP(data.getString("p"));
 				request.setG(data.getString("g"));
 				request.setUuid(data.getString("uuid"));
@@ -316,14 +315,15 @@ public class ServiceService {
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
 				res = JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
-				JObject data = JObject.create(input.getData());
 				Double result = sa_query(data, model);
 				res = JObject.create("result", result);
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
 		try {
-			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+			apiRequestRecordService.save(model.getId(),
+					StringUtils.isBlank(input.getCustomerId()) ? "unknow" : input.getCustomerId(), duration, clientIp,
+					1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}
@@ -354,13 +354,14 @@ public class ServiceService {
 			config.setServerName(apiName);
 			config.setServerUrl(base_url);
 			config.setQueryParams(userParams);
-//			CommunicationConfig communicationConfig = new CommunicationConfig();
-//			communicationConfig.setApiName(apiName);
-//			communicationConfig.setServerUrl(base_url);
-//			communicationConfig.setCommercialId(memberId);
-//			communicationConfig.setNeedSign(false);// TODO
-//			communicationConfig.setSignPrivateKey("");// TODO
-//			config.setCommunicationConfig(communicationConfig);
+			
+			CommunicationConfig communicationConfig = new CommunicationConfig();
+			communicationConfig.setApiName(apiName);
+			communicationConfig.setServerUrl(base_url);
+			communicationConfig.setCommercialId(supplieId);
+			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setSignPrivateKey("");// TODO
+			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
 			serverConfigs.add(config);
