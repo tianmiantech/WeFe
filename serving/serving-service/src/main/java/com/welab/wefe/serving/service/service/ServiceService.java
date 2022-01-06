@@ -321,7 +321,9 @@ public class ServiceService {
 		}
 		long duration = System.currentTimeMillis() - start;
 		try {
-			apiRequestRecordService.save(model.getId(), data.getString("customer_id"), duration, clientIp, 1);
+			apiRequestRecordService.save(model.getId(),
+					StringUtils.isBlank(data.getString("customer_id")) ? "unknow" : data.getString("customer_id"),
+					duration, clientIp, 1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}
