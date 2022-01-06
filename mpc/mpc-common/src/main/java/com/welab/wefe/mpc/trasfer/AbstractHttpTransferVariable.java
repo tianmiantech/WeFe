@@ -54,6 +54,13 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
+        else {
+        	JSONObject body = new JSONObject();
+            body.put("customerId", mConfig.getCommercialId());
+            body.put("sign", "");
+            body.put("data", params);
+            data = body.toJSONString();
+        }
         logger.debug("request:" + data);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
         logger.debug("response:" + response);

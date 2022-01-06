@@ -111,10 +111,10 @@ public class ApiExecutor {
 
             switch (annotation.logLevel()) {
                 case "debug":
-                    LOG.debug("response({}):{}", apiPath, JSON.toJSONString(result));
+                    LOG.debug("response({}):{}", apiName.toLowerCase(), JSON.toJSONString(result));
                     break;
                 default:
-                    LOG.info("response({}):{}", apiPath, JSON.toJSONString(result));
+                    LOG.info("response({}):{}", apiName.toLowerCase(), JSON.toJSONString(result));
             }
             MDC.clear();
         }

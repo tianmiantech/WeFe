@@ -64,6 +64,9 @@ public class Serving {
                         case Board:
                             rsaVerifyBoard(params);
                             break;
+                        case Customer:
+                        	rsaVerifyCustomer(params);
+                        	break;
                         default:
                             throw new RuntimeException("Unexpected enumeration value");
                     }
@@ -83,7 +86,37 @@ public class Serving {
         PrivateInformationRetrievalServer.init(100);
     }
 
-    /**
+	/**
+	 * rsa Signature check
+	 * <p>
+	 * customer
+	 * </p>
+	 */
+	private static void rsaVerifyCustomer(JSONObject params) throws Exception {
+		SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+		/**
+		 * Find signature information
+		 */
+		// TODO
+//		MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
+//		MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
+//
+//		if (member == null) {
+//			throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(),
+//					StatusCode.PARAMETER_VALUE_INVALID);
+//		}
+//
+//		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+//				RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
+//		if (!verified) {
+//			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+//		}
+
+		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+		params.put("customer_id", signedApiInput.getCustomerId());
+	}
+
+	/**
      * rsa Signature check
      * <p>
      * Federal member

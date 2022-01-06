@@ -28,5 +28,10 @@ public enum Caller {
     /**
      * The federal members
      */
-    Member
+    Member,
+    
+    /**
+     * Service customer
+     * */
+    Customer
 }

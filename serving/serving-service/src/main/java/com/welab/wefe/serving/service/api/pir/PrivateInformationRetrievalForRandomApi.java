@@ -19,6 +19,7 @@ package com.welab.wefe.serving.service.api.pir;
 import java.io.IOException;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -30,15 +31,19 @@ import com.welab.wefe.mpc.pir.server.service.HauckRandomService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RANDOM, name = "random", login = false)
-public class PrivateInformationRetrievalForRandomApi extends
-		AbstractApi<PrivateInformationRetrievalForRandomApi.Input, QueryRandomResponse> {
+public class PrivateInformationRetrievalForRandomApi
+		extends AbstractApi<PrivateInformationRetrievalForRandomApi.Input, QueryRandomResponse> {
 
 	@Override
-	protected ApiResult<QueryRandomResponse> handle(Input input)
-			throws StatusCodeWithException, IOException {
+	protected ApiResult<QueryRandomResponse> handle(Input input) throws StatusCodeWithException, IOException {
 		HauckRandomService service = new HauckRandomService();
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RANDOM + "\t request ="
+				+ JObject.toJSONString(input));
 		QueryRandomRequest request = ModelMapper.map(input.getData(), QueryRandomRequest.class);
-		return success(service.handle(request));
+		QueryRandomResponse response = service.handle(request);
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RANDOM + "\t response ="
+				+ JObject.toJSONString(response));
+		return success();
 	}
 
 	public static class Input extends AbstractApiInput {
@@ -53,6 +58,7 @@ public class PrivateInformationRetrievalForRandomApi extends
 		}
 
 	}
+
 	public static class InputData extends AbstractApiInput {
 
 		private String uuid;

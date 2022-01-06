@@ -26,12 +26,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +61,10 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
+import com.welab.wefe.mpc.sa.sdk.SecureAggregation;
+import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
+import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
+import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
 import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
@@ -80,11 +87,15 @@ import com.welab.wefe.serving.service.utils.ZipUtils;
 @Service
 public class ServiceService {
 
+	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
 	public static final String SERVICE_PRE_URL = "api/";
 	@Autowired
 	private ServiceRepository serviceRepository;
 	@Autowired
 	private DataSourceService dataSourceService;
+	@Autowired
+	private ApiRequestRecordService apiRequestRecordService;
 
 	@Transactional(rollbackFor = Exception.class)
 	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -98,9 +109,9 @@ public class ServiceService {
 		model.setCreatedTime(new Date());
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-//		serviceRepository.save(model);
 		String idsTableName = generateIdsTable(model);
 		model.setIdsTableName(idsTableName);
+		model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
@@ -115,9 +126,7 @@ public class ServiceService {
 		if (model.getServiceType() != 2) {// 对于 交集查询 需要额外生成对应的主键数据
 			return keysTableName;
 		}
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
 		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
 		if (dataSourceModel == null) {
 			return keysTableName;
@@ -128,7 +137,6 @@ public class ServiceService {
 		List<String> needFields = new ArrayList<>();
 		for (int i = 1; i <= size; i++) {
 			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
-//			String operator = item.getString("operator");
 			String[] fields = item.getString("field").split(",");
 			needFields.addAll(Arrays.asList(fields));
 		}
@@ -262,11 +270,10 @@ public class ServiceService {
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
 			throws StatusCodeWithException {
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(input.getDataSource());
-		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
-		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-		String sql = ServiceUtil.generateSQL(input.getParams(), dataSourceArr, index);
+		JSONObject dataSource = JObject.parseObject(input.getDataSource());
+		String resultfields = ServiceUtil.parseReturnFields(dataSource);
+		String dataSourceId = dataSource.getString("id");
+		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource);
 		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
@@ -274,57 +281,113 @@ public class ServiceService {
 		return out;
 	}
 
-	public JObject executeService(String serviceUrl, com.welab.wefe.serving.service.api.service.RouteApi.Input input)
+	public JObject executeService(com.welab.wefe.serving.service.api.service.RouteApi.Input input)
 			throws StatusCodeWithException {
+		long start = System.currentTimeMillis();
+		String clientIp = ServiceUtil.getIpAddr(input.request);
+		String uri = input.request.getRequestURI();
+		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		if (model == null) {
-			return JObject.create("message", "invalid request");
+			long duration = System.currentTimeMillis() - start;
+			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
+			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 			if (serviceType == 1) {// 1匿踪查询
 				JObject data = JObject.create(input.getData());
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, model);
-				return JObject.create(result);
+				res = JObject.create(result);
 			} else if (serviceType == 2) {// 2交集查询（10W内）
 				JObject data = JObject.create(input.getData());
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
-				return JObject.create(result);
+				res = JObject.create(result);
 			} else if (serviceType == 3) {// 3 安全聚合 被查询方
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
 				JObject data = JObject.create(input.getData());
 				request.setP(data.getString("p"));
 				request.setG(data.getString("g"));
 				request.setUuid(data.getString("uuid"));
-				request.setQueryParams(data.getJSONObject("queryParams"));
+				request.setQueryParams(data.getJSONObject("query_params"));
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
-				return JObject.create(result);
-				/**
-				 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
-				 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
-				 * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
-				 * QueryResultService.handle ，然后返回结果
-				 */
-			} else if (serviceType == 4) {
-				/**
-				 * 安全聚合（查询方） 0.参考 SecureAggregation.query 返回结果
-				 */
+				res = JObject.create(result);
+			} else if (serviceType == 4) {// 安全聚合（查询方）
+				JObject data = JObject.create(input.getData());
+				Double result = sa_query(data, model);
+				res = JObject.create("result", result);
 			}
-			return JObject.create();
+		}
+		long duration = System.currentTimeMillis() - start;
+		try {
+			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 1);
+		} catch (Exception e) {
+			LOG.error(e.toString());
+		}
+		return res;
+	}
+
+	/**
+	 * 0.参考 SecureAggregation.query 返回结果
+	 */
+	private Double sa_query(JObject data, ServiceMySqlModel model) {
+		JObject userParams = data.getJObject("query_params");
+//		String queryParams = model.getQueryParams();
+//		String operator = model.getOperator();
+		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
+		int size = serviceConfigs.size();
+		List<ServerConfig> serverConfigs = new LinkedList<>();
+		List<SecureAggregationTransferVariable> transferVariables = new LinkedList<>();
+
+		for (int i = 0; i < size; i++) {
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			String supplieId = serviceConfig.getString("supplier_id");
+//			String supplierName = serviceConfig.getString("supplier_name");
+			String name = serviceConfig.getString("name");
+			String apiName = serviceConfig.getString("api_name");
+//			String params = serviceConfig.getString("params");
+			String base_url = serviceConfig.getString("base_url");
+			ServerConfig config = new ServerConfig();
+			config.setServerName(apiName);
+			config.setServerUrl(base_url);
+			config.setQueryParams(userParams);
+//			CommunicationConfig communicationConfig = new CommunicationConfig();
+//			communicationConfig.setApiName(apiName);
+//			communicationConfig.setServerUrl(base_url);
+//			communicationConfig.setCommercialId(memberId);
+//			communicationConfig.setNeedSign(false);// TODO
+//			communicationConfig.setSignPrivateKey("");// TODO
+//			config.setCommunicationConfig(communicationConfig);
+			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
+			transferVariables.add(httpTransferVariable);
+			serverConfigs.add(config);
+		}
+
+		SecureAggregation secureAggregation = new SecureAggregation();
+		if (model.getOperator().equalsIgnoreCase("sum")) {
+			return secureAggregation.query(serverConfigs, transferVariables);
+		} else {
+			return secureAggregation.query(serverConfigs, transferVariables) / size;
 		}
 	}
 
+	/**
+	 * 安全聚合（被查询方） 0.两次交互 1.根据用户参数，生成 QueryDiffieHellmanKeyRequest ，（根据 request 中的
+	 * queryParams 去数据库中查询对应的【只能是一个数值类型】结果保存到内存中），然后调用
+	 * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
+	 * QueryResultService.handle ，然后返回结果
+	 */
 	private QueryDiffieHellmanKeyResponse sa(QueryDiffieHellmanKeyRequest request, ServiceMySqlModel model)
 			throws StatusCodeWithException {
 		QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();
 		JSONObject queryParams = request.getQueryParams();
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		int index = 0;
-		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSourceArr, index);
-		String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-		String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
+		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource);
+		String dataSourceId = dataSource.getString("id");
+		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String resultStr = "";
 		try {
 			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
@@ -332,15 +395,15 @@ public class ServiceService {
 			if (resultMap == null || resultMap.isEmpty()) {
 				resultMap = new HashMap<>();
 			}
-			resultStr = JObject.toJSONString(resultMap);
+			resultStr = resultMap.get(resultfields);// 目前只支持一个返回值
 			System.out.println(queryParams.toJSONString() + "\t " + resultStr);
 		} catch (StatusCodeWithException e) {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
 		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Float> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(response.getUuid(), Float.valueOf(resultStr));
+		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
+		queryResult.save(request.getUuid(), Double.valueOf(resultStr));
 		return response;
 	}
 
@@ -353,9 +416,7 @@ public class ServiceService {
 		BigInteger mod = new BigInteger(request.getP(), 16);
 		int keySize = 1024;
 		BigInteger serverKey = new BigInteger(keySize, new Random());
-		int index = 0;
-		JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-		JSONObject dataSource = dataSourceArr.getJSONObject(index);
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
 		String sql = "select id from " + model.getIdsTableName();
 		List<String> needFields = new ArrayList<>();
 		needFields.add("id");
@@ -381,11 +442,10 @@ public class ServiceService {
 		Map<String, String> result = new HashMap<>();
 		// 0 根据ID查询对应的数据
 		for (String id : ids) {// params
-			JSONArray dataSourceArr = JObject.parseArray(model.getDataSource());
-			int index = 0;
-			String sql = ServiceUtil.generateSQL(id, dataSourceArr, index);
-			String dataSourceId = dataSourceArr.getJSONObject(index).getString("id");
-			String resultfields = ServiceUtil.parseReturnFields(dataSourceArr, index);
+			JSONObject dataSource = JObject.parseObject(model.getDataSource());
+			String sql = ServiceUtil.generateSQL(id, dataSource);
+			String dataSourceId = dataSource.getString("id");
+			String resultfields = ServiceUtil.parseReturnFields(dataSource);
 			try {
 				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
 						Arrays.asList(resultfields.split(",")));
@@ -437,7 +497,20 @@ public class ServiceService {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
 			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+		} else if (serviceType == 2) {
+			sdkZipName = "sdk.zip";
+			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-psi-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+		} else if (serviceType == 3 || serviceType == 4) {
+			sdkZipName = "sdk.zip";
+			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(projectPath + "/sdk_dir/mpc-sa-sdk-1.0.0.jar"));
+			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
 		}
+
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
