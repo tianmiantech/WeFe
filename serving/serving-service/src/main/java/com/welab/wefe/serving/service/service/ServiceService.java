@@ -300,7 +300,7 @@ public class ServiceService {
 				request.setP(data.getString("p"));
 				request.setG(data.getString("g"));
 				request.setUuid(data.getString("uuid"));
-				request.setQueryParams(data.getJSONObject("queryParams"));
+				request.setQueryParams(data.getJSONObject("query_params"));
 				QueryDiffieHellmanKeyResponse result = sa(request, model);
 				return JObject.create(result);
 			} else if (serviceType == 4) {// 安全聚合（查询方）
@@ -316,7 +316,7 @@ public class ServiceService {
 	 * 0.参考 SecureAggregation.query 返回结果
 	 */
 	private Double sa_query(JObject data, ServiceMySqlModel model) {
-		JObject userParams = data.getJObject("queryParams");
+		JObject userParams = data.getJObject("query_params");
 //		String queryParams = model.getQueryParams();
 //		String operator = model.getOperator();
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
