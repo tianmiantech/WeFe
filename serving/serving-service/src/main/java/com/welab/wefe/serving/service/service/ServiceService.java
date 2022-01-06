@@ -293,7 +293,7 @@ public class ServiceService {
 		JObject data = JObject.create(input.getData());
 		if (model == null) {
 			long duration = System.currentTimeMillis() - start;
-			apiRequestRecordService.save(model.getId(), data.getString("customer_id"), duration, clientIp, 0);
+			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
@@ -322,8 +322,8 @@ public class ServiceService {
 		long duration = System.currentTimeMillis() - start;
 		try {
 			apiRequestRecordService.save(model.getId(),
-					StringUtils.isBlank(data.getString("customer_id")) ? "unknow" : data.getString("customer_id"),
-					duration, clientIp, 1);
+					StringUtils.isBlank(input.getCustomerId()) ? "unknow" : input.getCustomerId(), duration, clientIp,
+					1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}
