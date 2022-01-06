@@ -52,7 +52,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.mpc.cache.result.QueryDataResult;
 import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
-import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
@@ -306,7 +305,7 @@ public class ServiceService {
 			} else if (serviceType == 4) {// 安全聚合（查询方）
 				JObject data = JObject.create(input.getData());
 				Double result = sa_query(data, model);
-				return JObject.create(result);
+				return JObject.create("result", result);
 			}
 			return JObject.create();
 		}
