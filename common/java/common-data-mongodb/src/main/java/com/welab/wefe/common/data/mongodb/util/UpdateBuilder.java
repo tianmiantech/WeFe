@@ -33,6 +33,11 @@ public class UpdateBuilder {
         return this;
     }
 
+    public UpdateBuilder remove() {
+        queryMap.put("status", 1);
+        return this;
+    }
+
     public Update build() {
         Update update = new Update();
 

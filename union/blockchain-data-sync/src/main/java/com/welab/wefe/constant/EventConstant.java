@@ -66,4 +66,11 @@ public class EventConstant {
         public static final String UPDATE_PUBLIC_KEY_EVENT = "UPDATEPUBLICKEYEVENT";
         public static final String DELETE_BY_UNIONNODEID_EVENT = "DELETEBYUNIONNODEIDEVENT";
     }
+
+    public static final class MemberService {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_SERVICE_ID_EVENT = "DELETEBYSERVICEIDEVENT";
+        public static final String UPDATE_SERVICE_STATUS_EVENT = "UPDATESERVICESTATUSEVENT";
+    }
 }

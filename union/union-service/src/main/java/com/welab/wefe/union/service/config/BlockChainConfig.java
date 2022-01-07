@@ -66,6 +66,7 @@ public class BlockChainConfig {
     private String dataSetMemberPermissionContractName;
     private String unionNodeContractName;
     private String memberFileInfoContractName;
+    private String memberServiceContractName;
 
 
     // add channel disconnect
@@ -208,6 +209,11 @@ public class BlockChainConfig {
         return MemberFileInfoContract.load(address, client, cryptoKeyPair);
     }
 
+    @Bean
+    public MemberServiceContract getLatestVersionMemberServiceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, memberServiceContractName);
+        return MemberServiceContract.load(address, client, cryptoKeyPair);
+    }
 
     /**
      * Obtain the latest version of the contract address according to the name
@@ -329,5 +335,14 @@ public class BlockChainConfig {
 
     public void setMemberFileInfoContractName(String memberFileInfoContractName) {
         this.memberFileInfoContractName = memberFileInfoContractName;
+    }
+
+
+    public String getMemberServiceContractName() {
+        return memberServiceContractName;
+    }
+
+    public void setMemberServiceContractName(String memberServiceContractName) {
+        this.memberServiceContractName = memberServiceContractName;
     }
 }

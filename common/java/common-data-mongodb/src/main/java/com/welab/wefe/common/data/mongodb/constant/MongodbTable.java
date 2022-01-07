@@ -38,6 +38,7 @@ public class MongodbTable {
         public static final String REALNAME_AUTH_AGREEMENT_TEMPLATE = "RealnameAuthAgreementTemplate";
         public static final String MEMBER_FILE_INFO = "MemberFileInfo";
         public static final String UNION_NODE_CONFIG = "UnionNodeConfig";
+        public static final String MEMBER_SERVICE = "MemberService";
     }
 
     public static final class Sms {
