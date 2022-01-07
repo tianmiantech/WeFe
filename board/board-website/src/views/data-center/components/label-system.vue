@@ -492,11 +492,14 @@
 
                     rect_list.forEach(item => {
                         if (item.attrs.isLabeled) {
+                            const sx = item.attrs.scaleX === 1 ? (item.attrs.x + item.attrs.width)/vData.labelScaleX : item.attrs.x/vData.labelScaleX + item.attrs.width,
+                                  sy = item.attrs.scaleY === 1 ? (item.attrs.y + item.attrs.height)/vData.labelScaleY : item.attrs.y/vData.labelScaleY + item.attrs.height;
+
                             labe_list.push({
                                 label:  item.attrs.labelName,
                                 points: [
                                     { x: item.attrs.x/vData.labelScaleX, y: item.attrs.y/vData.labelScaleY },
-                                    { x: (item.attrs.x + item.attrs.width)/vData.labelScaleX, y: (item.attrs.y + item.attrs.height)/vData.labelScaleY },
+                                    { x: sx, y: sy },
                                 ],
                             });
                         }
