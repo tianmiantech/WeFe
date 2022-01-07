@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
  * @author Zane
  */
 public class FieldValidateUtil {
+    private static final String[] XSS_KEYWORDS = {"iframe", "onload", "oninput", "onerror", "onclick", "confirm", "onfocus", "alert"};
+    private static final String[] REACTIONARY_KEYWORD = {"习近平", "毛民进党", "反党", "反共"};
 
     /**
      * Normalize the value of the field
@@ -92,6 +94,8 @@ public class FieldValidateUtil {
                 continue;
             }
 
+            String valueStr = value.toString();
+
             if (!check.type().equals(StandardFieldType.NONE)) {
 
                 StandardFieldType standardFieldType = check.type();
@@ -108,7 +112,64 @@ public class FieldValidateUtil {
                 }
 
             }
+
+            checkReactionaryKeyword(check, field.getName(), valueStr);
+            checkBlockXss(check, field.getName(), valueStr);
+
+            // 对 string 字段进行防止 sql 注入处理
+            if (value instanceof String && check.blockSqlInjection()) {
+                field.set(
+                        obj,
+                        valueStr
+                                .replace(",", "，")
+                                .replace("\"", "“")
+                                .replace("'", "’")
+                                .replace("#", "")
+                                .replace("-", "")
+                                .replace("%", "")
+                                .replace("<", "")
+                                .replace("\\", "")
+                                .replace("/", "")
+                );
+            }
+
         }
+    }
+
+    /**
+     * 检查输入是否包含反动关键字
+     */
+    private static void checkReactionaryKeyword(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+        if (!check.blockReactionaryKeyword()) {
+            return;
+        }
+
+        for (String keyword : REACTIONARY_KEYWORD) {
+            if (valueStr.contains(keyword)) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(fieldName + " 包含不允许的输入：" + keyword);
+            }
+        }
+
+    }
+
+    /**
+     * 检查输入是否包含 xss 关键字
+     */
+    private static void checkBlockXss(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+        if (!check.blockXss()) {
+            return;
+        }
+
+        for (String keyword : XSS_KEYWORDS) {
+            if (valueStr.contains(keyword)) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(fieldName + " 包含不安全的输入：" + keyword);
+            }
+        }
+
     }
 
     /**
