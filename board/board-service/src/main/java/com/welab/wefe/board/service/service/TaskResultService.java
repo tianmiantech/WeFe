@@ -589,7 +589,7 @@ public class TaskResultService extends AbstractService {
 		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(), node.getComponentType());
 		if (myTmpDataSet != null) {
 			for (MemberFeatureInfoModel member : members) {
-				if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+				if (member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
 					DetailApi.Input input = new DetailApi.Input();
 					input.setId(myTmpDataSet.getId());
 					try {
