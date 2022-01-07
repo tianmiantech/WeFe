@@ -426,7 +426,6 @@ public class ServiceService {
 		for (Map<String, String> item : result) {
 			serverIds.add(item.get("id"));
 		}
-		System.out.println(serverIds);
 		List<String> encryptServerIds = new ArrayList<>(serverIds.size());
 		serverIds.forEach(
 				serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
