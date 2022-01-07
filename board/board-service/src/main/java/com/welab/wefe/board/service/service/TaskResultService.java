@@ -86,9 +86,6 @@ public class TaskResultService extends AbstractService {
 
     @Autowired
     private ProjectService projectService;
-
-    @Autowired
-    private TaskService taskService;
     
     @Autowired
     private DataSetService datasetService;
@@ -590,43 +587,44 @@ public class TaskResultService extends AbstractService {
 			}
 		}
 		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(), node.getComponentType());
-		for (MemberFeatureInfoModel member : members) {
-			if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
-				DetailApi.Input input = new DetailApi.Input();
-				input.setId(myTmpDataSet.getId());
-				try {
-					ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
-							JobMemberRole.promoter, input, DetailApi.class);
-//					ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(), DetailApi.class, input);
-					if (apiResult.data != null) {
-						DataSetOutputModel output = JObject.create(apiResult.data)
-								.toJavaObject(DataSetOutputModel.class);
-						LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-						List<String> newColumnNameList = new ArrayList<>(Arrays.asList(output.getFeatureNameList().split(",")));
-						List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
-						
-						List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
-						for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
-							if (newColumnNameList.contains(feature.getName())) {
-								newFeatures.add(feature);
-								newColumnNameList.remove(feature.getName());
+		if (myTmpDataSet != null) {
+			for (MemberFeatureInfoModel member : members) {
+				if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+					DetailApi.Input input = new DetailApi.Input();
+					input.setId(myTmpDataSet.getId());
+					try {
+						ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
+								JobMemberRole.promoter, input, DetailApi.class);
+						if (apiResult.data != null) {
+							DataSetOutputModel output = JObject.create(apiResult.data)
+									.toJavaObject(DataSetOutputModel.class);
+							LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
+							List<String> newColumnNameList = new ArrayList<>(
+									Arrays.asList(output.getFeatureNameList().split(",")));
+							List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+
+							List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+							for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+								if (newColumnNameList.contains(feature.getName())) {
+									newFeatures.add(feature);
+									newColumnNameList.remove(feature.getName());
+								}
 							}
-						}
-						if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
-							for (String s : newColumnNameList) {
-								MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
-								f.setName(s);
-								newFeatures.add(f);
+							if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+								for (String s : newColumnNameList) {
+									MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+									f.setName(s);
+									newFeatures.add(f);
+								}
 							}
+							member.setFeatures(newFeatures);
 						}
-						member.setFeatures(newFeatures);
+					} catch (MemberGatewayException e) {
+						throw new FlowNodeException(node, member.getMemberId());
 					}
-				} catch (MemberGatewayException e) {
-					throw new FlowNodeException(node, member.getMemberId());
 				}
 			}
 		}
-
 		return members;
 	}
 
