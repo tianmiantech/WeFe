@@ -67,7 +67,7 @@ echo ''
 
 if [[ $DEPLOY_MODE == 'pack' ]]; then
   echo '====== ORIGIN DEPLOY MODE ======'
-  cd $WORKSPACE/deploy_package_resource
+  cd $WORKSPACE
   tar -cvf deploy_package_resource.tar deploy_package_resource
   ./$OSS_TOOL cp ./deploy_package_resource.tar oss://welab-wefe-release/
   echo '====== DONE ======'
