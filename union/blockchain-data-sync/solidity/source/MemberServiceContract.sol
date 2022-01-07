@@ -153,7 +153,7 @@ contract MemberServiceContract{
     function deleteByServiceId(string service_id) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(service_id)) {
-            ret_code = -3
+            ret_code = -3;
             emit deleteByServiceIdEvent(ret_code,service_id);
             return ret_code;
         }

@@ -110,11 +110,6 @@ contract DataSetMemberPermissionContract{
 
     function deleteByDataSetId(string data_set_id) public returns (int) {
         int256 ret_code = 0;
-        if (!isExist(id)) {
-            ret_code = -3;
-            emit deleteByDataSetIdEvent(ret_code,id);
-            return ret_code;
-        }
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("data_set_id", data_set_id);
