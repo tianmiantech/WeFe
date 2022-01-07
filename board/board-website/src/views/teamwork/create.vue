@@ -651,7 +651,8 @@
         :deep(.el-form-item__label){font-weight: bold;}
     }
     .member-name{
-        :deep(.iconfont) {vertical-align: initial;}
+        :deep(.iconfont),
+        :deep(.status_waiting) {vertical-align: initial;}
     }
     .service-offline{
         font-size: 14px;

@@ -135,6 +135,7 @@ class OneHotEncoder(ModelBase):
         self.schema = {}
         self.model_param = OneHotEncoderParam()
         self.inner_param: OneHotInnerParam = None
+        self.set_show_name("(One Hot Encoder)")
 
     def _init_model(self, model_param):
         self.model_param = model_param
