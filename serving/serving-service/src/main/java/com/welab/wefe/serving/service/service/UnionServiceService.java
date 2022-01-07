@@ -20,17 +20,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 
 @Service
 public class UnionServiceService {
+
+	@Autowired
+	private Config config;
 
 	public PagingOutput<Output> query(Input input) {
 		if (input.getServiceType() != -1) {
@@ -57,24 +71,73 @@ public class UnionServiceService {
 		return PagingOutput.of(2, list);
 	}
 
-	public void publish2Union(ServiceMySqlModel model) {
+	public JSONObject publish2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		model.getId();
 		model.getName();
 		String supplierId = "";
 		String supplierName = "";
-		String baseUrl = "http://xbd-dev.wolaidai.com/serving-service-01";
+		String baseUrl = config.getSERVING_BASE_URL();
 		String apiName = "api/" + model.getUrl();
-		List<String> params = Arrays.asList(model.getQueryParams().split(","));
+		List<String> userParams = Arrays.asList(model.getQueryParams().split(","));
 		model.getCreatedTime();
 		model.getServiceType();
 		// TODO publish
+		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
+				.put("supplier_id", supplierId);
+		return request("data_set/query", params);
 	}
 
-	public void offline2Union(ServiceMySqlModel model) {
-		model.getId();
-		model.getName();
+	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		String supplierId = "";
 		// TODO offline
+		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
+				.put("supplier_id", supplierId);
+		return request("data_set/query", params);
 	}
 
+	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+		return request(api, params, true);
+	}
+
+	private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+		/**
+		 * Prevent the map from being out of order, causing the verification to fail.
+		 */
+		params = new JSONObject(new TreeMap(params));
+		String data = params.toJSONString();
+		// rsa signature
+		if (needSign) {
+			String sign = null;
+			try {
+				sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+			}
+			JSONObject body = new JSONObject();
+			body.put("member_id", CacheObjects.getMemberId());
+			body.put("sign", sign);
+			body.put("data", data);
+			data = body.toJSONString();
+		}
+		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + "/" + api).setBody(data).postJson();
+		if (!response.success()) {
+			throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+		}
+		JSONObject json;
+		try {
+			json = response.getBodyAsJson();
+		} catch (JSONException e) {
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+		}
+		if (json == null) {
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+		}
+		Integer code = json.getInteger("code");
+		if (code == null || !code.equals(0)) {
+			throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
+					StatusCode.RPC_ERROR);
+		}
+		return json;
+	}
 }
