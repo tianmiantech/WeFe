@@ -73,6 +73,7 @@ if [[ $DEPLOY_MODE == 'pack' ]]; then
   echo '====== DONE ======'
   echo '====== DOWNLOAD LINK https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/deploy_package_resource.tar ======'
   exit 1
+fi
 
 echo '====== DOCKER BUILD ======'
 # 生成 Docker 镜像
