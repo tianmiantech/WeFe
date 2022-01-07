@@ -93,7 +93,7 @@
         </div>
 
         <p class="mt10" v-if="addDataType === 'BloomFilter'">
-            融合公式: {{ dataInfo.hash_function }}
+            融合公式: {{ dataInfo.hash_function || '无' }}
         </p>
 
         <template v-else>
