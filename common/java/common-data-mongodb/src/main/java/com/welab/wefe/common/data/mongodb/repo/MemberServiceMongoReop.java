@@ -86,6 +86,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
                 .like("name", name)
                 .append("serviceType", serviceType)
                 .page(pageIndex, pageSize)
+                .sort("updatedTime")
                 .build();
 
         List<MemberService> list = mongoUnionTemplate.find(query, MemberService.class);
