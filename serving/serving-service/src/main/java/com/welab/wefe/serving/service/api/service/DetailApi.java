@@ -25,10 +25,9 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -55,7 +54,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
 		if (StringUtils.isNotBlank(entity.getDataSource())) {
-			output.setDataSource(JObject.parseArray(entity.getDataSource()));
+			output.setDataSource(JSONObject.parseObject(entity.getDataSource()));
 		}
 		if (StringUtils.isNotBlank(entity.getQueryParams())) {
 			output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
@@ -86,7 +85,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private String url;
 		private int serviceType;
 		private List<String> queryParams;// json
-		private JSONArray dataSource;// json
+		private JSONObject dataSource;// json
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
@@ -133,11 +132,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.queryParams = queryParams;
 		}
 
-		public JSONArray getDataSource() {
+		public JSONObject getDataSource() {
 			return dataSource;
 		}
 
-		public void setDataSource(JSONArray dataSource) {
+		public void setDataSource(JSONObject dataSource) {
 			this.dataSource = dataSource;
 		}
 
