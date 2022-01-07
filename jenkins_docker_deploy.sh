@@ -70,7 +70,7 @@ if [[ $DEPLOY_MODE == 'pack' ]]; then
   cd $WORKSPACE
   tar -cvf deploy_package_resource.tar deploy_package_resource > /dev/null
   cd $OSS_DIR
-  ./oss cp ./deploy_package_resource.tar oss://welab-wefe-release/
+  ./oss cp $WORKSPACE/deploy_package_resource.tar oss://welab-wefe-release/
   echo '====== DONE ======'
   echo '====== DOWNLOAD LINK https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/deploy_package_resource.tar ======'
   exit 1
