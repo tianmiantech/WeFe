@@ -586,10 +586,11 @@ public class TaskResultService extends AbstractService {
 				}
 			}
 		}
-		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(), node.getComponentType());
+		DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(),
+				node.getComponentType());
 		if (myTmpDataSet != null) {
 			for (MemberFeatureInfoModel member : members) {
-				if (member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+				if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
 					DetailApi.Input input = new DetailApi.Input();
 					input.setId(myTmpDataSet.getId());
 					try {
@@ -622,6 +623,26 @@ public class TaskResultService extends AbstractService {
 					} catch (MemberGatewayException e) {
 						throw new FlowNodeException(node, member.getMemberId());
 					}
+				} else {
+					List<String> newColumnNameList = new ArrayList<>(
+							Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
+					List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+
+					List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+					for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+						if (newColumnNameList.contains(feature.getName())) {
+							newFeatures.add(feature);
+							newColumnNameList.remove(feature.getName());
+						}
+					}
+					if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+						for (String s : newColumnNameList) {
+							MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+							f.setName(s);
+							newFeatures.add(f);
+						}
+					}
+					member.setFeatures(newFeatures);
 				}
 			}
 		}
