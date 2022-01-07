@@ -133,11 +133,10 @@ public class ServiceService {
 			return keysTableName;
 		}
 		keysTableName = dataSource.getString("db") + "_" + dataSource.getString("table");
-		JSONObject keyCalcRules = dataSource.getJSONObject("key_calc_rules");
-		int size = keyCalcRules.getIntValue("size");
+		JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
 		List<String> needFields = new ArrayList<>();
-		for (int i = 1; i <= size; i++) {
-			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
+		for (int i = 1; i <= keyCalcRules.size(); i++) {
+			JSONObject item = keyCalcRules.getJSONObject(i);
 			String[] fields = item.getString("field").split(",");
 			needFields.addAll(Arrays.asList(fields));
 		}
@@ -172,11 +171,11 @@ public class ServiceService {
 		return keysTableName;
 	}
 
-	private String calcKey(JSONObject keyCalcRules, Map<String, String> data) {
-		int size = keyCalcRules.getIntValue("size");
+	private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
+		int size = keyCalcRules.size();
 		StringBuffer encodeValue = new StringBuffer("");
 		for (int i = 1; i <= size; i++) {
-			JSONObject item = keyCalcRules.getJSONObject(String.valueOf(i));
+			JSONObject item = keyCalcRules.getJSONObject(i);
 			String operator = item.getString("operator");
 			String[] fields = item.getString("field").split(",");
 			StringBuffer value = new StringBuffer();
@@ -354,7 +353,7 @@ public class ServiceService {
 			config.setServerName(apiName);
 			config.setServerUrl(base_url);
 			config.setQueryParams(userParams);
-			
+
 			CommunicationConfig communicationConfig = new CommunicationConfig();
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
