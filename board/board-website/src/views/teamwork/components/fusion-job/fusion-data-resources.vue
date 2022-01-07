@@ -67,9 +67,7 @@
                     width="130"
                 >
                     <template v-slot="scope">
-                        <p>
-                            {{scope.row.data_set ? scope.row.data_set.data_resource_type : scope.row.data_resource_type}}
-                        </p>
+                        {{ vData.sourceTypeMap[scope.row.data_resource_type] }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -148,9 +146,14 @@
             const { $http } = appContext.config.globalProperties;
 
             const vData = reactive({
-                loading: false,
-                show:    false,
-                search:  {
+                loading:       false,
+                show:          false,
+                sourceTypeMap: {
+                    BloomFilter:  '布隆过滤器',
+                    ImageDataSet: 'ImageDataSet',
+                    TableDataSet: 'TableDataSet',
+                },
+                search: {
                     name:       '',
                     role:       '',
                     member_id:  '',
