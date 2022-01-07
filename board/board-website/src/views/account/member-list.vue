@@ -113,8 +113,4 @@
         right:0;
     }
     .link{color: #eee;}
-    .el-icon-s-promotion{
-        cursor: pointer;
-        &:hover{color: $color-link-base;}
-    }
 </style>

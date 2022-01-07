@@ -4,8 +4,8 @@
         class="form"
     >
         <el-form
-            ref="form"
             :disabled="disabled"
+            @submit.prevent
         >
             <el-alert
                 v-if="vData.hasError"
@@ -35,16 +35,18 @@
                 </el-select>
                 <el-button
                     size="mini"
+                    class="ml10"
+                    style="margin-top:2px;"
                     :disabled="item.feature_count === 0 || vData.selectList.length > index + 1"
                     @click="methods.showDialog(item, index)"
                 >
                     选择特征（{{ item.select_count }}/{{ item.feature_count }}）
                 </el-button>
                 <el-button
-                    v-if="index && vData.selectList.length === index + 1"
+                    v-if="vData.selectList.length > 1"
                     type="text"
-                    class="el-icon-delete"
-                    style="color:#F85564;font-size: 14px;"
+                    icon="elicon-delete"
+                    class="color-danger"
                     @click="methods.removeRow(item, index)"
                 />
                 <div class="mt10">
@@ -67,7 +69,7 @@
             <el-tab-pane
                 v-for="(item, index) in vData.lastList"
                 :key="`${item.member_id}-${item.member_role}`"
-                :label="`${item.member_name} (${item.features.length})`"
+                :label="`${item.member_name} (${item.member_role === 'provider' ? '协作方' : '发起方'}) /${item.features.length}`"
                 :name="`${index}`"
             >
                 <el-table
@@ -224,7 +226,7 @@
 
                             const { data_set_id } = data.members[0];
                             const response = await $http.get({
-                                url:    'data_set/column/list',
+                                url:    '/data_set/column/list',
                                 params: {
                                     data_set_id,
                                 },

@@ -92,8 +92,8 @@ cd $WORKSPACE/$BOARD_WEBSITE_RELATIVE_PATH
 # 防止升级版本造成命令不兼容
 echo 'PACK BOARD-WEBSITE'
 rm -rf $WORKSPACE/board/board-website/dist
-npm i npm@6.9.0 -g > /dev/null
-npm install > /dev/null
+source ~/bash_profile
+nvm use 16.13.0
 # board/board-website/dist
 npm run build -- prod=board-website > /dev/null
 sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/board-service", prefixPath: "/board-website/"};</script>' dist/board-website/index.html

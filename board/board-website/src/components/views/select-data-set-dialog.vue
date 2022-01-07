@@ -1,35 +1,49 @@
 <template>
     <el-dialog
         v-model="show"
-        custom-class="dataset-dialog"
+        custom-class="mid-min-width"
         title="请选择数据集"
         destroy-on-close
         width="70%"
     >
         <el-form
             inline
+            size="mini"
             @submit.prevent
         >
             <el-form-item
-                label="名称："
-                label-width="60px"
+                v-if="memberRole !== 'provider'"
+                label="上传者："
             >
+                <el-input
+                    v-model="search.creator"
+                    clearable
+                />
+            </el-form-item>
+            <el-form-item label="名称：">
                 <el-input
                     v-model="search.name"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="ID："
-                label-width="60px"
-            >
+            <el-form-item label="ID：">
                 <el-input
                     v-model="search.id"
                     clearable
                 />
             </el-form-item>
+            <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
+                <el-select
+                    v-model="search.contains_y"
+                    style="width:80px;"
+                    clearable
+                >
+                    <el-option label="是" value="true"></el-option>
+                    <el-option label="否" value="false"></el-option>
+                </el-select>
+            </el-form-item>
             <el-button
-                class="mb20"
+                class="ml10 mb10"
                 type="primary"
                 @click="loadDataList({ memberId, resetPagination: true })"
             >
@@ -40,12 +54,13 @@
         <DataSetList
             ref="raw"
             source-type="Raw"
+            :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
             :contains-y="containsY"
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
-            :is-show="isShow"
+            :project-type="projectType"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
@@ -54,6 +69,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -61,6 +77,7 @@
             DataSetList,
         },
         props: {
+            memberRole:   String,
             dataSets:     Array,
             containsY:    String,
             callbackFunc: {
@@ -77,17 +94,23 @@
         emits: ['selectDataSet', 'batchDataSet'],
         data() {
             return {
-                show:       false,
-                memberId:   '',
-                jobRole:    '',
-                myMemberId: '',
-                search:     {
-                    id:   '',
-                    name: '',
+                show:        false,
+                memberId:    '',
+                jobRole:     '',
+                projectType: '',
+                myMemberId:  '',
+                search:      {
+                    id:         '',
+                    name:       '',
+                    creator:    '',
+                    contains_y: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -109,28 +132,32 @@
 
             resetSearch() {
                 this.$nextTick(() => {
-                    const ref = this.$refs['raw'];
+                    const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:   '',
-                        name: '',
+                        id:         '',
+                        name:       '',
+                        creator:    '',
+                        contains_y: '',
                     };
 
                     if(this.containsY) {
                         this.search.source_type = 'Raw';
+                        this.search.contains_y = true;
                     }
 
-                    ref.list = [];
-                    ref.pagination.page_index = 1;
-                    ref.pagination.page_size = 20;
+                    $ref.list = [];
+                    $ref.pagination.page_index = 1;
+                    $ref.pagination.page_size = 20;
                 });
             },
 
-            async loadDataList({
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
                 $data_set,
+                projectType,
             }) {
                 // change memberId, reset search
                 if (memberId && this.memberId !== memberId) {
@@ -138,20 +165,14 @@
                 }
 
                 this.jobRole = jobRole || this.jobRole;
+                this.projectType = projectType || this.projectType;
 
                 if (memberId) {
                     this.memberId = memberId;
                 }
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
-
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
-
-                    this.searchList({ resetPagination, $data_set });
-                }
+                this.myMemberId = this.userInfo.member_id;
+                this.searchList({ resetPagination, $data_set });
             },
 
             searchList(opt = {}) {
@@ -163,16 +184,26 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
+                        if (this.projectType === 'DeepLearning') {
+                            url = '/image_data_set/query';
+                        } else {
+                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
+                        }
                     } else {
                         // search from union
-                        url = `/union/data_set/query?member_id=${this.memberId}`;
+                        if (this.projectType === 'DeepLearning') {
+                            url = '/union/image_data_set/query';
+                        } else {
+                            url = `/union/data_set/query?member_id=${this.memberId}`;
+                        }
                     }
                 }
 
-                const ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {
@@ -189,5 +220,10 @@
 <style lang="scss" scoped>
     .dataset-dialog {
         min-width: 800px;
+    }
+    .el-form{
+        .el-form-item{
+            margin-bottom: 10px;
+        }
     }
 </style>

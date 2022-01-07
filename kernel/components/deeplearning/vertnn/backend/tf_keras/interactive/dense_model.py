@@ -263,9 +263,9 @@ class PromoterDenseModel(DenseModel):
         self.model_weight -= self.lr * delta.T
 
 
-class HostDenseModel(DenseModel):
+class ProviderDenseModel(DenseModel):
     def __init__(self):
-        super(HostDenseModel, self).__init__()
+        super(ProviderDenseModel, self).__init__()
         self.role = "provider"
 
     def select_backward_sample(self, selective_ids):

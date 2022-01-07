@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,6 +36,7 @@ import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DataSetPublicLevel;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -119,6 +120,7 @@ public class DataSetService extends AbstractService {
                 .equal("containsY", input.getContainsY())
                 .equal("createdBy", input.getCreator())
                 .equal("sourceType", null, false)
+                .orderBy("createdTime", OrderBy.desc)
                 .build(DataSetMysqlModel.class);
 
         return repo.paging(where, input, DataSetOutputModel.class);
@@ -366,11 +368,11 @@ public class DataSetService extends AbstractService {
     public List<ProjectUsageDetailOutputModel> queryUsageInProject(String dataSetId) {
         List<ProjectUsageDetailOutputModel> ProjectUsageDetailOutputModelList = new ArrayList<>();
         List<ProjectDataSetMySqlModel> usageInProjectList = projectDataSetRepository.queryUsageInProject(dataSetId);
-        if (usageInProjectList == null || usageInProjectList.isEmpty()){
+        if (usageInProjectList == null || usageInProjectList.isEmpty()) {
             return ProjectUsageDetailOutputModelList;
         }
 
-        for (ProjectDataSetMySqlModel usageInProject : usageInProjectList){
+        for (ProjectDataSetMySqlModel usageInProject : usageInProjectList) {
             ProjectMySqlModel projectMySqlModel = projectRepository.findOneById(usageInProject.getProjectId());
             ProjectUsageDetailOutputModel projectUsageDetailOutputModel = new ProjectUsageDetailOutputModel();
             projectUsageDetailOutputModel.setName(projectMySqlModel.getName());

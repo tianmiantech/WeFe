@@ -43,8 +43,7 @@ public class ListApi extends AbstractApi<ListApi.Input, List<ComponentOutputMode
                 .filter(x -> input.getFederatedLearningType() == null || x.getFederatedLearningTypes() == null
                         || x.getFederatedLearningTypes().contains(input.federatedLearningType))
                 // Exclude the relevant components of the validation data set, which have not been developed yet.
-                .filter(x -> !x.name().contains("ValidationDataSetLoader")
-                        && !"MixStatistic".equalsIgnoreCase(x.name()))
+                .filter(x -> !x.name().contains("ValidationDataSetLoader"))
                 .map(x -> new ComponentOutputModel(x.name(), x.getLabel(), x.getDesc())).collect(Collectors.toList());
 
         return success(list);

@@ -153,7 +153,7 @@ public class JobService extends AbstractService {
 
 
         // Set all child nodes of the node without cache to be available without cache
-        while (true) {
+        while (graph.getLastJob().getMyRole() != JobMemberRole.arbiter) {
             List<FlowGraphNode> before = graph
                     .getAllJobSteps()
                     .stream()
@@ -183,7 +183,7 @@ public class JobService extends AbstractService {
      * 1. If the node has been edited after the task is created, the cache is not available.
      * 2. The status of the corresponding task of the node is not success is unavailable
      */
-    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) {
+    private void checkCacheEnableStatus(FlowGraph graph, JobMySqlModel lastJob) throws StatusCodeWithException {
 
         // Based on the time when the task was created,
         // nodes that have been edited after this time cannot use the cache.
@@ -199,7 +199,24 @@ public class JobService extends AbstractService {
                 .stream()
                 .filter(x -> x.getParamsVersion() >= lastJobCreateTime)
                 .forEach(x -> x.setHasCacheResult(false));
-
+        
+        List<FlowGraphNode> nodes = graph.getAllJobSteps();
+        Collections.sort(nodes, new Comparator<FlowGraphNode>() {
+            @Override
+            public int compare(FlowGraphNode o1, FlowGraphNode o2) {
+                return o1.getDeep() - o2.getDeep();
+            }
+        });
+        boolean clearCacheResultAfter = false;
+        for (FlowGraphNode node : nodes) {
+            if (node.getParamsVersion() >= lastJobCreateTime) {
+                node.setHasCacheResult(false);
+                clearCacheResultAfter = true;
+            }
+            if (clearCacheResultAfter) {
+                node.setHasCacheResult(false);
+            }
+        }
 
         // Check whether the cache of the task corresponding to the node is available.
         // If the task status is incorrect, the cache is not available.
