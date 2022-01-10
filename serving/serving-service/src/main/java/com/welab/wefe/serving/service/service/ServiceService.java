@@ -141,7 +141,7 @@ public class ServiceService {
 		if (dataSourceModel == null) {
 			return keysTableName;
 		}
-		keysTableName = dataSource.getString("db") + "_" + dataSource.getString("table");
+		keysTableName = dataSourceModel.getDatabaseName() + "_" + dataSource.getString("table");
 		JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
 		List<String> needFields = new ArrayList<>();
 		for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -150,7 +150,7 @@ public class ServiceService {
 			needFields.addAll(Arrays.asList(fields));
 		}
 		keysTableName += ("_" + format.format(new Date()));
-		String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSource.getString("db") + "."
+		String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSourceModel.getDatabaseName() + "."
 				+ dataSource.getString("table");
 		List<String> ids = new ArrayList<>();
 		try {
@@ -165,7 +165,7 @@ public class ServiceService {
 			try {
 				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
 						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-						dataSource.getString("db"));
+						dataSourceModel.getDatabaseName());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
