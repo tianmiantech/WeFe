@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -51,7 +52,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 		@Check(name = "服务类型")
 		private int serviceType;
 		@Check(name = "查询参数配置")
-		private String queryParams;// json
+		private List<String> queryParams;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
 		@Check(name = "服务配置")
@@ -89,11 +90,11 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 			this.serviceType = serviceType;
 		}
 
-		public String getQueryParams() {
+		public List<String> getQueryParams() {
 			return queryParams;
 		}
 
-		public void setQueryParams(String queryParams) {
+		public void setQueryParams(List<String> queryParams) {
 			this.queryParams = queryParams;
 		}
 

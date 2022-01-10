@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,8 +233,8 @@ public class ServiceService {
 		if (StringUtils.isNotBlank(input.getUrl())) {
 			model.setUrl(input.getUrl());
 		}
-		if (StringUtils.isNotBlank(input.getQueryParams())) {
-			model.setQueryParams(input.getQueryParams());
+		if (!CollectionUtils.isEmpty(input.getQueryParams())) {
+			model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
 		}
 		if (StringUtils.isNotBlank(input.getDataSource())) {
 			model.setDataSource(input.getDataSource());
