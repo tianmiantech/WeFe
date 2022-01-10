@@ -95,7 +95,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
         Criteria memberServiceCriteria = new QueryBuilder()
                 .notRemoved()
                 .like("name", name)
-                .like("serviceId", serviceId)
+                .like("service_id", serviceId)
                 .append("member_id", memberId)
                 .append("service_type", serviceType)
                 .append("service_status","1")
