@@ -57,9 +57,7 @@
                 查询
             </el-button>
 
-            <router-link
-                :to="{name: 'service-view'}"
-            >
+            <router-link :to="{name: 'service-view'}">
                 <el-button>
                     新增
                 </el-button>
@@ -217,8 +215,12 @@
                     value: '2',
                 },
                 {
-                    name:  '安全聚合',
+                    name:  '安全聚合 (被查询方)',
                     value: '3',
+                },
+                {
+                    name:  '安全聚合 (查询方)',
+                    value: '4',
                 }],
                 StatusList: [{
                     name:  '在线',
@@ -230,11 +232,7 @@
                 }],
             };
         },
-        created() {
-            this.getList();
-        },
         methods: {
-
             showStrategys (string) {
                 this.dataDialog = true;
                 setTimeout(() => {

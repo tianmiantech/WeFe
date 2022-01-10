@@ -447,7 +447,6 @@
                     name:         '',
                     url:          '',
                     service_type: '',
-                    returnFields: [],
                     data_source:  {
                         id:               '',
                         table:            '',
@@ -732,7 +731,6 @@
                 const paramsJson = {};
                 const {
                     service_type: type,
-                    returnFields,
                     data_source: obj,
                 } = this.form;
                 const { params } = this.sql_test;
@@ -750,7 +748,11 @@
 
                 if(type === 1 || type === 3) {
                     $params.params = paramsJson;
-                    $params.data_source.return_fields = returnFields;
+                    $params.data_source.return_fields = obj.return_fields.map(x => {
+                        const item = this.data_fields.find(y => y.name === x);
+
+                        return item;
+                    });
                     $params.data_source.condition_fields = obj.condition_fields.map(x => {
                         x.operator = this.sqlOperator;
                         return x;
@@ -871,7 +873,7 @@
                         }
                     }
 
-                    $params.query_params = params.join(',');
+                    $params.query_params = params;
 
                     if(type === 4) {
                         $params.service_config = this.service_config.map(x => {
