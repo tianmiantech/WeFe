@@ -32,7 +32,11 @@
                     :minlength="4"
                     show-word-limit
                     size="medium"
-                />
+                >
+                    <template #prepend>
+                        /api/query/social_score/
+                    </template>
+                </el-input>
             </el-form-item>
 
             <el-form-item
@@ -263,7 +267,10 @@
                             </el-radio>
                         </el-form-item>
 
-                        <div class="mt5">
+                        <div
+                            v-if="form.service_type !== 3"
+                            class="mt5"
+                        >
                             <el-button
                                 size="small"
                                 @click="sqlTest"
@@ -340,10 +347,7 @@
                     :label="`${item.label}:`"
                     required
                 >
-                    <el-input
-                        v-model="item.value"
-                        disabled
-                    />
+                    {{ item.value }}
                 </el-form-item>
             </el-form>
             <span slot="footer">
@@ -719,12 +723,11 @@
 
                 this.sql_test.visible = true;
 
-                this.sql_test.return_fields = [];
-                this.form.data_source.condition_fields.forEach(x => {
-                    if(x.field_on_table) this.sql_test.return_fields.push({
-                        label: x.field_on_table,
+                this.sql_test.return_fields = this.form.data_source.return_fields.map(x => {
+                    return {
+                        label: x,
                         value: '',
-                    });
+                    };
                 });
             },
             async testConnection(event) {
@@ -949,7 +952,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .maxlength{max-width: 350px;}
+    .maxlength{max-width: 400px;}
     .icons{cursor: pointer;margin-left:5px;}
     .condition_fields{margin-bottom: 10px;
         .el-select, .el-input{margin-bottom: 10px;}
