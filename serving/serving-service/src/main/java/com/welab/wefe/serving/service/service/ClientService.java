@@ -55,6 +55,7 @@ public class ClientService {
         model.setRemark(input.getRemark());
         model.setPubKey(input.getPubKey());
         model.setCreatedBy(input.getCreatedBy());
+        model.setCode(input.getCode());
         model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
         clientRepository.save(model);
     }
