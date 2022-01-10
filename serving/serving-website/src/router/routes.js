@@ -52,7 +52,7 @@ const baseRoutes = [
         path: `${prefixPath}client`,
         meta: {
             title: '客户中心',
-            icon:  'el-icon-monitor',
+            icon:  'el-icon-s-custom',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -102,7 +102,7 @@ const baseRoutes = [
         path: `${prefixPath}fee`,
         meta: {
             title: '计费中心',
-            icon:  'el-icon-monitor',
+            icon:  'el-icon-wallet',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -131,7 +131,7 @@ const baseRoutes = [
         path: `${prefixPath}data_source`,
         meta: {
             title: '数据源管理',
-            icon:  'el-icon-monitor',
+            icon:  'el-icon-document',
             index: 4,
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -152,7 +152,7 @@ const baseRoutes = [
         path: `${prefixPath}service`,
         meta: {
             title: '服务中心',
-            icon:  'el-icon-monitor',
+            icon:  'el-icon-service',
             index: 5,
         },
         component: () => import('@comp/LayoutBase.vue'),
