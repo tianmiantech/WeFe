@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.api.datasource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -23,6 +24,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.service.DataSourceService;
 
 /**
@@ -36,8 +38,15 @@ public class TestDBConnectApi extends AbstractApi<AddApi.DataSourceAddInput, Tes
 
 	@Override
 	protected ApiResult<Output> handle(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
-		return success(dataSourceService.testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(),
-				input.getUserName(), input.getPassword(), input.getDatabaseName()));
+		if (StringUtils.isBlank(input.getId())) {
+			return success(dataSourceService.testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(),
+					input.getUserName(), input.getPassword(), input.getDatabaseName()));
+		} else {
+			DataSourceMySqlModel dataSource = dataSourceService.getDataSourceById(input.getId());
+			return success(dataSourceService.testDBConnect(dataSource.getDatabaseType(), dataSource.getHost(),
+					dataSource.getPort(), dataSource.getUserName(), dataSource.getPassword(),
+					dataSource.getDatabaseName()));
+		}
 	}
 
 	public static class Output extends AbstractApiOutput {
