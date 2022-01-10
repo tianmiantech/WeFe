@@ -98,9 +98,10 @@
                     name:         '',
                     service_type: 3,
                 },
-                checkedIds:  [],
-                checkedRows: [],
-                getListApi:  '/service/union/query',
+                fillUrlQuery: false,
+                checkedIds:   [],
+                checkedRows:  [],
+                getListApi:   '/service/union/query',
             };
         },
         methods: {
