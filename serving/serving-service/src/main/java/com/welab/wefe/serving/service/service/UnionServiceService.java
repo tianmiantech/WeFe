@@ -71,6 +71,27 @@ public class UnionServiceService {
 		return PagingOutput.of(2, list);
 	}
 
+	public JSONObject query4Union() throws StatusCodeWithException {
+		JObject params = JObject.create();
+		return request("member/service/query", params);
+	}
+
+	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+		model.getId();
+		model.getName();
+		String supplierId = "";
+		String supplierName = "";
+		String baseUrl = config.getSERVING_BASE_URL();
+		String apiName = "api/" + model.getUrl();
+		List<String> userParams = Arrays.asList(model.getQueryParams().split(","));
+		model.getCreatedTime();
+		model.getServiceType();
+		// TODO publish
+		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
+				.put("supplier_id", supplierId);
+		return request("member/service/add", params);
+	}
+
 	public JSONObject publish2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		model.getId();
 		model.getName();
@@ -84,7 +105,7 @@ public class UnionServiceService {
 		// TODO publish
 		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
 				.put("supplier_id", supplierId);
-		return request("data_set/query", params);
+		return request("member/service/update_service_status", params);
 	}
 
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
@@ -92,7 +113,7 @@ public class UnionServiceService {
 		// TODO offline
 		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
 				.put("supplier_id", supplierId);
-		return request("data_set/query", params);
+		return request("member/service/update_service_status", params);
 	}
 
 	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {

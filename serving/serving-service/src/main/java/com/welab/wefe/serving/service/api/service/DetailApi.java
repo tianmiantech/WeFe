@@ -36,6 +36,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
+import com.welab.wefe.serving.service.service.ServiceService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = "service/detail", name = "服务详情")
@@ -63,6 +64,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		if (StringUtils.isNotBlank(entity.getServiceConfig())) {
 			output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
 		}
+		JSONObject preview = new JSONObject();
+		preview.put("id", entity.getId());
+		preview.put("params", entity.getQueryParams());
+		preview.put("url", ServiceService.SERVICE_PRE_URL + entity.getUrl());
+		output.setPreview(preview);
 		return success(output);
 	}
 
@@ -96,6 +102,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private Date createdTime;
 		private Date updatedTime;
 		private int status;
+
+		private JSONObject preview;
 
 		public String getId() {
 			return id;
@@ -193,6 +201,13 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.serviceConfig = serviceConfig;
 		}
 
+		public JSONObject getPreview() {
+			return preview;
+		}
+
+		public void setPreview(JSONObject preview) {
+			this.preview = preview;
+		}
 	}
 
 }
