@@ -11,9 +11,10 @@ CREATE TABLE `service` (
   `service_type` tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
   `query_params` text COMMENT '查询参数配置',
   `data_source` text COMMENT 'SQL配置',
-  `condition_fields` text COMMENT '查询字段',
+  `service_config` text COMMENT '服务配置',
   `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
   `ids_table_name` varchar(100) DEFAULT NULL COMMENT '主键对应的表名',
+  `operator` varchar(10) DEFAULT NULL COMMENT '操作 sum / avg',
   PRIMARY KEY (`id`),
   UNIQUE KEY `url_unique` (`url`),
   KEY `name` (`name`)
@@ -22,19 +23,19 @@ CREATE TABLE `service` (
 -- 数据源
 DROP TABLE IF EXISTS data_source;
 CREATE TABLE `data_source` (
-   `database_type` varchar(255) DEFAULT NULL,
-   `host` varchar(255) DEFAULT NULL,
-   `port` int(255) DEFAULT NULL,
-   `database_name` varchar(255) DEFAULT NULL,
-   `user_name` varchar(255) DEFAULT NULL,
-   `password` varchar(255) DEFAULT NULL,
-   `created_by` varchar(255) DEFAULT NULL,
-   `id` varchar(32) NOT NULL,
-   `created_time` datetime DEFAULT NULL,
-   `updated_time` datetime DEFAULT NULL,
-   `name` varchar(255) DEFAULT NULL,
-   `updated_by` varchar(255) DEFAULT '',
-   PRIMARY KEY (`id`) USING BTREE
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `database_type` varchar(255) DEFAULT NULL COMMENT '数据源类型',
+  `host` varchar(255) DEFAULT NULL COMMENT '数据源主机',
+  `port` int(255) DEFAULT NULL COMMENT '数据源端口',
+  `database_name` varchar(255) DEFAULT NULL COMMENT '数据库名',
+  `user_name` varchar(255) DEFAULT NULL COMMENT '用户名',
+  `password` varchar(255) DEFAULT NULL COMMENT '用户密码',
+  `created_by` varchar(255) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(255) DEFAULT NULL COMMENT '数据源名称',
+  `updated_by` varchar(255) DEFAULT '' COMMENT '更新人',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- 客户表

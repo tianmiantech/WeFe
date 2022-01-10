@@ -16,6 +16,7 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
+import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
@@ -24,8 +25,6 @@ import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 
 /**
  * @Author: eval
@@ -45,6 +43,7 @@ import static org.mockito.Matchers.anyString;
  **/
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
+        PrivateSetIntersection.class,
         PrivateSetIntersectionService.class,
         DiffieHellmanUtil.class
 })
@@ -80,8 +79,6 @@ public class PrivateSetIntersectionTest {
     @Test
     public void testQuery() throws Exception {
         int keySize = 1024;
-        int clientSeed = 33333;
-        int serverSeed = 44444;
         String url = "http://127.0.0.1:8080/psi";
         List<String> ids = Arrays.asList(new String[]{
                 "13012341234", "13012341235", "13012341236"
@@ -93,22 +90,25 @@ public class PrivateSetIntersectionTest {
         DiffieHellmanKey diffieHellmanKey = new DiffieHellmanKey();
         diffieHellmanKey.setG(new BigInteger("2", 16));
         diffieHellmanKey.setP(new BigInteger("ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece65381ffffffffffffffff", 16));
-        BigInteger clientKey = new BigInteger(keySize, new Random(clientSeed));
-        BigInteger serverKey = new BigInteger(keySize, new Random(serverSeed));
+        BigInteger clientKey = new BigInteger(keySize, new Random());
+        BigInteger serverKey = new BigInteger(keySize, new Random());
 
         QueryPrivateSetIntersectionRequest request = generateRequest(diffieHellmanKey, ids, clientKey);
         QueryPrivateSetIntersectionResponse response = generateResponse(request, serverIds, serverKey);
 
-        PowerMockito.mockStatic(PrivateSetIntersectionService.class);
-        MockitoAnnotations.initMocks(this);
-        Mockito.when(PrivateSetIntersectionService.handle(anyString(), anyObject())).thenReturn(response);
+        PrivateSetIntersectionService service = PowerMockito.mock(PrivateSetIntersectionService.class);
+        PowerMockito.whenNew(PrivateSetIntersectionService.class).withAnyArguments().thenReturn(service);
+        PowerMockito.when(service.handle(anyObject(), anyObject())).thenReturn(response);
 
         PowerMockito.spy(DiffieHellmanUtil.class);
         PowerMockito.doReturn(diffieHellmanKey).when(DiffieHellmanUtil.class, "generateKey", keySize);
         PowerMockito.doReturn(clientKey).when(DiffieHellmanUtil.class, "generateRandomKey", keySize);
 
+        CommunicationConfig config = new CommunicationConfig();
+        config.setServerUrl("127.0.0.1");
+        config.setNeedSign(false);
         PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
-        List<String> result = privateSetIntersection.query(url, ids, keySize);
+        List<String> result = privateSetIntersection.query(config, ids);
 
         Assert.assertArrayEquals(ids.stream().filter(id -> serverIds.contains(id)).toArray(), result.toArray());
     }

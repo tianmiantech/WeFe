@@ -17,7 +17,9 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,9 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		if (StringUtils.isNotBlank(entity.getDataSource())) {
 			output.setDataSource(JObject.parseArray(entity.getDataSource()));
 		}
+		if (StringUtils.isNotBlank(entity.getQueryParams())) {
+			output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
+		}
 		return success(output);
 	}
 
@@ -80,7 +85,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private String name;
 		private String url;
 		private int serviceType;
-		private String queryParams;// json
+		private List<String> queryParams;// json
 		private JSONArray dataSource;// json
 		private String createdBy;
 		private String updatedBy;
@@ -120,11 +125,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.serviceType = serviceType;
 		}
 
-		public String getQueryParams() {
+		public List<String> getQueryParams() {
 			return queryParams;
 		}
 
-		public void setQueryParams(String queryParams) {
+		public void setQueryParams(List<String> queryParams) {
 			this.queryParams = queryParams;
 		}
 
