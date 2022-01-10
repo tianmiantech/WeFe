@@ -17,8 +17,9 @@
 package com.welab.wefe.board.service.component;
 
 import com.welab.wefe.board.service.component.base.AbstractComponent;
-import com.welab.wefe.board.service.component.deep_learning.DeepLearningComponent;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
+import com.welab.wefe.board.service.component.deep_learning.PaddleClassifyComponent;
+import com.welab.wefe.board.service.component.deep_learning.PaddleDetectionComponent;
 import com.welab.wefe.board.service.component.feature.*;
 import com.welab.wefe.board.service.component.modeling.*;
 import com.welab.wefe.common.web.Launcher;
@@ -88,7 +89,9 @@ public class Components {
     @Autowired
     private ImageDataIOComponent imageDataIOComponent;
     @Autowired
-    private DeepLearningComponent deepLearningComponent;
+    private PaddleClassifyComponent paddleClassifyComponent;
+    @Autowired
+    private PaddleDetectionComponent paddleDetectionComponent;
 
 
     public static AbstractComponent<?> get(ComponentType componentType) {
@@ -148,8 +151,10 @@ public class Components {
                 return Launcher.getBean(Components.class).mixBinningComponent;
             case ImageDataIO:
                 return Launcher.getBean(Components.class).imageDataIOComponent;
-            case DeepLearning:
-                return Launcher.getBean(Components.class).deepLearningComponent;
+            case PaddleClassify:
+                return Launcher.getBean(Components.class).paddleClassifyComponent;
+            case PaddleDetection:
+                return Launcher.getBean(Components.class).paddleDetectionComponent;
             default:
                 return null;
         }

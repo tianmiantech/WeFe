@@ -73,9 +73,12 @@ public enum ComponentType {
      * **************** 深度学习相关组件 ****************
      */
     ImageDataIO("选择图片数据集", Collections.singletonList(horizontal), "加载用于联邦建模的图片数据集"),
-    DeepLearning("深度学习", Collections.singletonList(horizontal), "深度学习");
+    PaddleClassify("图像分类", Arrays.asList(horizontal), "图像分类"),
+    PaddleDetection("图像目标检测", Arrays.asList(horizontal), "图像目标检测");
 
     private static List<ComponentType> MODELING_TYPES = Arrays.asList(HorzLR, VertLR, HorzSecureBoost, VertSecureBoost, MixLR, MixSecureBoost, HorzNN, VertNN);
+
+    private static List<ComponentType> DeepLearningComponents = Arrays.asList(ImageDataIO, PaddleClassify, PaddleDetection);
 
 
     /**
@@ -115,4 +118,9 @@ public enum ComponentType {
     public boolean isModeling() {
         return MODELING_TYPES.contains(this);
     }
+
+    public boolean isDeepLearningComponents() {
+        return DeepLearningComponents.contains(this);
+    }
+
 }

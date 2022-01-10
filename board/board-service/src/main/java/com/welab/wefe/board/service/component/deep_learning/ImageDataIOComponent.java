@@ -135,12 +135,12 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-        return null;
+        return taskResultService.listAllResult(taskId);
     }
 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
+        return taskResultService.findByTaskIdAndType(taskId, type);
     }
 
     @Override
