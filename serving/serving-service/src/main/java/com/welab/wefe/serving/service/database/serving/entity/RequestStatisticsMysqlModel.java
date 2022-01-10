@@ -28,6 +28,11 @@ public class RequestStatisticsMysqlModel{
 
     @Id
     private String id = UUID.randomUUID().toString().replaceAll("-", "");
+
+    private String serviceId;
+
+    private String clientId;
+
     /**
      * 总调用次数
      */
@@ -62,6 +67,22 @@ public class RequestStatisticsMysqlModel{
      * 总耗时
      */
     private long totalSpend;
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
     public String getId() {
         return id;

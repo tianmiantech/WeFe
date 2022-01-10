@@ -39,7 +39,7 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
      * @return
      */
     @Query(value = "select * from " +
-            "(SELECT cs.id , s.name as serviceName, c.name as clientName, cs.status ," +
+            "(SELECT cs.id , s.name as serviceName, s.id as serviceId, c.id as clientId, c.name as clientName, cs.status ," +
             " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url, " +
             "fc.unit_price as unitPrice, fc.pay_type as payType " +
             "FROM client_service cs " +

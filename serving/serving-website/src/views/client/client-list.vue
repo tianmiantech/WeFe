@@ -7,19 +7,17 @@
             </el-form-item>
 
             <el-form-item label="创建时间：">
-                <div class="demo-basic">
-                    <el-time-picker
-                        v-model="search.startTime"
+                <div class="block">
+                    <el-date-picker
+                        v-model="timeRange"
+                        type="datetimerange"
+                        range-separator="To"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        @change="timeChange()"
                         value-format="timestamp"
-                        placeholder="开始时间"
                     >
-                    </el-time-picker>
-                    <el-time-picker
-                        v-model="search.endTime"
-                        value-format="timestamp"
-                        placeholder="结束时间"
-                    >
-                    </el-time-picker>
+                    </el-date-picker>
                 </div>
             </el-form-item>
 
@@ -27,6 +25,14 @@
             <el-button type="primary" @click="getList('to')">
                 查询
             </el-button>
+            <router-link
+                :to="{name: 'client-add',}">
+                <el-button type="success">
+                    新增
+                </el-button>
+            </router-link>
+
+
         </el-form>
 
         <el-table
@@ -38,11 +44,18 @@
             <div slot="empty">
                 <TableEmptyData/>
             </div>
-            <el-table-column label="客户 ID" min-width="80">
+            <el-table-column label="序号" min-width="80">
                 <template slot-scope="scope">
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
+
+            <el-table-column label="客户 code" min-width="60">
+                <template slot-scope="scope">
+                    <p>{{ scope.row.code }}</p>
+                </template>
+            </el-table-column>
+
             <el-table-column label="客户名称" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.name }}</p>
@@ -54,11 +67,12 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="IP 地址" min-width="60">
+            <el-table-column label="IP 白名单" min-width="60">
                 <template slot-scope="scope">
                     <p>{{ scope.row.ip_add }}</p>
                 </template>
             </el-table-column>
+
 
             <el-table-column label="创建时间" min-width="80">
                 <template slot-scope="scope">
@@ -66,16 +80,10 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="公钥" min-width="80">
-                <template slot-scope="scope">
-                    <el-tooltip class="item" effect="dark" :content="scope.row.pub_key" placement="left-start">
-                        <p>{{ scope.row.pub_key.substring(0, 20) }} ...</p>
-                    </el-tooltip>
-                </template>
-            </el-table-column>
-
             <el-table-column label="操作" align="center">
                 <template slot-scope="scope">
+
+
                     <router-link
                         :to="{
                             name: 'client-add',
@@ -84,13 +92,14 @@
                             },
 
                         }"
-
                     >
                         <el-button type="primary">
                             修改
                         </el-button>
                     </router-link>
                 </template>
+
+
             </el-table-column>
         </el-table>
         <div
@@ -129,11 +138,17 @@ export default {
                 status: '',
                 startTime: '',
                 endTime: '',
+
             },
+            timeRange: '',
             getListApi: '/client/query-list',
         };
     },
     methods: {
+        timeChange() {
+            this.search.startTime = this.timeRange[0]
+            this.search.endTime = this.timeRange[1]
+        }
 
     },
 };

@@ -143,7 +143,7 @@
             return {
                 search: {
                     id:     '',
-                    status: '',
+                    name:'',
                 },
                 getListApi:         '/data_source/query',
                 dataSourceEditorId: '',

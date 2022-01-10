@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         private String clientId;
 
         @Check(name = "use status")
-        private Integer status;
+        private Integer status = ServiceStatusEnum.USED.getValue();
 
         @Check(name = "pay type")
         private int payType;

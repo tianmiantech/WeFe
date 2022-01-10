@@ -41,9 +41,9 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
      * @param endTime
      * @return
      */
-    @Query(value = "select replace(uuid(),'-','') as id , s.name as serviceName, c.name as clientName, t.total_spend as totalSpend, " +
-            "t.success_request as totalSuccessTimes, t.total_request as totalRequestTimes, t.total_request - t.success_request as totalFailTimes, " +
-            "s.service_type as serviceType " +
+    @Query(value = "select replace(uuid(),'-','') as id ,s.id as serviceId, s.name as serviceName,c.id as clientId, " +
+            "c.name as clientName, t.total_spend as totalSpend, t.success_request as totalSuccessTimes, t.total_request as totalRequestTimes, " +
+            "t.total_request - t.success_request as totalFailTimes, s.service_type as serviceType " +
             "from ( " +
             "SELECT sum(arr.spend) total_spend, sum(arr.request_result) success_request, count(id) total_request, arr.client_id, arr.service_id " +
             "from api_request_record arr " +
