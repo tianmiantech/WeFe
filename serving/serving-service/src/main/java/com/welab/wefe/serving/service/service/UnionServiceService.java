@@ -109,7 +109,7 @@ public class UnionServiceService {
 				.put("service_type", model.getServiceType()).put("member_id", CacheObjects.getMemberId())
 				.append("base_url", config.getSERVING_BASE_URL()).append("api_name", "api/" + model.getUrl())
 				.append("service_id", model.getId()).append("name", model.getName())
-				.append("create_time", model.getCreatedTime());
+				.append("create_time", model.getCreatedTime()).append("service_status", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
 		return request("member/service/add", params);
 	}
