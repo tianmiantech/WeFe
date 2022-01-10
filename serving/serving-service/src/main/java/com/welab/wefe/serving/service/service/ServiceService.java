@@ -138,7 +138,7 @@ public class ServiceService {
 		keysTableName = dataSource.getString("db") + "_" + dataSource.getString("table");
 		JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
 		List<String> needFields = new ArrayList<>();
-		for (int i = 1; i <= keyCalcRules.size(); i++) {
+		for (int i = 0; i < keyCalcRules.size(); i++) {
 			JSONObject item = keyCalcRules.getJSONObject(i);
 			String[] fields = item.getString("field").split(",");
 			needFields.addAll(Arrays.asList(fields));
