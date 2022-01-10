@@ -221,7 +221,7 @@ public class ServiceService {
 		return PagingOutput.of(page.getTotal(), list);
 	}
 
-	public void update(Input input) throws StatusCodeWithException {
+	public com.welab.wefe.serving.service.api.service.AddApi.Output update(Input input) throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "entity not exists");
@@ -241,7 +241,15 @@ public class ServiceService {
 		if (input.getServiceType() != -1) {
 			model.setServiceType(input.getServiceType());
 		}
+		if (StringUtils.isNotBlank(input.getServiceConfig())) {
+			model.setServiceConfig(input.getServiceConfig());
+		}
 		serviceRepository.save(model);
+		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
+		output.setId(model.getId());
+		output.setParams(model.getQueryParams());
+		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		return output;
 	}
 
 	public void offlineService(String id) throws StatusCodeWithException {

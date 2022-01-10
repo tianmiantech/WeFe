@@ -16,26 +16,28 @@
 
 package com.welab.wefe.serving.service.api.service;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.api.service.AddApi.Output;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/update", name = "update service info")
-public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
+public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
 	@Autowired
 	private ServiceService service;
 
 	@Override
-	protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-		service.update(input);
-		return success();
+	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
+		return success(service.update(input));
 	}
 
 	public static class Input extends AbstractApiInput {
@@ -52,6 +54,8 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 		private String queryParams;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
+		@Check(name = "服务配置")
+		private String serviceConfig;// json
 
 		public String getId() {
 			return id;
@@ -101,6 +105,13 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 			this.dataSource = dataSource;
 		}
 
+		public String getServiceConfig() {
+			return serviceConfig;
+		}
+
+		public void setServiceConfig(String serviceConfig) {
+			this.serviceConfig = serviceConfig;
+		}
 	}
 
 }

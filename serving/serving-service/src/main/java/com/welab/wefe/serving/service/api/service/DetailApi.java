@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -59,6 +60,9 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		if (StringUtils.isNotBlank(entity.getQueryParams())) {
 			output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
 		}
+		if (StringUtils.isNotBlank(entity.getServiceConfig())) {
+			output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
+		}
 		return success(output);
 	}
 
@@ -86,6 +90,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private int serviceType;
 		private List<String> queryParams;// json
 		private JSONObject dataSource;// json
+		private JSONArray serviceConfig;
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
@@ -178,6 +183,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		public void setStatus(int status) {
 			this.status = status;
+		}
+
+		public JSONArray getServiceConfig() {
+			return serviceConfig;
+		}
+
+		public void setServiceConfig(JSONArray serviceConfig) {
+			this.serviceConfig = serviceConfig;
 		}
 
 	}
