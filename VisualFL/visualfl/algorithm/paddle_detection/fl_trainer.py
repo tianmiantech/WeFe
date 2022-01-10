@@ -218,7 +218,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, vdl_loss_step)
-                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,"paddle_detection")
+                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,"PaddleDetection")
                 vdl_loss_step += 1
                 logging.debug(f"step: {vdl_loss_step}, outs: {outs}")
 
