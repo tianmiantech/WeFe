@@ -32,7 +32,11 @@
                     :minlength="4"
                     show-word-limit
                     size="medium"
-                />
+                >
+                    <template #prepend>
+                        /api/
+                    </template>
+                </el-input>
             </el-form-item>
 
             <el-form-item
@@ -52,6 +56,24 @@
                         :label="item.name"
                     />
                 </el-select>
+
+                <div
+                    v-if="form.service_type === 4"
+                    class="ml10"
+                >
+                    <el-radio
+                        v-model="form.operator"
+                        label="sum"
+                    >
+                        SUM
+                    </el-radio>
+                    <el-radio
+                        v-model="form.operator"
+                        label="avg"
+                    >
+                        avg
+                    </el-radio>
+                </div>
             </el-form-item>
 
             <template v-if="form.service_type">
@@ -263,7 +285,10 @@
                             </el-radio>
                         </el-form-item>
 
-                        <div class="mt5">
+                        <div
+                            v-if="form.service_type !== 3"
+                            class="mt5"
+                        >
                             <el-button
                                 size="small"
                                 @click="sqlTest"
@@ -340,10 +365,7 @@
                     :label="`${item.label}:`"
                     required
                 >
-                    <el-input
-                        v-model="item.value"
-                        disabled
-                    />
+                    {{ item.value }}
                 </el-form-item>
             </el-form>
             <span slot="footer">
@@ -447,7 +469,7 @@
                     name:         '',
                     url:          '',
                     service_type: '',
-                    returnFields: [],
+                    operator:     'sum',
                     data_source:  {
                         id:               '',
                         table:            '',
@@ -548,6 +570,7 @@
 
                         if(params) {
                             this.form.paramsArr = params.map(x => {
+                                console.log(x);
                                 return {
                                     label: x,
                                     value: x,
@@ -720,19 +743,17 @@
 
                 this.sql_test.visible = true;
 
-                this.sql_test.return_fields = [];
-                this.form.data_source.condition_fields.forEach(x => {
-                    if(x.field_on_table) this.sql_test.return_fields.push({
-                        label: x.field_on_table,
+                this.sql_test.return_fields = this.form.data_source.return_fields.map(x => {
+                    return {
+                        label: x,
                         value: '',
-                    });
+                    };
                 });
             },
             async testConnection(event) {
                 const paramsJson = {};
                 const {
                     service_type: type,
-                    returnFields,
                     data_source: obj,
                 } = this.form;
                 const { params } = this.sql_test;
@@ -750,7 +771,11 @@
 
                 if(type === 1 || type === 3) {
                     $params.params = paramsJson;
-                    $params.data_source.return_fields = returnFields;
+                    $params.data_source.return_fields = obj.return_fields.map(x => {
+                        const item = this.data_fields.find(y => y.name === x);
+
+                        return item;
+                    });
                     $params.data_source.condition_fields = obj.condition_fields.map(x => {
                         x.operator = this.sqlOperator;
                         return x;
@@ -834,7 +859,7 @@
                     return;
                 }
 
-                const { data_source: obj } = this.form;
+                const { data_source: obj, operator } = this.form;
                 const type = this.form.service_type;
                 const $params = {
                     name:         this.form.name,
@@ -871,7 +896,7 @@
                         }
                     }
 
-                    $params.query_params = params.join(',');
+                    $params.query_params = params;
 
                     if(type === 4) {
                         $params.service_config = this.service_config.map(x => {
@@ -884,6 +909,7 @@
                                 params:      x.params.join(','),
                             };
                         });
+                        $params.operator = operator;
                     } else {
                         // 1 || 3
                         const return_fields = [];
@@ -947,7 +973,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .maxlength{max-width: 350px;}
+    .maxlength{max-width: 400px;}
     .icons{cursor: pointer;margin-left:5px;}
     .condition_fields{margin-bottom: 10px;
         .el-select, .el-input{margin-bottom: 10px;}

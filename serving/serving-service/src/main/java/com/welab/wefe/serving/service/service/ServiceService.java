@@ -337,9 +337,8 @@ public class ServiceService {
 		try {
 			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
 					ClientMysqlModel.class);
-			apiRequestRecordService.save(model.getId(),
-					StringUtils.isBlank(input.getCustomerId()) ? "unknow" : input.getCustomerId(),
-					clientMysqlModel.getName(), duration, clientIp, 1);
+			apiRequestRecordService.save(model.getId(), model.getName(), model.getServiceType(),
+					clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, 1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}

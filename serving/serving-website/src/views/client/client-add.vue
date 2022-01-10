@@ -2,7 +2,7 @@
 
     <el-card class="page" shadow="never">
 
-        <h2 class="title">新增客户</h2>
+        <h2 class="title">新增/编辑客户</h2>
 
         <el-form :model="client" label-width="90px" :rules="rules" ref="client">
             <el-form-item label="客户名称" prop="name">
@@ -11,19 +11,19 @@
             <el-form-item label="客户邮箱" prop="email">
                 <el-input v-model="client.email"></el-input>
             </el-form-item>
-            <el-form-item label="IP 地址" prop="ip_add">
-                <el-input v-model="client.ip_add"></el-input>
+            <el-form-item label="IP 白名单" prop="ipAdd">
+                <el-input v-model="client.ipAdd"></el-input>
             </el-form-item>
-            <el-form-item label="公钥" prop="pub_key">
-                <el-input v-model="client.pub_key" type="textarea"></el-input>
+            <el-form-item label="客户 code" prop="code">
+                <el-input v-model="client.code" :disabled="this.clientId !== ''" placeholder="建议格式：[公司简称]-[手机号]-[日期]"></el-input>
+            </el-form-item>
+            <el-form-item label="公钥">
+                <el-input v-model="client.pubKey" type="textarea"></el-input>
             </el-form-item>
             <el-form-item label="备注">
                 <el-input v-model="client.remark" type="textarea"></el-input>
             </el-form-item>
-
             <el-form-item>
-
-
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
@@ -53,6 +53,7 @@ export default {
                 email: '',
                 ipAdd: '',
                 remark: '',
+                code: '',
             },
             rules: {
 
@@ -60,17 +61,19 @@ export default {
                     {required: true, message: '请输入客户名称', trigger: 'blur'}
                 ],
                 email: [
-                    {required: true, message: '请输入客户名称', trigger: 'change'}
+                    {required: true, message: '请输入邮箱', trigger: 'change'}
                 ],
-                ip_add: [
-                    {required: true, message: '请输入客户名称', trigger: 'change'}
+                ipAdd: [
+                    {required: true, message: '请输入IP白名单', trigger: 'change'}
                 ],
-                pub_key: [
-                    {required: true, message: '请输入客户名称', trigger: 'change'}
+                code: [
+                    {required: true, message: '请输入客户code', trigger: 'change'}
                 ],
-
-
+                // pub_key: [
+                //     {required: true, message: '请输入客户名称', trigger: 'change'}
+                // ],
             },
+            clientId: '',
         }
     },
 
@@ -79,6 +82,7 @@ export default {
     },
     created() {
         if (this.$route.query.id) {
+            this.clientId = this.$route.query.id
             this.getClientById(this.$route.query.id)
         }
 
@@ -94,10 +98,11 @@ export default {
                         data: {
                             name: this.client.name,
                             email: this.client.email,
-                            ipAdd: this.client.ip_add,
+                            ipAdd: this.client.ipAdd,
                             pubKey: this.client.pub_key,
                             remark: this.client.remark,
                             createdBy: this.userInfo.nickname,
+                            code: this.client.code,
                         },
                     });
 
@@ -124,9 +129,12 @@ export default {
 
             });
             if (code === 0) {
-                this.client = {
-                    ...data,
-                };
+                this.client.name = data.name
+                this.client.email = data.email
+                this.client.ipAdd = data.ip_add
+                this.client.pubKey = ''
+                this.client.remark = data.remark
+                this.client.code = data.code
             }
         }
     },

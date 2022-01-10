@@ -66,6 +66,17 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         private String createdBy;
 
+        @Check(name = "客户 code")
+        private String code;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
         public String getId() {
             return id;
         }

@@ -51,11 +51,11 @@
                 </div>
             </el-dialog>
 
-            <el-form-item prop="status">
-                <el-radio v-model="clientService.status" label="1">启用</el-radio>
-                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>
+<!--            <el-form-item prop="status">-->
+<!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
+<!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
 
-            </el-form-item>
+<!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
@@ -122,13 +122,13 @@ export default {
             }
         };
 
-        let validateStatus = (rule, value, callback) => {
-            if (!this.clientService.status) {
-                return callback(new Error('请选择状态'));
-            } else {
-                callback();
-            }
-        };
+        // let validateStatus = (rule, value, callback) => {
+        //     if (!this.clientService.status) {
+        //         return callback(new Error('请选择状态'));
+        //     } else {
+        //         callback();
+        //     }
+        // };
 
 
         return {
@@ -169,9 +169,9 @@ export default {
                 payType: [
                     {required: true, validator: validatePayType, trigger: 'change'}
                 ],
-                status: [
-                    {required: true, validator: validateStatus, trigger: 'change'}
-                ]
+                // status: [
+                //     {required: true, validator: validateStatus, trigger: 'change'}
+                // ]
 
             },
 

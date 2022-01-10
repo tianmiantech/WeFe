@@ -32,6 +32,24 @@ public class ApiRequestRecordMysqlModel extends AbstractBaseMySqlModel {
     private String clientId;
 
     /**
+     * 客户名称
+     */
+    @Column(name = "client_name")
+    private String clientName;
+
+    /**
+     * 服务名称
+     */
+    @Column(name = "service_name")
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    @Column(name = "service_type")
+    private Integer serviceType;
+
+    /**
      * 请求地址
      */
     @Column(name = "ip_add")
@@ -47,6 +65,30 @@ public class ApiRequestRecordMysqlModel extends AbstractBaseMySqlModel {
      */
     @Column(name = "request_result")
     private Integer requestResult;
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public Integer getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(Integer serviceType) {
+        this.serviceType = serviceType;
+    }
 
     public String getServiceId() {
         return serviceId;

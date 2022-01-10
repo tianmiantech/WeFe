@@ -50,7 +50,8 @@ CREATE TABLE client(
                        email VARCHAR(255)    COMMENT '邮箱' ,
                        ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
                        pub_key VARCHAR(255) NOT NULL   COMMENT '公钥' ,
-                       remark VARCHAR(255)    COMMENT '备注' ,
+                       code VARCHAR(255)  NOT NULL UNIQUE COMMENT '客户 code' ,
+                       remark VARCHAR(255)  COMMENT '备注' ,
                        status INT NOT NULL  DEFAULT 1 COMMENT '客户状态;1正常、0删除' ,
                        PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '客户基本信息表';
@@ -66,7 +67,7 @@ CREATE TABLE client_service(
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                                updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                               status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
+                               status TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
 CREATE UNIQUE INDEX service_client_index ON client_service(id,service_id,client_id);
@@ -92,6 +93,9 @@ CREATE TABLE api_request_record(
                                    id VARCHAR(32) NOT NULL   COMMENT '租户号' ,
                                    service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                                    client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                                   client_name VARCHAR(32) NOT NULL   COMMENT '客户名称' ,
+                                   service_name VARCHAR(32) NOT NULL   COMMENT '服务名称' ,
+                                   service_type tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
                                    ip_add VARCHAR(255) NOT NULL   COMMENT '请求ip地址' ,
                                    spend BIGINT NOT NULL   COMMENT '耗时' ,
                                    request_result INT NOT NULL   COMMENT '请求结果' ,

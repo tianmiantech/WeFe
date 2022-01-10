@@ -61,7 +61,7 @@ public class ClientServiceService {
 
         // check the client-service by ids
         Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
-        ClientServiceMysqlModel model = new ClientServiceMysqlModel();
+        ClientServiceMysqlModel model = clientServiceMysqlModel.orElse(new ClientServiceMysqlModel());
 
         if (null != input.getStatus()) {
             model.setStatus(input.getStatus());

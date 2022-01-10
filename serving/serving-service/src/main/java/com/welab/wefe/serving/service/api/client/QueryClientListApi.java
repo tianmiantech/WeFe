@@ -91,14 +91,24 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
         @Check(name = "客户邮箱")
         private String email;
 
-        @Check(name = "ip 地址")
+        @Check(name = "IP 白名单")
         private String ipAdd;
 
-        @Check(name = "公钥")
-        private String pubKey;
+//        @Check(name = "公钥")
+//        private String pubKey;
+        @Check(name = "客户 code")
+        private String code;
 
         @Check(name = "创建时间")
         private Date createdTime;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
 
         public Date getCreatedTime() {
             return createdTime;
@@ -140,13 +150,13 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
             this.ipAdd = ipAdd;
         }
 
-        public String getPubKey() {
-            return pubKey;
-        }
-
-        public void setPubKey(String pubKey) {
-            this.pubKey = pubKey;
-        }
+//        public String getPubKey() {
+//            return pubKey;
+//        }
+//
+//        public void setPubKey(String pubKey) {
+//            this.pubKey = pubKey;
+//        }
     }
 
 }
