@@ -308,15 +308,6 @@ public class ServiceService {
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
 		if (model == null) {
-			long duration = System.currentTimeMillis() - start;
-			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-					ClientMysqlModel.class);
-			try {
-				apiRequestRecordService.save(model.getId(), clientMysqlModel.getId(), clientMysqlModel.getName(),
-						duration, clientIp, 0);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
