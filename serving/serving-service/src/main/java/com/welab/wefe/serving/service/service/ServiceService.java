@@ -202,11 +202,8 @@ public class ServiceService {
 	public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
 
 		Where where = Where.create();
-		if (StringUtils.isNotBlank(input.getId())) {
-			where = where.equal("id", input.getId());
-		}
 		if (StringUtils.isNotBlank(input.getName())) {
-			where = where.equal("name", input.getName());
+			where = where.contains("name", input.getName());
 		}
 		if (input.getServiceType() != -1) {
 			where = where.equal("serviceType", input.getServiceType());
