@@ -340,10 +340,7 @@
                     :label="`${item.label}:`"
                     required
                 >
-                    <el-input
-                        v-model="item.value"
-                        disabled
-                    />
+                    {{ item.value }}
                 </el-form-item>
             </el-form>
             <span slot="footer">
@@ -719,12 +716,11 @@
 
                 this.sql_test.visible = true;
 
-                this.sql_test.return_fields = [];
-                this.form.data_source.condition_fields.forEach(x => {
-                    if(x.field_on_table) this.sql_test.return_fields.push({
-                        label: x.field_on_table,
+                this.sql_test.return_fields = this.form.data_source.return_fields.map(x => {
+                    return {
+                        label: x,
                         value: '',
-                    });
+                    };
                 });
             },
             async testConnection(event) {
