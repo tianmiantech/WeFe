@@ -35,7 +35,7 @@ public class ApiRequestRecordService {
     private ApiRequestRecordRepository apiRequestRecordRepository;
 
 
-    public void save(String serviceId, String clientId, Long spend, String ipAdd, Integer requestResult) {
+    public void save(String serviceId, String clientId, String clientName, Long spend, String ipAdd, Integer requestResult) {
 
         ApiRequestRecordMysqlModel model = new ApiRequestRecordMysqlModel();
         model.setServiceId(serviceId);

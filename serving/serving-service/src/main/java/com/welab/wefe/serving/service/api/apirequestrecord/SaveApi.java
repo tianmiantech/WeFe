@@ -35,7 +35,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
 
-        apiRequestRecordService.save(input.getServiceId(), input.getClientId(), input.getSpend(), input.getIpAdd(), input.getRequestResult());
+        apiRequestRecordService.save(input.getServiceId(), input.getClientId(),"", input.getSpend(), input.getIpAdd(), input.getRequestResult());
         return success();
     }
 

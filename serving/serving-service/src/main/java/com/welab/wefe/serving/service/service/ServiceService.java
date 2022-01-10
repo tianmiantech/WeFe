@@ -73,8 +73,10 @@ import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
+import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.utils.MD5Util;
@@ -101,6 +103,9 @@ public class ServiceService {
 
 	@Autowired
 	private UnionServiceService unionServiceService;
+
+	@Autowired
+	private ClientRepository clientRepository;
 
 	@Transactional(rollbackFor = Exception.class)
 	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -305,7 +310,14 @@ public class ServiceService {
 		JObject data = JObject.create(input.getData());
 		if (model == null) {
 			long duration = System.currentTimeMillis() - start;
-			apiRequestRecordService.save(model.getId(), input.getCustomerId(), duration, clientIp, 0);
+			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+					ClientMysqlModel.class);
+			try {
+				apiRequestRecordService.save(model.getId(), clientMysqlModel.getId(), clientMysqlModel.getName(),
+						duration, clientIp, 0);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
@@ -333,9 +345,11 @@ public class ServiceService {
 		}
 		long duration = System.currentTimeMillis() - start;
 		try {
+			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+					ClientMysqlModel.class);
 			apiRequestRecordService.save(model.getId(),
-					StringUtils.isBlank(input.getCustomerId()) ? "unknow" : input.getCustomerId(), duration, clientIp,
-					1);
+					StringUtils.isBlank(input.getCustomerId()) ? "unknow" : input.getCustomerId(),
+					clientMysqlModel.getName(), duration, clientIp, 1);
 		} catch (Exception e) {
 			LOG.error(e.toString());
 		}
