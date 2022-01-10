@@ -97,7 +97,7 @@ public class ServiceService {
 	private DataSourceService dataSourceService;
 	@Autowired
 	private ApiRequestRecordService apiRequestRecordService;
-	
+
 	@Autowired
 	private UnionServiceService unionServiceService;
 
@@ -284,7 +284,8 @@ public class ServiceService {
 		JSONObject dataSource = JObject.parseObject(input.getDataSource());
 		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String dataSourceId = dataSource.getString("id");
-		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource);
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
 		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
@@ -396,8 +397,9 @@ public class ServiceService {
 		QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();
 		JSONObject queryParams = request.getQueryParams();
 		JSONObject dataSource = JObject.parseObject(model.getDataSource());
-		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource);
 		String dataSourceId = dataSource.getString("id");
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+		String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource, dataSourceModel.getDatabaseName());
 		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String resultStr = "";
 		try {
@@ -453,8 +455,9 @@ public class ServiceService {
 		// 0 根据ID查询对应的数据
 		for (String id : ids) {// params
 			JSONObject dataSource = JObject.parseObject(model.getDataSource());
-			String sql = ServiceUtil.generateSQL(id, dataSource);
 			String dataSourceId = dataSource.getString("id");
+			DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+			String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
 			String resultfields = ServiceUtil.parseReturnFields(dataSource);
 			try {
 				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,

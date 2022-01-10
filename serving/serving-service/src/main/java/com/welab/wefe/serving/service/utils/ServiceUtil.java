@@ -105,8 +105,8 @@ public class ServiceUtil {
 		return buffer;
 	}
 
-	public static String generateSQL(String params, JSONObject dataSource) {
-		String tableName = dataSource.getString("db") + "." + dataSource.getString("table");
+	public static String generateSQL(String params, JSONObject dataSource, String dbName) {
+		String tableName = dbName + "." + dataSource.getString("table");
 		String resultfields = parseReturnFields(dataSource);
 		String where = parseWhere(dataSource, JObject.create(params));
 		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where;
