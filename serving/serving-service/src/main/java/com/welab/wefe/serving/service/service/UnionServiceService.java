@@ -111,7 +111,7 @@ public class UnionServiceService {
 				.append("service_id", model.getId()).append("name", model.getName())
 				.append("create_time", model.getCreatedTime()).append("service_status", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
-		return request("member/service/add", params);
+		return request("member/service/put", params);
 	}
 
 	public JSONObject online2Union(ServiceMySqlModel model) throws StatusCodeWithException {
