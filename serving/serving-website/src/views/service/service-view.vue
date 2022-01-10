@@ -34,7 +34,7 @@
                     size="medium"
                 >
                     <template #prepend>
-                        /api/query/social_score/
+                        /api/
                     </template>
                 </el-input>
             </el-form-item>
@@ -56,6 +56,24 @@
                         :label="item.name"
                     />
                 </el-select>
+
+                <div
+                    v-if="form.service_type === 4"
+                    class="ml10"
+                >
+                    <el-radio
+                        v-model="form.operator"
+                        label="sum"
+                    >
+                        SUM
+                    </el-radio>
+                    <el-radio
+                        v-model="form.operator"
+                        label="avg"
+                    >
+                        avg
+                    </el-radio>
+                </div>
             </el-form-item>
 
             <template v-if="form.service_type">
@@ -451,6 +469,7 @@
                     name:         '',
                     url:          '',
                     service_type: '',
+                    operator:     'sum',
                     data_source:  {
                         id:               '',
                         table:            '',
@@ -840,7 +859,7 @@
                     return;
                 }
 
-                const { data_source: obj } = this.form;
+                const { data_source: obj, operator } = this.form;
                 const type = this.form.service_type;
                 const $params = {
                     name:         this.form.name,
@@ -890,6 +909,7 @@
                                 params:      x.params.join(','),
                             };
                         });
+                        $params.operator = operator;
                     } else {
                         // 1 || 3
                         const return_fields = [];
