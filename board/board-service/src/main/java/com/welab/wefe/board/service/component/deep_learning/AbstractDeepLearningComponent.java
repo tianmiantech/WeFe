@@ -41,7 +41,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -51,16 +50,10 @@ import java.util.stream.Collectors;
 /**
  * @author zane.luo
  */
-@Service
-public class DeepLearningComponent extends AbstractComponent<DeepLearningComponent.Params> {
+public abstract class AbstractDeepLearningComponent extends AbstractComponent<AbstractDeepLearningComponent.Params> {
 
     @Autowired
     private ImageDataSetService imageDataSetService;
-
-    @Override
-    public ComponentType taskType() {
-        return ComponentType.DeepLearning;
-    }
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
@@ -114,12 +107,12 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-        return null;
+        return taskResultService.listAllResult(taskId);
     }
 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
+        return taskResultService.findByTaskIdAndType(taskId, type);
     }
 
     @Override
