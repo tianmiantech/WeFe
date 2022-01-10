@@ -129,8 +129,26 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 
 	public static class Input extends PagingInput {
 
-		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合
+		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合 4=安全聚合（查询方）
 		private int serviceType = -1;
+		private String serviceId;
+		private String name;
+
+		public String getServiceId() {
+			return serviceId;
+		}
+
+		public void setServiceId(String serviceId) {
+			this.serviceId = serviceId;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
 
 		public int getServiceType() {
 			return serviceType;

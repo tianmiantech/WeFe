@@ -33,109 +33,120 @@ import com.welab.wefe.serving.service.service.DataSourceService;
  */
 @Api(path = "data_source/add", name = "新增数据源")
 public class AddApi extends AbstractApi<AddApi.DataSourceAddInput, AddApi.DataSourceAddOutput> {
-    @Autowired
-    DataSourceService dataSourceService;
+	@Autowired
+	DataSourceService dataSourceService;
 
-    @Override
-    protected ApiResult<DataSourceAddOutput> handle(DataSourceAddInput input) throws StatusCodeWithException {
-        return success(dataSourceService.add(input));
-    }
+	@Override
+	protected ApiResult<DataSourceAddOutput> handle(DataSourceAddInput input) throws StatusCodeWithException {
+		return success(dataSourceService.add(input));
+	}
 
-    public static class DataSourceAddInput extends AbstractApiInput {
+	public static class DataSourceAddInput extends AbstractApiInput {
 
+		@Check(name = "id")
+		private String id;
 
-        @Check(name = "数据源名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "数据集名称长度不能少于4，不能大于30")
-        private String name;
+		@Check(name = "数据源名称", require = true, regex = "^.{4,30}$", messageOnInvalid = "数据集名称长度不能少于4，不能大于30")
+		private String name;
 
-        @Check(name = "数据库类型", require = true)
-        private DatabaseType databaseType;
+		@Check(name = "数据库类型", require = true)
+		private DatabaseType databaseType;
 
-        @Check(name = "数据库IP地址", require = true)
-        private String host;
+		@Check(name = "数据库IP地址", require = true)
+		private String host;
 
-        @Check(name = "端口", require = true)
-        private Integer port;
+		@Check(name = "端口", require = true)
+		private Integer port;
 
-        @Check(name = "要连接的数据库名称", require = true)
-        private String databaseName;
+		@Check(name = "要连接的数据库名称", require = true)
+		private String databaseName;
 
-        @Check(name = "用户名", require = true)
-        private String userName;
+		@Check(name = "用户名", require = true)
+		private String userName;
 
-        @Check(name = "密码", require = true)
-        private String password;
+		@Check(name = "密码", require = true)
+		private String password;
 
-        public String getName() {
-            return name;
-        }
+		public String getName() {
+			return name;
+		}
 
-        public void setName(String name) {
-            this.name = name;
-        }
+		public void setName(String name) {
+			this.name = name;
+		}
 
-        public DatabaseType getDatabaseType() {
-            return databaseType;
-        }
+		public DatabaseType getDatabaseType() {
+			return databaseType;
+		}
 
-        public void setDatabaseType(DatabaseType databaseType) {
-            this.databaseType = databaseType;
-        }
+		public void setDatabaseType(DatabaseType databaseType) {
+			this.databaseType = databaseType;
+		}
 
-        public String getHost() {
-            return host;
-        }
+		public String getHost() {
+			return host;
+		}
 
-        public void setHost(String host) {
-            this.host = host;
-        }
+		public void setHost(String host) {
+			this.host = host;
+		}
 
-        public Integer getPort() {
-            return port;
-        }
+		public Integer getPort() {
+			return port;
+		}
 
-        public void setPort(Integer port) {
-            this.port = port;
-        }
+		public void setPort(Integer port) {
+			this.port = port;
+		}
 
-        public String getDatabaseName() {
-            return databaseName;
-        }
+		public String getDatabaseName() {
+			return databaseName;
+		}
 
-        public void setDatabaseName(String databaseName) {
-            this.databaseName = databaseName;
-        }
+		public void setDatabaseName(String databaseName) {
+			this.databaseName = databaseName;
+		}
 
-        public String getUserName() {
-            return userName;
-        }
+		public String getUserName() {
+			return userName;
+		}
 
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
+		public void setUserName(String userName) {
+			this.userName = userName;
+		}
 
-        public String getPassword() {
-            return password;
-        }
+		public String getPassword() {
+			return password;
+		}
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
+		public void setPassword(String password) {
+			this.password = password;
+		}
 
-    public static class DataSourceAddOutput extends AbstractApiOutput {
-        private String id;
+		public String getId() {
+			return id;
+		}
 
-        public DataSourceAddOutput() {
+		public void setId(String id) {
+			this.id = id;
+		}
 
-        }
+	}
 
-        public String getId() {
-            return id;
-        }
+	public static class DataSourceAddOutput extends AbstractApiOutput {
+		private String id;
 
-        public void setId(String id) {
-            this.id = id;
-        }
-    }
+		public DataSourceAddOutput() {
+
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+	}
 
 }

@@ -34,7 +34,7 @@
                     size="medium"
                 >
                     <template #prepend>
-                        /api/query/social_score/
+                        /api/
                     </template>
                 </el-input>
             </el-form-item>
