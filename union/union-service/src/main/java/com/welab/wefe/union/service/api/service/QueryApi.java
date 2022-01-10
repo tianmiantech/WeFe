@@ -75,7 +75,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
 
     public static class Input extends BaseInput{
         private String serviceId;
-        @Check(require = true)
         private String memberId;
         private String name;
         private String serviceType;
