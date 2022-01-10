@@ -97,7 +97,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
                 .like("name", name)
                 .like("serviceId", serviceId)
                 .append("member_id", memberId)
-                .append("serviceType", serviceType)
+                .append("service_type", serviceType)
                 .append("service_status","1")
                 .getCriteria();
 
