@@ -59,7 +59,7 @@ public class UnionServiceService {
 		if (result.getInteger("code") == 0) {
 			JSONObject data = result.getJSONObject("data");
 			JSONArray arr = data.getJSONArray("list");
-			for (int i = 1; i <= arr.size(); i++) {
+			for (int i = 0; i < arr.size(); i++) {
 				JSONObject item = arr.getJSONObject(i);
 
 				UnionServiceApi.Output output = new UnionServiceApi.Output();
