@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,16 +45,37 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 @Service
 public class UnionServiceService {
 
+	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private Config config;
 
-	public PagingOutput<Output> query(Input input) {
-		if (input.getServiceType() != -1) {
-			// TODO
-		}
-
+	public PagingOutput<Output> query(Input input) throws StatusCodeWithException {
+//		JSONObject result = query4Union(input);
+//		LOG.info("union query result = " + JSONObject.toJSONString(result));
 		List<UnionServiceApi.Output> list = new ArrayList<>();
-
+//		if (result.getInteger("code") == 0) {
+//			JSONObject data = result.getJSONObject("data");
+//			JSONArray arr = data.getJSONArray("list");
+//			for (int i = 1; i <= arr.size(); i++) {
+//				JSONObject item = arr.getJSONObject(i);
+//
+//				UnionServiceApi.Output output = new UnionServiceApi.Output();
+//				output.setId(item.getString("service_id"));
+//				output.setName(item.getString("name"));
+//				output.setSupplierId(item.getString("member_id"));
+//				output.setSupplierName(item.getString("member_name"));
+//				output.setBaseUrl(item.getString("base_url"));
+//				output.setApiName("api_name");
+//				if (StringUtils.isNotBlank(item.getString("query_params"))) {
+//					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
+//				}
+//				output.setCreatedTime(new Date(item.getLongValue("created_time")));
+//				output.setServiceType(item.getIntValue("service_type"));
+//				list.add(output);
+//			}
+//			return PagingOutput.of(data.getInteger("total"), list);
+//		}
 		// mock
 		int size = 2;
 		for (int i = 1; i <= size; i++) {
@@ -71,48 +94,49 @@ public class UnionServiceService {
 		return PagingOutput.of(2, list);
 	}
 
-	public JSONObject query4Union() throws StatusCodeWithException {
-		JObject params = JObject.create();
+	public JSONObject query4Union(Input input) throws StatusCodeWithException {
+		JObject params = JObject.create().append("page_size", input.getPageSize()).append("page_index",
+				input.getPageIndex());
+		if (input.getServiceType() != -1) {
+			params.append("service_type", input.getServiceType());
+		}
+		LOG.info("union query params = " + JSONObject.toJSONString(params));
 		return request("member/service/query", params);
 	}
 
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		model.getId();
-		model.getName();
-		String supplierId = "";
-		String supplierName = "";
-		String baseUrl = config.getSERVING_BASE_URL();
-		String apiName = "api/" + model.getUrl();
-		List<String> userParams = Arrays.asList(model.getQueryParams().split(","));
-		model.getCreatedTime();
-		model.getServiceType();
-		// TODO publish
-		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
-				.put("supplier_id", supplierId);
+		JObject params = JObject.create().put("query_params", model.getQueryParams())
+				.put("service_type", model.getServiceType()).put("supplier_id", CacheObjects.getMemberId())
+				.append("supplier_name", CacheObjects.getMemberName()).append("base_url", config.getSERVING_BASE_URL())
+				.append("api_name", "api/" + model.getUrl()).append("service_id", model.getId())
+				.append("name", model.getName()).append("create_time", model.getCreatedTime());
+		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
 		return request("member/service/add", params);
 	}
 
-	public JSONObject publish2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		model.getId();
-		model.getName();
-		String supplierId = "";
-		String supplierName = "";
-		String baseUrl = config.getSERVING_BASE_URL();
-		String apiName = "api/" + model.getUrl();
-		List<String> userParams = Arrays.asList(model.getQueryParams().split(","));
-		model.getCreatedTime();
-		model.getServiceType();
-		// TODO publish
-		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
-				.put("supplier_id", supplierId);
+	public JSONObject update2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+		JObject params = JObject.create().put("query_params", model.getQueryParams())
+				.put("service_type", model.getServiceType()).put("supplier_id", CacheObjects.getMemberId())
+				.append("supplier_name", CacheObjects.getMemberName()).append("base_url", config.getSERVING_BASE_URL())
+				.append("api_name", "api/" + model.getUrl()).append("service_id", model.getId())
+				.append("name", model.getName()).append("create_time", model.getCreatedTime());
+		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
+		return request("member/service/update", params);
+	}
+
+	public JSONObject online2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+		String supplierId = CacheObjects.getMemberId();
+		String serviceId = model.getId();
+		JObject params = JObject.create().put("supplier_id", supplierId).put("service_id", serviceId)
+				.put("service_status", model.getStatus());
 		return request("member/service/update_service_status", params);
 	}
 
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		String supplierId = "";
-		// TODO offline
-		JObject params = JObject.create().put("model_id", model.getId()).put("model_name", model.getName())
-				.put("supplier_id", supplierId);
+		String supplierId = CacheObjects.getMemberId();
+		String serviceId = model.getId();
+		JObject params = JObject.create().put("supplier_id", supplierId).put("service_id", serviceId)
+				.put("service_status", model.getStatus());
 		return request("member/service/update_service_status", params);
 	}
 
@@ -121,9 +145,6 @@ public class UnionServiceService {
 	}
 
 	private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
-		/**
-		 * Prevent the map from being out of order, causing the verification to fail.
-		 */
 		params = new JSONObject(new TreeMap(params));
 		String data = params.toJSONString();
 		// rsa signature

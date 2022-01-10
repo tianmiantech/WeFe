@@ -42,7 +42,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 	@Override
 	protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException {
-		return success(dataSourceService.query(input));
+		PagingOutput<Output> result = dataSourceService.query(input);
+		result.getList().forEach(s -> s.setPassword("*************"));
+		return success(result);
 	}
 
 	public static class Input extends PagingInput {
