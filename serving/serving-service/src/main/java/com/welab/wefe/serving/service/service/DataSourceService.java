@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +59,9 @@ import com.welab.wefe.serving.service.utils.ModelMapper;
  */
 @Service
 public class DataSourceService {
-	
+
 	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-	
+
 	@Autowired
 	DataSourceRepository dataSourceRepo;
 
@@ -133,10 +134,17 @@ public class DataSourceService {
 	 * @return
 	 */
 	public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
-		Specification<DataSourceMySqlModel> where = Where.create().equal("id", input.getId())
-				.build(DataSourceMySqlModel.class);
 
-		return dataSourceRepo.paging(where, input, QueryApi.Output.class);
+		Where where = Where.create();
+		if (StringUtils.isNotBlank(input.getId())) {
+			where.equal("id", input.getId());
+		}
+		if (StringUtils.isNotBlank(input.getName())) {
+			where.contains("name", input.getName());
+		}
+		Specification<DataSourceMySqlModel> spe = where.build(DataSourceMySqlModel.class);
+
+		return dataSourceRepo.paging(spe, input, QueryApi.Output.class);
 	}
 
 	/**
