@@ -19,6 +19,7 @@ package com.welab.wefe.serving.service.api.pir;
 import java.io.IOException;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -36,9 +37,13 @@ public class PrivateInformationRetrievalForResultsApi
 	@Override
 	protected ApiResult<QueryPIRResultsResponse> handle(Input input) throws StatusCodeWithException, IOException {
 		HuackResultsService service = new HuackResultsService();
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RESULTS + "\t request ="
+				+ JObject.toJSONString(input));
 		QueryPIRResultsRequest request = ModelMapper.map(input.getData(), QueryPIRResultsRequest.class);
-
-		return success(service.handle(request));
+		QueryPIRResultsResponse response = service.handle(request);
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RESULTS + "\t response ="
+				+ JObject.toJSONString(response));
+		return success(response);
 	}
 
 	public static class Input extends AbstractApiInput {

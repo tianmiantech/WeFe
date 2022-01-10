@@ -19,6 +19,7 @@ package com.welab.wefe.serving.service.api.pir;
 import java.io.IOException;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -30,16 +31,20 @@ import com.welab.wefe.mpc.pir.server.service.HauckRandomLegalService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RANDOM_LEGAL, name = "random_legal", login = false)
-public class PrivateInformationRetrievalForRandomLegalApi extends
-		AbstractApi<PrivateInformationRetrievalForRandomLegalApi.Input, QueryRandomLegalResponse> {
+public class PrivateInformationRetrievalForRandomLegalApi
+		extends AbstractApi<PrivateInformationRetrievalForRandomLegalApi.Input, QueryRandomLegalResponse> {
 
 	@Override
-	protected ApiResult<QueryRandomLegalResponse> handle(
-			PrivateInformationRetrievalForRandomLegalApi.Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<QueryRandomLegalResponse> handle(PrivateInformationRetrievalForRandomLegalApi.Input input)
+			throws StatusCodeWithException, IOException {
 		HauckRandomLegalService service = new HauckRandomLegalService();
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RANDOM_LEGAL + "\t request ="
+				+ JObject.toJSONString(input));
 		QueryRandomLegalRequest request = ModelMapper.map(input.getData(), QueryRandomLegalRequest.class);
-
-		return success(service.handle(request));
+		QueryRandomLegalResponse response = service.handle(request);
+		LOG.info("request path = " + PrivateInformationRetrievalApiName.RANDOM_LEGAL + "\t response ="
+				+ JObject.toJSONString(response));
+		return success(response);
 	}
 
 	public static class Input extends AbstractApiInput {
@@ -54,7 +59,7 @@ public class PrivateInformationRetrievalForRandomLegalApi extends
 		}
 
 	}
-	
+
 	public static class InputData extends AbstractApiInput {
 		private String uuid;
 		private Boolean sLegal;

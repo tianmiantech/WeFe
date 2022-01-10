@@ -20,8 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +34,36 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 
 public class ServiceUtil {
+
+	public static String getIpAddr(HttpServletRequest request) {
+		String ipAddress = request.getHeader("x-forwarded-for");
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getHeader("Proxy-Client-IP");
+		}
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getHeader("WL-Proxy-Client-IP");
+		}
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getRemoteAddr();
+			if (ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1")) {
+				// 根据网卡取本机配置的IP
+				InetAddress inet = null;
+				try {
+					inet = InetAddress.getLocalHost();
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+				ipAddress = inet.getHostAddress();
+			}
+		}
+		// 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
+		if (ipAddress != null && ipAddress.length() > 15) { // "***.***.***.***".length() = 15
+			if (ipAddress.indexOf(",") > 0) {
+				ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+			}
+		}
+		return ipAddress;
+	}
 
 	public static byte[] fileToBytes(File file) throws IOException {
 		byte[] buffer = null;
@@ -71,23 +105,17 @@ public class ServiceUtil {
 		return buffer;
 	}
 
-	public static String generateSQL(String params, JSONArray dataSourceArr, int index) {
-		String tableName = parseTableName(dataSourceArr, index);
-		String resultfields = parseReturnFields(dataSourceArr, index);
-		String where = parseWhere(dataSourceArr, JObject.create(params), index);
+	public static String generateSQL(String params, JSONObject dataSource) {
+		String tableName = dataSource.getString("db") + "." + dataSource.getString("table");
+		String resultfields = parseReturnFields(dataSource);
+		String where = parseWhere(dataSource, JObject.create(params));
 		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where;
 		System.out.println(sql);
 		return sql;
 	}
 
-	private static String parseTableName(JSONArray dataSource, int index) {
-		JSONObject json = dataSource.getJSONObject(index);
-		return json.getString("db") + "." + json.getString("table");
-	}
-
-	public static String parseReturnFields(JSONArray dataSource, int index) {
-		JSONObject json = dataSource.getJSONObject(index);
-		JSONArray returnFields = json.getJSONArray("return_fields");
+	public static String parseReturnFields(JSONObject dataSource) {
+		JSONArray returnFields = dataSource.getJSONArray("return_fields");
 		if (returnFields.isEmpty()) {
 			return "*";
 		} else {
@@ -99,8 +127,8 @@ public class ServiceUtil {
 		}
 	}
 
-	private static String parseWhere(JSONArray dataSourceArr, JObject params, int index) {
-		JSONArray conditionFields = dataSourceArr.getJSONObject(index).getJSONArray("condition_fields");
+	private static String parseWhere(JSONObject dataSource, JObject params) {
+		JSONArray conditionFields = dataSource.getJSONArray("condition_fields");
 		String where = "";
 		if (conditionFields.isEmpty()) {
 			where = "1=1";

@@ -40,6 +40,7 @@ public class HttpTransferVariable extends AbstractHttpTransferVariable implement
         if (communicationConfig == null) {
             communicationConfig = new CommunicationConfig();
             communicationConfig.setServerUrl(config.getServerUrl());
+            communicationConfig.setApiName(config.getServerName());
             communicationConfig.setNeedSign(false);
             config.setCommunicationConfig(communicationConfig);
         }

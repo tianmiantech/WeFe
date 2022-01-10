@@ -25,6 +25,7 @@ package com.welab.wefe.common.web.dto;
 public class SignedApiInput extends AbstractApiInput {
 
     private String memberId;
+    private String customerId;
     private String sign;
     private String data;
 
@@ -51,4 +52,13 @@ public class SignedApiInput extends AbstractApiInput {
     public void setData(String data) {
         this.data = data;
     }
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+    
 }

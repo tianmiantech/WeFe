@@ -34,7 +34,7 @@ import java.util.UUID;
  */
 public class SecureAggregation {
 
-    public Double query(List<ServerConfig> serverConfigs, SecureAggregationTransferVariable transferVariable) {
+    public Double query(List<ServerConfig> serverConfigs, List<SecureAggregationTransferVariable> transferVariables) {
         Double result = 0.0;
         String uuid = UUID.randomUUID().toString().replace("-", "");
         DiffieHellmanKey dhKey = DiffieHellmanUtil.generateKey(1024);
@@ -47,7 +47,7 @@ public class SecureAggregation {
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
-            QueryDiffieHellmanKeyResponse response = transferVariable.queryDiffieHellmanKey(request);
+            QueryDiffieHellmanKeyResponse response = transferVariables.get(i).queryDiffieHellmanKey(request);
             diffieHellmanValues.add(response.getDiffieHellmanValue());
         }
 
@@ -60,7 +60,7 @@ public class SecureAggregation {
             saResultRequest.setP(dhKey.getP().toString(16));
             saResultRequest.setOperator(serverConfig.getOperator());
             saResultRequest.setWeight(serverConfig.getWeight());
-            QuerySAResultResponse response = transferVariable.queryResult(saResultRequest);
+            QuerySAResultResponse response = transferVariables.get(i).queryResult(saResultRequest);
             result += response.getResult();
         }
 

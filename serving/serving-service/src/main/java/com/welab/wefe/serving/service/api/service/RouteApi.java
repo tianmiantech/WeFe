@@ -24,11 +24,12 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "api", name = "api service", forward = true, login = false)
+@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Autowired
@@ -36,13 +37,24 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Override
 	protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
-		String uri = input.request.getRequestURI();
-		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-		return success(service.executeService(serviceUrl, input));
+		LOG.info("request =" + JObject.toJSONString(input));
+		JObject result = service.executeService(input);
+		LOG.info("response =" + JObject.toJSONString(result));
+		return success(result);
 	}
 
 	public static class Input extends AbstractApiInput {
+		
+		private String customerId;
 		private String data;
+
+		public String getCustomerId() {
+			return customerId;
+		}
+
+		public void setCustomerId(String customerId) {
+			this.customerId = customerId;
+		}
 
 		public String getData() {
 			return data;
