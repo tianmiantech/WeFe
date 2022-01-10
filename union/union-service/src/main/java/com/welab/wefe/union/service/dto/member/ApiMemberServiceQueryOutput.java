@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 /**
  * @author Jervis
  **/
-public class MemberServiceQueryOutput extends AbstractTimedApiOutput {
+public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
 
     private String serviceId;
     private String memberId;

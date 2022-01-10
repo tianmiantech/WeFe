@@ -54,9 +54,9 @@ public class MemberServiceContractService extends AbstractContractService {
     private MemberServiceContract memberServiceContract;
 
     /**
-     * add member service
+     * save member service
      */
-    public void add(MemberService memberService) throws StatusCodeWithException {
+    public void save(MemberService memberService) throws StatusCodeWithException {
         try {
             // send transaction
             TransactionReceipt transactionReceipt = memberServiceContract.insert(
@@ -67,8 +67,10 @@ public class MemberServiceContractService extends AbstractContractService {
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberServiceContract.ABI, MemberServiceContract.FUNC_INSERT, transactionReceipt);
-
-            LOG.info("MemberServiceContract insert transaction, member service id: {},  receipt response: {}", memberService.getServiceId(), JObject.toJSON(transactionResponse).toString());
+            if(transactionDataIsExist(transactionResponse.getValues())){
+                update(memberService);
+            }
+            LOG.info("MemberServiceContract add transaction, member service id: {},  receipt response: {}", memberService.getServiceId(), JObject.toJSON(transactionResponse).toString());
 
             transactionIsSuccess(transactionResponse);
 
@@ -108,35 +110,6 @@ public class MemberServiceContractService extends AbstractContractService {
             throw new StatusCodeWithException("MemberServiceContract update failed", StatusCode.SYSTEM_ERROR);
         }
     }
-
-
-    /**
-     * update service status
-     */
-    public void updateServiceStatus(String serviceId, int serviceStatus) throws StatusCodeWithException {
-        try {
-            LOG.info("MemberServiceContract updateServiceStatus serviceId: {}" + serviceId);
-            // Send transaction
-            TransactionReceipt transactionReceipt = memberServiceContract.updateServiceStatus(
-                    serviceId,
-                    String.valueOf(serviceStatus),
-                    DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date())
-            );
-            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(MemberServiceContract.ABI, MemberServiceContract.FUNC_UPDATE, transactionReceipt);
-
-            LOG.info("MemberServiceContract updateServiceStatus transaction , member serviceId: {}, receipt response: {}, values: {}", serviceId, transactionResponse, transactionResponse.getValues());
-
-            transactionIsSuccess(transactionResponse);
-
-        } catch (StatusCodeWithException e) {
-            throw e;
-        } catch (Exception e) {
-            LOG.error("MemberServiceContract update failed: ", e);
-            throw new StatusCodeWithException("MemberServiceContract update failed", StatusCode.SYSTEM_ERROR);
-        }
-    }
-
 
     /**
      * Check if the member service information exists
@@ -200,7 +173,8 @@ public class MemberServiceContractService extends AbstractContractService {
         list.add(memberService.getServiceId());
         list.add(memberService.getMemberId());
         list.add(memberService.getName());
-        list.add(memberService.getUrl());
+        list.add(memberService.getBaseUrl());
+        list.add(memberService.getApiName());
         list.add(StringUtil.isEmptyToBlank(memberService.getServiceType()));
         list.add(StringUtil.isEmptyToBlank(memberService.getQueryParams()));
         list.add(memberService.getServiceStatus());
@@ -212,9 +186,11 @@ public class MemberServiceContractService extends AbstractContractService {
     private List<String> generateUpdateParams(MemberService memberService) {
         List<String> list = new ArrayList<>();
         list.add(memberService.getName());
-        list.add(memberService.getUrl());
+        list.add(memberService.getBaseUrl());
+        list.add(memberService.getApiName());
         list.add(StringUtil.isEmptyToBlank(memberService.getServiceType()));
         list.add(StringUtil.isEmptyToBlank(memberService.getQueryParams()));
+        list.add(memberService.getServiceStatus());
         return list;
     }
 

@@ -15,13 +15,12 @@ contract MemberServiceContract{
     event insertEvent(int256 ret_code,string[] params,string ext_json);
     event updateEvent(int256 ret_code,string service_id,string[] params,string updated_time);
     event updateExtJsonEvent(int256 ret_code,string service_id,string ext_json,string updated_time);
-    event updateServiceStatusEvent(int256 ret_code,string service_id,string service_status,string updated_time);
     event deleteByServiceIdEvent(int256 ret_code,string service_id);
 
     constructor() public {
         // 创建表
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "service_id,member_id,name,url,service_type,query_params,service_status,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "service_id,member_id,name,base_url,api_name,service_type,query_params,service_status,created_time,updated_time,ext_json");
     }
 
 
@@ -41,12 +40,13 @@ contract MemberServiceContract{
         entry.set("service_id", params[0]);
         entry.set("member_id", params[1]);
         entry.set("name", params[2]);
-        entry.set("url", params[3]);
-        entry.set("service_type", params[4]);
-        entry.set("query_params", params[5]);
-        entry.set("service_status", params[6]);
-        entry.set("created_time", params[7]);
-        entry.set("updated_time", params[8]);
+        entry.set("base_url", params[3]);
+        entry.set("api_name", params[4]);
+        entry.set("service_type", params[5]);
+        entry.set("query_params", params[6]);
+        entry.set("service_status", params[7]);
+        entry.set("created_time", params[8]);
+        entry.set("updated_time", params[9]);
         entry.set("ext_json", ext_json);
 
         int256 count = table.insert(FIX_ID, entry);
@@ -79,9 +79,11 @@ contract MemberServiceContract{
 
         Entry entry = table.newEntry();
         entry.set("name", params[0]);
-        entry.set("url", params[1]);
-        entry.set("service_type", params[2]);
-        entry.set("query_params", params[3]);
+        entry.set("base_url", params[1]);
+        entry.set("api_name", params[2]);
+        entry.set("service_type", params[3]);
+        entry.set("query_params", params[4]);
+        entry.set("service_status", params[5]);
         entry.set("updated_time", updated_time);
 
 
@@ -117,36 +119,6 @@ contract MemberServiceContract{
         }
 
         emit updateExtJsonEvent(ret_code,service_id,ext_json,updated_time);
-        return ret_code;
-    }
-
-   function updateServiceStatus(string service_id,string service_status,string updated_time) public returns (int) {
-        int256 ret_code = 0;
-        if (!isExist(service_id)) {
-            ret_code = -3;
-            emit updateServiceStatusEvent(ret_code,service_id,service_status,updated_time);
-            return ret_code;
-        }
-
-        Table table = tableFactory.openTable(TABLE_NAME);
-
-        Condition condition = table.newCondition();
-        condition.EQ("service_id", service_id);
-
-        Entry entry = table.newEntry();
-        entry.set("service_status", service_status);
-        entry.set("updated_time", updated_time);
-
-
-        int count = table.update(FIX_ID, entry, condition);
-
-        if(count >= 1){
-            ret_code = 0;
-        } else {
-            ret_code = -2;
-        }
-
-        emit updateServiceStatusEvent(ret_code,service_id,service_status,updated_time);
         return ret_code;
     }
 
@@ -208,7 +180,9 @@ contract MemberServiceContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("name")));
             dataStr = strConcat(dataStr, "|");
-            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("url")));
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("base_url")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("api_name")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("service_type")));
             dataStr = strConcat(dataStr, "|");

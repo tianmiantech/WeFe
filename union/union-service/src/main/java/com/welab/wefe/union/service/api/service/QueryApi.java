@@ -18,9 +18,7 @@ package com.welab.wefe.union.service.api.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.entity.union.MemberService;
-import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
+import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -28,11 +26,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
-import com.welab.wefe.union.service.dto.member.MemberServiceQueryOutput;
-import com.welab.wefe.union.service.mapper.MemberMapper;
+import com.welab.wefe.union.service.dto.member.ApiMemberServiceQueryOutput;
 import com.welab.wefe.union.service.mapper.MemberServiceMapper;
-import com.welab.wefe.union.service.service.MemberServiceContractService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,15 +38,15 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  **/
 @Api(path = "member/service/query", name = "member_service_query", rsaVerify = true, login = false)
-public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberServiceQueryOutput>> {
+public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberServiceQueryOutput>> {
     @Autowired
     private MemberServiceMongoReop memberServiceMongoReop;
     private MemberServiceMapper mMapper = Mappers.getMapper(MemberServiceMapper.class);
 
     @Override
-    protected ApiResult<PageOutput<MemberServiceQueryOutput>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<PageOutput<ApiMemberServiceQueryOutput>> handle(Input input) throws StatusCodeWithException {
         try {
-            PageOutput<MemberService> page = memberServiceMongoReop.query(
+            PageOutput<MemberServiceQueryOutput> page = memberServiceMongoReop.find(
                     input.getPageIndex(),
                     input.getPageSize(),
                     input.getServiceId(),
@@ -60,7 +55,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberServi
                     input.getServiceType()
             );
 
-            List<MemberServiceQueryOutput> list = page.getList().stream()
+            List<ApiMemberServiceQueryOutput> list = page.getList().stream()
                     .map(mMapper::transfer)
                     .collect(Collectors.toList());
 

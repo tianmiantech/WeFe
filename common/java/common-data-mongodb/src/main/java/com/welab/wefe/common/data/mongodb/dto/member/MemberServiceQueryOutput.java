@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.data.mongodb.entity.union;
+package com.welab.wefe.common.data.mongodb.dto.member;
 
-import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
-import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+import com.welab.wefe.common.data.mongodb.dto.AbstractQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberServiceExtJSON;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author yuxin.zhang
  **/
-@Document(collection = MongodbTable.Union.MEMBER_SERVICE)
-public class MemberService extends AbstractBlockChainBusinessModel {
+public class MemberServiceQueryOutput extends AbstractQueryOutput {
     private String serviceId;
     private String memberId;
+    private String memberName;
     private String name;
     private String baseUrl;
     private String apiName;
@@ -36,7 +33,8 @@ public class MemberService extends AbstractBlockChainBusinessModel {
     private String queryParams;
     private String serviceStatus;
 
-    private MemberServiceExtJSON extJson = new MemberServiceExtJSON();
+    private MemberServiceExtJSON extJson;
+
 
     public String getServiceId() {
         return serviceId;
@@ -52,6 +50,14 @@ public class MemberService extends AbstractBlockChainBusinessModel {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
+    }
+
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 
     public String getName() {

@@ -17,40 +17,34 @@
 package com.welab.wefe.union.service.api.service;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.entity.Member;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.mapper.MemberServiceMapper;
 import com.welab.wefe.union.service.service.MemberServiceContractService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/service/update", name = "member_service_update", rsaVerify = true, login = false)
-public class UpdateServiceStatusApi extends AbstractApi<UpdateServiceStatusApi.Input, AbstractApiOutput> {
-
+@Api(path = "member/service/put", name = "member_service_put", rsaVerify = true, login = false)
+public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
 
     @Autowired
     private MemberServiceContractService memberServiceContractService;
+    private MemberServiceMapper mMapper = Mappers.getMapper(MemberServiceMapper.class);
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
+        LOG.info("PutApi handle..");
         try {
-            memberServiceContractService.updateServiceStatus(input.serviceId, input.serviceStatus);
-        } catch (Exception e) {
-            LOG.error("Failed to update member: ", e);
+            memberServiceContractService.save(mMapper.transfer(input));
+        } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
@@ -63,6 +57,15 @@ public class UpdateServiceStatusApi extends AbstractApi<UpdateServiceStatusApi.I
         private String serviceId;
         @Check(require = true)
         private String memberId;
+        private String name;
+        @Check(require = true)
+        private String baseUrl;
+        @Check(require = true)
+        private String apiName;
+        @Check(require = true)
+        private String serviceType;
+        @Check(require = true)
+        private String queryParams;
         @Check(require = true)
         private int serviceStatus;
 
@@ -82,6 +85,46 @@ public class UpdateServiceStatusApi extends AbstractApi<UpdateServiceStatusApi.I
             this.memberId = memberId;
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+
+        public String getApiName() {
+            return apiName;
+        }
+
+        public void setApiName(String apiName) {
+            this.apiName = apiName;
+        }
+
+        public String getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(String serviceType) {
+            this.serviceType = serviceType;
+        }
+
+        public String getQueryParams() {
+            return queryParams;
+        }
+
+        public void setQueryParams(String queryParams) {
+            this.queryParams = queryParams;
+        }
+
         public int getServiceStatus() {
             return serviceStatus;
         }
@@ -90,5 +133,4 @@ public class UpdateServiceStatusApi extends AbstractApi<UpdateServiceStatusApi.I
             this.serviceStatus = serviceStatus;
         }
     }
-
 }

@@ -16,10 +16,13 @@
 
 package com.welab.wefe.union.service.mapper;
 
+import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberService;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.union.service.api.service.AddApi;
-import com.welab.wefe.union.service.dto.member.MemberServiceQueryOutput;
+import com.welab.wefe.union.service.api.service.PutApi;
+import com.welab.wefe.union.service.dto.dataset.ApiDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.member.ApiMemberServiceQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -33,15 +36,15 @@ import org.mapstruct.Mappings;
 @Mapper
 public interface MemberServiceMapper {
 
-    @Mappings({
-            @Mapping(target = "serviceStatus", expression = "java(String.valueOf(1))"),
-    })
-    MemberService transfer(AddApi.Input input);
+    MemberService transfer(PutApi.Input input);
 
     @Mappings({
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
-    MemberServiceQueryOutput transfer(MemberService memberService);
+    ApiMemberServiceQueryOutput transfer(MemberServiceQueryOutput memberServiceQueryOutput);
+
+
+
 
 }

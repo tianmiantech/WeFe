@@ -67,12 +67,13 @@ public class MemberServiceContractEventParser extends AbstractParser {
         memberService.setServiceId(StringUtil.strTrim2(params.getString(0)));
         memberService.setMemberId(StringUtil.strTrim2(params.getString(1)));
         memberService.setName(StringUtil.strTrim2(params.getString(2)));
-        memberService.setUrl(StringUtil.strTrim2(params.getString(3)));
-        memberService.setServiceType(StringUtil.strTrim2(params.getString(4)));
-        memberService.setQueryParams(StringUtil.strTrim2(params.getString(5)));
-        memberService.setServiceStatus(StringUtil.strTrim2(params.getString(6)));
-        memberService.setCreatedTime(StringUtil.strTrim2(params.getString(7)));
-        memberService.setUpdatedTime(StringUtil.strTrim2(params.getString(8)));
+        memberService.setBaseUrl(StringUtil.strTrim2(params.getString(3)));
+        memberService.setApiName(StringUtil.strTrim2(params.getString(4)));
+        memberService.setServiceType(StringUtil.strTrim2(params.getString(5)));
+        memberService.setQueryParams(StringUtil.strTrim2(params.getString(6)));
+        memberService.setServiceStatus(StringUtil.strTrim2(params.getString(7)));
+        memberService.setCreatedTime(StringUtil.strTrim2(params.getString(8)));
+        memberService.setUpdatedTime(StringUtil.strTrim2(params.getString(9)));
         memberService.setExtJson(extJSON);
         memberService.setDataSyncTime(System.currentTimeMillis());
 
@@ -84,9 +85,10 @@ public class MemberServiceContractEventParser extends AbstractParser {
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
         MemberService memberService = memberServiceMongoReop.findByServiceId(serviceId);
         memberService.setName(StringUtil.strTrim2(params.getString(0)));
-        memberService.setUrl(StringUtil.strTrim2(params.getString(1)));
-        memberService.setServiceType(StringUtil.strTrim2(params.getString(2)));
-        memberService.setQueryParams(StringUtil.strTrim2(params.getString(3)));
+        memberService.setBaseUrl(StringUtil.strTrim2(params.getString(1)));
+        memberService.setApiName(StringUtil.strTrim2(params.getString(2)));
+        memberService.setServiceType(StringUtil.strTrim2(params.getString(3)));
+        memberService.setQueryParams(StringUtil.strTrim2(params.getString(4)));
         memberService.setUpdatedTime(updatedTime);
         memberServiceMongoReop.upsert(memberService);
     }

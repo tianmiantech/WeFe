@@ -17,20 +17,27 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
+import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberService;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberServiceExtJSON;
+import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuxin.zhang
@@ -75,6 +82,44 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
                 .notRemoved()
                 .build();
         return mongoUnionTemplate.findOne(query, MemberService.class);
+    }
+
+
+    public PageOutput<MemberServiceQueryOutput> find(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String name, String serviceType) {
+        LookupOperation lookupToLots = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+        Criteria memberServiceCriteria = new QueryBuilder()
+                .notRemoved()
+                .like("name", name)
+                .like("serviceId", serviceId)
+                .append("member_id", memberId)
+                .append("serviceType", serviceType)
+                .append("service_status","1")
+                .getCriteria();
+
+        AggregationOperation memberServiceMatch = Aggregation.match(memberServiceCriteria);
+
+
+        UnwindOperation unwind = Aggregation.unwind("member");
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        Aggregation aggregation = Aggregation.newAggregation(memberServiceMatch, lookupToLots, unwind, addFieldsOperation);
+        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults().size();
+
+        SkipOperation skipOperation = Aggregation.skip((long) pageIndex * pageSize);
+        LimitOperation limitOperation = Aggregation.limit(pageSize);
+        aggregation = Aggregation.newAggregation(lookupToLots,memberServiceMatch, unwind, skipOperation, limitOperation, addFieldsOperation);
+
+        List<MemberServiceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults();
+
+        return new PageOutput<>(pageIndex, (long) total, pageSize, result);
     }
 
     public PageOutput<MemberService> query(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String name, String serviceType) {
