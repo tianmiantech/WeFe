@@ -32,7 +32,11 @@
                     :minlength="4"
                     show-word-limit
                     size="medium"
-                />
+                >
+                    <template #prepend>
+                        /api/query/social_score/
+                    </template>
+                </el-input>
             </el-form-item>
 
             <el-form-item
@@ -544,6 +548,7 @@
 
                         if(params) {
                             this.form.paramsArr = params.map(x => {
+                                console.log(x);
                                 return {
                                     label: x,
                                     value: x,
@@ -945,7 +950,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .maxlength{max-width: 350px;}
+    .maxlength{max-width: 400px;}
     .icons{cursor: pointer;margin-left:5px;}
     .condition_fields{margin-bottom: 10px;
         .el-select, .el-input{margin-bottom: 10px;}
