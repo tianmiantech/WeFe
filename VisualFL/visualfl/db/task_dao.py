@@ -18,6 +18,7 @@ from visualfl.utils.core_utils import current_datetime,get_commit_id
 import datetime
 import json
 from visualfl.utils.logger import Logger
+import logging
 
 class TaskDao(Logger):
     
@@ -124,8 +125,7 @@ class TaskDao(Logger):
                     model.save()
                 return model
         except Exception as e:
-            self.exception(e)
-            self.error(f"save task {self._task_id} result error as {e} ")
+            logging.error(f"save task {self._task_id} result error as {e} ")
 
 
 
@@ -225,7 +225,7 @@ class TaskDao(Logger):
                 model.save(force_insert=is_insert)
         except Exception as e:
             self.exception(e)
-            self.error(f"init task {self._task_id} progress error as {e} ")
+            logging.error(f"init task {self._task_id} progress error as {e} ")
 
     def set_task_progress(self, work_amount: int):
         """
@@ -286,7 +286,7 @@ class TaskDao(Logger):
             self.set_task_progress(work_amount)
         except Exception as e:
             self.exception(e)
-            self.error(f"add task {self._task_id} progress error as {e} ")
+            logging.error(f"add task {self._task_id} progress error as {e} ")
 
     def finish_task_progress(self):
         """
@@ -314,4 +314,4 @@ class TaskDao(Logger):
                     model.save()
         except Exception as e:
             self.exception(e)
-            self.error(f"finish task {self._task_id} progress error as {e} ")
+            logging.error(f"finish task {self._task_id} progress error as {e} ")

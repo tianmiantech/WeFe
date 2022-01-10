@@ -18,6 +18,7 @@ def _build():
             _project_base.joinpath("examples"),
             _project_base.joinpath("script"),
             _project_base.joinpath("requirements.txt"),
+            _project_base.joinpath("config.properties"),
         ]:
             tar.add(path, f"{__BASE_NAME__}/{os.path.basename(path)}")
 
