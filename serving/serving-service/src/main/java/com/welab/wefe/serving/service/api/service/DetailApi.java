@@ -68,6 +68,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		preview.put("id", entity.getId());
 		preview.put("params", entity.getQueryParams());
 		preview.put("url", ServiceService.SERVICE_PRE_URL + entity.getUrl());
+		preview.put("method", "POST");
 		output.setPreview(preview);
 		return success(output);
 	}
