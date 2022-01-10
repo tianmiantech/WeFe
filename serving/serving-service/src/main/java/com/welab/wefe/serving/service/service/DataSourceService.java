@@ -23,11 +23,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
@@ -54,6 +58,9 @@ import com.welab.wefe.serving.service.utils.ModelMapper;
  */
 @Service
 public class DataSourceService {
+	
+	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	DataSourceRepository dataSourceRepo;
 
@@ -69,6 +76,7 @@ public class DataSourceService {
 		testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
 				input.getPassword(), input.getDatabaseName());
 		DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
+		model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
 		model.setCreatedBy(CurrentAccount.id());
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setCreatedTime(new Date());
@@ -204,7 +212,6 @@ public class DataSourceService {
 		if (model == null) {
 			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
 		}
-
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
 				model.getUserName(), model.getPassword(), model.getDatabaseName());
@@ -219,7 +226,7 @@ public class DataSourceService {
 		if (model == null) {
 			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
 		}
-
+		LOG.info("dataSourceModel = " + JSONObject.toJSONString(model));
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
 				model.getUserName(), model.getPassword(), model.getDatabaseName());
