@@ -230,7 +230,7 @@ public class ServiceService {
 	public com.welab.wefe.serving.service.api.service.AddApi.Output update(Input input) throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), ServiceMySqlModel.class);
 		if (model == null) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "entity not exists");
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		if (StringUtils.isNotBlank(input.getName())) {
 			model.setName(input.getName());
@@ -261,10 +261,10 @@ public class ServiceService {
 	public void offlineService(String id) throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
 		if (model == null) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		if (model.getStatus() == 0) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是下线状态，无需重复操作");
+			throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
 		}
 		model.setStatus(0);
 		serviceRepository.save(model);
@@ -274,10 +274,10 @@ public class ServiceService {
 	public void onlineService(String id) throws StatusCodeWithException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
 		if (model == null) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务不存在");
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		if (model.getStatus() == 1) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "服务已是在线状态，无需重复操作");
+			throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
@@ -511,7 +511,7 @@ public class ServiceService {
 	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
-			throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "service not exists");
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 		String projectPath = System.getProperty("user.dir");
