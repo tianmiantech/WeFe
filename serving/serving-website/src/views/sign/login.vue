@@ -67,9 +67,12 @@
                             <el-input
                                 v-model="form.password"
                                 type="password"
-                                maxlength="30"
                                 placeholder="密码"
+                                maxlength="30"
                                 clearable
+                                @paste.native.prevent
+                                @copy.native.prevent
+                                @contextmenu.native.prevent
                             />
                         </el-form-item>
                         <el-form-item
@@ -83,7 +86,7 @@
                                 maxlength="10"
                                 clearable
                             >
-                                <template v-slot:append>
+                                <template #append>
                                     <div
                                         class="code-img"
                                         @click="getImgCode"
@@ -290,4 +293,3 @@ export default {
     }
 
 </style>
-
