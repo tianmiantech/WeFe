@@ -68,7 +68,7 @@ public class UnionServiceService {
 				output.setSupplierId(item.getString("member_id"));
 				output.setSupplierName(item.getString("member_name"));
 				output.setBaseUrl(item.getString("base_url"));
-				output.setApiName("api_name");
+				output.setApiName(item.getString("api_name"));
 				if (StringUtils.isNotBlank(item.getString("query_params"))) {
 					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
 				}
