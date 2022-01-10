@@ -248,7 +248,7 @@ public class ServiceService {
 			model.setServiceConfig(input.getServiceConfig());
 		}
 		serviceRepository.save(model);
-		unionServiceService.update2Union(model);
+		unionServiceService.add2Union(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
 		output.setParams(model.getQueryParams());
@@ -279,7 +279,6 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
-//		unionServiceService.online2Union(model);
 		unionServiceService.add2Union(model);
 	}
 

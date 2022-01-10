@@ -106,22 +106,12 @@ public class UnionServiceService {
 
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("query_params", model.getQueryParams())
-				.put("service_type", model.getServiceType()).put("supplier_id", CacheObjects.getMemberId())
-				.append("supplier_name", CacheObjects.getMemberName()).append("base_url", config.getSERVING_BASE_URL())
-				.append("api_name", "api/" + model.getUrl()).append("service_id", model.getId())
-				.append("name", model.getName()).append("create_time", model.getCreatedTime());
+				.put("service_type", model.getServiceType()).put("member_id", CacheObjects.getMemberId())
+				.append("base_url", config.getSERVING_BASE_URL()).append("api_name", "api/" + model.getUrl())
+				.append("service_id", model.getId()).append("name", model.getName())
+				.append("create_time", model.getCreatedTime());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
 		return request("member/service/add", params);
-	}
-
-	public JSONObject update2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		JObject params = JObject.create().put("query_params", model.getQueryParams())
-				.put("service_type", model.getServiceType()).put("supplier_id", CacheObjects.getMemberId())
-				.append("supplier_name", CacheObjects.getMemberName()).append("base_url", config.getSERVING_BASE_URL())
-				.append("api_name", "api/" + model.getUrl()).append("service_id", model.getId())
-				.append("name", model.getName()).append("create_time", model.getCreatedTime());
-		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
-		return request("member/service/update", params);
 	}
 
 	public JSONObject online2Union(ServiceMySqlModel model) throws StatusCodeWithException {
