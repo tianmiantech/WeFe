@@ -47,9 +47,6 @@ public class MemberServiceContractEventParser extends AbstractParser {
             case EventConstant.MemberService.UPDATE_EVENT:
                 parseUpdateEvent();
                 break;
-            case EventConstant.MemberService.UPDATE_SERVICE_STATUS_EVENT:
-                parseUpdateServiceStatusEvent();
-                break;
             case EventConstant.MemberService.DELETE_BY_SERVICE_ID_EVENT:
                 parseDeleteByServiceIdEvent();
                 break;
@@ -89,17 +86,6 @@ public class MemberServiceContractEventParser extends AbstractParser {
         memberService.setApiName(StringUtil.strTrim2(params.getString(2)));
         memberService.setServiceType(StringUtil.strTrim2(params.getString(3)));
         memberService.setQueryParams(StringUtil.strTrim2(params.getString(4)));
-        memberService.setUpdatedTime(updatedTime);
-        memberServiceMongoReop.upsert(memberService);
-    }
-
-
-    private void parseUpdateServiceStatusEvent() {
-        String serviceId = eventBO.getEntity().get("service_id").toString();
-        String serviceStatus = eventBO.getEntity().get("service_status").toString();
-        String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        MemberService memberService = memberServiceMongoReop.findByServiceId(serviceId);
-        memberService.setServiceStatus(serviceStatus);
         memberService.setUpdatedTime(updatedTime);
         memberServiceMongoReop.upsert(memberService);
     }
