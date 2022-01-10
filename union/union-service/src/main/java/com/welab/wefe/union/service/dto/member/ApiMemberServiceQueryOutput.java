@@ -25,8 +25,10 @@ public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
 
     private String serviceId;
     private String memberId;
+    private String memberName;
     private String name;
-    private String url;
+    private String baseUrl;
+    private String apiName;
     private String serviceType;
     private String queryParams;
     private int serviceStatus;
@@ -47,6 +49,14 @@ public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
         this.memberId = memberId;
     }
 
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
+    }
+
     public String getName() {
         return name;
     }
@@ -55,12 +65,20 @@ public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getApiName() {
+        return apiName;
+    }
+
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
     }
 
     public String getServiceType() {

@@ -86,6 +86,7 @@ public class MemberServiceContractEventParser extends AbstractParser {
         memberService.setApiName(StringUtil.strTrim2(params.getString(2)));
         memberService.setServiceType(StringUtil.strTrim2(params.getString(3)));
         memberService.setQueryParams(StringUtil.strTrim2(params.getString(4)));
+        memberService.setServiceStatus(StringUtil.strTrim2(params.getString(5)));
         memberService.setUpdatedTime(updatedTime);
         memberServiceMongoReop.upsert(memberService);
     }
