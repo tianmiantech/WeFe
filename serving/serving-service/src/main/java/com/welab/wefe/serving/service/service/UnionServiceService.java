@@ -22,11 +22,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
@@ -51,75 +53,76 @@ public class UnionServiceService {
 	private Config config;
 
 	public PagingOutput<Output> query(Input input) throws StatusCodeWithException {
-//		JSONObject result = query4Union(input);
-//		LOG.info("union query result = " + JSONObject.toJSONString(result));
+		JSONObject result = query4Union(input);
+		LOG.info("union query result = " + JSONObject.toJSONString(result));
 		List<UnionServiceApi.Output> list = new ArrayList<>();
-//		if (result.getInteger("code") == 0) {
-//			JSONObject data = result.getJSONObject("data");
-//			JSONArray arr = data.getJSONArray("list");
-//			for (int i = 1; i <= arr.size(); i++) {
-//				JSONObject item = arr.getJSONObject(i);
-//
-//				UnionServiceApi.Output output = new UnionServiceApi.Output();
-//				output.setId(item.getString("service_id"));
-//				output.setName(item.getString("name"));
-//				output.setSupplierId(item.getString("member_id"));
-//				output.setSupplierName(item.getString("member_name"));
-//				output.setBaseUrl(item.getString("base_url"));
-//				output.setApiName("api_name");
-//				if (StringUtils.isNotBlank(item.getString("query_params"))) {
-//					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
-//				}
-//				output.setCreatedTime(new Date(item.getLongValue("created_time")));
-//				output.setServiceType(item.getIntValue("service_type"));
-//				list.add(output);
-//			}
-//			return PagingOutput.of(data.getInteger("total"), list);
-//		}
-		// mock
-		int size = 2;
-		for (int i = 1; i <= size; i++) {
-			UnionServiceApi.Output output = new UnionServiceApi.Output();
-			output.setId("" + i);
-			output.setName("信用卡数量查询");
-			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
-			output.setSupplierName("鹏元");
-			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
-			output.setApiName("api/query/credit_card_count");
-			output.setParams(Arrays.asList("member", "model"));
-			output.setCreatedTime(new Date());
-			output.setServiceType(3);
-			list.add(output);
+		if (result.getInteger("code") == 0) {
+			JSONObject data = result.getJSONObject("data");
+			JSONArray arr = data.getJSONArray("list");
+			for (int i = 1; i <= arr.size(); i++) {
+				JSONObject item = arr.getJSONObject(i);
+
+				UnionServiceApi.Output output = new UnionServiceApi.Output();
+				output.setId(item.getString("service_id"));
+				output.setName(item.getString("name"));
+				output.setSupplierId(item.getString("member_id"));
+				output.setSupplierName(item.getString("member_name"));
+				output.setBaseUrl(item.getString("base_url"));
+				output.setApiName("api_name");
+				if (StringUtils.isNotBlank(item.getString("query_params"))) {
+					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
+				}
+				output.setCreatedTime(new Date(item.getLongValue("created_time")));
+				output.setServiceType(item.getIntValue("service_type"));
+				list.add(output);
+			}
+			return PagingOutput.of(data.getInteger("total"), list);
 		}
-		return PagingOutput.of(2, list);
+		return PagingOutput.of(0, list);
+		// mock
+//		int size = 2;
+//		for (int i = 1; i <= size; i++) {
+//			UnionServiceApi.Output output = new UnionServiceApi.Output();
+//			output.setId("" + i);
+//			output.setName("信用卡数量查询");
+//			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
+//			output.setSupplierName("鹏元");
+//			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
+//			output.setApiName("api/query/credit_card_count");
+//			output.setParams(Arrays.asList("member", "model"));
+//			output.setCreatedTime(new Date());
+//			output.setServiceType(3);
+//			list.add(output);
+//		}
+//		return PagingOutput.of(2, list);
 	}
 
 	public JSONObject query4Union(Input input) throws StatusCodeWithException {
-		JObject params = JObject.create().append("page_size", input.getPageSize()).append("page_index",
+		JObject params = JObject.create().append("pageSize", input.getPageSize()).append("pageIndex",
 				input.getPageIndex());
 		if (input.getServiceType() != -1) {
-			params.append("service_type", input.getServiceType());
+			params.append("serviceType", input.getServiceType());
 		}
 		LOG.info("union query params = " + JSONObject.toJSONString(params));
 		return request("member/service/query", params);
 	}
 
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		JObject params = JObject.create().put("query_params", model.getQueryParams())
-				.put("service_type", model.getServiceType()).put("member_id", CacheObjects.getMemberId())
-				.append("base_url", config.getSERVING_BASE_URL()).append("api_name", "api/" + model.getUrl())
-				.append("service_id", model.getId()).append("name", model.getName())
-				.append("create_time", model.getCreatedTime()).append("service_status", model.getStatus());
+		JObject params = JObject.create().put("queryParams", model.getQueryParams())
+				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("serviceId", model.getId()).append("name", model.getName())
+				.append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
 		return request("member/service/put", params);
 	}
 
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
-		JObject params = JObject.create().put("query_params", model.getQueryParams())
-				.put("service_type", model.getServiceType()).put("member_id", CacheObjects.getMemberId())
-				.append("base_url", config.getSERVING_BASE_URL()).append("api_name", "api/" + model.getUrl())
-				.append("service_id", model.getId()).append("name", model.getName())
-				.append("create_time", model.getCreatedTime()).append("service_status", model.getStatus());
+		JObject params = JObject.create().put("queryParams", model.getQueryParams())
+				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("serviceId", model.getId()).append("name", model.getName())
+				.append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
 		return request("member/service/put", params);
 	}
