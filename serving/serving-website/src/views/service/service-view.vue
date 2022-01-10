@@ -267,7 +267,10 @@
                             </el-radio>
                         </el-form-item>
 
-                        <div class="mt5">
+                        <div
+                            v-if="form.service_type !== 3"
+                            class="mt5"
+                        >
                             <el-button
                                 size="small"
                                 @click="sqlTest"
