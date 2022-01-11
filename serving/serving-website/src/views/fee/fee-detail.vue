@@ -1,33 +1,55 @@
 <template>
-    <el-card class="page" shadow="never">
-        <el-form class="mb20" inline>
+    <el-card
+        class="page"
+        shadow="never"
+    >
+        <el-form
+            class="mb20"
+            inline
+        >
             <el-form-item label="服务名称：">
-                <el-input v-model="search.serviceName" clearable placeholder="服务名称"/>
+                <el-input
+                    v-model="search.serviceName"
+                    clearable
+                    placeholder="服务名称"
+                />
             </el-form-item>
 
             <el-form-item label="客户名称：">
-                <el-input v-model="search.clientName" clearable placeholder="客户名称"/>
+                <el-input
+                    v-model="search.clientName"
+                    clearable
+                    placeholder="客户名称"
+                />
             </el-form-item>
 
             <el-form-item label="服务类型：">
-                <el-select v-model="search.serviceType" clearable placeholder="请选择服务类型">
+                <el-select
+                    v-model="search.serviceType"
+                    clearable
+                    placeholder="请选择服务类型"
+                >
                     <el-option
                         v-for="item in serviceTypes"
                         :key="item.value"
                         :label="item.label"
-                        :value="item.value">
-                    </el-option>
+                        :value="item.value"
+                    />
                 </el-select>
             </el-form-item>
 
             <el-form-item label="统计方式：">
-                <el-select v-model="search.queryDateType" clearable placeholder="请选择统计方式">
+                <el-select
+                    v-model="search.queryDateType"
+                    clearable
+                    placeholder="请选择统计方式"
+                >
                     <el-option
                         v-for="item in queryDateTypes"
                         :key="item.value"
                         :label="item.label"
-                        :value="item.value">
-                    </el-option>
+                        :value="item.value"
+                    />
                 </el-select>
             </el-form-item>
 
@@ -36,19 +58,20 @@
                     <el-date-picker
                         v-model="timeRange"
                         type="datetimerange"
-                        range-separator="To"
+                        range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
-                        @change="timeChange()"
                         value-format="timestamp"
-                    >
-                    </el-date-picker>
+                        @change="timeChange"
+                    />
                 </div>
-
             </el-form-item>
 
 
-            <el-button type="primary" @click="getList('to')">
+            <el-button
+                type="primary"
+                @click="getList('to')"
+            >
                 查询
             </el-button>
         </el-form>
@@ -60,55 +83,78 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
 
-            <el-table-column label="日期" min-width="50">
+            <el-table-column
+                label="日期"
+                min-width="50"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.query_date }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="服务名称" min-width="80">
+            <el-table-column
+                label="服务名称"
+                min-width="80"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="客户名称" min-width="80">
+            <el-table-column
+                label="客户名称"
+                min-width="80"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="服务类型" min-width="50">
+            <el-table-column
+                label="服务类型"
+                min-width="50"
+            >
                 <template slot-scope="scope">
                     <p>{{ serviceType[scope.row.service_type] }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总调用次数" min-width="50">
+            <el-table-column
+                label="总调用次数"
+                min-width="50"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_request_times }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="单价(￥)/次" min-width="40">
+            <el-table-column
+                label="单价(￥)/次"
+                min-width="40"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.unit_price }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="付费类型" min-width="50">
+            <el-table-column
+                label="付费类型"
+                min-width="50"
+            >
                 <template slot-scope="scope">
                     <p>{{ payTypes[scope.row.pay_type] }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="总计(￥)" min-width="60">
+            <el-table-column
+                label="总计(￥)"
+                min-width="60"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.total_fee }}</p>
                 </template>
             </el-table-column>
-
         </el-table>
         <div
             v-if="pagination.total"
@@ -128,76 +174,71 @@
 </template>
 
 <script>
-import RoleTag from "../components/role-tag";
 import table from '@src/mixins/table.js';
 
 export default {
-    name: "fee-detail",
-
-    components: {
-        RoleTag,
-    },
+    name:   'FeeDetail',
     mixins: [table],
     data() {
         return {
             services: [],
-            clients: [],
-            search: {
-                serviceName: '',
-                clientName: '',
-                serviceType: '',
+            clients:  [],
+            search:   {
+                serviceName:   '',
+                clientName:    '',
+                serviceType:   '',
                 queryDateType: '',
-                startTime: '',
-                endTime: '',
+                startTime:     '',
+                endTime:       '',
             },
-            timeRange: '',
-            serviceId: '',
-            clientId: '',
-            startTime: '',
-            endTime: '',
-            getListApi: '/feedetail/query-list',
+            timeRange:   '',
+            serviceId:   '',
+            clientId:    '',
+            startTime:   '',
+            endTime:     '',
+            getListApi:  '/feedetail/query-list',
             serviceType: {
-                1: "匿踪查询",
-                2: "交集查询",
-                3: "安全聚合(被查询方)",
-                4: "安全聚合(查询方)",
+                1: '匿踪查询',
+                2: '交集查询',
+                3: '安全聚合(被查询方)',
+                4: '安全聚合(查询方)',
             },
             serviceTypes: [
-                {value: '1', label: "匿踪查询"},
-                {value: '2', label: "交集查询"},
-                {value: '3', label: "安全聚合(被查询方)"},
-                {value: '4', label: "安全聚合(查询方)"},
+                { value: '1', label: '匿踪查询' },
+                { value: '2', label: '交集查询' },
+                { value: '3', label: '安全聚合(被查询方)' },
+                { value: '4', label: '安全聚合(查询方)' },
             ],
             queryDateTypes: [
-                {value: '1', label: "按年"},
-                {value: '2', label: "按月"},
-                {value: '3', label: "按日"},
+                { value: '1', label: '按年' },
+                { value: '2', label: '按月' },
+                { value: '3', label: '按日' },
             ],
             payTypes: {
-                1: "预付费",
-                0: "后付费"
+                1: '预付费',
+                0: '后付费',
             },
-        }
+        };
     },
 
     created() {
-        this.getServices()
-        this.getClients()
+        this.getServices();
+        this.getClients();
     },
 
     methods: {
 
         timeChange() {
-            this.search.startTime = this.defaultTime[0]
-            this.search.endTime = this.defaultTime[1]
+            this.search.startTime = this.timeRange[0];
+            this.search.endTime = this.timeRange[1];
         },
 
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
                 this.services.push({
                     label: data[i].name,
-                    value: data[i].id
-                })
+                    value: data[i].id,
+                });
             }
         },
 
@@ -205,32 +246,32 @@ export default {
             for (let i = 0; i < data.length; i++) {
                 this.clients.push({
                     label: data[i].name,
-                    value: data[i].id
-                })
+                    value: data[i].id,
+                });
             }
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/service/query',
             });
 
             if (code === 0) {
-                this.handleServices(data.list)
+                this.handleServices(data.list);
             }
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
             if (code === 0) {
-                this.handleClients(data.list)
+                this.handleClients(data.list);
             }
-        }
+        },
     },
-}
+};
 </script>
 
 <style scoped>
