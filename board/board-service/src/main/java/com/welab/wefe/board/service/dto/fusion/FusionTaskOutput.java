@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterO
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
@@ -42,9 +43,13 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     String error;
 
-    String partnerId;
+    FusionMemberInfo promoter;
 
-    String partnerName;
+    FusionMemberInfo provider;
+
+    JobMemberRole myRole;
+
+    String dstMemberId;
 
     String dataResourceId;
 
@@ -52,21 +57,28 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType dataResourceType;
 
+
+    @Check(name = "Number of rows of data resources")
+    int rowCount;
+
+    String partnerDataResourceId;
+
+    String partnerDataResourceName;
+
+    DataResourceType partnerDataResourceType;
+
+    @Check(name = "Number of rows of data resources")
+    public int partnerRowCount;
+
     @Check(name = "Whether the trace")
     public boolean isTrace;
 
     @Check(name = "Traces the field")
     public String traceColumn;
 
-    @Check(name = "Number of rows of data resources")
-    int rowCount;
-
     PSIActuatorRole psiActuatorRole;
 
     AlgorithmType algorithm;
-
-    @Check(name = "Number of aligned samples")
-    public int dataCount;
 
     @Check(name = "Number of fusion")
     public int fusionCount;
@@ -119,21 +131,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
-    }
-
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
-    }
-
-    public String getPartnerName() {
-        return partnerName;
-    }
-
-    public void setPartnerName(String partnerName) {
-        this.partnerName = partnerName;
-    }
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -183,12 +180,12 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.algorithm = algorithm;
     }
 
-    public int getDataCount() {
-        return dataCount;
+    public int getPartnerRowCount() {
+        return partnerRowCount;
     }
 
-    public void setDataCount(int dataCount) {
-        this.dataCount = dataCount;
+    public void setPartnerRowCount(int partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
     }
 
     public int getFusionCount() {
@@ -246,5 +243,61 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public FusionMemberInfo getPromoter() {
+        return promoter;
+    }
+
+    public void setPromoter(FusionMemberInfo promoter) {
+        this.promoter = promoter;
+    }
+
+    public FusionMemberInfo getProvider() {
+        return provider;
+    }
+
+    public void setProvider(FusionMemberInfo provider) {
+        this.provider = provider;
+    }
+
+    public JobMemberRole getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(JobMemberRole myRole) {
+        this.myRole = myRole;
+    }
+
+    public String getPartnerDataResourceId() {
+        return partnerDataResourceId;
+    }
+
+    public void setPartnerDataResourceId(String partnerDataResourceId) {
+        this.partnerDataResourceId = partnerDataResourceId;
+    }
+
+    public String getPartnerDataResourceName() {
+        return partnerDataResourceName;
+    }
+
+    public void setPartnerDataResourceName(String partnerDataResourceName) {
+        this.partnerDataResourceName = partnerDataResourceName;
+    }
+
+    public DataResourceType getPartnerDataResourceType() {
+        return partnerDataResourceType;
+    }
+
+    public void setPartnerDataResourceType(DataResourceType partnerDataResourceType) {
+        this.partnerDataResourceType = partnerDataResourceType;
+    }
+
+    public String getDstMemberId() {
+        return dstMemberId;
+    }
+
+    public void setDstMemberId(String dstMemberId) {
+        this.dstMemberId = dstMemberId;
     }
 }

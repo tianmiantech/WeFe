@@ -48,6 +48,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -324,7 +325,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .orderBy("createdTime", OrderBy.asc);
 
         // 查所有资源
-        if (input.getDataResourceType() == null || input.getDataResourceType().size() > 1) {
+        if (CollectionUtils.isEmpty(input.getDataResourceType()) || input.getDataResourceType().size() > 1) {
             PagingOutput<?> page = dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
                     input
