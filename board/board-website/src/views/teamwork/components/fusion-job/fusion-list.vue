@@ -36,34 +36,32 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="进度"
-                min-width="130px"
-            >
-                <template v-slot="scope">
-                    <el-progress
-                        v-if="scope.row.flow_status === 'running' || scope.row.flow_status === 'finished' || scope.row.flow_status === 'stop_on_running' || scope.row.flow_status === 'error_on_running' || scope.row.flow_status === 'success'"
-                        :percentage="scope.row.job_progress || 0"
-                        :color="customColorMethod"
-                    />
-                    <template v-else>
-                        编辑中
-                    </template>
-                </template>
-            </el-table-column>
+                label="算法"
+                prop="algorithm"
+            />
             <el-table-column
                 label="融合量"
-                prop="creator_nickname"
+                prop="fusion_count"
             />
+            <el-table-column
+                label="任务状态"
+                min-width="160px"
+            >
+                <template v-slot="scope">
+                    <span :class="{ 'color-danger': scope.row.status === 'Await' || scope.row.status === 'Failure' || scope.row.status === 'Interrupt' || scope.row.status === 'Refuse' }">{{ statusMap[scope.row.status] }}</span>
+                    <p>耗时: {{ scope.row.spend }}</p>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="创建者"
                 prop="creator_nickname"
             />
             <el-table-column
                 label="创建时间"
-                max-width="160px"
+                min-width="160px"
             >
                 <template v-slot="scope">
-                    <p>{{ dateFormat(scope.row.created_time) }}</p>
+                    {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -76,7 +74,7 @@
                     <el-button
                         class="mr5"
                         type="text"
-                        @click="checkDetail(scope.row.business_id)">
+                        @click="checkDetail(scope.row.id)">
                         查看
                     </el-button>
                 </template>
@@ -119,6 +117,15 @@
                     page_index: 1,
                     page_size:  10,
                     total:      0,
+                },
+                statusMap: {
+                    Await:     '待审核',
+                    Pending:   '待处理',
+                    Running:   '运行中',
+                    Success:   '成功',
+                    Failure:   '失败',
+                    Interrupt: '中断',
+                    Refuse:    '拒绝',
                 },
                 flowTimer: null,
             };
@@ -214,11 +221,11 @@
                     });
             },
 
-            checkDetail(business_id) {
-                this.$router.replace({
+            checkDetail(id) {
+                this.$router.push({
                     name:  'fusion-detail',
                     query: {
-                        business_id,
+                        id,
                         project_id: this.project_id,
                     },
                 });
