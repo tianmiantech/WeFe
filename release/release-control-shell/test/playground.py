@@ -2,18 +2,40 @@ import os
 import shutil
 import urllib.request
 
-dir = os.path.join(
-    "/Users/zane/data/wefe_file_upload_dir",
-    "download"
-)
+from service.service_action import BaseServiceAction
 
-if not os.path.exists(dir):
-    os.makedirs(dir)
 
-full_path = os.path.join(
-    dir,
-    "test.zip"
-)
+def replace():
+    source = "/Users/zane/data/wefe_file_upload_dir/dir1"
+    target = "/Users/zane/data/wefe_file_upload_dir/dir2"
 
-url = "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
-urllib.request.urlretrieve(url, full_path)
+    copydirs(source, target)
+
+
+def copydirs(source_dir, target_dir):
+    # 如不存在目标目录则创建
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    # 获取文件夹中文件和目录列表
+    files = os.listdir(source_dir)
+    for f in files:
+        # 判断是否是文件夹
+        if os.path.isdir(source_dir + '/' + f):
+            # 递归调用本函数
+            copydirs(source_dir + '/' + f, target_dir + '/' + f)
+        else:
+            # 替换文件
+            shutil.copy(source_dir + '/' + f, target_dir + '/' + f)
+
+
+def unzip():
+    action = BaseServiceAction()
+    action.unzip(
+        "/Users/zane/data/wefe_file_upload_dir/hello.zip",
+        "/Users/zane/data/wefe_file_upload_dir/unzip"
+    )
+
+
+if __name__ == '__main__':
+    replace()
