@@ -90,7 +90,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         }
 
         // save bloom_filter column info to database
-//        bloomfilterColumnService.update(model.getId(), input.getMetadataList());
+        bloomfilterColumnService.update(model.getId(), input.getMetadataList());
 
         // Delete files uploaded by HttpUpload
         try {
