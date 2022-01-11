@@ -1,27 +1,40 @@
-from dto.main_input import ActionConfig
-from dto.service_action_info import ServiceActionInfo
-from service.replace_program_file_action import JavaServiceAction
-from util import object_util
+# Copyright 2021 The WeFe Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-service_map = {
-    "wefe-board-website": JavaServiceAction,
-    "wefe-board-service": JavaServiceAction,
-    "wefe-gateway": JavaServiceAction,
-    "wefe-flow": JavaServiceAction,
-}
+
+from dto.service_action_info import ActionInfo
+from service.base_action import BaseAction
+from service.replace_program_file_action import ReplaceProgramFileAction
+from service.update_mysql_action import UpdateMysqlAction
+from util import object_util
 
 
 class Main:
 
     @staticmethod
-    def run(config_file_path, action_info_str):
+    def run(workspace, config_file_path, action_info_str):
         """
 
         """
-        action_info: ServiceActionInfo = object_util.json_to_model(action_info_str, ServiceActionInfo)
+        action_info: ActionInfo = object_util.json_to_model(action_info_str, ActionInfo)
 
-        for item in action_info.services:
-            service_action_info: ServiceActionInfo = object_util.dict_to_model(ServiceActionInfo(), **item)
+        # 根据参数实例化 action 对象
+        action: BaseAction
+        if action_info.service.index("mysql") >= 0:
+            action = UpdateMysqlAction(action_info, workspace)
+        else:
+            action = ReplaceProgramFileAction(action_info, workspace)
 
-            service_action = service_map.get(service_action_info.service)
-            service_action(service_action_info, wefe_dir).run()
+        # 执行升级动作
+        action.run()

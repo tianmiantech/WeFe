@@ -2,7 +2,7 @@ import os
 import shutil
 import urllib.request
 
-from service.service_action import BaseServiceAction
+from service.base_action import BaseAction
 
 
 def replace():
@@ -30,7 +30,7 @@ def copydirs(source_dir, target_dir):
 
 
 def unzip():
-    action = BaseServiceAction()
+    action = BaseAction()
     action.unzip(
         "/Users/zane/data/wefe_file_upload_dir/hello.zip",
         "/Users/zane/data/wefe_file_upload_dir/unzip"
