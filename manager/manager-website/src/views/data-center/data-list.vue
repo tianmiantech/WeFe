@@ -185,13 +185,20 @@
             </el-table-column>
             <el-table-column
                 label="状态"
-                width="120"
+                min-width="120"
             >
                 <template v-slot="scope">
                     <p v-if="scope.row.status">已删除</p>
                     <template v-else>
-                        <el-switch v-model="scope.row.ext_json.enable" @change="methods.changeStatus($event, scope.row)" />
-                        {{ scope.row.ext_json.enable ? '已启用' : '已禁用' }}
+                        <el-button
+                            v-if="scope.row.ext_json.enable"
+                            type="danger"
+                            @click="methods.changeStatus($event, scope.row)"
+                        >禁用</el-button>
+                        <el-button
+                            v-else
+                            @click="methods.changeStatus($event, scope.row)"
+                        >启用</el-button>
                     </template>
                 </template>
             </el-table-column>
