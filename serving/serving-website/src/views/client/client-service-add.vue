@@ -37,7 +37,7 @@
 
             <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
                 <el-form :model="clientService" :rules="rules">
-                    <el-form-item label="单价：" :label-width="formLabelWidth" prop="unitPrice">
+                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">
                         <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
                     </el-form-item>
                     <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
