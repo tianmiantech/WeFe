@@ -1104,7 +1104,7 @@
                     const { encryptionList } = $ref.vData;
                     const field_info_list = [];
 
-                    if($ref.formula) {
+                    if($ref.hash_func) {
                         for(const i in encryptionList) {
                             const x = encryptionList[i];
 
