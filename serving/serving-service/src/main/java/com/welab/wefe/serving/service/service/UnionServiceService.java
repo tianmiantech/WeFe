@@ -79,22 +79,6 @@ public class UnionServiceService {
 			return PagingOutput.of(data.getInteger("total"), list);
 		}
 		return PagingOutput.of(0, list);
-		// mock
-//		int size = 2;
-//		for (int i = 1; i <= size; i++) {
-//			UnionServiceApi.Output output = new UnionServiceApi.Output();
-//			output.setId("" + i);
-//			output.setName("信用卡数量查询");
-//			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
-//			output.setSupplierName("鹏元");
-//			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
-//			output.setApiName("api/query/credit_card_count");
-//			output.setParams(Arrays.asList("member", "model"));
-//			output.setCreatedTime(new Date());
-//			output.setServiceType(3);
-//			list.add(output);
-//		}
-//		return PagingOutput.of(2, list);
 	}
 
 	public JSONObject query4Union(Input input) throws StatusCodeWithException {
