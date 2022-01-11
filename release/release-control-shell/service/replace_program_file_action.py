@@ -3,10 +3,13 @@ import os.path
 from service.service_action import BaseServiceAction
 
 
-class JavaServiceAction(BaseServiceAction):
+class ReplaceProgramFileAction(BaseServiceAction):
+    """
+    替换程序文件
+    """
 
     def run(self):
-        download_path = self.download(self.action_info.service + ".sql")
+        download_path = self.download(self.action_info.service + ".zip")
 
         target = os.path.join(
             self.workspace,

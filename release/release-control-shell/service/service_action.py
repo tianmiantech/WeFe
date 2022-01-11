@@ -6,27 +6,42 @@ from dto.service_action_info import ServiceActionInfo
 
 
 class BaseServiceAction:
-    config: ServiceActionInfo
-    wefe_dir: str
+    # 行为相关配置
+    action_info: ServiceActionInfo
 
-    def __init__(self, config, wefe_dir) -> None:
+    # 升级程序在升级过程中使用的工作目录
+    # 用于存放临时文件和日志
+    workspace: str
+
+    def __init__(self, action_info, workspace) -> None:
         super().__init__()
-        self.config = config
-        self.wefe_dir = wefe_dir
+        self.action_info = action_info
+        self.workspace = workspace
 
     def download(self, filename):
         """
         下载文件到指定路径
+
+        @param filename
+        下载后的文件名
         """
-        download_path = os.path.join(
-            self.wefe_dir,
-            "download",
+
+        output_dir = os.path.join(
+            self.workspace,
+            "download"
+        )
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        full_path = os.path.join(
+            output_dir,
             filename
         )
 
-        url = self.config.file_download_address
-        urllib.request.urlretrieve(url, download_path)
-        return download_path
+        url = self.action_info.file_download_address
+        urllib.request.urlretrieve(url, full_path)
+        return full_path
 
     def replace_file(self, source, target):
         """
