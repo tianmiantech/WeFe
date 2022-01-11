@@ -283,8 +283,7 @@ export default {
 
 
         async getDetails(serviceId, clientId) {
-
-
+            this.apiCallDetails = ''
             const {code, data} = await this.$http.post({
                 url: '/apirequestrecord/query-list',
                 data: {

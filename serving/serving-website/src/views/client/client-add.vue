@@ -48,6 +48,7 @@ export default {
     data() {
         return {
             client: {
+                id: '',
                 name: '',
                 pubKey: '',
                 email: '',
@@ -96,10 +97,11 @@ export default {
                     const {code} = await this.$http.post({
                         url: '/client/save',
                         data: {
+                            id: this.client.id,
                             name: this.client.name,
                             email: this.client.email,
                             ipAdd: this.client.ipAdd,
-                            pubKey: this.client.pub_key,
+                            pubKey: this.client.pubKey,
                             remark: this.client.remark,
                             createdBy: this.userInfo.nickname,
                             code: this.client.code,
@@ -129,6 +131,7 @@ export default {
 
             });
             if (code === 0) {
+                this.client.id = data.id
                 this.client.name = data.name
                 this.client.email = data.email
                 this.client.ipAdd = data.ip_add
