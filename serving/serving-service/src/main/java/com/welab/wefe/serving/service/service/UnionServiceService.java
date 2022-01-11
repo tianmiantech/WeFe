@@ -61,7 +61,10 @@ public class UnionServiceService {
 			JSONArray arr = data.getJSONArray("list");
 			for (int i = 0; i < arr.size(); i++) {
 				JSONObject item = arr.getJSONObject(i);
-
+				int service_status = item.getIntValue("service_status");
+				if (service_status != 1) {
+					continue;
+				}
 				UnionServiceApi.Output output = new UnionServiceApi.Output();
 				output.setId(item.getString("service_id"));
 				output.setName(item.getString("name"));
@@ -74,6 +77,7 @@ public class UnionServiceService {
 				}
 				output.setCreatedTime(new Date(item.getLongValue("created_time")));
 				output.setServiceType(item.getIntValue("service_type"));
+
 				list.add(output);
 			}
 			return PagingOutput.of(data.getInteger("total"), list);
