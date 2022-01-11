@@ -156,26 +156,14 @@ const baseRoutes = [
                 },
                 component: () => import('@views/fee/fee-detail.vue'),
             },
-        ],
-    },
-    {
-        path: `${prefixPath}data_source`,
-        meta: {
-            title: '数据源管理',
-            icon:  'el-icon-document',
-            index: 4,
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
             {
-                path: `${prefixPath}data-souce-list`,
-                name: 'data-resouce-list',
+                path: `${prefixPath}fee-record`,
+                name: 'fee-record',
                 meta: {
-                    title:  '数据源配置',
-                    index:  '4-1',
-                    active: `${prefixPath}data-souce-list`,
+                    title:           '费用记录',
+                    loginAndRefresh: true,
                 },
-                component: () => import('@views/data_source/data-source-list.vue'),
+                component: () => import('@views/fee/fee-record.vue'),
             },
         ],
     },
@@ -184,7 +172,6 @@ const baseRoutes = [
         meta: {
             title: '服务中心',
             icon:  'el-icon-service',
-            index: 5,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -279,6 +266,26 @@ const baseRoutes = [
                 component: () => import('@views/logger/log-view.vue'),
             },
 
+        ],
+    },
+    {
+        path: `${prefixPath}data_source`,
+        meta: {
+            title: '数据源管理',
+            icon:  'el-icon-document',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}data-souce-list`,
+                name: 'data-resouce-list',
+                meta: {
+                    title:  '数据源配置',
+                    index:  '4-1',
+                    active: `${prefixPath}data-souce-list`,
+                },
+                component: () => import('@views/data_source/data-source-list.vue'),
+            },
         ],
     },
     {

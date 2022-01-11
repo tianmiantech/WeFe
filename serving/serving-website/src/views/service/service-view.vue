@@ -71,7 +71,7 @@
                         v-model="form.operator"
                         label="avg"
                     >
-                        avg
+                        AVG
                     </el-radio>
                 </div>
             </el-form-item>
