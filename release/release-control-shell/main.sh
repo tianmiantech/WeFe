@@ -18,10 +18,11 @@ echo "python 运行环境初始化成功！"
 echo "******************************************************"
 
 
-echo 正在检查升级程序运行环境
-python env_checker.py "$config_path"
+echo 正在使用 python 脚本执行升级操作
+python -c "import main; Main.run('$config_path','$main_input')"
+
 check_result=$?
-echo "检查结果：$check_result"
+echo "升级结果：$check_result"
 
 if [ $check_result != 0 ];
 then
@@ -29,8 +30,7 @@ then
   exit 1
 fi
 
-echo "升级程序运行环境检查成功！"
+echo "升级成功！"
 echo "******************************************************"
 echo ""
 echo "*********************** 开始升级 **********************"
-python -c "import launcher; Launcher.run('$main_input')"
