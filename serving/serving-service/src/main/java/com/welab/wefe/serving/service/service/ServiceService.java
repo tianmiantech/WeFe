@@ -311,7 +311,7 @@ public class ServiceService {
 		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
-		if (model == null) {
+		if (model == null || model.getStatus() != 1) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
