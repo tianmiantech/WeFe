@@ -66,17 +66,20 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "数据资源类型", require = true)
         private DataResourceType dataResourceType;
 
+        @Check(name = "样本量", require = true)
+        private Long rowCount;
+
         @Check(name = "对方数据资源id", require = true)
         private String partnerDataResourceId;
 
-        @Check(name = "数据资源类型", require = true)
+        @Check(name = "对方数据资源类型", require = true)
         private DataResourceType partnerDataResourceType;
+
+        @Check(name = "对方样本量", require = true)
+        private Long partnerRowCount;
 
         @Check(name = "算法")
         private AlgorithmType algorithm = AlgorithmType.RSA_PSI;
-
-        @Check(name = "样本量", require = true)
-        private Long rowCount;
 
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
@@ -91,10 +94,10 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
 
-//            if (DataResourceType.DataSet.equals(dataResourceType)
-//                    && fieldInfoList.isEmpty()) {
-//                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
-//            }
+            if (DataResourceType.TableDataSet.equals(dataResourceType)
+                    && fieldInfoList.isEmpty()) {
+                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+            }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
@@ -204,6 +207,14 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
         public void setPartnerDataResourceType(DataResourceType partnerDataResourceType) {
             this.partnerDataResourceType = partnerDataResourceType;
+        }
+
+        public Long getPartnerRowCount() {
+            return partnerRowCount;
+        }
+
+        public void setPartnerRowCount(Long partnerRowCount) {
+            this.partnerRowCount = partnerRowCount;
         }
     }
 }

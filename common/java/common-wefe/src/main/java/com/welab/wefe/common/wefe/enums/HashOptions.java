@@ -24,7 +24,7 @@ public enum HashOptions {
 
     SHA1,
 
-    SUBSTRING,
+//    SUBSTRING,
 
     /**
      * Don't deal with
