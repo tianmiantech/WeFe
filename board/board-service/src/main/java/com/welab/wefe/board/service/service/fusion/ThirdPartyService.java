@@ -45,7 +45,7 @@ public class ThirdPartyService {
 
         JObject params = JObject
                 .create()
-                .put("project_id", task.getBusinessId())
+                .put("project_id", task.getProjectId())
                 .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
