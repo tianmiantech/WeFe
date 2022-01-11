@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -47,12 +46,13 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
     protected ApiResult<PageOutput<ApiMemberServiceQueryOutput>> handle(Input input) throws StatusCodeWithException {
         try {
             PageOutput<MemberServiceQueryOutput> page = memberServiceMongoReop.find(
-                    input.getPageIndex(),
-                    input.getPageSize(),
-                    input.getServiceId(),
-                    input.getMemberId(),
-                    input.getName(),
-                    input.getServiceType()
+                    input.pageIndex,
+                    input.pageSize,
+                    input.serviceId,
+                    input.memberId,
+                    input.memberName,
+                    input.serviceName,
+                    input.serviceType
             );
 
             List<ApiMemberServiceQueryOutput> list = page.getList().stream()
@@ -73,10 +73,11 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
 
     }
 
-    public static class Input extends BaseInput{
+    public static class Input extends BaseInput {
         private String serviceId;
         private String memberId;
-        private String name;
+        private String serviceName;
+        private String memberName;
         private String serviceType;
 
         private Integer pageIndex = 0;
@@ -98,12 +99,20 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
             this.memberId = memberId;
         }
 
-        public String getName() {
-            return name;
+        public String getServiceName() {
+            return serviceName;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getMemberName() {
+            return memberName;
+        }
+
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
         }
 
         public String getServiceType() {

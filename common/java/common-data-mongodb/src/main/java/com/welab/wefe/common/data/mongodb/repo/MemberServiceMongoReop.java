@@ -85,7 +85,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
     }
 
 
-    public PageOutput<MemberServiceQueryOutput> find(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String name, String serviceType) {
+    public PageOutput<MemberServiceQueryOutput> find(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String memberName, String serviceName, String serviceType) {
         LookupOperation lookupToLots = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
                 localField("member_id").
@@ -94,28 +94,36 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
 
         Criteria memberServiceCriteria = new QueryBuilder()
                 .notRemoved()
-                .like("name", name)
-                .like("service_id", serviceId)
+                .like("name", serviceName)
+                .append("service_id", serviceId)
                 .append("member_id", memberId)
                 .append("service_type", serviceType)
-                .append("service_status","1")
+                .append("service_status", "1")
                 .getCriteria();
 
+
         AggregationOperation memberServiceMatch = Aggregation.match(memberServiceCriteria);
+
+        Criteria memberCriteria = new QueryBuilder()
+                .notRemoved()
+                .like("member_name", memberName)
+                .getCriteria();
+
+        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
 
 
         UnwindOperation unwind = Aggregation.unwind("member");
         Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.name");
+        addfieldsMap.put("member_name", "$member.serviceName");
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(memberServiceMatch, lookupToLots, unwind, addFieldsOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, memberServiceMatch, memberMatch, unwind, addFieldsOperation);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) pageIndex * pageSize);
         LimitOperation limitOperation = Aggregation.limit(pageSize);
-        aggregation = Aggregation.newAggregation(lookupToLots,memberServiceMatch, unwind, skipOperation, limitOperation, addFieldsOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots, memberServiceMatch, memberMatch, unwind, skipOperation, limitOperation, addFieldsOperation);
 
         List<MemberServiceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults();
 
