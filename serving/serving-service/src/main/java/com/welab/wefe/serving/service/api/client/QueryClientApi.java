@@ -78,6 +78,9 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
 
 
     public static class Output {
+
+        private String id;
+
         /**
          * name
          */
@@ -94,14 +97,33 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
         private String ipAdd;
 
         /**
-         * ip_add
+         * public key
          */
-        private String pubKey;
+//        private String pubKey;
 
         /**
          * remark
          */
         private String remark;
+
+        private String code;
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
 
         public String getName() {
             return name;
@@ -127,13 +149,13 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
             this.ipAdd = ipAdd;
         }
 
-        public String getPubKey() {
-            return pubKey;
-        }
-
-        public void setPubKey(String pubKey) {
-            this.pubKey = pubKey;
-        }
+//        public String getPubKey() {
+//            return pubKey;
+//        }
+//
+//        public void setPubKey(String pubKey) {
+//            this.pubKey = pubKey;
+//        }
 
         public String getRemark() {
             return remark;

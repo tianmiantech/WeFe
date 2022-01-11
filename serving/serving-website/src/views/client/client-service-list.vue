@@ -12,7 +12,7 @@
 
             <el-form-item label="是否启用：">
 
-                <el-select v-model="search.status" placeholder="请选择">
+                <el-select v-model="search.status" placeholder="请选择" clearable>
                     <el-option
                         v-for="item in options"
                         :key="item.value"
@@ -65,7 +65,7 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="IP 地址" min-width="80">
+            <el-table-column label="IP 白名单" min-width="80">
                 <template slot-scope="scope">
                     {{ scope.row.ip_add }}
                 </template>
@@ -93,15 +93,12 @@
             </el-table-column>
 
             <el-table-column label="启用状态" min-width="50">
-
-
                 <template slot-scope="scope">
                     <el-button v-if="scope.row.status === 0" type="success"
-                               @click="open(scope.row.service_id,scope.row.client_id,1)">启用
+                               @click="open(scope.row,1)">启用
                     </el-button>
-
                     <el-button v-if="scope.row.status === 1" type="danger"
-                               @click="open(scope.row.service_id,scope.row.client_id,0)">禁用
+                               @click="open(scope.row,0)">禁用
                     </el-button>
                 </template>
             </el-table-column>
@@ -144,16 +141,17 @@ export default {
                 serviceName: '',
             },
             options: [{
-                value: 1,
+                value: "1",
                 label: '已启用'
             }, {
-                value: 0,
+                value: "0",
                 label: '未启用'
             }],
             serviceType: {
                 1: "匿踪查询",
                 2: "交集查询",
-                3: "安全聚合",
+                3: "安全聚合(被查询方)",
+                4: "安全聚合(查询方)",
             },
             payType: {
                 1: "预付费",
@@ -170,11 +168,11 @@ export default {
         };
     },
     methods: {
-        open(service_id, client_id, status) {
+        open(row, status) {
             this.$alert('是否确定修改启用状态？', '修改启用状态', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.changeStatus(service_id, client_id, status)
+                    this.changeStatus(row, status)
                     setTimeout(() => {
                         this.refresh()
                     }, 1000)
@@ -186,13 +184,16 @@ export default {
             });
         },
 
-        async changeStatus(service_id, client_id, status) {
+        async changeStatus(row, status) {
             const {code} = await this.$http.post({
                 url: '/clientservice/save',
                 data: {
-                    serviceId: service_id,
-                    clientId: client_id,
-                    status: status
+                    serviceId: row.service_id,
+                    clientId: row.client_id,
+                    status: status,
+                    payType: row.pay_type,
+                    unitPrice: row.unit_price
+
                 }
             });
 

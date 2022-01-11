@@ -32,6 +32,10 @@ public class ClientServiceOutputModel {
      */
     private String serviceName;
 
+    private String serviceId;
+
+    private String clientId;
+
     /**
      * 客户名称
      */
@@ -66,6 +70,22 @@ public class ClientServiceOutputModel {
      * 请求地址
      */
     private String url;
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
     public Double getUnitPrice() {
         return unitPrice;

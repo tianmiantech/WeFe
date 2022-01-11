@@ -17,11 +17,15 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
+import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.List;
 
@@ -35,11 +39,15 @@ public class ApiRequestRecordService {
     private ApiRequestRecordRepository apiRequestRecordRepository;
 
 
-    public void save(String serviceId, String clientId, Long spend, String ipAdd, Integer requestResult) {
+    public void save(String serviceId, String serviceName, Integer serviceType, String clientName,
+                     String clientId, Long spend, String ipAdd, Integer requestResult) {
 
         ApiRequestRecordMysqlModel model = new ApiRequestRecordMysqlModel();
         model.setServiceId(serviceId);
         model.setClientId(clientId);
+        model.setServiceName(serviceName);
+        model.setClientName(clientName);
+        model.setServiceType(serviceType);
         model.setRequestResult(requestResult);
         model.setSpend(spend);
         model.setIpAdd(ipAdd);
@@ -55,6 +63,18 @@ public class ApiRequestRecordService {
                 .build(ApiRequestRecordMysqlModel.class);
 
         return apiRequestRecordRepository.findAll(where);
+    }
+
+    public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
+
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId())
+                .orderBy("createdTime", OrderBy.desc)
+                .build(ApiRequestRecordMysqlModel.class);
+        return apiRequestRecordRepository.paging(where, input);
+
     }
 
 

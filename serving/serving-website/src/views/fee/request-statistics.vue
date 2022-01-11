@@ -23,20 +23,18 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="创建时间：">
-                <div class="demo-basic">
-                    <el-time-picker
-                        v-model="search.startTime"
+            <el-form-item label="调用时间：">
+                <div class="block">
+                    <el-date-picker
+                        v-model="defaultTime"
+                        type="datetimerange"
+                        range-separator="To"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        @change="timeChange()"
                         value-format="timestamp"
-                        placeholder="开始时间"
                     >
-                    </el-time-picker>
-                    <el-time-picker
-                        v-model="search.endTime"
-                        value-format="timestamp"
-                        placeholder="结束时间"
-                    >
-                    </el-time-picker>
+                    </el-date-picker>
                 </div>
             </el-form-item>
 
@@ -57,7 +55,7 @@
             </div>
             <el-table-column label="服务名称" min-width="80">
                 <template slot-scope="scope">
-                    <p >{{ scope.row.service_name }}</p>
+                    <p>{{ scope.row.service_name }}</p>
                 </template>
             </el-table-column>
             <el-table-column label="客户名称" min-width="80">
@@ -94,7 +92,77 @@
                     <p>{{ scope.row.total_spend }}</p>
                 </template>
             </el-table-column>
+
+            <el-table-column label="操作" min-width="40">
+
+                <template slot-scope="scope">
+                    <el-button type="primary" @click="getDetails(scope.row.service_id,scope.row.client_id)">
+                        详情
+                    </el-button>
+
+
+                </template>
+            </el-table-column>
         </el-table>
+
+        <el-dialog title="调用详情" :visible.sync="dialogTableVisible" width="70%">
+            <el-table :data="apiCallDetails">
+                <el-table-column label="服务名称" min-width="30">
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.service_name }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="客户名称" min-width="30">
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.client_name }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="服务类型" min-width="30">
+                    <template slot-scope="scope">
+                        <p>{{ serviceType[scope.row.service_type] }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="调用时间" min-width="40">
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.created_time | dateFormat }}</p>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="耗时(s)" min-width="30">
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.spend }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="IP 白名单" min-width="40">
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.ip_add }}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column label="请求结果" min-width="30">
+                    <template slot-scope="scope">
+                        <p>{{ requestResult[scope.row.request_result] }}</p>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+
+            <div
+                v-if="pagination.total"
+                class="mt20 text-r"
+            >
+                <el-pagination
+                    :total="pagination.total"
+                    :page-sizes="[10, 20, 30, 40, 50]"
+                    :page-size="pagination.page_size"
+                    :current-page="pagination.page_index"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    @current-change="currentPageChange"
+                    @size-change="pageSizeChange"
+                />
+            </div>
+        </el-dialog>
+
+
         <div
             v-if="pagination.total"
             class="mt20 text-r"
@@ -111,11 +179,12 @@
         </div>
     </el-card>
 
+
 </template>
 
 <script>
 
-import table from '@src/mixins/table.js';
+import table from '@src/mixins/table';
 import RoleTag from "../components/role-tag";
 
 export default {
@@ -134,21 +203,46 @@ export default {
                 startTime: '',
                 endTime: '',
             },
+            defaultTime: [
+                '',
+                '',
+            ],
             getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: "匿踪查询",
                 2: "交集查询",
-                3: "安全聚合",
+                3: "安全聚合(被查询方)",
+                4: "安全聚合(查询方)",
             },
+            requestResult: {
+                1: "成功",
+                0: "失败"
+            },
+            apiCallDetails: [],
+            dialogTableVisible: false,
         }
     },
 
     created() {
+
+        this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
+            + new Date().getMonth() + 1 + '-'
+            + new Date().getDate() + ' 00:00:00')
+
+        this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
+            + new Date().getMonth() + 1 + '-'
+            + new Date().getDate() + ' 23:59:59')
+
         this.getServices()
         this.getClients()
     },
 
     methods: {
+        timeChange() {
+            this.search.startTime = this.defaultTime[0]
+            this.search.endTime = this.defaultTime[1]
+        },
+
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
                 this.services.push({
@@ -184,6 +278,23 @@ export default {
 
             if (code === 0) {
                 this.handleClients(data.list)
+            }
+        },
+
+
+        async getDetails(serviceId, clientId) {
+            this.apiCallDetails = ''
+            const {code, data} = await this.$http.post({
+                url: '/apirequestrecord/query-list',
+                data: {
+                    serviceId: serviceId,
+                    clientId: clientId
+                }
+            });
+
+            if (code === 0) {
+                this.apiCallDetails = data.list
+                this.dialogTableVisible = true
             }
         }
     }
