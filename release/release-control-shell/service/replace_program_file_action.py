@@ -1,5 +1,3 @@
-import os.path
-
 from service.service_action import BaseServiceAction
 
 
@@ -9,11 +7,9 @@ class ReplaceProgramFileAction(BaseServiceAction):
     """
 
     def run(self):
-        download_path = self.download(self.action_info.service + ".zip")
+        # 下载并解压文件
+        zip_output_dir = self.download_and_unzip()
 
-        target = os.path.join(
-            self.workspace,
-            self.action_info.service + ".jar"
-        )
-        self.replace_file(download_path, target)
+        # 将 zip_output_dir 目录中的所有文件替换到程序目录
+        self.replace_files(zip_output_dir, self.action_info.program_dir)
         pass
