@@ -33,7 +33,10 @@
             border
             stripe
         >
-            <el-table-column label="流水号" prop="id"></el-table-column>
+            <el-table-column
+                label="流水号"
+                prop="id"
+            />
             <el-table-column label="时间">
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -44,7 +47,7 @@
                     {{ scope.row.type }}
                 </template>
             </el-table-column>
-            <el-table-column label="收入（￥）">
+            <el-table-column label="充值（￥）">
                 <template slot-scope="scope">
                     {{ scope.row.income }}
                 </template>
@@ -89,13 +92,46 @@ export default {
     mixins: [table],
     data() {
         return {
-            search:   {
-                startTime:     '',
-                endTime:       '',
+            search: {
+                startTime: '',
+                endTime:   '',
             },
-            timeRange:   '',
-            getListApi:  '/fee/query-list',
-        }
+            timeRange:  '',
+            getListApi: '/fee/query-list',
+            list:       [{
+                id:           '5e2e9d44704f49deb82654418a66b282',
+                created_time: 1641886026000,
+                type:         '匿综查询',
+                income:       '1000',
+                output:       '230',
+                remain:       '870',
+                mark:         '-',
+            }, {
+                id:           'd15c002ec6894d94b06fd5403a1fec33',
+                created_time: 1641885620000,
+                type:         '交集查询',
+                income:       '400',
+                output:       '500',
+                remain:       '100',
+                mark:         '-',
+            }, {
+                id:           '7076ec98634c42e2ad92e3915d6c60a6',
+                created_time: 1641884621000,
+                type:         '安全聚合 (被查询方)',
+                income:       '300',
+                output:       '130',
+                remain:       '200',
+                mark:         '-',
+            }, {
+                id:           'b4bb1c9590ed43529d94e091818732ed',
+                created_time: 1641882624000,
+                type:         '安全聚合 (查询方)',
+                income:       '100',
+                output:       '70',
+                remain:       '30',
+                mark:         '-',
+            }],
+        };
     },
     methods: {
         timeChange() {
@@ -103,10 +139,10 @@ export default {
             this.search.endTime = this.timeRange[1];
         },
         downloadLog() {
-            if(!timeRange) {
+            if(!this.timeRange) {
                 return this.$message.error('请选择时间段');
             }
-        }
-    }
-}
+        },
+    },
+};
 </script>
