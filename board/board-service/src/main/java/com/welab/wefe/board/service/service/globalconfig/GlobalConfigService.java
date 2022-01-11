@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -127,6 +127,21 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             setServingConfig(new ServingConfigModel());
         }
 
+        FunctionComputeConfigModel functionComputeConfig = getFunctionComputeConfig();
+        if (functionComputeConfig == null) {
+            setFunctionComputeConfig(new FunctionComputeConfigModel());
+        }
+
+        DeepLearningConfigModel deepLearningConfig = getDeepLearningConfig();
+        if (deepLearningConfig == null) {
+            setDeepLearningConfig(new DeepLearningConfigModel());
+        }
+
+        CalculationEngineConfigModel calculationEngineConfig = getCalculationEngineConfig();
+        if (calculationEngineConfig == null) {
+            setCalculationEngineConfig(new CalculationEngineConfigModel());
+        }
+
         LOG.info("init global config success!");
     }
 
@@ -187,5 +202,30 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public ServingConfigModel getServingConfig() {
         return getModel(Group.WEFE_SERVING, ServingConfigModel.class);
     }
+
+    public FunctionComputeConfigModel getFunctionComputeConfig() {
+        return getModel(Group.FC_CONFIG, FunctionComputeConfigModel.class);
+    }
+
+    public void setFunctionComputeConfig(FunctionComputeConfigModel model) throws StatusCodeWithException {
+        put(Group.FC_CONFIG, model);
+    }
+
+    public DeepLearningConfigModel getDeepLearningConfig() {
+        return getModel(Group.DEEP_LEARNING_CONFIG, DeepLearningConfigModel.class);
+    }
+
+    public void setDeepLearningConfig(DeepLearningConfigModel model) throws StatusCodeWithException {
+        put(Group.DEEP_LEARNING_CONFIG, model);
+    }
+
+    public CalculationEngineConfigModel getCalculationEngineConfig() {
+        return getModel(Group.CALCULATION_ENGINE_CONFIG, CalculationEngineConfigModel.class);
+    }
+
+    public void setCalculationEngineConfig(CalculationEngineConfigModel model) throws StatusCodeWithException {
+        put(Group.CALCULATION_ENGINE_CONFIG, model);
+    }
+
 
 }

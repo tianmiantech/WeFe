@@ -1,11 +1,11 @@
 <template>
     <el-card
-        name="流程列表"
+        name="训练列表"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            流程列表
+            训练列表
             <template v-if="form.isPromoter">
                 <el-button
                     v-if="!form.closed && !form.is_exited"
@@ -13,7 +13,7 @@
                     type="primary"
                     @click="addFlowMethod"
                 >
-                    新增流程
+                    新建训练流程
                 </el-button>
             </template>
             <span v-else class="ml10 f12">(协作方无法添加流程)</span>
@@ -26,11 +26,12 @@
             stripe
         >
             <el-table-column
-                label="流程"
+                label="训练"
                 min-width="220px"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
+                        v-if="form.project_type === 'MachineLearning'"
                         :key="scope.row.updated_time"
                         :status="scope.row.flow_status"
                         :disable-transitions="true"
@@ -42,6 +43,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.project_type === 'MachineLearning'"
                 label="进度"
                 min-width="130px"
             >
@@ -62,13 +64,13 @@
             />
             <el-table-column
                 label="创建时间"
-                width="160px"
+                max-width="160px"
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
                     <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
@@ -82,11 +84,19 @@
                 <template v-slot="scope">
                     <router-link
                         class="link mr10"
-                        :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id }}"
                     >
                         查看
                     </router-link>
                     <router-link
+                        v-if="form.project_type === 'DeepLearning'"
+                        class="link mr10"
+                        :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id }}"
+                    >
+                        校验
+                    </router-link>
+                    <router-link
+                        v-if="form.project_type !== 'DeepLearning'"
                         class="link mr10"
                         :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
                     >
@@ -94,7 +104,10 @@
                     </router-link>
                     <el-dropdown v-if="scope.row.is_creator">
                         <el-button type="text">
-                            更多<i class="el-icon-arrow-down el-icon--right" />
+                            更多
+                            <el-icon>
+                                <elicon-arrow-down />
+                            </el-icon>
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -202,10 +215,14 @@
         </el-dialog>
 
         <el-dialog
-            title="选择模版:"
             v-model="addFlow"
             destroy-on-close
         >
+            <template #title>
+                选择模版:
+                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+            </template>
+
             <div
                 v-loading="loading"
                 class="model-list"
@@ -213,10 +230,30 @@
                 <el-button
                     type="text"
                     class="li empty-flow"
-                    @click="createFlow"
+                    @click="createFlow($event, { federated_learning_type: 'vertical' })"
                 >
-                    <span class="model-img pt10">
-                        <i class="el-icon-plus" />
+                    <span class="model-img f30">
+                        纵向
+                    </span>
+                    空白流程
+                </el-button>
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'horizontal' })"
+                >
+                    <span class="model-img f30">
+                        横向
+                    </span>
+                    空白流程
+                </el-button>
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'mix' })"
+                >
+                    <span class="model-img f30">
+                        混合
                     </span>
                     空白流程
                 </el-button>
@@ -298,8 +335,11 @@
                     vert_lr:  require('@assets/images/vert_lr.png'),
                     vert_xgb: require('@assets/images/vert_xgb.png'),
                     horz_xgb: require('@assets/images/horz_xgb.png'),
+                    mix_lr:   require('@assets/images/mix_lr.png'),
+                    mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
                 flowTimer: null,
+                config:    {}, // deeplearning config
             };
         },
         computed: {
@@ -319,6 +359,7 @@
             this.project_id = this.$route.query.project_id;
             this.getFlowList();
             this.getTemplateList();
+            this.getConfigInfo();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
@@ -329,11 +370,13 @@
                 clearTimeout(this.timer);
 
                 this.timer = setTimeout(() => {
-                    this.getFlowList();
+                    this.getFlowList({
+                        requestFromRefresh: true,
+                    });
                 }, 3000);
             },
 
-            async getFlowList(opt = { resetPagination: false }) {
+            async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
                 if(opt.resetPagination) {
                     this.pagination.page_index = 1;
                 }
@@ -341,9 +384,10 @@
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: {
-                        project_id: this.project_id,
-                        page_index: this.pagination.page_index - 1,
-                        page_size:  this.pagination.page_size,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.project_id,
+                        page_index:             this.pagination.page_index - 1,
+                        page_size:              this.pagination.page_size,
                     },
                 });
 
@@ -355,12 +399,16 @@
                         });
                         this.list = data.list;
                         this.afterTableRender();
+                        clearTimeout(this.flowTimer);
+                        this.flowTimer = setTimeout(() => {
+                            this.getFlowList({ requestFromRefresh: true });
+                        }, 5000);
                     }
+                    clearTimeout(this.flowTimer);
+                    this.flowTimer = setTimeout(() => {
+                        this.getFlowList({ requestFromRefresh: true });
+                    }, 5000);
                 }
-                clearTimeout(this.flowTimer);
-                this.flowTimer = setTimeout(() => {
-                    this.getFlowList();
-                }, 5000);
             },
 
             currentPageChange (val) {
@@ -393,18 +441,23 @@
                 }
             },
 
-            async createFlow(event, opt = { name: '', id: '', type: 'MachineLearning' }) {
-                if(this.locker) return;
-                this.locker = true;
-
+            getDateTime() {
                 const now = new Date();
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
                 const seconds = now.getSeconds();
+
+                return `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+            },
+
+            async createFlow(event, opt = { federated_learning_type: '', name: '', id: '' }) {
+                if(this.locker) return;
+                this.locker = true;
+
                 const params = {
                     project_id:            this.project_id,
-                    FederatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : 'vertical',
-                    name:                  `${opt.name || '新流程'}-${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`,
+                    federatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : opt.federated_learning_type,
+                    name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
@@ -470,9 +523,9 @@
             copyFlow(row) {
                 this.thisProject = true;
                 this.copyFlowDialog.visible = true;
-                this.copyFlowDialog.flowRename = row.flow_name;
                 this.copyFlowDialog.sourceFlowId = row.flow_id;
                 this.copyFlowDialog.targetProjectId = this.project_id;
+                this.copyFlowDialog.flowRename = `${row.flow_name}-${this.getDateTime()}`;
                 this.copyFlowDialog.targetProject = '';
             },
 
@@ -529,11 +582,25 @@
                     this.createFlow();
                 }
             },
+
+            async getConfigInfo() {
+                const { code, data } = await this.$http.post({
+                    url:  '/global_config/get',
+                    data: { groups: ['deep_learning_config'] },
+                });
+
+                if (code === 0) {
+                    this.config = data;
+                }
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
+    .el-alert__description{
+        color: $--color-danger;
+    }
     h3{margin: 10px;}
     .model-list{
         display: flex;

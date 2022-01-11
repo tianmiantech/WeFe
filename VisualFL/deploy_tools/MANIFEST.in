@@ -1,0 +1,3 @@
+include visualfl_deploy/data/visualfl.tar.gz
+include visualfl_deploy/template/*
+

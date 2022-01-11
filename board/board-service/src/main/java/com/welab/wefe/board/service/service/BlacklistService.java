@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,6 @@ import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.BlacklistOutputModel;
 import com.welab.wefe.board.service.dto.entity.MemberOutputModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -47,12 +46,6 @@ public class BlacklistService extends AbstractService {
 
     @Autowired
     private BlacklistRepository blacklistRepository;
-
-    @Autowired
-    private UnionService unionService;
-
-    @Autowired
-    private GatewayService gatewayService;
 
     public PagingOutput<BlacklistOutputModel> list(BlacklistApi.Input input) throws StatusCodeWithException {
 
@@ -90,7 +83,7 @@ public class BlacklistService extends AbstractService {
     /**
      * Add blacklist
      */
-    public void add(AddApi.Input input) {
+    public void add(AddApi.Input input) throws StatusCodeWithException {
 
         List<BlacklistMysqlModel> list = new ArrayList<>();
         if (input.getMemberIds() != null) {
@@ -112,7 +105,7 @@ public class BlacklistService extends AbstractService {
         gatewayService.refreshMemberBlacklistCache();
     }
 
-    public void deleteFromBlacklist(DeleteApi.Input input) {
+    public void deleteFromBlacklist(DeleteApi.Input input) throws StatusCodeWithException {
         blacklistRepository.deleteById(input.getId());
         CacheObjects.refreshMemberBlacklist();
         // Notify gateway to update blacklist cache

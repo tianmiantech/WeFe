@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,10 @@ import com.welab.wefe.board.service.api.project.dataset.AuditDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.AuditDataSetApi.Input;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +70,7 @@ public class ProjectDataSetAuditService extends AbstractService {
         }
         ProjectDataSetMySqlModel dataSet = dataSets.stream().filter(d -> d.getAuditStatus() == AuditStatus.auditing)
                 .findFirst().orElse(null);
-        
+
         if (dataSet == null || dataSet.getAuditStatus() != AuditStatus.auditing) {
             throw new StatusCodeWithException("请勿重复审核！", StatusCode.ILLEGAL_REQUEST);
         }
@@ -84,7 +84,7 @@ public class ProjectDataSetAuditService extends AbstractService {
         projectDataSetService.update(dataSet, (x) -> x.setAuditStatus(input.getAuditStatus()));
 
         // Update the number of data sets used in the project
-        dataSetService.updateUsageCountInProject(dataSet.getDataSetId());
+        tableDataSetService.updateUsageCountInProject(dataSet.getDataSetId());
 
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AuditDataSetApi.class);
@@ -92,6 +92,6 @@ public class ProjectDataSetAuditService extends AbstractService {
     }
 
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
 }

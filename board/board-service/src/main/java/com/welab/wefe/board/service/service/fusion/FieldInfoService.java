@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import com.welab.wefe.board.service.database.repository.fusion.FieldInfoReposito
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -57,12 +57,10 @@ public class FieldInfoService extends AbstractService {
 
         List<FieldInfoMySqlModel> modelList = findByBusinessId(businessId);
 
-        List<FieldInfo> models = modelList
+        return modelList
                 .stream()
                 .map(x -> ModelMapper.map(x, FieldInfo.class))
                 .collect(Collectors.toList());
-
-        return models;
     }
 
     private List<FieldInfoMySqlModel> findByBusinessId(String businessId) {

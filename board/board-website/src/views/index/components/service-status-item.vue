@@ -3,24 +3,38 @@
         <el-row :gutter="20">
             <el-col :span="24">
                 <el-row
-                    :class="status.success ? 'tip tip-success' : 'tip tip-error' "
+                    :class="status.available ? 'tip tip-success' : 'tip tip-error' "
                 >
                     <el-col
                         :span="20"
                     >
                         <p class="item-name">
                             <i
-                                v-if="status.success"
+                                v-if="status.available"
                                 class="el-icon-success"
                                 style="color:green"
                             />
-                            <i
-                                v-else
-                                class="el-icon-error"
-                                style="color:red"
-                            />
-
-                            {{ status.service }}
+                            {{ service }}
+                            <el-tooltip
+                                class="item"
+                                effect="light"
+                                placement="right"
+                            >
+                                <template #content>
+                                    <ol v-if="status.list">
+                                        <li v-for="item in status.list" :key="item.message" class="service_list">
+                                            <p v-if="!item.success" style="color: #f56c6c;">
+                                                <span>{{item.desc}}：</span>
+                                                <br>
+                                                <span>{{item.message}}</span>
+                                            </p>
+                                            <p v-else>{{item.desc}}</p>
+                                        </li>
+                                    </ol>
+                                </template>
+                                <el-icon v-if="!status.available"><elicon-info-filled /></el-icon>
+                                <el-icon v-else style="color: #67c23a"><elicon-select /></el-icon>
+                            </el-tooltip>
                         </p>
                         <p
                             v-if="status.value"
@@ -29,15 +43,15 @@
                             {{ status.value }}
                         </p>
                         <p
-                            v-if="!status.success"
-                            class="item-message"
+                            v-if="!status.available"
+                            :class="status.message ? 'item-message' : ''"
                         >
-                            {{ status.message }}
+                            <span v-if="status.error_service_type" style="font-weight: bold">{{status.error_service_type}}:</span> {{ status.message }}
                         </p>
                     </el-col>
                     <el-col
                         :span="4"
-                        style="text-align:right"
+                        class="text-r"
                     >
                         <el-button
                             class="test-btn"
@@ -63,9 +77,9 @@
                 loading: false,
 
                 status: {
-                    value:   '',
-                    success: null,
-                    message: '',
+                    value:     '',
+                    available: null,
+                    message:   '',
                 },
             };
         },
@@ -84,15 +98,15 @@
                 this.status.message = '';
 
                 const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/service/available',
                     data: {
-                        member_id: this.userInfo.member_id,
-                        service:   this.service,
+                        member_id:    this.userInfo.member_id,
+                        service_type: this.service,
                     },
                 });
 
                 if(code === 0) {
-                    this.status = data.status[this.service];
+                    this.status = data;
                 }
                 this.loading = false;
             },
@@ -109,6 +123,13 @@
         .item-name{
             font-size: 18px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            i {
+                margin-left: 4px;
+                cursor: pointer;
+                color: #f56c6c;
+            }
         }
 
         .item-value{
@@ -130,5 +151,9 @@
     .tip-success{
         background-color: #f0f9eb;
         border-left: 5px solid #67c23a;
+        align-items: center;
+    }
+    .service_list {
+        margin-left: 15px;
     }
 </style>

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,13 +20,13 @@ import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataSetType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -48,7 +48,7 @@ public class QueryDerivedDataSetApi extends AbstractApi<QueryDerivedDataSetApi.I
         private String projectId;
 
         @Check(name = "数据集类型", require = true)
-        private DataSetType dataSetType;
+        private DataResourceType dataResourceType;
 
         @Check(name = "来源")
         private ComponentType sourceType;
@@ -73,12 +73,12 @@ public class QueryDerivedDataSetApi extends AbstractApi<QueryDerivedDataSetApi.I
             this.projectId = projectId;
         }
 
-        public DataSetType getDataSetType() {
-            return dataSetType;
+        public DataResourceType getDataResourceType() {
+            return dataResourceType;
         }
 
-        public void setDataSetType(DataSetType dataSetType) {
-            this.dataSetType = dataSetType;
+        public void setDataResourceType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
         }
 
         public ComponentType getSourceType() {

@@ -1,10 +1,12 @@
 <template>
     <div class="project-setting-icon">
-        <i
+        <el-icon
             v-if="!project.is_exited && project.audit_status !== 'disagree'"
             class="el-icon-setting"
             @click="showDialogForProjectSetting=true"
-        />
+        >
+            <elicon-setting />
+        </el-icon>
         <el-dialog
             title="项目设置"
             v-model="showDialogForProjectSetting"
@@ -16,7 +18,7 @@
                 class="pt10 pb10"
                 style="color: #ea5169;"
             >
-                注意：退出后，您已授权的数据集会收回授权。
+                注意：退出后，您已授权的数据资源会收回授权。
             </p>
             <el-button
                 type="danger"

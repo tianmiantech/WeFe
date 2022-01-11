@@ -18,7 +18,7 @@ package com.welab.wefe.common.data.mongodb.entity.sms;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.constant.SmsBusinessType;
-import com.welab.wefe.common.data.mongodb.entity.AbstractNormalMongoModel;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = MongodbTable.Sms.VERIFICATION_CODE)

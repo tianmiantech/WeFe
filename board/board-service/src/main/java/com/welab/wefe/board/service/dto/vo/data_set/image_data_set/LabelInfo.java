@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,6 +77,17 @@ public class LabelInfo extends AbstractCheckModel {
             this.points = new ArrayList<>();
             this.points.add(new Point(minX, minY));
             this.points.add(new Point(maxX, maxY));
+        }
+
+        public Object toLabelObject() {
+            Object object = new Object();
+            LabelInfo.Point point1 = points.get(0);
+            LabelInfo.Point point2 = points.get(1);
+            object.bndbox = new Bndbox(point1.x, point1.y, point2.x, point2.y);
+            object.name = label;
+            object.difficult = difficult ? 1 : 0;
+            object.truncated = truncated ? 1 : 0;
+            return object;
         }
     }
 

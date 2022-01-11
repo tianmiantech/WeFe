@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,14 +17,14 @@ package com.welab.wefe.board.service.component.base.dto;
 
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
-import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public abstract class AbstractDataIOParam<T extends AbstractDataSetItem> extends
                 .orElse(null);
     }
 
-    public AbstractDataSetOutputModel getMyJobDataSet(JobMemberRole role) throws StatusCodeWithException {
+    public DataResourceOutputModel getMyJobDataSet(JobMemberRole role) throws StatusCodeWithException {
         T dataSetItem = getMyJobDataSetItem(role);
         if (dataSetItem == null) {
             return null;
@@ -63,7 +63,7 @@ public abstract class AbstractDataIOParam<T extends AbstractDataSetItem> extends
 
         } else if (dataSetItem instanceof DataIOComponent.DataSetItem) {
             return Launcher.CONTEXT
-                    .getBean(DataSetService.class)
+                    .getBean(TableDataSetService.class)
                     .findDataSetFromLocalOrUnion(
                             dataSetItem.getMemberId(),
                             dataSetItem.getDataSetId()

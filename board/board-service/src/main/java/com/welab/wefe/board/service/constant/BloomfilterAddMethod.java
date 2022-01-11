@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.constant;
 
 /**
- * How to add bloomfilter
+ * How to add bloom_filter
  *
  * @author jacky.jiang
  */

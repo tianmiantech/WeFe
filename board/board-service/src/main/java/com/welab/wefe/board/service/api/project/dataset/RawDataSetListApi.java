@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,14 +18,14 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
-import com.welab.wefe.common.enums.DataSetType;
-import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataSetType, input.memberId, input.memberRole, input.containsY);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY);
         return success(new Output(list));
     }
 
@@ -53,7 +53,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
         private String memberId;
 
         @Check(name = "数据集类型", require = true)
-        private DataSetType dataSetType;
+        private DataResourceType dataResourceType;
 
         @Check(name = "成员角色", require = true)
         private JobMemberRole memberRole;
@@ -79,12 +79,12 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
             this.memberId = memberId;
         }
 
-        public DataSetType getDataSetType() {
-            return dataSetType;
+        public DataResourceType getDataResourceType() {
+            return dataResourceType;
         }
 
-        public void setDataSetType(DataSetType dataSetType) {
-            this.dataSetType = dataSetType;
+        public void setDataResourceType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
         }
 
         public JobMemberRole getMemberRole() {

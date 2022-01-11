@@ -2,74 +2,64 @@
     <el-dialog
         v-model="vData.show"
         title="操作指引"
-        width="65%"
-        top="20px"
+        width="60%"
+        top="5vh"
         :center="true"
         append-to-body
         destroy-on-close
         @closed="closedDialog"
     >
-        <el-steps
-            :active="vData.active"
-            finish-status="success"
-            align-center
-        >
-            <el-step
-                title="上传数据集"
-                icon="el-icon-upload"
-                @click="vData.active = 0"
-            />
-            <el-step
-                title="寻找合作方"
-                icon="el-icon-s-custom"
-                @click="vData.active = 1"
-            />
-            <el-step
-                title="建立合作"
-                icon="el-icon-connection"
-                @click="vData.active = 2"
-            />
-            <el-step
-                title="创建并执行流程"
-                icon="el-icon-video-play"
-                @click="vData.active = 3"
-            />
-        </el-steps>
+        <div class="video-guides">
+            <el-steps
+                :active="vData.active"
+                finish-status="success"
+                align-center
+            >
+                <el-step
+                    title="上传数据资源"
+                    icon="elicon-upload"
+                    @click="vData.active = 0"
+                />
+                <el-step
+                    title="寻找合作方"
+                    icon="elicon-avatar"
+                    @click="vData.active = 1"
+                />
+                <el-step
+                    title="建立合作"
+                    icon="elicon-connection"
+                    @click="vData.active = 2"
+                />
+                <el-step
+                    title="创建并执行流程"
+                    icon="elicon-video-play"
+                    @click="vData.active = 3"
+                />
+            </el-steps>
 
-        <div v-show="vData.active === 0">
             <video
-                id="zane"
+                v-show="vData.active === 0"
                 controls="controls"
                 preload="meta"
                 :src="videos[0]"
-                style="display: block; width: 100%;"
             />
-        </div>
-        <div v-show="vData.active === 1">
             <video
-                id="zane"
+                v-show="vData.active === 1"
                 controls="controls"
                 preload="meta"
                 :src="videos[1]"
-                style="display: block; width: 100%;"
             />
-        </div>
-        <div v-show="vData.active === 2">
             <video
-                id="zane"
+                v-show="vData.active === 2"
                 controls="controls"
                 preload="meta"
                 :src="videos[2]"
-                style="display: block; width: 100%;"
             />
-        </div>
-        <div v-show="vData.active === 3">
             <video
-                id="zane"
+                v-show="vData.active === 3"
                 controls="controls"
                 preload="meta"
                 :src="videos[3]"
-                style="display: block; width: 100%;"
             />
         </div>
 
@@ -80,18 +70,23 @@
                     type="primary"
                     @click="preStep"
                 >
-                    <i class="el-icon-caret-left" /> 上一个
+                    <el-icon class="el-icon-caret-left">
+                        <elicon-caret-left />
+                    </el-icon>
+                    上一个
                 </el-button>
                 <el-button
                     :disabled="vData.active > 2"
                     type="primary"
                     @click="nextStep"
                 >
-                    下一个 <i class="el-icon-caret-right" />
+                    下一个
+                    <el-icon class="el-icon-caret-right">
+                        <elicon-caret-right />
+                    </el-icon>
                 </el-button>
                 <el-button
                     id="btnHiddenForever"
-                    type="text"
                     @click="hiddenForever"
                 >
                     不再提醒
@@ -171,12 +166,27 @@
         position: absolute;
         right: 25px;
         bottom: 20px;
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1px;
     }
     .el-steps {
         margin-bottom: 10px;
         .el-step{cursor: pointer;}
         :deep(.is-process) {color: $--color-primary !important;}
         :deep(.el-step__title){font-size: 14px;}
+    }
+    .video-guides{
+        height: calc(100vh - 200px);
+        margin-bottom: -50px;
+        min-height: 400px;
+        overflow: auto;
+        video{
+            width: auto;
+            height: calc(100% - 140px);
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
     }
 </style>

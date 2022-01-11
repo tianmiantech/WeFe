@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,18 +23,18 @@ import javax.persistence.Entity;
 /**
  * @author jacky.jiang
  */
-@Entity(name = "bloomfilter_task")
+@Entity(name = "bloom_filter_task")
 public class BloomFilterTaskMysqlModel extends AbstractBaseMySqlModel {
 
     /**
      * 过滤器名
      */
-    private String bloomfilterName;
+    private String bloomFilterName;
 
     /**
      * 过滤器id
      */
-    private String bloomfilterId;
+    private String bloomFilterId;
 
     /**
      * 总数据行数
@@ -67,19 +67,27 @@ public class BloomFilterTaskMysqlModel extends AbstractBaseMySqlModel {
     // region getter/setter
 
     public String getBloomfilterName() {
-        return bloomfilterName;
+        return bloomFilterName;
     }
 
     public void setBloomfilterName(String bloomfilterName) {
-        this.bloomfilterName = bloomfilterName;
+        this.bloomFilterName = bloomfilterName;
     }
 
-    public String getBloomfilterId() {
-        return bloomfilterId;
+    public String getBloomFilterName() {
+        return bloomFilterName;
     }
 
-    public void setBloomfilterId(String bloomfilterId) {
-        this.bloomfilterId = bloomfilterId;
+    public void setBloomFilterName(String bloomFilterName) {
+        this.bloomFilterName = bloomFilterName;
+    }
+
+    public String getBloomFilterId() {
+        return bloomFilterId;
+    }
+
+    public void setBloomFilterId(String bloomFilterId) {
+        this.bloomFilterId = bloomFilterId;
     }
 
     public long getTotalRowCount() {

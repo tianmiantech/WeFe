@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -53,7 +54,12 @@ import java.nio.charset.StandardCharsets;
 @ComponentScan(
         lazyInit = true,
         nameGenerator = ApiBeanNameGenerator.class,
-        basePackageClasses = {BoardService.class, Launcher.class, StorageManager.class}
+        basePackageClasses = {
+                BoardService.class,
+                Launcher.class,
+                StorageManager.class,
+                CheckpointManager.class
+        }
 )
 public class BoardService implements ApplicationContextAware {
 
@@ -90,7 +96,7 @@ public class BoardService implements ApplicationContextAware {
                     // 在线体验版专用 api 权限检查
                     OnlineDemoApi onlineDemoApi = api.getClass().getAnnotation(OnlineDemoApi.class);
                     if (onlineDemoApi != null) {
-                        Config config = Launcher.CONTEXT.getBean(Config.class);
+                        Config config = Launcher.getBean(Config.class);
                         if (!config.isOnlineDemo()) {
                             throw new StatusCodeWithException("The current environment does not allow this API to be called", StatusCode.SYSTEM_ERROR);
                         }
@@ -104,7 +110,7 @@ public class BoardService implements ApplicationContextAware {
 
         Launcher
                 .instance()
-                .afterApiExecuteFunction(Launcher.CONTEXT.getBean(OperationLogAfterApiExecute.class));
+                .afterApiExecuteFunction(Launcher.getBean(OperationLogAfterApiExecute.class));
     }
 
 

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,22 +33,22 @@ public class ClassUtils {
     /**
      * build a readable type name for field
      */
-    public static String getFieldTypeName(Field field) {
-        Class<?> type = field.getType();
+    public static String getTypeSimpleName(Class<?> type) {
         String name = type.getCanonicalName();
-
-        if (field.getType().equals(List.class)) {
-
-            Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-            String genericTypeName = genericType.getTypeName();
-            genericTypeName = genericTypeName.contains(".") ? StringUtil.substringAfterLast(genericTypeName, ".") : genericTypeName;
-            genericTypeName = genericTypeName.replace("$", ".");
-            name = "List<" + genericTypeName + ">";
-
-        } else if (name.contains(".")) {
-            name = StringUtil.substringAfterLast(field.getType().getCanonicalName(), ".");
-        }
+        name = name.contains(".") ? StringUtil.substringAfterLast(name, ".") : name;
+        name = name.replace("$", ".");
         return name;
+    }
+
+    public static Type getListFieldGenericType(Field field) {
+        Class<?> type = field.getType();
+
+        if (!type.equals(List.class)) {
+            throw new UnsupportedOperationException();
+        }
+
+        Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        return genericType;
     }
 
     /**
@@ -56,6 +56,7 @@ public class ClassUtils {
      */
     public static Class<?> createClassFromName(String name) {
         try {
+
             return Class.forName(name);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

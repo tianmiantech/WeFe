@@ -31,12 +31,12 @@
 
                 <el-button
                     v-if="form.isCreator && !form.closed"
-                    plain
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
-                    + 添加数据集到此项目
+                    + 添加资源到此项目
                 </el-button>
+
                 <el-table
                     v-if="promoter.$data_set.length"
                     :data="promoter.$data_set"
@@ -47,20 +47,22 @@
                 >
                     <el-table-column type="index" />
                     <el-table-column
-                        label="数据集"
+                        label="数据资源"
                         width="260"
                     >
                         <template v-slot="scope">
-                            <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id } }">
-                                {{ scope.row.data_set.name }}
-                            </router-link>
-                            <br>
-                            <span>{{ scope.row.data_set_id }}</span>
+                            <template v-if="scope.row.data_set">
+                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: projectType === 'DeepLearning' ? 'img' : 'csv' } }">
+                                    {{ scope.row.data_set.name }}
+                                </router-link>
+                                <br>
+                                <span>{{ scope.row.data_set_id }}</span>
+                            </template>
                         </template>
                     </el-table-column>
                     <el-table-column label="关键词">
                         <template v-slot="scope">
-                            <template v-if="scope.row.data_set.tags">
+                            <template v-if="scope.row.data_set && scope.row.data_set.tags">
                                 <template
                                     v-for="(item, index) in scope.row.data_set.tags.split(',')"
                                     :key="index"
@@ -77,9 +79,11 @@
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="数据量">
                         <template v-slot="scope">
-                            特征：{{ scope.row.data_set.feature_count }}
-                            <br>
-                            行数：{{ scope.row.data_set.row_count }}
+                            <template v-if="scope.row.data_set">
+                                特征量：{{ scope.row.data_set.feature_count }}
+                                <br>
+                                样本量：{{ scope.row.data_set.row_count }}
+                            </template>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -87,12 +91,24 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_set.usage_count_in_job }}
+                            {{ scope.row.data_set ? scope.row.data_set.usage_count_in_job : '-' }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="是否包含 Y">
                         <template v-slot="scope">
-                            {{ scope.row.data_set.contains_y ? '是' : '否' }}
+                            {{ scope.row.data_set && scope.row.data_set.contains_y ? '是' : '否' }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
+                        label="样本分类"
+                        prop="for_job_type"
+                        width="100"
+                    >
+                        <template v-slot="scope">
+                            <template v-if="scope.row.data_set">
+                                {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -101,7 +117,7 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_set.sample_count }}
+                            {{ scope.row.data_set ? scope.row.data_set.total_data_count : 0 }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -111,7 +127,9 @@
                         width="100"
                     >
                         <template v-slot="scope">
-                            {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
+                            <template v-if="scope.row.data_set">
+                                {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
+                            </template>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -132,10 +150,11 @@
                         v-if="!form.closed && !promoter.exited && (promoter.audit_status !== 'disagree' && promoter.member_id === userInfo.member_id || form.isCreator)"
                         min-width="160"
                         label="操作"
+                        fixed="right"
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id && projectType === 'MachineLearning'"
+                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -145,11 +164,13 @@
                                     class="dataset-preview mr5"
                                     @click="showDataSetPreview(scope.row)"
                                 >
-                                    <i class="el-icon-view" />
+                                    <el-icon>
+                                        <elicon-view />
+                                    </el-icon>
                                 </el-button>
                             </el-tooltip>
                             <!--
-                                1. 数据集未被删除
+                                1. 数据资源未被删除
                                 2. 成员是 promoter or 成员是自己
                             -->
                             <el-button
@@ -157,11 +178,11 @@
                                 circle
                                 type="danger"
                                 class="mr10"
-                                icon="el-icon-delete"
+                                icon="elicon-delete"
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
                             <template v-if="scope.row.deleted">
-                                该数据集已被移除
+                                该数据资源已被移除
                             </template>
                         </template>
                     </el-table-column>
@@ -261,8 +282,10 @@
             v-model="dataSetPreviewDialog"
             destroy-on-close
             append-to-body
+            width="60%"
         >
-            <DataSetPreview ref="DataSetPreview" />
+            <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreview" />
+            <PreviewImageList v-if="form.project_type === 'DeepLearning'" ref="PreviewImageList" />
         </el-dialog>
 
         <SelectMemberDialog
@@ -292,6 +315,7 @@
     import MemberTabHead from './member-tab-head';
     import MemberTabAudit from './member-tab-audit';
     import MemberDataSet from './member-data-set';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default {
         name:       'MemberList',
@@ -304,6 +328,7 @@
             MemberTabHead,
             MemberTabAudit,
             MemberDataSet,
+            PreviewImageList,
         },
         inject: ['refresh'],
         props:  {
@@ -314,12 +339,7 @@
         data() {
             return {
                 dataSetPreviewDialog: false,
-                public_level_map:     {
-                    Public:               '所有成员可见',
-                    MySelf:               '仅自己可见',
-                    PublicWithMemberList: '指定成员可见',
-                },
-                dataSets: {
+                dataSets:             {
                     role:  '',
                     id:    '',
                     index: 0,
@@ -340,7 +360,11 @@
                 this.dataSetPreviewDialog = true;
 
                 this.$nextTick(() =>{
-                    this.$refs['DataSetPreview'].loadData(item.data_set_id);
+                    if (this.projectType === 'MachineLearning') {
+                        this.$refs['DataSetPreview'].loadData(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                    } else if (this.projectType === 'DeepLearning') {
+                        this.$refs.PreviewImageList.methods.getSampleList(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                    }
                 });
             },
 
@@ -461,14 +485,14 @@
                 if (batchlist.length) {
                     batchlist.forEach(item => {
                         this.batchDataSetList.push({
-                            member_role:   row.member_role,
-                            member_id:     row.member_id,
-                            data_set_id:   item.id,
-                            data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                            member_role:        row.member_role,
+                            member_id:          row.member_id,
+                            data_set_id:        item.data_resource_id,
+                            data_resource_type: item.data_resource_type,
                         });
                     });
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: this.batchDataSetList,
@@ -477,7 +501,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 }
             },
@@ -490,15 +514,15 @@
 
                 if(!has) {
                     const { code } = await this.$http.post({
-                        url:  '/project/data_set/add',
+                        url:  '/project/data_resource/add',
                         data: {
                             project_id:  this.form.project_id,
                             dataSetList: [
                                 {
-                                    member_role:   row.member_role,
-                                    member_id:     row.member_id,
-                                    data_set_id:   item.id,
-                                    data_set_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                    member_role:        row.member_role,
+                                    member_id:          row.member_id,
+                                    data_set_id:        item.data_resource_id,
+                                    data_resource_type: item.data_resource_type,
                                 },
                             ],
                         },
@@ -506,7 +530,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 } else {
                     this.loading = false;
@@ -520,7 +544,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,

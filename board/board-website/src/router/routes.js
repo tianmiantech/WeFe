@@ -14,7 +14,7 @@
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  * @param {meta: notshowattag} Boolean           not show this page at tag bar
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
@@ -32,7 +32,7 @@ const baseRoutes = [
                 name: 'index',
                 meta: {
                     title:           '主页',
-                    icon:            'el-icon-monitor',
+                    icon:            'monitor',
                     loginAndRefresh: true,
                 },
                 component: () => import('../views/index/dashboard.vue'),
@@ -43,7 +43,7 @@ const baseRoutes = [
         path: `${prefixPath}union-center`,
         meta: {
             title: '联邦',
-            icon:  'el-icon-connection',
+            icon:  'connection',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -61,7 +61,7 @@ const baseRoutes = [
                 name: 'union-data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/union-data-list'),
             },
@@ -71,7 +71,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}union-data-list`,
                 },
                 component: () => import('../views/data-center/union-data-view'),
@@ -81,8 +81,8 @@ const baseRoutes = [
     {
         path: `${prefixPath}data-center`,
         meta: {
-            title: '数据中心',
-            icon:  'el-icon-coin',
+            title: '资源中心',
+            icon:  'coin',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -91,7 +91,7 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '我的数据集',
+                    title:           '我的资源',
                 },
                 component: () => import('../views/data-center/data-list'),
             },
@@ -99,7 +99,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-add-transition`,
                 name: 'data-add-transition',
                 meta: {
-                    title: '添加数据集',
+                    title: '添加资源',
                 },
                 component: () => import('../views/data-center/data-add-transition.vue'),
             },
@@ -107,9 +107,10 @@ const baseRoutes = [
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title:        '添加数据集',
                     hidden:       true,
                     notshowattag: true,
+                    title:        '添加资源',
+                    active:       `${prefixPath}data-add-transition`,
                 },
                 component: () => import('../views/data-center/data-add.vue'),
             },
@@ -117,7 +118,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-view`,
                 name: 'data-view',
                 meta: {
-                    title:  '查看数据集',
+                    title:  '查看数据资源',
                     hidden: true,
                     active: `${prefixPath}data-list`,
                 },
@@ -128,7 +129,7 @@ const baseRoutes = [
                 name: 'data-update',
                 meta: {
                     hidden: true,
-                    title:  '编辑数据集',
+                    title:  '编辑数据资源',
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),
@@ -141,7 +142,8 @@ const baseRoutes = [
                     title:  '查看与标注',
                     active: `${prefixPath}data-list`,
                 },
-                component: () => import('../views/data-center/data-check-label.vue'),
+                component: () =>
+                    import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
@@ -159,7 +161,7 @@ const baseRoutes = [
         path: `${prefixPath}teamwork`,
         meta: {
             title: '合作中心',
-            icon:  'el-icon-s-claim',
+            icon:  'list',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -228,6 +230,23 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/deeplearning/index'),
             },
             {
+                path: `${prefixPath}teamwork/detail/deep-learning/check-flow`,
+                name: 'check-flow',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '模型校验',
+                    active:          `${prefixPath}teamwork`,
+                    titleParams:     {
+                        parentTitle: '项目详情',
+                        title:       '项目详情',
+                        htmlTitle:   '项目详情',
+                        backward:    true,
+                    },
+                },
+                component: () => import('../views/teamwork/deeplearning/check-flow'),
+            },
+            {
                 path: `${prefixPath}teamwork/detail/job/history`,
                 name: 'project-job-history',
                 meta: {
@@ -279,13 +298,67 @@ const baseRoutes = [
                 },
                 component: () => import('../views/teamwork/job/compare'),
             },
+            {
+                path: `${prefixPath}teamwork/detail/fusion-edit`,
+                name: 'fusion-edit',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '新建数据融合任务',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
+            },
+            {
+                path: `${prefixPath}teamwork/detail/fusion-detail`,
+                name: 'fusion-detail',
+                meta: {
+                    loginAndRefresh: true,
+                    hidden:          true,
+                    title:           '数据融合详情',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () =>
+                    import('../views/teamwork/components/fusion-job/fusion-detail'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}modeling-list`,
+        meta: {
+            title:  '模型列表',
+            hidden: true,
+        },
+        component: () => import('@comp/LayoutFullScreen.vue'),
+        children:  [
+            {
+                path: `${prefixPath}modeling-list`,
+                name: 'modeling-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '模型列表',
+                },
+                component: () => import('../views/teamwork/modeling-list.vue'),
+            },
         ],
     },
     {
         path: `${prefixPath}account`,
         meta: {
             title: '用户管理',
-            icon:  'el-icon-user',
+            icon:  'user',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -310,21 +383,22 @@ const baseRoutes = [
                 component: () => import('../views/account/log-list'),
             },
             {
-                path: `${prefixPath}change-password`,
-                name: 'change-password',
+                path: `${prefixPath}account-setting`,
+                name: 'account-setting',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '修改密码',
+                    title:           '账户设置',
                 },
-                component: () => import('../views/system-config/change-password'),
+                component: () => import('../views/system-config/account-setting'),
             },
         ],
     },
     {
         path: `${prefixPath}global`,
         meta: {
-            title: '全局设置',
-            icon:  'el-icon-setting',
+            title:   '全局设置',
+            icon:    'setting',
+            tooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -335,14 +409,25 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '成员信息',
                 },
-                component: () => import('../views/member/member-view'),
+                component: () => import('../views/system-config/member-view'),
+            },
+            {
+                path: `${prefixPath}enterprise-certification`,
+                name: 'enterprise-certification',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}member-view`,
+                    title:           '企业认证',
+                },
+                component: () => import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
                 name: 'blacklist',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '黑名单管理',
+                    title:           '成员黑名单',
                 },
                 component: () => import('../views/blacklist/blacklist-list'),
             },
@@ -353,7 +438,18 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '系统设置',
                 },
-                component: () => import('../views/system-config/system-config-view'),
+                component: () =>
+                    import('../views/system-config/system-config-view'),
+            },
+            {
+                path: `${prefixPath}calculation-engine-config`,
+                name: 'calculation-engine-config',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '计算引擎设置',
+                },
+                component: () =>
+                    import('../views/system-config/calculation-engine-config'),
             },
         ],
     },

@@ -1,10 +1,10 @@
 <template>
     <el-card
-        name="衍生数据集"
+        name="衍生数据资源"
         class="nav-title"
         shadow="never"
     >
-        <h3 class="mb20 card-title">衍生数据集</h3>
+        <h3 class="mb20 card-title">衍生数据资源</h3>
         <el-form inline>
             <el-form-item label="来源：">
                 <el-select
@@ -45,7 +45,7 @@
         >
             <el-table-column type="index" />
             <el-table-column
-                label="数据集名称"
+                label="数据资源名称"
                 min-width="150"
             >
                 <template v-slot="scope">
@@ -60,11 +60,11 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="数据集来源"
+                label="数据资源来源"
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ derived.typeObj[scope.row.source_type] }}
+                    {{ scope.row.source_type_cn }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -92,9 +92,9 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    特征：{{ scope.row.feature_count }}
+                    特征量：{{ scope.row.feature_count }}
                     <br>
-                    行数：{{ scope.row.row_count }}
+                    样本量：{{ scope.row.row_count }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -103,6 +103,14 @@
             >
                 <template v-slot="scope">
                     {{ scope.row.usage_count_in_job }}
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="创建时间"
+                min-width="140"
+            >
+                <template v-slot="scope">
+                    {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column label="查看任务">
@@ -161,15 +169,18 @@
                         label: '特征筛选',
                         value: 'FeatureSelection',
                     }, {
+                        label: '特征标准化',
+                        value: 'FeatureStandardized',
+                    }, {
+                        label: '分箱并编码',
+                        value: 'HorzFeatureBinning',
+                    }, {
                         label: '缺失值填充',
                         value: 'FillMissingValue',
+                    }, {
+                        label: '混合分箱',
+                        value: 'MixBinning',
                     }],
-                    typeObj: {
-                        Intersection:     '样本对齐',
-                        FeatureSelection: '特征筛选',
-                        Binning:          '分箱',
-                        FillMissingValue: '缺失值填充',
-                    },
                     list:       [],
                     total:      0,
                     page_index: 1,
@@ -187,12 +198,12 @@
                 const params = {
                     url:    '/project/derived_data_set/query',
                     params: {
-                        sourceType:    this.derived.name,
-                        project_id:    this.project_id,
-                        sourceJobId:   this.derived.sourceJobId,
-                        page_index:    this.derived.page_index - 1,
-                        page_size:     this.derived.page_size,
-                        data_set_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                        sourceType:         this.derived.name,
+                        project_id:         this.project_id,
+                        sourceJobId:        this.derived.sourceJobId,
+                        page_index:         this.derived.page_index - 1,
+                        page_size:          this.derived.page_size,
+                        data_resource_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                     },
                 };
 
@@ -232,7 +243,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.project_id,
                                     data_set_id: row.data_set_id,

@@ -7,12 +7,12 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add', query: {type: 'img'} }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <i class="el-icon-top-right f12"></i>
                 </router-link>
             </div>
@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
             label="数据总量"
-            prop="sample_count"
+            prop="total_data_count"
             width="140"
         ></el-table-column>
         <el-table-column
@@ -78,6 +78,15 @@
         >
             <template v-slot="scope">
                 {{scope.row.label_completed ? '已完成' : '标注中'}}
+            </template>
+        </el-table-column>
+        <el-table-column
+            label="样本分类"
+            prop="for_job_type"
+            width="100"
+        >
+            <template v-slot="scope">
+                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
             </template>
         </el-table-column>
         <el-table-column
@@ -132,7 +141,7 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain type="primary">
+                    <el-button plain>
                         查看与标注
                     </el-button>
                 </router-link>
@@ -187,9 +196,9 @@
                 let message = '此操作将永久删除该条目, 是否继续?';
 
                 const res = await this.$http.get({
-                    url:    '/data_set/usage_detail',
+                    url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 
@@ -206,9 +215,9 @@
                             return `<a href="${path.href}" target="_blank">${row.name}</a>`;
                         });
 
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
                     } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
                     }
 
                     this.$confirm('警告', {

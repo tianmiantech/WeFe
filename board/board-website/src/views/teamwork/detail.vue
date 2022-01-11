@@ -107,6 +107,8 @@
             @deleteDataSetEmit="deleteDataSetEmit"
         />
 
+        <FusionList :form="form" />
+
         <FlowList :form="form" />
 
         <el-card
@@ -117,7 +119,7 @@
             <h3 class="mb10">TopN 展示</h3>
             <TopN ref="topnRef"></TopN>
         </el-card>
-        
+
         <ModelingList
             v-if="form.project_type === 'MachineLearning'"
             ref="ModelingList"
@@ -133,7 +135,9 @@
             destroy-on-close
         >
             <div class="el-message-box__container">
-                <i class="el-message-box__status el-icon-warning" />
+                <el-icon class="el-message-box__status color-danger">
+                    <elicon-warning-filled />
+                </el-icon>
                 <div class="el-message-box__message">{{ cooperAuthDialog.flag ? '同意加入合作' : '拒绝与发起方的此次项目合作' }}</div>
             </div>
             <div class="mt20 text-r">
@@ -157,10 +161,11 @@
     import FlowList from './components/flow-list';
     import DerivedList from './components/derived-list';
     import MembersList from './components/members-list';
+    import FusionList from './components/fusion-job/fusion-list';
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
-    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN';
 
     let timer = null;
 
@@ -169,6 +174,7 @@
             FlowList,
             DerivedList,
             MembersList,
+            FusionList,
             ModelingList,
             PromoterProjectSetting,
             ProviderProjectSetting,
@@ -210,8 +216,10 @@
                     $data_set:      [],
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 promoterService: {},
@@ -272,12 +280,15 @@
             this.$bus.$off('update-title-navigator');
         },
         methods: {
-            async getProjectInfo(callback) {
+            async getProjectInfo(callback, opt = {
+                requestFromRefresh: false,
+            }) {
                 // this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/project/detail',
                     params: {
-                        project_id: this.form.project_id,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.form.project_id,
                     },
                 });
 
@@ -354,8 +365,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: promoterService[member.member_id] ? promoterService[member.member_id].all_status_is_success : null,
-                                status:                promoterService[member.member_id] ? promoterService[member.member_id].status : null,
+                                available: promoterService[member.member_id] ? promoterService[member.member_id].available : null,
+                                details:   promoterService[member.member_id] ? promoterService[member.member_id].details : null,
                             }, // services state
                             $other_audit:   [], // audit comment from others
                             $audit_comment: '', // audit other members
@@ -377,8 +388,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: providerService[member.member_id] ? providerService[member.member_id].all_status_is_success : null,
-                                status:                providerService[member.member_id] ? providerService[member.member_id].status : null,
+                                available: providerService[member.member_id] ? providerService[member.member_id].available : null,
+                                details:   providerService[member.member_id] ? providerService[member.member_id].details : null,
                             }, // service state
                             $other_audit:   [], // audit from other members
                             $audit_comment: '', // audit other members
@@ -386,7 +397,7 @@
                         };
                     });
                     // audit from other members
-                    this.otherAudit();
+                    this.otherAudit(opt);
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
@@ -403,7 +414,7 @@
                     // refresh audit state every 30s
                     clearTimeout(timer);
                     timer = setTimeout(() => {
-                        this.getProjectInfo();
+                        this.getProjectInfo(null, { requestFromRefresh: true });
                     }, 30 * 10e2);
                 }
             },
@@ -419,7 +430,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,
@@ -435,11 +446,12 @@
                     });
             },
 
-            async otherAudit() {
+            async otherAudit(opt = { requestFromRefresh: false }) {
                 const { code, data } = await this.$http.get({
                     url:    '/project/member/add/audit/list',
                     params: {
-                        project_id: this.form.project_id,
+                        'request-from-refresh': opt.requestFromRefresh,
+                        project_id:             this.form.project_id,
                     },
                 });
 
@@ -469,6 +481,13 @@
             },
 
             cooperAuth(flag) {
+                if(!flag && !this.form.audit_comment) {
+                    return this.$alert('', {
+                        title:   '警告',
+                        type:    'warning',
+                        message: '请填写审核意见!',
+                    });
+                }
                 this.cooperAuthDialog.show = true;
                 this.cooperAuthDialog.flag = flag;
             },
@@ -506,15 +525,20 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                     // cache service current state

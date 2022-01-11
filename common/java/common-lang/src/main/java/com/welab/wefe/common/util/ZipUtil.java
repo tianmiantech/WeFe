@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,9 @@
 
 package com.welab.wefe.common.util;
 
-import com.welab.wefe.common.decompression.dto.DecompressionResult;
-import org.apache.log4j.Logger;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -30,7 +31,7 @@ import java.util.zip.ZipOutputStream;
  * @author Zane
  */
 public class ZipUtil {
-    private static final Logger LOG = Logger.getLogger(ZipUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
     private static final int BUFFER_SIZE = 2 * 1024;
 
     /**

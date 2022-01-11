@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -99,6 +99,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
             In apiInput = requestParams.toJavaObject(apiInputClass);
             apiInput.method = method.toUpperCase();
             apiInput.request = request;
+            apiInput.rawRequestParams = requestParams;
             // The parameter checking
             apiInput.checkAndStandardize();
 
@@ -205,6 +206,10 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         return result;
     }
 
+    protected ApiResult<Out> fail(Exception e) {
+        return fail(-1, e.getClass().getSimpleName() + " " + e.getMessage(), null);
+    }
+
     protected ApiResult<Out> fail(String message) {
         return fail(-1, message, null);
     }
@@ -263,12 +268,12 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
     /**
      * Wrap the union API return result as the board API return result.
      */
-    protected ApiResult<JSONObject> unionApiResultToBoardApiResult(JSONObject json) {
+    protected ApiResult<Object> unionApiResultToBoardApiResult(JSONObject json) {
 
-        ApiResult<JSONObject> result = new ApiResult<>();
+        ApiResult<Object> result = new ApiResult<>();
         result.code = json.getInteger("code");
         result.message = json.getString("message");
-        result.data = json.getJSONObject("data");
+        result.data = json.get("data");
 
         return result;
     }

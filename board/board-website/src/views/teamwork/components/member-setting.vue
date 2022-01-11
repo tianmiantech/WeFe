@@ -4,10 +4,12 @@
             <template #content>
                 移除当前成员
             </template>
-            <i
+            <el-icon
                 class="el-icon-delete color-danger f16"
                 @click="showDialogForMemberSetting=true"
-            />
+            >
+                <elicon-delete />
+            </el-icon>
         </el-tooltip>
 
         <el-dialog
@@ -18,7 +20,7 @@
             width="450px"
         >
             <h3>移除成员</h3>
-            <p class="mt10 mb10 color-danger">注意：成员被移除后其数据集将变为不可用</p>
+            <p class="mt10 mb10 color-danger">注意：成员被移除后其数据资源将变为不可用</p>
             <el-button
                 type="danger"
                 @click="removeMember"
@@ -45,7 +47,7 @@
             async removeMember() {
                 const vm = this;
 
-                vm.$confirm('确定要删除该协作方吗', '警告', {
+                vm.$confirm('确定要删除该协作方吗?', '警告', {
                     type: 'warning',
                 })
                     .then(async action => {

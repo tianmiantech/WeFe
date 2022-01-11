@@ -1,7 +1,7 @@
 <template>
     <el-table
         v-loading="loading"
-        :data="uploadList"
+        :data="list"
         stripe
         border
     >
@@ -15,6 +15,7 @@
                 <span class="p-id">{{ scope.row.id }}</span>
             </template>
         </el-table-column>
+        <el-table-column label="数据资源类型" prop="data_resource_type"></el-table-column>
         <el-table-column
             label="样本量"
             prop="row_count"
@@ -23,8 +24,8 @@
                 {{ scope.row.row_count }}
             </template>
         </el-table-column>
-        <el-table-column label="总上传行数" prop="total_row_count"></el-table-column>
-        <el-table-column label="已处理数据行数" prop="added_row_count"></el-table-column>
+        <el-table-column label="上传样本总量" prop="total_row_count"></el-table-column>
+        <el-table-column label="已处理样本量" prop="added_row_count"></el-table-column>
         <el-table-column label="主键重复条数" prop="repeat_id_row_count"></el-table-column>
         <el-table-column
             label="上传者"
@@ -82,16 +83,13 @@
         mixins: [table],
         props:  {
             tableLoading: Boolean,
-            sourceType:   String,
-            searchField:  {
-                type:    Object,
-                default: _ => {},
-            },
-            uploadList: Array, // table data
         },
         data() {
             return {
-                getListApi:    '/data_set_task/query',
+                getListApi: '/data_resource/upload_task/query',
+                search:     {
+                    requestFromRefresh: true,
+                },
                 defaultSearch: false,
                 watchRoute:    false,
                 pagination:    {
@@ -103,7 +101,6 @@
         },
         methods: {
             async getDataList(opt) {
-                this.search = this.searchField;
                 this.pagination.page_index = +this.$route.query.page_index || 1;
                 this.pagination.page_size = +this.$route.query.page_size || 20;
                 await this.getList(opt);

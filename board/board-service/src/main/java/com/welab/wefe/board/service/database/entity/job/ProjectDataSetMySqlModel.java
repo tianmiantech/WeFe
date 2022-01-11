@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,10 +17,10 @@
 package com.welab.wefe.board.service.database.entity.job;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.DataSetType;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -84,7 +84,7 @@ public class ProjectDataSetMySqlModel extends AbstractBaseMySqlModel {
      * 数据集类型
      */
     @Enumerated(EnumType.STRING)
-    private DataSetType dataSetType;
+    private DataResourceType dataResourceType;
 
     //region getter/setter
 
@@ -169,12 +169,12 @@ public class ProjectDataSetMySqlModel extends AbstractBaseMySqlModel {
         this.sourceTaskId = sourceTaskId;
     }
 
-    public DataSetType getDataSetType() {
-        return dataSetType;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setDataSetType(DataSetType dataSetType) {
-        this.dataSetType = dataSetType;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     //endregion

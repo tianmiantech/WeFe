@@ -168,7 +168,7 @@ public class GrpcUtil {
                     // At present, there is no IP whitelist restriction between gateways, so only check the signature and connectivity exceptions
                     if (GrpcUtil.checkIsSignPermissionExp(e)) {
                         // Sign in failed, return directly
-                        returnStatus = ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过，请检查您的公私钥是否匹配以及公钥是否已上报", transferMeta.getSessionId());
+                        returnStatus = ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过，请检查您的公私钥是否匹配以及公钥是否已上报到 union", transferMeta.getSessionId());
                         return returnStatus;
                     }
                     if (GrpcUtil.checkIsConnectionDisableExp(e)) {

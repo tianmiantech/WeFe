@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,15 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.member.InitializeApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberInfoApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberLogoApi;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -50,33 +53,36 @@ public class SystemInitializeService extends AbstractService {
 
     @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
-    private UnionService unionService;
-
-    @Autowired
-    private GatewayService gatewayService;
-
     @Autowired
     private ServingService servingService;
 
     @Autowired
-    private DataSetRepository dataSetRepository;
+    private TableDataSetRepository tableDataSetRepository;
+    @Autowired
+    private ImageDataSetRepository imageDataSetRepository;
+    @Autowired
+    private BloomFilterRepository bloomFilterRepository;
 
     /**
      * Synchronize member information to union for the recovery of membership after union data is lost.
      */
     public synchronized void syncMemberToUnion() throws StatusCodeWithException {
 
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
         unionService.initializeSystem(globalConfigService.getMemberInfo());
 
-        for (DataSetMysqlModel model : dataSetRepository.findAll()) {
-            unionService.uploadTableDataSet(model);
+        for (TableDataSetMysqlModel model : tableDataSetRepository.findAll()) {
+            unionService.upsertDataResource(model);
+        }
+        for (ImageDataSetMysqlModel model : imageDataSetRepository.findAll()) {
+            unionService.upsertDataResource(model);
+        }
+        for (BloomFilterMysqlModel model : bloomFilterRepository.findAll()) {
+            unionService.upsertDataResource(model);
         }
     }
 
@@ -97,7 +103,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
         }
 
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
@@ -129,7 +135,7 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberInfo(UpdateMemberInfoApi.Input input) throws StatusCodeWithException {
 
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
@@ -161,7 +167,7 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
@@ -195,7 +201,7 @@ public class SystemInitializeService extends AbstractService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberLogo(UpdateMemberLogoApi.Input input) throws StatusCodeWithException {
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }

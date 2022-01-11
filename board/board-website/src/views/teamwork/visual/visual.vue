@@ -2,7 +2,6 @@
     <div
         v-loading.fullscreen="vData.loading || vData.waiting"
         :element-loading-text="vData.loadingText"
-        element-loading-spinner="el-icon-loading"
         ref="PageRef"
         class="page"
     >
@@ -34,23 +33,24 @@
                     v-if="vData.jobFinishedMessage.show"
                     :class="['job-alert', 'el-alert', 'is-dark', `el-alert--${vData.jobFinishedMessage.status}`]"
                 >
-                    <i :class="['el-alert__icon', `el-icon-${vData.jobFinishedMessage.status}`]" />
                     <div class="el-alert__content">
                         <p
-                            class="el-alert__title"
+                            class="el-alert__title mr10"
                             v-html="`【${vData.jobFinishedMessage.status}】${vData.jobFinishedMessage.message}`"
                         />
-                        <div
+                        <span
                             v-if="!vData.jobGraphShow"
                             class="check-job mt10 mb5"
                             @click="vData.jobFinishedMessage.show=false; vData.jobGraphShow=true"
                         >
                             点此查看任务详情
-                        </div>
-                        <i
-                            class="el-alert__closebtn el-icon-close"
+                        </span>
+                        <el-icon
+                            class="el-icon-close f16"
                             @click="vData.jobFinishedMessage.show=false"
-                        />
+                        >
+                            <elicon-close />
+                        </el-icon>
                     </div>
                 </div>
             </transition>
@@ -83,11 +83,13 @@
                 id="graph-todos"
                 class="f14 p10"
             >
-                <i
+                <el-icon
                     class="el-icon-close f18"
                     @click="vData.paramsEmptynodesPanel = false"
-                />
-                <p class="pb5"><strong class="f13">由于数据集发生变更<br>以下节点需要重新保存参数: </strong></p>
+                >
+                    <elicon-close />
+                </el-icon>
+                <p class="pb5"><strong class="f13">由于数据资源发生变更<br>以下节点需要重新保存参数: </strong></p>
                 <span
                     class="f12"
                     style="color: #c0c4cc;"
@@ -146,6 +148,7 @@
             :job-id="vData.job_id"
             :project-id="vData.project_id"
             :old-learning-type="vData.learningType"
+            :project-type="vData.project_type"
             @getComponents="methods.getComponents"
             @updateFlowInfo="methods.updateFlowInfo"
             @resetGraphState="methods.resetGraphState"
@@ -163,7 +166,10 @@
             title="警告"
             top="25vh"
         >
-            <span class="el-icon-warning f20" />流程初始化失败, 请重试!
+            <el-icon class="el-icon-warning f20">
+                <elicon-warning-filled />
+            </el-icon>
+            流程初始化失败, 请重试!
             <div class="text-r">
                 <el-button
                     type="primary"
@@ -277,6 +283,7 @@
                     /* dataset cache */
                     dataSource:    [],
                 },
+                project_type: 'MachineLearning',
             });
 
             let resizeObserver,
@@ -344,13 +351,14 @@
                     }
                     return true;
                 },
-                async init () {
+                async init (opt = { requestFromRefresh: false }) {
                     vData.loading = true;
 
                     const { code, data } = await $http.get({
                         url:    '/project/flow/detail',
                         params: {
-                            flow_id: vData.flow_id,
+                            flow_id:                vData.flow_id,
+                            'request-from-refresh': opt.requestFromRefresh,
                         },
                     });
 
@@ -371,6 +379,7 @@
                             vData.paramsEmptynodes = data.params_is_null_flow_nodes || [];
                             vData.oot_model_flow_node_id = data.oot_model_flow_node_id;
                             vData.oot_job_id = data.oot_job_id;
+                            vData.project_type = data.project.project_type;
 
                             let continually = true;
 
@@ -394,7 +403,7 @@
                                 methods.getComponents();
 
                                 // get task details
-                                ToolbarRef.value && ToolbarRef.value.methods.init();
+                                ToolbarRef.value && ToolbarRef.value.methods.init(opt);
                             }
                         } else if(code !== 10006) {
                             vData.failedDialog = true;
@@ -477,6 +486,8 @@
 
                 jobRunning(data) {
                     nextTick(_ => {
+                        const jobStopStatus = ['stop_on_running', 'error_on_running', 'reject_on_auditing', 'deleted', 'error', 'success', 'stop'];
+
                         JobPanelRef.value && JobPanelRef.value.methods.jobRunning(data);
 
                         if(data.job) {
@@ -485,7 +496,7 @@
                         }
 
                         // running job open job panel
-                        if(data.status && data.job.status === 'running') {
+                        if(data.status && !jobStopStatus.includes(data.job.status)) {
                             vData.jobGraphShow = true;
                         }
                     });
@@ -675,7 +686,7 @@
         min-width: 110px;
         .menu-item{
             height: 24px;
-            padding: 0 10px;
+            padding: 0 5px;
             margin-top:3px;
             cursor: pointer;
             &:first-child{margin-top:0;}
@@ -689,9 +700,11 @@
                 background: #fff;
             }
         }
-        .icon, .iconfont{margin-right: 5px;}
-        .el-icon-warning-outline{color:#F85564;}
-        .icon-to-this{font-size: 12px;}
+        .iconfont{
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        .icon-warning-outline{color:#F85564;}
     }
 </style>
 

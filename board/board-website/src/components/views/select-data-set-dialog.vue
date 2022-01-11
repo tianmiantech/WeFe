@@ -1,37 +1,116 @@
 <template>
     <el-dialog
         v-model="show"
-        custom-class="dataset-dialog"
-        title="请选择数据集"
+        width="75%"
+        title="请选择数据资源"
         destroy-on-close
-        width="70%"
+        :close-on-click-modal="false"
     >
         <el-form
             inline
+            size="mini"
             @submit.prevent
         >
             <el-form-item
-                label="名称："
-                label-width="60px"
+                v-if="memberRole !== 'provider'"
+                label="上传者："
             >
+                <el-input
+                    v-model="search.creator"
+                    clearable
+                />
+            </el-form-item>
+            <el-form-item label="名称：">
                 <el-input
                     v-model="search.name"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="ID："
-                label-width="60px"
-            >
+            <el-form-item label="ID：">
                 <el-input
                     v-model="search.id"
                     clearable
                 />
             </el-form-item>
+            <el-form-item
+                label="资源类型："
+                label-width="100"
+            >
+                <el-select
+                    v-if="projectType === 'DeepLearning'"
+                    v-model="search.dataResourceType"
+                    :disabled="true"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        label="ImageDataSet"
+                        value="ImageDataSet"
+                    />
+                </el-select>
+                <el-select
+                    v-else
+                    v-model="search.dataResourceType"
+                    filterable
+                    clearable
+                    multiple
+                    @change="resourceTypeChange"
+                >
+                    <el-option
+                        v-for="item in sourceTypeList"
+                        :key="item.label"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="projectType !== 'DeepLearning'"
+                label="是否包含Y值："
+                label-width="100"
+            >
+                <el-select
+                    v-model="search.containsY"
+                    style="width: 90px"
+                    filterable
+                    clearable
+                >
+                    <el-option label="是" :value="true"></el-option>
+                    <el-option label="否" :value="false"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-else
+                label="样本分类："
+                label-width="100"
+            >
+                <el-select
+                    v-model="search.forJobType"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="item in forJobTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+            <!-- <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
+                <el-select
+                    v-model="search.contains_y"
+                    style="width:80px;"
+                    clearable
+                >
+                    <el-option label="是" value="true"></el-option>
+                    <el-option label="否" value="false"></el-option>
+                </el-select>
+            </el-form-item> -->
             <el-button
-                class="mb20"
+                class="ml10 mb10"
                 type="primary"
-                @click="loadDataList({ memberId, resetPagination: true })"
+                @click="searchDataList({ memberId, resetPagination: true })"
             >
                 查询
             </el-button>
@@ -39,13 +118,12 @@
 
         <DataSetList
             ref="raw"
-            source-type="Raw"
+            :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
             :contains-y="containsY"
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
-            :is-show="isShow"
             :project-type="projectType"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
@@ -55,6 +133,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -62,6 +141,7 @@
             DataSetList,
         },
         props: {
+            memberRole:   String,
             dataSets:     Array,
             containsY:    String,
             callbackFunc: {
@@ -84,12 +164,39 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:   '',
-                    name: '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    contains_y:       '',
+                    dataResourceType: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
+                sourceTypeList:      [
+                    {
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
+                    },
+                    {
+                        label: '布隆过滤器',
+                        value: 'BloomFilter',
+                    },
+                ],
+                forJobTypeList: [
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                ],
+                checkedDataList: [],
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -109,32 +216,45 @@
                 this.show = false;
             },
 
+            resourceTypeChange() {
+                this.search.containsY = '';
+                this.search.forJobType = '';
+            },
+
             resetSearch() {
                 this.$nextTick(() => {
-                    const ref = this.$refs['raw'];
+                    const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:   '',
-                        name: '',
+                        id:               '',
+                        name:             '',
+                        creator:          '',
+                        contains_y:       '',
+                        dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
 
                     if(this.containsY) {
-                        this.search.source_type = 'Raw';
+                        this.search.contains_y = true;
                     }
 
-                    ref.list = [];
-                    ref.pagination.page_index = 1;
-                    ref.pagination.page_size = 20;
+                    $ref.list = [];
+                    $ref.pagination.page_index = 1;
+                    $ref.pagination.page_size = 20;
                 });
             },
 
-            async loadDataList({
+            searchDataList({ memberId, resetPagination }) {
+                this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
+            },
+
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
                 $data_set,
                 projectType,
             }) {
+                this.checkedDataList = $data_set;
                 // change memberId, reset search
                 if (memberId && this.memberId !== memberId) {
                     this.resetSearch();
@@ -143,19 +263,16 @@
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
 
-                if (memberId) {
-                    this.memberId = memberId;
-                }
+                this.$nextTick(_ => {
+                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'];
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
+                    if (memberId) {
+                        this.memberId = memberId;
+                    }
 
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
-
+                    this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
-                }
+                });
             },
 
             searchList(opt = {}) {
@@ -167,24 +284,19 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        if (this.projectType === 'DeepLearning') {
-                            url = '/image_data_set/query';
-                        } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?contains_y=${this.containsY}&member_id=${this.memberId}` : '/data_set/query';
-                        }
+                        url = '/data_resource/query';
                     } else {
                         // search from union
-                        if (this.projectType === 'DeepLearning') {
-                            url = '/union/image_data_set/query';
-                        } else {
-                            url = `/union/data_set/query?member_id=${this.memberId}`;
-                        }
+                        url = `/union/data_resource/query?member_id=${this.memberId}`;
                     }
+
                 }
 
-                const ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {
@@ -201,5 +313,10 @@
 <style lang="scss" scoped>
     .dataset-dialog {
         min-width: 800px;
+    }
+    .el-form{
+        .el-form-item{
+            margin-bottom: 10px;
+        }
     }
 </style>

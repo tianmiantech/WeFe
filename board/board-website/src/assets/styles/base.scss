@@ -1,7 +1,7 @@
 @import "./_variable.scss";
-@import "./_element-ui.scss";
 @import "./_reset.scss";
 @import "./_main.scss";
+@import "./_element-ui.scss";
 @import "./_font.scss";
 
 #app {
@@ -80,3 +80,5 @@ fieldset legend {
 .small-width{max-width:500px;}
 .mid-width{max-width:700px;}
 .large-width{max-width:1000px;}
+.mid-min-width{min-width:700px;}
+.large-min-width{min-width:1000px;}

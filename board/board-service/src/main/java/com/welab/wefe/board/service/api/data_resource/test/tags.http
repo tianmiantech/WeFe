@@ -1,0 +1,37 @@
+
+###
+POST http://localhost:8080/board-service/data_resource/tags
+Content-Type: application/json
+token: {{token}}
+
+{
+}
+
+
+###
+POST http://localhost:8080/board-service/data_resource/tags
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_resource_type": "ImageDataSet"
+}
+
+###
+POST http://localhost:8080/board-service/data_resource/tags
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_resource_type": "TableDataSet"
+}
+
+
+###
+POST http://localhost:8080/board-service/data_resource/tags
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_resource_type": "BloomFilter"
+}
