@@ -139,6 +139,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         model.setRsaD(this.rsaD.toString());
         model.setRsaN(this.rsaN.toString());
         model.setRsaE(this.rsaE.toString());
+        model.setTotalDataCount(this.totalDataCount);
         this.bloomFilterRepository.save(model);
 
         this.bloomfilterPath = outFile.getPath();
