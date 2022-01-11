@@ -8,7 +8,6 @@
             <el-form-item label="任务名称:" required>
                 <el-input
                     v-model="vData.name"
-                    :disabled="userInfo.member_id === vData.provider"
                     show-word-limit
                     maxlength="40"
                     clearable
@@ -126,7 +125,7 @@
                                 <template v-slot="scope">
                                     <span style="display:none;">{{ scope.row }}</span>
                                     <el-button
-                                        v-if="vData.provider.data_resource_type !== 'BloomFilter' && vData.provider.member_id === userInfo.member_id"
+                                        v-if="vData.provider.data_resource_type !== 'BloomFilter'"
                                         @click="methods.fusionKeyMapsDialog('provider')"
                                     >
                                         设置
@@ -145,15 +144,14 @@
             </el-form-item>
             <el-form-item v-if="vData.status !== 'finished'">
                 <el-button
-                    v-if="!vData.id"
+                    v-if="!vData.business_id"
                     type="primary"
                     :disabled="!vData.promoter.data_set_id && !vData.provider.data_set_id"
                     @click="methods.submit"
                 >
                     发起融合
                 </el-button>
-                <!-- provider -->
-                <template v-else-if="vData.status === 'Pending' && userInfo.member_id === vData.provider.member_id">
+                <template v-else-if="vData.status === 'auditing'">
                     <el-button
                         type="primary"
                         @click="methods.audit($event, true)"
@@ -168,26 +166,19 @@
                     </el-button>
                 </template>
                 <el-button
-                    v-if="vData.status === 'Refuse'"
+                    v-if="vData.status === 'reject'"
                     type="primary"
                     @click="methods.submit"
                 >
                     重新发起融合
                 </el-button>
                 <el-button
-                    v-if="vData.status === 'Interrupt' || vData.status === 'Failure'"
-                    type="primary"
-                    @click="methods.submit"
-                >
-                    重跑任务
-                </el-button>
-                <!-- <el-button
-                    v-if="vData.id && vData.status !== 'running'"
+                    v-if="vData.business_id && vData.status !== 'running'"
                     type="danger"
                     @click="methods.deleteTask"
                 >
                     删除任务
-                </el-button> -->
+                </el-button>
             </el-form-item>
             <el-form-item v-else>
                 <el-table :data="[{}]">
@@ -266,13 +257,10 @@
             const encryptionDialogRef = ref(null);
             const {
                 project_id,
-                id,
+                business_id,
             } = route.query;
 
             const vData = reactive({
-                id,
-                project_id,
-                myRole:            '',
                 loading:           false,
                 name:              '',
                 desc:              '',
@@ -285,6 +273,8 @@
                 spend:             '',
                 fusion_count:      0,
                 field_info_list:   [],
+                business_id,
+                project_id,
                 bloom_filter_list: [],
                 algorithms:        [{
                     label: 'RSA-PSI',
@@ -319,15 +309,17 @@
                     const { code, data } = await $http.get({
                         url:    '/fusion/task/detail',
                         params: {
-                            id,
+                            id: business_id,
                         },
                     });
 
                     if(code === 0) {
                         vData.name = data.name;
-                        vData.myRole = data.my_role;
                         vData.desc = data.description;
                         vData.algorithm = data.algorithm;
+                        vData.promoter.partner_id = data.partner_id;
+                        vData.promoter.data_resource_type = data.data_resource_type;
+                        vData.promoter.data_resource_id = data.data_resource_id;
                         vData.bloom_filter_list = data.bloom_filter_list;
                         vData.fusion_count = data.fusion_count;
                         vData.created_time = data.created_time;
@@ -336,22 +328,6 @@
                         vData.status = data.status;
                         vData.error = data.error;
                         vData.spend = data.spend;
-                        // promoter
-                        vData.promoter.member_id = data.promoter.member_id;
-                        vData.promoter.member_name = data.promoter.member_name;
-                        vData.promoter.data_resource_type = data.promoter.data_resource_type;
-                        vData.promoter.data_set_id = data.promoter.data_resource_id;
-                        vData.promoter.total_data_count = data.promoter.row_count;
-                        vData.promoter.hash_func = data.promoter.hash_function;
-                        vData.promoter.name = data.promoter.data_resource_name;
-                        // provider
-                        vData.provider.member_id = data.provider.member_id;
-                        vData.provider.member_name = data.provider.member_name;
-                        vData.provider.data_resource_type = data.provider.data_resource_type;
-                        vData.provider.data_set_id = data.provider.data_resource_id;
-                        vData.provider.total_data_count = data.provider.row_count;
-                        vData.provider.hash_func = data.provider.hash_function;
-                        vData.provider.name = data.provider.data_resource_name;
                     }
                 },
                 async getProviders() {
@@ -441,7 +417,7 @@
                         const { code } = await this.$http.post({
                             url:  '/fusion/task/delete',
                             data: {
-                                id,
+                                id: business_id,
                             },
                         });
 
@@ -470,7 +446,7 @@
                                 is_trace:        vData.is_trace,
                                 audit_comment:   value,
                                 audit_status:    status,
-                                id,
+                                business_id,
                             },
                         });
 
@@ -486,7 +462,7 @@
                     });
                 },
                 async submit(event) {
-                    const { code } = await $http.post({
+                    const { code, data } = await $http.post({
                         url:  '/fusion/task/add',
                         data: {
                             project_id,
@@ -495,14 +471,13 @@
                             description:                vData.desc,
                             data_resource_type:         vData.promoter.data_resource_type,
                             data_resource_id:           vData.promoter.data_set_id,
-                            dst_member_id:              vData.provider.member_id,
+                            dst_member_id:              vData.promoter.member_id,
                             trace_column:               vData.trace_column,
                             field_info_list:            vData.field_info_list,
                             row_count:                  vData.promoter.total_data_count,
                             is_trace:                   vData.is_trace,
                             partner_data_resource_id:   vData.provider.data_set_id,
                             partner_data_resource_type: vData.provider.data_resource_type,
-                            partner_row_count:          vData.provider.total_data_count,
                         },
                         btnState: {
                             target: event,
@@ -512,9 +487,10 @@
                     if(code === 0) {
                         $message.success('任务创建成功!');
                         router.replace({
-                            name:  'project-detail',
+                            name:  'fusion-detail',
                             query: {
                                 project_id,
+                                business_id: data.business_id,
                             },
                         });
                     }
@@ -525,14 +501,13 @@
             vData.promoter.member_id = userInfo.value.member_id;
             methods.getProviders();
 
-            if(id) {
+            if(business_id) {
                 methods.getDetail();
             }
 
             return {
                 vData,
                 methods,
-                userInfo,
                 encryptionDialogRef,
                 fusionDataResourcesRef,
             };

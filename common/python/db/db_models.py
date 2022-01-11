@@ -75,7 +75,7 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
-class JobApplyResult(Model):
+class JobApplyResult(ModelBase):
     id = CharField(primary_key=True)
     created_by = CharField(null=True)
     created_time = DateTimeField()
@@ -89,11 +89,7 @@ class JobApplyResult(Model):
     status = CharField()
 
     class Meta:
-        database = DB
         table_name = 'job_apply_result'
-
-    def to_json(self):
-        return self.__dict__['__data__']
 
 
 # GlobalSetting

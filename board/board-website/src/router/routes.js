@@ -229,6 +229,23 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/deeplearning/index'),
             },
             {
+                path: `${prefixPath}teamwork/detail/deep-learning/check-flow`,
+                name: 'check-flow',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '模型校验',
+                    active:          `${prefixPath}teamwork`,
+                    titleParams:     {
+                        parentTitle: '项目详情',
+                        title:       '项目详情',
+                        htmlTitle:   '项目详情',
+                        backward:    true,
+                    },
+                },
+                component: () => import('../views/teamwork/deeplearning/check-flow'),
+            },
+            {
                 path: `${prefixPath}teamwork/detail/job/history`,
                 name: 'project-job-history',
                 meta: {

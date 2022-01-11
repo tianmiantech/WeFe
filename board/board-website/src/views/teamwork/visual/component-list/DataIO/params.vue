@@ -72,10 +72,10 @@
                         </el-icon>
                     </el-form-item>
                     <el-form-item label="数据资源id：">
-                        {{ row.data_set_id }}
+                        {{ row.data_resource_id || row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
-                        {{ row.row_count }} / {{ row.feature_count }}
+                        {{ row.total_data_count }} / {{ row.feature_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
@@ -630,9 +630,11 @@
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.feature_name_list.split(',');
+                        const features = item.data_set.feature_name_list.split(',');
+
+                        item.data_set.data_resource_id = item.data_set_id;
                         const dataset = {
-                            ...item,
+                            ...item.data_set,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -785,7 +787,7 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_set_id,
+                                data_set_id:       row[0].data_resource_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,

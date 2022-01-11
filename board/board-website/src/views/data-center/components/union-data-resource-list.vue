@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type] }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -87,7 +87,14 @@
             width="140"
         >
             <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
+                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
+                <p v-else>
                     特征量：{{ scope.row.feature_count }}
                     <br>
                     样本量：{{ scope.row.total_data_count }}
@@ -96,13 +103,6 @@
                         <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
                         <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                     </span>
-                </p>
-                <p v-else>
-                    样本量：{{scope.row.total_data_count}}
-                    <br>
-                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
-                    <br>
-                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>
             </template>
         </el-table-column>

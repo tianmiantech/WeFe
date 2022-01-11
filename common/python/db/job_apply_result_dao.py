@@ -18,6 +18,17 @@ from common.python.db.db_models import DB, Job, JobApplyResult
 class JobApplyResultDao:
 
     @staticmethod
-    def find_one_by_job_id(job_id, task_id) -> Job:
+    def find_one_by_job_id(job_id, task_id) -> JobApplyResult:
         with DB.connection_context():
             return JobApplyResult.get_or_none(JobApplyResult.job_id == job_id, JobApplyResult.task_id == task_id)
+
+    @staticmethod
+    def find_one_by_id(id) -> JobApplyResult:
+        with DB.connection_context():
+            return JobApplyResult.get_or_none(JobApplyResult.id == id)
+
+    @staticmethod
+    def save(model: JobApplyResult, force_insert=False):
+        with DB.connection_context():
+            return model.save(force_insert=force_insert)
+

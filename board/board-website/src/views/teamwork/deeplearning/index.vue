@@ -37,7 +37,7 @@
                         <el-tabs type="border-card" @tab-click="methods.dataIOTabchange">
                             <el-tab-pane label="参数">
                                 <div class="data_select">
-                                    <h4>选择数据集</h4>
+                                    <h4>选择数据源</h4>
                                     <div
                                         v-for="(member, index) in vData.member_list"
                                         v-show="vData.disabled ? member.$data_set_list.length : true"
@@ -75,7 +75,7 @@
                                                 @click="methods.checkDataSet(member, index)"
                                                 :disabled="vData.flowInfo.my_role !=='promoter'"
                                             >
-                                                选择数据集
+                                                选择数据源
                                             </el-button>
                                         </p>
 
