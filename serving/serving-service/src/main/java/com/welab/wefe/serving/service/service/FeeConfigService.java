@@ -59,22 +59,15 @@ public class FeeConfigService {
 
 
     public FeeConfigMysqlModel queryOne(String serviceId, String clientId) {
-
         if (StringUtil.isNotEmpty(serviceId) && StringUtil.isNotEmpty(clientId)) {
-
             Specification<FeeConfigMysqlModel> where = Where
                     .create()
                     .equal("serviceId", serviceId)
                     .equal("clientId", clientId)
                     .build(FeeConfigMysqlModel.class);
-
-
             Optional<FeeConfigMysqlModel> one = feeConfigRepository.findOne(where);
-            return one.get();
-        } else {
-
+            return one.orElse(null);
         }
         return null;
-
     }
 }

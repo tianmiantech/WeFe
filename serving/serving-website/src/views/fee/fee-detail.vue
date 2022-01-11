@@ -2,11 +2,11 @@
     <el-card class="page" shadow="never">
         <el-form class="mb20" inline>
             <el-form-item label="服务名称：">
-                <el-input v-model="search.serviceName" clearable/>
+                <el-input v-model="search.serviceName" clearable placeholder="服务名称"/>
             </el-form-item>
 
             <el-form-item label="客户名称：">
-                <el-input v-model="search.clientName" clearable/>
+                <el-input v-model="search.clientName" clearable placeholder="客户名称"/>
             </el-form-item>
 
             <el-form-item label="服务类型：">
@@ -32,20 +32,19 @@
             </el-form-item>
 
             <el-form-item label="创建时间：">
-                <div class="demo-basic">
-                    <el-time-picker
-                        v-model="search.startTime"
+                <div class="block">
+                    <el-date-picker
+                        v-model="timeRange"
+                        type="datetimerange"
+                        range-separator="To"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        @change="timeChange()"
                         value-format="timestamp"
-                        placeholder="开始时间"
                     >
-                    </el-time-picker>
-                    <el-time-picker
-                        v-model="search.endTime"
-                        value-format="timestamp"
-                        placeholder="结束时间"
-                    >
-                    </el-time-picker>
+                    </el-date-picker>
                 </div>
+
             </el-form-item>
 
 
@@ -151,6 +150,7 @@ export default {
                 startTime: '',
                 endTime: '',
             },
+            timeRange: '',
             serviceId: '',
             clientId: '',
             startTime: '',
@@ -159,12 +159,14 @@ export default {
             serviceType: {
                 1: "匿踪查询",
                 2: "交集查询",
-                3: "安全聚合",
+                3: "安全聚合(被查询方)",
+                4: "安全聚合(查询方)",
             },
             serviceTypes: [
                 {value: '1', label: "匿踪查询"},
                 {value: '2', label: "交集查询"},
-                {value: '3', label: "安全聚合"},
+                {value: '3', label: "安全聚合(被查询方)"},
+                {value: '4', label: "安全聚合(查询方)"},
             ],
             queryDateTypes: [
                 {value: '1', label: "按年"},
@@ -184,6 +186,12 @@ export default {
     },
 
     methods: {
+
+        timeChange() {
+            this.search.startTime = this.defaultTime[0]
+            this.search.endTime = this.defaultTime[1]
+        },
+
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
                 this.services.push({

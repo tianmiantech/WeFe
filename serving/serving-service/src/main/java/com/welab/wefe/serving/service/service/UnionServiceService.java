@@ -20,61 +20,153 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 
 @Service
 public class UnionServiceService {
 
-	public PagingOutput<Output> query(Input input) {
-		if (input.getServiceType() != -1) {
-			// TODO
-		}
+	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	private Config config;
+
+	public PagingOutput<Output> query(Input input) throws StatusCodeWithException {
+		JSONObject result = query4Union(input);
+		LOG.info("union query result = " + JSONObject.toJSONString(result));
 		List<UnionServiceApi.Output> list = new ArrayList<>();
+		if (result.getInteger("code") == 0) {
+			JSONObject data = result.getJSONObject("data");
+			JSONArray arr = data.getJSONArray("list");
+			for (int i = 0; i < arr.size(); i++) {
+				JSONObject item = arr.getJSONObject(i);
 
-		// mock
-		int size = 2;
-		for (int i = 1; i <= size; i++) {
-			UnionServiceApi.Output output = new UnionServiceApi.Output();
-			output.setId("" + i);
-			output.setName("信用卡数量查询");
-			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
-			output.setSupplierName("鹏元");
-			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
-			output.setApiName("api/query/credit_card_count");
-			output.setParams(Arrays.asList("member", "model"));
-			output.setCreatedTime(new Date());
-			output.setServiceType(3);
-			list.add(output);
+				UnionServiceApi.Output output = new UnionServiceApi.Output();
+				output.setId(item.getString("service_id"));
+				output.setName(item.getString("name"));
+				output.setSupplierId(item.getString("member_id"));
+				output.setSupplierName(item.getString("member_name"));
+				output.setBaseUrl(item.getString("base_url"));
+				output.setApiName(item.getString("api_name"));
+				if (StringUtils.isNotBlank(item.getString("query_params"))) {
+					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
+				}
+				output.setCreatedTime(new Date(item.getLongValue("created_time")));
+				output.setServiceType(item.getIntValue("service_type"));
+				list.add(output);
+			}
+			return PagingOutput.of(data.getInteger("total"), list);
 		}
-		return PagingOutput.of(2, list);
+		return PagingOutput.of(0, list);
+		// mock
+//		int size = 2;
+//		for (int i = 1; i <= size; i++) {
+//			UnionServiceApi.Output output = new UnionServiceApi.Output();
+//			output.setId("" + i);
+//			output.setName("信用卡数量查询");
+//			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
+//			output.setSupplierName("鹏元");
+//			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
+//			output.setApiName("api/query/credit_card_count");
+//			output.setParams(Arrays.asList("member", "model"));
+//			output.setCreatedTime(new Date());
+//			output.setServiceType(3);
+//			list.add(output);
+//		}
+//		return PagingOutput.of(2, list);
 	}
 
-	public void publish2Union(ServiceMySqlModel model) {
-		model.getId();
-		model.getName();
-		String supplierId = "";
-		String supplierName = "";
-		String baseUrl = "http://xbd-dev.wolaidai.com/serving-service-01";
-		String apiName = "api/" + model.getUrl();
-		List<String> params = Arrays.asList(model.getQueryParams().split(","));
-		model.getCreatedTime();
-		model.getServiceType();
-		// TODO publish
+	public JSONObject query4Union(Input input) throws StatusCodeWithException {
+		JObject params = JObject.create().append("pageSize", input.getPageSize()).append("pageIndex",
+				input.getPageIndex());
+		if (input.getServiceType() != -1) {
+			params.append("serviceType", input.getServiceType());
+		}
+		LOG.info("union query params = " + JSONObject.toJSONString(params));
+		return request("member/service/query", params);
 	}
 
-	public void offline2Union(ServiceMySqlModel model) {
-		model.getId();
-		model.getName();
-		String supplierId = "";
-		// TODO offline
+	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+		JObject params = JObject.create().put("queryParams", model.getQueryParams())
+				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("serviceId", model.getId()).append("name", model.getName())
+				.append("serviceStatus", model.getStatus());
+		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
+		return request("member/service/put", params);
 	}
 
+	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+		JObject params = JObject.create().put("queryParams", model.getQueryParams())
+				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("serviceId", model.getId()).append("name", model.getName())
+				.append("serviceStatus", model.getStatus());
+		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
+		return request("member/service/put", params);
+	}
+
+	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+		return request(api, params, true);
+	}
+
+	private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+		params = new JSONObject(new TreeMap(params));
+		String data = params.toJSONString();
+		// rsa signature
+		if (needSign) {
+			String sign = null;
+			try {
+				sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+			}
+			JSONObject body = new JSONObject();
+			body.put("member_id", CacheObjects.getMemberId());
+			body.put("sign", sign);
+			body.put("data", data);
+			data = body.toJSONString();
+		}
+		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + "/" + api).setBody(data).postJson();
+		if (!response.success()) {
+			throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+		}
+		JSONObject json;
+		try {
+			json = response.getBodyAsJson();
+		} catch (JSONException e) {
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+		}
+		if (json == null) {
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+		}
+		Integer code = json.getInteger("code");
+		if (code == null || !code.equals(0)) {
+			throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
+					StatusCode.RPC_ERROR);
+		}
+		return json;
+	}
 }
