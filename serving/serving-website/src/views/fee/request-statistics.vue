@@ -59,6 +59,12 @@
             >
                 查询
             </el-button>
+
+            <el-button
+                @click="downloadStatistics"
+            >
+                下载
+            </el-button>
         </el-form>
 
         <el-table
@@ -68,7 +74,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
 
             <el-table-column
@@ -259,23 +265,23 @@
 import table from '@src/mixins/table';
 
 export default {
-    name:   'RequestStatistics',
+    name: 'RequestStatistics',
     mixins: [table],
     data() {
         return {
             services: [],
-            clients:  [],
-            search:   {
+            clients: [],
+            search: {
                 serviceId: '',
-                clientId:  '',
+                clientId: '',
                 startTime: '',
-                endTime:   '',
+                endTime: '',
             },
             defaultTime: [
                 '',
                 '',
             ],
-            getListApi:  '/requeststatistics/query-list',
+            getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: '匿踪查询',
                 2: '交集查询',
@@ -286,7 +292,7 @@ export default {
                 1: '成功',
                 0: '失败',
             },
-            apiCallDetails:     [],
+            apiCallDetails: [],
             dialogTableVisible: false,
         };
     },
@@ -306,6 +312,20 @@ export default {
     },
 
     methods: {
+        downloadStatistics() {
+
+            const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&token=${this.userInfo.token}`;
+            const link = document.createElement('a');
+
+            link.href = api;
+            link.target = '_blank';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+
+        },
+
+
         timeChange() {
             this.search.startTime = this.defaultTime[0];
             this.search.endTime = this.defaultTime[1];
@@ -330,7 +350,7 @@ export default {
         },
 
         async getServices() {
-            const { code, data } = await this.$http.post({
+            const {code, data} = await this.$http.post({
                 url: '/service/query',
             });
 
@@ -340,7 +360,7 @@ export default {
         },
 
         async getClients() {
-            const { code, data } = await this.$http.post({
+            const {code, data} = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -352,8 +372,8 @@ export default {
 
         async getDetails(serviceId, clientId) {
             this.apiCallDetails = '';
-            const { code, data } = await this.$http.post({
-                url:  '/apirequestrecord/query-list',
+            const {code, data} = await this.$http.post({
+                url: '/apirequestrecord/query-list',
                 data: {
                     serviceId,
                     clientId,
