@@ -78,6 +78,9 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
 
 
     public static class Output {
+
+        private String id;
+
         /**
          * name
          */
@@ -104,6 +107,15 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
         private String remark;
 
         private String code;
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getCode() {
             return code;

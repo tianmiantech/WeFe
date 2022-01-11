@@ -38,7 +38,7 @@
             <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
                 <el-form :model="clientService" :rules="rules">
                     <el-form-item label="单价：" :label-width="formLabelWidth" prop="unitPrice">
-                        <el-input v-model="clientService.unitPrice"></el-input>
+                        <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
                     </el-form-item>
                     <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
                         <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
@@ -51,11 +51,11 @@
                 </div>
             </el-dialog>
 
-<!--            <el-form-item prop="status">-->
-<!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
-<!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
+            <!--            <el-form-item prop="status">-->
+            <!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
+            <!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
 
-<!--            </el-form-item>-->
+            <!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
@@ -174,7 +174,7 @@ export default {
                 // ]
 
             },
-
+            // clientId: '',
 
         }
     },
@@ -185,8 +185,17 @@ export default {
     }
     ,
     created() {
+
+
+
+        if (this.$route.query.id) {
+            // this.clientId = this.$route.query.id
+            this.getClientById(this.$route.query.id)
+        }
         this.getServices()
         this.getClients()
+
+
     },
 
     methods: {
@@ -223,7 +232,7 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            this.$message('保存成功！')
+            // this.$message('保存成功！')
         },
 
         onSubmit() {
@@ -295,8 +304,26 @@ export default {
             if (code === 0) {
                 this.handleClients(data.list)
             }
-        }
-        ,
+        },
+
+        async getClientById(id) {
+            const {code, data} = await this.$http.post({
+                url: '/client/query-one',
+                data: {
+                    id: id,
+                },
+
+            });
+            if (code === 0) {
+                console.log(data.id,1111111111)
+                this.clientService.clientId = data.id
+                // this.client.email = data.email
+                // this.client.ipAdd = data.ip_add
+                // this.client.pubKey = ''
+                // this.client.remark = data.remark
+                // this.client.code = data.code
+            }
+        },
 
     }
     ,

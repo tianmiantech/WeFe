@@ -11,7 +11,7 @@
                     <el-date-picker
                         v-model="timeRange"
                         type="datetimerange"
-                        range-separator="To"
+                        range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
                         @change="timeChange()"
@@ -27,7 +27,7 @@
             </el-button>
             <router-link
                 :to="{name: 'client-add',}">
-                <el-button type="success">
+                <el-button>
                     新增
                 </el-button>
             </router-link>
@@ -95,6 +95,19 @@
                     >
                         <el-button type="primary">
                             修改
+                        </el-button>
+                    </router-link>
+
+
+                    <router-link
+                        :to="{
+                            name: 'client-service-add',
+                            query: {
+                                id: scope.row.id
+                            },
+                        }">
+                        <el-button type="success">
+                            新增服务
                         </el-button>
                     </router-link>
                 </template>
