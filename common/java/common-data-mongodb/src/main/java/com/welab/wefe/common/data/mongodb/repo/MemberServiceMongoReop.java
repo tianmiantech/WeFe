@@ -114,7 +114,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
 
         UnwindOperation unwind = Aggregation.unwind("member");
         Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.serviceName");
+        addfieldsMap.put("member_name", "$member.name");
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
