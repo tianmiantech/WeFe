@@ -6,6 +6,7 @@
                 :class="{ 'error': li.encryption && li.features.length === 0 }"
                 placeholder="特征列, 支持多选"
                 style="min-width:300px;"
+                clearable
                 multiple
             >
                 <el-option
@@ -20,6 +21,7 @@
                 :class="['ml10', 'mr20', { 'error': li.features.length && !li.encryption }]"
                 placeholder="加密方式"
                 style="width:130px"
+                clearable
             >
                 <el-option
                     v-for="item in vData.encryptions"
@@ -32,10 +34,10 @@
             <i class="iconfont icon-circle-plus" @click="methods.addLi" />
             <i :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
         </el-form-item>
-        <p v-if="formula">融合公式: {{ formula }}</p>
+        <p v-if="hash_func">融合公式: {{ hash_func }}</p>
 
-        <div v-if="dateRecall" class="mt20">
-            <el-switch v-model="vData.dateRecall" class="mr10" />是否需要回溯
+        <div v-if="isTrace" class="mt20">
+            <el-switch v-model="vData.is_trace" class="mr10" />是否需要回溯
             <el-tooltip placement="top" effect="light">
                 <template #content>
                     可选回溯字段便于对融合进行追溯。
@@ -48,9 +50,11 @@
             <el-form class="flex-form mt10">
                 <el-form-item label="回溯字段:">
                     <el-select
-                        v-model="vData.dateRecallFeature"
+                        v-model="vData.trace_column"
+                        :class="{'error': vData.is_trace && !vData.trace_column }"
+                        :disabled="!vData.is_trace"
                         placeholder="必须为date类型"
-                        :disabled="!vData.dateRecall"
+                        clearable
                     >
                         <el-option
                             v-for="(item, index) in columns"
@@ -74,8 +78,8 @@
 
     export default {
         props: {
-            columns:    Array,
-            dateRecall: Boolean,
+            columns: Array,
+            isTrace: Boolean,
         },
         setup() {
             const { appContext } = getCurrentInstance();
@@ -86,10 +90,10 @@
                     features:   '',
                     encryption: '',
                 }],
-                dateRecall:        true,
-                dateRecallFeature: '',
+                is_trace:     false,
+                trace_column: '',
             });
-            const formula = computed(() => {
+            const hash_func = computed(() => {
                 return vData.encryptionList.reduce((a, b) => {
                     const { features: f, encryption: e } = b;
 
@@ -119,7 +123,6 @@
 
                 addLi() {
                     vData.encryptionList.push({
-                        // feature:   vData.columns,
                         features:   '',
                         encryption: '',
                     });
@@ -134,7 +137,7 @@
             return {
                 vData,
                 methods,
-                formula,
+                hash_func,
             };
         },
     };
@@ -160,7 +163,7 @@
             color:$color-text-disabled;
         }
     }
-    .el-switch{vertical-align: top;}
+    .el-switch{vertical-align: text-bottom;}
     .el-icon-warning{
         cursor:pointer;
         top:2px;

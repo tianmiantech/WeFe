@@ -488,7 +488,7 @@
                             member_role:        row.member_role,
                             member_id:          row.member_id,
                             data_set_id:        item.data_resource_id,
-                            data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                            data_resource_type: item.data_resource_type,
                         });
                     });
                     const { code } = await this.$http.post({
@@ -522,7 +522,7 @@
                                     member_role:        row.member_role,
                                     member_id:          row.member_id,
                                     data_set_id:        item.data_resource_id,
-                                    data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                    data_resource_type: item.data_resource_type,
                                 },
                             ],
                         },
