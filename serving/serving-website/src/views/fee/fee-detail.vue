@@ -63,22 +63,30 @@
                 <TableEmptyData/>
             </div>
 
+            <el-table-column label="序号" min-width="50" type="index">
+
+            </el-table-column>
+
+            <el-table-column label="服务名称" min-width="80">
+                <template slot-scope="scope">
+                    <p>{{ scope.row.service_name }}</p>
+                    <p class="id">{{ scope.row.service_id }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column label="客户名称" min-width="80">
+                <template slot-scope="scope">
+                    <p>{{ scope.row.client_name }}</p>
+                    <p class="id">{{ scope.row.client_id }}</p>
+                </template>
+            </el-table-column>
+
             <el-table-column label="日期" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ scope.row.query_date }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="服务名称" min-width="80">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.service_name }}</p>
-                </template>
-            </el-table-column>
-            <el-table-column label="客户名称" min-width="80">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.client_name }}</p>
-                </template>
-            </el-table-column>
+
             <el-table-column label="服务类型" min-width="50">
                 <template slot-scope="scope">
                     <p>{{ serviceType[scope.row.service_type] }}</p>
