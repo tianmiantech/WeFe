@@ -183,7 +183,7 @@ public class ServiceService {
 	private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
 		int size = keyCalcRules.size();
 		StringBuffer encodeValue = new StringBuffer("");
-		for (int i = 1; i <= size; i++) {
+		for (int i = 0; i < size; i++) {
 			JSONObject item = keyCalcRules.getJSONObject(i);
 			String operator = item.getString("operator");
 			String[] fields = item.getString("field").split(",");
