@@ -101,11 +101,55 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item label="数据集id："> {{ row.data_set_id }} </el-form-item>
-                                                <el-form-item label="数据总量：">
-                                                    {{ row.data_set.total_data_count }}
+                                                <el-form-item v-if="row.data_set.description" label="数据集简介：">
+                                                    {{ row.data_set.description }}
+                                                </el-form-item>
+                                                <el-form-item label="关键词：">
+                                                    <template v-for="item in row.data_set.tags.split(',')" :key="item">
+                                                        <el-tag
+                                                            v-show="item"
+                                                            class="mr10"
+                                                        >
+                                                            {{ item }}
+                                                        </el-tag>
+                                                    </template>
+                                                </el-form-item>
+                                                <el-form-item label="数据总量/已标注：" label-width="130px">
+                                                    {{ row.data_set.total_data_count }} / {{ row.data_set.labeled_count }}
                                                 </el-form-item>
                                                 <el-form-item label="样本分类：">
                                                     {{row.data_set.for_job_type === 'classify' ? '图像分类' : row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                                </el-form-item>
+                                                <el-form-item v-if="row.data_set.label_list" label="标注标签：">
+                                                    <template v-if="!vData.isAllLabel && row.data_set.label_list.split(',').length>9">
+                                                        <template v-for="item in row.data_set.label_list_part" :key="item">
+                                                            <el-tag
+                                                                v-show="item"
+                                                                class="mr10"
+                                                            >
+                                                                {{ item }}
+                                                            </el-tag>
+                                                        </template>
+                                                    </template>
+                                                    <template v-else>
+                                                        <template v-for="item in row.data_set.label_list.split(',')" :key="item">
+                                                            <el-tag
+                                                                v-show="item"
+                                                                class="mr10"
+                                                            >
+                                                                {{ item }}
+                                                            </el-tag>
+                                                        </template>
+                                                    </template>
+                                                    <span v-if="row.data_set.label_list.split(',').length>9" @click="vData.isAllLabel = !vData.isAllLabel" class="check_tips">
+                                                        {{ vData.isAllLabel ? '收起' : '查看全部' }}
+                                                        <el-icon v-if="!vData.isAllLabel">
+                                                            <elicon-arrow-down />
+                                                        </el-icon>
+                                                        <el-icon v-else>
+                                                            <elicon-arrow-up />
+                                                        </el-icon>
+                                                    </span>
                                                 </el-form-item>
                                             </el-form>
                                         </div>
@@ -246,12 +290,6 @@
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <!-- <el-form-item label="类别数：" required>
-                                <el-input
-                                    v-model="vData.deepLearnParams.num_classes"
-                                    @blur="methods.saveFlowInfo($event)"
-                                />
-                            </el-form-item> -->
                                     <el-form-item label="学习率：" required>
                                         <el-input
                                             v-model="vData.deepLearnParams.base_lr"
@@ -465,6 +503,7 @@
                 showDataIOResult:  false,
                 showDLResult:      false,
                 flowType:          route.query.training_type || 'PaddleDetection',
+                isAllLabel:        false,
             });
             const methods = {
                 async getFlowInfo() {
@@ -577,17 +616,6 @@
                         }
                         vData.startLoading = false;
                     });
-                },
-                typeChange(val) {
-                    console.log(val);
-                    switch(val) {
-                    case 'PaddleDetection':
-                        vData.deepLearnParams.program = 'paddle_detection';
-                        break;
-                    case 'PaddleClassify':
-                        vData.deepLearnParams.program = 'paddle_clas';
-                        break;
-                    }
                 },
                 prev() {
                     if (vData.active-- === 0) vData.active = 0;
@@ -732,8 +760,6 @@
                         }
                     });
                 },
-                async getNodeData() {
-                },
                 async checkDataSet(member, index) {
                     vData.currentItem = member;
                     vData.memberIndex = index;
@@ -763,6 +789,13 @@
                     vData.showSelectDataSet = false;
                     const currentMember = vData.member_list[vData.memberIndex];
                     const dataset_list = currentMember.$data_set_list[0];
+                    const label_list = item.data_set.label_list.split(',');
+                    const label_list_part = [];
+
+                    for (let i=0; i<9; i++) {
+                        label_list_part.push(label_list[i]);
+                    }
+                    item.data_set.label_list_part = label_list_part;
                     const dataset = {
                         ...item,
                     };
@@ -860,7 +893,13 @@
 
                                 if(~datasetIndex) {
                                     const item = data_set_list[datasetIndex];
+                                    const label_list = item.data_set.label_list.split(',');
+                                    const label_list_part = [];
 
+                                    for (let i=0; i<9; i++) {
+                                        label_list_part.push(label_list[i]);
+                                    }
+                                    item.data_set.label_list_part = label_list_part;
                                     member.$data_set_list.push({
                                         ...item,
                                     });
@@ -1083,6 +1122,13 @@
                     top: 4px;
                 }
             }
+        }
+    }
+    .step_content {
+        .check_tips {
+            font-size: 12px;
+            color: #999;
+            cursor: pointer;
         }
     }
     .step_header {
