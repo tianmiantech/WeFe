@@ -218,7 +218,7 @@ public class ServiceService {
 		if (input.getStatus() != -1) {
 			where = where.equal("status", input.getStatus());
 		}
-		Specification<ServiceMySqlModel> condition = where.orderBy("createTime", OrderBy.desc).build(ServiceMySqlModel.class);
+		Specification<ServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc).build(ServiceMySqlModel.class);
 
 		PagingOutput<ServiceMySqlModel> page = serviceRepository.paging(condition, input);
 
