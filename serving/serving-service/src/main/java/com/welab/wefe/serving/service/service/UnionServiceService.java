@@ -98,7 +98,7 @@ public class UnionServiceService {
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl())
 				.append("serviceId", model.getId()).append("name", model.getName())
 				.append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
@@ -108,7 +108,7 @@ public class UnionServiceService {
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", "api/" + model.getUrl())
+				.append("baseUrl", config.getSERVING_BASE_URL()).append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl())
 				.append("serviceId", model.getId()).append("name", model.getName())
 				.append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
@@ -139,21 +139,21 @@ public class UnionServiceService {
 		}
 		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + api).setBody(data).postJson();
 		if (!response.success()) {
-			throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+			throw new StatusCodeWithException(response.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
 		}
 		JSONObject json;
 		try {
 			json = response.getBodyAsJson();
 		} catch (JSONException e) {
-			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.REMOTE_SERVICE_ERROR);
 		}
 		if (json == null) {
-			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.REMOTE_SERVICE_ERROR);
 		}
 		Integer code = json.getInteger("code");
 		if (code == null || !code.equals(0)) {
 			throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
-					StatusCode.RPC_ERROR);
+					StatusCode.REMOTE_SERVICE_ERROR);
 		}
 		return json;
 	}
