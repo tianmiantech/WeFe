@@ -318,7 +318,7 @@
 <script>
     import { reactive, getCurrentInstance, ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { nextTick, onBeforeMount, watch } from '@vue/runtime-core';
+    import { nextTick, onBeforeMount, watch, onBeforeUnmount } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
     import ImageDataIOResult from './components/image-dataIO-result.vue';
     import DeeplearningResult from './components/deeplearning-result.vue';
@@ -331,7 +331,7 @@
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $notify, $message } = appContext.config.globalProperties;
+            const { $http, $notify, $message, $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
@@ -999,6 +999,18 @@
 
             onBeforeMount(() => {
                 methods.getFlowInfo();
+                $bus.$on('history-backward', () => {
+                    router.push({
+                        name:  'project-detail',
+                        query: {
+                            project_id: vData.flowInfo.project_id,
+                        },
+                    });
+                });
+            });
+
+            onBeforeUnmount(_ => {
+                $bus.$off('history-backward');
             });
 
             watch(
