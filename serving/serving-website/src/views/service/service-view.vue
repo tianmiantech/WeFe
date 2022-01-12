@@ -523,6 +523,14 @@
                         name:  '安全聚合 (查询方)',
                         value: 4,
                     },
+                    {
+                        name:  '匿踪查询 (二次封装)',
+                        value: 1,
+                    },
+                    {
+                        name:  '交集查询 (二次封装)',
+                        value: 2,
+                    },
                 ],
                 data_sources:   [],
                 data_tables:    [],

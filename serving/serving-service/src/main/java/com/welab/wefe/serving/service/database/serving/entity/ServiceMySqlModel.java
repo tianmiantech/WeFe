@@ -32,7 +32,7 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	 */
 	private String url;
 	/**
-	 * 服务类型 1匿踪查询，2交集查询，3安全聚合
+	 * 服务类型 1匿踪查询，2交集查询，3安全聚合(被查询方),4安全聚合(查询方)
 	 */
 	@Column(name = "service_type")
 	private int serviceType;

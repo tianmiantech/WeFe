@@ -61,7 +61,10 @@ public class UnionServiceService {
 			JSONArray arr = data.getJSONArray("list");
 			for (int i = 0; i < arr.size(); i++) {
 				JSONObject item = arr.getJSONObject(i);
-
+				int service_status = item.getIntValue("service_status");
+				if (service_status != 1) {
+					continue;
+				}
 				UnionServiceApi.Output output = new UnionServiceApi.Output();
 				output.setId(item.getString("service_id"));
 				output.setName(item.getString("name"));
@@ -74,27 +77,12 @@ public class UnionServiceService {
 				}
 				output.setCreatedTime(new Date(item.getLongValue("created_time")));
 				output.setServiceType(item.getIntValue("service_type"));
+
 				list.add(output);
 			}
 			return PagingOutput.of(data.getInteger("total"), list);
 		}
 		return PagingOutput.of(0, list);
-		// mock
-//		int size = 2;
-//		for (int i = 1; i <= size; i++) {
-//			UnionServiceApi.Output output = new UnionServiceApi.Output();
-//			output.setId("" + i);
-//			output.setName("信用卡数量查询");
-//			output.setSupplierId("06198105b8c647289177cf057a15bdb" + i);
-//			output.setSupplierName("鹏元");
-//			output.setBaseUrl("http://xbd-dev.wolaidai.com/serving-service-0" + i + "/");
-//			output.setApiName("api/query/credit_card_count");
-//			output.setParams(Arrays.asList("member", "model"));
-//			output.setCreatedTime(new Date());
-//			output.setServiceType(3);
-//			list.add(output);
-//		}
-//		return PagingOutput.of(2, list);
 	}
 
 	public JSONObject query4Union(Input input) throws StatusCodeWithException {
@@ -149,7 +137,7 @@ public class UnionServiceService {
 			body.put("data", data);
 			data = body.toJSONString();
 		}
-		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + "/" + api).setBody(data).postJson();
+		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + api).setBody(data).postJson();
 		if (!response.success()) {
 			throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
 		}
