@@ -268,7 +268,9 @@ public class ServiceService {
 		}
 		model.setStatus(0);
 		serviceRepository.save(model);
-		unionServiceService.offline2Union(model);
+		if (model.getServiceType() == 3) {
+			unionServiceService.offline2Union(model);
+		}
 	}
 
 	public void onlineService(String id) throws StatusCodeWithException {
@@ -281,7 +283,9 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
-		unionServiceService.add2Union(model);
+		if (model.getServiceType() == 3) {
+			unionServiceService.add2Union(model);
+		}
 	}
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
@@ -307,7 +311,7 @@ public class ServiceService {
 		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
-		if (model == null) {
+		if (model == null || model.getStatus() != 1) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
