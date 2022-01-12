@@ -353,7 +353,7 @@
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
-                if(this.projectType === 'DeepLearning') {
+                if(this.projectType === 'DeepLearning' && !this.isFlow) {
                     this.search.dataResourceType = ['ImageDataSet'];
                 }
                 if(this.search.dataResourceType) {

@@ -31,6 +31,9 @@
                                     @blur="methods.saveFlowInfo($event)"
                                 />
                             </el-form-item>
+                            <el-form-item label="训练类型：">
+                                <p>{{ vData.flowType === 'PaddleDetection' ? '目标检测' : vData.flowType === 'PaddleClassify' ? '图像分类' : '' }}</p>
+                            </el-form-item>
                         </el-form>
                     </div>
                     <div v-show="vData.active === 1" class="item enter_data">
@@ -147,7 +150,13 @@
                                 </div>
                             </el-tab-pane>
                             <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
-                                执行结果展示......
+                                <image-dataIO-result
+                                    v-if="vData.showDataIOResult"
+                                    :job-id="vData.jobInfo.job_id"
+                                    :flow-node-id="vData.imageDataIONodeId"
+                                    :my-role="vData.flowInfo.project.my_role"
+                                    :autoReadResult="true"
+                                />
                             </el-tab-pane>
                         </el-tabs>
                         <el-dialog
@@ -206,7 +215,7 @@
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
                                 >
                                     <el-form-item label="算法类型：" required>
-                                        <el-select v-model="vData.deepLearnParams.program" placeholder="请选择算法类型">
+                                        <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
                                             <el-option
                                                 v-for="item in vData.classifyList"
                                                 :key="item.value"
@@ -275,8 +284,15 @@
                                     </el-form-item>
                                 </el-form>
                             </el-tab-pane>
-                            <el-tab-pane label="执行结果">
-                                执行结果展示中......
+                            <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
+                                <deeplearning-result
+                                    v-if="vData.showDLResult"
+                                    :job-id="vData.jobInfo.job_id"
+                                    :flow-node-id="vData.deepLearnNodeId"
+                                    :my-role="vData.flowInfo.project.my_role"
+                                    type="loss"
+                                    :autoReadResult="true"
+                                />
                             </el-tab-pane>
                         </el-tabs>
                         
@@ -304,10 +320,14 @@
     import { useRoute, useRouter } from 'vue-router';
     import { nextTick, onBeforeMount, watch } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
+    import ImageDataIOResult from './components/image-dataIO-result.vue';
+    import DeeplearningResult from './components/deeplearning-result.vue';
 
     export default {
         components: {
             DataSetList,
+            ImageDataIOResult,
+            DeeplearningResult,
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
@@ -324,7 +344,7 @@
                     flow_desc: '',
                 },
                 deepLearnParams: {
-                    program:      'paddle_detection',
+                    program:      route.query.training_type === 'PaddleDetection' ? 'paddle_detection' : route.query.training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
                     architecture: 'YOLOv3',
@@ -435,12 +455,16 @@
                     training_ratio:     70,
                     verification_ratio: 30,
                 },
-                prevActive:      0,
-                graphNodes:      {},
-                startLoading:    false,
-                jobInfo:         {},
-                taskInfo:        [],
-                deepLearnNodeId: '',
+                prevActive:        0,
+                graphNodes:        {},
+                startLoading:      false,
+                jobInfo:           {},
+                taskInfo:          [],
+                deepLearnNodeId:   '',
+                imageDataIONodeId: '',
+                showDataIOResult:  false,
+                showDLResult:      false,
+                flowType:          route.query.training_type || 'PaddleDetection',
             });
             const methods = {
                 async getFlowInfo() {
@@ -524,7 +548,7 @@
                                     label: '训练',
                                     type:  'flow-node',
                                     data:  {
-                                        componentType: 'DeepLearning',
+                                        componentType: vData.flowType,
                                     },
                                 },
                             ],
@@ -553,6 +577,17 @@
                         }
                         vData.startLoading = false;
                     });
+                },
+                typeChange(val) {
+                    console.log(val);
+                    switch(val) {
+                    case 'PaddleDetection':
+                        vData.deepLearnParams.program = 'paddle_detection';
+                        break;
+                    case 'PaddleClassify':
+                        vData.deepLearnParams.program = 'paddle_clas';
+                        break;
+                    }
                 },
                 prev() {
                     if (vData.active-- === 0) vData.active = 0;
@@ -584,7 +619,6 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
-                    console.log(vData.formImageDataIO);
                     methods.submitFormData();
                 },
                 async submitFormData($event) {
@@ -593,7 +627,6 @@
                     if($event !== 'node-update') {
                         btnState.target = $event;
                     }
-                    console.log(vData.formImageDataIO);
                     const { code } = await $http.post({
                         url:  '/project/flow/node/update',
                         data: vData.formImageDataIO,
@@ -614,9 +647,11 @@
                     }
                 },
                 dataIOTabchange(val) {
-                    console.log(val.paneName);
                     if (val.paneName === 1 || val.paneName === '1') {
-                        methods.getImageDataIOResult();
+                        // methods.getImageDataIOResult();
+                        vData.showDataIOResult = true;
+                    } else {
+                        vData.showDataIOResult = false;
                     }
                 },
                 async getImageDataIOResult() {
@@ -640,7 +675,10 @@
                 },
                 deeplearningOTabchange(val) {
                     if (val.paneName === 1 || val.paneName === '1') {
-                        methods.getDeeplearningOResult();
+                        // methods.getDeeplearningOResult();
+                        vData.showDLResult = true;
+                    } else {
+                        vData.showDLResult = false;
                     }
                 },
                 async getDeeplearningOResult() {
@@ -648,7 +686,7 @@
                         jobId:      vData.jobInfo.job_id,
                         flowId:     vData.flow_id,
                         flowNodeId: vData.deepLearnNodeId,
-                        type:       '',
+                        type:       'loss',
                     };
 
                     const { code, data } = await $http.post({
@@ -711,13 +749,14 @@
                         ref.searchField.member_role = vData.currentItem.member_role;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
                         ref.searchField.data_resource_type = 'ImageDataSet';
+                        ref.searchField.forJobType = vData.flowType === 'PaddleDetection' ? 'detection' : vData.flowType === 'PaddleClassify' ? 'classify' : '';
+                        ref.isFlow = true;
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',
                             to:              false,
                             resetPagination: true,
                         });
-                        ref.isFlow = true;
                     });
                 },
                 selectDataSet(item) {
@@ -798,6 +837,7 @@
                     }
                 },
                 async getDataIONodeDetail (nodeId) {
+                    vData.imageDataIONodeId = nodeId;
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
@@ -854,6 +894,8 @@
                             const { params } = data || {};
 
                             vData.deepLearnNodeId = data.node_id;
+                            vData.flowType = data.component_type;
+                            vData.deepLearnParams.program = data.component_type === 'PaddleDetection' ? 'paddle_detection' : data.component_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
                                     vData.image_shape.aisle = params.image_shape[0] || 0;
@@ -891,7 +933,6 @@
                     vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
                 },
                 async saveDeeplearningNode($event) {
-                    console.log($event);
                     // 1. 保存deeplearning node 数据
                     // 2. 启动流程
                     const btnState = {};
@@ -945,8 +986,6 @@
                         if(code === 0) {
                             if(data.job_id) {
                                 $message.success('启动成功! ');
-                                console.log(vData.flowInfo);
-                                console.log(vData.flowInfo.project_id);
                                 router.replace({
                                     name:  'project-detail',
                                     query: { project_id: vData.flowInfo.project_id },
