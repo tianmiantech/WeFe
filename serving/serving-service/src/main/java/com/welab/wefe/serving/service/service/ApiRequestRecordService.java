@@ -18,12 +18,15 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.serving.service.api.apirequestrecord.DownloadApi;
 import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -37,6 +40,12 @@ public class ApiRequestRecordService {
 
     @Autowired
     private ApiRequestRecordRepository apiRequestRecordRepository;
+
+
+    @Value("${wefe.serving.file-path}")
+    private String fileBasePath;
+
+    private static final String filePrefix = "api_request_records/";
 
 
     public void save(String serviceId, String serviceName, Integer serviceType, String clientName,
@@ -76,6 +85,35 @@ public class ApiRequestRecordService {
         return apiRequestRecordRepository.paging(where, input);
 
     }
+
+    public String downloadFile(DownloadApi.Input input) {
+
+        String fileName = input.getServiceId()+ "_" + input.getClientId() + "_" + new Date() + "_调用信息.csv";
+
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
+                .orderBy("createdTime", OrderBy.desc)
+                .build(ApiRequestRecordMysqlModel.class);
+
+        List<ApiRequestRecordMysqlModel> all = apiRequestRecordRepository.findAll(where);
+        // save file
+        String fileAddress = fileBasePath + filePrefix + fileName;
+        saveCSVFile(all, fileAddress);
+        return fileAddress;
+
+
+    }
+
+    void saveCSVFile(List<ApiRequestRecordMysqlModel> data, String filePath) {
+
+
+
+
+    }
+
 
 
 }

@@ -46,37 +46,37 @@ const baseRoutes = [
                 },
                 component: () => import('@views/model/model-view.vue'),
             },
-            {
-                path: `${prefixPath}log-list`,
-                name: 'log-list',
-                meta: {
-                    title: '调用记录',
-                },
-                component: () => import('@views/logger/log-list.vue'),
-            },
-            {
-                path: `${prefixPath}log-statistics`,
-                name: 'log-statistics',
-                meta: {
-                    title: '调用统计',
-                    index: '2-1',
-                    active: `${prefixPath}log-statistics`,
-                },
-                component: () =>
-                    import('@views/logger/log-statistics.vue'),
-            },
-            {
-                path: `${prefixPath}log-view`,
-                name: 'log-view',
-                meta: {
-                    title: '调用详情',
-                    index: '2-2',
-                    hidden: true,
-                    active: `${prefixPath}log-view`,
-                },
-                component: () =>
-                    import('@views/logger/log-view.vue'),
-            },
+            // {
+            //     path: `${prefixPath}log-list`,
+            //     name: 'log-list',
+            //     meta: {
+            //         title: '调用记录',
+            //     },
+            //     component: () => import('@views/logger/log-list.vue'),
+            // },
+            // {
+            //     path: `${prefixPath}log-statistics`,
+            //     name: 'log-statistics',
+            //     meta: {
+            //         title: '调用统计',
+            //         index: '2-1',
+            //         active: `${prefixPath}log-statistics`,
+            //     },
+            //     component: () =>
+            //         import('@views/logger/log-statistics.vue'),
+            // },
+            // {
+            //     path: `${prefixPath}log-view`,
+            //     name: 'log-view',
+            //     meta: {
+            //         title: '调用详情',
+            //         index: '2-2',
+            //         hidden: true,
+            //         active: `${prefixPath}log-view`,
+            //     },
+            //     component: () =>
+            //         import('@views/logger/log-view.vue'),
+            // },
         ],
     },
     {

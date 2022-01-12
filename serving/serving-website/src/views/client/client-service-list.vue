@@ -43,19 +43,18 @@
             <div slot="empty">
                 <TableEmptyData/>
             </div>
-            <el-table-column label="序号 ID" min-width="80">
-                <template slot-scope="scope">
-                    <p class="id">{{ scope.row.id }}</p>
-                </template>
+            <el-table-column label="序号 ID" min-width="80" type="index">
             </el-table-column>
-            <el-table-column label="客户名称" min-width="50">
+            <el-table-column label="客户名称" min-width="80">
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
+                    <p class="id">{{ scope.row.client_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column label="服务名称" min-width="80">
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
+                    <p class="id">{{ scope.row.service_id }}</p>
                 </template>
             </el-table-column>
 
@@ -92,7 +91,13 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="启用状态" min-width="50">
+            <el-table-column label="启用状态" min-width="40">
+                <template slot-scope="scope">
+                    {{ statusType[scope.row.status] }}
+                </template>
+            </el-table-column>
+
+            <el-table-column label="操作" min-width="50">
                 <template slot-scope="scope">
                     <el-button v-if="scope.row.status === 0" type="success"
                                @click="open(scope.row,1)">启用

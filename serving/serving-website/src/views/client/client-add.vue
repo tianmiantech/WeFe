@@ -6,22 +6,35 @@
 
         <el-form :model="client" label-width="90px" :rules="rules" ref="client">
             <el-form-item label="客户名称" prop="name">
-                <el-input v-model="client.name"></el-input>
+                <el-input v-model="client.name"
+                          :maxlength="30"
+                          :minlength="4"
+                          show-word-limit
+                ></el-input>
             </el-form-item>
             <el-form-item label="客户邮箱" prop="email">
                 <el-input v-model="client.email"></el-input>
             </el-form-item>
-            <el-form-item label="IP 白名单" prop="ipAdd">
-                <el-input v-model="client.ipAdd"></el-input>
+            <el-form-item label="IP 白名单" prop="ipAdd" >
+                <el-input v-model="client.ipAdd" placeholder="支持多个，英文逗号分隔"></el-input>
             </el-form-item>
             <el-form-item label="客户 code" prop="code">
-                <el-input v-model="client.code" :disabled="this.clientId !== ''" placeholder="建议格式：[公司简称]-[手机号]-[日期]"></el-input>
+                <el-input v-model="client.code" :disabled="this.clientId !== ''"
+                          placeholder="建议格式：[公司简称]-[手机号]-[日期]"
+                          :maxlength="60"
+                          :minlength="4"
+                          show-word-limit
+                ></el-input>
             </el-form-item>
-            <el-form-item label="公钥">
+            <el-form-item label="公钥" prop="pubKey">
                 <el-input v-model="client.pubKey" type="textarea"></el-input>
             </el-form-item>
             <el-form-item label="备注">
-                <el-input v-model="client.remark" type="textarea"></el-input>
+                <el-input v-model="client.remark" type="textarea"
+                          :maxlength="300"
+                          :minlength="0"
+                          show-word-limit
+                ></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
@@ -46,6 +59,24 @@ import {mapGetters} from 'vuex';
 export default {
     name: "client-add",
     data() {
+
+        let util = {
+            isValidIp: function (e) {
+                return /^(?:(?:^|,)(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])(?:\.(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){3})+$/.test(e)
+            }
+        };
+
+        let validateIpAdd = (rule, value, callback) => {
+            if (!this.client.ipAdd) {
+                return callback(new Error('IP 地址不能为空'));
+            } else if (!util.isValidIp(this.client.ipAdd)) {
+                return callback(new Error('请输入合法的IP'));
+
+            } else {
+                callback();
+            }
+        };
+
         return {
             client: {
                 id: '',
@@ -65,14 +96,15 @@ export default {
                     {required: true, message: '请输入邮箱', trigger: 'change'}
                 ],
                 ipAdd: [
-                    {required: true, message: '请输入IP白名单', trigger: 'change'}
+                    // {required: true, message: '请输入IP白名单', trigger: 'change'}
+                    { required: true, validator: validateIpAdd, trigger: 'blur'}
                 ],
                 code: [
                     {required: true, message: '请输入客户code', trigger: 'change'}
                 ],
-                // pub_key: [
-                //     {required: true, message: '请输入客户名称', trigger: 'change'}
-                // ],
+                pubKey: [
+                    {required: true, message: '请输入公钥', trigger: 'change'}
+                ],
             },
             clientId: '',
         }
@@ -89,6 +121,7 @@ export default {
 
     },
     methods: {
+
 
         onSubmit() {
 

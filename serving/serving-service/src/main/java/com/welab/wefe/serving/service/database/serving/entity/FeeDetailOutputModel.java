@@ -30,6 +30,12 @@ public class FeeDetailOutputModel {
     @Id
     private String id = UUID.randomUUID().toString().replaceAll("-", "");
 
+    @Column(name = "service_id")
+    private String serviceId;
+
+    @Column(name = "client_id")
+    private String clientId;
+
     /**
      * 服务名称
      */
@@ -78,6 +84,21 @@ public class FeeDetailOutputModel {
     @Column(name = "query_date")
     private String queryDate;
 
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
     public String getId() {
         return id;
