@@ -1,4 +1,4 @@
-class ServiceActionInfo:
+class ActionInfo:
     service: str
     from_version: str
     to_version: str
