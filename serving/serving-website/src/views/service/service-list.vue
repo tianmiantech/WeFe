@@ -24,7 +24,7 @@
                     clearable
                 >
                     <el-option
-                        v-for="item in ServiceTypeList"
+                        v-for="item in serviceTypeList"
                         :key="item.value"
                         :value="item.value"
                         :label="item.name"
@@ -42,10 +42,12 @@
                     clearable
                 >
                     <el-option
-                        v-for="item in StatusList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.name"
+                        value="1"
+                        label="在线"
+                    />
+                    <el-option
+                        value="0"
+                        label="离线"
                     />
                 </el-select>
             </el-form-item>
@@ -88,18 +90,10 @@
             <el-table-column
                 label="服务类型"
                 prop="service_type"
-                width="100px"
+                min-width="100px"
             >
                 <template slot-scope="scope">
-                    <div v-if="scope.row.service_type == 1">
-                        匿踪查询
-                    </div>
-                    <div v-else-if="scope.row.service_type == 2">
-                        交集查询
-                    </div>
-                    <div v-else>
-                        安全聚合
-                    </div>
+                    {{ serviceTypeMap[scope.row.service_type] }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -206,7 +200,7 @@
                 },
                 dataDialog:      false,
                 jsonData:        '',
-                ServiceTypeList: [{
+                serviceTypeList: [{
                     name:  '匿踪查询',
                     value: '1',
                 },
@@ -221,15 +215,23 @@
                 {
                     name:  '安全聚合 (查询方)',
                     value: '4',
-                }],
-                StatusList: [{
-                    name:  '在线',
-                    value: '1',
                 },
                 {
-                    name:  '离线',
-                    value: '0',
+                    name:  '匿踪查询 (二次封装)',
+                    value: '5',
+                },
+                {
+                    name:  '交集查询 (二次封装)',
+                    value: '6',
                 }],
+                serviceTypeMap: {
+                    1: '匿踪查询',
+                    2: '交集查询',
+                    3: '安全聚合 (被查询方)',
+                    4: '安全聚合 (查询方)',
+                    5: '匿踪查询 (二次封装)',
+                    6: '交集查询 (二次封装)',
+                },
             };
         },
         methods: {

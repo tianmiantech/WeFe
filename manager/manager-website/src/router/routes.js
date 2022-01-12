@@ -78,18 +78,9 @@ const baseRoutes = [
                 name: 'authorize-types',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '企业类型管理',
+                    title:           '实名认证类型管理',
                 },
                 component: () => import('../views/authorize-list'),
-            },
-            {
-                path: `${prefixPath}union-list`,
-                name: 'union-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           'union节点列表',
-                },
-                component: () => import('../views/union-list'),
             },
             {
                 path: `${prefixPath}agreement`,
@@ -99,6 +90,25 @@ const baseRoutes = [
                     title:           '认证协议',
                 },
                 component: () => import('../views/agreement'),
+            },
+        ],
+    },
+    {
+        path: prefixPath,
+        meta: {
+            title:          'union节点管理',
+            requiresLogout: false,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}union-list`,
+                name: 'union-list',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           'union节点管理',
+                },
+                component: () => import('../views/union-list'),
             },
         ],
     },
