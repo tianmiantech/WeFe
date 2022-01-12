@@ -15,10 +15,10 @@
  */
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +75,15 @@ public class Env {
                 .min()
                 .orElse(0);
 
-
-        LOG.info("data set list:" + JSON.toJSONString(imageDataIoParam.dataSetList));
-        LOG.info("min labeled count:" + min);
+        /**
+         * 1. 前端应该不允许使用标注量为0的样本
+         * 2. ImageDataIO 中阻止了标注量为 0 的样本
+         *
+         * 所以正常情况下不应会让这里出现0
+         */
+        if (min == 0) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("有成员的数据集已标注样本量为 0");
+        }
 
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
