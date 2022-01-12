@@ -25,7 +25,7 @@ class Main:
     @staticmethod
     def run(workspace, config_file_path, action_info_str):
         """
-
+        wefe 程序升级行为的入口方法
         """
         action_info: ActionInfo = object_util.json_to_model(action_info_str, ActionInfo)
 
