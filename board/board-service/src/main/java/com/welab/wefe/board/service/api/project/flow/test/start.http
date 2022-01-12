@@ -3,7 +3,7 @@ Content-Type: application/json
 token:{{token}}
 
 {
-  "flow_id": "bd24576e947e456fbdc2351c30dbd694",
+  "flow_id": "47527a0504df48f09fcc78fa319616f4",
   "use_cache": false
 }
 

@@ -15,10 +15,13 @@
  */
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -28,6 +31,7 @@ import java.util.LinkedHashMap;
  * @date 2021/11/22
  */
 public class Env {
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     /**
      * 本方 worker 个数
      * <p>
@@ -71,6 +75,9 @@ public class Env {
                 .min()
                 .orElse(0);
 
+
+        LOG.info("data set list:" + JSON.toJSONString(imageDataIoParam.dataSetList));
+        LOG.info("min labeled count:" + min);
 
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
