@@ -187,7 +187,6 @@ export default {
     created() {
 
 
-
         if (this.$route.query.id) {
             // this.clientId = this.$route.query.id
             this.getClientById(this.$route.query.id)
@@ -288,6 +287,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
+                // data: {
+                //     status: 1,
+                // }
             });
 
             if (code === 0) {
@@ -315,7 +317,7 @@ export default {
 
             });
             if (code === 0) {
-                console.log(data.id,1111111111)
+                console.log(data.id, 1111111111)
                 this.clientService.clientId = data.id
                 // this.client.email = data.email
                 // this.client.ipAdd = data.ip_add
