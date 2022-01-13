@@ -147,20 +147,20 @@
                                 {
                                     example_ratio:       ((result.train_count / (result.train_count + result.eval_count)) * 100).toFixed(2),
                                     example_total:       result.train_count,
-                                    example_good:        data.result.train_count - data.result.train_y_positive_sample_count,
-                                    example_bad:         data.result.train_y_positive_sample_count,
-                                    example_ratio_good:  ((1 - data.result.train_y_positive_sample_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   (data.result.train_y_positive_sample_ratio * 100).toFixed(2),
+                                    example_good:        data.result.train_count - data.result.train_y_positive_example_count,
+                                    example_bad:         data.result.train_y_positive_example_count,
+                                    example_ratio_good:  ((1 - data.result.train_y_positive_example_ratio) * 100).toFixed(2),
+                                    example_ratio_bad:   (data.result.train_y_positive_example_ratio * 100).toFixed(2),
                                     example_count_ratio: 0,
                                 },
                                 // test
                                 {
                                     example_ratio:       ((result.eval_count / (result.train_count + result.eval_count)) * 100).toFixed(2),
                                     example_total:       result.eval_count,
-                                    example_good:        data.result.eval_count - data.result.eval_y_positive_sample_count,
-                                    example_bad:         data.result.eval_y_positive_sample_count,
-                                    example_ratio_good:  ((1 - data.result.eval_y_positive_sample_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   data.result.eval_y_positive_sample_ratio * 100,
+                                    example_good:        data.result.eval_count - data.result.eval_y_positive_example_count,
+                                    example_bad:         data.result.eval_y_positive_example_count,
+                                    example_ratio_good:  ((1 - data.result.eval_y_positive_example_ratio) * 100).toFixed(2),
+                                    example_ratio_bad:   data.result.eval_y_positive_example_ratio * 100,
                                     example_count_ratio: 0,
                                 },
                             );
@@ -175,10 +175,10 @@
                                 labelShow:    true,
                                 series:       [{
                                     name:  '负样本数量',
-                                    value: data.result.train_y_positive_sample_count,
+                                    value: data.result.train_y_positive_example_count,
                                 },{
                                     name:  '正样本数量',
-                                    value: data.result.train_count - data.result.train_y_positive_sample_count,
+                                    value: data.result.train_count - data.result.train_y_positive_example_count,
                                 }],
                             };
 
@@ -192,10 +192,10 @@
                                 labelShow:    true,
                                 series:       [{
                                     name:  '负样本数量',
-                                    value: data.result.eval_y_positive_sample_count,
+                                    value: data.result.eval_y_positive_example_count,
                                 },{
                                     name:  '正样本数量',
-                                    value: data.result.eval_count - data.result.eval_y_positive_sample_count,
+                                    value: data.result.eval_count - data.result.eval_y_positive_example_count,
                                 }],
                             };
                         }

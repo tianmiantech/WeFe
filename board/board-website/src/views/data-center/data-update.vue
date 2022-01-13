@@ -9,8 +9,10 @@
                 <el-col :span="10">
                     <el-form-item
                         prop="name"
-                        label="数据资源名称："
-                        :rules="[{ required: true, message: '数据资源名称必填!' }]"
+                        label="数据集名称"
+                        :rules="[
+                            { required: true, message: '数据集名称必填!' }
+                        ]"
                     >
                         <el-input
                             v-model="form.name"
@@ -48,7 +50,7 @@
                             + 关键词
                         </el-button>
                         <br>
-                        <span class="tags-tips">为数据资源设置关键词，方便大家快速了解你 ：）</span>
+                        <span class="tags-tips">为数据集设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
@@ -62,9 +64,6 @@
                             rows="4"
                         />
                     </el-form-item>
-                    <el-form-item v-if="form.hash_function" label="融合公式：">
-                        {{ form.hash_function }}
-                    </el-form-item>
                 </el-col>
                 <el-col
                     :span="14"
@@ -74,7 +73,6 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="Public"
                             >
@@ -87,7 +85,6 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="PublicWithMemberList"
                             >
@@ -131,7 +128,7 @@
                     </fieldset>
                 </el-col>
             </el-row>
-            <el-row :gutter="30" v-if="addType === 'csv'">
+            <el-row :gutter="30">
                 <el-col :span="10">
                     <h4 class="mt10 mb20">
                         字段信息：
@@ -214,16 +211,12 @@
                     </div>
                 </el-col>
                 <el-col :span="14">
-                    <h4 class="m5">数据资源预览：</h4>
+                    <h4 class="m5">数据集预览：</h4>
                     <DataSetPreview ref="DataSetPreview" />
                 </el-col>
             </el-row>
-            <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
-                <h4 style="margin-bottom: 6px;">数据资源预览</h4>
-                <preview-image-list ref="PreviewImageListRef" />
-            </el-row>
             <el-button
-                class="save-btn"
+                class="save-btn mt20"
                 type="primary"
                 size="large"
                 @click="update"
@@ -246,14 +239,12 @@
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
     import SelectMember from './components/select-member';
-    import PreviewImageList from './components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
             DataSetPublicTips,
             SelectMember,
-            PreviewImageList,
         },
         data() {
             return {
@@ -279,7 +270,6 @@
                     description:        '',
                     public_member_list: [],
                     metadata_list:      [],
-                    hash_function:      '',
                 },
                 raw_data_list:       [],
                 metadata_pagination: {
@@ -288,30 +278,17 @@
                     page_size:  20,
                     page_index: 1,
                 },
-                addType: 'csv',
-                search:  {
-                    page_index: 1,
-                    page_size:  20,
-                    label:      '',
-                    labeled:    '',
-                    total:      1,
-                },
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addType = this.$route.query.type || 'csv';
             this.getData();
         },
         mounted() {
-            if (this.addType === 'csv') {
-                this.loadDataSetColumnList();
-                this.$refs['DataSetPreview'].loadData(this.id);
-            } else if (this.addType === 'img') {
-                this.$refs['PreviewImageListRef'].methods.getSampleList(this.id);
-            }
+            this.loadDataSetColumnList();
+            this.$refs['DataSetPreview'].loadData(this.id);
         },
         methods: {
             metadataPageChange(val) {
@@ -349,7 +326,7 @@
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url: '/table_data_set/column/list?data_set_id=' + this.id,
+                    url: '/data_set/column/list?data_set_id=' + this.id,
                 });
 
                 if (code === 0) {
@@ -396,16 +373,8 @@
 
             async getData() {
                 this.loading = true;
-                const map = {
-                    BloomFilter: '/bloom_filter/detail',
-                    img:         '/image_data_set/detail',
-                    csv:         '/table_data_set/detail',
-                };
                 const { code, data } = await this.$http.get({
-                    url:    map[this.addType],
-                    params: {
-                        id: this.id,
-                    },
+                    url: '/data_set/detail?id=' + this.id,
                 });
 
                 if (code === 0) {
@@ -465,13 +434,9 @@
                 }
 
                 this.loading = true;
-                const map = {
-                    BloomFilter: '/bloom_filter/update',
-                    img:         '/image_data_set/update',
-                    csv:         '/table_data_set/update',
-                };
+
                 const { code } = await this.$http.post({
-                    url:     map[this.addType],
+                    url:     '/data_set/update',
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,
@@ -483,7 +448,7 @@
                     this.$message.success('保存成功!');
                     this.$router.push({
                         name:  'data-view',
-                        query: { id: this.id, type: this.addType },
+                        query: { id: this.id },
                     });
                 }
                 this.loading = false;
@@ -494,7 +459,7 @@
                 if (keyword) {
                     this.loading = true;
                     const { code, data } = await this.$http.post({
-                        url:  '/table_data_set/all_tags',
+                        url:  '/data_set/tags',
                         data: {
                             tag: keyword,
                         },

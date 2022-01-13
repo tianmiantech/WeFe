@@ -39,8 +39,8 @@ app.use(components)
     .use(store(app))
     .mount('#app');
 // global error handler
-app.config.errorHandler = (error, vm, info) => {
-    console.log(error);
+app.config.errorHandler = ({ message }, vm, info) => {
+    console.log(message);
     /* setTimeout(() => {
         app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
     }, 200); */

@@ -59,3 +59,6 @@ class HorzFeatureBinningParam(FeatureBinningParam):
         self.check_positive_integer(self.max_iter, descr)
         if self.max_iter > 100:
             raise ValueError("Max iter is not allowed exceed 100")
+
+    def set_bin_index(self, header):
+        self.bin_indexes = [header.index(name) for name in self.bin_names]

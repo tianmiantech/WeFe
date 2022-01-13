@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;

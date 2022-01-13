@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.component.feature;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author lonnie
@@ -53,7 +55,22 @@ public class FillMissingValueComponent extends AbstractComponent<FillMissingValu
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    	DataIOComponent.Params dataIOParams = (DataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.DataIO).getParamsModel();
+        List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
+        AtomicInteger count = new AtomicInteger();
+
+        dataSetItems.forEach(x -> {
+            params.getMembers().forEach(y -> {
+                if (x.getMemberId().equals(y.getMemberId()) && x.getMemberRole() == y.getMemberRole()) {
+                    count.addAndGet(1);
+                }
+            });
+        });
+
+        if (count.get() != dataSetItems.size()) {
+            throw new FlowNodeException(node, "请保证当前节点所有成员都参与。");
+        }
     }
 
 

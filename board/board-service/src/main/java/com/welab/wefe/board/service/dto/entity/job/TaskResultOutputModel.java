@@ -16,15 +16,17 @@
 
 package com.welab.wefe.board.service.dto.entity.job;
 
+import java.util.Date;
+import java.util.List;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
-
-import java.util.Date;
 
 /**
  * @author zane.luo
@@ -64,6 +66,10 @@ public class TaskResultOutputModel extends AbstractOutputModel {
     @Check(name = "task执行顺序")
     private Integer position;
     private Integer spend;
+    /**
+     * 参与方
+     */
+    private List<JObject> members;
 
     public JSONObject getResult() {
         return result;
@@ -201,6 +207,14 @@ public class TaskResultOutputModel extends AbstractOutputModel {
 
     public void setSpend(Integer spend) {
         this.spend = spend;
+    }
+
+    public List<JObject> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<JObject> members) {
+        this.members = members;
     }
 
     //endregion

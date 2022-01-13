@@ -41,6 +41,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -48,6 +49,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -313,7 +315,7 @@ public class DataResourceService extends AbstractDataResourceService {
     }
 
 
-    public PagingOutput<? extends DataResourceOutputModel> query(DataResourceQueryApi.Input input) {
+    public PagingOutput<? extends DataResourceOutputModel> query(DataResourceQueryApi.Input input) throws StatusCodeWithException {
         Where where = Where
                 .create()
                 .equal("id", input.getId())
@@ -324,7 +326,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .orderBy("createdTime", OrderBy.asc);
 
         // 查所有资源
-        if (input.getDataResourceType() == null || input.getDataResourceType().size() > 1) {
+        if (CollectionUtils.isEmpty(input.getDataResourceType()) || input.getDataResourceType().size() > 1) {
             PagingOutput<?> page = dataResourceRepository.paging(
                     where.build(DataResourceMysqlModel.class),
                     input
@@ -333,14 +335,21 @@ public class DataResourceService extends AbstractDataResourceService {
             // 将查到的数据按类型转换为 output 类型
             List<DataResourceOutputModel> list = new ArrayList<>();
             for (Object item : page.getList()) {
-
+                DataResourceMysqlModel dataResource = (DataResourceMysqlModel) item;
                 Class<? extends DataResourceOutputModel> targetClass = null;
-                if (item instanceof TableDataSetMysqlModel) {
-                    targetClass = TableDataSetOutputModel.class;
-                } else if (item instanceof ImageDataSetMysqlModel) {
-                    targetClass = ImageDataSetOutputModel.class;
-                } else if (item instanceof BloomFilterMysqlModel) {
-                    targetClass = BloomFilterOutputModel.class;
+
+                switch (dataResource.getDataResourceType()) {
+                    case BloomFilter:
+                        targetClass = BloomFilterOutputModel.class;
+                        break;
+                    case ImageDataSet:
+                        targetClass = ImageDataSetOutputModel.class;
+                        break;
+                    case TableDataSet:
+                        targetClass = TableDataSetOutputModel.class;
+                        break;
+                    default:
+                        StatusCode.UNEXPECTED_ENUM_CASE.throwException();
                 }
 
                 list.add(ModelMapper.map(item, targetClass));

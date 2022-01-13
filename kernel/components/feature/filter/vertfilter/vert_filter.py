@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from common.python.common.exception.custom_exception import CommonCustomError
 
 from common.python.utils import log_utils
 from kernel.components.feature.filter.vertfilter.param import VertSampleFilterParam
@@ -133,9 +133,11 @@ class VertSampleFilter(ModelBase):
         new_data_instances = data_instances.mapValues(lambda v: self.process_value(v))
         new_data_instances = new_data_instances.filter(lambda k, v: v is not None and len(v.features) > 0)
         new_data_instances.schema = data_instances.schema
-        LOGGER.debug(
-            f'schema={new_data_instances.schema}, data={new_data_instances.first()[1].features},  count={new_data_instances.count()}')
+        new_count = new_data_instances.count()
+        LOGGER.debug(f'schema={new_data_instances.schema},  count={new_data_instances.count()}')
         metric_data = [("count", new_data_instances.count())]
         LOGGER.info(f'metric_data: {metric_data}, metric_name:{self.metric_name}')
         self.tracker.saveMetricData(self.metric_name, self.metric_namespace, None, metric_data)
+        if new_count == 0:
+            raise CommonCustomError(message="sample filter result is zero")
         return new_data_instances

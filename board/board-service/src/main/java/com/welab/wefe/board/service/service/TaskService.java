@@ -130,6 +130,14 @@ public class TaskService {
             return taskRepo.findOne(jobId, input.getFlowNodeId(), project.getMyRole().name());
         }
     }
+    
+    public List<TaskMySqlModel> findAll(DetailApi.Input input) {
+        ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+        if (project == null) {
+            return null;
+        }
+        return findAll(input.getJobId(), input.getFlowNodeId(), project.getMyRole());
+    }
 
     public TaskMySqlModel findOne(String taskId) {
         return taskRepo

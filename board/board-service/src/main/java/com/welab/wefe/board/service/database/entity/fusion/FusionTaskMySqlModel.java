@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.database.entity.fusion;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
@@ -52,12 +53,21 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "data_resource_type")
     DataResourceType dataResourceType;
 
+    /**
+     * Number of rows of data resources
+     */
+    Long rowCount;
+
     String partnerDataResourceId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "partner_data_resource_type")
     DataResourceType partnerDataResourceType;
 
+    /**
+     * Number of rows of data resources
+     */
+    Long parnterRowCount;
 
     /**
      * Whether the trace
@@ -69,14 +79,14 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
      */
     public String traceColumn;
 
-    /**
-     * Number of rows of data resources
-     */
-    Long rowCount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "psi_actuator_role")
     PSIActuatorRole psiActuatorRole;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "my_role")
+    JobMemberRole myRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "algorithm")
@@ -245,5 +255,21 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public JobMemberRole getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(JobMemberRole myRole) {
+        this.myRole = myRole;
+    }
+
+    public Long getParnterRowCount() {
+        return parnterRowCount;
+    }
+
+    public void setParnterRowCount(Long parnterRowCount) {
+        this.parnterRowCount = parnterRowCount;
     }
 }
