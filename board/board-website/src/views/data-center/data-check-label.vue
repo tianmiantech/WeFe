@@ -7,7 +7,7 @@
                 </router-link>
             </div>
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
-                <div class="label_list_box">
+                <div v-if="vData.search.labeled || vData.search.labeled === ''" class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
                     </div>
