@@ -85,7 +85,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
     }
 
 
-    public PageOutput<MemberServiceQueryOutput> find(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String memberName, String serviceName, String serviceType) {
+    public PageOutput<MemberServiceQueryOutput> find(Integer pageIndex, Integer pageSize, String serviceId, String memberId, String memberName, String serviceName, Integer serviceType) {
         LookupOperation lookupToLots = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
                 localField("member_id").
@@ -97,7 +97,7 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
                 .like("name", serviceName)
                 .append("service_id", serviceId)
                 .append("member_id", memberId)
-                .append("service_type", serviceType)
+                .append("service_type", serviceType == null ? serviceType : String.valueOf(serviceType))
                 .append("service_status", "1")
                 .getCriteria();
 

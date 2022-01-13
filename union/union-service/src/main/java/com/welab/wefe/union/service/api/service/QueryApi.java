@@ -78,7 +78,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
         private String memberId;
         private String serviceName;
         private String memberName;
-        private String serviceType;
+        private Integer serviceType;
 
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
@@ -115,11 +115,11 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberSe
             this.memberName = memberName;
         }
 
-        public String getServiceType() {
+        public Integer getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(String serviceType) {
+        public void setServiceType(Integer serviceType) {
             this.serviceType = serviceType;
         }
 
