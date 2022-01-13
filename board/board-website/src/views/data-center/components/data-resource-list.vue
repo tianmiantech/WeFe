@@ -81,11 +81,11 @@
         </el-table-column>
         <el-table-column
             label="数据信息"
-            width="150"
+            width="160"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    样本量：{{scope.row.total_data_count}}
+                    样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>
