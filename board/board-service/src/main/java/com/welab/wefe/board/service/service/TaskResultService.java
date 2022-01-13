@@ -31,7 +31,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.welab.wefe.board.service.api.dataset.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
@@ -41,7 +40,6 @@ import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
 import com.welab.wefe.board.service.component.feature.VertOneHotComponent;
 import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;

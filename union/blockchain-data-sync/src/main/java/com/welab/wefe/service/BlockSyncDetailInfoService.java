@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 package com.welab.wefe.service;
 
 import com.welab.wefe.bo.data.BlockInfoBO;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncDetailInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncDetailInfo;
 import com.welab.wefe.common.data.mongodb.repo.BlockSyncDetailInfoMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * @date 2021/12/31 11:11
  **/
 @Service
-public class BlockSyncDetailInfoService extends BaseService{
+public class BlockSyncDetailInfoService extends BaseService {
     private final Logger LOG = LoggerFactory.getLogger(BlockSyncDetailInfoService.class);
 
     @Autowired

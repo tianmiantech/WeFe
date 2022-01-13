@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ package com.welab.wefe.service;
 
 import com.welab.wefe.bo.data.BlockInfoBO;
 import com.welab.wefe.bo.data.EventBO;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncContractHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncContractHeight;
 import com.welab.wefe.common.data.mongodb.repo.BlockSyncContractHeightMongoRepo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
