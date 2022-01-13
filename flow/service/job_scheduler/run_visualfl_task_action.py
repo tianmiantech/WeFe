@@ -57,9 +57,9 @@ class RunVisualFLTaskAction:
                 raise RuntimeError(("Task {}（{}）failed, apply resource request error，time：{}".format(
                     self.task.task_type, self.task.task_id, current_datetime())))
             aggregator_info = {
-                'server_endpoint': apply_result.server_endpoint,
-                'aggregator_endpoint': apply_result.aggregator_endpoint,
-                'aggregator_assignee': apply_result.aggregator_assignee
+                "server_endpoint": str(apply_result.server_endpoint),
+                "aggregator_endpoint": str(apply_result.aggregator_endpoint),
+                "aggregator_assignee": str(apply_result.aggregator_assignee)
             }
             task_config_json = json.loads(self.task.task_conf)
             schedule_logger(self.running_job).info("task_config_json = {}".format(task_config_json))
@@ -69,12 +69,12 @@ class RunVisualFLTaskAction:
                 if member_id == GlobalSetting.get_member_id():
                     continue
                 schedule_logger(self.running_job).info(
-                    "send aggregator_info to {}, content is : {}".format(member_id, str(aggregator_info)))
-                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=str(aggregator_info), session_id = session_id)
+                    "send aggregator_info to {}, content is : {}".format(member_id, json.dumps(aggregator_info)))
+                job_utils.send_fl(dst_member_id=member_id, processor="residentMemoryProcessor", content_str=json.dumps(aggregator_info), session_id = session_id)
         # receive
         else:
             result = None
-            while result is None:
+            while result is None or len(result) <= 10:
                 schedule_logger(self.running_job).info("wait aggregator_info")
                 result = job_utils.receive_fl(session_id = session_id)
                 time.sleep(3)
@@ -84,6 +84,7 @@ class RunVisualFLTaskAction:
                 apply_result.server_endpoint = result_json['server_endpoint']
                 apply_result.aggregator_endpoint = result_json['aggregator_endpoint']
                 apply_result.aggregator_assignee = result_json['aggregator_assignee']
+        schedule_logger(self.running_job).info("begin submit_task : {},{}".format(self.job.job_id, self.job.my_role))
         response = self.submit_task(apply_result)
         if response:
             schedule_logger(self.running_job).info(
@@ -133,19 +134,23 @@ class RunVisualFLTaskAction:
         return JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
 
     def is_task_progress_done(self) -> bool:
-        apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
-        if apply_result is None or apply_result.status == '待运行' or apply_result.status == '运行中':
-            return False
-        return True
+        # apply_result = JobApplyResultDao.find_one_by_job_id(self.job.job_id, self.task.task_id)
+        # if apply_result is None or apply_result.status == 'wait_run' or apply_result.status == 'running':
+        #     return False
+        # return True
+        self.task = TaskDao.find_one_by_task(self.task)
+        if self.task.status != TaskStatus.WAITRUN and self.task.status != TaskStatus.RUNNING:
+            return True
+        return False
 
     # submit task
     def submit_task(self, apply_result: JobApplyResult):
         submit_task_start_status = False
         task_config_json = json.loads(self.task.task_conf)
         try:
-            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint,
+            task_config_json['env']['aggregator_endpoint'] = apply_result.aggregator_endpoint
             task_config_json['env']['aggregator_assignee'] = apply_result.aggregator_assignee
-            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint,
+            task_config_json['env']['server_endpoint'] = apply_result.server_endpoint
             # task_config_json['algorithm_config']['need_shuffle'] = True
             schedule_logger(self.running_job).info('submit_task request: {}'.format(task_config_json))
             # submit

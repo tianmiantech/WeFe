@@ -2,7 +2,7 @@
     <div class="data-set-list">
         <div class="flexbox">
             <el-alert
-                v-if="search.dataResourceType === 'TableDataSet' && containsY === 'true'"
+                v-if="projectType !== 'DeepLearning' && containsY === 'true'"
                 :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据资源' : ''"
                 :closable="false"
                 type="warning"
@@ -90,7 +90,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="search.dataResourceType !== 'ImageDataSet'"
+                v-if="projectType !== 'DeepLearning'"
                 label="包含Y"
                 width="100"
                 align="center"
@@ -303,6 +303,7 @@
                 oldCheckedList:  [],    // checked list from parent component
                 batchList:       [],
                 isShowData:      false,
+                requestMethod:   'post',
             };
         },
         computed: {
@@ -352,11 +353,15 @@
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                if(this.search) {
-                    if(this.search.dataResourceType === 'TableDataSet' && this.containsY === true) {
+                if(this.projectType === 'DeepLearning') {
+                    this.search.dataResourceType = ['ImageDataSet'];
+                }
+                if(this.search.dataResourceType) {
+                    const flag = this.search.dataResourceType.includes('TableDataSet');
+
+                    if(flag && this.containsY === true) {
                         this.search.containsY = true;
-                    } else if (this.dataResourceType === 'TableDataSet' && this.containsY === false) {
+                    } else if (flag && this.containsY === false) {
                         this.search.containsY = false;
                     }
                 }

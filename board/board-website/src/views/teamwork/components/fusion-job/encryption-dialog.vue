@@ -2,7 +2,7 @@
     <el-dialog
         v-model="vData.showDialog"
         title="设置主键"
-        width="510px"
+        width="550px"
     >
         <el-alert type="info" :closable="false">
             <template #title>
@@ -14,7 +14,7 @@
         <EncryptionGenerator
             ref="encryptionGeneratorRef"
             :columns="vData.columns"
-            :dateRecall="true"
+            :is-trace="true"
         />
 
         <div class="text-r">
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-    import { ref, reactive } from 'vue';
+    import { ref, nextTick, reactive } from 'vue';
     import EncryptionGenerator from './encryption-generator';
 
     export default {
@@ -40,41 +40,40 @@
         setup(props, context) {
             const encryptionGeneratorRef = ref(null);
             const vData = reactive({
-                role:         '',
-                showDialog:   false,
-                columns:      [],
-                is_trace:     true,
-                trace_column: [],
-                key2str:      '',
+                role:       '',
+                showDialog: false,
+                columns:    [],
             });
             const methods = {
                 init(role, data = {}) {
-                    const $ref = encryptionGeneratorRef.value.vData;
-
                     vData.role = role;
                     vData.showDialog = true;
-                    vData.is_trace = data.is_trace != null ? data.is_trace : true;
-                    vData.trace_column = data.trace_column || [];
-                    vData.key2str = data.key2str || '';
                     vData.columns = data.columns || [];
-                    $ref.encryptionList = data.encryptionList || [{
-                        features:   '',
-                        encryption: '',
-                    }];
+
+                    nextTick(_ => {
+                        const $ref = encryptionGeneratorRef.value;
+
+                        console.log($ref);
+                    });
                 },
                 confirm() {
-                    const $ref = encryptionGeneratorRef.value.vData;
+                    const $ref = encryptionGeneratorRef.value;
+                    const { hash_func } = $ref;
 
-                    for(let i = 0; i < $ref.encryptionList.length; i++) {
-                        const item = $ref.encryptionList[i];
+                    for(let i = 0; i < $ref.vData.encryptionList.length; i++) {
+                        const item = $ref.vData.encryptionList[i];
 
-                        if(!item.feature) {
+                        if(!item.features) {
                             return false;
                         }
                     }
 
+                    if($ref.vData.isTrace && !vData.trace_column) {
+                        return false;
+                    }
+
                     vData.showDialog = false;
-                    context.emit('confirmCheck', vData);
+                    context.emit('confirmCheck', { ...$ref.vData, role: vData.role, hash_func });
                 },
             };
 

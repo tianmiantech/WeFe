@@ -77,7 +77,13 @@ public class UnionService extends AbstractUnionService {
 
         CommonThreadPool.run(() -> {
             try {
-                request("data_resource/lazy_update", JObject.create(model));
+                JObject params = JObject
+                        .create(model)
+                        .append("data_resource_id", model.getId())
+                        // union 目前用的 data_set_id 为主键，但这是不科学的，这里临时迁就。
+                        .append("data_set_id", model.getId());
+
+                request("data_resource/lazy_update", params);
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }

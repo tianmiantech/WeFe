@@ -27,7 +27,7 @@
                             <div class="label_info_list">
                                 <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">
                                     <span class="span_label">{{item.label}}</span>
-                                    <span v-if="item.keycode !== ''" class="span_count">{{item.keycode}}</span>
+                                    <span v-if="item.keycode !== '' && index<10" class="span_count">{{item.keycode}}</span>
                                     <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
                             </div>

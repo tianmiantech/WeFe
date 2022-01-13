@@ -67,6 +67,7 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option

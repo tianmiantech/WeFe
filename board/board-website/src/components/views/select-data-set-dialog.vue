@@ -37,26 +37,41 @@
                 label-width="100"
             >
                 <el-select
+                    v-if="projectType === 'DeepLearning'"
+                    v-model="search.dataResourceType"
+                    :disabled="true"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        label="ImageDataSet"
+                        value="ImageDataSet"
+                    />
+                </el-select>
+                <el-select
+                    v-else
                     v-model="search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
-                    :disabled="isTypeDisabled"
                 >
                     <el-option
                         v-for="item in sourceTypeList"
                         :key="item.label"
-                        :value="item.label"
+                        :value="item.value"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="search.dataResourceType === 'TableDataSet'"
+                v-if="projectType !== 'DeepLearning'"
                 label="是否包含Y值："
                 label-width="100"
             >
                 <el-select
                     v-model="search.containsY"
+                    style="width: 90px"
                     filterable
                     clearable
                 >
@@ -65,7 +80,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="search.dataResourceType === 'ImageDataSet'"
+                v-else
                 label="样本分类："
                 label-width="100"
             >
@@ -163,10 +178,6 @@
                         value: 'TableDataSet',
                     },
                     {
-                        label: 'ImageDataSet',
-                        value: 'ImageDataSet',
-                    },
-                    {
                         label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
@@ -181,7 +192,6 @@
                         value: 'classify',
                     },
                 ],
-                isTypeDisabled:  false,
                 checkedDataList: [],
             };
         },
@@ -216,10 +226,11 @@
                     const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:         '',
-                        name:       '',
-                        creator:    '',
-                        contains_y: '',
+                        id:               '',
+                        name:             '',
+                        creator:          '',
+                        contains_y:       '',
+                        dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
 
                     if(this.containsY) {
@@ -251,13 +262,10 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-                this.$nextTick((_)=>{
-                    const type = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
 
-                    setTimeout(_=>{
-                        this.search.dataResourceType = type;
-                        this.isTypeDisabled = true;
-                    }, 200);
+                this.$nextTick(_ => {
+                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'];
+
                     if (memberId) {
                         this.memberId = memberId;
                     }

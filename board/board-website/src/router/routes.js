@@ -142,8 +142,7 @@ const baseRoutes = [
                     title:  '查看与标注',
                     active: `${prefixPath}data-list`,
                 },
-                component: () =>
-                    import('../views/data-center/data-check-label.vue'),
+                component: () => import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
@@ -230,6 +229,23 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/deeplearning/index'),
             },
             {
+                path: `${prefixPath}teamwork/detail/deep-learning/check-flow`,
+                name: 'check-flow',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '模型校验',
+                    active:          `${prefixPath}teamwork`,
+                    titleParams:     {
+                        parentTitle: '项目详情',
+                        title:       '项目详情',
+                        htmlTitle:   '项目详情',
+                        backward:    true,
+                    },
+                },
+                component: () => import('../views/teamwork/deeplearning/check-flow'),
+            },
+            {
                 path: `${prefixPath}teamwork/detail/job/history`,
                 name: 'project-job-history',
                 meta: {
@@ -313,8 +329,7 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () =>
-                    import('../views/teamwork/components/fusion-job/fusion-detail'),
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
         ],
     },
@@ -421,8 +436,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '系统设置',
                 },
-                component: () =>
-                    import('../views/system-config/system-config-view'),
+                component: () => import('../views/system-config/system-config-view'),
             },
             {
                 path: `${prefixPath}calculation-engine-config`,
@@ -431,8 +445,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '计算引擎设置',
                 },
-                component: () =>
-                    import('../views/system-config/calculation-engine-config'),
+                component: () => import('../views/system-config/calculation-engine-config'),
             },
         ],
     },
