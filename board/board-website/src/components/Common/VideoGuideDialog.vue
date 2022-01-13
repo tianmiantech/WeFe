@@ -16,7 +16,7 @@
                 align-center
             >
                 <el-step
-                    title="上传数据资源"
+                    title="上传数据集"
                     icon="elicon-upload"
                     @click="vData.active = 0"
                 />

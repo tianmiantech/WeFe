@@ -26,16 +26,21 @@ import com.welab.wefe.common.data.mongodb.repo.BlockSyncDetailInfoMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.BlockSyncHeightMongoReop;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncContractHeight;
+import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncHeight;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.constant.BlockConstant;
 import com.welab.wefe.constant.SyncConstant;
 import com.welab.wefe.exception.BusinessException;
 import com.welab.wefe.parser.BlockInfoParser;
+import com.welab.wefe.service.BlockSyncContractHeightService;
+import com.welab.wefe.service.BlockSyncDetailInfoService;
+import com.welab.wefe.service.BlockSyncHeightService;
+import com.welab.wefe.service.TransactionResponseService;
 import com.welab.wefe.tool.DataProcessor;
 import com.welab.wefe.tool.DataSyncContext;
 import com.welab.wefe.util.BlockUtil;
-import com.welab.wefe.util.WechatUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.fisco.bcos.sdk.BcosSDK;
@@ -49,7 +54,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Blockchain data sync
@@ -64,13 +70,16 @@ public class DataSyncTask {
     private BcosSDK bcosSDK;
 
     @Autowired
-    private BlockSyncHeightMongoReop blockSyncHeightMongoReop;
+    private BlockSyncHeightService blockSyncHeightService;
 
     @Autowired
-    private BlockSyncDetailInfoMongoRepo blockSyncDetailInfoMongoRepo;
+    private BlockSyncContractHeightService blockSyncContractHeightService;
 
     @Autowired
-    private BlockSyncContractHeightMongoRepo blockSyncContractHeightMongoRepo;
+    private BlockSyncDetailInfoService blockSyncDetailInfoService;
+
+    @Autowired
+    private TransactionResponseService transactionResponseService;
 
     /**
      * The group ID of the sync data, separated by commas
@@ -88,13 +97,11 @@ public class DataSyncTask {
             return;
         }
 
-
         String[] groupIds = dataSyncGroupId.trim().split(",");
         for (String groupId : groupIds) {
             if (!NumberUtils.isNumber(groupId)) {
                 continue;
             }
-
             cn.hutool.core.thread.ThreadUtil.execAsync(new CrawlRunner(NumberUtils.toInt(groupId)));
         }
     }
@@ -115,7 +122,7 @@ public class DataSyncTask {
                 DataSyncContext dataSyncContext = DataSyncContext.create(client);
                 SyncConstant.setCurrentContext(dataSyncContext);
                 //Query part of the data that has been synchronized
-                BlockSyncHeight blockSyncHeight = blockSyncHeightMongoReop.findByGroupId(dataSyncContext.getGroupId());
+                BlockSyncHeight blockSyncHeight = blockSyncHeightService.findByGroupId(dataSyncContext.getGroupId());
                 long startBlockNumber = (null == blockSyncHeight ? 0 : blockSyncHeight.getBlockNumber() + 1);
                 while (true) {
                     // The length of the synchronized part is greater than the current maximum length, it proves that the synchronization has been completed
@@ -137,18 +144,18 @@ public class DataSyncTask {
                         } catch (BusinessException e) {
                             LOG.error("Failed to sync data with group id: " + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
                             // Business error proofs need not be repeated, Manual intervention is required
-                            sendErrorMsg(groupId, startBlockNumber, e);
+                            blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
                             return;
                         } catch (Exception e) {
                             LOG.error("Failed to sync data with group id:" + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
-                            sendErrorMsg(groupId, startBlockNumber, e);
+                            blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
                             ThreadUtil.sleepSeconds(5);
                         }
                     }
                 }
             } catch (Exception e) {
                 LOG.error("Failed to sync data with group id:" + groupId + " exception info: ", e);
-                sendErrorMsg(groupId, -1, e);
+                blockSyncHeightService.sendErrorMsg(groupId, -1, e);
             }
         }
 
@@ -156,11 +163,11 @@ public class DataSyncTask {
          * Sync block data
          */
         private void startSync(long blockNumber) throws Exception {
+            BlockInfoBO blockInfoBO = null;
             for (int i = 0; i < 6; i++) {
                 // get block by block number
                 BcosBlock.Block block = BlockUtil.getBlock(this.client, new BigInteger(String.valueOf(blockNumber)));
-                BlockInfoBO blockInfoBO = BlockInfoParser.create(block).parse();
-
+                blockInfoBO = BlockInfoParser.create(block).parse();
                 if (CollectionUtils.isEmpty(blockInfoBO.getEventBOList())) {
                     // retry
                     Thread.sleep(500);
@@ -171,43 +178,13 @@ public class DataSyncTask {
 
                 DataProcessor.parseBlockData(filterBlockInfoBO);
 
-                saveBlockSyncHeight(blockInfoBO);
+                blockSyncHeightService.save(blockInfoBO);
 
-                saveBlockSyncContractHeight(filterBlockInfoBO);
+                blockSyncContractHeightService.save(filterBlockInfoBO);
 
-                saveBlockDetailInfo(blockInfoBO);
+                blockSyncDetailInfoService.saveBlockDetailInfo(blockInfoBO);
             }
-        }
-
-        /**
-         * Record the block height information that has been successfully synchronized
-         */
-        private void saveBlockSyncHeight(BlockInfoBO blockInfoBO) {
-            BlockSyncHeight blockSyncHeight = new BlockSyncHeight();
-            blockSyncHeight.setBlockNumber(blockInfoBO.getBlockNumber().longValue());
-            blockSyncHeight.setGroupId(blockInfoBO.getGroupId());
-            blockSyncHeightMongoReop.upsert(blockSyncHeight);
-        }
-
-
-        /**
-         * Record the block height contract information that has been successfully synchronized
-         */
-        private void saveBlockSyncContractHeight(BlockInfoBO blockInfoBO) {
-            List<EventBO> eventBOList = blockInfoBO.getEventBOList();
-            if (CollectionUtils.isEmpty(eventBOList)) {
-                return;
-            }
-            Set<String> contractNameList = new HashSet<>(16);
-            eventBOList.forEach(x -> contractNameList.add(x.getContractName()));
-            BlockSyncContractHeight blockSyncContractHeight;
-            for (String contractName : contractNameList) {
-                blockSyncContractHeight = new BlockSyncContractHeight();
-                blockSyncContractHeight.setGroupId(blockInfoBO.getGroupId());
-                blockSyncContractHeight.setBlockNumber(blockInfoBO.getBlockNumber().longValue());
-                blockSyncContractHeight.setContractName(contractName);
-                blockSyncContractHeightMongoRepo.upsertByGroupIdAndContractName(blockSyncContractHeight);
-            }
+            transactionResponseService.save(blockInfoBO);
         }
 
 
@@ -225,7 +202,7 @@ public class DataSyncTask {
             List<EventBO> filterResultEventBOList = new ArrayList<>();
             BlockSyncContractHeight blockSyncContractHeight;
             for (EventBO eventBO : eventBOList) {
-                blockSyncContractHeight = blockSyncContractHeightMongoRepo.findByGroupIdAndContractName(blockInfoBO.getGroupId(), eventBO.getContractName());
+                blockSyncContractHeight = blockSyncContractHeightService.findByGroupIdAndContractName(blockInfoBO.getGroupId(), eventBO.getContractName());
                 // Prove that the events of the contract have not been synchronized
                 if (null == blockSyncContractHeight || (eventBO.getBlockNumber().longValue() > blockSyncContractHeight.getBlockNumber())) {
                     filterResultEventBOList.add(eventBO);
@@ -235,36 +212,6 @@ public class DataSyncTask {
             }
             copyBlockInfoBO.setEventBOList(filterResultEventBOList);
             return copyBlockInfoBO;
-        }
-
-        /**
-         * Save block information
-         */
-        private void saveBlockDetailInfo(BlockInfoBO blockInfoBO) {
-            try {
-                BlockSyncDetailInfo blockSyncDetailInfo = new BlockSyncDetailInfo();
-                blockSyncDetailInfo.setGroupId(blockInfoBO.getGroupId());
-                blockSyncDetailInfo.setBlockNumber(blockInfoBO.getBlockNumber().longValue());
-                blockSyncDetailInfo.setData(JObject.create(blockInfoBO));
-                blockSyncDetailInfoMongoRepo.upsert(blockSyncDetailInfo);
-            } catch (Exception e) {
-                LOG.error("Failed to save block detail info with group id:" + blockInfoBO.getGroupId() + ", block: " + blockInfoBO.getBlockNumber() + " , exception info: ", e);
-                sendErrorMsg(blockInfoBO.getGroupId(), blockInfoBO.getBlockNumber().longValue(), e);
-            }
-        }
-
-        /**
-         * Send error warning
-         */
-        private void sendErrorMsg(int groupId, long blockNumber, Exception e) {
-            String errorMsg;
-            if (e instanceof BusinessException) {
-                errorMsg = "Warning!!!, Business exception! Business exception! Business exception! Important things are to be repeated for 3 times! Sync group id: " + groupId + ", block number: " + blockNumber + ", data exception: " + e.getMessage();
-            } else {
-                errorMsg = "Sync group id: " + groupId + ", block number " + blockNumber + ", data exception: " + e.getMessage();
-            }
-            errorMsg += "\n\n" + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
-            WechatUtil.send(wechatUrl, errorMsg);
         }
     }
 }
