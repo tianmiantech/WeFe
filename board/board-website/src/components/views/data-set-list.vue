@@ -2,8 +2,8 @@
     <div class="data-set-list">
         <div class="flexbox">
             <el-alert
-                v-if="search.dataResourceType === 'TableDataSet' && containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
+                v-if="projectType !== 'DeepLearning' && containsY === 'true'"
+                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据资源' : ''"
                 :closable="false"
                 type="warning"
             />
@@ -18,7 +18,7 @@
                         target="_blank"
                     >
                         <el-button style="display:block;" type="primary" size="mini">
-                            上传数据集
+                            上传数据资源
                             <el-icon>
                                 <elicon-arrow-right />
                             </el-icon>
@@ -44,7 +44,7 @@
             >
                 <template v-slot="scope">
                     {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -76,7 +76,7 @@
             </el-table-column>
             <el-table-column
                 v-if="projectType === 'DeepLearning'"
-                label="任务类型"
+                label="样本分类"
                 prop="for_job_type"
                 width="100"
             >
@@ -90,7 +90,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="search.dataResourceType !== 'ImageDataSet'"
+                v-if="projectType !== 'DeepLearning'"
                 label="包含Y"
                 width="100"
                 align="center"
@@ -188,7 +188,7 @@
             </el-table-column>
             <el-table-column
                 fixed="right"
-                label="选择数据集"
+                label="选择数据资源"
                 width="140px"
             >
                 <template v-slot="scope">
@@ -352,11 +352,15 @@
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                if(this.search) {
-                    if(this.search.dataResourceType === 'TableDataSet' && this.containsY === true) {
+                if(this.projectType === 'DeepLearning') {
+                    this.search.dataResourceType = ['ImageDataSet'];
+                }
+                if(this.search.dataResourceType) {
+                    const flag = this.search.dataResourceType.includes('TableDataSet');
+
+                    if(flag && this.containsY === true) {
                         this.search.containsY = true;
-                    } else if (this.dataResourceType === 'TableDataSet' && this.containsY === false) {
+                    } else if (flag && this.containsY === false) {
                         this.search.containsY = false;
                     }
                 }
@@ -369,7 +373,7 @@
                     item.$unchanged = false;
                     this.list[index] = item;
                     this.oldCheckedList.find(sitem => {
-                        if (item.id === sitem.data_set_id ) {
+                        if (item.data_resource_id === sitem.data_set_id ) {
                             item.$checked = true;
                             item.$unchanged = true;
                         }
@@ -428,7 +432,7 @@
                     return this.$message({
                         type:                     'error',
                         dangerouslyUseHTMLString: true,
-                        message:                  '数据集暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
+                        message:                  '数据资源暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
                     });
                 }
                 item.$source_page = this.emitEventName;

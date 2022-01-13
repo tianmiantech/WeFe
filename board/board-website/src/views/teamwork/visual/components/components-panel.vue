@@ -324,7 +324,9 @@
                             // switched
                             if(lastNodeId !== id) {
                                 // call readData
-                                const ref = this.$refs[this.componentType];
+                                let ref = this.$refs[this.componentType];
+
+                                ref = Array.isArray(ref) ? ref[0]: ref;
 
                                 if(ref) {
                                     let readData;

@@ -198,8 +198,8 @@
             >
                 <el-table-column label="序号" type="index" />
                 <el-table-column
-                    label="数据集"
-                    width="230"
+                    label="数据资源"
+                    width="260"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_set">
@@ -301,7 +301,7 @@
                             <el-tooltip
                                 class="item"
                                 effect="dark"
-                                content="被拒绝的数据集需要移除后再进行添加！"
+                                content="被拒绝的数据资源需要移除后再进行添加！"
                                 placement="top"
                             >
                                 <el-icon>
@@ -320,6 +320,7 @@
                     v-if="!form.closed && !member.exited && (member.audit_status !== 'disagree' && member.member_id === userInfo.member_id || (form.isPromoter && member.audit_status !== 'disagree'))"
                     min-width="220"
                     label="操作"
+                    fixed="right"
                 >
                     <template v-slot="scope">
                         <!-- The current member is a provider -->
@@ -370,7 +371,7 @@
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
                         <template v-if="scope.row.deleted">
-                            该数据集已被移除
+                            该数据资源已被移除
                         </template>
                     </template>
                 </el-table-column>
@@ -569,10 +570,10 @@
                             return $message.error('请先等待他人同意授权加入合作!');
                         }
                     }
-                    const result = flag ? $confirm('确定同意协作方使用数据集进行流程训练吗', '提示', {
+                    const result = flag ? $confirm('确定同意协作方使用数据资源进行流程训练吗', '提示', {
                         type:        'warning',
                         customClass: 'audit_dialog',
-                    }) : $prompt('拒绝协作方在此项目中使用此数据集:\n 原因:', '提示', {
+                    }) : $prompt('拒绝协作方在此项目中使用此数据资源:\n 原因:', '提示', {
                         inputValidator(value) {
                             return value != null && value !== '';
                         },
@@ -615,7 +616,7 @@
                                 member_role:        row.member_role,
                                 member_id:          row.member_id,
                                 data_set_id:        item.data_resource_id,
-                                data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                data_resource_type: item.data_resource_type,
                             });
                         });
                         const { code } = await $http.post({
@@ -628,7 +629,7 @@
 
                         if(code === 0) {
                             refresh();
-                            $message.success('数据集添加成功!');
+                            $message.success('数据资源添加成功!');
                         }
                     }
                 },
@@ -649,7 +650,7 @@
                                         member_role:        row.member_role,
                                         member_id:          row.member_id,
                                         data_set_id:        item.data_resource_id,
-                                        data_resource_type: props.form.project_type === 'DeepLearning' ? 'ImageDataSet' : props.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                        data_resource_type: item.data_resource_type,
                                     },
                                 ],
                             },
@@ -657,7 +658,7 @@
 
                         if(code === 0) {
                             refresh();
-                            $message.success('数据集添加成功!');
+                            $message.success('数据资源添加成功!');
                         }
                     } else {
                         vData.loading = false;

@@ -47,7 +47,7 @@
                 >
                     <el-table-column type="index" />
                     <el-table-column
-                        label="数据集"
+                        label="数据资源"
                         width="260"
                     >
                         <template v-slot="scope">
@@ -150,10 +150,11 @@
                         v-if="!form.closed && !promoter.exited && (promoter.audit_status !== 'disagree' && promoter.member_id === userInfo.member_id || form.isCreator)"
                         min-width="160"
                         label="操作"
+                        fixed="right"
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id && projectType === 'MachineLearning'"
+                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -169,7 +170,7 @@
                                 </el-button>
                             </el-tooltip>
                             <!--
-                                1. 数据集未被删除
+                                1. 数据资源未被删除
                                 2. 成员是 promoter or 成员是自己
                             -->
                             <el-button
@@ -181,7 +182,7 @@
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
                             <template v-if="scope.row.deleted">
-                                该数据集已被移除
+                                该数据资源已被移除
                             </template>
                         </template>
                     </el-table-column>
@@ -281,8 +282,10 @@
             v-model="dataSetPreviewDialog"
             destroy-on-close
             append-to-body
+            width="60%"
         >
-            <DataSetPreview ref="DataSetPreview" />
+            <DataSetPreview v-if="form.project_type === 'MachineLearning'" ref="DataSetPreview" />
+            <PreviewImageList v-if="form.project_type === 'DeepLearning'" ref="PreviewImageList" />
         </el-dialog>
 
         <SelectMemberDialog
@@ -312,6 +315,7 @@
     import MemberTabHead from './member-tab-head';
     import MemberTabAudit from './member-tab-audit';
     import MemberDataSet from './member-data-set';
+    import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default {
         name:       'MemberList',
@@ -324,6 +328,7 @@
             MemberTabHead,
             MemberTabAudit,
             MemberDataSet,
+            PreviewImageList,
         },
         inject: ['refresh'],
         props:  {
@@ -355,7 +360,11 @@
                 this.dataSetPreviewDialog = true;
 
                 this.$nextTick(() =>{
-                    this.$refs['DataSetPreview'].loadData(item.data_set_id);
+                    if (this.projectType === 'MachineLearning') {
+                        this.$refs['DataSetPreview'].loadData(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                    } else if (this.projectType === 'DeepLearning') {
+                        this.$refs.PreviewImageList.methods.getSampleList(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                    }
                 });
             },
 
@@ -479,7 +488,7 @@
                             member_role:        row.member_role,
                             member_id:          row.member_id,
                             data_set_id:        item.data_resource_id,
-                            data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                            data_resource_type: item.data_resource_type,
                         });
                     });
                     const { code } = await this.$http.post({
@@ -492,7 +501,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 }
             },
@@ -513,7 +522,7 @@
                                     member_role:        row.member_role,
                                     member_id:          row.member_id,
                                     data_set_id:        item.data_resource_id,
-                                    data_resource_type: this.form.project_type === 'DeepLearning' ? 'ImageDataSet' : this.form.project_type === 'MachineLearning' ? 'TableDataSet' : '',
+                                    data_resource_type: item.data_resource_type,
                                 },
                             ],
                         },
@@ -521,7 +530,7 @@
 
                     if(code === 0) {
                         this.refresh();
-                        this.$message.success('数据集添加成功!');
+                        this.$message.success('数据资源添加成功!');
                     }
                 } else {
                     this.loading = false;

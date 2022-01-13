@@ -7,7 +7,7 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add' }"
                     class="ml10"
@@ -22,7 +22,7 @@
 
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }}">
+                <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -46,29 +46,26 @@
         </el-table-column>
         <el-table-column label="可见性" align="center">
             <template v-slot="scope">
-                <span
-                    v-if="scope.row.public_level === 'Public'"
-                >
+                <span v-if="scope.row.public_level === 'Public'">
                     所有成员可见
                 </span>
-                <span
-                    v-else-if="scope.row.public_level === 'OnlyMyself'"
-                >
+                <span v-else-if="scope.row.public_level === 'OnlyMyself'">
                     仅自己可见
                 </span>
-                <span
-                    v-else
-                >
+                <span v-else>
                     指定成员可见
                 </span>
             </template>
         </el-table-column>
         <el-table-column
             label="资源类型"
-            prop="data_resource_type"
             width="130"
             align="center"
-        />
+        >
+            <template v-slot="scope">
+                {{ dataResourceTypeMap[scope.row.data_resource_type].label }}
+            </template>
+        </el-table-column>
         <el-table-column
             label="任务类型"
             width="100"
@@ -83,20 +80,31 @@
             </template>
         </el-table-column>
         <el-table-column
-            label="数据量"
-            width="140"
+            label="数据信息"
+            width="150"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'TableDataSet'">
                     特征量：{{ scope.row.feature_count }}
                     <br>
-                    样本量：{{ scope.row.row_count }}
+                    样本量：{{ scope.row.total_data_count }}
                     <br>
                     正例样本数量：{{ scope.row.y_positive_sample_count }}
                     <br>
                     正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                    <br>
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
+                    </span>
                 </p>
-                <p v-else>{{scope.row.total_data_count}}</p>
+                <p v-else>
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
             </template>
         </el-table-column>
         <el-table-column
@@ -105,24 +113,6 @@
             width="100"
             align="center"
         />
-        <el-table-column
-            label="包含Y"
-            width="100"
-            align="center"
-            v-if="search.dataResourceType !== 'ImageDataSet'"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                        <elicon-check />
-                    </el-icon>
-                    <el-icon v-else class="el-icon-close">
-                        <elicon-close />
-                    </el-icon>
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
         <el-table-column
             label="上传者"
             prop="creator_nickname"
@@ -139,26 +129,36 @@
             label="操作"
             fixed="right"
             align="center"
-            min-width="250"
+            min-width="120"
         >
             <template v-slot="scope">
                 <router-link
                     :to="{
                         name: 'data-update',
-                        query: { id: scope.row.id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv' }
+                        query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }
                     }"
                 >
-                    <el-button type="primary">
-                        编辑
-                    </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="编辑"
+                        placement="top"
+                    >
+                        <el-icon class="el-icon-edit-outline" style="font-size:16px;">
+                            <elicon-edit />
+                        </el-icon>
+                    </el-tooltip>
                 </router-link>
-                <el-button
-                    type="danger"
-                    class="ml10 mr10"
-                    @click="deleteData(scope.row)"
+                <el-tooltip
+                    class="item"
+                    effect="light"
+                    content="删除"
+                    placement="top"
                 >
-                    删除
-                </el-button>
+                    <el-icon class="el-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
+                        <elicon-delete />
+                    </el-icon>
+                </el-tooltip>
                 <router-link
                     v-if="scope.row.data_resource_type === 'ImageDataSet'"
                     :to="{
@@ -166,9 +166,20 @@
                         query: { id: scope.row.id, type: 'img' }
                     }"
                 >
-                    <el-button plain>
-                        查看与标注
-                    </el-button>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="查看与标注"
+                        placement="top"
+                    >
+                        <el-icon>
+                            <i
+                                title="查看与标注"
+                                class="iconfont icon-mark"
+                            />
+                        </el-icon>
+                        
+                    </el-tooltip>
                 </router-link>
             </template>
         </el-table-column>
@@ -205,9 +216,24 @@
         },
         data() {
             return {
-                getListApi:    '/data_resource/query',
-                defaultSearch: false,
-                watchRoute:    false,
+                getListApi:          '/data_resource/query',
+                defaultSearch:       false,
+                watchRoute:          false,
+                dataResourceTypeMap: {
+                    BloomFilter: {
+                        label: '布隆过滤器',
+                        type:  'BloomFilter',
+                    },
+                    ImageDataSet: {
+                        label: 'ImageDataSet',
+                        type:  'img',
+                    },
+                    TableDataSet: {
+                        label: 'TableDataSet',
+                        type:  'csv',
+                    },
+                },
+                requestMethod: 'post',
             };
         },
         methods: {
@@ -240,19 +266,23 @@
                             return `<a href="${path.href}" target="_blank">${row.name}</a>`;
                         });
 
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
                     } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
                     }
 
                     this.$confirm('警告', {
+                        title:                    '警告',
                         type:                     'warning',
                         dangerouslyUseHTMLString: true,
                         message,
                     }).then(async () => {
-                        const url = row.data_resource_type === 'TableDataSet' ? '/table_data_set/delete'
-                            : row.data_resource_type === 'ImageDataSet' ? '/image_data_set/delete'
-                                : '/data_set/delete';
+                        const map = {
+                            TableDataSet: '/table_data_set/delete',
+                            ImageDataSet: '/image_data_set/delete',
+                            BloomFilter:  '/bloom_filter/delete',
+                        };
+                        const url = map[row.data_resource_type];
                         const { code } = await this.$http.post({
                             url,
                             data: {

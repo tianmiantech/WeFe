@@ -27,7 +27,7 @@
                             <div class="label_info_list">
                                 <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">
                                     <span class="span_label">{{item.label}}</span>
-                                    <span v-if="item.keycode !== ''" class="span_count">{{item.keycode}}</span>
+                                    <span v-if="item.keycode !== '' && index<10" class="span_count">{{item.keycode}}</span>
                                     <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
                             </div>
@@ -135,6 +135,7 @@
                 },
                 async getSampleList() {
                     vData.pageLoading = true;
+                    vData.sampleList = [];
                     const params = {
                         page_index:  vData.search.page_index - 1,
                         page_size:   vData.search.page_size,
@@ -261,14 +262,16 @@
                     labelSystemRef.value.methods.createStage();
                 },
                 addLabel() {
-                    vData.count_by_sample.push({
-                        label:        vData.newLabel,
-                        count:        0,
-                        keycode:      vData.count_by_sample.length > 9 ? '' : vData.count_by_sample.length,
-                        iscustomized: true,
-                    });
-                    vData.newLabel = '';
-                    vData.count_by_sample_list = vData.count_by_sample;
+                    if (vData.newLabel) {
+                        vData.count_by_sample.push({
+                            label:        vData.newLabel,
+                            count:        0,
+                            keycode:      vData.count_by_sample.length > 9 ? '' : vData.count_by_sample.length,
+                            iscustomized: true,
+                        });
+                        vData.newLabel = '';
+                        vData.count_by_sample_list = vData.count_by_sample;
+                    }
                 },
                 deleteLabel(idx) {
                     vData.count_by_sample_list.splice(idx, 1);
@@ -296,11 +299,13 @@
                             // 标注下一张
                             // 判断是否为最后一张
                             if (vData.sampleList.length - 1 !== vData.currentImage.idx) {
+                                // vData.sampleList[vData.currentImage.idx].label_info = params.label_info;
                                 vData.sampleList[vData.currentImage.idx].$isselected = false;
                                 vData.sampleList[vData.currentImage.idx+1].$isselected = true;
                                 vData.currentImage = { item: vData.sampleList[vData.currentImage.idx+1], idx: vData.currentImage.idx+1 };
                                 nextTick(_=> {
                                     labelSystemRef.value.methods.createStage();
+                                    methods.getSampleInfo();
                                 });
                             } else {
                                 // 本页最后一张，获取第二页数据

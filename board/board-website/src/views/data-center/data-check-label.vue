@@ -21,9 +21,11 @@
                     <div class="label_info">
                         <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
                         <template v-if="vData.count_by_label_list.length">
-                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
-                                <span class="span_label">{{item.label}}</span>
-                                <span class="span_count">{{item.count}}</span>
+                            <div class="label_info_list">
+                                <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
+                                    <span class="span_label">{{item.label}}</span>
+                                    <span class="span_count">{{item.count}}</span>
+                                </div>
                             </div>
                         </template>
                         <template v-else>
@@ -297,7 +299,7 @@
         position: relative;
         .tabs_nav_btns {
             position: absolute;
-            right: 20px;
+            right: 0;
             z-index: 2;
         }
         .el-tab-pane {
@@ -355,6 +357,10 @@
                         font-size: 12px;
                         color: #666;
                         padding: 16px 10px 6px;
+                    }
+                    .label_info_list {
+                        height: calc(100vh - 450px);
+                        overflow-y: auto;
                     }
                     .label_item {
                         height: 40px;

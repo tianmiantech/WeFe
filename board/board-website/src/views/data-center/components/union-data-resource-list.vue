@@ -7,7 +7,7 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add' }"
                     class="ml10"
@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column
             label="成员"
-            min-width="100"
+            min-width="160"
         >
             <template v-slot="scope">
                 <span
@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id?'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: scope.row.data_resource_type === 'ImageDataSet' ? 'img' : 'csv', data_resource_type: scope.row.data_resource_type }}">
+                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type] }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -65,19 +65,13 @@
         </el-table-column>
         <el-table-column label="可见性" align="center">
             <template v-slot="scope">
-                <span
-                    v-if="scope.row.public_level === 'Public'"
-                >
+                <span v-if="scope.row.public_level === 'Public'">
                     所有成员可见
                 </span>
-                <span
-                    v-else-if="scope.row.public_level === 'OnlyMyself'"
-                >
+                <span v-else-if="scope.row.public_level === 'OnlyMyself'">
                     仅自己可见
                 </span>
-                <span
-                    v-else
-                >
+                <span v-else>
                     指定成员可见
                 </span>
             </template>
@@ -89,20 +83,7 @@
             align="center"
         />
         <el-table-column
-            label="任务类型"
-            width="100"
-            v-if="search.dataResourceType === 'ImageDataSet'"
-            align="center"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    {{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="数据量"
+            label="数据信息"
             width="140"
         >
             <template v-slot="scope">
@@ -110,8 +91,19 @@
                     特征量：{{ scope.row.feature_count }}
                     <br>
                     样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
+                    </span>
                 </p>
-                <p v-else>{{scope.row.total_data_count}}</p>
+                <p v-else>
+                    样本量：{{scope.row.total_data_count}}
+                    <br>
+                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    <br>
+                    样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
             </template>
         </el-table-column>
         <el-table-column
@@ -120,24 +112,6 @@
             width="100"
             align="center"
         />
-        <el-table-column
-            label="包含Y"
-            width="100"
-            align="center"
-            v-if="search.dataResourceType !== 'ImageDataSet'"
-        >
-            <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
-                        <elicon-check />
-                    </el-icon>
-                    <el-icon v-else class="el-icon-close">
-                        <elicon-close />
-                    </el-icon>
-                </p>
-                <p v-else>-</p>
-            </template>
-        </el-table-column>
         <el-table-column
             label="上传者"
             prop="creator_nickname"
@@ -184,10 +158,15 @@
         emits: ['add-data-set', 'check-card'],
         data() {
             return {
-                getListApi:    '/union/data_resource/query',
-                defaultSearch: false,
-                watchRoute:    false,
-                turnPageRoute: false,
+                getListApi:          '/union/data_resource/query',
+                defaultSearch:       false,
+                watchRoute:          false,
+                turnPageRoute:       false,
+                dataResourceTypeMap: {
+                    BloomFilter:  'BloomFilter',
+                    ImageDataSet: 'img',
+                    TableDataSet: 'csv',
+                },
             };
         },
         computed: {
