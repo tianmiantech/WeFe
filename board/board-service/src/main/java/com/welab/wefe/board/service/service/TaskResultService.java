@@ -40,6 +40,7 @@ import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
 import com.welab.wefe.board.service.component.feature.VertOneHotComponent;
 import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -51,24 +52,16 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.welab.wefe.common.web.dto.ApiResult;
 
 /**
  * @author zane.luo
@@ -95,7 +88,7 @@ public class TaskResultService extends AbstractService {
     private ProjectService projectService;
 
     @Autowired
-    private DataSetService datasetService;
+    private TableDataSetService tableDataSetService;
 
     @Autowired
     private GatewayService gatewayService;
@@ -592,7 +585,7 @@ public class TaskResultService extends AbstractService {
                 }
             }
         }
-        DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(),
+        TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
                 node.getComponentType());
         if (myTmpDataSet != null) {
             for (MemberFeatureInfoModel member : members) {
