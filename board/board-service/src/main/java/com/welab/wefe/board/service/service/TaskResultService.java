@@ -16,6 +16,20 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
@@ -24,13 +38,17 @@ import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.database.repository.TaskResultRepository;
 import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
+import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
+import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -49,6 +67,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.welab.wefe.common.web.dto.ApiResult;
 
 /**
  * @author zane.luo
@@ -75,7 +95,10 @@ public class TaskResultService extends AbstractService {
     private ProjectService projectService;
 
     @Autowired
-    private TaskService taskService;
+    private DataSetService datasetService;
+
+    @Autowired
+    private GatewayService gatewayService;
 
     /**
      * There are multiple results for mixed federations
@@ -158,7 +181,7 @@ public class TaskResultService extends AbstractService {
      * filter the features by cv/iv
      */
     private JObject selectByCvIv(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
-        
+
         JObject result = JObject.create();
         List<MemberModel> selectMembers = new ArrayList<>();
         // mix flow
@@ -172,14 +195,14 @@ public class TaskResultService extends AbstractService {
             if (featureBinningNode == null) {
                 throw new FlowNodeException(node, "请添加特征分箱组件。");
             }
-            
+
             // Find the task corresponding to the FeatureStatistic node
             ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
             TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
             if (featureStatisticTask == null) {
                 throw new FlowNodeException(node, "找不到对应的特征统计任务。");
             }
-            
+
             // Find the task result of FeatureStatistic
             TaskResultMySqlModel featureStatisticTaskResult = findByTaskIdAndType(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name());
 
@@ -188,7 +211,7 @@ public class TaskResultService extends AbstractService {
             }
 
             JObject statisticResult = JObject.create(featureStatisticTaskResult.getResult());
-            
+
             TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(), featureBinningNode.getNodeId(), project.getMyRole().name());
             if (featureBinningTask == null) {
                 throw new FlowNodeException(node, "找不到对应的特征分箱任务。");
@@ -199,16 +222,16 @@ public class TaskResultService extends AbstractService {
             if (featureBinningTaskResult == null) {
                 return JObject.create();
             }
-            
+
             List<JObject> featureBinningResults = parseBinningResult(featureBinningTaskResult);
             List<JObject> statisticResultMembers = statisticResult.getJSONList("members");
             for (JObject memberObj : statisticResultMembers) {
                 Map<String, Double> cvMap = new HashMap<>();
                 Map<String, Double> ivMap = new HashMap<>();
-                
+
                 String memberId = memberObj.getString("member_id");
                 String role = memberObj.getString("role");
-                
+
                 JObject featureBinningResult = featureBinningResults.stream()
                         .filter(s -> role.equalsIgnoreCase(s.getString("role"))
                                 && memberId.equalsIgnoreCase(s.getString("memberId")))
@@ -236,7 +259,7 @@ public class TaskResultService extends AbstractService {
 
                 // Get the feature column of the current member
                 List<MemberModel> currentMembers = input.getMembers().stream().filter(
-                        x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                                x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
                         .collect(Collectors.toList());
                 if (JobMemberRole.promoter.name().equalsIgnoreCase(role)) {
                     currentMembers = input.getMembers().stream()
@@ -259,9 +282,8 @@ public class TaskResultService extends AbstractService {
                     }
                 }
             }
-            
-        }
-        else {
+
+        } else {
             // Find the FeatureCalculation node in the parent node
             FlowGraphNode featureCalculationNode = flowGraph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
 
@@ -281,7 +303,7 @@ public class TaskResultService extends AbstractService {
             if (featureCalculationTaskResult == null) {
                 return JObject.create();
             }
-            
+
             result = JObject.create(featureCalculationTaskResult.getResult());
             List<JObject> calculateResults = result.getJSONList("model_param.calculateResults");
 
@@ -358,7 +380,7 @@ public class TaskResultService extends AbstractService {
         binningResults.addAll(providerBinningResults);
         return binningResults;
     }
-    
+
     /**
      * filter the features by missing rate
      */
@@ -442,8 +464,6 @@ public class TaskResultService extends AbstractService {
      * Get feature list
      */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
-
-        JObject result = JObject.create();
         GetFeatureApi.Output out = new GetFeatureApi.Output();
         FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
 
@@ -481,7 +501,7 @@ public class TaskResultService extends AbstractService {
                     }
                 }
             }
-            
+
             FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
                     x -> x.getComponentType() == ComponentType.MixBinning
                             || x.getComponentType() == ComponentType.Binning);
@@ -528,10 +548,113 @@ public class TaskResultService extends AbstractService {
         } else if (trainDataSetNodeOutputItem.getComponentType() == ComponentType.FeatureSelection) {
 
             return getFeatureSelectFeature(graph.getNode(trainDataSetNodeOutputItem.getNodeId()), graph);
+        } else if (trainDataSetNodeOutputItem.getComponentType() == ComponentType.HorzOneHot || trainDataSetNodeOutputItem.getComponentType() == ComponentType.VertOneHot) {
+            return getOneHotFeature(graph.getNode(trainDataSetNodeOutputItem.getNodeId()), graph);
         } else {
             return getMemberFeatures(graph, graph.getNode(trainDataSetNodeOutputItem.getNodeId()));
         }
     }
+
+    private List<MemberFeatureInfoModel> getOneHotFeature(FlowGraphNode node, FlowGraph flowGraph)
+            throws FlowNodeException {
+        List<MemberFeatureInfoModel> members = new ArrayList<>();
+
+        FlowGraphNode dataIONode = flowGraph.findOneNodeFromParent(node, ComponentType.DataIO);
+        DataIOComponent.Params dataIOParams = JObject.create(dataIONode.getParams())
+                .toJavaObject(DataIOComponent.Params.class);
+
+        List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
+
+        // need filter
+        VertOneHotComponent.Params params = JObject.create(node.getParams())
+                .toJavaObject(VertOneHotComponent.Params.class);
+        for (MemberInfoModel memberInfoModel : params.getMembers()) {
+            for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
+                if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
+                        && memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
+                    List<String> needPassFeatures = memberInfoModel.getFeatures();
+                    MemberFeatureInfoModel member = new MemberFeatureInfoModel();
+                    member.setMemberId(dataSetItem.getMemberId());
+                    member.setMemberRole(dataSetItem.getMemberRole());
+                    List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
+                    for (String name : dataSetItem.getFeatures()) {
+                        if (needPassFeatures != null && needPassFeatures.contains(name)) {
+                            continue; // pass
+                        }
+                        MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
+                        feature.setName(name);
+                        features.add(feature);
+                    }
+                    member.setFeatures(features);
+                    member.setDataSetId(dataSetItem.getDataSetId());
+                    member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
+                    members.add(member);
+                }
+            }
+        }
+        DataSetMysqlModel myTmpDataSet = datasetService.query(flowGraph.getLastJob().getJobId(),
+                node.getComponentType());
+        if (myTmpDataSet != null) {
+            for (MemberFeatureInfoModel member : members) {
+                if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+                    DetailApi.Input input = new DetailApi.Input();
+                    input.setId(myTmpDataSet.getId());
+                    try {
+                        ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
+                                JobMemberRole.promoter, input, DetailApi.class);
+                        if (apiResult.data != null) {
+                            DataSetOutputModel output = JObject.create(apiResult.data)
+                                    .toJavaObject(DataSetOutputModel.class);
+                            LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
+                            List<String> newColumnNameList = new ArrayList<>(
+                                    Arrays.asList(output.getFeatureNameList().split(",")));
+                            List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+
+                            List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                            for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                                if (newColumnNameList.contains(feature.getName())) {
+                                    newFeatures.add(feature);
+                                    newColumnNameList.remove(feature.getName());
+                                }
+                            }
+                            if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                                for (String s : newColumnNameList) {
+                                    MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                                    f.setName(s);
+                                    newFeatures.add(f);
+                                }
+                            }
+                            member.setFeatures(newFeatures);
+                        }
+                    } catch (MemberGatewayException e) {
+                        throw new FlowNodeException(node, member.getMemberId());
+                    }
+                } else {
+                    List<String> newColumnNameList = new ArrayList<>(
+                            Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
+                    List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+
+                    List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                    for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                        if (newColumnNameList.contains(feature.getName())) {
+                            newFeatures.add(feature);
+                            newColumnNameList.remove(feature.getName());
+                        }
+                    }
+                    if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                        for (String s : newColumnNameList) {
+                            MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                            f.setName(s);
+                            newFeatures.add(f);
+                        }
+                    }
+                    member.setFeatures(newFeatures);
+                }
+            }
+        }
+        return members;
+    }
+
 
     /**
      * From the feature column in the DataIO node params

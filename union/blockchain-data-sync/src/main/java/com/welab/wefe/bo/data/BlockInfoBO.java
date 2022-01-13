@@ -17,6 +17,7 @@
 package com.welab.wefe.bo.data;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class BlockInfoBO {
     private BigInteger blockNumber;
 
     private List<EventBO> eventBOList;
+    private List<TransactionResponseBO> transactionResponseBOList = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -59,5 +61,13 @@ public class BlockInfoBO {
 
     public void setBlockNumber(BigInteger blockNumber) {
         this.blockNumber = blockNumber;
+    }
+
+    public List<TransactionResponseBO> getTransactionResponseBOList() {
+        return transactionResponseBOList;
+    }
+
+    public void setTransactionResponseBOList(List<TransactionResponseBO> transactionResponseBOList) {
+        this.transactionResponseBOList = transactionResponseBOList;
     }
 }

@@ -17,13 +17,22 @@
 package com.welab.wefe.board.service.api.member;
 
 import com.welab.wefe.board.service.service.SystemInitializeService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileType;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * @author aaron.li
@@ -40,8 +49,36 @@ public class UpdateMemberLogoApi extends AbstractNoneOutputApi<UpdateMemberLogoA
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "成员logo")
+        @Check(name = "成员logo", require = true)
         private String memberLogo;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+
+            String base64 = StringUtil.substringAfter(memberLogo, "base64,");
+            byte[] bytes = Base64.decodeBase64(base64);
+            if (!FileType.isImage(bytes)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的图片格式");
+            }
+
+            // 对图片文件进行缩放，过滤掉内部可能包含的木马内容。
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try {
+                Thumbnails
+                        .of(new ByteArrayInputStream(bytes))
+                        .scale(1)
+                        .toOutputStream(output);
+            } catch (IOException e) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException("图片已损坏：" + e.getMessage());
+            }
+
+            memberLogo = "data:image/jpeg;base64," + Base64.encodeBase64String(output.toByteArray());
+
+        }
+
 
         public String getMemberLogo() {
             return memberLogo;

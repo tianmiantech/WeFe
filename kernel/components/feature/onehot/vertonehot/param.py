@@ -41,10 +41,11 @@ class OneHotEncoderParam(BaseParam):
     def check(self):
         pass
 
-    def __init__(self, transform_col_indexes=-1, transform_col_names=None, need_run=True):
+    def __init__(self, transform_col_indexes=-1, transform_col_names=None, need_run=True, save_dataset=True):
         super(OneHotEncoderParam, self).__init__()
         if transform_col_names is None:
             transform_col_names = []
         self.transform_col_indexes = transform_col_indexes
         self.transform_col_names = transform_col_names
         self.need_run = need_run
+        self.save_dataset = save_dataset
