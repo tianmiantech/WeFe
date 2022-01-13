@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.data.mongodb.entity.contract.tool;
-
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.data.mongodb.entity.AbstractNormalMongoModel;
+package com.welab.wefe.common.data.mongodb.entity.union;
 
 import java.math.BigInteger;
+
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 
 /**
  * @author aaron.li

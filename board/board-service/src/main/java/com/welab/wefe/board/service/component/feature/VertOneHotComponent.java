@@ -35,10 +35,10 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
 public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
