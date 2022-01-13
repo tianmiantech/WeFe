@@ -263,6 +263,7 @@
 
 <script>
 import table from '@src/mixins/table';
+import {mapGetters} from 'vuex';
 
 export default {
     name: 'RequestStatistics',
@@ -311,10 +312,14 @@ export default {
         this.getClients();
     },
 
+    computed: {
+        ...mapGetters(['userInfo']),
+    },
+
     methods: {
         downloadStatistics() {
 
-            const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
             const link = document.createElement('a');
 
             link.href = api;
