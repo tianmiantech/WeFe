@@ -66,7 +66,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     handler_upload.upload(work_mode=work_mode, backend=backend)
 
     # init handler
-    handler = Handler(job_id="job_vertsbt_new"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
+    handler = Handler(job_id="job_vertsbt_new_"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
                       fl_type='vertical') \
         .set_initiator(role="promoter", member_id=promoter) \
         .set_roles(promoter=promoter, provider=provider)
