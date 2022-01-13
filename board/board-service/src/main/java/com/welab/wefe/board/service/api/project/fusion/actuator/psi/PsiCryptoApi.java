@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.fusion.actuator.psi;
+package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
@@ -17,46 +17,55 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
+import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/server/close",
-        name = "server close",
-        desc = "server close",
+        path = "fusion/psi/crypto",
+        name = "psi crypto",
+        desc = "psi crypto",
         login = false,
         rsaVerify = true
 )
-public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> {
+public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
+
+
     @Override
-    protected ApiResult handler(ServerCloseApi.Input input) throws StatusCodeWithException {
+    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.status = PSIActuatorStatus.success;
-        return success();
+        return success(PsiMeta.of(actuator.compute(input.getBs())));
     }
+
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        public Input(String businessId) {
+        @Check(name = "bs")
+        List<String> bs;
+
+        public Input(String businessId, List<String> bs) {
             this.businessId = businessId;
+            this.bs = bs;
         }
 
         public String getBusinessId() {
@@ -65,6 +74,14 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
+        }
+
+        public List<String> getBs() {
+            return bs;
+        }
+
+        public void setBs(List<String> bs) {
+            this.bs = bs;
         }
     }
 }

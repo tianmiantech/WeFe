@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.fusion.actuator.psi;
+package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.

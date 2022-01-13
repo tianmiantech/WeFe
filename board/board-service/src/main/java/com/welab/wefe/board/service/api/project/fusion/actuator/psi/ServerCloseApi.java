@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.fusion.actuator.psi;
+package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
@@ -26,31 +26,28 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-
-import java.util.List;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/receive/result",
-        name = "receive result",
-        desc = "receive result",
+        path = "fusion/server/close",
+        name = "server close",
+        desc = "server close",
         login = false,
         rsaVerify = true
 )
-public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
-
-
+public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> {
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult handler(ServerCloseApi.Input input) throws StatusCodeWithException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.receiveResult(input.getRs());
+        actuator.status = PSIActuatorStatus.success;
         return success();
     }
 
@@ -58,12 +55,8 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         @Check(name = "businessId", require = true)
         String businessId;
 
-        @Check(name = "rs")
-        List<String> rs;
-
-        public Input(String businessId, List<String> rs) {
+        public Input(String businessId) {
             this.businessId = businessId;
-            this.rs = rs;
         }
 
         public String getBusinessId() {
@@ -73,14 +66,5 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
         }
-
-        public List<String> getRs() {
-            return rs;
-        }
-
-        public void setRs(List<String> rs) {
-            this.rs = rs;
-        }
-
     }
 }

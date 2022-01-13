@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
-import com.welab.wefe.board.service.api.fusion.task.ReceiveApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.ReceiveApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;

@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.fusion.actuator.psi;
+package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
@@ -17,55 +17,53 @@ package com.welab.wefe.board.service.api.fusion.actuator.psi;
  */
 
 
-import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "fusion/psi/crypto",
-        name = "psi crypto",
-        desc = "psi crypto",
+        path = "fusion/receive/result",
+        name = "receive result",
+        desc = "receive result",
         login = false,
         rsaVerify = true
 )
-public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
+public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
 
 
     @Override
-    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult handler(Input input) throws StatusCodeWithException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        return success(PsiMeta.of(actuator.compute(input.getBs())));
+        actuator.receiveResult(input.getRs());
+        return success();
     }
-
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        @Check(name = "bs")
-        List<String> bs;
+        @Check(name = "rs")
+        List<String> rs;
 
-        public Input(String businessId, List<String> bs) {
+        public Input(String businessId, List<String> rs) {
             this.businessId = businessId;
-            this.bs = bs;
+            this.rs = rs;
         }
 
         public String getBusinessId() {
@@ -76,12 +74,13 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
             this.businessId = businessId;
         }
 
-        public List<String> getBs() {
-            return bs;
+        public List<String> getRs() {
+            return rs;
         }
 
-        public void setBs(List<String> bs) {
-            this.bs = bs;
+        public void setRs(List<String> rs) {
+            this.rs = rs;
         }
+
     }
 }
