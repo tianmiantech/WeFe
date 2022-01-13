@@ -48,7 +48,7 @@
                 min-width="160px"
             >
                 <template v-slot="scope">
-                    {{ scope.row.status }}
+                    <span :class="{ 'color-danger': scope.row.status === 'Await' || scope.row.status === 'Failure' || scope.row.status === 'Interrupt' || scope.row.status === 'Refuse' }">{{ statusMap[scope.row.status] }}</span>
                     <p>耗时: {{ scope.row.spend }}</p>
                 </template>
             </el-table-column>
@@ -74,7 +74,7 @@
                     <el-button
                         class="mr5"
                         type="text"
-                        @click="checkDetail(scope.row.business_id)">
+                        @click="checkDetail(scope.row.id)">
                         查看
                     </el-button>
                 </template>
@@ -221,11 +221,11 @@
                     });
             },
 
-            checkDetail(business_id) {
-                this.$router.replace({
+            checkDetail(id) {
+                this.$router.push({
                     name:  'fusion-detail',
                     query: {
-                        business_id,
+                        id,
                         project_id: this.project_id,
                     },
                 });
