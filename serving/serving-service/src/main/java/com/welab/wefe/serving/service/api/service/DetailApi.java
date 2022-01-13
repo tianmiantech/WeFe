@@ -50,7 +50,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepo.findById(input.getId());
 		if (serviceMySqlModel == null) {
-			return fail("service entity was found");
+			return fail("service entity was not found");
 		}
 		ServiceMySqlModel entity = serviceMySqlModel.get();
 
