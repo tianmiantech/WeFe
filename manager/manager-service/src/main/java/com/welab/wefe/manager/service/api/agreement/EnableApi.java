@@ -1,3 +1,19 @@
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.manager.service.api.agreement;
 
 import com.welab.wefe.common.StatusCode;
@@ -28,10 +44,27 @@ public class EnableApi extends AbstractApi<RealnameAuthAgreementTemplateEnableIn
         LOG.info("RealnameAuthAgreementTemplate enable handle..");
         try {
             RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByEnable(true);
-            if(realnameAuthAgreementTemplate != null) {
+            if (realnameAuthAgreementTemplate != null) {
                 contractService.enable(realnameAuthAgreementTemplate.getTemplateFileId(), false);
             }
             contractService.enable(input.getTemplateFileId(), true);
+
+            for (int i = 0; i < 3; i++) {
+                try {
+                    Thread.sleep(300);
+                    String enableStr = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileId(input.getTemplateFileId()).getEnable();
+                    if("1".equals(enableStr)) {
+                        break;
+                    } else {
+                        if(i == 2) {
+                            return fail("启用失败");
+                        }
+                    }
+
+                } catch (InterruptedException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

@@ -22,9 +22,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import com.welab.wefe.data.fusion.service.utils.CryptoUtils;
-import com.welab.wefe.data.fusion.service.utils.PSIUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
+import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -99,7 +99,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("server send bloomfilter data...");
+        LOG.info("server send bloom_filter data...");
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
 

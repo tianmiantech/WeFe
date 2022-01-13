@@ -10,10 +10,10 @@
                     </template>
                 </el-image>
                 <div class="btns">
-                    <div class="l_tips">{{item.labeled ? '已标注' : '未标注'}}</div>
+                    <div class="l_tips">{{item.labeled ? item.label_list.split(',')[0] : '未标注'}}</div>
                     <div class="r_btn">
-                        <!-- <i class="el-icon-edit-outline" /> -->
-                        <i class="el-icon-delete" @click="methods.deleteEvent(item.id, index)" />
+                        <!-- <el-icon class="el-icon-edit-outline" @click="methods.labelSingle(item.id, index)"><elicon-edit /></el-icon> -->
+                        <el-icon class="el-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
                     </div>
                 </div>
             </div>
@@ -35,6 +35,9 @@
             const methods = {
                 deleteEvent(id, idx) {
                     context.emit('delete-options', id, idx);
+                },
+                labelSingle(id, idx) {
+                    context.emit('label-single-sample', id, idx);
                 },
             };
 
@@ -89,8 +92,8 @@
             .r_btn {
                 font-size: 13px;
                 cursor: pointer;
-                i:first-child {
-                    padding-right: 7px;
+                .el-icon:first-child {
+                    margin-right: 7px;
                 }
             }
         }

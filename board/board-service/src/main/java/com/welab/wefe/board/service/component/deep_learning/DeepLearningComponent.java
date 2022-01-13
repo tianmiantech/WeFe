@@ -22,29 +22,31 @@ import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.entity.data_set.AbstractDataSetOutputModel;
-import com.welab.wefe.board.service.dto.entity.data_set.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.dataset.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -87,10 +89,11 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         job.role = graph.getJob().getMyRole();
         job.memberId = CacheObjects.getMemberId();
         job.env = new Env(imageDataIoParam);
+        job.members = graph.getMembers().stream().map(Member::new).collect(Collectors.toList());
 
-        AbstractDataSetOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
+        DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
-        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId()));
+        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId));
 
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
@@ -99,11 +102,13 @@ public class DeepLearningComponent extends AbstractComponent<DeepLearningCompone
         return output;
     }
 
-    private String buildDataSetDownloadUrl(String id) {
-        return Launcher.CONTEXT.getBean(GlobalConfigService.class)
+    private String buildDataSetDownloadUrl(String dataSetId, String jobId) {
+        return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
-                + "/image_data_set/download?id=" + id;
+                + "/image_data_set/download?"
+                + "data_set_id=" + dataSetId
+                + "&job_id=" + jobId;
 
     }
 

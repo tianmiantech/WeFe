@@ -16,21 +16,30 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -53,14 +62,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public boolean deleteByDataResourceId(String dataResourceId) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
+    public void deleteByDataResourceId(String dataResourceId) {
         Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataResource.class);
-        return updateResult.wasAcknowledged();
+        mongoUnionTemplate.updateFirst(query, udpate, DataResource.class);
     }
 
 
@@ -80,13 +85,24 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         return mongoUnionTemplate.findOne(query, DataResource.class);
     }
 
-    public List<String> findByDataResourceType(String dataResourceType) {
-        if (StringUtils.isEmpty(dataResourceType)) {
+    public DataResource find(String dataResourceId, String curMemberId) {
+        if (StringUtils.isEmpty(dataResourceId)) {
             return null;
         }
+        Query query = new QueryBuilder()
+                .notRemoved()
+                .append("dataResourceId", dataResourceId)
+                .append("curMemberId", curMemberId)
+                .build();
+        return mongoUnionTemplate.findOne(query, DataResource.class);
+    }
+
+    public List<String> findByDataResourceType(String dataResourceType) {
         Query query = new QueryBuilder().append("dataResourceType", dataResourceType).notRemoved().build();
         query.fields().exclude("_id").include("tags");
-        return mongoUnionTemplate.find(query, String.class);
+        List<DataResource> dataResourceList = mongoUnionTemplate.find(query, DataResource.class);
+        List<String> tagsList = dataResourceList.stream().map(DataResource::getTags).collect(Collectors.toList());
+        return tagsList;
     }
 
 
@@ -94,27 +110,145 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         mongoUnionTemplate.save(dataResource);
     }
 
-    public boolean updateExtJSONById(String dataResourceId, DataResourceExtJSON extJSON) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
-        }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataResource.class);
-        return updateResult.wasAcknowledged();
+
+    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String joinCollectionName) {
+
+        String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(joinCollectionName).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as(joinCollectionNameAlias);
+
+        LookupOperation lookupToMember = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+
+        Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
+                .append("enable", "1")
+                .append("data_resource_id", dataResourceId)
+                .getCriteria();
+
+
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
+
+        UnwindOperation unwind = Aggregation.unwind("member");
+        UnwindOperation unwindExtraData = Aggregation.unwind(joinCollectionNameAlias);
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindExtraData,
+                addFieldsOperation,
+                dataResourceMatch
+        );
+
+        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
+        return result;
     }
 
-    public boolean updateEnable(String dataResourceId, String enable, String updatedTime) {
-        if (StringUtils.isEmpty(dataResourceId)) {
-            return false;
+
+    /**
+     * Query the image data set visible to the current member
+     */
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.IMAGE_DATASET).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("image_data_set");
+
+
+        LookupOperation lookupToDataTableDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.TABLE_DATASET).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("table_data_set");
+
+        LookupOperation lookupToDataBloomFilter = LookupOperation.newLookup().
+                from(MongodbTable.Union.BLOOM_FILTER).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("bloom_filter");
+
+        LookupOperation lookupToMember = LookupOperation.newLookup().
+                from(MongodbTable.Union.MEMBER).
+                localField("member_id").
+                foreignField("member_id").
+                as("member");
+
+        Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
+                .append("enable", "1")
+                .like("name", dataResourceQueryInput.getName())
+                .like("tags", dataResourceQueryInput.getTag())
+                .append("member_id", dataResourceQueryInput.getMemberId())
+                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
+                .getCriteria();
+
+        Criteria or = new Criteria();
+        or.orOperator(
+                new QueryBuilder().append("public_level", "Public").getCriteria(),
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
+        );
+
+        dataResouceCriteria.andOperator(or);
+
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
+
+        Criteria memberCriteria = new QueryBuilder()
+                .like("member_name", dataResourceQueryInput.getMemberName())
+                .getCriteria();
+
+        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+        UnwindOperation unwindMember = Aggregation.unwind("member");
+        UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set", true);
+        UnwindOperation unwindTableDataSet = Aggregation.unwind("table_data_set", true);
+        UnwindOperation unwindBloomFilter = Aggregation.unwind("bloom_filter", true);
+
+        Map<String, Object> addfieldsMap = new HashMap<>();
+        addfieldsMap.put("member_name", "$member.name");
+        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
+
+        SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
+
+        CountOperation countOperation = Aggregation.count().as("count");
+        FacetOperation facetOperation = Aggregation.facet(
+                lookupToDataImageDataSet,
+                lookupToDataTableDataSet,
+                lookupToDataBloomFilter,
+                lookupToMember,
+                unwindMember,
+                unwindImageDataSet,
+                unwindTableDataSet,
+                unwindBloomFilter,
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch,
+                skipOperation,
+                limitOperation,
+                sortOperation
+        ).as("data").and(countOperation).as("total");
+
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
+        JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
+        Long total = 0L;
+        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        if(list != null && !list.isEmpty()){
+            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
         }
-        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
-        Update udpate = new UpdateBuilder()
-                .append("enable", enable)
-                .append("updatedTime", updatedTime)
-                .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataResource.class);
-        return updateResult.wasAcknowledged();
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 
 }

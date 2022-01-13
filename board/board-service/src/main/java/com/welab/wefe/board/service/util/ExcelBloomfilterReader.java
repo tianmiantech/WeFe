@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author zane.luo
  */
-public class ExcelBloomfilterReader extends AbstractBloomfilterReader {
+public class ExcelBloomfilterReader extends AbstractBloomFilterReader {
     private final ExcelReader reader;
 
     public ExcelBloomfilterReader(File file) throws IOException {

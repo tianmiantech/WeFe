@@ -20,7 +20,6 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.BoardUserSource;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.Launcher;
@@ -28,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -56,7 +56,7 @@ public class RegisterApi extends AbstractNoneOutputApi<RegisterApi.Input> {
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
-            if (Launcher.CONTEXT.getBean(Config.class).getEnvName().isProductionEnv()) {
+            if (Launcher.getBean(Config.class).getEnvName().isProductionEnv()) {
                 // Verification code verification
                 if (!CaptchaService.verify(key, code)) {
                     throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);

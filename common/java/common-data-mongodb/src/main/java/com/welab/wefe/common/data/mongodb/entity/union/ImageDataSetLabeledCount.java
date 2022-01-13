@@ -25,17 +25,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
  **/
 @Document(collection = MongodbTable.Union.IMAGE_DATASET_LABELEDCOUNT)
 public class ImageDataSetLabeledCount extends AbstractNormalMongoModel {
-    private String dataResouceId;
+    private String dataResourceId;
     private String labelList;
     private int totalDataCount;
     private int labeledCount;
 
-    public String getDataResouceId() {
-        return dataResouceId;
+    public String getDataResourceId() {
+        return dataResourceId;
     }
 
-    public void setDataResouceId(String dataResouceId) {
-        this.dataResouceId = dataResouceId;
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
     }
 
     public String getLabelList() {

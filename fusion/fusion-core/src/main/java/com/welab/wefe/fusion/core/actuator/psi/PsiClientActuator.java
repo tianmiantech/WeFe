@@ -38,9 +38,6 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
 
     private PsiActuatorMeta psiClientMeta;
 
-    public List<String> columnList;
-//    public List<FieldInfo> fieldInfoList;
-
     public PsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
         super(businessId);
         this.dataSetId = dataSetId;
@@ -69,7 +66,7 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Download the Server Square Bloom filter
      */
-    public abstract byte[][] qureyFusionData(byte[][] bs);
+    public abstract byte[][] queryFusionData(byte[][] bs);
 
     /**
      * Download the Server Square Bloom filter
@@ -81,6 +78,10 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
      */
     public abstract String hashValue(JObject value);
 
+    /**
+     * Alignment data into the library implementation method
+     */
+    public abstract void notifyServerClose();
     /**
      * Begin to fusion
      */
@@ -113,14 +114,13 @@ public abstract class PsiClientActuator extends AbstractPsiActuator {
             }
 
             //发送
-            byte[][] result = qureyFusionData(bs);
+            byte[][] result = queryFusionData(bs);
 
-            //匹配
+            //matching
             List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
 
             //dump
             dump(fruit);
-
         }
 
         status = PSIActuatorStatus.success;

@@ -17,9 +17,11 @@
 package com.welab.wefe.fusion.core.actuator.psi;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
 import java.math.BigInteger;
@@ -47,14 +49,20 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
         return PsiActuatorMeta.of(e, N, bf);
     }
 
-    public byte[][] compute(byte[][] value) {
+    public byte[][] compute(List<String> bsList) {
         LOG.info("align start...");
 
-        long start = System.currentTimeMillis();
+        byte[][] bs = new byte[bsList.size()][];
+
+        //加密
+        for (int i = 0; i < bsList.size(); i++) {
+            bs[i] = Base64Util.base64ToByteArray(bsList.get(i));
+        }
 
         try {
+
             //Encrypted again
-            return CryptoUtils.sign(N, d, value);
+            return CryptoUtils.sign(N, d, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,11 +75,11 @@ public abstract class PsiServerActuator extends AbstractPsiActuator {
      *
      * @param rs
      */
-    public void receiveResult(List<byte[]> rs) {
+    public void receiveResult(List<String> rs) {
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {
-            fruit.add(JObject.create(new String(rs.get(i))));
+            fruit.add(JObject.create(new String(Base64Util.base64ToByteArray(rs.get(i)))));
         }
 
         dump(fruit);

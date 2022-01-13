@@ -23,8 +23,6 @@ import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.Launcher;
@@ -32,6 +30,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -71,9 +71,9 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "业务层面的项目ID", hiddenForFrontEnd = true)
+        @Check(name = "业务层面的项目ID", donotShow = true)
         private String projectId;
-        @Check(name = "所有成员列表", hiddenForFrontEnd = true)
+        @Check(name = "所有成员列表", donotShow = true)
         private List<ProjectMemberInput> members;
 
         @Check(name = "项目名称", require = true)
@@ -103,7 +103,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
             // Project name cannot be repeated
             if (!super.fromGateway()) {
-                List<ProjectMySqlModel> allByName = Launcher.CONTEXT.getBean(ProjectRepository.class).findAllByName(name);
+                List<ProjectMySqlModel> allByName = Launcher.getBean(ProjectRepository.class).findAllByName(name);
                 if (!allByName.isEmpty()) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException(
                             "这个项目名称已经被用过了哟~ 再想一个吧~"

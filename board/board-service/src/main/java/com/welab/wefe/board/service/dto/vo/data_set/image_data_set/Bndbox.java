@@ -21,7 +21,17 @@ package com.welab.wefe.board.service.dto.vo.data_set.image_data_set;
  */
 public class Bndbox {
     public int xmin;
-    public int ymin;
     public int xmax;
+    public int ymin;
     public int ymax;
+
+    public Bndbox() {
+    }
+
+    public Bndbox(int xmin, int xmax, int ymin, int ymax) {
+        this.xmin = xmin;
+        this.xmax = xmax;
+        this.ymin = ymin;
+        this.ymax = ymax;
+    }
 }

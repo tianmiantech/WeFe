@@ -22,6 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.contract.BloomFilterContract;
 import com.welab.wefe.union.service.contract.ImageDataSetContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -58,6 +59,8 @@ public class ImageDataSetContractService extends AbstractContractService {
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_INSERT, transactionReceipt);
 
+            String responseValues = transactionResponse.getValues();
+
             transactionIsSuccess(transactionResponse);
 
         } catch (
@@ -90,6 +93,23 @@ public class ImageDataSetContractService extends AbstractContractService {
     }
 
 
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = imageDataSetContract.deleteByDataResourceId(dataResourceId);
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(ImageDataSetContract.ABI, ImageDataSetContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+
     private List<String> generateAddParams(ImageDataSet imageDataSet) {
         List<String> list = new ArrayList<>();
         list.add(imageDataSet.getDataResourceId());
@@ -105,7 +125,7 @@ public class ImageDataSetContractService extends AbstractContractService {
 
     private List<String> generateParams(ImageDataSet imageDataSet) {
         List<String> list = new ArrayList<>();
-        list.add(StringUtil.isEmptyToBlank(imageDataSet.getForJobType()));
+        list.add(StringUtil.isEmptyToBlank(imageDataSet.getForJobType().name()));
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabelList()));
         list.add(StringUtil.isEmptyToBlank(imageDataSet.getLabeledCount()));
         list.add(imageDataSet.getLabelCompleted());

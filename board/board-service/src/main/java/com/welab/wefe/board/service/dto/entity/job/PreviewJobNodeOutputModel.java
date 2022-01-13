@@ -16,8 +16,9 @@
 
 package com.welab.wefe.board.service.dto.entity.job;
 
-import com.welab.wefe.common.enums.ComponentType;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 import java.util.Map;
 

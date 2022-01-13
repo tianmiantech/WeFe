@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity.job.gateway;
 
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

@@ -16,14 +16,14 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.enums.MessageLevel;
-import com.welab.wefe.common.enums.ProducerType;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
@@ -182,9 +182,9 @@ public class EmailService extends AbstractService {
      */
     private Set<String> getTotalEmails() {
         Set<String> totalEmails = new HashSet<>(16);
-        List<AccountMySqlModel> accountMySqlModelList = accountService.queryAll();
-        if (CollectionUtils.isNotEmpty(accountMySqlModelList)) {
-            for (AccountMySqlModel model : accountMySqlModelList) {
+        List<AccountMysqlModel> accountMysqlModelList = accountService.queryAll();
+        if (CollectionUtils.isNotEmpty(accountMysqlModelList)) {
+            for (AccountMysqlModel model : accountMysqlModelList) {
                 if (StringUtil.isNotEmpty(model.getEmail())) {
                     totalEmails.add(model.getEmail());
                 }

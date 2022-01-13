@@ -73,6 +73,7 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="Public"
                             >
@@ -85,6 +86,7 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="PublicWithMemberList"
                             >
@@ -116,7 +118,10 @@
                                                 {{ item.id }}
                                             </span>
                                         </p>
-                                        <i class="el-icon-close" @click="deleteSelectedMember(item, index)"></i>
+
+                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                            <elicon-close />
+                                        </el-icon>
                                     </li>
                                 </ul>
                             </div>
@@ -127,7 +132,25 @@
             </el-row>
             <el-row :gutter="30" v-if="addType === 'csv'">
                 <el-col :span="10">
-                    <h4 class="m5">字段信息：</h4>
+                    <h4 class="mt10 mb20">
+                        字段信息：
+                        <el-select
+                            v-model="dataTypeFillVal"
+                            class="float-right"
+                            size="mini"
+                            clearable
+                            style="width: 140px;"
+                            placeholder="数据类型缺失填充"
+                            @change="dataTypeFill"
+                        >
+                            <el-option
+                                v-for="dataType in data_type_options"
+                                :key="dataType"
+                                :label="dataType"
+                                :value="dataType"
+                            />
+                        </el-select>
+                    </h4>
                     <el-table
                         border
                         max-height="500"
@@ -194,6 +217,10 @@
                     <DataSetPreview ref="DataSetPreview" />
                 </el-col>
             </el-row>
+            <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
+                <h4 style="margin-bottom: 6px;">数据集预览</h4>
+                <preview-image-list ref="PreviewImageListRef" />
+            </el-row>
             <el-button
                 class="save-btn mt20"
                 type="primary"
@@ -204,7 +231,7 @@
             </el-button>
         </el-form>
 
-        <SelectMemberDialog
+        <SelectMember
             ref="SelectMemberDialog"
             :block-my-id="true"
             :public-member-info-list="public_member_info_list"
@@ -214,15 +241,18 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
-    import SelectMemberDialog from './components/select-member-dialog';
+    import SelectMember from './components/select-member';
+    import PreviewImageList from './components/preview-image-list.vue';
 
     export default {
         components: {
             DataSetPreview,
             DataSetPublicTips,
-            SelectMemberDialog,
+            SelectMember,
+            PreviewImageList,
         },
         data() {
             return {
@@ -235,6 +265,7 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
+                dataTypeFillVal:   '',
                 // preview
                 data_type_options: ['Integer', 'Double', 'Enum', 'String'],
 
@@ -256,7 +287,17 @@
                     page_index: 1,
                 },
                 addType: 'csv',
+                search:  {
+                    page_index: 1,
+                    page_size:  20,
+                    label:      '',
+                    labeled:    '',
+                    total:      1,
+                },
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.addType = this.$route.query.type || 'csv';
@@ -266,6 +307,8 @@
             if (this.addType === 'csv') {
                 this.loadDataSetColumnList();
                 this.$refs['DataSetPreview'].loadData(this.id);
+            } else if (this.addType === 'img') {
+                this.$refs['PreviewImageListRef'].methods.getSampleList(this.id);
             }
         },
         methods: {
@@ -285,6 +328,18 @@
             dataTypeChange(row) {
                 this.metadata_list[row.$index].data_type = row.data_type;
             },
+            dataTypeFill(val) {
+                this.metadata_list.forEach(item => {
+                    if(!item.data_type) {
+                        item.data_type = val;
+                    }
+                });
+                this.metadata_pagination.list.forEach(item => {
+                    if(!item.data_type) {
+                        item.data_type = val;
+                    }
+                });
+            },
             dataCommentChange(row) {
                 this.metadata_list[row.$index].comment = row.comment;
             },
@@ -292,7 +347,7 @@
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/column/list?data_set_id=' + this.id,
+                    url: '/table_data_set/column/list?data_set_id=' + this.id,
                 });
 
                 if (code === 0) {
@@ -339,7 +394,7 @@
 
             async getData() {
                 this.loading = true;
-                const url = this.addType === 'csv' ? '/data_set/detail' : '/image_data_set/detail';
+                const url = this.addType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail';
                 const { code, data } = await this.$http.get({
                     url: `${url}?id=` + this.id,
                 });
@@ -402,7 +457,7 @@
 
                 this.loading = true;
                 const { code } = await this.$http.post({
-                    url:     this.addType === 'csv' ? '/data_set/update' : '/image_data_set/update',
+                    url:     this.addType === 'csv' ? '/table_data_set/update' : '/image_data_set/update',
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,
@@ -425,7 +480,7 @@
                 if (keyword) {
                     this.loading = true;
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },

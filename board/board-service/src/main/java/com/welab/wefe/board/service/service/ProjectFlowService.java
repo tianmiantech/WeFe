@@ -39,13 +39,14 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutput
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.*;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -191,17 +192,21 @@ public class ProjectFlowService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到该流程", StatusCode.ILLEGAL_REQUEST);
         }
-        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
-        if (nodes != null && !nodes.isEmpty()) {
-            for (ProjectFlowNodeMySqlModel node : nodes) {
-                if (node.getComponentType().getFederatedLearningTypes() != null && !node.getComponentType()
-                        .getFederatedLearningTypes().contains(input.getFederatedLearningType())) {
-                    throw new StatusCodeWithException("训练类型选择错误，请先移除组件 【" + node.getComponentType().getLabel() + "】",
-                            StatusCode.ILLEGAL_REQUEST);
-                }
-            }
-        }
-        flow.setFederatedLearningType(input.getFederatedLearningType());
+		if (input.getFederatedLearningType() != null
+				&& flow.getFederatedLearningType() != input.getFederatedLearningType()) {
+			throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
+		}
+//        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
+//        if (nodes != null && !nodes.isEmpty()) {
+//            for (ProjectFlowNodeMySqlModel node : nodes) {
+//                if (node.getComponentType().getFederatedLearningTypes() != null && !node.getComponentType()
+//                        .getFederatedLearningTypes().contains(input.getFederatedLearningType())) {
+//                    throw new StatusCodeWithException("训练类型选择错误，请先移除组件 【" + node.getComponentType().getLabel() + "】",
+//                            StatusCode.ILLEGAL_REQUEST);
+//                }
+//            }
+//        }
+//        flow.setFederatedLearningType(input.getFederatedLearningType());
         flow.setFlowName(input.getName());
         flow.setFlowDesc(input.getDesc());
         flow.setUpdatedBy(input);
@@ -347,7 +352,7 @@ public class ProjectFlowService extends AbstractService {
         return projectFlowRepo.findOne("flowId", flowId, ProjectFlowMySqlModel.class);
     }
 
-    public PagingOutput<ProjectFlowListOutputModel> query(QueryFlowListApi.Input input) {
+    public PagingOutput<ProjectFlowListOutputModel> query(FlowQueryApi.Input input) {
 
         Specification<ProjectFlowMySqlModel> where = Where
                 .create()
@@ -364,7 +369,7 @@ public class ProjectFlowService extends AbstractService {
                     if (lastJob != null) {
                         x.setJobProgress(lastJob.getProgress());
                     }
-                    x.setIsCreator(CacheObjects.isCurrentMember(x.getCreatedBy()));
+                    x.setIsCreator(CacheObjects.isCurrentMemberAccount(x.getCreatedBy()));
                 });
         return page;
     }

@@ -16,9 +16,9 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import com.welab.wefe.common.enums.Algorithm;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

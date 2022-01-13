@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,38 +17,73 @@
 package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.ApiDataSetQueryOutput;
-import com.welab.wefe.union.service.mapper.DataSetMapper;
-import com.welab.wefe.union.service.service.DataSetContractService;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
+import com.welab.wefe.union.service.mapper.BloomFilterMapper;
+import com.welab.wefe.union.service.mapper.DataResourceMapper;
+import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
+import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author Jervis
+ * @author yuxin.zhang
  **/
-@Api(path = "data_set/query", name = "data_set_query", rsaVerify = true, login = false)
-public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQueryOutput>> {
+@Api(path = "data_resource/query", name = "data_resource_query", rsaVerify = true, login = false)
+public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<ApiDataResourceQueryOutput>> {
     @Autowired
-    protected DataSetMongoReop dataSetMongoReop;
+    protected DataResourceMongoReop dataResourceMongoReop;
     @Autowired
-    protected DataSetContractService mDataSetContractService;
-    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
+    protected BloomFilterMongoReop bloomFilterMongoReop;
+    @Autowired
+    protected ImageDataSetMongoReop imageDataSetMongoReop;
+    @Autowired
+    protected TableDataSetMongoReop tableDataSetMongoReop;
+
+    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
+    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
+    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
+    protected DataResourceMapper dataResourceMapper = Mappers.getMapper(DataResourceMapper.class);
 
     @Override
-    protected ApiResult<PageOutput<ApiDataSetQueryOutput>> handle(Input input) {
-        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.findCurMemberCanSee(null);
+    protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
+        PageOutput<DataResourceQueryOutput> pageOutput = null;
+        if (null == input.getDataResourceType()) {
+            pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        } else if (DataResourceType.ImageDataSet.compareTo(input.getDataResourceType()) == 0) {
+            pageOutput = imageDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        } else if (DataResourceType.TableDataSet.compareTo(input.getDataResourceType()) == 0) {
+            pageOutput = tableDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        } else if (DataResourceType.BloomFilter.compareTo(input.getDataResourceType()) == 0) {
+            pageOutput = bloomFilterMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        }
 
-        List<ApiDataSetQueryOutput> list = pageOutput.getList().stream()
-                .map(mDataSetMapper::transferOutput)
+        List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()
+                .map(x -> {
+                    if (x.getDataResourceType().compareTo(DataResourceType.TableDataSet) == 0) {
+                        return tableDataSetMapper.transferDetail(x);
+                    } else if (x.getDataResourceType().compareTo(DataResourceType.ImageDataSet) == 0) {
+                        return imageDataSetMapper.transferDetail(x);
+                    } else if (x.getDataResourceType().compareTo(DataResourceType.BloomFilter) == 0) {
+                        return bloomFilterMapper.transferDetail(x);
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return success(new PageOutput<>(
@@ -58,81 +93,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQ
                 pageOutput.getTotalPage(),
                 list
         ));
-    }
-
-    public static class Input extends BaseInput {
-        private String id;
-        private String memberId;
-        private String memberName;
-        private String name;
-        private Boolean containsY;
-        private String tag;
-        private Integer pageIndex = 0;
-        private Integer pageSize = 10;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getMemberName() {
-            return memberName;
-        }
-
-        public void setMemberName(String memberName) {
-            this.memberName = memberName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Boolean getContainsY() {
-            return containsY;
-        }
-
-        public void setContainsY(Boolean containsY) {
-            this.containsY = containsY;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        public Integer getPageIndex() {
-            return pageIndex;
-        }
-
-        public void setPageIndex(Integer pageIndex) {
-            this.pageIndex = pageIndex;
-        }
-
-        public Integer getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(Integer pageSize) {
-            this.pageSize = pageSize;
-        }
     }
 
 }

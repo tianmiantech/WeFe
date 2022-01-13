@@ -17,9 +17,9 @@
 package com.welab.wefe.serving.service.predicter.single;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;

@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.TagsDTO;
+import com.welab.wefe.union.service.dto.dataresource.TagsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resoure/tags/query", name = "resoure_tags_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/tags/query", name = "data_resource_tags_query", rsaVerify = true, login = false)
 public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsDTO>> {
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
@@ -50,6 +50,7 @@ public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsD
 
         Map<String, Long> tagGroupMap = tagsList.stream()
                 .flatMap(tags -> Arrays.stream(tags.split(",")))
+                .filter(tag -> !tag.isEmpty())
                 .collect(Collectors.groupingBy(String::trim, Collectors.counting()));
 
         List<TagsDTO> result = tagGroupMap
@@ -63,7 +64,6 @@ public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsD
 
 
     public static class Input extends BaseInput {
-        @Check(require = true)
         private String dataResourceType;
 
         public String getDataResourceType() {

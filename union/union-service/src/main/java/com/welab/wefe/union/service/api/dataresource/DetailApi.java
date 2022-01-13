@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,57 +16,77 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataset.DataSetDetailOutput;
-import com.welab.wefe.union.service.mapper.DataSetMapper;
-import com.welab.wefe.union.service.service.DataSetContractService;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
+import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
+import com.welab.wefe.union.service.mapper.BloomFilterMapper;
+import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
+import com.welab.wefe.union.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Jervis
+ * @author yuxin.zhang
  **/
-@Api(path = "data_set/detail", name = "data_set_detail", rsaVerify = true, login = false)
-public class DetailApi extends AbstractApi<DetailApi.Input, DataSetDetailOutput> {
+@Api(path = "data_resource/detail", name = "data_resource_detail", rsaVerify = true, login = false)
+public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataResourceQueryOutput> {
 
     @Autowired
-    protected DataSetMongoReop dataSetMongoReop;
+    protected DataResourceMongoReop dataResourceMongoReop;
     @Autowired
-    protected DataSetContractService mDataSetContractService;
+    protected BloomFilterMongoReop bloomFilterMongoReop;
+    @Autowired
+    protected ImageDataSetMongoReop imageDataSetMongoReop;
+    @Autowired
+    protected TableDataSetMongoReop tableDataSetMongoReop;
 
-    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
+    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
+    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
+    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
+
 
     @Override
-    protected ApiResult<DataSetDetailOutput> handle(Input input) {
-        DataSet dataSet = dataSetMongoReop.findDataSetId(input.getId());
-        return success(getOutput(dataSet));
+    protected ApiResult<ApiDataResourceQueryOutput> handle(ApiDataResourceDetailInput input) throws StatusCodeWithException {
+        DataResourceQueryOutput dataResourceQueryOutput;
+        switch (input.getDataResourceType()) {
+            case BloomFilter:
+                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.BLOOM_FILTER);
+                break;
+            case TableDataSet:
+                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.TABLE_DATASET);
+                break;
+            case ImageDataSet:
+                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
+                break;
+            default:
+                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
+        }
+
+        return success(getOutput(dataResourceQueryOutput));
     }
 
-    protected DataSetDetailOutput getOutput(DataSet dataSet) {
-        if (dataSet == null) {
+    protected ApiDataResourceQueryOutput getOutput(DataResourceQueryOutput dataResourceQueryOutput) {
+        if (dataResourceQueryOutput == null) {
             return null;
         }
-
-        DataSetDetailOutput detail = mDataSetMapper.transferDetail(dataSet);
-        return detail;
-    }
-
-    public static class Input extends BaseInput {
-        @Check(require = true)
-        private String id;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
+        if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.TableDataSet) == 0) {
+            return tableDataSetMapper.transferDetail(dataResourceQueryOutput);
+        } else if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.ImageDataSet) == 0) {
+            return imageDataSetMapper.transferDetail(dataResourceQueryOutput);
+        } else {
+            return bloomFilterMapper.transferDetail(dataResourceQueryOutput);
         }
     }
+
 }

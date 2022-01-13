@@ -2,12 +2,12 @@
     <el-form
         v-loading="vData.loading"
         :disabled="disabled"
+        @submit.prevent
     >
         <div
             v-for="(member, index) in vData.member_list"
             v-show="disabled ? member.$data_set_list.length : true"
             :key="member.id"
-            class="li"
         >
             <h3
                 v-if="index === 0"
@@ -22,11 +22,13 @@
                 协作方:
             </h3>
             <p class="member-info">
-                <span class="name f16">
-                    <i
+                <span class="name f14">
+                    <el-icon
                         v-if="member.audit_status !== 'agree'"
                         class="el-icon-warning-outline color-danger"
-                    />
+                    >
+                        <elicon-warning />
+                    </el-icon>
                     {{ member.member_name }}
                 </span>
                 <span
@@ -60,12 +62,14 @@
                         >
                             y
                         </el-tag>
-                        <i
+                        <el-icon
                             v-if="!disabled"
                             title="移除"
                             class="el-icon-circle-close f20 ml10"
                             @click="methods.removeDataSet(index)"
-                        />
+                        >
+                            <elicon-circle-close />
+                        </el-icon>
                     </el-form-item>
                     <el-form-item label="数据集id：">
                         {{ row.data_set_id }}
@@ -89,7 +93,7 @@
                             {{ row.$column_name_list.length }} / {{ row.feature_count }}
                         </el-button>
                     </el-form-item>
-                    <div class="features mt5 mb10">
+                    <div class="mt5 mb10">
                         <template v-for="(item, $index) in row.$column_name_list" :key="$index">
                             <el-tag
                                 v-if="$index < 20"
@@ -267,6 +271,7 @@
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
+                        :project-type="projectType"
                     >
                         <template #data-add>
                             <i />
@@ -309,6 +314,7 @@
                         ref="derivedDataSetListRef"
                         :paramsExclude="['allList', 'list']"
                         :search-field="vData.derivedSearch"
+                        :project-type="projectType"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
                     >
@@ -348,6 +354,7 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+            projectType:  String,
         },
         setup(props, context) {
             const store = useStore();
@@ -361,6 +368,7 @@
             const derivedRef = ref();
             const derivedDataSetListRef = ref();
             const rawDataSetListRef = ref();
+
             const vData = reactive({
                 inited:            false,
                 locker:            false,
@@ -527,6 +535,7 @@
                         ref.searchField.member_id = vData.memberId;
                         ref.searchField.member_role = vData.memberRole;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
+                        ref.searchField.data_set_type = 'TableDataSet';
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',
@@ -833,8 +842,6 @@
     .el-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
-        position: relative;
-        top:4px;
     }
     .data-set{
         border-top: 1px solid $border-color-base;

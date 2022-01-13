@@ -18,10 +18,10 @@ package com.welab.wefe.board.service.api.data_output_info;
 
 import com.welab.wefe.board.service.service.modelexport.ModelExportService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.ModelExportLanguage;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.ModelExportLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

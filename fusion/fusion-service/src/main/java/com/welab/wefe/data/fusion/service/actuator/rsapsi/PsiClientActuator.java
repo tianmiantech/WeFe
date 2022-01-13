@@ -21,13 +21,13 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
-import com.welab.wefe.data.fusion.service.utils.PSIUtils;
+import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -129,7 +129,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             PSIUtils.sendString(socket, ActionType.download.name());
 
-            LOG.info("client download bloomfilter data...");
+            LOG.info("client download bloom_filter data...");
 
             byte[][] pk = PSIUtils.receive2DBytes(socket);
             e = PSIUtils.bytesToBigInteger(pk[0], 0, pk[0].length);

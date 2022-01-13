@@ -17,11 +17,12 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataResourceContractEventParser extends AbstractParser {
-    protected DataResourceMongoReop dataResourceMongoReop = App.CONTEXT.getBean(DataResourceMongoReop.class);
+    protected DataResourceMongoReop dataResourceMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(DataResourceMongoReop.class);
     protected DataResourceExtJSON extJSON;
 
 
@@ -51,6 +52,9 @@ public class DataResourceContractEventParser extends AbstractParser {
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
+                break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -71,9 +75,10 @@ public class DataResourceContractEventParser extends AbstractParser {
         dataResource.setUsageCountInFlow(StringUtil.strTrim2(params.getString(9)));
         dataResource.setUsageCountInProject(StringUtil.strTrim2(params.getString(10)));
         dataResource.setUsageCountInMember(StringUtil.strTrim2(params.getString(11)));
-        dataResource.setDataResourceType(StringUtil.strTrim2(params.getString(12)));
+        dataResource.setDataResourceType(DataResourceType.valueOf(StringUtil.strTrim2(params.getString(12))));
         dataResource.setCreatedTime(StringUtil.strTrim2(params.getString(13)));
         dataResource.setUpdatedTime(StringUtil.strTrim2(params.getString(14)));
+        dataResource.setEnable("1");
         dataResource.setExtJson(extJSON);
         dataResourceMongoReop.upsert(dataResource);
     }
@@ -118,6 +123,12 @@ public class DataResourceContractEventParser extends AbstractParser {
         dataResource.setUpdatedTime(updatedTime);
         dataResourceMongoReop.upsert(dataResource);
     }
+
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        dataResourceMongoReop.deleteByDataResourceId(dataResourceId);
+    }
+
 
 
     private DataResource getImageDataSet(String dataResourceId) throws BusinessException {

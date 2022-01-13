@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.TableDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class TableDataSetContractEventParser extends AbstractParser {
-    protected TableDataSetMongoReop tableDataSetMongoReop = App.CONTEXT.getBean(TableDataSetMongoReop.class);
+    protected TableDataSetMongoReop tableDataSetMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(TableDataSetMongoReop.class);
     protected TableDataSetExtJSON extJSON;
 
 
@@ -48,6 +48,9 @@ public class TableDataSetContractEventParser extends AbstractParser {
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
+                break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -94,6 +97,12 @@ public class TableDataSetContractEventParser extends AbstractParser {
         tableDataSet.setUpdatedTime(updatedTime);
         tableDataSetMongoReop.upsert(tableDataSet);
     }
+
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        tableDataSetMongoReop.deleteByDataResourceId(dataResourceId);
+    }
+
 
     private TableDataSet getTableDataSet(String dataResourceId) throws BusinessException {
         TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(dataResourceId);

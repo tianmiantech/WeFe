@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.dto.entity.modeling_config;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 
 /**
  * @author zane.luo

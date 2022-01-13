@@ -24,7 +24,6 @@ import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
-import com.welab.wefe.common.enums.FileRurpose;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -34,6 +33,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
+import com.welab.wefe.common.wefe.enums.FileRurpose;
 import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
@@ -107,15 +107,16 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
             syncDataToOtherUnionNode(input);
 
-            return success(new UploadFileApiOutput(fileId));
         } else {
-            throw new StatusCodeWithException("请勿重复上传相同文件", StatusCode.DUPLICATE_RESOURCE_ERROR);
+            fileId = gridFSFile.getObjectId().toString();
+            return success(new UploadFileApiOutput(fileId));
         }
 
+        return success(new UploadFileApiOutput(fileId));
     }
 
 
-    private void saveFileInfoToBlockchain(String memberId,String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
+    private void saveFileInfoToBlockchain(String memberId, String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
         MemberFileInfo memberFileInfo = new MemberFileInfo();
         memberFileInfo.setFileId(fileId);
         memberFileInfo.setMemberId(memberId);

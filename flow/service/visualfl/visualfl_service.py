@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from common.python.db.db_models import GlobalSetting
 from common.python.db.global_config_dao import GlobalConfigDao
 from common.python.utils.log_utils import LoggerFactory
 import requests
@@ -37,16 +37,13 @@ class VisualFLService:
             'callback_url': '回调地址'
         }"""
         if name == 'apply':
-            VisualFLService._request("/apply", params)
+            return VisualFLService._request("/apply", params)
         elif name == 'submit':
-            VisualFLService._request("/submit", params)
+            return VisualFLService._request("/submit", params)
 
     @staticmethod
     def _request(api, data):
-        """
-        向 board 服务发送请求
-        """
-        url = BOARD_BASE_URL + api
+        url = GlobalSetting.get_flow_base_url().value + api
 
         # 发送请求
         start_time = current_timestamp()
@@ -73,17 +70,14 @@ class VisualFLService:
 
         # 业务异常
         root = response.json()
-        code = root.get("code")
-        message = root.get("message")
-        data = root.get("data")
-
-        if code != 0:
+        job_id = root.get("job_id")
+        if job_id is None:
             VisualFLService.LOG.error(
-                "visualfl response fail({}ms) url:{}, {}, {}".format(spend, url, message, response.text)
+                "visualfl response fail({}ms) url:{}, {}, {}".format(spend, url, 'unknow exception', response.text)
             )
             return None
         else:
             VisualFLService.LOG.info(
                 "visualfl response success({}ms) url:{}, {}".format(spend, url, response.text)
             )
-            return data
+            return job_id

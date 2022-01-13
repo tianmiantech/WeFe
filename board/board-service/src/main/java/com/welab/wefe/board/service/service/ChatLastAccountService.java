@@ -24,7 +24,7 @@ import com.welab.wefe.board.service.database.repository.ChatLastAccountRepositor
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
 import com.welab.wefe.board.service.dto.entity.ChatLastAccountOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

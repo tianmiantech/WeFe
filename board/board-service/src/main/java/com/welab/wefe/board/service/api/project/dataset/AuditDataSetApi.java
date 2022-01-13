@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.service.ProjectDataSetAuditService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.AuditStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
@@ -26,12 +25,13 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author zane.luo
  */
-@Api(path = "project/data_set/audit", name = "audit the data set authorization application in the project")
+@Api(path = "project/data_resource/audit", name = "audit the data set authorization application in the project")
 public class AuditDataSetApi extends AbstractNoneOutputApi<AuditDataSetApi.Input> {
 
     @Autowired

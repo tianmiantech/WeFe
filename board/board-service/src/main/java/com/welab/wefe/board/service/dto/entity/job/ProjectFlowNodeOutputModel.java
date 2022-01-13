@@ -18,8 +18,8 @@ package com.welab.wefe.board.service.dto.entity.job;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 /**
  * @author zane.luo

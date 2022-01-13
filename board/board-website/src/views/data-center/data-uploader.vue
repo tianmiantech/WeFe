@@ -28,7 +28,6 @@
         },
         methods: {
             async fileComplete() {
-                console.log('file complete', arguments);
                 const file = arguments[0].file;
 
                 const url =
@@ -44,10 +43,8 @@
                 this.$axios
                     .get(url)
                     .then(function(response) {
-                        console.log(response);
                     })
                     .catch(function(error) {
-                        console.log(error);
                     });
             },
         },

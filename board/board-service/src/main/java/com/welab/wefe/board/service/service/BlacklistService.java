@@ -26,7 +26,6 @@ import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.BlacklistOutputModel;
 import com.welab.wefe.board.service.dto.entity.MemberOutputModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -47,12 +46,6 @@ public class BlacklistService extends AbstractService {
 
     @Autowired
     private BlacklistRepository blacklistRepository;
-
-    @Autowired
-    private UnionService unionService;
-
-    @Autowired
-    private GatewayService gatewayService;
 
     public PagingOutput<BlacklistOutputModel> list(BlacklistApi.Input input) throws StatusCodeWithException {
 

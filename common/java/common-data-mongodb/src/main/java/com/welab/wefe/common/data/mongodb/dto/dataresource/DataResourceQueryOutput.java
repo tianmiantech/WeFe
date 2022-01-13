@@ -16,6 +16,11 @@
 
 package com.welab.wefe.common.data.mongodb.dto.dataresource;
 
+import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+
 /**
  * @author yuxin.zhang
  **/
@@ -23,6 +28,7 @@ public class DataResourceQueryOutput {
     private String dataResourceId;
     private String memberId;
     private String name;
+    private String memberName;
     private String description;
     private String tags;
     private String totalDataCount;
@@ -33,8 +39,12 @@ public class DataResourceQueryOutput {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
-    private int status;
-    private String dataResourceType;
+    private DataResourceType dataResourceType;
+    private String createdTime;
+    private String updatedTime;
+    private ImageDataSet imageDataSet;
+    private TableDataSet tableDataSet;
+    private BloomFilter bloomFilter;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -140,19 +150,60 @@ public class DataResourceQueryOutput {
         this.enable = enable;
     }
 
-    public int getStatus() {
-        return status;
+    public ImageDataSet getImageDataSet() {
+        return imageDataSet;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setImageDataSet(ImageDataSet imageDataSet) {
+        this.imageDataSet = imageDataSet;
     }
 
-    public String getDataResourceType() {
+    public TableDataSet getTableDataSet() {
+        return tableDataSet;
+    }
+
+    public void setTableDataSet(TableDataSet tableDataSet) {
+        this.tableDataSet = tableDataSet;
+    }
+
+    public BloomFilter getBloomFilter() {
+        return bloomFilter;
+    }
+
+    public void setBloomFilter(BloomFilter bloomFilter) {
+        this.bloomFilter = bloomFilter;
+    }
+
+    public DataResourceType getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(String dataResourceType) {
+    public void setDataResourceType(DataResourceType dataResourceType) {
         this.dataResourceType = dataResourceType;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+
+
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 }

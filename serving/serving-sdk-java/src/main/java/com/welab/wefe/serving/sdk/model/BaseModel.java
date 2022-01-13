@@ -16,9 +16,9 @@
 
 package com.welab.wefe.serving.sdk.model;
 
-import com.welab.wefe.common.enums.Algorithm;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author hunter.zhao

@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.constant;
 
 import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.enums.JobBackendType;
-import com.welab.wefe.common.enums.env.EnvBranch;
-import com.welab.wefe.common.enums.env.EnvName;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
+import com.welab.wefe.common.wefe.enums.env.EnvBranch;
+import com.welab.wefe.common.wefe.enums.env.EnvName;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
@@ -37,7 +37,6 @@ public class Config {
 
     @Value("${wefe.union.base-url}")
     private String UNION_BASE_URL;
-
 
     @Value("${wefe.file.upload.dir}")
     private String fileUploadDir;
@@ -69,6 +68,7 @@ public class Config {
     public void setUNION_BASE_URL(String UNION_BASE_URL) {
         this.UNION_BASE_URL = UNION_BASE_URL;
     }
+
 
     public String getFileUploadDir() {
         return fileUploadDir;

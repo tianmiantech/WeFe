@@ -8,7 +8,7 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const webpackConfig = require('./webpack.common.js');
 const argv = require('minimist')(process.argv.slice(2));
-const argvs = argv._[1] ? argv._[1].split('=') : '';
+const argvs = argv._[0] ? argv._[0].split('=') : '';
 const { context } = require('../package.json');
 const proxy = require('../proxy.js');
 

@@ -21,8 +21,8 @@ import com.welab.wefe.board.service.component.deep_learning.DeepLearningComponen
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.component.feature.*;
 import com.welab.wefe.board.service.component.modeling.*;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,9 +71,13 @@ public class Components {
     @Autowired
     private OotComponent ootComponent;
     @Autowired
-    private HorzNNComponent horzNNComponent;
+    private HorzFeatureBinningComponent horzFeatureBinningComponent;
+    @Autowired
+    private HorzStatisticComponent horzStatisticComponent;
     @Autowired
     private VertNNComponent vertNNComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
     @Autowired
     private MixBinningComponent mixBinningComponent;
 
@@ -95,53 +99,57 @@ public class Components {
             case HorzXGBoostValidationDataSetLoader:
             case VertXGBoostValidationDataSetLoader:
             case DataIO:
-                return Launcher.CONTEXT.getBean(Components.class).dataIOComponent;
+                return Launcher.getBean(Components.class).dataIOComponent;
             case Intersection:
-                return Launcher.CONTEXT.getBean(Components.class).intersectionComponent;
+                return Launcher.getBean(Components.class).intersectionComponent;
             case Evaluation:
-                return Launcher.CONTEXT.getBean(Components.class).evaluationComponent;
+                return Launcher.getBean(Components.class).evaluationComponent;
             case HorzLR:
-                return Launcher.CONTEXT.getBean(Components.class).horzLRComponent;
+                return Launcher.getBean(Components.class).horzLRComponent;
             case VertLR:
-                return Launcher.CONTEXT.getBean(Components.class).vertLRComponent;
+                return Launcher.getBean(Components.class).vertLRComponent;
             case Binning:
-                return Launcher.CONTEXT.getBean(Components.class).binningComponent;
+                return Launcher.getBean(Components.class).binningComponent;
             case HorzSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).horzSecureBoostComponent;
+                return Launcher.getBean(Components.class).horzSecureBoostComponent;
             case VertSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).vertSecureBoostComponent;
+                return Launcher.getBean(Components.class).vertSecureBoostComponent;
             case FeatureSelection:
-                return Launcher.CONTEXT.getBean(Components.class).featureSelectionComponent;
+                return Launcher.getBean(Components.class).featureSelectionComponent;
             case Segment:
-                return Launcher.CONTEXT.getBean(Components.class).segmentComponent;
+                return Launcher.getBean(Components.class).segmentComponent;
             case FeatureStatistic:
-                return Launcher.CONTEXT.getBean(Components.class).featureStatisticsComponent;
+                return Launcher.getBean(Components.class).featureStatisticsComponent;
             case FeatureCalculation:
-                return Launcher.CONTEXT.getBean(Components.class).featureCalculationComponent;
+                return Launcher.getBean(Components.class).featureCalculationComponent;
             case FillMissingValue:
-                return Launcher.CONTEXT.getBean(Components.class).fillMissingValueComponent;
+                return Launcher.getBean(Components.class).fillMissingValueComponent;
             case FeatureStandardized:
-                return Launcher.CONTEXT.getBean(Components.class).featureStandardizedComponent;
+                return Launcher.getBean(Components.class).featureStandardizedComponent;
             case VertPearson:
-                return Launcher.CONTEXT.getBean(Components.class).vertPearsonComponent;
+                return Launcher.getBean(Components.class).vertPearsonComponent;
             case MixLR:
-                return Launcher.CONTEXT.getBean(Components.class).mixLrComponent;
+                return Launcher.getBean(Components.class).mixLrComponent;
             case MixSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).mixSecureBoostComponent;
+                return Launcher.getBean(Components.class).mixSecureBoostComponent;
             case MixStatistic:
-                return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
+                return Launcher.getBean(Components.class).mixStatisticComponent;
             case Oot:
-                return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+                return Launcher.getBean(Components.class).ootComponent;
+            case HorzFeatureBinning:
+                return Launcher.getBean(Components.class).horzFeatureBinningComponent;
+            case HorzStatistic:
+                return Launcher.getBean(Components.class).horzStatisticComponent;
             case HorzNN:
-                return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
+                return Launcher.getBean(Components.class).horzNNComponent;
             case VertNN:
-                return Launcher.CONTEXT.getBean(Components.class).vertNNComponent;
+                return Launcher.getBean(Components.class).vertNNComponent;
             case MixBinning:
-                return Launcher.CONTEXT.getBean(Components.class).mixBinningComponent;
+                return Launcher.getBean(Components.class).mixBinningComponent;
             case ImageDataIO:
-                return Launcher.CONTEXT.getBean(Components.class).imageDataIOComponent;
+                return Launcher.getBean(Components.class).imageDataIOComponent;
             case DeepLearning:
-                return Launcher.CONTEXT.getBean(Components.class).deepLearningComponent;
+                return Launcher.getBean(Components.class).deepLearningComponent;
             default:
                 return null;
         }
@@ -153,6 +161,8 @@ public class Components {
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
                 || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzStatistic
+                || type == ComponentType.HorzFeatureBinning
                 || type == ComponentType.HorzNN
                 || type == ComponentType.MixBinning;
     }

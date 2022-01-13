@@ -49,13 +49,10 @@ public class DownloadFileApi extends AbstractApi<QueryFileInput, ResponseEntity<
 
     @Override
     protected ApiResult<ResponseEntity<byte[]>> handle(QueryFileInput input) throws IOException {
-        //根据文件id查询文件
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
 
         String contentType = gridFSFile.getMetadata().getString("contentType");
-        //使用GridFsBucket打开一个下载流对象
         GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
-        //创建GridFsResource对象，获取流
         GridFsResource gridFsResource = new GridFsResource(gridFSFile, gridFSDownloadStream);
 
 

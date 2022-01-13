@@ -22,10 +22,17 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.BloomFilterExtJSON;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceExtJSON;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 @Document(collection = MongodbTable.Union.BLOOM_FILTER)
 public class BloomFilter extends AbstractBlockChainBusinessModel {
     private String dataResourceId;
     private String hashFunction;
+
+    public BloomFilter(){};
+    public BloomFilter(String dataResourceId,String hashFunction){
+        this.dataResourceId = dataResourceId;
+        this.hashFunction = hashFunction;
+    }
 
     private BloomFilterExtJSON extJson = new BloomFilterExtJSON();
 

@@ -93,10 +93,12 @@
             const chatui = ref();
             const methods = {
                 refresh() {
-                    vData.isRouterAlive = false;
-                    nextTick(() => {
-                        vData.isRouterAlive = true;
-                    });
+                    setTimeout(_ => {
+                        vData.isRouterAlive = false;
+                        nextTick(() => {
+                            vData.isRouterAlive = true;
+                        });
+                    }, 300);
                 },
 
                 // ws heat beat every 26s
@@ -119,7 +121,7 @@
             };
             // open chat room
             const startChart = () => {
-                if (window.localStorage.getItem(`${window.api.prefixPath}_chat`) === 'connect') {
+                if (window.localStorage.getItem(`${window.api.baseUrl}_chat`) === 'connect') {
                     nextTick(async () => {
                         chatui.value.show();
                         restartWs();
@@ -129,7 +131,8 @@
             const restartWs = () => {
                 if(vData.ws) return;
 
-                const url = process.env.NODE_ENV === 'production' ? `wss://${window.api.baseUrl.replace(/http(s?):\/\//, '')}` : 'wss://xxx.wolaidai.com/board-service-04'; // ws://xxx:8080/board-service-01 // wss://xxx.wolaidai.com/board-service-01
+                const protocol = window.api.baseUrl.replace(/^http/, 'ws');
+                const url = process.env.NODE_ENV === 'production' ? protocol : 'wss://xxx.wolaidai.com/board-service-04'; // ws://xxx:8080/board-service-01 // wss://xxx.wolaidai.com/board-service-01
                 const websocket = new WebSocket(`${url}/chatserver/${userInfo.value.token}`);
 
                 websocket.addEventListener('open', ev => {
@@ -156,7 +159,6 @@
                 });
 
                 websocket.addEventListener('close', ev => {
-                    console.log('close');
                     clearTimeout(heartbeat);
                     chatui.value.socketOnClose(ev);
                     vData.ws = null;
@@ -172,8 +174,8 @@
             provide('refresh', methods.refresh);
 
             onBeforeMount(() => {
-                const { prefixPath } = window.api;
-                const asideCollapsedKey = `${prefixPath}AsideCollapsed`;
+                const { baseUrl } = window.api;
+                const asideCollapsedKey = `${baseUrl}AsideCollapsed`;
 
                 // collapsed left menus
                 const $isCollapsed = window.localStorage.getItem(asideCollapsedKey);
@@ -191,7 +193,7 @@
                 });
 
                 // check last state
-                if (window.localStorage.getItem(`${prefixPath}chat`) === 'connect') {
+                if (window.localStorage.getItem(`${baseUrl}_chat`) === 'connect') {
                     startChart();
                 }
             });
@@ -212,7 +214,7 @@
         position: relative;
         background: $header-background;
         border-bottom: 1px solid $border-color-base;
-        z-index: 200;
+        z-index: 6;
     }
     .layout-main {
         padding: 20px;

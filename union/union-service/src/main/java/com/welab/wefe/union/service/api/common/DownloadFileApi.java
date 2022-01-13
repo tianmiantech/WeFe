@@ -22,8 +22,10 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -63,13 +65,23 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     private UnionNodeMongoRepo unionNodeMongoRepo;
     @Autowired
     private MemberFileInfoMongoRepo memberFileInfoMongoRepo;
+    @Autowired
+    private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
 
     @Override
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws IOException, StatusCodeWithException {
         MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileId(input.fileId);
+        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileId(input.fileId);
         if (memberFileInfo == null) {
-            throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.fileId);
+            if (realnameAuthAgreementTemplate == null) {
+                throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.fileId);
+            }
+        } else {
+            if (!memberFileInfo.getMemberId().equals(input.getMemberId())) {
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            }
         }
+
 
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
         if (gridFSFile == null) {
@@ -80,8 +92,8 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<byte[]> response = restTemplate.exchange(requestEntity, byte[].class);
 
-            new Thread(()->{
-                saveFileToCurrentNode(memberFileInfo,response);
+            new Thread(() -> {
+                saveFileToCurrentNode(memberFileInfo, response);
             }).start();
 
             return success(response);

@@ -17,11 +17,12 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class ImageDataSetContractEventParser extends AbstractParser {
-    protected ImageDataSetMongoReop imageDataSetMongoReop = App.CONTEXT.getBean(ImageDataSetMongoReop.class);
+    protected ImageDataSetMongoReop imageDataSetMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(ImageDataSetMongoReop.class);
     protected ImageDataSetExtJSON extJSON;
 
 
@@ -49,6 +50,9 @@ public class ImageDataSetContractEventParser extends AbstractParser {
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
                 break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
+                break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
         }
@@ -57,7 +61,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
     private void parseInsertEvent() {
         ImageDataSet imageDataSet = new ImageDataSet();
         imageDataSet.setDataResourceId(StringUtil.strTrim2(params.getString(0)));
-        imageDataSet.setForJobType(params.getString(1));
+        imageDataSet.setForJobType(DeepLearningJobType.valueOf(params.getString(1)));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(2)));
         imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(3)));
         imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(4)));
@@ -74,7 +78,7 @@ public class ImageDataSetContractEventParser extends AbstractParser {
 
         ImageDataSet imageDataSet = getImageDataSet(dataResourceId);
 
-        imageDataSet.setForJobType(params.getString(0));
+        imageDataSet.setForJobType(DeepLearningJobType.valueOf(params.getString(0)));
         imageDataSet.setLabelList(StringUtil.strTrim2(params.getString(1)));
         imageDataSet.setLabeledCount(StringUtil.strTrim2(params.getString(2)));
         imageDataSet.setLabelCompleted(StringUtil.strTrim2(params.getString(3)));
@@ -93,8 +97,13 @@ public class ImageDataSetContractEventParser extends AbstractParser {
         imageDataSetMongoReop.upsert(imageDataSet);
     }
 
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        imageDataSetMongoReop.deleteByDataResourceId(dataResourceId);
+    }
+
     private ImageDataSet getImageDataSet(String dataResourceId) throws BusinessException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findDataResourceId(dataResourceId);
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceId);
         if(imageDataSet == null) {
             throw new BusinessException("Data does not exist dataResourceId:" + dataResourceId);
         }

@@ -44,5 +44,5 @@ build/
 *.properties
 venv/
 /docker/
-**/assembly/
-/assembly/
+/assembly/*
+assembly/

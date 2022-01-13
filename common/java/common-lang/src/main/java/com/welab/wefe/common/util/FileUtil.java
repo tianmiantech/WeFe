@@ -19,6 +19,7 @@ package com.welab.wefe.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 
 /**
  * @author zane.luo
@@ -74,7 +75,14 @@ public class FileUtil {
         if (file.isDirectory()) {
             return "";
         }
-        return StringUtil.substringBeforeLast(file.getName(), ".");
+        return getFileNameWithoutSuffix(file.getName());
+    }
+
+    public static String getFileNameWithoutSuffix(String fileName) {
+        if (fileName == null) {
+            return "";
+        }
+        return StringUtil.substringBeforeLast(fileName, ".");
     }
 
     /**
@@ -141,5 +149,42 @@ public class FileUtil {
 
     public static void deleteFileOrDir(String filePath) {
         deleteFileOrDir(new File(filePath));
+    }
+
+    /**
+     * 将文本写入到文件（utf-8编码）
+     *
+     * @param text   要写入的文本内容
+     * @param path   文件路径
+     * @param append 是否追加，如果不追加，会覆盖已有文件。
+     */
+    public static void writeTextToFile(String text, Path path, boolean append) throws IOException {
+        createDir(path.getParent().toString());
+        if (!append) {
+            File file = path.toFile();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        Files.write(
+                path,
+                text.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND,
+                StandardOpenOption.CREATE
+        );
+    }
+
+    public static void copy(Path source, Path target, CopyOption... options) throws IOException {
+        createDir(target.getParent().toString());
+        Files.copy(source, target, options);
+    }
+
+    public static void main(String[] args) throws IOException {
+        Files.write(
+                Paths.get("/Users/zane/data/wefe_file_upload_dir/zane test1.txt"),
+                "text".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND,
+                StandardOpenOption.CREATE
+        );
     }
 }

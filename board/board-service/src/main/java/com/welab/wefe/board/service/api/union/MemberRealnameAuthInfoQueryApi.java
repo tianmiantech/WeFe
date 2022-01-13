@@ -32,12 +32,12 @@ import java.io.IOException;
  * @date: 2021/11/3
  */
 @Api(path = "union/member/realname/authInfo/query", name = "realname auth agreement template query")
-public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, JSONObject> {
+public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, Object> {
     @Autowired
     private UnionService unionService;
 
     @Override
-    protected ApiResult<JSONObject> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
+    protected ApiResult<Object> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.realnameAuthInfoQuery();
         return unionApiResultToBoardApiResult(result);
     }

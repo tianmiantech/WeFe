@@ -16,7 +16,8 @@
 
 package com.welab.wefe.board.service.dto.vo;
 
-import com.welab.wefe.common.enums.AuditStatus;
+
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
  * @author zane.luo

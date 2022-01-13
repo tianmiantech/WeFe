@@ -18,7 +18,6 @@ package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
@@ -30,7 +29,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +38,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-public abstract class DataResourceContractService extends AbstractContractService {
+public class DataResourceContractService extends AbstractContractService {
 
     @Autowired
     private DataResourceContract dataResourceContract;
@@ -88,12 +86,28 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
     }
 
+    public void delete(String dataResourceId) throws StatusCodeWithException {
+        try {
+            TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataResourceId);
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
     private List<String> generateAddParams(DataResource dataResource) {
         List<String> list = new ArrayList<>();
         list.add(dataResource.getDataResourceId());
         list.add(dataResource.getMemberId());
         list.addAll(generateParams(dataResource));
-        list.add(dataResource.getDataResourceType());
+        list.add(dataResource.getDataResourceType().name());
         list.add(dataResource.getCreatedTime());
         list.add(dataResource.getUpdatedTime());
         return list;

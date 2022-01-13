@@ -15,11 +15,12 @@ CREATE TABLE `data_resource`
     `updated_by`              varchar(32) COMMENT '更新人',
     `updated_time`            datetime(6) COMMENT '更新时间',
     `name`                    varchar(256)  NOT NULL COMMENT '资源名称',
+    `data_resource_type`      varchar(32)   NOT NULL COMMENT '资源类型',
     `description`             varchar(3072) COMMENT '描述',
     `tags`                    varchar(128) COMMENT '标签',
     `storage_type`            varchar(32) COMMENT '存储类型',
     `storage_namespace`       varchar(1000) NOT NULL COMMENT '资源在存储中的命名空间（库名、目录路径）',
-    `storage_resource_name`   varchar(1000) NOT NULL COMMENT '资源在存储中的名称（表名、文件名）',
+    `storage_resource_name`   varchar(1000) COMMENT '资源在存储中的名称（表名、文件名）',
     `total_data_count`        bigint(20) NOT NULL COMMENT '总数据量',
     `public_level`            varchar(32) COMMENT '资源的可见性',
     `public_member_list`      varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该资源的基本信息',
@@ -37,8 +38,8 @@ CREATE TABLE `data_resource`
 ) ENGINE=InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据资源';
 
-DROP TABLE IF EXISTS `data_resource_upload_progress`;
-CREATE TABLE `data_resource_upload_progress`
+DROP TABLE IF EXISTS `data_resource_upload_task`;
+CREATE TABLE `data_resource_upload_task`
 (
     `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
     `created_by`              varchar(32) COMMENT '创建人',
@@ -47,11 +48,12 @@ CREATE TABLE `data_resource_upload_progress`
     `updated_time`            datetime(6) COMMENT '更新时间',
     `data_resource_id`        varchar(32)  DEFAULT NULL COMMENT '数据资源id',
     `data_resource_name`      varchar(128) DEFAULT NULL COMMENT '数据资源名称',
+    `data_resource_type`      varchar(32) COMMENT '资源类型',
     `total_data_count`        bigint(20) DEFAULT NULL COMMENT '总数据行数',
-    `completed_data_count`    bigint(20) DEFAULT NULL COMMENT '已写入数据行数',
+    `completed_data_count`    bigint(20) DEFAULT 0 COMMENT '已写入数据行数',
     `progress_ratio`          int(10) DEFAULT NULL COMMENT '任务进度百分比',
-    `estimate_remaining_time` int(64) DEFAULT NULL COMMENT '预计剩余耗时',
-    `invalid_data_count`      int(64) DEFAULT 0 COMMENT '无效数据量（主键重复条数）',
+    `estimate_remaining_time` bigint(20) DEFAULT NULL COMMENT '预计剩余耗时',
+    `invalid_data_count`      bigint(20) DEFAULT 0 COMMENT '无效数据量（主键重复条数）',
     `error_message`           text         DEFAULT NULL COMMENT '错误消息',
     `status`                  varchar(32) NOT NULL COMMENT '状态：上传中、已完成、已失败',
     PRIMARY KEY (`id`) USING BTREE,
@@ -125,6 +127,98 @@ CREATE TABLE `bloom_filter`
 
 
 -- -------------------------------------
+-- 将 data_set 数据迁移到新表
+-- author: zane.luo
+-- -------------------------------------
+INSERT INTO data_resource
+(`id`,
+ `created_by`,
+ `created_time`,
+ `updated_by`,
+ `updated_time`,
+ `name`,
+ `resource_type`,
+ `description`,
+ `tags`,
+ `storage_type`,
+ `storage_namespace`,
+ `storage_resource_name`,
+ `total_data_count`,
+ `public_level`,
+ `public_member_list`,
+ `usage_count_in_job`,
+ `usage_count_in_flow`,
+ `usage_count_in_project`,
+ `usage_count_in_member`,
+ `derived_resource`,
+ `derived_from`,
+ `derived_from_flow_id`,
+ `derived_from_job_id`,
+ `derived_from_task_id`,
+ `statistical_information`)
+SELECT `id`,
+       `created_by`,
+       `created_time`,
+       `updated_by`,
+       `updated_time`,
+       `name`,
+       'TableDataSet',
+       `description`,
+       `tags`,
+       `storage_type`,
+       `namespace`,
+       `table_name`,
+       `row_count`,
+       `public_level`,
+       `public_member_list`,
+       `usage_count_in_job`,
+       `usage_count_in_flow`,
+       `usage_count_in_project`,
+       0,
+       length(`source_type`) > 0,
+       `source_type`,
+       `source_flow_id`,
+       `source_job_id`,
+       `source_task_id`,
+       null
+FROM data_set;
+
+INSERT INTO table_data_set
+(`id`,
+ `created_by`,
+ `created_time`,
+ `updated_by`,
+ `updated_time`,
+ `column_name_list`,
+ `column_count`,
+ `primary_key_column`,
+ `feature_name_list`,
+ `feature_count`,
+ `contains_y`,
+ `y_name_list`,
+ `y_count`,
+ `positive_sample_value`,
+ `y_positive_sample_count`,
+ `y_positive_sample_ratio`)
+SELECT `id`,
+       `created_by`,
+       `created_time`,
+       `updated_by`,
+       `updated_time`,
+       `column_name_list`,
+       `column_count`,
+       `primary_key_column`,
+       `feature_name_list`,
+       `feature_count`,
+       `contains_y`,
+       `y_name_list`,
+       `y_count`,
+       '1',
+       `y_positive_example_count`,
+       `y_positive_example_ratio`
+FROM data_set;
+
+-- -------------------------------------
 -- project 表增加字段
 -- author: zane.luo
 -- -------------------------------------
@@ -143,17 +237,22 @@ ALTER TABLE `project_data_set`
 DROP TABLE IF EXISTS `job_apply_result`;
 CREATE TABLE `job_apply_result`
 (
-    `id`               varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`       varchar(32) COMMENT '创建人',
-    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`       varchar(32) COMMENT '更新人',
-    `updated_time`     datetime(6) COMMENT '更新时间',
-    `job_id`           varchar(255) DEFAULT NULL COMMENT 'jobid',
-    `task_id`          varchar(255) DEFAULT NULL COMMENT 'taskid',
-    `server_endpoint`  varchar(255) DEFAULT NULL COMMENT '',
-    `aggregator_endpoint`   varchar(32)  DEFAULT NULL COMMENT '',
-    `aggregator_assignee`      varchar(255) DEFAULT NULL COMMENT '',
-    `status` varchar(255) DEFAULT NULL COMMENT '状态',
+    `id`                  varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`          varchar(32) COMMENT '创建人',
+    `created_time`        datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`          varchar(32) COMMENT '更新人',
+    `updated_time`        datetime(6) COMMENT '更新时间',
+    `job_id`              varchar(255) DEFAULT NULL COMMENT 'jobid',
+    `task_id`             varchar(255) DEFAULT NULL COMMENT 'taskid',
+    `server_endpoint`     varchar(255) DEFAULT NULL COMMENT '',
+    `aggregator_endpoint` varchar(32)  DEFAULT NULL COMMENT '',
+    `aggregator_assignee` varchar(255) DEFAULT NULL COMMENT '',
+    `status`              varchar(255) DEFAULT NULL COMMENT '状态',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+
+INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`, `comment`)
+VALUES
+	('07ab31c0f41e45e2998d0315fbaac7ab', NULL, '2021-12-16 10:34:30.725000', NULL, '2021-12-16 10:34:30.725000', 'wefe_flow', 'visual_fl_base_url', 'http://10.90.0.86:10002', NULL);

@@ -16,12 +16,6 @@
 
 package com.welab.wefe.board.service.component.modeling;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
@@ -32,10 +26,15 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.Params> {
@@ -56,7 +55,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         JObject earlyStop = JObject.create("early_stop", "diff").append("eps", 0.0);
         horzNNParam.append("early_stop", earlyStop);
 
-        JObject optimizer = JObject.create().append("learning_rate", params.learningRate).append("epsilon", 1e-07)
+        JObject optimizer = JObject.create().append("learning_rate", params.learningRate)
                 .append("optimizer", params.optimizer);
         List<String> metrics = new ArrayList<>();
         metrics.add("AUC");

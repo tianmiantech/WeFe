@@ -23,15 +23,15 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
+import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.Member;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
@@ -39,14 +39,15 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectType;
-import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +99,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     protected TaskResultService taskResultService;
     @Autowired
     protected TaskRepository taskRepository;
+    @Autowired
+    protected GlobalConfigService globalConfigService;
 
     /**
      * create mix flow task
@@ -106,7 +109,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -241,7 +244,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -677,13 +680,13 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
             if (x.getComponentType() == ComponentType.DataIO) {
                 DataIOComponent.Params dataIOParams = (DataIOComponent.Params) x.getParamsModel();
-                DataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
+                TableDataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
 
                 // If it is not a derived data set, it must have been misaligned.
-                if (myDataSet != null && myDataSet.getSourceType() != null) {
+                if (myDataSet != null && myDataSet.isDerivedResource()) {
 
                     // If the derived data set comes from alignment
-                    if (myDataSet.getSourceType() == ComponentType.Intersection) {
+                    if (myDataSet.getDerivedFrom() == ComponentType.Intersection) {
                         return true;
                     }
 
@@ -715,7 +718,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Assemble the input parameters of the task according to the component configuration
      */
-    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws StatusCodeWithException;
+    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws Exception;
 
     public abstract ComponentType taskType();
 

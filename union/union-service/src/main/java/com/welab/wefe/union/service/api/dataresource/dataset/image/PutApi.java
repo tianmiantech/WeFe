@@ -16,13 +16,17 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.image;
 
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
+import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
+import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
 import com.welab.wefe.union.service.service.ImageDataSetContractService;
 import org.mapstruct.factory.Mappers;
@@ -32,49 +36,48 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author yuxin.zhang
  **/
 @Api(path = "image_data_set/put", name = "image_data_set_put", rsaVerify = true, login = false)
-public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
+public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected ImageDataSetContractService imageDataSetContractService;
+    @Autowired
+    protected ImageDataSetMongoReop imageDataSetMongoReop;
 
     protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
 
+
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
+        if (dataResource == null) {
+            if (imageDataSet == null) {
+                imageDataSetContractService.add(imageDataSetMapper.transferPutInputToImageDataSet(input));
+                dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
+            } else {
+                dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
+            }
+        } else {
+            imageDataSet.setLabelCompleted(input.labelCompleted ? "1" : "0");
+            imageDataSet.setLabelList(input.labelList);
+            imageDataSet.setLabeledCount(String.valueOf(input.labeledCount));
+            imageDataSet.setForJobType(input.forJobType);
+            imageDataSet.setFileSize(input.filesSize);
+            imageDataSetContractService.update(imageDataSet);
 
-        imageDataSetContractService.add(imageDataSetMapper.transferPutInput(input));
+            updateDataResource(dataResource,input);
+        }
 
         return success();
     }
 
-    public static class Input extends BaseInput {
-        @Check(require = true)
-        private String dataSetId;
-        @Check(require = true)
-        private String memberId;
-        @Check(require = true)
-        private String name;
-        private String tags;
-        private String description;
-        private String forJobType;
+
+    public static class Input extends DataResourcePutInput {
+        private DeepLearningJobType forJobType;
         private String labelList;
-        private int sampleCount;
         private int labeledCount;
+        @Check(require = true)
         private boolean labelCompleted;
         private String filesSize;
-        @Check(require = true)
-        private String publicLevel;
-        private String publicMemberList;
-        private int usageCountInJob;
-        private int usageCountInFlow;
-        private int usageCountInProject;
-
-        public String getDataSetId() {
-            return dataSetId;
-        }
-
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
-        }
 
         public String getMemberId() {
             return memberId;
@@ -108,11 +111,11 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
             this.description = description;
         }
 
-        public String getForJobType() {
+        public DeepLearningJobType getForJobType() {
             return forJobType;
         }
 
-        public void setForJobType(String forJobType) {
+        public void setForJobType(DeepLearningJobType forJobType) {
             this.forJobType = forJobType;
         }
 
@@ -122,14 +125,6 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
 
         public void setLabelList(String labelList) {
             this.labelList = labelList;
-        }
-
-        public int getSampleCount() {
-            return sampleCount;
-        }
-
-        public void setSampleCount(int sampleCount) {
-            this.sampleCount = sampleCount;
         }
 
         public int getLabeledCount() {

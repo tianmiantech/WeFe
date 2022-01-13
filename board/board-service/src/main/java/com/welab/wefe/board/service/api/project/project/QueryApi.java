@@ -20,14 +20,14 @@ import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.service.ProjectService;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

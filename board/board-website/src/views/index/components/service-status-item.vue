@@ -9,16 +9,20 @@
                         :span="20"
                     >
                         <p class="item-name">
-                            <i
+                            <el-icon
                                 v-if="status.success"
                                 class="el-icon-success"
-                                style="color:green"
-                            />
-                            <i
+                                style="color:green;"
+                            >
+                                <elicon-success-filled />
+                            </el-icon>
+                            <el-icon
                                 v-else
                                 class="el-icon-error"
-                                style="color:red"
-                            />
+                                style="color:red;"
+                            >
+                                <elicon-circle-close-filled />
+                            </el-icon>
 
                             {{ status.service }}
                         </p>
@@ -37,7 +41,7 @@
                     </el-col>
                     <el-col
                         :span="4"
-                        style="text-align:right"
+                        class="text-r"
                     >
                         <el-button
                             class="test-btn"
@@ -86,8 +90,9 @@
                 const { code, data } = await this.$http.post({
                     url:  '/member/service_status_check',
                     data: {
-                        member_id: this.userInfo.member_id,
-                        service:   this.service,
+                        requestFromRefresh: true,
+                        member_id:          this.userInfo.member_id,
+                        service:            this.service,
                     },
                 });
 

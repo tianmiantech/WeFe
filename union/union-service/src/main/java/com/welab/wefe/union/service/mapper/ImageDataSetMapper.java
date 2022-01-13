@@ -16,13 +16,13 @@
 
 package com.welab.wefe.union.service.mapper;
 
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
-import com.welab.wefe.union.service.api.dataresource.dataset.image.QueryApi;
-import com.welab.wefe.union.service.dto.dataset.image.ApiImageDataSetQueryOutput;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
+import com.welab.wefe.union.service.dto.dataresource.dataset.image.ApiImageDataSetQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -38,24 +38,11 @@ public interface ImageDataSetMapper {
 
 
     @Mappings({
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getImageDataSet()).toJavaObject(ApiImageDataSetQueryOutput.ExtraData.class))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
-    ApiImageDataSetQueryOutput transferDetail(ImageDataSet entity);
-
-
-    @Mappings({
-            @Mapping(source = "pageSize", target = "pageSize"),
-            @Mapping(source = "pageIndex", target = "pageIndex"),
-    })
-    ImageDataSetQueryInput transferInput(QueryApi.Input entity);
-
-
-    @Mappings({
-            @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-            @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
-    })
-    ApiImageDataSetQueryOutput transferOutput(ImageDataSetQueryOutput entity);
+    ApiImageDataSetQueryOutput transferDetail(DataResourceQueryOutput entity);
 
 
     @Mappings({
@@ -63,7 +50,9 @@ public interface ImageDataSetMapper {
             @Mapping(target = "createdTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
             @Mapping(target = "updatedTime", expression = "java(com.welab.wefe.common.util.DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new java.util.Date()))"),
     })
-    ImageDataSet transferPutInput(PutApi.Input input);
+    ImageDataSet transferPutInputToImageDataSet(PutApi.Input input);
 
+
+    DataResource transferPutInputToDataResource(PutApi.Input input);
 
 }

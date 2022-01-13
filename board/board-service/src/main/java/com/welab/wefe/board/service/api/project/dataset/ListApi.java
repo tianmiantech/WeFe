@@ -18,13 +18,13 @@ package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
-import com.welab.wefe.common.enums.DataResourceType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "project/data_set/list", name = "list all of the project data sets")
+@Api(path = "project/data_resource/list", name = "list all of the project data sets")
 public class ListApi extends AbstractApi<ListApi.Input, ListApi.Output> {
 
     @Autowired

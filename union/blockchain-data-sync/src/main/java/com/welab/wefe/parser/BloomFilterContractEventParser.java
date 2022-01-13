@@ -17,9 +17,8 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
-import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.BloomFilterExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.util.StringUtil;
@@ -33,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class BloomFilterContractEventParser extends AbstractParser {
-    protected BloomFilterMongoReop bloomFilterMongoReop = App.CONTEXT.getBean(BloomFilterMongoReop.class);
+    protected BloomFilterMongoReop bloomFilterMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(BloomFilterMongoReop.class);
     protected BloomFilterExtJSON extJSON;
 
 
@@ -49,6 +48,9 @@ public class BloomFilterContractEventParser extends AbstractParser {
                 break;
             case EventConstant.UPDATE_EXTJSON_EVENT:
                 parseUpdateExtJson();
+                break;
+            case EventConstant.DELETE_BY_DATA_RESOURCE_ID_EVENT:
+                parseDeleteByDataResourceId();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -87,7 +89,10 @@ public class BloomFilterContractEventParser extends AbstractParser {
         bloomFilterMongoReop.upsert(bloomFilter);
     }
 
-
+    private void parseDeleteByDataResourceId() {
+        String dataResourceId = eventBO.getEntity().get("data_resource_id").toString();
+        bloomFilterMongoReop.deleteByDataResourceId(dataResourceId);
+    }
 
     private BloomFilter getBloomFilter(String dataResourceId) throws BusinessException {
         BloomFilter bloomFilter = bloomFilterMongoReop.findByDataResourceId(dataResourceId);

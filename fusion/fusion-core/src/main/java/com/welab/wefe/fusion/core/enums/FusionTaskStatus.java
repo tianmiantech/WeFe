@@ -32,8 +32,6 @@ public enum FusionTaskStatus {
 
     Await,
 
-    Ready,
-
     Running,
 
     Success,

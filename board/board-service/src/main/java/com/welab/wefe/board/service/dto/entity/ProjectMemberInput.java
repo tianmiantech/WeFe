@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public class ProjectMemberInput extends AbstractCheckModel {
     @Check(name = "成员Id", require = true, messageOnEmpty = "请选择项目合作方")
     private String memberId;
-    @Check(name = "成员角色", hiddenForFrontEnd = true)
+    @Check(name = "成员角色", donotShow = true)
     private JobMemberRole memberRole;
 
     @Check(name = "数据集列表")

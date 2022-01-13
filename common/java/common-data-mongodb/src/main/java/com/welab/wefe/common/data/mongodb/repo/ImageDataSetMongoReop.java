@@ -16,20 +16,18 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryInput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.ImageDataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.ImageDataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.JObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -66,15 +64,15 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResouceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
         return mongoUnionTemplate.exists(query, ImageDataSet.class);
     }
 
-    public ImageDataSet findDataResourceId(String dataResouceId) {
+    public ImageDataSet findByDataResourceId(String dataResouceId) {
         if (StringUtils.isEmpty(dataResouceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).notRemoved().build();
+        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
@@ -82,101 +80,95 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
     /**
      * Query the image data set visible to the current member
      */
-    public PageOutput<ImageDataSetQueryOutput> find(ImageDataSetQueryInput imageDataSetQueryInput) {
-        LookupOperation lookupToLots = LookupOperation.newLookup().
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
+        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
+                from(MongodbTable.Union.IMAGE_DATASET).
+                localField("data_resource_id").
+                foreignField("data_resource_id").
+                as("image_data_set");
+
+        LookupOperation lookupToMember = LookupOperation.newLookup().
                 from(MongodbTable.Union.MEMBER).
                 localField("member_id").
                 foreignField("member_id").
                 as("member");
 
-        Criteria dataSetCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getName())
-                .like("tags", imageDataSetQueryInput.getTag())
-                .append("member_id", imageDataSetQueryInput.getMemberId())
-                .append("data_set_id", imageDataSetQueryInput.getDataSetId())
-                .append("enable", imageDataSetQueryInput.getEnable() != null ? (imageDataSetQueryInput.getEnable() ? 1 : 0) : null)
-                .append("status", imageDataSetQueryInput.getStatus() != null ? (imageDataSetQueryInput.getStatus() ? 1 : 0) : null)
-                .getCriteria();
-
-
-        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
-
-        Criteria memberCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getMemberName())
-                .getCriteria();
-
-        AggregationOperation memberMatch = Aggregation.match(memberCriteria);
-        UnwindOperation unwind = Aggregation.unwind("member");
-        Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.name");
-
-        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
-
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataSetQueryOutput.class).getMappedResults().size();
-
-        SkipOperation skipOperation = Aggregation.skip((long) imageDataSetQueryInput.getPageIndex() * imageDataSetQueryInput.getPageSize());
-        LimitOperation limitOperation = Aggregation.limit(imageDataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
-
-        List<ImageDataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, ImageDataSetQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(imageDataSetQueryInput.getPageIndex(), (long) total, imageDataSetQueryInput.getPageSize(), result);
-    }
-
-
-    /**
-     * Query the image data set visible to the current member
-     */
-    public PageOutput<ImageDataSetQueryOutput> findCurMemberCanSee(ImageDataSetQueryInput imageDataSetQueryInput) {
-        LookupOperation lookupToLots = LookupOperation.newLookup().
-                from(MongodbTable.Union.MEMBER).
-                localField("member_id").
-                foreignField("member_id").
-                as("member");
-
-
-        Criteria dataSetCriteria = new QueryBuilder()
+        Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
-                .like("name", imageDataSetQueryInput.getName())
-                .like("tags", imageDataSetQueryInput.getTag())
-                .append("member_id", imageDataSetQueryInput.getMemberId())
-                .append("data_set_id", imageDataSetQueryInput.getDataSetId())
+                .append("enable", "1")
+                .like("name", dataResourceQueryInput.getName())
+                .like("tags", dataResourceQueryInput.getTag())
+                .append("member_id", dataResourceQueryInput.getMemberId())
+                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
                 .getCriteria();
 
         Criteria or = new Criteria();
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
-                new QueryBuilder().like("public_member_list", imageDataSetQueryInput.getCurMemberId()).getCriteria()
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
         );
-        dataSetCriteria.andOperator(or);
-        AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
+
+        dataResouceCriteria.andOperator(or);
+
+        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", imageDataSetQueryInput.getMemberName())
+                .like("member_name", dataResourceQueryInput.getMemberName())
+                .getCriteria();
+
+        String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
+        Criteria imageDataSetCriteria = new QueryBuilder()
+                .append("image_data_set.for_job_type", forJobType)
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
+
+        AggregationOperation imageDataSetMatch = Aggregation.match(imageDataSetCriteria);
         UnwindOperation unwind = Aggregation.unwind("member");
+        UnwindOperation unwindImageDataSet = Aggregation.unwind("image_data_set");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, DataSetQueryOutput.class).getMappedResults().size();
+        SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
+        LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
-        SkipOperation skipOperation = Aggregation.skip((long) imageDataSetQueryInput.getPageIndex() * imageDataSetQueryInput.getPageSize());
-        LimitOperation limitOperation = Aggregation.limit(imageDataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+        CountOperation countOperation = Aggregation.count().as("count");
+        FacetOperation facetOperation = Aggregation.facet(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindImageDataSet,
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch,
+                imageDataSetMatch,
+                skipOperation,
+                limitOperation,
+                sortOperation
+        ).as("data").and(countOperation).as("total");
 
-        List<ImageDataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.IMAGE_DATASET, ImageDataSetQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(imageDataSetQueryInput.getPageIndex(), (long) total, imageDataSetQueryInput.getPageSize(), result);
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
+        JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
+        Long total = 0L;
+        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        if(list != null && !list.isEmpty()){
+            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        }
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 
 
-    public void upsert(ImageDataSet dataSet) {
-        mongoUnionTemplate.save(dataSet);
+    public void upsert(ImageDataSet imageDataSet) {
+        mongoUnionTemplate.save(imageDataSet);
+    }
+
+
+    public void deleteByDataResourceId(String dataResourceId) {
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        Update udpate = new UpdateBuilder().append("status", 1).build();
+        mongoUnionTemplate.updateFirst(query, udpate, ImageDataSet.class);
     }
 }

@@ -19,7 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.database.entity.job.TaskProgressMysqlModel;
 import com.welab.wefe.board.service.database.repository.TaskProgressRepository;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;

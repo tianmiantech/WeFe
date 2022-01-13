@@ -18,9 +18,9 @@ package com.welab.wefe.gateway.service;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.enums.JobBackendType;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ThreadUtil;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.util.SerializeUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;

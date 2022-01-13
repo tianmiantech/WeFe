@@ -2,7 +2,7 @@
     <el-form
         ref="form"
         :model="vData.form"
-        :disabled="vData.disabled"
+        :disabled="disabled"
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -59,8 +59,12 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="每层参数：" :index="idx">
-                    <p class="add-one-group"><i class="el-icon-plus" @click="methods.addOneGroup"></i></p>
+                <el-form-item label="每层参数：">
+                    <p v-if="!disabled" class="add-one-group">
+                        <el-icon class="el-icon-plus" @click="methods.addOneGroup">
+                            <elicon-plus />
+                        </el-icon>
+                    </p>
                     <template v-for="(item, idx) in vData.form.nn_define.layers" :key="item">
                         <div class="single-box" :index="idx">
                             <div class="single-left">
@@ -109,7 +113,13 @@
                                     </el-select>
                                 </div>
                             </div>
-                            <i v-if="idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup(idx)"></i>
+                            <el-icon
+                                v-if="!disabled && idx !== 0"
+                                class="el-icon-delete"
+                                @click="methods.deleteOneGroup(idx)"
+                            >
+                                <elicon-delete />
+                            </el-icon>
                         </div>
                     </template>
                 </el-form-item>
@@ -142,8 +152,8 @@
                 {
                     class_name: 'Dense',
                     config:     {
-                        'units':      10,
-                        'activation': 'relu',
+                        'units':      1,
+                        'activation': 'sigmoid',
                     },
                 },
             ],
@@ -236,8 +246,8 @@
                     vData.form.nn_define.layers.push({
                         class_name: 'Dense',
                         config:     {
-                            'units':      10,
-                            'activation': 'relu',
+                            'units':      1,
+                            'activation': 'sigmoid',
                         },
                     });
                 },

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,23 +26,30 @@ import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
-import com.welab.wefe.board.service.dto.entity.data_set.TableDataSetOutputModel;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.*;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
+import com.welab.wefe.board.service.dto.kernel.Member;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Project;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.service.dataset.DataSetService;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.*;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -77,13 +84,11 @@ public class ProjectFlowJobService extends AbstractService {
     @Autowired
     private ProjectFlowRepository projectFlowRepo;
     @Autowired
-    private Config config;
-    @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
     @Autowired
     private ProjectService projectService;
     @Autowired
-    private DataSetService dataSetService;
+    private DataResourceService dataResourceService;
     @Autowired
     private ProjectFlowService projectFlowService;
     @Autowired
@@ -92,13 +97,14 @@ public class ProjectFlowJobService extends AbstractService {
     private ProjectDataSetService projectDataSetService;
     @Autowired
     private ServiceCheckService serviceCheckService;
+    @Autowired
+    private TableDataSetService tableDataSetService;
+
 
     public static final int MIX_FLOW_PROMOTER_NUM = 2;
 
     /**
      * start flow
-     *
-     * @return jobId
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized String startFlow(StartFlowApi.Input input) throws StatusCodeWithException {
@@ -185,7 +191,7 @@ public class ProjectFlowJobService extends AbstractService {
 
     public boolean isCreator(ProjectFlowMySqlModel flow, ProjectMySqlModel project) {
         return JobMemberRole.promoter == project.getMyRole()
-                && CacheObjects.isCurrentMember(flow.getCreatedBy());
+                && CacheObjects.isCurrentMemberAccount(flow.getCreatedBy());
     }
 
     public JobArbiterInfo calcArbiterInfo(ProjectFlowMySqlModel flow, StartFlowApi.Input input,
@@ -215,6 +221,18 @@ public class ProjectFlowJobService extends AbstractService {
      * Check the effectiveness of the task before starting the task.
      */
     private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project, boolean isOotMode) throws StatusCodeWithException {
+
+        // 深度学习项目独有的检查
+        if (ProjectType.DeepLearning.equals(project.getProjectType())) {
+            DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+            if (StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException("请在 [全局设置 - 计算引擎设置] 中为深度学习设置飞桨可视化服务地址。");
+            }
+        }
+
+
         if (CollectionUtils.isEmpty(graph.getStartNodes())) {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -283,8 +301,13 @@ public class ProjectFlowJobService extends AbstractService {
                     if (projectDataSet.getSourceType() != null) {
                         continue;
                     } else {
-                        TableDataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
-                        if (dataSet == null) {
+                        DataResourceOutputModel resource = dataResourceService.findDataResourceFromLocalOrUnion(
+                                member.getMemberId(),
+                                member.getDataSetId(),
+                                DataResourceMysqlModel.class,
+                                DataResourceOutputModel.class
+                        );
+                        if (resource == null) {
                             throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除或不可见。", StatusCode.PARAMETER_VALUE_INVALID);
                         }
                     }
@@ -486,7 +509,7 @@ public class ProjectFlowJobService extends AbstractService {
             } catch (FlowNodeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new FlowNodeException(node, e.getMessage());
+                throw new FlowNodeException(node, e.getClass() + " " + e.getMessage());
             }
         }
 
@@ -525,7 +548,7 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         for (String dataSetId : dataSetIds) {
-            dataSetService.usageCountInJobIncrement(dataSetId);
+            dataResourceService.usageCountInJobIncrement(dataSetId);
         }
     }
 
@@ -552,10 +575,10 @@ public class ProjectFlowJobService extends AbstractService {
         project.setProjectId(job.getProjectId());
 
         Env env = new Env();
-        env.setBackend(config.getBackend());
-        env.setDbType(config.getDbType());
-        env.setWorkMode(config.getWorkMode());
-        env.setName(config.getEnvName());
+        env.setBackend(super.config.getBackend());
+        env.setDbType(super.config.getDbType());
+        env.setWorkMode(super.config.getWorkMode());
+        env.setName(super.config.getEnvName());
 
         List<JobDataSet> dataSets = listJobDataSets(job, nodes);
 
@@ -847,9 +870,9 @@ public class ProjectFlowJobService extends AbstractService {
                 member.memberRole = item.getMemberRole();
                 member.dataSetId = item.getDataSetId();
 
-                TableDataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
+                TableDataSetOutputModel dataSetInfo = tableDataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
                 if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
+                    member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
                 }
 

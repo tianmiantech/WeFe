@@ -50,10 +50,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
                     input.getPageIndex(),
                     input.getPageSize(),
                     input.getId(),
-                    input.getName(),
-                    input.getHidden(),
-                    input.getFreezed(),
-                    input.getLostContact()
+                    input.getName()
             );
 
             List<MemberQueryOutput> list = page.getList().stream()
@@ -78,9 +75,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
         private String id;
         private String name;
 
-        private Boolean lostContact;
-        private Boolean hidden;
-        private Boolean freezed;
 
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
@@ -101,30 +95,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public Boolean getLostContact() {
-            return lostContact;
-        }
-
-        public void setLostContact(Boolean lostContact) {
-            this.lostContact = lostContact;
-        }
-
-        public Boolean getHidden() {
-            return hidden;
-        }
-
-        public void setHidden(Boolean hidden) {
-            this.hidden = hidden;
-        }
-
-        public Boolean getFreezed() {
-            return freezed;
-        }
-
-        public void setFreezed(Boolean freezed) {
-            this.freezed = freezed;
         }
 
         public Integer getPageIndex() {
