@@ -16,6 +16,14 @@
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
+import java.io.File;
+import java.sql.Connection;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
@@ -35,13 +43,9 @@ import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.sql.Connection;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 /**
  * @author Zane
@@ -191,4 +195,12 @@ public class TableDataSetService extends DataResourceService {
         // save data set column info to database
         dataSetColumnService.update(in.getId(), input.getMetadataList());
     }
+
+
+	public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
+		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
+				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+
+		return tableDataSetRepository.findOne(where).orElse(null);
+	}
 }

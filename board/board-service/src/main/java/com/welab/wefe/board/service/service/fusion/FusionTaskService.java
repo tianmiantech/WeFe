@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.*;
+import com.welab.wefe.board.service.api.project.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -46,6 +47,7 @@ import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -237,6 +239,39 @@ public class FusionTaskService extends AbstractService {
         thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public void restart(AuditApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
+        if (task == null) {
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
+
+        if (!input.getAuditStatus().equals(AuditStatus.agree)) {
+            task.setStatus(FusionTaskStatus.Refuse);
+            task.setComment(input.getAuditComment());
+
+            //callback
+            thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+
+            return;
+        }
+
+        if (ActuatorManager.size() > 0) {
+            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+        }
+
+        switch (task.getAlgorithm()) {
+            case RSA_PSI:
+                psi(input, task);
+                break;
+            default:
+                throw new RuntimeException("Unexpected enumeration values");
+        }
+
+        //callback
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+    }
 
     /**
      * RSA-psi Algorithm to deal with
@@ -432,15 +467,17 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setMemberId(CacheObjects.getMemberId());
         myMemberInfo.setMemberName(CacheObjects.getMemberName());
         myMemberInfo.setRole(model.getMyRole());
-        myMemberInfo.setHashFunction(
-                DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
-                        fieldInfoService.fieldInfoList(
-                                model.getDataResourceId()
-                        ) :
-                        fieldInfoService.fieldInfoList(
-                                model.getBusinessId()
-                        )
-        );
+
+        List<FieldInfo> fieldInfos = DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
+                fieldInfoService.fieldInfoList(
+                        model.getDataResourceId()
+                ) :
+                fieldInfoService.fieldInfoList(
+                        model.getBusinessId()
+                );
+        if (CollectionUtils.isNotEmpty(fieldInfos)) {
+            myMemberInfo.setHashFunction(fieldInfos);
+        }
 
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());

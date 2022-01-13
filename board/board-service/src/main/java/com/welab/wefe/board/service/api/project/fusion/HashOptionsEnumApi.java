@@ -1,3 +1,5 @@
+package com.welab.wefe.board.service.api.project.fusion;
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -14,41 +16,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.task;
 
-import com.welab.wefe.board.service.dto.fusion.FusionTaskOutput;
-import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welab.wefe.common.wefe.enums.HashOptions;
+
+import java.util.EnumSet;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/detail", name = "任务列表", desc = "任务列表")
-public class DetailApi extends AbstractApi<DetailApi.Input, FusionTaskOutput> {
-    @Autowired
-    FusionTaskService fusionTaskService;
+@Api(path = "fusion/hash_options_enum", name = "任务状态", desc = "任务状态")
+public class HashOptionsEnumApi extends AbstractApi<HashOptionsEnumApi.Input, EnumSet<HashOptions>> {
 
     @Override
-    protected ApiResult<FusionTaskOutput> handle(Input input) throws StatusCodeWithException {
-        return success(fusionTaskService.detail(input.id));
+    protected ApiResult<EnumSet<HashOptions>> handle(Input input) throws StatusCodeWithException {
+        EnumSet<HashOptions> hashOptions = EnumSet.allOf(HashOptions.class);
+        return success(hashOptions);
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "指定操作的taskId", require = true)
-        private String id;
 
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
     }
 }

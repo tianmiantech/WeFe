@@ -14,41 +14,44 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.fusion.task;
+package com.welab.wefe.board.service.api.project.fusion.task;
 
-import com.welab.wefe.board.service.service.fusion.FusionTaskService;
+import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/delete", name = "删除任务", desc = "删除任务")
-public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
-    @Autowired
-    FusionTaskService fusionTaskService;
+@Api(path = "fusion/task/info", name = "查询任务进度", desc = "查询任务进度")
+public class InfoApi extends AbstractApi<InfoApi.Input, JObject> {
+
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
-        fusionTaskService.delete(input.id);
-        return success();
+    protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException {
+        return success(ActuatorManager.getTaskInfo(input.getBusinessId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "id", require = true)
-        String id;
+        @Check(name = "指定操作的taskId", require = true)
+        private String businessId;
 
-        public String getId() {
-            return id;
+        //region
+
+
+        public String getBusinessId() {
+            return businessId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setBusinessId(String businessId) {
+            this.businessId = businessId;
         }
+
+        //endregion
     }
 }
