@@ -95,9 +95,7 @@ public class ApiRequestRecordService {
     }
 
     public File downloadFile(DownloadApi.Input input) {
-
-        String fileName = DateUtil.getCurrentDate() + "_调用信息.csv";
-
+        String fileName = DateUtil.getCurrentDate() + "_result.csv";
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())

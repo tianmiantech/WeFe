@@ -47,8 +47,7 @@ public class DownloadApi extends AbstractApi<DownloadApi.Input, ResponseEntity<?
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
-        apiRequestRecordService.downloadFile(input);
-        return null;
+        return file(apiRequestRecordService.downloadFile(input));
     }
 
     public static class Input extends AbstractApiInput {

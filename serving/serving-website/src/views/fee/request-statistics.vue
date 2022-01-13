@@ -285,9 +285,11 @@ export default {
             getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: '匿踪查询',
-                2: '交集查询',
+                2: '安全求交',
                 3: '安全聚合(被查询方)',
                 4: '安全聚合(查询方)',
+                5: '多方安全求交',
+                6: '多方匿踪查询',
             },
             requestResult: {
                 1: '成功',
@@ -357,6 +359,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {

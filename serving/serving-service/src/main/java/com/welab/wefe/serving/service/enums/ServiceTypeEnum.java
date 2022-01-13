@@ -23,13 +23,15 @@ public enum ServiceTypeEnum {
 
     PIR(1, "匿踪查询"),
 
-    MULTI_PIR(2, "多方匿踪查询"),
+    MULTI_PIR(6, "多方匿踪查询"),
 
-    PSI(3, "安全求交"),
+    PSI(2, "安全求交"),
 
-    MULTI_PSI(4, "多方安全求交"),
+    MULTI_PSI(5, "多方安全求交"),
 
-    MULTI_SA(5, "多方安全聚合"),
+    MULTI_SA(4, "安全聚合(查询方)"),
+
+    SA(3, "安全聚合(被查询方)"),
 
 
     ;
