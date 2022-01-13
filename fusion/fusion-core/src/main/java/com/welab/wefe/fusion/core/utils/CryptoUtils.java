@@ -39,6 +39,15 @@ public class CryptoUtils {
         return gen.generateKeyPair();
     }
 
+    public static void main(String[] args) {
+        RSAKeyPairGenerator gen = new RSAKeyPairGenerator();
+        gen.init(new RSAKeyGenerationParameters(new BigInteger("10001", 16), new SecureRandom(),
+                1024, 80));
+
+        System.out.println(gen.generateKeyPair()); ;
+        System.out.println(gen.generateKeyPair().getPrivate()); ;
+        System.out.println(gen.generateKeyPair().getPublic()); ;
+    }
     public static byte[][] sign(AsymmetricCipherKeyPair keyPair, byte[][] query) {
         try {
             RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();

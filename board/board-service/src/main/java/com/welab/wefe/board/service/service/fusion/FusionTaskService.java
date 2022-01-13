@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.*;
+import com.welab.wefe.board.service.api.project.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -239,6 +239,39 @@ public class FusionTaskService extends AbstractService {
         thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public void restart(AuditApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
+        if (task == null) {
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
+
+        if (!input.getAuditStatus().equals(AuditStatus.agree)) {
+            task.setStatus(FusionTaskStatus.Refuse);
+            task.setComment(input.getAuditComment());
+
+            //callback
+            thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+
+            return;
+        }
+
+        if (ActuatorManager.size() > 0) {
+            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+        }
+
+        switch (task.getAlgorithm()) {
+            case RSA_PSI:
+                psi(input, task);
+                break;
+            default:
+                throw new RuntimeException("Unexpected enumeration values");
+        }
+
+        //callback
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+    }
 
     /**
      * RSA-psi Algorithm to deal with

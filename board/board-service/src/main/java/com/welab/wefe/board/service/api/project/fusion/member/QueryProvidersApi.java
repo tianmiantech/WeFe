@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.fusion.member;
+package com.welab.wefe.board.service.api.project.fusion.member;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
