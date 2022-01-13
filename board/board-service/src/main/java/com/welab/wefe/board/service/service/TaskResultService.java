@@ -31,6 +31,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.board.service.api.data_resource.table_data_set.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
@@ -47,7 +48,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.database.repository.TaskResultRepository;
 import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.model.FlowGraph;
@@ -57,7 +58,6 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -520,8 +520,9 @@ public class TaskResultService extends AbstractService {
     /**
      * Find the feature column in the training data set:
      * take the feature column from (DataIO/binning/feature filtering)
+     * @throws StatusCodeWithException 
      */
-    public List<MemberFeatureInfoModel> getMemberFeatures(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
+    public List<MemberFeatureInfoModel> getMemberFeatures(FlowGraph graph, FlowGraphNode node) throws StatusCodeWithException {
         List<NodeOutputItem> nodeOutputItems = node.getComponent().findInputNodes(graph, node);
 
         // There is only one training data set by default,
@@ -549,7 +550,7 @@ public class TaskResultService extends AbstractService {
     }
 
     private List<MemberFeatureInfoModel> getOneHotFeature(FlowGraphNode node, FlowGraph flowGraph)
-            throws FlowNodeException {
+            throws StatusCodeWithException {
         List<MemberFeatureInfoModel> members = new ArrayList<>();
 
         FlowGraphNode dataIONode = flowGraph.findOneNodeFromParent(node, ComponentType.DataIO);
@@ -593,14 +594,12 @@ public class TaskResultService extends AbstractService {
                     DetailApi.Input input = new DetailApi.Input();
                     input.setId(myTmpDataSet.getId());
                     try {
-                        ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(member.getMemberId(),
-                                JobMemberRole.promoter, input, DetailApi.class);
-                        if (apiResult.data != null) {
-                            DataSetOutputModel output = JObject.create(apiResult.data)
-                                    .toJavaObject(DataSetOutputModel.class);
+						TableDataSetOutputModel apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(),
+								DetailApi.class, input, TableDataSetOutputModel.class);
+                        if (apiResult != null) {
                             LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
                             List<String> newColumnNameList = new ArrayList<>(
-                                    Arrays.asList(output.getFeatureNameList().split(",")));
+                                    Arrays.asList(apiResult.getFeatureNameList().split(",")));
                             List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
                             List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
