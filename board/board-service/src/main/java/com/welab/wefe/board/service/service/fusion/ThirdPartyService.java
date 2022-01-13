@@ -69,7 +69,6 @@ public class ThirdPartyService {
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
-                .put("project_id", "test")
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 

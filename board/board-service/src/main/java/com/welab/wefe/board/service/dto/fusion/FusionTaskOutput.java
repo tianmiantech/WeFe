@@ -88,15 +88,18 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     private String description;
 
-    /**
-     * Data set list
-     */
-    private List<TableDataSetOutputModel> dataSetList;
 
-    /**
-     * bloomFilterList
-     */
-    private List<BloomFilterOutputModel> bloomFilterList;
+    public String comment;
+
+//    /**
+//     * Data set list
+//     */
+//    private List<TableDataSetOutputModel> dataSetList;
+//
+//    /**
+//     * bloomFilterList
+//     */
+//    private List<BloomFilterOutputModel> bloomFilterList;
 
 
     public String getBusinessId() {
@@ -213,20 +216,12 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.description = description;
     }
 
-    public List<TableDataSetOutputModel> getDataSetList() {
-        return dataSetList;
+    public String getComment() {
+        return comment;
     }
 
-    public void setDataSetList(List<TableDataSetOutputModel> dataSetList) {
-        this.dataSetList = dataSetList;
-    }
-
-    public List<BloomFilterOutputModel> getBloomFilterList() {
-        return bloomFilterList;
-    }
-
-    public void setBloomFilterList(List<BloomFilterOutputModel> bloomFilterList) {
-        this.bloomFilterList = bloomFilterList;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public boolean isTrace() {
