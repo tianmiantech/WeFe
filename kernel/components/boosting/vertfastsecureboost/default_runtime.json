@@ -6,7 +6,7 @@
   "n_iter_no_change": false,
   "tol": 0.0001,
   "bin_num": 50,
-  "sparse_optimization": true,
+  "sparse_optimization": false,
   "complete_secure": true,
   "run_goss": true,
   "top_rate": 0.2,

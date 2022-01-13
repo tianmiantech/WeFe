@@ -37,8 +37,6 @@ from common.python import session
 from common.python.utils import log_utils
 from kernel.components.boosting import DecisionTree
 from kernel.components.boosting import Node
-from kernel.components.boosting.core.splitinfo_cipher_compressor import PromoterGradHessEncoder, \
-    PromoterSplitInfoDecompressor
 from kernel.components.boosting.core.subsample import goss_sampling
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import CriterionMeta
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import DecisionTreeModelMeta
@@ -49,7 +47,8 @@ from kernel.transfer.variables.transfer_class.vert_decision_tree_transfer_variab
 from kernel.utils import consts
 from kernel.utils.data_util import NoneType
 from kernel.utils.io_check import assert_io_num_rows_equal
-
+from kernel.base.statics import MultivariateStatisticalSummary
+from kernel.components.boosting.core.g_h_optim import GHPacker
 LOGGER = log_utils.get_logger()
 
 
@@ -83,11 +82,10 @@ class VertDecisionTreePromoter(DecisionTree):
         self.top_rate, self.other_rate = 0.2, 0.1  # goss sampling rate
 
         # cipher compressing
-        self.cipher_encoder = None
-        self.cipher_decompressor = None
-        self.run_cipher_compressing = False
-        self.key_length = None
-        self.round_decimal = 7
+        self.task_type = None
+        self.run_cipher_compressing = True
+        self.packer = None
+
         self.max_sample_weight = 1
 
         # code version control
@@ -106,7 +104,6 @@ class VertDecisionTreePromoter(DecisionTree):
                                                                                  self.data_bin.count()))
         if self.run_cipher_compressing:
             LOGGER.info('running cipher compressing')
-            LOGGER.info('round decimal is {}'.format(self.round_decimal))
         LOGGER.info('updated max sample weight is {}'.format(self.max_sample_weight))
 
         if self.deterministic:
@@ -115,14 +112,13 @@ class VertDecisionTreePromoter(DecisionTree):
     def init(self, flowid, runtime_idx, data_bin, bin_split_points, bin_sparse_points, valid_features,
              grad_and_hess,
              encrypter, encrypted_mode_calculator,
+             task_type,
              provider_member_idlist,
              complete_secure=False,
              goss_subsample=False,
              top_rate=0.1,
              other_rate=0.2,
              cipher_compressing=False,
-             encrypt_key_length=None,
-             round_decimal=7,
              max_sample_weight=1,
              new_ver=True):
 
@@ -142,16 +138,12 @@ class VertDecisionTreePromoter(DecisionTree):
         self.other_rate = other_rate
 
         self.run_cipher_compressing = cipher_compressing
-        self.key_length = encrypt_key_length
-        self.round_decimal = round_decimal
         self.max_sample_weight = max_sample_weight
+        self.task_type = task_type
 
         if self.run_goss:
             self.goss_sampling()
             self.max_sample_weight = self.max_sample_weight * ((1 - top_rate) / other_rate)
-
-        if self.run_cipher_compressing:
-            self.init_compressor()
 
         self.new_ver = new_ver
 
@@ -169,21 +161,6 @@ class VertDecisionTreePromoter(DecisionTree):
             return consts.ITERATIVEAFFINE
         else:
             raise ValueError('unknown encrypter type: {}'.format(type(self.encrypter)))
-
-    def init_compressor(self):
-        self.cipher_encoder = PromoterGradHessEncoder(self.encrypter, self.encrypted_mode_calculator,
-                                                      task_type=consts.CLASSIFICATION,
-                                                      round_decimal=self.round_decimal,
-                                                      max_sample_weights=self.max_sample_weight)
-
-        self.cipher_decompressor = PromoterSplitInfoDecompressor(self.encrypter, task_type=consts.CLASSIFICATION,
-                                                                 max_sample_weight=self.max_sample_weight)
-
-        max_capacity_int = self.encrypter.public_key.max_int
-        para = {'max_capacity_int': max_capacity_int, 'en_type': self.get_encrypt_type(),
-                'max_sample_weight': self.max_sample_weight}
-
-        self.transfer_inst.cipher_compressor_para.remote(para, idx=-1)
 
     def set_flowid(self, flowid=0):
         LOGGER.info("set flowid, flowid is {}".format(flowid))
@@ -249,26 +226,32 @@ class VertDecisionTreePromoter(DecisionTree):
         LOGGER.info("set valid features")
         self.valid_features = valid_features
 
-    def process_and_sync_grad_and_hess(self, idx=-1):
+    def init_packer_and_sync_gh(self, idx=-1):
 
         if self.run_cipher_compressing:
-            LOGGER.info('sending encoded g/h to provider')
-            en_grad_hess = self.cipher_encoder.encode_g_h_and_encrypt(self.grad_and_hess)
+
+            g_min, g_max = None, None
+            if self.task_type == consts.REGRESSION:
+                self.grad_and_hess.schema = {'header': ['g', 'h']}
+                statistics = MultivariateStatisticalSummary(self.grad_and_hess, -1)
+                g_min = statistics.get_min()['g']
+                g_max = statistics.get_max()['g']
+
+            self.packer = GHPacker(sample_num=self.grad_and_hess.count(),
+                                   task_type=self.task_type,
+                                   max_sample_weight=self.max_sample_weight,
+                                   en_calculator=self.encrypted_mode_calculator,
+                                   g_min=g_min,
+                                   g_max=g_max)
+            en_grad_hess = self.packer.pack_and_encrypt(self.grad_and_hess)
+
         else:
-            LOGGER.info('sedding g/h to provider')
             en_grad_hess = self.encrypted_mode_calculator.encrypt(self.grad_and_hess)
 
+        LOGGER.info('sending g/h to provider')
         self.transfer_inst.encrypted_grad_and_hess.remote(en_grad_hess,
                                                           role=consts.PROVIDER,
                                                           idx=idx)
-
-        """
-        federation.remote(obj=encrypted_grad_and_hess,
-                          name=self.transfer_inst.encrypted_grad_and_hess.name,
-                          tag=self.transfer_inst.generate_transferid(self.transfer_inst.encrypted_grad_and_hess),
-                          role=consts.PROVIDER,
-                          idx=-1)
-        """
 
     def encrypt_grad_and_hess(self):
         LOGGER.info("start to encrypt grad and hess")
@@ -673,7 +656,7 @@ class VertDecisionTreePromoter(DecisionTree):
 
     def fit(self):
         LOGGER.info("begin to fit promoter decision tree")
-        self.process_and_sync_grad_and_hess()
+        self.init_packer_and_sync_gh()
 
         root_node = self.initialize_root_node()
 
@@ -747,15 +730,11 @@ class VertDecisionTreePromoter(DecisionTree):
 
         best_splits_of_all_providers = []
 
-        if self.run_cipher_compressing:
-            self.cipher_decompressor.renew_decompressor(node_map)
-        cipher_decompressor = self.cipher_decompressor if self.run_cipher_compressing else None
-
         for provider_idx, split_info_table in enumerate(provider_split_info_tables):
             provider_split_info = self.splitter.find_provider_best_split_info(split_info_table,
                                                                               self.get_provider_sitename(provider_idx),
                                                                               self.encrypter,
-                                                                              cipher_decompressor=cipher_decompressor)
+                                                                              gh_packer=self.packer)
             split_info_list = [None for i in range(len(provider_split_info))]
             for key in provider_split_info:
                 split_info_list[node_map[key]] = provider_split_info[key]
