@@ -91,6 +91,12 @@ public class UnionServiceService {
 		if (input.getServiceType() != -1) {
 			params.append("serviceType", input.getServiceType());
 		}
+		if (StringUtils.isNotBlank(input.getMemberName())) {
+			params.append("memberName", input.getMemberName());
+		}
+		if (StringUtils.isNotBlank(input.getServiceName())) {
+			params.append("serviceName", input.getServiceName());
+		}
 		LOG.info("union query params = " + JSONObject.toJSONString(params));
 		return request("member/service/query", params);
 	}
