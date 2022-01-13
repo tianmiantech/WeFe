@@ -71,6 +71,12 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "数据集是否已被删除")
     private boolean deleted;
 
+	public String getDerivedFromCn() {
+		if (derivedFrom != null) {
+			return derivedFrom.getLabel();
+		}
+		return "";
+	}
 
     public String getDataResourceId() {
         return super.getId();
