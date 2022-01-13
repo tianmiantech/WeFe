@@ -139,7 +139,7 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
 
         tree_type, target_provider_id = self.get_tree_plan(epoch_idx)
         self.check_provider_number(tree_type)
-        self.check_run_sp_opt()
+        # self.check_run_sp_opt()
         tree = VertFastDecisionTreeProvider(tree_param=self.tree_param)
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   valid_features=self.sample_valid_features(),
