@@ -77,14 +77,14 @@
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const vData = reactive({
-                activeName: '',
+                activeName: 'unlabeled',
                 sampleId:   route.query.id,
                 forJobType: route.query.for_job_type,
                 search:     {
                     page_index: route.query.page_index || 1,
                     page_size:  route.query.page_size || 20,
                     label:      '',
-                    labeled:    '',
+                    labeled:    false,
                     total:      1,
                 },
                 tabsList: [
@@ -94,12 +94,12 @@
                         count: '',
                     },
                     {
-                        label: '有标注信息',
+                        label: '已标注',
                         name:  'labeled',
                         count: '',
                     },
                     {
-                        label: '无标注信息',
+                        label: '未标注',
                         name:  'unlabeled',
                         count: '',
                     },
