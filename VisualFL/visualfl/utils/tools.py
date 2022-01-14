@@ -30,10 +30,8 @@ def save_data_to_db(task_id,tag,value,step,component_name):
             result = json.loads(model.result)
             data = result.get("data")
 
-        data[step] = dict(value=value, timestamp=current_milli_time)
+        data[int(step)] = dict(value=float(value), timestamp=current_milli_time)
         result.update(data=data)
         dao.save_task_result(task_result=result,component_name=component_name,type=tag)
     except Exception as e:
         logging.error(f"task {task_id} save data to db error {e}")
-
-

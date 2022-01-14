@@ -72,6 +72,16 @@ public class Components {
     @Autowired
     private OotComponent ootComponent;
     @Autowired
+    private FeatureTransformComponent featureTransformComponent;
+    @Autowired
+    private HorzOneHotComponent horzOneHotComponent;
+    @Autowired
+    private VertFilterComponent vertFilterComponent;
+    @Autowired
+    private VertOneHotComponent vertOneHotComponent;
+    @Autowired
+    private VertPCAComponent vertPCAComponent;
+    @Autowired
     private HorzFeatureBinningComponent horzFeatureBinningComponent;
     @Autowired
     private HorzStatisticComponent horzStatisticComponent;
@@ -138,7 +148,17 @@ public class Components {
             case MixStatistic:
                 return Launcher.getBean(Components.class).mixStatisticComponent;
             case Oot:
-                return Launcher.getBean(Components.class).ootComponent;
+                return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case VertFilter:
+                return Launcher.CONTEXT.getBean(Components.class).vertFilterComponent;
+            case FeatureTransform:
+                return Launcher.CONTEXT.getBean(Components.class).featureTransformComponent;
+            case HorzOneHot:
+                return Launcher.CONTEXT.getBean(Components.class).horzOneHotComponent;
+            case VertOneHot:
+                return Launcher.getBean(Components.class).vertOneHotComponent;
+            case VertPCA:
+                return Launcher.getBean(Components.class).vertPCAComponent;
             case HorzFeatureBinning:
                 return Launcher.getBean(Components.class).horzFeatureBinningComponent;
             case HorzStatistic:

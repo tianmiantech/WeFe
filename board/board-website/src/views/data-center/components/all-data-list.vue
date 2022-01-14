@@ -7,12 +7,12 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据资源，请前往
+                您当前没有数据集，请前往
                 <router-link
                     :to="{ path: 'data-add' }"
                     class="ml10"
                 >
-                    添加资源
+                    添加数据集
                     <el-icon class="f12">
                         <elicon-top-right />
                     </el-icon>
@@ -73,9 +73,9 @@
                 <br>
                 样本量：{{ scope.row.row_count }}
                 <br>
-                正例样本数量：{{ scope.row.y_positive_sample_count }}
+                正例样本数量：{{ scope.row.y_positive_example_count }}
                 <br>
-                正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                正例样本比例：{{(scope.row.y_positive_example_ratio * 100).toFixed(1)}}%
             </template>
         </el-table-column>
         <el-table-column
@@ -166,7 +166,7 @@
         },
         data() {
             return {
-                getListApi:    '/table_data_set/query',
+                getListApi:    '/data_set/query',
                 defaultSearch: false,
                 watchRoute:    false,
             };
@@ -182,9 +182,9 @@
                 let message = '此操作将永久删除该条目, 是否继续?';
 
                 const res = await this.$http.get({
-                    url:    '/data_resource/usage_in_project_list',
+                    url:    '/data_set/usage_detail',
                     params: {
-                        dataResourceId: row.id,
+                        dataSetId: row.id,
                     },
                 });
 
@@ -201,9 +201,9 @@
                             return `<a href="${path.href}" target="_blank">${row.name}</a>`;
                         });
 
-                        message = `该数据资源在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
                     } else if (row.usage_count_in_project > 0) {
-                        message = `该数据资源在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
                     }
 
                     this.$confirm('警告', {
@@ -212,7 +212,7 @@
                         message,
                     }).then(async () => {
                         const { code } = await this.$http.post({
-                            url:  '/table_data_set/delete',
+                            url:  '/data_set/delete',
                             data: {
                                 id: row.id,
                             },

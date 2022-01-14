@@ -1,7 +1,6 @@
 /**
  * install 3rd party plugins
  */
-import Konva from 'konva';
 import bus from './eventHub';
 import http from '@src/http/http';
 import CGrid from 'vue-cheetah-grid';
@@ -51,7 +50,6 @@ export default {
             app.component(component.name, component);
         });
         app.component('VirtualList', VirtualList);
-        app.component('Konva', Konva);
         app.use(VueSimpleUploader);
         app.use(VueDragResize);
         app.use(CGrid);

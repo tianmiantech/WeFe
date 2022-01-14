@@ -31,6 +31,7 @@ import argparse
 import importlib
 import os
 import pickle
+import re
 import sys
 import traceback
 
@@ -361,7 +362,6 @@ class TaskExecutor(object):
     @staticmethod
     def get_error_message(exc_value, e: Exception):
         message = str(exc_value)
-
         # convert to CustomBaseException
         if isinstance(e, pickle.PickleError):
             e = PickleError()
@@ -370,7 +370,12 @@ class TaskExecutor(object):
         elif "NaN" in message:
             e = NaNTypeError()
         elif "spark" in message or "Py4J" in message:
-            e = SparkError()
+            pattern = re.compile('raise .*(.*)')
+            result = re.search(pattern, message)
+            if result is not None:
+                e = SparkError(message=result.group(0))
+            else:
+                e = SparkError(message)
         elif isinstance(e, TypeError):
             e = CustomTypeError()
 
