@@ -102,7 +102,7 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
 
         Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
-                .append("enable","1")
+                .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getMemberId())
@@ -153,14 +153,23 @@ public class TableDataSetMongoReop extends AbstractDataSetMongoRepo {
                 skipOperation,
                 limitOperation,
                 sortOperation
-        ).as("data").and(countOperation).as("total");
+        ).as("data").and(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwindMember,
+                unwindTableDataSet,
+                dataResourceMatch,
+                memberMatch,
+                tableDataSetMatch,
+                countOperation
+        ).as("total");
 
         Aggregation aggregation = Aggregation.newAggregation(facetOperation);
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
         Long total = 0L;
-        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
-        if(list != null && !list.isEmpty()){
-            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        List<DataResourceQueryOutput> list = result.getJSONList("data", DataResourceQueryOutput.class);
+        if (list != null && !list.isEmpty()) {
+            total = result.getJSONList("total", JObject.class).get(0).getLongValue("count");
         }
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
