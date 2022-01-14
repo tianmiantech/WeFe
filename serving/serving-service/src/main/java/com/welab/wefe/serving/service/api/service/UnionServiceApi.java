@@ -52,6 +52,7 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 		private List<String> params;
 		private int serviceType; // 服务类型
 		private Date createdTime;// 创建时间
+		private Date updatedTime;// 更新时间
 
 		public String getId() {
 			return id;
@@ -125,6 +126,13 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 			this.createdTime = createdTime;
 		}
 
+		public Date getUpdatedTime() {
+			return updatedTime;
+		}
+
+		public void setUpdatedTime(Date updatedTime) {
+			this.updatedTime = updatedTime;
+		}
 	}
 
 	public static class Input extends PagingInput {

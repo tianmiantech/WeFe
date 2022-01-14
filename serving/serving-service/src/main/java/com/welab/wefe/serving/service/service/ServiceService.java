@@ -258,6 +258,11 @@ public class ServiceService {
 		output.setId(model.getId());
 		output.setParams(model.getQueryParams());
 		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		if (model.getStatus() == 1) {
+			unionServiceService.add2Union(model);
+		} else {
+			unionServiceService.offline2Union(model);
+		}
 		return output;
 	}
 
@@ -271,9 +276,7 @@ public class ServiceService {
 		}
 		model.setStatus(0);
 		serviceRepository.save(model);
-		if (model.getServiceType() == 3) {
-			unionServiceService.offline2Union(model);
-		}
+		unionServiceService.offline2Union(model);
 	}
 
 	public void onlineService(String id) throws StatusCodeWithException {
@@ -286,9 +289,7 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
-		if (model.getServiceType() == 3) {
-			unionServiceService.add2Union(model);
-		}
+		unionServiceService.add2Union(model);
 	}
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)

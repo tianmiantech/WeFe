@@ -21,19 +21,14 @@ package com.welab.wefe.serving.service.enums;
  */
 public enum ServiceTypeEnum {
 
-    PIR(1, "匿踪查询"),
-
+    PIR(1, "两方匿踪查询"),
+    PSI(2, "两方交集查询"),
+    
+    SA(3, "多方安全统计(被查询方)"),
+    MULTI_SA(4, "多方安全统计(查询方)"),
+    
+    MULTI_PSI(5, "多方交集查询"),    
     MULTI_PIR(6, "多方匿踪查询"),
-
-    PSI(2, "安全求交"),
-
-    MULTI_PSI(5, "多方安全求交"),
-
-    MULTI_SA(4, "安全聚合(查询方)"),
-
-    SA(3, "安全聚合(被查询方)"),
-
-
     ;
 
     private int code;
