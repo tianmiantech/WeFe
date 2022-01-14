@@ -1,19 +1,22 @@
-import os
-import shutil
-import urllib.request
+import pymysql
 
-dir = os.path.join(
-    "/Users/zane/data/wefe_file_upload_dir",
-    "download"
-)
+# 打开数据库连接
+db = pymysql.connect(host='10.1.0.120',
+                     port=3306,
+                     user='wefe',
+                     password="ou0sqsTPN!gG",
+                     database='wefe_board_3')
 
-if not os.path.exists(dir):
-    os.makedirs(dir)
+# 使用 cursor() 方法创建一个游标对象 cursor
+cursor = db.cursor()
 
-full_path = os.path.join(
-    dir,
-    "test.zip"
-)
+# 使用 execute()  方法执行 SQL 查询
+cursor.execute("SELECT VERSION()")
 
-url = "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
-urllib.request.urlretrieve(url, full_path)
+# 使用 fetchone() 方法获取单条数据.
+data = cursor.fetchone()
+
+print("Database version : %s " % data)
+
+# 关闭数据库连接
+db.close()

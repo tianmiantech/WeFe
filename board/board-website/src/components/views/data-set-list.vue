@@ -303,7 +303,6 @@
                 oldCheckedList:  [],    // checked list from parent component
                 batchList:       [],
                 isShowData:      false,
-                requestMethod:   'post',
             };
         },
         computed: {

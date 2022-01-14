@@ -35,7 +35,7 @@ public class FusionMemberInfo {
     String dataResourceId;
     String dataResourceName;
     DataResourceType dataResourceType;
-    int rowCount;
+    Long rowCount;
     String hashFunction;
 
 
@@ -87,11 +87,11 @@ public class FusionMemberInfo {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
     }
 

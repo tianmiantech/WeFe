@@ -3,12 +3,21 @@
         class="page"
         shadow="never"
     >
+        <el-alert
+            v-if="vData.status === 'Await'"
+            style="max-width: 400px;margin-bottom:10px;"
+            type="error"
+            effect="dark"
+            title="待协作方审核"
+            :closable="false"
+        />
+
         <h3 class="mb30">新建融合任务</h3>
         <el-form @submit.prevent>
             <el-form-item label="任务名称:" required>
                 <el-input
                     v-model="vData.name"
-                    :disabled="userInfo.member_id === vData.provider"
+                    :disabled="vData.myRole !== 'promoter' || (vData.myRole === 'promoter' && vData.status === 'Await')"
                     show-word-limit
                     maxlength="40"
                     clearable
@@ -17,13 +26,17 @@
             <el-form-item label="任务描述:">
                 <el-input
                     v-model="vData.desc"
+                    :disabled="vData.myRole !== 'promoter' || (vData.myRole === 'promoter' && vData.status === 'Await')"
                     type="textarea"
                     rows="5"
                     clearable
                 />
             </el-form-item>
             <el-form-item label="选择算法:" required>
-                <el-select v-model="vData.algorithm">
+                <el-select
+                    v-model="vData.algorithm"
+                    :disabled="vData.myRole !== 'promoter' || (vData.myRole === 'promoter' && vData.status === 'Await')"
+                >
                     <el-option
                         v-for="alg in vData.algorithms"
                         :key="alg.value"
@@ -35,7 +48,12 @@
 
             <el-form-item v-loading="vData.loading" class="member-list">
                 融合样本:
-                <span v-if="vData.algorithm === 'RSA_PSI'" class="f12 color-danger">当前已选RSA-PSI算法，发起方或协作方至少一方需要选择布隆过滤器资源</span>
+                <span
+                    v-if="vData.algorithm === 'RSA_PSI'"
+                    class="f12 color-danger"
+                >
+                    当前已选RSA-PSI算法，发起方或协作方至少一方需要选择布隆过滤器资源
+                </span>
 
                 <el-form class="el-card p20 flex-form">
                     <!-- promoter -->
@@ -54,7 +72,10 @@
                                 <template v-slot="scope">
                                     <span style="display:none;">{{ scope.row }}</span>
                                     {{ vData.promoter.name }}
-                                    <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'" type="primary">
+                                    <el-tag
+                                        v-if="vData.provider.data_resource_type === 'BloomFilter'"
+                                        type="primary"
+                                    >
                                         bf
                                     </el-tag>
                                     <p class="p-id f12">{{ vData.promoter.data_set_id }}</p>
@@ -71,6 +92,7 @@
                                     <span style="display:none;">{{ scope.row }}</span>
                                     <el-button
                                         v-if="vData.promoter.data_resource_type !== 'BloomFilter'"
+                                        :disabled="vData.myRole !== 'promoter'"
                                         @click="methods.fusionKeyMapsDialog('promoter')"
                                     >
                                         设置
@@ -78,8 +100,15 @@
                                     <p class="mt5">融合公式: {{ vData.promoter.hash_func || '无' }}</p>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" fixed="right">
-                                <el-button type="danger" @click="methods.removeDataSet('promoter')">
+                            <el-table-column
+                                v-if="vData.myRole === 'promoter' && vData.status !== 'Await'"
+                                fixed="right"
+                                label="操作"
+                            >
+                                <el-button
+                                    type="danger"
+                                    @click="methods.removeDataSet('promoter')"
+                                >
                                     移除
                                 </el-button>
                             </el-table-column>
@@ -87,109 +116,77 @@
                     </template>
 
                     <!-- provider -->
-                    <h4 class="mt10 f14">{{ vData.providerList.length > 1 ? '选择' : ''}}协作方:</h4>
+                    <h4 class="mt10 f14">{{ vData.myRole === 'promoter' && vData.providerList.length > 1 ? '选择' : ''}}协作方:</h4>
                     <el-radio-group
-                        v-if="vData.providerList.length > 1"
+                        v-if="vData.myRole === 'promoter' && vData.providerList.length > 1"
                         v-model="vData.provider.member_id"
                     >
                         <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.inviter_name" />
                     </el-radio-group>
                     <p v-else>{{ vData.provider.member_name }} <span style="color:#999;">({{ vData.provider.member_id }})</span></p>
-                    <p v-if="!vData.provider.data_set_id">
+
+                    <div v-if="!vData.provider.data_set_id">
                         <el-button
+                            v-if="vData.myRole === 'promoter'"
                             type="primary"
                             :disabled="vData.providerList.length > 1 && !vData.provider.member_id"
                             @click="methods.addDataResource('provider')"
                         >
                             添加数据资源
                         </el-button>
-                    </p>
-                    <template v-else>
-                        <el-table :data="[{}]" size="mini" border>
-                            <el-table-column label="资源名称:" min-width="200">
-                                <template v-slot="scope">
-                                    <span style="display:none;">{{ scope.row }}</span>
-                                    {{ vData.provider.name }}
-                                    <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'" type="primary">
-                                        bf
-                                    </el-tag>
-                                    <p class="p-id f12">{{ vData.provider.data_set_id }}</p>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="数据量:" width="70">
-                                <template v-slot="scope">
-                                    <span style="display:none;">{{ scope.row }}</span>
-                                    {{ vData.provider.total_data_count }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="融合主键 (可选):" min-width="200">
-                                <template v-slot="scope">
-                                    <span style="display:none;">{{ scope.row }}</span>
-                                    <el-button
-                                        v-if="vData.provider.data_resource_type !== 'BloomFilter' && vData.provider.member_id === userInfo.member_id"
-                                        @click="methods.fusionKeyMapsDialog('provider')"
-                                    >
-                                        设置
-                                    </el-button>
-                                    <p class="mt5">融合公式: {{ vData.provider.hash_func || '无' }}</p>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="操作" fixed="right">
-                                <el-button type="danger" @click="methods.removeDataSet('provider')">
-                                    移除
+                    </div>
+
+                    <el-table
+                        v-else
+                        :data="[{}]"
+                        size="mini"
+                        border
+                    >
+                        <el-table-column label="资源名称:" min-width="200">
+                            <template v-slot="scope">
+                                <span style="display:none;">{{ scope.row }}</span>
+                                {{ vData.provider.name }}
+                                <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'" type="primary">
+                                    bf
+                                </el-tag>
+                                <p class="p-id f12">{{ vData.provider.data_set_id }}</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="数据量:" width="70">
+                            <template v-slot="scope">
+                                <span style="display:none;">{{ scope.row }}</span>
+                                {{ vData.provider.total_data_count }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="融合主键 (可选):" min-width="200">
+                            <template v-slot="scope">
+                                <span style="display:none;">{{ scope.row }}</span>
+                                <el-button
+                                    v-if="vData.provider.data_resource_type !== 'BloomFilter' && vData.provider.member_id === userInfo.member_id"
+                                    @click="methods.fusionKeyMapsDialog('provider')"
+                                >
+                                    设置
                                 </el-button>
-                            </el-table-column>
-                        </el-table>
-                    </template>
+                                <p class="mt5">融合公式: {{ vData.provider.hash_func || '无' }}</p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="vData.myRole === 'promoter' && vData.status !== 'Await'"
+                            fixed="right"
+                            label="操作"
+                        >
+                            <el-button
+                                type="danger"
+                                @click="methods.removeDataSet('provider')"
+                            >
+                                移除
+                            </el-button>
+                        </el-table-column>
+                    </el-table>
                 </el-form>
             </el-form-item>
-            <el-form-item v-if="vData.status !== 'finished'">
-                <el-button
-                    v-if="!vData.id"
-                    type="primary"
-                    :disabled="!vData.promoter.data_set_id && !vData.provider.data_set_id"
-                    @click="methods.submit"
-                >
-                    发起融合
-                </el-button>
-                <!-- provider -->
-                <template v-else-if="vData.status === 'Pending' && userInfo.member_id === vData.provider.member_id">
-                    <el-button
-                        type="primary"
-                        @click="methods.audit($event, true)"
-                    >
-                        审核通过并运行
-                    </el-button>
-                    <el-button
-                        type="danger"
-                        @click="methods.audit($event, false)"
-                    >
-                        拒绝
-                    </el-button>
-                </template>
-                <el-button
-                    v-if="vData.status === 'Refuse'"
-                    type="primary"
-                    @click="methods.submit"
-                >
-                    重新发起融合
-                </el-button>
-                <el-button
-                    v-if="vData.status === 'Interrupt' || vData.status === 'Failure'"
-                    type="primary"
-                    @click="methods.submit"
-                >
-                    重跑任务
-                </el-button>
-                <!-- <el-button
-                    v-if="vData.id && vData.status !== 'running'"
-                    type="danger"
-                    @click="methods.deleteTask"
-                >
-                    删除任务
-                </el-button> -->
-            </el-form-item>
-            <el-form-item v-else>
+
+            <el-form-item v-if="vData.status === 'Running' || vData.status === 'Success' || vData.status === 'Failure' || vData.status === 'Interrupt'">
                 <el-table :data="[{}]">
                     <el-table-column label="进度">
                         <template v-slot="scope">
@@ -211,10 +208,59 @@
                     <el-table-column label="耗时">
                         <template v-slot="scope">
                             <i style="display:none;">{{ scope.row }}</i>
-                            {{ dateLast(spend) }}
+                            {{ vData.task.spend }}
                         </template>
                     </el-table-column>
                 </el-table>
+            </el-form-item>
+
+            <p v-if="vData.status === 'Refuse' && vData.comment" class="color-danger mb10">协作方拒绝原因: {{ vData.comment }}</p>
+
+            <el-form-item>
+                <el-button
+                    v-if="!vData.id"
+                    type="primary"
+                    :disabled="!vData.promoter.data_set_id && !vData.provider.data_set_id"
+                    @click="methods.submit"
+                >
+                    发起融合
+                </el-button>
+                <!-- provider -->
+                <template v-else-if="vData.status === 'Pending' && userInfo.member_id === vData.provider.member_id">
+                    <el-button
+                        type="primary"
+                        @click="methods.audit($event, 'agree')"
+                    >
+                        审核通过并运行
+                    </el-button>
+                    <el-button
+                        type="danger"
+                        @click="methods.audit($event, 'disagree')"
+                    >
+                        拒绝
+                    </el-button>
+                </template>
+                <el-button
+                    v-if="vData.myRole === 'promoter' && vData.status === 'Refuse'"
+                    type="primary"
+                    @click="methods.submit"
+                >
+                    重新发起融合
+                </el-button>
+                <el-button
+                    v-if="vData.status === 'Interrupt' || vData.status === 'Failure'"
+                    type="primary"
+                    @click="methods.submit"
+                >
+                    重跑任务
+                </el-button>
+                <!-- <el-button
+                    v-if="vData.id && vData.status !== 'running'"
+                    type="danger"
+                    @click="methods.deleteTask"
+                >
+                    删除任务
+                </el-button> -->
             </el-form-item>
         </el-form>
 
@@ -272,7 +318,9 @@
             const vData = reactive({
                 id,
                 project_id,
-                myRole:            '',
+                business_id:       '',
+                comment:           '',
+                myRole:            'promoter',
                 loading:           false,
                 name:              '',
                 desc:              '',
@@ -282,7 +330,6 @@
                 created_time:      '',
                 error:             '',
                 status:            '',
-                spend:             '',
                 fusion_count:      0,
                 field_info_list:   [],
                 bloom_filter_list: [],
@@ -313,6 +360,7 @@
                 promoterList: [],
                 providerList: [],
                 currentRole:  '',
+                task:         {},
             });
             const methods = {
                 async getDetail() {
@@ -327,7 +375,9 @@
                         vData.name = data.name;
                         vData.myRole = data.my_role;
                         vData.desc = data.description;
+                        vData.comment = data.comment;
                         vData.algorithm = data.algorithm;
+                        vData.business_id = data.business_id;
                         vData.bloom_filter_list = data.bloom_filter_list;
                         vData.fusion_count = data.fusion_count;
                         vData.created_time = data.created_time;
@@ -335,7 +385,6 @@
                         vData.is_trace = data.is_trace;
                         vData.status = data.status;
                         vData.error = data.error;
-                        vData.spend = data.spend;
                         // promoter
                         vData.promoter.member_id = data.promoter.member_id;
                         vData.promoter.member_name = data.promoter.member_name;
@@ -352,6 +401,11 @@
                         vData.provider.total_data_count = data.provider.row_count;
                         vData.provider.hash_func = data.provider.hash_function;
                         vData.provider.name = data.provider.data_resource_name;
+                        vData.task.spend = data.spend;
+
+                        if(data.status === 'Running' || data.status === 'Success' || data.status === 'Failure' || data.status === 'Interrupt') {
+                            methods.taskInfo();
+                        }
                     }
                 },
                 async getProviders() {
@@ -370,6 +424,18 @@
                         } else {
                             vData.provider = data[0];
                         }
+                    }
+                },
+                async taskInfo() {
+                    const { code, data } = await $http.get({
+                        url:    '/fusion/task/info',
+                        params: {
+                            business_id: vData.business_id,
+                        },
+                    });
+
+                    if(code === 0 && data) {
+                        console.log(data);
                     }
                 },
                 addDataResource(role) {
@@ -464,6 +530,7 @@
                         const { code } = await $http.post({
                             url:  '/fusion/task/audit',
                             data: {
+                                business_id:     vData.business_id,
                                 field_info_list: vData.field_info_list,
                                 row_count:       vData.promoter.total_data_count,
                                 trace_column:    vData.trace_column,
@@ -487,7 +554,7 @@
                 },
                 async submit(event) {
                     const { code } = await $http.post({
-                        url:  '/fusion/task/add',
+                        url:  id ? '/fusion/task/restart' : '/fusion/task/add',
                         data: {
                             project_id,
                             algorithm:                  vData.algorithm,
@@ -521,12 +588,12 @@
                 },
             };
 
-            vData.promoter.member_name = userInfo.value.member_name;
-            vData.promoter.member_id = userInfo.value.member_id;
-            methods.getProviders();
-
             if(id) {
                 methods.getDetail();
+            } else {
+                vData.promoter.member_id = userInfo.value.member_id;
+                vData.promoter.member_name = userInfo.value.member_name;
+                methods.getProviders();
             }
 
             return {

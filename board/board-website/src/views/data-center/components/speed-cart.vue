@@ -73,7 +73,7 @@
                                 <p class="p-id f12">{{ dataset.id }}</p>
                             </el-form-item>
                             <el-form-item>
-                                <span class="f12 mr10">数据资源类型:</span>
+                                <span class="f12 mr10">数据集类型:</span>
                                 <span class="p-id f12 under-line">{{ dataset.data_resource_type }}</span>
                             </el-form-item>
                             <el-form-item>
@@ -115,7 +115,7 @@
                                     <p class="p-id f12">{{ dataset.id }}</p>
                                 </el-form-item>
                                 <el-form-item>
-                                    <span class="f12 mr10">数据资源类型:</span>
+                                    <span class="f12 mr10">数据集类型:</span>
                                     <span class="p-id f12">{{ dataset.data_resource_type }}</span>
                                 </el-form-item>
                                 <el-form-item>
@@ -277,9 +277,9 @@
                 if(loading.value) return;
                 loading = true;
 
-                // 判断是否为同一格式的数据资源 ImageDataSet / TableDataSet
+                // 判断是否为同一格式的数据集 ImageDataSet / TableDataSet
                 if (!isAllEqual(allDataSetList.value)) {
-                    $message.error('项目中的数据资源必须为同一类型的数据');
+                    $message.error('项目中的数据集必须为同一类型的数据');
                     return;
                 } else {
                     projectType.value = allDataSetList.value[0].data_resource_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_resource_type === 'TableDataSet' ? 'MachineLearning' : '';

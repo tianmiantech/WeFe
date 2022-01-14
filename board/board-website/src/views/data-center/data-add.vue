@@ -724,9 +724,9 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addDataType = this.$route.query.type || 'csv';
+            this.addDataType = this.$route.query.type;
 
-            this.search.dataResourceType = this.addDataType === 'csv' ? 'TableDataSet' : this.addDataType === 'img' ? 'ImageDataSet' : this.addDataType;
+            this.search.dataResourceType = this.addDataType;
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }

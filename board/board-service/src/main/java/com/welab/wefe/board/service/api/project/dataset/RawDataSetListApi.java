@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,7 +42,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY, input.forJobType);
         return success(new Output(list));
     }
 
@@ -60,6 +61,9 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         @Check(name = "是否包含Y")
         private Boolean containsY;
+
+        @Check(name = "目标任务类型")
+        private DeepLearningJobType forJobType;
 
         //region getter/setter
 
@@ -101,6 +105,14 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         public void setContainsY(Boolean containsY) {
             this.containsY = containsY;
+        }
+
+        public DeepLearningJobType getForJobType() {
+            return forJobType;
+        }
+
+        public void setForJobType(DeepLearningJobType forJobType) {
+            this.forJobType = forJobType;
         }
 
         //endregion

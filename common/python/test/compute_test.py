@@ -14,6 +14,7 @@
 
 import inspect
 import uuid
+from typing import Union
 
 from common.python import session, Backend, RuntimeInstance
 from common.python.common.consts import FunctionConfig
@@ -30,12 +31,19 @@ class ComputerTest(object):
         compute method test
     """
 
-    def __init__(self, backend_list=[Backend.LOCAL, Backend.SPARK], data_size=2):
+    def __init__(self, backend_list=[Backend.LOCAL, Backend.SPARK], data_size=2,
+                 db_type: Union[str, list] = DBTypes.LMDB):
         self.backend_list = backend_list
         self.current_backend = None
+        self.current_db_type = None
         self.result = {}
         self.prefix = '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   '
         self.data_size = data_size
+        self.db_type = db_type
+        self.init_param_list = []
+        for i in range(len(backend_list)):
+            init_param = {"backend": backend_list[i], "db_type": db_type[i] if isinstance(db_type, list) else db_type}
+            self.init_param_list.append(init_param)
 
     def main(self):
         self.map()
@@ -45,17 +53,19 @@ class ComputerTest(object):
         self.reduce()
         self.join()
 
-    def reset_data(self, backend, multi_dataset=1, diff_count=0):
+    def reset_data(self, backend, multi_dataset=1, diff_count=0, db_type=None):
         RuntimeInstance.SESSION = None
-        session.init(job_id="computer-test", db_type=DBTypes.CLICKHOUSE, backend=backend, options={
+        session.init(job_id="computer-test", db_type=db_type, backend=backend, options={
             "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
             "features_count": 10})
         self.current_backend = backend
+        self.current_db_type = db_type
 
         dataset_list = []
         cur_diff = 0
         for j in range(multi_dataset):
-            datatable = session.table(str(uuid.uuid1()), "wefe_process")
+            p = j + 2
+            datatable = session.table(str(uuid.uuid1()), "wefe_process", partition=p)
             data_list = []
             for i in range(self.data_size - cur_diff):
                 data_list.append((i, i))
@@ -98,7 +108,7 @@ class ComputerTest(object):
         else:
             data = list(dsource.collect())
             data.sort()
-        print(f'{self.prefix}{self.show_current_backend()} call {action_name}:{data}')
+        print(f'{self.prefix}{self.show_current_backend()} {self.current_db_type} call {action_name}:{data}')
 
         if only_record_value:
             value_result = []
@@ -137,14 +147,15 @@ class ComputerTest(object):
         self.result = dict()
 
     def map(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).map(lambda x, y: (x, y + 1))
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).map(
+                lambda x, y: (x, y + 1))
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def map_values(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).mapValues(lambda v: v + 1)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).mapValues(lambda v: v + 1)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -155,8 +166,8 @@ class ComputerTest(object):
                 deal_result.append((f'mp:{item[0]}', f'mp:{item[1]}'))
             return deal_result
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).mapPartitions(_func)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).mapPartitions(_func)
             self.record_data(datatable, get_function_name(), True)
         self.check_result_and_clear()
 
@@ -167,8 +178,8 @@ class ComputerTest(object):
                 deal_result.append((f'mp:{item[0]}', f'mp:{item[1]}'))
             return deal_result
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).mapPartitions2(
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).mapPartitions2(
                 lambda data_list: [(f'mp:{x[0]}', f'mp:{x[1]}') for x in data_list])
             self.record_data(datatable, get_function_name(), only_record_value=True)
         self.check_result_and_clear()
@@ -180,8 +191,8 @@ class ComputerTest(object):
         def _key_func(k):
             return k % 2
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).reduce(_add, _key_func)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).reduce(_add, _key_func)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -189,21 +200,23 @@ class ComputerTest(object):
         def _deal_values(v1, v2):
             return f"v1:{v1},v2:{v2}"
 
-        for backend in self.backend_list:
-            datatable_list = self.reset_data(backend, multi_dataset=2, diff_count=1)
+        for init_param in self.init_param_list:
+            datatable_list = self.reset_data(init_param["backend"], db_type=init_param["db_type"], multi_dataset=2,
+                                             diff_count=1)
             datatable = datatable_list[0].join(datatable_list[1], _deal_values)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def filter(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).filter(lambda x, y: x > 5)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).filter(lambda x, y: x > 5)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def subtract_by_key(self):
-        for backend in self.backend_list:
-            datatable_list = self.reset_data(backend, multi_dataset=2, diff_count=1)
+        for init_param in self.init_param_list:
+            datatable_list = self.reset_data(init_param["backend"], db_type=init_param["db_type"], multi_dataset=2,
+                                             diff_count=1)
             datatable = datatable_list[0].subtractByKey(datatable_list[1])
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
@@ -215,8 +228,8 @@ class ComputerTest(object):
         -------
 
         """
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).glom()
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).glom()
             self.record_data(datatable, get_function_name(), only_record_value=True)
         self.check_result_and_clear()
 
@@ -228,34 +241,36 @@ class ComputerTest(object):
 
         """
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).flatMap(lambda x, y: [(x, y + 1)])
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).flatMap(
+                lambda x, y: [(x, y + 1)])
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def sample(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).sample(0.3, 100)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).sample(0.3, 100)
             print(datatable.count())
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def union(self):
-        for backend in self.backend_list:
-            datatable_list = self.reset_data(backend, multi_dataset=2, diff_count=1)
+        for init_param in self.init_param_list:
+            datatable_list = self.reset_data(init_param["backend"], db_type=init_param["db_type"], multi_dataset=2,
+                                             diff_count=1)
             datatable = datatable_list[0].union(datatable_list[1])
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def count(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).count()
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).count()
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
     def em(self):
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).em()
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).em()
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -266,8 +281,8 @@ class ComputerTest(object):
                 r.append((v, v ** 2, v ** 3))
             return r
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).apply_partitions(f)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).applyPartitions(f)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -279,8 +294,9 @@ class ComputerTest(object):
         def _reduce_func(x, y):
             return x + y
 
-        for backend in self.backend_list:
-            datatable = self.reset_data(backend).map_reduce_partitions(_map_func, _reduce_func)
+        for init_param in self.init_param_list:
+            datatable = self.reset_data(init_param["backend"], db_type=init_param["db_type"]).mapReducePartitions(
+                _map_func, _reduce_func)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -316,4 +332,19 @@ def process_pool_test():
 
 
 if __name__ == '__main__':
-    pass
+    ct = ComputerTest(backend_list=[Backend.LOCAL, Backend.LOCAL], data_size=100,
+                      db_type=[DBTypes.LMDB, DBTypes.LOCAL_FS])
+    ct.map()
+    ct.map_values()
+    ct.apply_partitions()
+    ct.map_partition()
+    ct.map_partition2()
+    ct.reduce()
+    ct.join()
+    ct.glom()
+    ct.map_reduce_partitions()
+    ct.sample()
+    ct.filter()
+    ct.union()
+    ct.subtract_by_key()
+    ct.flat_map()

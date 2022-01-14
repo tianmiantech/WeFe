@@ -67,14 +67,12 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
-                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
                         :key="item.label"
-                        :value="item.value"
-                        :label="item.label"
+                        :value="item.label"
                     />
                 </el-select>
             </el-form-item>
@@ -95,7 +93,7 @@
             </el-form-item>
             <el-form-item
                 v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="样本分类："
+                label="任务类型："
                 label-width="100"
             >
                 <el-select
@@ -120,7 +118,7 @@
                 查询
             </el-button>
             <el-button native-type="submit" class="mb20 fr" @click="checkUploadingData">
-                上传中的数据资源 <i class="el-icon-right"></i>
+                上传中的数据集 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
 
@@ -132,7 +130,7 @@
         />
 
         <el-dialog
-            title="上传中的数据资源"
+            title="上传中的数据集"
             v-model="vData.showUploadingDialog"
             custom-class="dialog-min-width"
             :close-on-click-modal="false"
@@ -214,7 +212,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: '布隆过滤器',
+                        label: 'BloomFilter',
                         value: 'BloomFilter',
                     },
                 ],
