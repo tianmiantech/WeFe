@@ -724,9 +724,9 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.addDataType = this.$route.query.type;
+            this.addDataType = this.$route.query.type || 'csv';
 
-            this.search.dataResourceType = this.addDataType;
+            this.search.dataResourceType = this.addDataType === 'csv' ? 'TableDataSet' : this.addDataType === 'img' ? 'ImageDataSet' : this.addDataType;
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
@@ -1127,7 +1127,7 @@
                     params = {
                         ...this.form,
                         field_info_list,
-                        hash_function:        $ref.formula,
+                        hash_function:        $ref.hash_func,
                         BloomfilterAddMethod: this.form.data_set_add_method,
                     };
                 } else {

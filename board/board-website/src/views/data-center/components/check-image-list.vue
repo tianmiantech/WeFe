@@ -92,7 +92,7 @@
             .r_btn {
                 font-size: 13px;
                 cursor: pointer;
-                .el-icon:first-child {
+                .el-icon-edit-outline {
                     margin-right: 7px;
                 }
             }

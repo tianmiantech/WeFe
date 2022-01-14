@@ -401,7 +401,8 @@
                         vData.provider.total_data_count = data.provider.row_count;
                         vData.provider.hash_func = data.provider.hash_function;
                         vData.provider.name = data.provider.data_resource_name;
-                        vData.task.spend = data.spend;
+
+                        methods.timeSpend(data.spend);
 
                         if(data.status === 'Running' || data.status === 'Success' || data.status === 'Failure' || data.status === 'Interrupt') {
                             methods.taskInfo();
@@ -437,6 +438,13 @@
                     if(code === 0 && data) {
                         console.log(data);
                     }
+                },
+                timeSpend(milliseconds) {
+                    const seconds = milliseconds / 1000;
+                    const secs = seconds % 60;
+
+                    console.log(seconds, secs);
+                    vData.task.spend = 0;
                 },
                 addDataResource(role) {
                     const $ref = fusionDataResourcesRef.value;
