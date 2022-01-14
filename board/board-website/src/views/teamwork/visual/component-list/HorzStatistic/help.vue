@@ -1,7 +1,7 @@
 <template>
     <CommonHelp>
         <template #intro>
-            对数据集的特征进行统计，并输出统计结果。
+            对数据资源的特征进行统计，并输出统计结果。
         </template>
         <template #params>
             <code>选择特征</code>
@@ -12,7 +12,7 @@
         <template #desc />
 
         <template #output>
-            数据集统计报告
+            数据资源统计报告
         </template>
         <template #error-tip />
     </CommonHelp>
