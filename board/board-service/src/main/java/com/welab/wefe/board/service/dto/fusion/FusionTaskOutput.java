@@ -59,7 +59,7 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
 
     @Check(name = "Number of rows of data resources")
-    int rowCount;
+    Long rowCount;
 
     String partnerDataResourceId;
 
@@ -68,7 +68,7 @@ public class FusionTaskOutput extends AbstractOutputModel {
     DataResourceType partnerDataResourceType;
 
     @Check(name = "Number of rows of data resources")
-    public int partnerRowCount;
+    public Long partnerRowCount;
 
     @Check(name = "Whether the trace")
     public boolean isTrace;
@@ -90,16 +90,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
 
     public String comment;
-
-//    /**
-//     * Data set list
-//     */
-//    private List<TableDataSetOutputModel> dataSetList;
-//
-//    /**
-//     * bloomFilterList
-//     */
-//    private List<BloomFilterOutputModel> bloomFilterList;
 
 
     public String getBusinessId() {
@@ -159,12 +149,20 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
+    }
+
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
     }
 
     public PSIActuatorRole getPsiActuatorRole() {
@@ -183,13 +181,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.algorithm = algorithm;
     }
 
-    public int getPartnerRowCount() {
-        return partnerRowCount;
-    }
-
-    public void setPartnerRowCount(int partnerRowCount) {
-        this.partnerRowCount = partnerRowCount;
-    }
 
     public int getFusionCount() {
         return fusionCount;

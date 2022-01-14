@@ -96,7 +96,17 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of fusion
      */
-    public int fusionCount;
+    public Long fusionCount;
+
+    /**
+     * Number of fusion
+     */
+    public Long processedCount;
+
+    /**
+     * Number of fusion
+     */
+    public Long dataCount;
 
     public long spend;
 
@@ -225,11 +235,11 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     }
 
 
-    public int getFusionCount() {
+    public Long getFusionCount() {
         return fusionCount;
     }
 
-    public void setFusionCount(int fusionCount) {
+    public void setFusionCount(Long fusionCount) {
         this.fusionCount = fusionCount;
     }
 
@@ -271,5 +281,21 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setParnterRowCount(Long parnterRowCount) {
         this.parnterRowCount = parnterRowCount;
+    }
+
+    public Long getProcessedCount() {
+        return processedCount;
+    }
+
+    public void setProcessedCount(Long processedCount) {
+        this.processedCount = processedCount;
+    }
+
+    public Long getDataCount() {
+        return dataCount;
+    }
+
+    public void setDataCount(Long dataCount) {
+        this.dataCount = dataCount;
     }
 }

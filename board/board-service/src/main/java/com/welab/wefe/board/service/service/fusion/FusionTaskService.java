@@ -107,14 +107,16 @@ public class FusionTaskService extends AbstractService {
         return fusionTaskRepository.findOne(where).isPresent() ? fusionTaskRepository.findOne(where).get() : null;
     }
 
-    public void updateByBusinessId(String businessId, FusionTaskStatus status, Integer count, long spend) throws StatusCodeWithException {
+    public void updateByBusinessId(String businessId, FusionTaskStatus status, Long dataCount, Long fusionCount, Long processedCount, long spend) throws StatusCodeWithException {
         FusionTaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
             throw new StatusCodeWithException("task does not exist，businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
-        model.setFusionCount(count);
+        model.setFusionCount(fusionCount);
+        model.setDataCount(dataCount);
+        model.setProcessedCount(processedCount);
         model.setSpend(spend);
         fusionTaskRepository.save(model);
     }
@@ -294,11 +296,6 @@ public class FusionTaskService extends AbstractService {
      */
     private void psiClient(AuditApi.Input input, FusionTaskMySqlModel task) throws StatusCodeWithException {
 
-//        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
-//        if (dataSet == null) {
-//            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
-//        }
-
         //Add fieldInfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
@@ -314,7 +311,9 @@ public class FusionTaskService extends AbstractService {
                 task.getDataResourceId(),
                 input.getTrace(),
                 input.getTraceColumn(),
-                task.getDstMemberId()
+                task.getDstMemberId(),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getParnterRowCount()
         );
 
         ActuatorManager.set(client);
@@ -347,43 +346,19 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-//
-//        BigInteger N = new BigInteger("146167375152084793681454802679848639178224348966309619052798488909082307110902445595724341286608959925801829756525526243684536115856528805020439965613516355067753856475629524304268915399502745195831856710907661535868988721331189916736238540712398051680091965455756603260140826492895494853907634504720747245633");
-//        BigInteger e = new BigInteger("65537");
-//        BigInteger d = new BigInteger("19889843166551599707817170915649025194796904711560632661135799992236385779254894331792265065443622756890012020212927705588884036211735720023380435682764524449631974370220019402021038164175570368177776959055309765000696946731304849785712081220896277458221633983822452333249197209907929579769680795368625751585");
-//
-//        File file = new File("/Users/hunter.zhao/Documents/tel.txt");
-//        String[] s = new String[0];
-//        try {
-//            s = FileUtil.readAllText(file).split(System.lineSeparator());
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-//
-//        BloomFilters bf = new BloomFilters(0.001, s.length);
-//        for (int i = 0; i < s.length; i++){
-//
-//            BigInteger h = PSIUtils.stringToBigInteger(String.valueOf(s[i]));
-//            BigInteger z = h.modPow(d, N);
-//
-//            bf.add(z);
-//        }
-
         /**
          * Generate the corresponding task handler
          */
         ServerActuator server = new ServerActuator(
                 task.getBusinessId(),
-//bf ,
-//N,
-//e,
-//d
                 BloomFilterUtils.readFrom(
                         Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
                 ),
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD())
+                new BigInteger(bf.getRsaD()),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getParnterRowCount()
         );
 
         ActuatorManager.set(server);
@@ -402,14 +377,25 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "Non providers do not receive creation requests");
         }
 
-        if (PSIActuatorRole.server.equals(input.getPsiActuatorRole()) && input.getRowCount() <= 0) {
-            throw new StatusCodeWithException("The required parameter is missing", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
         //Add tasks
         FusionTaskMySqlModel model = ModelMapper.map(input, FusionTaskMySqlModel.class);
         model.setStatus(FusionTaskStatus.Pending);
         model.setMyRole(JobMemberRole.provider);
+
+        //getDataResource row count
+        if (DataResourceType.TableDataSet.equals(input.getDataResourceType())) {
+            TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(model.getDataResourceId());
+            if (tableDataSet == null) {
+                throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+            model.setRowCount(tableDataSet.getTotalDataCount());
+        } else {
+            BloomFilterMysqlModel bloomFilter = bloomFilterService.findOne(model.getDataResourceId());
+            if (bloomFilter == null) {
+                throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+            model.setRowCount(bloomFilter.getTotalDataCount());
+        }
 
         fusionTaskRepository.save(model);
 
@@ -433,15 +419,6 @@ public class FusionTaskService extends AbstractService {
                 .stream()
                 .map(x -> ModelMapper.map(x, FusionTaskOutput.class))
                 .collect(Collectors.toList());
-
-//        list.forEach(x -> {
-//            try {
-//          //      setName(x);
-////                setDataResouceList(x);
-//            } catch (StatusCodeWithException e) {
-//                LOG.error("设置名称出错", e);
-//            }
-//        });
 
         return PagingOutput.of(page.getTotal(), list);
     }
@@ -502,46 +479,6 @@ public class FusionTaskService extends AbstractService {
     }
 
     /**
-     * Finding data resources
-     *
-     * @param model
-     * @throws StatusCodeWithException
-     */
-//    private void setDataResouceList(TaskOutput model) throws StatusCodeWithException {
-//
-//        if (model.getDataResourceType() == null) {
-//            return;
-//        }
-//
-//        if (DataResourceType.BloomFilter.equals(model.getDataResourceType())) {
-//            BloomfilterOutputModel bf = ModelMapper.map(
-//                    bloomFilterService.findById(model.getDataResourceId()),
-//                    BloomfilterOutputModel.class);
-//
-//            model.setBloomFilterList(Arrays.asList(bf));
-//        } else {
-//            DataSetOutputModel dataSet = ModelMapper.map(
-//                    dataSetRepository.findOne("id", model.getDataResourceId(), TableDataSetMysqlModel.class),
-//                    DataSetOutputModel.class);
-//
-//            model.setDataSetList(Arrays.asList(dataSet));
-//        }
-//    }
-
-    /**
-     * Find partners
-     *
-     * @param model
-     * @throws StatusCodeWithException
-     */
-//    private void setPartnerList(TaskOutput model) throws StatusCodeWithException {
-//        PartnerOutputModel partner = ModelMapper.map(partnerService.findByPartnerId(model.getPartnerId()),
-//                PartnerOutputModel.class);
-//
-//        model.setPartnerList(Arrays.asList(partner));
-//    }
-
-    /**
      * Delete the data
      */
     @Transactional(rollbackFor = Exception.class)
@@ -551,8 +488,4 @@ public class FusionTaskService extends AbstractService {
         fusionTaskRepository.deleteById(id);
     }
 
-
-    public static void main(String[] args) {
-
-    }
 }
