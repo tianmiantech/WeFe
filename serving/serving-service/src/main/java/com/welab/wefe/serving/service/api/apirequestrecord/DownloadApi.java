@@ -37,7 +37,7 @@ import java.io.IOException;
  * @author ivenn.zheng
  * @date 2022/1/12
  */
-@Api(path = "apirequestrecord/download", name = "download the api request records", login = false)
+@Api(path = "apirequestrecord/download", name = "download the api request records")
 public class DownloadApi extends AbstractApi<DownloadApi.Input, ResponseEntity<?>> {
 
 
