@@ -55,8 +55,6 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         self.self_provider_id = -1
         self.use_promoter_feat_when_predict = False
 
-        # self.tree_node = []  # keep tree structure for faster node dispatch
-        self.sample_leaf_pos = None  # record leaf position of samples
 
     """
     Setting
@@ -178,10 +176,6 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                                                        sparse_opt=self.run_sparse_opt, hist_sub=True,
                                                        bin_num=self.bin_num)
 
-            if self.run_cipher_compressing:
-                self.cipher_compressor.renew_compressor(node_sample_count, node_map)
-            cipher_compressor = self.cipher_compressor if self.run_cipher_compressing else None
-
             split_info_table = self.splitter.provider_prepare_split_points(histograms=acc_histograms,
                                                                            use_missing=self.use_missing,
                                                                            valid_features=self.valid_features,
@@ -192,7 +186,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                                                                            self.missing_dir_mask_right[dep],
                                                                            mask_id_mapping=self.fid_bid_random_mapping,
                                                                            batch_size=self.bin_num,
-                                                                           cipher_compressor=cipher_compressor,
+                                                                           cipher_compressor=self.cipher_compressor,
                                                                            shuffle_random_seed=np.abs(
                                                                                hash((dep, batch)))
                                                                            )
@@ -268,7 +262,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                 if self.feature_importance_type == 'split':
                     self.update_feature_importance(split_info[i], record_site_name=False)
 
-            self.tree_node.append(self.tree_node_queue[i])
+            self.tree_.append(self.tree_node_queue[i])
 
         self.tree_node_queue = new_tree_node_queue
 
@@ -284,30 +278,12 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         bid = tree_[nodeid].bid
 
         if not dense_format:
-            if not use_missing:
-                if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                    return 1, tree_[nodeid].left_nodeid
-                else:
-                    return 1, tree_[nodeid].right_nodeid
-            else:
-                missing_dir = tree_[nodeid].missing_dir
-                missing_val = False
-                if zero_as_missing:
-                    if value[0].features.get_data(fid, None) is None or \
-                            value[0].features.get_data(fid) == NoneType():
-                        missing_val = True
-                elif use_missing and value[0].features.get_data(fid) == NoneType():
-                    missing_val = True
-                if missing_val:
-                    if missing_dir == 1:
-                        return 1, tree_[nodeid].right_nodeid
-                    else:
-                        return 1, tree_[nodeid].left_nodeid
-                else:
-                    if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                        return 1, tree_[nodeid].left_nodeid
-                    else:
-                        return 1, tree_[nodeid].right_nodeid
+
+            next_layer_nid = VertFastDecisionTreeProvider.go_next_layer(tree_[nodeid], value[0], use_missing,
+                                                                      zero_as_missing, bin_sparse_points)
+
+            return 1, next_layer_nid
+
         else:
             # this branch is for fast histogram
             # will get scipy sparse matrix if using fast histogram
@@ -327,7 +303,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
     def provider_local_assign_instances_to_new_node(self):
 
         assign_node_method = functools.partial(self.provider_assign_an_instance,
-                                               tree_=self.tree_node,
+                                               tree_=self.tree_,
                                                bin_sparse_points=self.bin_sparse_points,
                                                use_missing=self.use_missing,
                                                zero_as_missing=self.zero_as_missing,
@@ -360,7 +336,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
     def sync_leaf_nodes(self):
         leaves = []
-        for node in self.tree_node:
+        for node in self.tree_:
             if node.is_leaf:
                 leaves.append(node)
         to_send_leaves = copy.deepcopy(leaves)
@@ -379,7 +355,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
         # remove g/h info and rename leaves
 
-        for node in self.tree_node:
+        for node in self.tree_:
             node.sum_grad = None
             node.sum_hess = None
             if node.is_leaf:
@@ -392,26 +368,32 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
     def convert_bin_to_real(self):
         LOGGER.info("convert tree node bins to real value")
-        for i in range(len(self.tree_node)):
-            if self.tree_node[i].is_leaf is True:
+        for i in range(len(self.tree_)):
+            if self.tree_[i].is_leaf is True:
                 continue
-            if self.tree_node[i].sitename == self.sitename:
-                fid = self.decode("feature_idx", self.tree_node[i].fid, split_maskdict=self.split_maskdict)
-                bid = self.decode("feature_val", self.tree_node[i].bid, self.tree_node[i].id, self.split_maskdict)
-                real_splitval = self.encode("feature_val", self.bin_split_points[fid][bid], self.tree_node[i].id)
-                self.tree_node[i].bid = real_splitval
+            if self.tree_[i].sitename == self.sitename:
+                fid = self.decode("feature_idx", self.tree_[i].fid, split_maskdict=self.split_maskdict)
+                bid = self.decode("feature_val", self.tree_[i].bid, self.tree_[i].id, self.split_maskdict)
+                real_splitval = self.encode("feature_val", self.bin_split_points[fid][bid], self.tree_[i].id)
+                self.tree_[i].bid = real_splitval
 
     def convert_bin_to_real2(self):
         """
         convert current bid in tree nodes to real value
         """
-        for node in self.tree_node:
+        for node in self.tree_:
             if not node.is_leaf:
                 node.bid = self.bin_split_points[node.fid][node.bid]
 
     """
     Mix Mode
     """
+
+    def sync_en_g_sum_h_sum(self):
+
+        gh_list = self.transfer_inst.encrypted_grad_and_hess.get(idx=0, suffix='ghsum')
+        g_sum, h_sum = gh_list
+        return g_sum, h_sum
 
     def mix_mode_fit(self):
 
@@ -426,8 +408,8 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
         LOGGER.debug('use local provider feature to build tree')
 
-        self.sync_encrypted_grad_and_hess()
-        root_sum_grad, root_sum_hess = self.get_grad_hess_sum(self.grad_and_hess)
+        self.init_compressor_and_sync_gh()
+        root_sum_grad, root_sum_hess = self.sync_en_g_sum_h_sum()
         self.node_dispatch = self.dispatch_all_node_to_root(self.data_bin, root_node_id=0)  # root node id is 0
 
         self.tree_node_queue = [Node(id=0, sitename=self.sitename, sum_grad=root_sum_grad, sum_hess=root_sum_hess, )]
@@ -518,7 +500,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         if not self.use_promoter_feat_when_predict and str(self.target_provider_id) == self.self_provider_id:
             LOGGER.info('predicting using local nodes')
             traverse_tree = functools.partial(self.provider_local_traverse_tree,
-                                              tree_node=self.tree_node,
+                                              tree_node=self.tree_,
                                               use_missing=self.use_missing,
                                               zero_as_missing=self.zero_as_missing, )
             leaf_nodes = data_inst.mapValues(traverse_tree, need_send=True)
@@ -540,7 +522,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
         self.initialize_node_plan()
 
-        self.sync_encrypted_grad_and_hess()
+        self.init_compressor_and_sync_gh()
 
         for dep in range(self.max_depth):
 

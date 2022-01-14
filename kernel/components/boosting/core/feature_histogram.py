@@ -394,7 +394,7 @@ class FeatureHistogram(object):
         return new_hist
 
     @staticmethod
-    def _host_histogram_cumsum_map_func(v):
+    def _provider_histogram_cumsum_map_func(v):
 
         fid, histograms = v
         new_value = (fid, FeatureHistogram._dtable_histogram_cumsum(histograms))
@@ -507,7 +507,7 @@ class FeatureHistogram(object):
             unleaf_state, nodeid = nodeid_state
             if unleaf_state == 0 or nodeid not in node_map:
                 continue
-            g, h = value[1]  # encrypted text in host, plaintext in guest
+            g, h = value[1]  # encrypted text in provider, plaintext in guest
             data_bins.append(data_bin)  # features
             node_ids.append(nodeid)  # current node position
             grad.append(g)
@@ -604,7 +604,7 @@ class FeatureHistogram(object):
 
     @staticmethod
     def _construct_table(histograms_table):
-        histograms_table = histograms_table.mapValues(FeatureHistogram._host_histogram_cumsum_map_func)
+        histograms_table = histograms_table.mapValues(FeatureHistogram._provider_histogram_cumsum_map_func)
         return histograms_table
 
     """
@@ -649,7 +649,7 @@ class FeatureHistogram(object):
                                            sibling_node_id_map=sibling_node_id_map,
                                            inverse_map=FeatureHistogram._inverse_node_map(node_map))
 
-        histogram_table = histogram_table.mapPartitions(transform_func, use_previous_behavior=False)
+        histogram_table = histogram_table.mapPartitions2(transform_func, use_previous_behavior=False)
 
         return histogram_table
 
@@ -1046,5 +1046,5 @@ class FeatureHistogram(object):
 
         LOGGER.debug('joining parent and son histogram tables')
         parent_and_son_hist_table = self._prev_layer_dtable.join(histograms, lambda v1, v2: (v1, v2))
-        result = parent_and_son_hist_table.mapPartitions(FeatureHistogram._table_hist_sub, use_previous_behavior=False)
+        result = parent_and_son_hist_table.mapPartitions2(FeatureHistogram._table_hist_sub, use_previous_behavior=False)
         return result

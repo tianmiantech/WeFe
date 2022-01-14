@@ -139,7 +139,6 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
 
         tree_type, target_provider_id = self.get_tree_plan(epoch_idx)
         self.check_provider_number(tree_type)
-        # self.check_run_sp_opt()
         tree = VertFastDecisionTreeProvider(tree_param=self.tree_param)
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   valid_features=self.sample_valid_features(),
@@ -151,8 +150,7 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
                   goss_subsample=self.enable_goss,
                   bin_num=self.bin_num,
                   complete_secure=True if (self.complete_secure and epoch_idx == 0) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
+                  cipher_compressing=self.cipher_compressing,
                   new_ver=self.new_ver
                   )
 
@@ -199,9 +197,9 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
         for i in range(len(trees)):
 
             tree = trees[i]
-            if len(tree.tree_node) == 0:  # this tree belongs to other party because it has no tree node
+            if len(tree.tree_) == 0:  # this tree belongs to other party because it has no tree node
                 continue
-            leaf_id = tree.provider_local_traverse_tree(sample, tree.tree_node, use_missing=tree.use_missing,
+            leaf_id = tree.provider_local_traverse_tree(sample, tree.tree_, use_missing=tree.use_missing,
                                                         zero_as_missing=tree.zero_as_missing)
             node_pos[i] = leaf_id
 

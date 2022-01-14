@@ -381,7 +381,7 @@ class VertSecureBoostingPromoter(BoostingTree):
 
         reach_leaf = False
         # only need nid here, predict state is not needed
-        rs = tree.traverse_tree(tree_=tree.tree_node, data_inst=sample, predict_state=(cur_node_idx, -1),
+        rs = tree.traverse_tree(tree_=tree.tree_, data_inst=sample, predict_state=(cur_node_idx, -1),
                                 decoder=tree.decode, sitename=tree.sitename, use_missing=tree.use_missing,
                                 split_maskdict=tree.split_maskdict, missing_dir_maskdict=tree.missing_dir_maskdict,
                                 return_leaf_id=True)
@@ -448,7 +448,7 @@ class VertSecureBoostingPromoter(BoostingTree):
         # finally node pos will hold weights
         weights = []
         for leaf_idx, tree in zip(leaf_pos, trees):
-            weights.append(tree.tree_node[leaf_idx].weight)
+            weights.append(tree.tree_[leaf_idx].weight)
         weights = np.array(weights)
         if multi_class_num > 2:
             weights = weights.reshape((-1, multi_class_num))

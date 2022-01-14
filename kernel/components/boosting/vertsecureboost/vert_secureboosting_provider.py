@@ -84,8 +84,7 @@ class VertSecureBoostingProvider(BoostingTree):
 
         self.complete_secure = False
         self.enable_goss = False
-        # self.cipher_compressing = False
-        # self.max_sample_weight = None
+
         self.cipher_compressing = False
         self.new_ver = True
 
@@ -284,7 +283,7 @@ class VertSecureBoostingProvider(BoostingTree):
         nid, _ = tree.traverse_tree(predict_state=(cur_node_idx, -1), data_inst=sample,
                                     decoder=tree.decode, split_maskdict=tree.split_maskdict,
                                     missing_dir_maskdict=tree.missing_dir_maskdict, sitename=tree.sitename,
-                                    tree_=tree.tree_node, zero_as_missing=tree.zero_as_missing,
+                                    tree_=tree.tree_, zero_as_missing=tree.zero_as_missing,
                                     use_missing=tree.use_missing)
 
         return nid, _
@@ -345,24 +344,6 @@ class VertSecureBoostingProvider(BoostingTree):
             return
 
         self.boosting_fast_predict(processed_data, trees=trees)
-
-    # def predict(self, data_inst, predict_param=None):
-    #     LOGGER.info("start predict")
-    #     data_inst = self.data_alignment(data_inst)
-    #     rounds = len(self.trees_) // self.tree_dim
-    #     predict_start_round = self.sync_predict_start_round()
-    #     for i in range(predict_start_round, rounds):
-    #         # n_tree = self.trees_[i]
-    #         for tidx in range(self.tree_dim):
-    #             tree_inst = VertDecisionTreeProvider(self.tree_param)
-    #             tree_inst.load_model(self.tree_meta, self.trees_[i * self.tree_dim + tidx])
-    #             # tree_inst.set_tree_model(self.trees_[i * self.tree_dim + tidx])
-    #             tree_inst.set_flowid(self.generate_flowid(i, tidx))
-    #             tree_inst.set_runtime_idx(self.component_properties.local_member_id)
-    #
-    #             tree_inst.predict(data_inst)
-    #
-    #     LOGGER.info("end predict")
 
     def get_model_meta(self):
         model_meta = BoostingTreeModelMeta()
