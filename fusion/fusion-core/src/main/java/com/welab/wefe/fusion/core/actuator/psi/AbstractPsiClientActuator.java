@@ -38,11 +38,12 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
 
     private PsiActuatorMeta psiClientMeta;
 
-    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
+    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, Long dataCount) {
         super(businessId);
         this.dataSetId = dataSetId;
         this.isTrace = isTrace;
         this.traceColumn = traceColumn;
+        this.dataCount = dataCount;
     }
 
     /**

@@ -16,10 +16,12 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
@@ -36,19 +38,25 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
     protected BigInteger d;
     protected BigInteger e;
 
-    public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d) {
+    public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, Long dataCount) {
         super(businessId);
         this.n = n;
         this.e = e;
         this.d = d;
         this.bf = bloomFilters;
+        this.dataCount = dataCount;
     }
 
     public PsiActuatorMeta getActuatorParam() {
         return PsiActuatorMeta.of(e, n, bf);
     }
 
-    public byte[][] compute(List<String> bsList) {
+    public byte[][] compute(List<String> bsList) throws StatusCodeWithException {
+
+        if (processedCount.longValue() >= dataCount) {
+            status = PSIActuatorStatus.falsify;
+            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, PSIActuatorStatus.falsify.description());
+        }
         LOG.info("align start...");
 
         byte[][] bs = new byte[bsList.size()][];
@@ -57,6 +65,8 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
         for (int i = 0; i < bsList.size(); i++) {
             bs[i] = Base64Util.base64ToByteArray(bsList.get(i));
         }
+
+        processedCount.add(bsList.size());
 
         try {
 
@@ -75,6 +85,8 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
      * @param rs
      */
     public void receiveResult(List<String> rs) {
+
+        fusionCount.add(rs.size());
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {

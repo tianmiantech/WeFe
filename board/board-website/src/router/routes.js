@@ -12,6 +12,7 @@
  * @param {meta: title} String                   menu title
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
+ * @param {meta: notshowattag} Boolean           not show this page at tag bar
  */
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
@@ -60,7 +61,7 @@ const baseRoutes = [
                 name: 'union-data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/union-data-list'),
             },
@@ -70,7 +71,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}union-data-list`,
                 },
                 component: () => import('../views/data-center/union-data-view'),
@@ -80,7 +81,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}data-center`,
         meta: {
-            title: '数据中心',
+            title: '资源中心',
             icon:  'coin',
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -90,15 +91,26 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '我的数据集',
+                    title:           '我的资源',
                 },
                 component: () => import('../views/data-center/data-list'),
+            },
+            {
+                path: `${prefixPath}data-add-transition`,
+                name: 'data-add-transition',
+                meta: {
+                    title: '添加资源',
+                },
+                component: () => import('../views/data-center/data-add-transition.vue'),
             },
             {
                 path: `${prefixPath}data-add`,
                 name: 'data-add',
                 meta: {
-                    title: '添加数据集',
+                    hidden:       true,
+                    notshowattag: true,
+                    title:        '添加资源',
+                    active:       `${prefixPath}data-add-transition`,
                 },
                 component: () => import('../views/data-center/data-add.vue'),
             },
@@ -106,7 +118,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-view`,
                 name: 'data-view',
                 meta: {
-                    title:  '查看数据集',
+                    title:  '查看数据资源',
                     hidden: true,
                     active: `${prefixPath}data-list`,
                 },
@@ -117,10 +129,30 @@ const baseRoutes = [
                 name: 'data-update',
                 meta: {
                     hidden: true,
-                    title:  '编辑数据集',
+                    title:  '编辑数据资源',
                     active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-update.vue'),
+            },
+            {
+                path: `${prefixPath}data-check-label`,
+                name: 'data-check-label',
+                meta: {
+                    hidden: true,
+                    title:  '查看与标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-check-label.vue'),
+            },
+            {
+                path: `${prefixPath}data-label`,
+                name: 'data-label',
+                meta: {
+                    hidden: true,
+                    title:  '数据标注',
+                    active: `${prefixPath}data-list`,
+                },
+                component: () => import('../views/data-center/data-label.vue'),
             },
         ],
     },
@@ -180,6 +212,23 @@ const baseRoutes = [
                 component: () => import('../views/teamwork/visual/visual'),
             },
             {
+                path: `${prefixPath}teamwork/detail/deep-learning/flow`,
+                name: 'project-deeplearning-flow',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '流程详情',
+                    active:          `${prefixPath}teamwork`,
+                    titleParams:     {
+                        parentTitle: '项目详情',
+                        title:       '项目详情',
+                        htmlTitle:   '项目详情',
+                        backward:    true,
+                    },
+                },
+                component: () => import('../views/teamwork/deeplearning/index'),
+            },
+            {
                 path: `${prefixPath}teamwork/detail/job/history`,
                 name: 'project-job-history',
                 meta: {
@@ -230,6 +279,40 @@ const baseRoutes = [
                     navigation: true,
                 },
                 component: () => import('../views/teamwork/job/compare'),
+            },
+            {
+                path: `${prefixPath}teamwork/detail/fusion-edit`,
+                name: 'fusion-edit',
+                meta: {
+                    hidden:          true,
+                    loginAndRefresh: true,
+                    title:           '新建数据融合任务',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
+            },
+            {
+                path: `${prefixPath}teamwork/detail/fusion-detail`,
+                name: 'fusion-detail',
+                meta: {
+                    loginAndRefresh: true,
+                    hidden:          true,
+                    title:           '数据融合详情',
+                    active:          `${prefixPath}teamwork`,
+                    /* titleParams:     {
+                        params: ['flow_id', 'project_id'],
+                        name:   'fusion-task',
+                        title:  '数据融合',
+                    }, */
+                    navigation:      true,
+                },
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
         ],
     },
@@ -337,6 +420,15 @@ const baseRoutes = [
                     title:           '系统设置',
                 },
                 component: () => import('../views/system-config/system-config-view'),
+            },
+            {
+                path: `${prefixPath}calculation-engine-config`,
+                name: 'calculation-engine-config',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '计算引擎设置',
+                },
+                component: () => import('../views/system-config/calculation-engine-config'),
             },
         ],
     },

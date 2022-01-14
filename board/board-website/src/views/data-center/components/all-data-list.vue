@@ -12,7 +12,7 @@
                     :to="{ path: 'data-add' }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <el-icon class="f12">
                         <elicon-top-right />
                     </el-icon>
@@ -73,9 +73,9 @@
                 <br>
                 样本量：{{ scope.row.row_count }}
                 <br>
-                正例样本数量：{{ scope.row.y_positive_example_count }}
+                正例样本数量：{{ scope.row.y_positive_sample_count }}
                 <br>
-                正例样本比例：{{(scope.row.y_positive_example_ratio * 100).toFixed(1)}}%
+                正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
             </template>
         </el-table-column>
         <el-table-column
@@ -166,7 +166,7 @@
         },
         data() {
             return {
-                getListApi:    '/data_set/query',
+                getListApi:    '/table_data_set/query',
                 defaultSearch: false,
                 watchRoute:    false,
             };
@@ -182,9 +182,9 @@
                 let message = '此操作将永久删除该条目, 是否继续?';
 
                 const res = await this.$http.get({
-                    url:    '/data_set/usage_detail',
+                    url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 
@@ -212,7 +212,7 @@
                         message,
                     }).then(async () => {
                         const { code } = await this.$http.post({
-                            url:  '/data_set/delete',
+                            url:  '/table_data_set/delete',
                             data: {
                                 id: row.id,
                             },

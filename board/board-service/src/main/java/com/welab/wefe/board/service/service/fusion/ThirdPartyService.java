@@ -49,14 +49,14 @@ public class ThirdPartyService {
                 .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
-                .put("row_count", task.getRowCount())
                 .put("psi_actuator_role", PSIActuatorRole.server.equals(task.getPsiActuatorRole()) ? PSIActuatorRole.client : PSIActuatorRole.server)
                 .put("algorithm", task.getAlgorithm())
                 .put("description", task.getDescription())
                 .put("data_resource_id", task.getPartnerDataResourceId())
                 .put("data_resource_type", task.getPartnerDataResourceType())
                 .put("partner_data_resource_id", task.getDataResourceId())
-                .put("partner_data_resource_type", task.getDataResourceType());
+                .put("partner_data_resource_type", task.getDataResourceType())
+                .put("partner_row_count", task.getRowCount());
 
         request(task.getDstMemberId(), ReceiveApi.class, params);
     }

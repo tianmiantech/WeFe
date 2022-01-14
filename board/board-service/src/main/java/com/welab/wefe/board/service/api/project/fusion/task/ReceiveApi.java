@@ -69,8 +69,11 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
         @Check(name = "数据资源类型", require = true)
         private DataResourceType partnerDataResourceType;
 
-        @Check(name = "数据集的数据量")
+        @Check(name = "数据资源的数据量")
         private Long rowCount;
+
+        @Check(name = "合作方的数据资源的数据量")
+        private Long partnerRowCount;
 
         @Check(name = "对齐角色", require = true)
         private PSIActuatorRole psiActuatorRole;
@@ -176,6 +179,14 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
 
         public void setPartnerDataResourceType(DataResourceType partnerDataResourceType) {
             this.partnerDataResourceType = partnerDataResourceType;
+        }
+
+        public Long getPartnerRowCount() {
+            return partnerRowCount;
+        }
+
+        public void setPartnerRowCount(Long partnerRowCount) {
+            this.partnerRowCount = partnerRowCount;
         }
     }
 }
