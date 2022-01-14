@@ -103,31 +103,6 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        // 对文件进行安检
-        try {
-            AtomicBoolean isOk = new AtomicBoolean(true);
-            Files
-                    .readAllLines(outFile.toPath())
-                    .parallelStream()
-                    .forEach(line -> {
-                        if (!isOk.get()) {
-                            return;
-                        }
-
-                        if (line.contains("<") || line.contains(">")) {
-                            isOk.set(false);
-                        }
-                    });
-            if (!isOk.get()) {
-                FileUtil.deleteFile(outFile.getParent());
-                ApiResult<Output> fail = fail(StatusCode.ILLEGAL_REQUEST.getCode(), "不安全的文件，拒绝上传。");
-                fail.setHttpCode(555);
-                return fail;
-            }
-        } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
-        }
-
         return success(new Output(file.getSize()));
     }
 
