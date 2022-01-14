@@ -147,20 +147,4 @@ public class ApiRequestRecordService {
     }
 
 
-//
-//    public static void main(String[] args) throws IOException {
-//
-//        ApiRequestRecordService apiRequestRecordService = new ApiRequestRecordService();
-//
-//        List<ApiRequestRecordMysqlModel> list = new ArrayList<>();
-//        ApiRequestRecordMysqlModel apiRequestRecordMysqlModel = new ApiRequestRecordMysqlModel();
-//        apiRequestRecordMysqlModel.setServiceName("test");
-//        list.add(apiRequestRecordMysqlModel);
-//        apiRequestRecordService.writeCSV(list, "/Users/ivenn.zheng/IdeaProjects/Wefe/serving/serving-service/src/main/java/com/welab/wefe/serving/service/service/test.csv");
-//
-//
-////        file();
-//    }
-
-
 }
