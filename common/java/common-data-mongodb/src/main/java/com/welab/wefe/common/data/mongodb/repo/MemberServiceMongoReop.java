@@ -78,8 +78,6 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
         }
         Query query = new QueryBuilder()
                 .append("serviceId", serviceId)
-                .append("serviceStatus", "1")
-                .notRemoved()
                 .build();
         return mongoUnionTemplate.findOne(query, MemberService.class);
     }
