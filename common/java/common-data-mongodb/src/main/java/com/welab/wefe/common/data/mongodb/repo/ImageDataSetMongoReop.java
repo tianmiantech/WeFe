@@ -148,7 +148,16 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
                 skipOperation,
                 limitOperation,
                 sortOperation
-        ).as("data").and(countOperation).as("total");
+        ).as("data").and(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindImageDataSet,
+                dataResourceMatch,
+                memberMatch,
+                imageDataSetMatch,
+                countOperation
+        ).as("total");
 
         Aggregation aggregation = Aggregation.newAggregation(facetOperation);
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();

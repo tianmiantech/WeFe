@@ -157,9 +157,6 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    /**
-     * Query the image data set visible to the current member
-     */
     public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.IMAGE_DATASET).
@@ -239,14 +236,26 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 skipOperation,
                 limitOperation,
                 sortOperation
-        ).as("data").and(countOperation).as("total");
+        ).as("data").and(
+                lookupToDataImageDataSet,
+                lookupToDataTableDataSet,
+                lookupToDataBloomFilter,
+                lookupToMember,
+                unwindMember,
+                unwindImageDataSet,
+                unwindTableDataSet,
+                unwindBloomFilter,
+                dataResourceMatch,
+                memberMatch,
+                countOperation
+        ).as("total");
 
         Aggregation aggregation = Aggregation.newAggregation(facetOperation);
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
         Long total = 0L;
-        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
-        if(list != null && !list.isEmpty()){
-            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        List<DataResourceQueryOutput> list = result.getJSONList("data", DataResourceQueryOutput.class);
+        if (list != null && !list.isEmpty()) {
+            total = result.getJSONList("total", JObject.class).get(0).getLongValue("count");
         }
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }

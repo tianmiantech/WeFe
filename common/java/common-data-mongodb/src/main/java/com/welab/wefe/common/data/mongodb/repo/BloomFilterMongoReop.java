@@ -142,13 +142,21 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
                 lookupToMember,
                 unwind,
                 unwindExtraData,
+                addFieldsOperation,
                 dataResourceMatch,
                 memberMatch,
                 skipOperation,
                 limitOperation,
-                addFieldsOperation,
                 sortOperation
-        ).as("data").and(countOperation).as("total");
+        ).as("data").and(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindExtraData,
+                dataResourceMatch,
+                memberMatch,
+                countOperation
+        ).as("total");
 
         Aggregation aggregation = Aggregation.newAggregation(facetOperation);
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
