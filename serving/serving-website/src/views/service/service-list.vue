@@ -11,7 +11,7 @@
                 label="服务名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.name"/>
+                <el-input v-model="search.name" />
             </el-form-item>
 
             <el-form-item
@@ -177,125 +177,123 @@
 </template>
 
 <script>
-import table from '@src/mixins/table.js';
+    import table from '@src/mixins/table.js';
 
-export default {
-    mixins: [table],
-    data() {
-        return {
-            search: {
-                name: '',
-                service_type: '',
-                status: '',
-            },
-            headers: {
-                token: localStorage.getItem('token') || '',
-            },
-            getListApi: '/service/query',
-            userList: [],
-            taskStatusList: [],
-            viewDataDialog: {
-                visible: false,
-                list: [],
-            },
-            dataDialog: false,
-            jsonData: '',
-            serviceTypeList: [
-                {
-                    name: '匿踪查询',
+    export default {
+        mixins: [table],
+        data() {
+            return {
+                search: {
+                    name:         '',
+                    service_type: '',
+                    status:       '',
+                },
+                headers: {
+                    token: localStorage.getItem('token') || '',
+                },
+                getListApi:     '/service/query',
+                userList:       [],
+                taskStatusList: [],
+                viewDataDialog: {
+                    visible: false,
+                    list:    [],
+                },
+                dataDialog:      false,
+                jsonData:        '',
+                serviceTypeList: [{
+                    name:  '两方匿踪查询',
                     value: '1',
                 },
                 {
-                    name: '多方匿踪查询',
-                    value: '6',
-                },
-                {
-                    name: '安全求交',
+                    name:  '两方交集查询',
                     value: '2',
                 },
                 {
-                    name: '多方安全求交',
-                    value: '5',
+                    name:  '多方安全统计(被查询方)',
+                    value: '3',
                 },
                 {
-                    name: '安全聚合(查询方)',
+                    name:  '多方安全统计(查询方)',
                     value: '4',
                 },
                 {
-                    name: '安全聚合(被查询方)',
-                    value: '3',
-                }
-            ],
-            serviceTypeMap: {
-                1: '匿踪查询',
-                2: '安全求交',
-                3: '安全聚合(被查询方)',
-                4: '安全聚合(查询方)',
-                5: '多方安全求交',
-                6: '多方匿踪查询',
+                    name:  '多方交集查询',
+                    value: '5',
+                },
+                {
+                    name:  '多方匿踪查询',
+                    value: '6',
+                }],
+                serviceTypeMap: {
+                    1: '两方匿踪查询',
+                    2: '两方交集查询',
+                    3: '多方安全统计(被查询方)',
+                    4: '多方安全统计(查询方)',
+                    5: '多方交集查询',
+                    6: '多方匿踪查询',
+                },
+            };
+        },
+        methods: {
+            showStrategys (string) {
+                this.dataDialog = true;
+                setTimeout(() => {
+                    this.jsonData = string;
+                });
             },
-        };
-    },
-    methods: {
-        showStrategys(string) {
-            this.dataDialog = true;
-            setTimeout(() => {
-                this.jsonData = string;
-            });
-        },
 
-        editService(row) {
-            this.$router.push({
-                name: 'service-view',
-                query: {id: row.id},
-            });
-        },
-
-        async offline(id) {
-            this.$confirm('是否下线该服务？', '警告', {
-                type: 'warning',
-            }).then(async () => {
-                const {code} = await this.$http.post({
-                    url: '/service/offline',
-                    data: {
-                        id,
-                    },
+            editService(row) {
+                this.$router.push({
+                    name:  'service-view',
+                    query: { id: row.id },
                 });
+            },
 
-                if (code === 0) {
-                    this.$message('下线成功!');
-                    this.getList();
-                }
-            });
-        },
-        async online(id) {
-            this.$confirm('是否上线该服务？', '警告', {
-                type: 'warning',
-            }).then(async () => {
-                const {code} = await this.$http.post({
-                    url: '/service/online',
-                    data: {
-                        id,
-                    },
+            async offline (id) {
+                this.$confirm('是否下线该服务？', '警告', {
+                    type: 'warning',
+                }).then(async () => {
+                    const { code } = await this.$http.post({
+                        url:  '/service/offline',
+                        data: {
+                            id,
+                        },
+                    });
+
+                    if (code === 0) {
+                        this.$message('下线成功!');
+                        this.getList();
+                    }
                 });
+            },
+            async online (id) {
+                this.$confirm('是否上线该服务？', '警告', {
+                    type: 'warning',
+                }).then(async () => {
+                    const { code } = await this.$http.post({
+                        url:  '/service/online',
+                        data: {
+                            id,
+                        },
+                    });
 
-                if (code === 0) {
-                    this.$message('上线成功!');
-                    this.getList();
-                }
-            });
+                    if (code === 0) {
+                        this.$message('上线成功!');
+                        this.getList();
+                    }
+                });
+            },
         },
-    },
-};
+    };
 </script>
 
 <style lang="scss">
-.structure-table {
-    .ant-table-title {
-        font-weight: bold;
-        text-align: center;
-        padding: 10px;
-        font-size: 16px;
+    .structure-table{
+        .ant-table-title{
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            font-size:16px;
+        }
     }
-}
 </style>

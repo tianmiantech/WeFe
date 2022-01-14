@@ -109,7 +109,7 @@ export default {
             }, {
                 id:           'd15c002ec6894d94b06fd5403a1fec33',
                 created_time: 1641885620000,
-                type:         '交集查询',
+                type:         '两方交集查询',
                 income:       '400',
                 output:       '500',
                 remain:       '100',
@@ -117,7 +117,7 @@ export default {
             }, {
                 id:           '7076ec98634c42e2ad92e3915d6c60a6',
                 created_time: 1641884621000,
-                type:         '安全聚合 (被查询方)',
+                type:         '多方安全统计(被查询方)',
                 income:       '300',
                 output:       '130',
                 remain:       '200',
@@ -125,7 +125,7 @@ export default {
             }, {
                 id:           'b4bb1c9590ed43529d94e091818732ed',
                 created_time: 1641882624000,
-                type:         '安全聚合 (查询方)',
+                type:         '多方安全统计(查询方)',
                 income:       '100',
                 output:       '70',
                 remain:       '30',
