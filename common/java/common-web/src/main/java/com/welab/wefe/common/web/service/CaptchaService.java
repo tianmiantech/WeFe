@@ -68,7 +68,7 @@ public class CaptchaService {
     /**
      * Verification code
      */
-    public static Boolean verify(String key, String code) {
+    public synchronized static Boolean verify(String key, String code) {
 
         try {
             String verCode = captchaMap.get(key);
@@ -79,6 +79,10 @@ public class CaptchaService {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+        } finally {
+            if (captchaMap.containsKey(key)) {
+                captchaMap.remove(key);
+            }
         }
 
         return false;
