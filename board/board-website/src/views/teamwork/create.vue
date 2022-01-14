@@ -21,6 +21,20 @@
                     />
                 </el-form-item>
                 <el-form-item
+                    label="项目类型"
+                    label-width="80px"
+                    required
+                >
+                    <el-select v-model="form.projectType" placeholder="请选择项目类型" style="width:400px;" @change="changeProjectType">
+                        <el-option
+                            v-for="item in typeList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item
                     label="项目描述"
                     label-width="80px"
                     required
@@ -54,6 +68,7 @@
                     </span>
                 </el-tooltip>
                 <el-button
+                    v-if="form.projectType !== 'DeepLearning'"
                     class="ml20"
                     size="mini"
                     @click="showSelectMemberDialog('promoter')"
@@ -73,9 +88,9 @@
                     >
                         {{ promoter.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
-                        v-if="promoter.$data_set.length"
+                        v-show="promoter.$data_set.length"
                         :data="promoter.$data_set"
                         max-height="520px"
                         class="mt20"
@@ -85,23 +100,44 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: 'data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="特征量/数据量">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
                             </template>
                         </el-table-column>
-                        <el-table-column label="是否有 Y">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
@@ -136,7 +172,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -148,18 +184,18 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
                         </el-table-column>
                         <el-table-column label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
                             </template>
                         </el-table-column>
                         <el-table-column label="是否有 Y">
@@ -218,7 +254,7 @@
                     >
                         {{ member.$error }}
                     </p>
-                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加数据集到此项目</el-button>
+                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
                     <el-table
                         v-if="member.$data_set.length"
                         :data="member.$data_set"
@@ -230,23 +266,44 @@
                         <el-table-column type="index" />
                         <el-table-column
                             label="数据集id"
-                            prop="id"
+                            prop="data_resource_id"
                         />
                         <el-table-column label="数据集名称">
                             <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.id } }">
+                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
                                 </router-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="特征量/数据量">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
                             <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.row_count }}
+                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count || scope.row.row_count}}
                             </template>
                         </el-table-column>
-                        <el-table-column label="是否有 Y">
+                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
                             <template v-slot="scope">
                                 {{ scope.row.contains_y ? '是' : '否' }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="样本分类"
+                            prop="for_job_type"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
+                        <el-table-column
+                            v-if="form.projectType === 'DeepLearning'"
+                            label="标注状态"
+                            prop="label_completed"
+                            width="100"
+                        >
+                            <template v-slot="scope">
+                                {{scope.row.label_completed ? '已完成' : '标注中'}}
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
@@ -317,10 +374,21 @@
                 loading: false,
                 form:    {
                     name:         '',
+                    projectType:  'MachineLearning',
                     desc:         '',
                     memberList:   [],
                     promoterList: [],
                 },
+                typeList: [
+                    {
+                        label: 'MachineLearning',
+                        value: 'MachineLearning',
+                    },
+                    {
+                        label: 'DeepLearning',
+                        value: 'DeepLearning',
+                    },
+                ],
                 promoter: {
                     member_id:      '',
                     member_name:    '',
@@ -328,8 +396,10 @@
                     $online:        'loading',
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 dataSets: {
@@ -358,7 +428,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            this.checkAllService();
+            await this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -411,8 +481,8 @@
                         $online:        'loading',
                         $error:         '',
                         $serviceStatus: {
-                            all_status_is_success: null,
-                            status:                null,
+                            available: null,
+                            details:   null,
                         },
                     };
                     this.checkAllService(currentMembersList);
@@ -428,15 +498,21 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
+                        requestFromRefresh: true,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                 } else {
@@ -476,12 +552,12 @@
                 this.dataSets.list = $data_set.map(row => {
                     return {
                         ...row,
-                        data_set_id: row.id,
+                        data_set_id: row.data_resource_id,
                     };
                 });
                 ref.show = true;
                 this.$nextTick(async _ => {
-                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list });
+                    ref.loadDataList({ memberId, jobRole: role, $data_set: this.dataSets.list, projectType: this.form.projectType });
                 });
             },
 
@@ -502,7 +578,7 @@
 
                 const row = role === 'promoter_creator' ? this.promoter : role === 'promoter' ? this.form.promoterList[index] : this.form.memberList[index];
                 const list = row.$data_set;
-                const has = list.find(row => row.id === item.id);
+                const has = list.find(row => row.data_resource_id === item.data_resource_id);
 
                 if(!has) {
                     list.push(item);
@@ -545,9 +621,10 @@
                 if(this.promoter.$data_set.length) {
                     this.promoter.$data_set.forEach(data => {
                         promoterDataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   this.userInfo.member_id,
-                            data_set_id: data.id,
+                            member_role:        'promoter',
+                            member_id:          this.userInfo.member_id,
+                            data_set_id:        data.data_resource_id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                 }
@@ -561,9 +638,10 @@
 
                     item.$data_set.forEach(data => {
                         promoter.dataSetList.push({
-                            member_role: 'promoter',
-                            member_id:   item.member_id,    // promoter Id
-                            data_set_id: data.id,
+                            member_role:        'promoter',
+                            member_id:          item.member_id,    // promoter Id
+                            data_set_id:        data.data_resource_id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     promoterList.push(promoter);
@@ -578,9 +656,10 @@
 
                     item.$data_set.forEach(data => {
                         provider.dataSetList.push({
-                            member_role: 'provider',
-                            member_id:   item.member_id,    // provider Id
-                            data_set_id: data.id,
+                            member_role:        'provider',
+                            member_id:          item.member_id,    // provider Id
+                            data_set_id:        data.data_resource_id,
+                            data_resource_type: this.form.projectType === 'DeepLearning' ? 'ImageDataSet' : this.form.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                         });
                     });
                     providerList.push(provider);
@@ -589,8 +668,9 @@
                 const { code, data } = await this.$http.post({
                     url:  '/project/add',
                     data: {
-                        name: this.form.name,
-                        desc: this.form.desc,
+                        name:        this.form.name,
+                        desc:        this.form.desc,
+                        projectType: this.form.projectType,
                         promoterDataSetList,
                         providerList,
                         promoterList,
@@ -607,6 +687,14 @@
                             project_id: data.project_id,
                         },
                     });
+                }
+            },
+
+            changeProjectType(val) {
+                this.form.memberList = [];
+                this.promoter.$data_set = [];
+                if (val === 'DeepLearning') {
+                    this.form.promoterList = [];
                 }
             },
         },
