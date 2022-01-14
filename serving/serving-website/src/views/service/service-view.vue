@@ -508,27 +508,27 @@
                 serviceId:       '',
                 serviceTypeList: [
                     {
-                        name:  '匿踪查询',
+                        name:  '两方匿踪查询',
                         value: 1,
                     },
                     {
-                        name:  '交集查询',
+                        name:  '两方交集查询',
                         value: 2,
                     },
                     {
-                        name:  '安全聚合 (被查询方)',
+                        name:  '多方安全统计(被查询方)',
                         value: 3,
                     },
                     {
-                        name:  '安全聚合 (查询方)',
+                        name:  '多方安全统计(查询方)',
                         value: 4,
                     },
                     {
-                        name:  '匿踪查询 (二次封装)',
+                        name:  '多方交集查询',
                         value: 1,
                     },
                     {
-                        name:  '交集查询 (二次封装)',
+                        name:  '多方匿踪查询',
                         value: 2,
                     },
                 ],
