@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.service.api.apirequestrecord;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -24,7 +25,12 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -32,16 +38,16 @@ import java.io.IOException;
  * @date 2022/1/12
  */
 @Api(path = "apirequestrecord/download", name = "download the api request records")
-public class DownloadApi extends AbstractNoneOutputApi<DownloadApi.Input> {
+public class DownloadApi extends AbstractApi<DownloadApi.Input, ResponseEntity<?>> {
 
 
     @Autowired
     private ApiRequestRecordService apiRequestRecordService;
 
+
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        apiRequestRecordService.downloadFile(input);
-        return success();
+    protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
+        return file(apiRequestRecordService.downloadFile(input));
     }
 
     public static class Input extends AbstractApiInput {
@@ -90,4 +96,30 @@ public class DownloadApi extends AbstractNoneOutputApi<DownloadApi.Input> {
             this.clientId = clientId;
         }
     }
+
+    protected ApiResult<ResponseEntity<?>> file(File file) throws StatusCodeWithException {
+        if (!file.exists()) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不存在：" + file.getAbsolutePath());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "public, max-age=3600");
+        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+        headers.add("Last-Modified", file.lastModified() + "");
+        headers.add("ETag", String.valueOf(file.lastModified()));
+
+        ResponseEntity<FileSystemResource> response = ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(new FileSystemResource(file));
+
+        ApiResult<ResponseEntity<?>> result = new ApiResult<>();
+        result.data = response;
+        return result;
+    }
+
+
+
 }

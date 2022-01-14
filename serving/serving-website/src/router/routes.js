@@ -179,18 +179,28 @@ const baseRoutes = [
                 path: `${prefixPath}service-list`,
                 name: 'service-list',
                 meta: {
-                    title:  '服务列表',
+                    title:  '我的服务',
                     index:  '5-1',
                     active: `${prefixPath}service-list`,
                 },
                 component: () => import('@views/service/service-list.vue'),
             },
             {
+                path: `${prefixPath}union-service-list`,
+                name: 'union-service-list',
+                meta: {
+                    title:  '联邦服务',
+                    index:  '5-2',
+                    active: `${prefixPath}union-service-list`,
+                },
+                component: () => import('@views/service/union-service-list.vue'),
+            },
+            {
                 path: `${prefixPath}service-view`,
                 name: 'service-view',
                 meta: {
                     title:  '服务详情',
-                    index:  '5-2',
+                    index:  '5-3',
                     hidden: true,
                     active: `${prefixPath}service-view`,
                 },

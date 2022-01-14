@@ -210,15 +210,19 @@ export default {
             getListApi:  '/feedetail/query-list',
             serviceType: {
                 1: '匿踪查询',
-                2: '交集查询',
+                2: '安全求交',
                 3: '安全聚合(被查询方)',
                 4: '安全聚合(查询方)',
+                5: '多方安全求交',
+                6: '多方匿踪查询',
             },
             serviceTypes: [
                 { value: '1', label: '匿踪查询' },
-                { value: '2', label: '交集查询' },
+                { value: '2', label: '安全求交' },
                 { value: '3', label: '安全聚合(被查询方)' },
                 { value: '4', label: '安全聚合(查询方)' },
+                { value: '5', label: '多方安全求交' },
+                { value: '6', label: '多方匿踪查询' },
             ],
             queryDateTypes: [
                 { value: '1', label: '按年' },
@@ -265,6 +269,9 @@ export default {
         async getServices() {
             const { code, data } = await this.$http.post({
                 url: '/service/query',
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {

@@ -18,17 +18,27 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.serving.service.api.apirequestrecord.DownloadApi;
 import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
+import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,9 +51,8 @@ public class ApiRequestRecordService {
     @Autowired
     private ApiRequestRecordRepository apiRequestRecordRepository;
 
-
-    @Value("${wefe.serving.file-path}")
-    private String fileBasePath;
+    @Autowired
+    private Config config;
 
     private static final String filePrefix = "api_request_records/";
 
@@ -60,7 +69,6 @@ public class ApiRequestRecordService {
         model.setRequestResult(requestResult);
         model.setSpend(spend);
         model.setIpAdd(ipAdd);
-
         apiRequestRecordRepository.save(model);
     }
 
@@ -86,10 +94,8 @@ public class ApiRequestRecordService {
 
     }
 
-    public String downloadFile(DownloadApi.Input input) {
-
-        String fileName = input.getServiceId()+ "_" + input.getClientId() + "_" + new Date() + "_调用信息.csv";
-
+    public File downloadFile(DownloadApi.Input input) {
+        String fileName = DateUtil.getCurrentDate() + "_result.csv";
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())
@@ -99,21 +105,46 @@ public class ApiRequestRecordService {
                 .build(ApiRequestRecordMysqlModel.class);
 
         List<ApiRequestRecordMysqlModel> all = apiRequestRecordRepository.findAll(where);
-        // save file
-        String fileAddress = fileBasePath + filePrefix + fileName;
-        saveCSVFile(all, fileAddress);
-        return fileAddress;
-
-
+        try {
+            return writeCSV(all, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    void saveCSVFile(List<ApiRequestRecordMysqlModel> data, String filePath) {
+    public File writeCSV(List<ApiRequestRecordMysqlModel> dataList, String fileName) throws IOException {
+        final StringWriter sw = new StringWriter();
+        CsvWriter csvWriter = CsvWriter.builder()
+                .fieldSeparator(',')
+                .quoteStrategy(QuoteStrategy.EMPTY)
+                .lineDelimiter(LineDelimiter.LF)
+                .build(sw);
 
+        csvWriter.writeRow("service_id", "client_id", "client_name",
+                "service_name", "service_type", "ip_address", "spend",
+                "request_result");
 
+        for (ApiRequestRecordMysqlModel model : dataList) {
+            csvWriter.writeRow(
+                    model.getServiceId(),
+                    model.getClientId(),
+                    model.getClientName(),
+                    model.getServiceName(),
+                    ServiceTypeEnum.getValue(model.getServiceType()),
+                    model.getIpAdd(),
+                    model.getSpend().toString(),
+                    String.valueOf(model.getRequestResult()));
+        }
 
+        File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write(sw.toString());
+        bw.flush();
+        bw.close();
 
+        return csvFile;
     }
-
 
 
 }

@@ -11,7 +11,7 @@
                 label="服务名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.name"/>
+                <el-input v-model="search.serviceName"/>
             </el-form-item>
 
             <el-form-item
@@ -19,7 +19,7 @@
                 label-width="100px"
             >
                 <el-select
-                    v-model="search.service_type"
+                    v-model="search.serviceType"
                     size="medium"
                     clearable
                 >
@@ -58,12 +58,6 @@
             >
                 查询
             </el-button>
-
-            <router-link :to="{name: 'service-view'}">
-                <el-button>
-                    新增
-                </el-button>
-            </router-link>
         </el-form>
 
         <el-table
@@ -129,34 +123,6 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="操作"
-                width="150px"
-                fixed="right"
-            >
-                <template slot-scope="scope">
-                    <el-button
-                        type="primary"
-                        @click="editService(scope.row)"
-                    >
-                        编辑
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.status == 0"
-                        type="primary"
-                        @click="online(scope.row.id)"
-                    >
-                        上线
-                    </el-button>
-                    <el-button
-                        v-else
-                        type="danger"
-                        @click="offline(scope.row.id)"
-                    >
-                        下线
-                    </el-button>
-                </template>
-            </el-table-column>
         </el-table>
 
         <div
@@ -184,20 +150,13 @@ export default {
     data() {
         return {
             search: {
-                name: '',
-                service_type: '',
+                serviceName: '',
+                serviceType: '',
                 status: '',
             },
-            headers: {
-                token: localStorage.getItem('token') || '',
-            },
-            getListApi: '/service/query',
+            getListApi: '/service/union/query',
             userList: [],
-            taskStatusList: [],
-            viewDataDialog: {
-                visible: false,
-                list: [],
-            },
+            serviceList: [],
             dataDialog: false,
             jsonData: '',
             serviceTypeList: [
@@ -236,55 +195,29 @@ export default {
             },
         };
     },
+
+    created() {
+        this.getUnionService()
+
+    },
     methods: {
-        showStrategys(string) {
-            this.dataDialog = true;
-            setTimeout(() => {
-                this.jsonData = string;
-            });
-        },
 
-        editService(row) {
-            this.$router.push({
-                name: 'service-view',
-                query: {id: row.id},
-            });
-        },
+        // async getUnionService() {
+        //
+        //     const {code, data} = await this.$http.post({
+        //         url: '/union/query-list',
+        //         data: {
+        //             serviceName: this.search.serviceName,
+        //             serviceType: this.search.serviceType,
+        //             status: this.search.status,
+        //         }
+        //     });
+        //
+        //     if (code === 0) {
+        //         this.list = data.list
+        //     }
+        // }
 
-        async offline(id) {
-            this.$confirm('是否下线该服务？', '警告', {
-                type: 'warning',
-            }).then(async () => {
-                const {code} = await this.$http.post({
-                    url: '/service/offline',
-                    data: {
-                        id,
-                    },
-                });
-
-                if (code === 0) {
-                    this.$message('下线成功!');
-                    this.getList();
-                }
-            });
-        },
-        async online(id) {
-            this.$confirm('是否上线该服务？', '警告', {
-                type: 'warning',
-            }).then(async () => {
-                const {code} = await this.$http.post({
-                    url: '/service/online',
-                    data: {
-                        id,
-                    },
-                });
-
-                if (code === 0) {
-                    this.$message('上线成功!');
-                    this.getList();
-                }
-            });
-        },
     },
 };
 </script>
