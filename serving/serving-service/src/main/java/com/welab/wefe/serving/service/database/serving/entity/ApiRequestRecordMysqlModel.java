@@ -50,7 +50,7 @@ public class ApiRequestRecordMysqlModel extends AbstractBaseMySqlModel {
     private Integer serviceType;
 
     /**
-     * 请求地址
+     * ip地址
      */
     @Column(name = "ip_add")
     private String ipAdd;

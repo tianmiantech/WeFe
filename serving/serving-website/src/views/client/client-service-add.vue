@@ -287,9 +287,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
-                // data: {
-                //     status: 1,
-                // }
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {
