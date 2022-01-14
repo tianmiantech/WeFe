@@ -21,6 +21,7 @@ import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.serving.service.api.apirequestrecord.DownloadApi;
 import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
@@ -50,9 +51,8 @@ public class ApiRequestRecordService {
     @Autowired
     private ApiRequestRecordRepository apiRequestRecordRepository;
 
-
-    @Value("${wefe.serving.file-path}")
-    private String fileBasePath;
+    @Autowired
+    private Config config;
 
     private static final String filePrefix = "api_request_records/";
 
@@ -137,7 +137,7 @@ public class ApiRequestRecordService {
                     String.valueOf(model.getRequestResult()));
         }
 
-        File csvFile = new File(fileBasePath + filePrefix + fileName);
+        File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
         bw.write(sw.toString());
         bw.flush();
