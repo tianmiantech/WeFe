@@ -16,10 +16,10 @@
 
 package com.welab.wefe.board.service.api.file;
 
+import com.welab.wefe.board.service.api.file.security.FileSecurityChecker;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -42,7 +42,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
     private Config config;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
 
         String mergedFileName = UUID.randomUUID() + "-" + input.filename;
 
@@ -51,22 +51,6 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
         File[] parts = dir.listFiles();
 
         File mergedFile = new File(config.getFileUploadDir() + File.separator + mergedFileName);
-
-        // 为检查上传的文件是否安全
-        String suffix = StringUtil.substringAfterLast(mergedFile.getName(), ".");
-        if (
-                !"xls".equalsIgnoreCase(suffix)
-                        && !"xlsx".equalsIgnoreCase(suffix)
-                        && !"csv".equalsIgnoreCase(suffix)
-        ) {
-            try {
-                FileUtils.deleteDirectory(dir);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
-        }
 
         if (mergedFile.exists()) {
             return success(new Output(mergedFileName));
@@ -88,6 +72,8 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
+        // 检查上传的文件是否安全
+        FileSecurityChecker.check(mergedFile);
 
         return success(new Output(mergedFileName));
 
