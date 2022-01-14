@@ -11,7 +11,7 @@
                 label="服务名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.serviceName"/>
+                <el-input v-model="search.serviceName" />
             </el-form-item>
 
             <el-form-item
@@ -122,7 +122,6 @@
                     {{ scope.row.updated_time | dateFormat }}
                 </template>
             </el-table-column>
-
         </el-table>
 
         <div
@@ -152,52 +151,52 @@ export default {
             search: {
                 serviceName: '',
                 serviceType: '',
-                status: '',
+                status:      '',
             },
-            getListApi: '/service/union/query',
-            userList: [],
-            serviceList: [],
-            dataDialog: false,
-            jsonData: '',
+            getListApi:      '/service/union/query',
+            userList:        [],
+            serviceList:     [],
+            dataDialog:      false,
+            jsonData:        '',
             serviceTypeList: [
                 {
-                    name: '匿踪查询',
+                    name:  '两方匿踪查询',
                     value: '1',
                 },
                 {
-                    name: '多方匿踪查询',
+                    name:  '多方匿踪查询',
                     value: '6',
                 },
                 {
-                    name: '安全求交',
+                    name:  '两方交集查询',
                     value: '2',
                 },
                 {
-                    name: '多方安全求交',
+                    name:  '多方交集查询',
                     value: '5',
                 },
                 {
-                    name: '安全聚合(查询方)',
+                    name:  '多方安全统计(查询方)',
                     value: '4',
                 },
                 {
-                    name: '安全聚合(被查询方)',
+                    name:  '多方安全统计(被查询方)',
                     value: '3',
-                }
+                },
             ],
             serviceTypeMap: {
-                1: '匿踪查询',
-                2: '安全求交',
-                3: '安全聚合(被查询方)',
-                4: '安全聚合(查询方)',
-                5: '多方安全求交',
+                1: '两方匿踪查询',
+                2: '两方交集查询',
+                3: '多方安全统计(被查询方)',
+                4: '多方安全统计(查询方)',
+                5: '多方交集查询',
                 6: '多方匿踪查询',
             },
         };
     },
 
     created() {
-        this.getUnionService()
+        this.getUnionService();
 
     },
     methods: {
