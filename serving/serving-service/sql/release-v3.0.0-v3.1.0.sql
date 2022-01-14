@@ -127,10 +127,10 @@ CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);
 DROP TABLE IF EXISTS payments_records;
 CREATE TABLE payments_records(
                                  id VARCHAR(255) NOT NULL   COMMENT '' ,
-                                 created_time DATETIME    COMMENT '' ,
-                                 updated_time DATETIME    COMMENT '' ,
-                                 created_by VARCHAR(255)    COMMENT '' ,
-                                 updated_by VARCHAR(255)    COMMENT '' ,
+                                 created_by varchar(32) DEFAULT NULL COMMENT '创建人',
+                                 created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
+                                 updated_time datetime DEFAULT NULL COMMENT '更新时间',
                                  pay_type INT    COMMENT '收支类型，1充值 2 支出' ,
                                  client_id VARCHAR(255)    COMMENT '客户id' ,
                                  client_name VARCHAR(255)    COMMENT '客户名称' ,

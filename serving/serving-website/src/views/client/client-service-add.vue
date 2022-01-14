@@ -122,15 +122,6 @@ export default {
             }
         };
 
-        // let validateStatus = (rule, value, callback) => {
-        //     if (!this.clientService.status) {
-        //         return callback(new Error('请选择状态'));
-        //     } else {
-        //         callback();
-        //     }
-        // };
-
-
         return {
             clientService: {
                 serviceId: '',
@@ -212,10 +203,6 @@ export default {
                 return
             }
 
-            //
-            // this.clientService.payType = this.form.payType
-            // this.clientService.unitPrice = this.form.unitPrice
-
             // 重新清空 fee config
             this.feeConfig = []
             this.feeConfig.push({
@@ -231,11 +218,9 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            // this.$message('保存成功！')
         },
 
         onSubmit() {
-
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
                     const {code} = await this.$http.post({
