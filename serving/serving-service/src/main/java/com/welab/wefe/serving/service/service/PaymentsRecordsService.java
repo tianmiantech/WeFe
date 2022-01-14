@@ -27,10 +27,13 @@ import com.welab.wefe.serving.service.database.serving.repository.PaymentsRecord
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -51,6 +54,8 @@ public class PaymentsRecordsService {
     private ClientRepository clientRepository;
 
 
+    private Logger log = LoggerFactory.getLogger(PaymentsRecordsService.class);
+
     public PagingOutput<PaymentsRecordsMysqlModel> queryList(QueryListApi.Input input) {
 
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
@@ -65,33 +70,36 @@ public class PaymentsRecordsService {
         return paymentsRecordsRepository.paging(where, input);
     }
 
-    public void save(SaveApi.Input input) throws Exception {
-
+    public void save(SaveApi.Input input) {
 
         PaymentsRecordsMysqlModel model = new PaymentsRecordsMysqlModel();
-
-
         model.setRemark(input.getRemark());
         model.setAmount(input.getAmount());
         model.setPayType(input.getPayType());
         model.setStatus(input.getStatus());
 
         // get service by id
-        ServiceMySqlModel service = serviceRepository.getOne(input.getServiceId());
-        model.setServiceId(service.getId());
-        model.setServiceName(service.getName());
-        model.setServiceType(service.getServiceType());
+        Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
+        if (serviceMySqlModel.isPresent()) {
+            ServiceMySqlModel service = serviceMySqlModel.get();
+            model.setServiceId(service.getId());
+            model.setServiceName(service.getName());
+            model.setServiceType(service.getServiceType());
+        }
 
 
         // get client
-        ClientMysqlModel client = clientRepository.getOne(input.getClientId());
-        model.setClientId(client.getId());
-        model.setClientName(client.getName());
+        Optional<ClientMysqlModel> clientMysqlModel = clientRepository.findById(input.getClientId());
+        if (clientMysqlModel.isPresent()) {
+            ClientMysqlModel client = clientMysqlModel.get();
+            model.setClientId(client.getId());
+            model.setClientName(client.getName());
+        }
 
 
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
-                .equal("serviceId", service.getId())
-                .equal("clientId", client.getId())
+                .equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId())
                 .build(PaymentsRecordsMysqlModel.class);
         Optional<PaymentsRecordsMysqlModel> one = paymentsRecordsRepository.findOne(where);
 
@@ -104,13 +112,19 @@ public class PaymentsRecordsService {
                 // 支出，余额减少
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().subtract(input.getAmount()));
             }
-
         } else {
-            throw new Exception("service is null or client is null !");
+            if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getValue()) {
+                // 充值，余额增加
+                model.setBalance(new BigDecimal("0.0").add(input.getAmount()));
+            } else if (input.getPayType() == PaymentsTypeEnum.PAID.getValue()) {
+                // 支出，余额减少
+                model.setBalance(new BigDecimal("0.0").subtract(input.getAmount()));
+            }
+
         }
 
 
-
+        paymentsRecordsRepository.save(model);
 
     }
 

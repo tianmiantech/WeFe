@@ -5,26 +5,54 @@
         <h2 class="title">新增收支记录</h2>
 
         <el-form :model="paymentsRecords" label-width="90px" :rules="rules" ref="paymentsRecords">
-            <el-form-item label="客户" prop="client">
-                <el-input v-model="paymentsRecords.clientId"
-                ></el-input>
+            <el-form-item label="服务：" prop="serviceId">
+                <el-select v-model="paymentsRecords.serviceId" filterable clearable placeholder="请选择服务">
+                    <el-option
+                        v-for="item in services"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
             </el-form-item>
-            <el-form-item label="服务" prop="service">
-                <el-input v-model="paymentsRecords.serviceId"
-                ></el-input>
+
+            <el-form-item label="客户：" prop="serviceId">
+                <el-select v-model="paymentsRecords.clientId" filterable clearable placeholder="请选择客户">
+                    <el-option
+                        v-for="item in clients"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
             </el-form-item>
 
             <el-form-item label="收支类型" prop="payType">
-                <el-input v-model="paymentsRecords.payType"></el-input>
+                <el-select v-model="paymentsRecords.payType" filterable clearable placeholder="请选择类型">
+                    <el-option
+                        v-for="item in payTypes"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">
+                    <el-option
+                        v-for="item in statusMap"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
             </el-form-item>
 
             <el-form-item label="金额" prop="amount">
                 <el-input v-model="paymentsRecords.amount"></el-input>
             </el-form-item>
 
-            <el-form-item label="状态" prop="status">
-                <el-input v-model="paymentsRecords.status"></el-input>
-            </el-form-item>
 
             <el-form-item label="备注">
                 <el-input v-model="paymentsRecords.remark" type="textarea"
@@ -56,6 +84,18 @@ import {mapGetters} from 'vuex';
 export default {
     name: "payments-records-add",
     data() {
+        let validateAmount = (rule, value, callback) => {
+            if (!this.paymentsRecords.amount) {
+                return callback(new Error('请输入金额'));
+            } else {
+                let reg = /^\d+(\.\d+)?$/;
+                if (reg.test(this.paymentsRecords.amount)) {
+                    callback();
+                } else {
+                    return callback(new Error('金额要求输入数值'));
+                }
+            }
+        };
 
         return {
             services: [],
@@ -68,24 +108,31 @@ export default {
                 status: '',
                 remark: '',
             },
+            payTypes: [
+                {value: '1', label: '充值'},
+                {value: '2', label: '支出'},
+            ],
+            statusMap: [
+                {value: '1', label: '正常'},
+                {value: '2', label: '冲正'},
+            ],
             rules: {
 
-                // name: [
-                //     {required: true, message: '请输入客户名称', trigger: 'blur'}
-                // ],
-                // email: [
-                //     {required: true, message: '请输入邮箱', trigger: 'change'}
-                // ],
-                // ipAdd: [
-                //     // {required: true, message: '请输入IP白名单', trigger: 'change'}
-                //     { required: true, validator: validateIpAdd, trigger: 'blur'}
-                // ],
-                // code: [
-                //     {required: true, message: '请输入客户code', trigger: 'change'}
-                // ],
-                // pubKey: [
-                //     {required: true, message: '请输入公钥', trigger: 'change'}
-                // ],
+                clientId: [
+                    {required: true, message: '请选择客户', trigger: 'change'}
+                ],
+                serviceId: [
+                    {required: true, message: '请选择服务', trigger: 'change'}
+                ],
+                amount: [
+                    {required: true, validator: validateAmount, trigger: 'blur'}
+                ],
+                payType: [
+                    {required: true, message: '请选择收支类型', trigger: 'change'}
+                ],
+                status: [
+                    {required: true, message: '请选择状态', trigger: 'change'}
+                ],
             },
         }
     },
@@ -101,6 +148,7 @@ export default {
     },
 
     methods: {
+
 
         onSubmit() {
 
@@ -119,12 +167,13 @@ export default {
                     });
 
                     if (code === 0) {
-                        setTimeout(() => {
-                            this.$message('提交成功!');
-                        }, 1000)
+                        // setTimeout(() => {
+                        //
+                        // }, 1000)
                         this.$router.push({
                             name: 'payments-records'
                         })
+                        this.$message('提交成功!');
                     }
                 }
             });
@@ -132,6 +181,8 @@ export default {
         },
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
+
+                console.log(data[i].id, ' ', data[i].name, 11111)
                 this.services.push({
                     label: data[i].name,
                     value: data[i].id

@@ -97,20 +97,15 @@ export default {
         };
 
         let validateUnitPrice = (rule, value, callback) => {
-            console.log(this.clientService.unitPrice)
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-
                 let reg = /^\d+(\.\d+)?$/;
-
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
                     return callback(new Error('单价要求输入数值'));
                 }
-
-
             }
         };
 
