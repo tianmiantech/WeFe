@@ -258,6 +258,11 @@ public class ServiceService {
 		output.setId(model.getId());
 		output.setParams(model.getQueryParams());
 		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		if (model.getStatus() == 1) {
+			unionServiceService.add2Union(model);
+		} else {
+			unionServiceService.offline2Union(model);
+		}
 		return output;
 	}
 
