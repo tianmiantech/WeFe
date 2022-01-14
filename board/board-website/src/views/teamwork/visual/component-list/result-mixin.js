@@ -59,6 +59,7 @@ export default () => {
                         jobId:      props.jobId,
                         flowId:     props.flowId,
                         flowNodeId: props.flowNodeId,
+                        ...vData.expandparams,
                     };
 
                     if (methods.initParams) {
@@ -88,6 +89,11 @@ export default () => {
                                         methods.readData();
                                     }, 3000);
                                 }
+                            } else {
+                                if (data.status) {
+                                    vData.commonResultData.task = data;
+                                }
+                                methods.showResult(data);
                             }
                         }
                     });
