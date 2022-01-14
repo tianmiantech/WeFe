@@ -41,7 +41,8 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
      * @param endTime
      * @return
      */
-    @Query(value = "select replace(uuid(),'-','') as id, s.name as service_name,c.name as client_name,s.service_type ,fc.unit_price,  " +
+    @Query(value = "select replace(uuid(),'-','') as id, s.name as service_name,s.id as service_id, c.name as client_name, " +
+            "c.id as client_id ,s.service_type ,fc.unit_price,  " +
             "fc.pay_type, sum(fd.total_request_times) as total_request_times, sum(fd.total_fee) as total_fee, " +
             "DATE_FORMAT(fd.created_time ,:query_type) as query_date " +
             "from fee_detail fd  " +

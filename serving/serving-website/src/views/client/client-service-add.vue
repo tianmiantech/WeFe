@@ -37,7 +37,7 @@
 
             <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
                 <el-form :model="clientService" :rules="rules">
-                    <el-form-item label="单价：" :label-width="formLabelWidth" prop="unitPrice">
+                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">
                         <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
                     </el-form-item>
                     <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
@@ -187,7 +187,6 @@ export default {
     created() {
 
 
-
         if (this.$route.query.id) {
             // this.clientId = this.$route.query.id
             this.getClientById(this.$route.query.id)
@@ -288,6 +287,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {
@@ -315,7 +317,7 @@ export default {
 
             });
             if (code === 0) {
-                console.log(data.id,1111111111)
+                console.log(data.id, 1111111111)
                 this.clientService.clientId = data.id
                 // this.client.email = data.email
                 // this.client.ipAdd = data.ip_add

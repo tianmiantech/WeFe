@@ -50,6 +50,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -217,7 +218,7 @@ public class ServiceService {
 		if (input.getStatus() != -1) {
 			where = where.equal("status", input.getStatus());
 		}
-		Specification<ServiceMySqlModel> condition = where.build(ServiceMySqlModel.class);
+		Specification<ServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc).build(ServiceMySqlModel.class);
 
 		PagingOutput<ServiceMySqlModel> page = serviceRepository.paging(condition, input);
 
@@ -250,6 +251,8 @@ public class ServiceService {
 		if (StringUtils.isNotBlank(input.getServiceConfig())) {
 			model.setServiceConfig(input.getServiceConfig());
 		}
+		model.setUpdatedBy(CurrentAccount.id());
+		model.setUpdatedTime(new Date());
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
@@ -268,7 +271,9 @@ public class ServiceService {
 		}
 		model.setStatus(0);
 		serviceRepository.save(model);
-		unionServiceService.offline2Union(model);
+		if (model.getServiceType() == 3) {
+			unionServiceService.offline2Union(model);
+		}
 	}
 
 	public void onlineService(String id) throws StatusCodeWithException {
@@ -281,7 +286,9 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
-		unionServiceService.add2Union(model);
+		if (model.getServiceType() == 3) {
+			unionServiceService.add2Union(model);
+		}
 	}
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
@@ -307,7 +314,7 @@ public class ServiceService {
 		JObject res = JObject.create();
 		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
-		if (model == null) {
+		if (model == null || model.getStatus() != 1) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合

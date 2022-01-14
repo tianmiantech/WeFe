@@ -44,8 +44,15 @@
             <div slot="empty">
                 <TableEmptyData/>
             </div>
-            <el-table-column label="序号" min-width="80">
+            <el-table-column label="序号" min-width="80" type="index">
+<!--                <template slot-scope="scope">-->
+<!--                    <p class="id">{{ scope.row.id }}</p>-->
+<!--                </template>-->
+            </el-table-column>
+
+            <el-table-column label="客户名称" min-width="80">
                 <template slot-scope="scope">
+                    <p>{{ scope.row.name }}</p>
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
@@ -56,12 +63,8 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="客户名称" min-width="50">
-                <template slot-scope="scope">
-                    <p>{{ scope.row.name }}</p>
-                </template>
-            </el-table-column>
-            <el-table-column label="客户邮箱" min-width="80">
+
+            <el-table-column label="客户邮箱" min-width="60">
                 <template slot-scope="scope">
                     <p>{{ scope.row.email }}</p>
                 </template>
