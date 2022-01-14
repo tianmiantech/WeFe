@@ -37,4 +37,8 @@ public class Md5 {
     public static String of(final InputStream data) throws IOException {
         return data == null ? null : DigestUtils.md5Hex(data);
     }
+
+    public static void main(String[] args) {
+        System.out.println(of("hello"));
+    }
 }

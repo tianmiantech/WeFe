@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
-import com.welab.wefe.board.service.api.fusion.task.ReceiveApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.ReceiveApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -45,7 +45,7 @@ public class ThirdPartyService {
 
         JObject params = JObject
                 .create()
-                .put("project_id", task.getBusinessId())
+                .put("project_id", task.getProjectId())
                 .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
@@ -69,7 +69,6 @@ public class ThirdPartyService {
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
-                .put("project_id", "test")
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 

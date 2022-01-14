@@ -174,7 +174,6 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-
         return taskResultService.listAllResult(taskId);
     }
 

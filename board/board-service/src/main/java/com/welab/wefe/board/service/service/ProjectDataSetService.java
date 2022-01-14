@@ -23,6 +23,7 @@ import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel
 import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
@@ -39,6 +40,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -137,7 +139,6 @@ public class ProjectDataSetService extends AbstractService {
 
         // Create a derived dataset object
         DerivedProjectDataSetOutputModel derivedDataSet = json.toJavaObject(DerivedProjectDataSetOutputModel.class);
-
         if (dataSet != null) {
             // Query the feature list from each member
             List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
@@ -184,12 +185,16 @@ public class ProjectDataSetService extends AbstractService {
     @Autowired
     private JobMemberService jobMemberService;
 
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
+        return listRawDataSet(projectId, dataResourceType, memberId, memberRole, containsY, null);
+    }
+
     /**
      * Display the list of data sets of the specified members in the project
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
@@ -232,8 +237,13 @@ public class ProjectDataSetService extends AbstractService {
 
                 })
                 .filter(x -> {
-                    if (containsY != null) {
+                    if (containsY != null && (x.getDataSet() instanceof TableDataSetOutputModel)) {
                         return containsY.equals(((TableDataSetOutputModel) x.getDataSet()).isContainsY());
+                    }
+                    return true;
+                }).filter(x -> {
+                    if (forJobType != null && (x.getDataSet() instanceof ImageDataSetOutputModel)) {
+                        return forJobType.equals(((ImageDataSetOutputModel) x.getDataSet()).getForJobType());
                     }
                     return true;
                 })

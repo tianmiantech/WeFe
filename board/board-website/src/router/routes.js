@@ -142,8 +142,7 @@ const baseRoutes = [
                     title:  '查看与标注',
                     active: `${prefixPath}data-list`,
                 },
-                component: () =>
-                    import('../views/data-center/data-check-label.vue'),
+                component: () => import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
@@ -330,8 +329,7 @@ const baseRoutes = [
                     }, */
                     navigation:      true,
                 },
-                component: () =>
-                    import('../views/teamwork/components/fusion-job/fusion-detail'),
+                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
         ],
     },
@@ -438,8 +436,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '系统设置',
                 },
-                component: () =>
-                    import('../views/system-config/system-config-view'),
+                component: () => import('../views/system-config/system-config-view'),
             },
             {
                 path: `${prefixPath}calculation-engine-config`,
@@ -448,8 +445,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '计算引擎设置',
                 },
-                component: () =>
-                    import('../views/system-config/calculation-engine-config'),
+                component: () => import('../views/system-config/calculation-engine-config'),
             },
         ],
     },

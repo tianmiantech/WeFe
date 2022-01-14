@@ -74,7 +74,6 @@ class Handler(object):
         self.project_id = '001'
         self.model_id = "examples_0001"
         self.model_version = "1"
-        self.db_type = DBTypes.LMDB
         self._create_time = time.asctime(time.localtime(time.time()))
         self._initiator = None
         self._roles = {}

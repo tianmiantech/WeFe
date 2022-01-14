@@ -82,9 +82,6 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
             // 检查数据集的有效性
             for (DataSetItem dataSet : params.getDataSetList()) {
-                if (!CacheObjects.getMemberId().equals(dataSet.memberId)) {
-                    continue;
-                }
 
                 ImageDataSetOutputModel one = null;
                 try {
@@ -135,12 +132,12 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-        return null;
+        return taskResultService.listAllResult(taskId);
     }
 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
+        return taskResultService.findByTaskIdAndType(taskId, type);
     }
 
     @Override

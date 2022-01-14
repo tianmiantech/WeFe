@@ -44,6 +44,9 @@ public class BlockSyncHeightMongoReop extends AbstractMongoRepo {
     public void upsert(BlockSyncHeight blockSyncHeight) {
         BlockSyncHeight dbRecord = findByGroupId(blockSyncHeight.getGroupId());
         if (dbRecord != null) {
+            if (dbRecord.getBlockNumber() >= blockSyncHeight.getBlockNumber()) {
+                return;
+            }
             blockSyncHeight.setId(dbRecord.getId());
             blockSyncHeight.setCreateTime(dbRecord.getCreateTime());
         }

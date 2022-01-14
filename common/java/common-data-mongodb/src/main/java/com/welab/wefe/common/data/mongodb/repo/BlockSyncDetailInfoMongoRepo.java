@@ -44,6 +44,9 @@ public class BlockSyncDetailInfoMongoRepo extends AbstractMongoRepo {
     public void upsert(BlockSyncDetailInfo blockSyncDetailInfo) {
         BlockSyncDetailInfo dbRecord = findByGroupIdAndBlockNumber(blockSyncDetailInfo.getGroupId(), blockSyncDetailInfo.getBlockNumber());
         if (dbRecord != null) {
+            if (dbRecord.getBlockNumber() >= blockSyncDetailInfo.getBlockNumber()) {
+                return;
+            }
             blockSyncDetailInfo.setId(dbRecord.getId());
             blockSyncDetailInfo.setCreateTime(dbRecord.getCreateTime());
         }

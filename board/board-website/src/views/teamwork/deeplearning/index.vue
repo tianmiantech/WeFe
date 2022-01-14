@@ -40,7 +40,7 @@
                         <el-tabs type="border-card" @tab-click="methods.dataIOTabchange">
                             <el-tab-pane label="参数">
                                 <div class="data_select">
-                                    <h4>选择数据源</h4>
+                                    <h4>选择数据资源</h4>
                                     <div
                                         v-for="(member, index) in vData.member_list"
                                         v-show="vData.disabled ? member.$data_set_list.length : true"
@@ -78,7 +78,7 @@
                                                 @click="methods.checkDataSet(member, index)"
                                                 :disabled="vData.flowInfo.my_role !=='promoter'"
                                             >
-                                                选择数据源
+                                                选择数据资源
                                             </el-button>
                                         </p>
 
@@ -91,7 +91,7 @@
                                                 :key="row.id"
                                                 label-width="96px"
                                             >
-                                                <el-form-item label="数据集名称：">
+                                                <el-form-item label="数据资源名称：">
                                                     {{ row.data_set.name }}
                                                     <i
                                                         v-if="!vData.disabled"
@@ -100,8 +100,8 @@
                                                         @click="methods.removeDataSet(index)"
                                                     />
                                                 </el-form-item>
-                                                <el-form-item label="数据集id："> {{ row.data_set_id }} </el-form-item>
-                                                <el-form-item v-if="row.data_set.description" label="数据集简介：">
+                                                <el-form-item label="数据资源id："> {{ row.data_set_id }} </el-form-item>
+                                                <el-form-item v-if="row.data_set.description" label="数据资源简介：">
                                                     {{ row.data_set.description }}
                                                 </el-form-item>
                                                 <el-form-item label="关键词：">

@@ -103,7 +103,6 @@ def send_fl(dst_member_id, processor=None, action=None, content_str="", session_
 def receive_fl(session_id=None):
     transfer_meta = TransferMeta(sessionId=session_id)
     result = JOB_GRPC.recv(transfer_meta)
-    schedule_logger().debug("[REMOTE] receive message from %s, content:%s", result.src, result.content)
     return str(result.content.objectData)
 
 

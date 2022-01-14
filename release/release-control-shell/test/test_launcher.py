@@ -1,4 +1,4 @@
-from launcher import Launcher
+from main import Launcher
 
 with open('case1.json', 'r') as f:
     json_str = f.read()

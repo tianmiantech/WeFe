@@ -92,7 +92,8 @@ cd $WORKSPACE/$BOARD_WEBSITE_RELATIVE_PATH
 # 防止升级版本造成命令不兼容
 echo 'PACK BOARD-WEBSITE'
 rm -rf $WORKSPACE/board/board-website/dist
-npm i npm@6.9.0 -g > /dev/null
+source ~/bash_profile
+nvm use 16.13.0
 npm install > /dev/null
 # board/board-website/dist
 npm run build -- prod=board-website > /dev/null

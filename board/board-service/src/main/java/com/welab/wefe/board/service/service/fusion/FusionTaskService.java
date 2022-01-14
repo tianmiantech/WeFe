@@ -16,31 +16,38 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.*;
+import com.welab.wefe.board.service.api.project.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.fusion.FusionMemberInfo;
 import com.welab.wefe.board.service.dto.fusion.FusionTaskOutput;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.ProjectService;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -82,6 +89,9 @@ public class FusionTaskService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
+    @Autowired
+    ProjectService projectService;
+
     public FusionTaskMySqlModel find(String taskId) throws StatusCodeWithException {
         return fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
     }
@@ -111,6 +121,12 @@ public class FusionTaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
+        //A non promoter cannot create a task
+        ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
+        if (!JobMemberRole.promoter.equals(project.getMyRole())) {
+            throw new StatusCodeWithException("A non promoter cannot create a task", StatusCode.UNSUPPORTED_HANDLE);
+        }
+
         //If a task is being executed, add it after the task is completed
         if (ActuatorManager.size() > 0) {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
@@ -125,6 +141,7 @@ public class FusionTaskService extends AbstractService {
         FusionTaskMySqlModel task = ModelMapper.map(input, FusionTaskMySqlModel.class);
         task.setBusinessId(businessId);
         task.setStatus(FusionTaskStatus.Await);
+        task.setMyRole(JobMemberRole.promoter);
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -144,7 +161,7 @@ public class FusionTaskService extends AbstractService {
             task.setPsiActuatorRole(PSIActuatorRole.client);
         }
 
-        task.setRowCount(dataSet.getTotalDataCount());
+//        task.setRowCount(dataSet.getTotalDataCount());
         fusionTaskRepository.save(task);
 
         dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
@@ -222,6 +239,39 @@ public class FusionTaskService extends AbstractService {
         thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public void restart(AuditApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
+        if (task == null) {
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
+
+        if (!input.getAuditStatus().equals(AuditStatus.agree)) {
+            task.setStatus(FusionTaskStatus.Refuse);
+            task.setComment(input.getAuditComment());
+
+            //callback
+            thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+
+            return;
+        }
+
+        if (ActuatorManager.size() > 0) {
+            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+        }
+
+        switch (task.getAlgorithm()) {
+            case RSA_PSI:
+                psi(input, task);
+                break;
+            default:
+                throw new RuntimeException("Unexpected enumeration values");
+        }
+
+        //callback
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+    }
 
     /**
      * RSA-psi Algorithm to deal with
@@ -346,6 +396,11 @@ public class FusionTaskService extends AbstractService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void alignByPartner(ReceiveApi.Input input) throws StatusCodeWithException {
+        //A non promoter cannot create a task
+        ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
+        if (!JobMemberRole.provider.equals(project.getMyRole())) {
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "Non providers do not receive creation requests");
+        }
 
         if (PSIActuatorRole.server.equals(input.getPsiActuatorRole()) && input.getRowCount() <= 0) {
             throw new StatusCodeWithException("The required parameter is missing", StatusCode.PARAMETER_VALUE_INVALID);
@@ -354,6 +409,7 @@ public class FusionTaskService extends AbstractService {
         //Add tasks
         FusionTaskMySqlModel model = ModelMapper.map(input, FusionTaskMySqlModel.class);
         model.setStatus(FusionTaskStatus.Pending);
+        model.setMyRole(JobMemberRole.provider);
 
         fusionTaskRepository.save(model);
 
@@ -395,25 +451,55 @@ public class FusionTaskService extends AbstractService {
      */
     public FusionTaskOutput detail(String taskId) throws StatusCodeWithException {
         FusionTaskMySqlModel model = fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
-
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "id", taskId);
+        }
         FusionTaskOutput output = ModelMapper.map(model, FusionTaskOutput.class);
 
-//        setName(output);
-//        setDataResouceList(output);
-//        setPartnerList(output);
+        setMemberInfo(output);
 
         return output;
     }
 
-//    private void setName(TaskOutput model) throws StatusCodeWithException {
-//        model.setPartnerName(CacheObjects.getPartnerName(model.getPartnerId()));
-//
-//        if (DataResourceType.BloomFilter.equals(model.getDataResourceType())) {
-//            model.setDataResourceName(CacheObjects.getBloomFilterName(model.getDataResourceId()));
-//        } else {
-//            model.setDataResourceName(CacheObjects.getDataSetName(model.getDataResourceId()));
-//        }
-//    }
+    private void setMemberInfo(FusionTaskOutput model) throws StatusCodeWithException {
+
+        FusionMemberInfo myMemberInfo = ModelMapper.map(model, FusionMemberInfo.class);
+        myMemberInfo.setMemberId(CacheObjects.getMemberId());
+        myMemberInfo.setMemberName(CacheObjects.getMemberName());
+        myMemberInfo.setRole(model.getMyRole());
+
+        List<FieldInfo> fieldInfos = DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
+                fieldInfoService.fieldInfoList(
+                        model.getDataResourceId()
+                ) :
+                fieldInfoService.fieldInfoList(
+                        model.getBusinessId()
+                );
+        if (CollectionUtils.isNotEmpty(fieldInfos)) {
+            myMemberInfo.setHashFunction(fieldInfos);
+        }
+
+        FusionMemberInfo memberInfo = new FusionMemberInfo();
+        memberInfo.setDataResourceId(model.getPartnerDataResourceId());
+        memberInfo.setDataResourceName(model.getPartnerDataResourceName());
+        memberInfo.setDataResourceType(model.getPartnerDataResourceType());
+        memberInfo.setRowCount(model.getPartnerRowCount());
+        memberInfo.setMemberId(model.getDstMemberId());
+        memberInfo.setMemberName(CacheObjects.getMemberName(model.getDstMemberId()));
+        memberInfo.setRole(
+                model.getMyRole().equals(JobMemberRole.promoter) ?
+                        JobMemberRole.provider :
+                        JobMemberRole.promoter
+        );
+
+        if (JobMemberRole.promoter.equals(model.getMyRole())) {
+            model.setPromoter(myMemberInfo);
+            model.setProvider(memberInfo);
+        } else {
+            model.setPromoter(memberInfo);
+            model.setProvider(myMemberInfo);
+        }
+    }
 
     /**
      * Finding data resources

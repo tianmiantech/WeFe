@@ -43,9 +43,6 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "唯一标识", require = true)
-        private String id;
-
         @Check(name = "昵称")
         private String nickname;
 
@@ -56,14 +53,6 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
         private Boolean adminRole;
 
         //region getter/setter
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
 
         public String getNickname() {
             return nickname;

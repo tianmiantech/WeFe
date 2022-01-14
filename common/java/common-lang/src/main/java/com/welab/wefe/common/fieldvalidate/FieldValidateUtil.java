@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  * @author Zane
  */
 public class FieldValidateUtil {
+    private static final String[] XSS_KEYWORDS = {">", "<"};
 
     /**
      * Normalize the value of the field
@@ -92,6 +93,8 @@ public class FieldValidateUtil {
                 continue;
             }
 
+            String valueStr = value.toString();
+
             if (!check.type().equals(StandardFieldType.NONE)) {
 
                 StandardFieldType standardFieldType = check.type();
@@ -108,7 +111,63 @@ public class FieldValidateUtil {
                 }
 
             }
+
+            checkReactionaryKeyword(check, field.getName(), valueStr);
+            checkBlockXss(check, field.getName(), valueStr);
+
+            // 对 string 字段进行防止 sql 注入处理
+            if (value instanceof String && check.blockSqlInjection()) {
+                field.set(
+                        obj,
+                        valueStr
+                                .replace(",", "，")
+                                .replace("\"", "“")
+                                .replace("'", "’")
+                                .replace("#", "")
+                                .replace("-", "")
+                                .replace("%", "")
+                                .replace("<", "")
+                                .replace("\\", "")
+                                .replace("/", "")
+                );
+            }
+
         }
+    }
+
+    /**
+     * 检查输入是否包含反动关键字
+     */
+    private static void checkReactionaryKeyword(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+        if (!check.blockReactionaryKeyword()) {
+            return;
+        }
+
+        String keyword = ReactionaryKeywords.match(valueStr);
+        if (StringUtil.isNotEmpty(keyword)) {
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException(fieldName + " 包含不允许的输入：" + keyword);
+        }
+
+    }
+
+    /**
+     * 检查输入是否包含 xss 关键字
+     */
+    private static void checkBlockXss(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+        if (!check.blockXss()) {
+            return;
+        }
+
+        for (String keyword : XSS_KEYWORDS) {
+            if (valueStr.contains(keyword)) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(fieldName + " 包含不安全的输入：" + keyword);
+            }
+        }
+
     }
 
     /**
