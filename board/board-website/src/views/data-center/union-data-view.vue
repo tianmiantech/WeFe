@@ -44,8 +44,8 @@
                 <el-descriptions-item label="标注状态：">
                     {{ dataInfo.label_completed ? '已完成' : '标注中' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="样本数量：">
-                    {{ dataInfo.total_data_count }}
+                <el-descriptions-item label="样本量/已标注：">
+                    {{ dataInfo.total_data_count }} / {{ dataInfo.labeled_count }}
                 </el-descriptions-item>
             </template>
         </el-descriptions>
