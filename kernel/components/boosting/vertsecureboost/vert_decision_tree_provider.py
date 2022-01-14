@@ -558,11 +558,9 @@ class VertDecisionTreeProvider(DecisionTree):
                                                                            use_missing=self.use_missing,
                                                                            valid_features=self.valid_features,
                                                                            sitename=self.sitename,
-                                                                           left_missing_dir=self.missing_dir_mask_left[
-                                                                               dep],
+                                                                           left_missing_dir=self.missing_dir_mask_left[dep],
                                                                            right_missing_dir=
-                                                                           self.missing_dir_mask_right[
-                                                                               dep],
+                                                                           self.missing_dir_mask_right[dep],
                                                                            mask_id_mapping=self.fid_bid_random_mapping,
                                                                            batch_size=self.bin_num,
                                                                            cipher_compressor=self.cipher_compressor,
@@ -663,7 +661,7 @@ class VertDecisionTreeProvider(DecisionTree):
 
     def fit(self):
         LOGGER.info("begin to fit provider decision tree")
-        self.sync_encrypted_grad_and_hess()
+        self.init_compressor_and_sync_gh()
 
         for dep in range(self.max_depth):
             self.sync_tree_node_queue(dep)

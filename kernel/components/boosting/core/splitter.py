@@ -473,7 +473,7 @@ class Splitter(object):
                                                shuffle_random_seed=shuffle_random_seed
                                                )
 
-        provider_splitinfo_table = histograms.mapPartitions(map_partition_func, use_previous_behavior=False)
+        provider_splitinfo_table = histograms.mapPartitions2(map_partition_func, use_previous_behavior=False)
 
         return provider_splitinfo_table
 

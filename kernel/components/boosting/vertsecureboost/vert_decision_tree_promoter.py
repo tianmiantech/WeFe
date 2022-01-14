@@ -142,6 +142,11 @@ class VertDecisionTreePromoter(DecisionTree):
         self.task_type = task_type
 
         if self.run_goss:
+            self.encrypted_mode_calculator.align_to_input_data = False
+            if self.encrypted_mode_calculator.mode != 'strict':
+                self.encrypted_mode_calculator.init_enc_zero(self.grad_and_hess,
+                                                             raw_en=self.run_cipher_compressing, exponent=0)
+                LOGGER.info('fast/balance encrypt mode, initialize enc zeros for goss sampling')
             self.goss_sampling()
             self.max_sample_weight = self.max_sample_weight * ((1 - top_rate) / other_rate)
 
@@ -337,34 +342,6 @@ class VertDecisionTreePromoter(DecisionTree):
                           idx=idx)
         """
 
-    # def find_provider_split(self, value):
-    #     """
-    #     find_provider_split
-    #     :param value:
-    #     :return:
-    #     """
-    #     cur_split_node, encrypted_splitinfo_provider = value
-    #     sum_grad = cur_split_node.sum_grad
-    #     sum_hess = cur_split_node.sum_hess
-    #     best_gain = self.min_impurity_split - consts.FLOAT_ZERO
-    #     best_idx = -1
-    #
-    #     for i in range(len(encrypted_splitinfo_provider)):
-    #         sum_grad_l, sum_hess_l = encrypted_splitinfo_provider[i]
-    #         sum_grad_l = self.decrypt(sum_grad_l)
-    #         sum_hess_l = self.decrypt(sum_hess_l)
-    #         sum_grad_r = sum_grad - sum_grad_l
-    #         sum_hess_r = sum_hess - sum_hess_l
-    #         gain = self.splitter.split_gain(sum_grad, sum_hess, sum_grad_l,
-    #                                         sum_hess_l, sum_grad_r, sum_hess_r)
-    #
-    #         if gain > self.min_impurity_split and gain > best_gain:
-    #             best_gain = gain
-    #             best_idx = i
-    #
-    #     encrypted_best_gain = self.encrypt(best_gain)
-    #     return best_idx, encrypted_best_gain, best_gain
-
     def federated_find_split(self, dep=-1, batch=-1, idx=-1):
         LOGGER.info("federated find split of depth {}, batch {}".format(dep, batch))
         encrypted_splitinfo_provider = self.sync_encrypted_splitinfo_provider(dep, batch, idx)
@@ -434,6 +411,57 @@ class VertDecisionTreePromoter(DecisionTree):
     #
     #     return best_splitinfo
 
+
+    def federated_find_split(self, dep=-1, batch=-1, idx=-1):
+        LOGGER.info("federated find split of depth {}, batch {}".format(dep, batch))
+        encrypted_splitinfo_provider = self.sync_encrypted_splitinfo_provider(dep, batch, idx)
+
+        for i in range(len(encrypted_splitinfo_provider)):
+            init_gain = self.min_impurity_split - consts.FLOAT_ZERO
+            encrypted_init_gain = self.encrypter.encrypt(init_gain)
+            best_splitinfo_provider = [[-1, encrypted_init_gain] for j in range(len(self.cur_split_nodes))]
+            best_gains = [init_gain for j in range(len(self.cur_split_nodes))]
+            max_nodes = max(len(encrypted_splitinfo_provider[i][j]) for j in range(len(self.cur_split_nodes)))
+            for k in range(0, max_nodes, consts.MAX_FEDERATED_NODES):
+                batch_splitinfo_provider = [encrypted_splitinfo[k: k + consts.MAX_FEDERATED_NODES] for
+                                            encrypted_splitinfo
+                                            in encrypted_splitinfo_provider[i]]
+                encrypted_splitinfo_provider_table = session.parallelize(
+                    zip(self.cur_split_nodes, batch_splitinfo_provider),
+                    include_key=False,
+                    partition=self.data_bin._partitions)
+
+                _find_provider_split = functools.partial(find_provider_split, self.min_impurity_split,
+                                                         self.encrypter.encrypt, self.encrypter.decrypt, self.splitter)
+
+                splitinfos = encrypted_splitinfo_provider_table.mapValues(_find_provider_split).collect()
+                for _, splitinfo in splitinfos:
+                    if best_splitinfo_provider[_][0] == -1:
+                        best_splitinfo_provider[_] = list(splitinfo[:2])
+                        best_gains[_] = splitinfo[2]
+                    elif splitinfo[0] != -1 and splitinfo[2] > best_gains[_]:
+                        best_splitinfo_provider[_][0] = k + splitinfo[0]
+                        best_splitinfo_provider[_][1] = splitinfo[1]
+                        best_gains[_] = splitinfo[2]
+
+            if idx != -1:
+                self.sync_federated_best_splitinfo_provider(best_splitinfo_provider, dep, batch, idx)
+                break
+
+            self.sync_federated_best_splitinfo_provider(best_splitinfo_provider, dep, batch, i)
+
+    def sync_final_split_provider(self, dep=-1, batch=-1, idx=-1):
+        LOGGER.info("get provider final splitinfo of depth {}, batch {}".format(dep, batch))
+        final_splitinfo_provider = self.transfer_inst.final_splitinfo_provider.get(idx=idx,
+                                                                                   suffix=(dep, batch,))
+        """
+        final_splitinfo_provider = federation.get(name=self.transfer_inst.final_splitinfo_provider.name,
+                                              tag=self.transfer_inst.generate_transferid(
+                                                  self.transfer_inst.final_splitinfo_provider, dep, batch),
+                                              idx=-1)
+        """
+        return final_splitinfo_provider if idx == -1 else [final_splitinfo_provider]
+
     def merge_splitinfo(self, splitinfo_promoter, splitinfo_provider, merge_provider_split_only=False,
                         need_decrypt=True):
 
@@ -499,6 +527,10 @@ class VertDecisionTreePromoter(DecisionTree):
                                   is_left_node=False,
                                   parent_nodeid=pid)
 
+                LOGGER.debug('cwj node {}'.format(left_node))
+                LOGGER.debug('cwj node {}'.format(right_node))
+                LOGGER.debug('cwj gain {}'.format(split_info[i].gain))
+
                 new_tree_node_queue.append(left_node)
                 new_tree_node_queue.append(right_node)
 
@@ -522,9 +554,10 @@ class VertDecisionTreePromoter(DecisionTree):
 
     @staticmethod
     def dispatch_node(value, tree_=None, decoder=None, sitename=consts.PROMOTER,
-                      split_maskdict=None, bin_sparse_points=None,
-                      use_missing=False, zero_as_missing=False,
-                      missing_dir_maskdict=None):
+                           split_maskdict=None, bin_sparse_points=None,
+                           use_missing=False, zero_as_missing=False,
+                           missing_dir_maskdict=None):
+
         unleaf_state, nodeid = value[1]
 
         if tree_[nodeid].is_leaf is True:

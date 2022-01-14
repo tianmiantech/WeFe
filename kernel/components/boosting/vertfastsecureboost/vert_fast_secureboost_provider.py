@@ -139,7 +139,6 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
 
         tree_type, target_provider_id = self.get_tree_plan(epoch_idx)
         self.check_provider_number(tree_type)
-        # self.check_run_sp_opt()
         tree = VertFastDecisionTreeProvider(tree_param=self.tree_param)
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   valid_features=self.sample_valid_features(),
@@ -151,8 +150,7 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
                   goss_subsample=self.enable_goss,
                   bin_num=self.bin_num,
                   complete_secure=True if (self.complete_secure and epoch_idx == 0) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
+                  cipher_compressing=self.cipher_compressing,
                   new_ver=self.new_ver
                   )
 

@@ -41,6 +41,7 @@ from kernel.components.boosting.core.feature_importance import FeatureImportance
 from kernel.components.boosting.core.node import Node
 from kernel.components.boosting.core.splitter import Splitter
 from kernel.utils import consts
+from kernel.utils.data_util import NoneType
 
 LOGGER = log_utils.get_logger()
 
@@ -60,7 +61,6 @@ class DecisionTree(object):
         self.use_missing = tree_param.use_missing
         self.zero_as_missing = tree_param.zero_as_missing
         self.min_child_weight = tree_param.min_child_weight
-        self.sitename = ''
         self.feature_importance = {}
 
         self.runtime_idx = None
@@ -72,8 +72,11 @@ class DecisionTree(object):
         self.bin_sparse_points = None
         self.splitter = Splitter(self.criterion_method, self.criterion_params, self.min_impurity_split,
                                  self.min_sample_split, self.min_leaf_node, self.min_child_weight)
+
+        self.sample_leaf_pos =None
         self.sample_weights = None
         self.tree_ = []
+        self.tree_node_num = 0
 
         # histogram
         self.deterministic = tree_param.deterministic
@@ -229,6 +232,83 @@ class DecisionTree(object):
         prevent float error
         """
         return round(num, consts.TREE_DECIMAL_ROUND)
+
+    @staticmethod
+    def get_leaf_node_map(nodes: List[Node]):
+        leaf_nodes = []
+        for n in nodes:
+            if n.is_leaf:
+                leaf_nodes.append(n)
+        return DecisionTree.get_node_map(leaf_nodes)
+
+    @staticmethod
+    def get_node_weights(node_id, tree_nodes):
+        return tree_nodes[node_id].weight
+
+    def extract_sample_weights_from_node(self, sample_leaf_pos):
+        """
+        Given a dtable contains leaf positions of samples, return leaf weights
+        """
+        func = functools.partial(self.get_node_weights, tree_nodes=self.tree_)
+        sample_weights = sample_leaf_pos.mapValues(func)
+        return sample_weights
+
+    def sample_weights_post_process(self):
+
+        self.sample_weights = self.extract_sample_weights_from_node(self.sample_leaf_pos)
+        leaf_node_map = self.get_leaf_node_map(self.tree_)
+        leaf_count = self.count_node_sample_num(self.sample_leaf_pos, leaf_node_map)
+        rs = {}
+        for k, v in leaf_node_map.items():
+            rs[k] = int(leaf_count[v])
+        self.leaf_count = rs
+        LOGGER.debug('final leaf count is {}'.format(self.leaf_count))
+
+    @staticmethod
+    def make_decision(data_inst, fid, bid, missing_dir, use_missing, zero_as_missing, zero_val=0):
+
+        left, right = True, False
+        missing_dir = left if missing_dir == -1 else right
+
+        # use missing and zero as missing
+        if use_missing and zero_as_missing:
+            # missing or zero
+            if data_inst.features.get_data(fid) == NoneType() or data_inst.features.get_data(fid, None) is None:
+                return missing_dir
+
+        # is missing feat
+        if data_inst.features.get_data(fid) == NoneType():
+            return missing_dir
+
+        # no missing val
+        feat_val = data_inst.features.get_data(fid, zero_val)
+        direction = left if feat_val <= bid + consts.FLOAT_ZERO else right
+        return direction
+
+    @staticmethod
+    def go_next_layer(node, data_inst, use_missing, zero_as_missing, bin_sparse_point=None,
+                      split_maskdict=None,
+                      missing_dir_maskdict=None,
+                      decoder=None,
+                      return_node_id=True):
+
+        if missing_dir_maskdict is not None and split_maskdict is not None:
+            fid = decoder("feature_idx", node.fid, split_maskdict=split_maskdict)
+            bid = decoder("feature_val", node.bid, node.id, split_maskdict=split_maskdict)
+            missing_dir = decoder("missing_dir", node.missing_dir, node.id, missing_dir_maskdict=missing_dir_maskdict)
+        else:
+            fid, bid = node.fid, node.bid
+            missing_dir = node.missing_dir
+        zero_val = 0 if bin_sparse_point is None else bin_sparse_point[fid]
+        go_left = DecisionTree.make_decision(data_inst, fid, bid, missing_dir, use_missing, zero_as_missing, zero_val)
+
+        if not return_node_id:
+            return go_left
+
+        if go_left:
+            return node.left_nodeid
+        else:
+            return node.right_nodeid
 
     def round_leaf_val(self):
         # process predict weight to prevent float error
