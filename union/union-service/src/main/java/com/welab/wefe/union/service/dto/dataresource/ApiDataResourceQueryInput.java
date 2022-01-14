@@ -20,6 +20,8 @@ import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.union.service.dto.base.PageInput;
 
+import java.util.List;
+
 /**
  * @author yuxin.zhang
  **/
@@ -29,7 +31,7 @@ public class ApiDataResourceQueryInput extends PageInput {
     protected String name;
     protected String tag;
     protected String memberId;
-    protected DataResourceType dataResourceType;
+    private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
 
@@ -73,14 +75,13 @@ public class ApiDataResourceQueryInput extends PageInput {
         this.memberId = memberId;
     }
 
-    public DataResourceType getDataResourceType() {
+    public List<DataResourceType> getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(DataResourceType dataResourceType) {
+    public void setDataResourceType(List<DataResourceType> dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
-
 
     public DeepLearningJobType getForJobType() {
         return forJobType;
