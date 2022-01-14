@@ -91,7 +91,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
                                           num_trees=param['tree_num'],
                                           task_type=param['task_type'],
                                           objective_param={"objective": param['loss_func']},
-                                          encrypt_param={"method": "iterativeAffine"},
+                                          encrypt_param={"method": "Paillier"},
                                           tree_param={"max_depth": param['tree_depth']},
                                           validation_freqs=10,
                                           learning_rate=param['learning_rate']

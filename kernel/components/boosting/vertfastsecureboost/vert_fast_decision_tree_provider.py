@@ -268,7 +268,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                 if self.feature_importance_type == 'split':
                     self.update_feature_importance(split_info[i], record_site_name=False)
 
-            self.tree_.append(self.tree_node_queue[i])
+            self.tree_node.append(self.tree_node_queue[i])
 
         self.tree_node_queue = new_tree_node_queue
 
@@ -327,7 +327,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
     def provider_local_assign_instances_to_new_node(self):
 
         assign_node_method = functools.partial(self.provider_assign_an_instance,
-                                               tree_=self.tree_,
+                                               tree_=self.tree_node,
                                                bin_sparse_points=self.bin_sparse_points,
                                                use_missing=self.use_missing,
                                                zero_as_missing=self.zero_as_missing,
@@ -360,7 +360,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
     def sync_leaf_nodes(self):
         leaves = []
-        for node in self.tree_:
+        for node in self.tree_node:
             if node.is_leaf:
                 leaves.append(node)
         to_send_leaves = copy.deepcopy(leaves)
@@ -379,7 +379,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
         # remove g/h info and rename leaves
 
-        for node in self.tree_:
+        for node in self.tree_node:
             node.sum_grad = None
             node.sum_hess = None
             if node.is_leaf:
@@ -392,20 +392,20 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
     def convert_bin_to_real(self):
         LOGGER.info("convert tree node bins to real value")
-        for i in range(len(self.tree_)):
-            if self.tree_[i].is_leaf is True:
+        for i in range(len(self.tree_node)):
+            if self.tree_node[i].is_leaf is True:
                 continue
-            if self.tree_[i].sitename == self.sitename:
-                fid = self.decode("feature_idx", self.tree_[i].fid, split_maskdict=self.split_maskdict)
-                bid = self.decode("feature_val", self.tree_[i].bid, self.tree_[i].id, self.split_maskdict)
-                real_splitval = self.encode("feature_val", self.bin_split_points[fid][bid], self.tree_[i].id)
-                self.tree_[i].bid = real_splitval
+            if self.tree_node[i].sitename == self.sitename:
+                fid = self.decode("feature_idx", self.tree_node[i].fid, split_maskdict=self.split_maskdict)
+                bid = self.decode("feature_val", self.tree_node[i].bid, self.tree_node[i].id, self.split_maskdict)
+                real_splitval = self.encode("feature_val", self.bin_split_points[fid][bid], self.tree_node[i].id)
+                self.tree_node[i].bid = real_splitval
 
     def convert_bin_to_real2(self):
         """
         convert current bid in tree nodes to real value
         """
-        for node in self.tree_:
+        for node in self.tree_node:
             if not node.is_leaf:
                 node.bid = self.bin_split_points[node.fid][node.bid]
 
@@ -518,7 +518,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         if not self.use_promoter_feat_when_predict and str(self.target_provider_id) == self.self_provider_id:
             LOGGER.info('predicting using local nodes')
             traverse_tree = functools.partial(self.provider_local_traverse_tree,
-                                              tree_node=self.tree_,
+                                              tree_node=self.tree_node,
                                               use_missing=self.use_missing,
                                               zero_as_missing=self.zero_as_missing, )
             leaf_nodes = data_inst.mapValues(traverse_tree, need_send=True)
