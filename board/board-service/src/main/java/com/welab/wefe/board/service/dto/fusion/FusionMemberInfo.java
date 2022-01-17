@@ -38,6 +38,8 @@ public class FusionMemberInfo {
     Long rowCount;
     String hashFunction;
 
+    String columnNameList;
+
 
     public String getMemberId() {
         return memberId;
@@ -105,5 +107,13 @@ public class FusionMemberInfo {
 
     public void setHashFunction(List<FieldInfo> fieldInfos) {
         this.hashFunction = PrimaryKeyUtils.hashFunction(fieldInfos);
+    }
+
+    public String getColumnNameList() {
+        return columnNameList;
+    }
+
+    public void setColumnNameList(String columnNameList) {
+        this.columnNameList = columnNameList;
     }
 }

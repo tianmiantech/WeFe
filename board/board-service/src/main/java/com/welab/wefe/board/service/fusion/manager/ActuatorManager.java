@@ -113,7 +113,7 @@ public class ActuatorManager {
                     .append("processed_count", model.getProcessedCount())
                     .append("data_count", model.getDataCount())
                     .append("spend", model.getSpend())
-                    .append("progress", model.getProcessedCount() / model.getDataCount());
+                    .append("progress", model.getProcessedCount().doubleValue() / model.getDataCount().doubleValue());
         }
 
         return null;

@@ -313,7 +313,7 @@ public class FusionTaskService extends AbstractService {
                 input.getTraceColumn(),
                 task.getDstMemberId(),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getParnterRowCount()
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(client);
@@ -358,7 +358,7 @@ public class FusionTaskService extends AbstractService {
                 new BigInteger(bf.getRsaE()),
                 new BigInteger(bf.getRsaD()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getParnterRowCount()
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(server);
@@ -444,6 +444,11 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setMemberId(CacheObjects.getMemberId());
         myMemberInfo.setMemberName(CacheObjects.getMemberName());
         myMemberInfo.setRole(model.getMyRole());
+        if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
+            TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
+            myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
+        }
+//        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
 
         List<FieldInfo> fieldInfos = DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
                 fieldInfoService.fieldInfoList(
@@ -458,7 +463,7 @@ public class FusionTaskService extends AbstractService {
 
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());
-        memberInfo.setDataResourceName(model.getPartnerDataResourceName());
+//        memberInfo.setDataResourceName(model.getPartnerDataResourceName());
         memberInfo.setDataResourceType(model.getPartnerDataResourceType());
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
