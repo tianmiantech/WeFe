@@ -16,13 +16,6 @@
 
 package com.welab.wefe.board.service.api.project.job.task;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
@@ -35,6 +28,12 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author zane.luo
@@ -42,64 +41,68 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
 @Api(path = "flow/job/task/result", name = "get task result", desc = "Use taskId or flowId + nodeId to get the node execution result.")
 public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResultOutputModel>> {
 
-	@Autowired
-	private TaskService taskService;
+    @Autowired
+    private TaskService taskService;
 
-	@Override
-	protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
+    @Override
+    protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
 
-		List<TaskMySqlModel> tasks = taskService.findAll(input);
-		if (tasks == null || tasks.isEmpty()) {
-			return success();
-		}
-		List<TaskResultOutputModel> results = new ArrayList<>();
-		Set<String> temp = new HashSet<>();
-		for (TaskMySqlModel task : tasks) {
-			String taskConf = task.getTaskConf();
-			JObject taskConfigJson = JObject.create(taskConf);
-			TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
-					input.type);
-			if (result == null) {
-				result = new TaskResultOutputModel();
-			}
-			// put task info to TaskResultOutputModel
-			result.setStatus(task.getStatus());
-			result.setStartTime(task.getStartTime());
-			result.setFinishTime(task.getFinishTime());
-			result.setMessage(task.getMessage());
-			result.setErrorCause(task.getErrorCause());
-			result.setPosition(task.getPosition());
-			result.setSpend(task.getSpend());
-			result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
-			if (result.getResult() != null && !temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
-					&& (task.getTaskType() == ComponentType.MixStatistic
-							|| task.getTaskType() == ComponentType.MixBinning
-							|| task.getTaskType() == ComponentType.FillMissingValue
-							|| task.getTaskType() == ComponentType.MixLR)) {
-				continue;
-			}
-			results.add(result);
-		}
+        List<TaskMySqlModel> tasks = taskService.findAll(input);
+        if (tasks == null || tasks.isEmpty()) {
+            return success();
+        }
+        List<TaskResultOutputModel> results = new ArrayList<>();
+        Set<String> temp = new HashSet<>();
+        for (TaskMySqlModel task : tasks) {
+            String taskConf = task.getTaskConf();
+            JObject taskConfigJson = JObject.create(taskConf);
+            TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
+                    input.type);
+            if (result == null) {
+                result = new TaskResultOutputModel();
+            }
+            // put task info to TaskResultOutputModel
+            result.setStatus(task.getStatus());
+            result.setStartTime(task.getStartTime());
+            result.setFinishTime(task.getFinishTime());
+            result.setMessage(task.getMessage());
+            result.setErrorCause(task.getErrorCause());
+            result.setPosition(task.getPosition());
+            result.setSpend(task.getSpend());
+            JObject taskInfo = taskConfigJson.getJObject("task");
+            if (taskInfo != null) {
+                result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
+            }
 
-		return success(results);
-	}
+            if (result.getResult() != null && !temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
+                    && (task.getTaskType() == ComponentType.MixStatistic
+                    || task.getTaskType() == ComponentType.MixBinning
+                    || task.getTaskType() == ComponentType.FillMissingValue
+                    || task.getTaskType() == ComponentType.MixLR)) {
+                continue;
+            }
+            results.add(result);
+        }
 
-	public static class Input extends DetailApi.Input {
+        return success(results);
+    }
 
-		@Check(name = "结果类型")
-		private String type;
+    public static class Input extends DetailApi.Input {
 
-		// region getter/setter
+        @Check(name = "结果类型")
+        private String type;
 
-		public String getType() {
-			return type;
-		}
+        // region getter/setter
 
-		public void setType(String type) {
-			this.type = type;
-		}
+        public String getType() {
+            return type;
+        }
 
-		// endregion
-	}
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        // endregion
+    }
 
 }
