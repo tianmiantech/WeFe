@@ -56,7 +56,8 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             member.setGatewayUri(input.getGatewayUri());
             member.setLastActivityTime(System.currentTimeMillis());
             member.setLogo(input.getLogo());
-            member.setExtJson(JObject.create("secret_key_type", input.secretKeyType.name()).toString());
+            SecretKeyType secretKeyType = (null == input.secretKeyType ? SecretKeyType.rsa : input.secretKeyType);
+            member.setExtJson(JObject.create("secret_key_type", secretKeyType.name()).toString());
 
             memberContractService.add(member);
         } catch (StatusCodeWithException e) {
