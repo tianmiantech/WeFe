@@ -8,16 +8,17 @@
             @submit.prevent
         >
             <el-form-item label="操作类型">
-                <el-input v-model="search.action" />
+                <el-input v-model="search.action" clearable />
             </el-form-item>
-            <el-form-item label="操作人员">
-                <el-input v-model="search.operator_phone" />
+            <el-form-item label="操作人手机号">
+                <el-input v-model="search.operator_phone" maxlength="11" clearable />
             </el-form-item>
             <el-form-item label="起止时间">
                 <DateTimePicker
                     type="datetimerange"
                     ref="dateTimePicker"
                     valueFormat="x"
+                    clearable
                     @change="datePickerChange"
                 />
             </el-form-item>
@@ -49,7 +50,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="操作人员"
+                label="操作人"
                 prop="operator_phone"
                 min-width="250"
             >
@@ -66,10 +67,12 @@
             <el-table-column
                 label="请求 IP"
                 prop="request_ip"
+                min-width="100"
             />
             <el-table-column
                 label="操作类型"
                 prop="log_action"
+                min-width="120"
             />
             <el-table-column label="时间" width="140px">
                 <template v-slot="scope">

@@ -16,10 +16,12 @@
                 @click="chat(node, data)"
             >
                 <div class="tree-node-label f14">{{ node.label }}</div>
-                <i
+                <el-icon
                     v-if="node.level > 1 && data.id !== userInfo.id"
                     class="el-icon-chat-round"
-                />
+                >
+                    <elicon-chat-round />
+                </el-icon>
             </div>
         </template>
     </el-tree>

@@ -52,6 +52,7 @@ class OneHotInnerParam(object):
         self.transform_indexes = []
         self.transform_names = []
         self.result_header = []
+        self.result_column_types = None
 
     def set_header(self, header):
         self.header = header
@@ -60,6 +61,10 @@ class OneHotInnerParam(object):
 
     def set_result_header(self, result_header: list or tuple):
         self.result_header = result_header.copy()
+
+    def set_result_column_types(self, result_column_types: list or tuple):
+        self.result_column_types = []
+        self.result_column_types = result_column_types.copy()
 
     def set_transform_all(self):
         self.transform_indexes = [i for i in range(len(self.header))]
@@ -130,6 +135,7 @@ class OneHotEncoder(ModelBase):
         self.schema = {}
         self.model_param = OneHotEncoderParam()
         self.inner_param: OneHotInnerParam = None
+        self.set_show_name("(One Hot Encoder)")
 
     def _init_model(self, model_param):
         self.model_param = model_param
@@ -169,16 +175,25 @@ class OneHotEncoder(ModelBase):
         LOGGER.debug("[Result][OneHotEncoder]Before one-hot, "
                      "data_instances schema is : {}".format(self.inner_param.header))
         result_header = []
+        result_column_types = []
+        column_types = self.schema.get('column_types', None)
         for col_name in header:
             if col_name not in self.col_maps:
                 result_header.append(col_name)
+                if column_types:
+                    result_column_types.append(column_types[header.index(col_name)])
                 continue
             pair_obj = self.col_maps[col_name]
 
             new_headers = pair_obj.transformed_headers
             result_header.extend(new_headers)
+            if column_types:
+                for _ in new_headers:
+                    result_column_types.append('Integer')
 
         self.inner_param.set_result_header(result_header)
+        if column_types:
+            self.inner_param.set_result_column_types(result_column_types)
         LOGGER.debug("[Result][OneHotEncoder]After one-hot, data_instances schema is :"
                      " {}".format(header))
 
@@ -194,11 +209,12 @@ class OneHotEncoder(ModelBase):
         LOGGER.debug("original_dimension:{}".format(len(header)))
         self.inner_param.set_header(header)
 
-        if self.model_param.transform_col_indexes == -1:
-            self.inner_param.set_transform_all()
-        else:
-            self.inner_param.add_transform_indexes(self.model_param.transform_col_indexes)
+        if self.model_param.transform_col_names is not None:
             self.inner_param.add_transform_names(self.model_param.transform_col_names)
+            self.inner_param.add_transform_indexes(
+                [header.index(feature) for feature in self.model_param.transform_col_names])
+        else:
+            self.inner_param.set_transform_all()
 
     @staticmethod
     def record_new_header(data, inner_param: OneHotInnerParam):
@@ -277,13 +293,17 @@ class OneHotEncoder(ModelBase):
                 _transformed_value[new_col_name] = 1
 
         new_feature = [_transformed_value[x] if x in _transformed_value else 0 for x in result_header]
-
-        feature_array = np.array(new_feature, dtype='float64')
-        instance.features = feature_array
+        try:
+            feature_array = np.array(new_feature, dtype='float64')
+            instance.features = feature_array
+        except Exception as e:
+            raise ValueError(e.message)
         return instance
 
     def set_schema(self, data_instance):
         self.schema['header'] = self.inner_param.result_header
+        if self.inner_param.result_column_types:
+            self.schema['column_types'] = self.inner_param.result_column_types
         data_instance.schema = self.schema
 
     def _get_meta(self):

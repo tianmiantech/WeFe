@@ -42,7 +42,7 @@
                     <el-collapse-item title="模型评估" name="3">
                         <ChartsWithTabs
                             v-if="vData.showCharts"
-                            component-type="VertLR"
+                            component-type="Evaluation"
                             :job-id="jobId"
                             :flow-id="flowId"
                             :flow-node-id="flowNodeId"
@@ -91,7 +91,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
             const { appContext } = getCurrentInstance();
@@ -120,13 +119,13 @@
                     };
                 },
                 showResult(data) {
-                    if (data.status) {
+                    if (data[0].status) {
                         vData.commonResultData = {
-                            task: data,
+                            task: data[0],
                         };
 
-                        if(data.result && data.result.train) {
-                            const { train, validate } = data.result;
+                        if(data[0].result && data[0].result.train) {
+                            const { train, validate } = data[0].result;
 
                             vData.train = {
                                 auc: train.data.auc.value,
@@ -137,7 +136,7 @@
                                 ks:  validate.data.ks.value,
                             };
                             vData.hasResult= true;
-                            methods.getTopNData(data);
+                            methods.getTopNData(data[0]);
                         } else {
                             vData.hasResult = false;
                         }
@@ -155,8 +154,8 @@
                     });
 
                     if (code === 0) {
-                        if (data.result) {
-                            topnRef.value.renderTopnTable(data.result);
+                        if (data.length) {
+                            topnRef.value.renderTopnTable(data[0].result);
                         }
                     }
                 },

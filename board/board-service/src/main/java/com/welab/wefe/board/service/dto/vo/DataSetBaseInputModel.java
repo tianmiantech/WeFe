@@ -60,10 +60,6 @@ public class DataSetBaseInputModel extends AbstractApiInput {
             if (item.getDataType() == null) {
                 throw new StatusCodeWithException("请给字段【" + item.getName() + "】设置数据类型", StatusCode.PARAMETER_VALUE_INVALID);
             }
-
-            if (item.getDataType() == ColumnDataType.String || item.getDataType() == ColumnDataType.Enum) {
-                throw new StatusCodeWithException("目前暂不支持 String/Enum 数据类型，如有需要，请将该特征进行编码后使用。", StatusCode.PARAMETER_VALUE_INVALID);
-            }
         }
     }
 

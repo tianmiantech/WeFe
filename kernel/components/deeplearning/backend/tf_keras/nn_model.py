@@ -139,7 +139,7 @@ def build_keras(nn_define, loss, optimizer, metrics, **kwargs):
 
     sess = _init_session()
 
-    model = _load_model(nn_struct_json=nn_define_json)
+    model = _load_model(nn_define_json)
     model = _compile_model(model=model, loss=loss, optimizer=optimizer, metrics=metrics)
     return KerasNNModel(sess, model)
 

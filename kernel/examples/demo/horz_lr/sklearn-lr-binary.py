@@ -31,7 +31,7 @@ def main(config="../../config.yaml", param="./lr_config.yaml"):
     assert isinstance(param, dict)
     data_promoter = param["data_promoter"]
     data_provider = param["data_provider"]
-    data_test = param["data_test"]
+    # data_test = param["data_test"]
     idx = param["idx"]
     label_name = param["label_name"]
 

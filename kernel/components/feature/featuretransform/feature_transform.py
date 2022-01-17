@@ -33,17 +33,22 @@ class FeatureTransform(ModelBase):
             self.model_param = FeatureTransformParam()
         self.feature_names = set()
         self.header = None
+        self.schema = None
 
     def _init_param(self):
         import json
         self.transform_rules = json.loads(self.model_param.transform_rules)
 
     def transform_features(self):
+        column_types = self.schema.get('column_types', None)
         for feature in self.transform_rules:
             if feature not in self.header:
                 LOGGER.warning("{} not in data header:{}".format(feature, self.header))
                 continue
             self.feature_names.add(feature)
+            if column_types:
+                index = self.header.index(feature)
+                column_types[index] = 'Integer'
 
     def transform_value(self, data_value):
         for feature_name in self.feature_names:
@@ -51,7 +56,7 @@ class FeatureTransform(ModelBase):
                 continue
             feature_index = self.header.index(feature_name)
             value = data_value.features[feature_index]
-            if value == '' or value is None:
+            if value is None or value == '' or value not in self.transform_rules[feature_name]:
                 continue
             new_value = self.transform_rules[feature_name][value]
             data_value.features[feature_index] = new_value
@@ -60,6 +65,7 @@ class FeatureTransform(ModelBase):
     def fit(self, data_instances):
         self._init_param()
         self.header = get_header(data_instances)
+        self.schema = data_instances.schema
         LOGGER.info(f'origin data:{data_instances.first()[1].features}, header:{self.header}')
 
         self.transform_features()
@@ -67,6 +73,6 @@ class FeatureTransform(ModelBase):
         new_data_instances = data_instances.mapValues(
             lambda v: self.transform_value(v)
         )
-        new_data_instances.schema = data_instances.schema
+        new_data_instances.schema = self.schema
         LOGGER.info(f'schema:{new_data_instances.schema}, new data:{new_data_instances.first()[1].features}')
         return new_data_instances

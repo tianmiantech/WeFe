@@ -17,7 +17,8 @@
 package com.welab.wefe.common.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
  * @author Zane
  */
 public class UrlUtil {
-    private static final Logger LOG = Logger.getLogger(UrlUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UrlUtil.class);
     private static final Pattern PATTERN_MATCH_QUERY_STRING = Pattern.compile("(?<name>[^?&]+)=(?<value>[^?&]+)");
 
     /**
@@ -185,7 +186,7 @@ public class UrlUtil {
         try {
             return URLEncoder.encode(str, charsetName);
         } catch (UnsupportedEncodingException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
         return "";
     }
@@ -239,7 +240,7 @@ public class UrlUtil {
         try {
             return URLDecoder.decode(str, charsetName);
         } catch (UnsupportedEncodingException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
         return "";
     }
