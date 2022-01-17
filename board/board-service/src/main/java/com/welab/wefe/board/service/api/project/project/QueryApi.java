@@ -46,19 +46,19 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ProjectQu
 
     public static class Input extends PagingInput {
 
-        @Check(name = "项目名称")
+        @Check(name = "项目名称", blockSqlInjection = true)
         private String name;
 
-        @Check(name = "合作方id")
+        @Check(name = "合作方id", blockSqlInjection = true)
         private String memberId;
 
         @Check(name = "审核状态")
         private AuditStatus auditStatus;
 
-        @Check(name = "起始创建时间")
+        @Check(name = "起始创建时间", blockSqlInjection = true)
         private String startCreateTime;
 
-        @Check(name = "结束创建时间")
+        @Check(name = "结束创建时间", blockSqlInjection = true)
         private String endCreateTime;
 
         @Check(name = "我方角色")

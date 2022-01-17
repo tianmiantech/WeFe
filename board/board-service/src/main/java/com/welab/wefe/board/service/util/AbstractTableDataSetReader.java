@@ -186,7 +186,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
             }
 
             if (!pattern.matcher(value).find()) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException(
+                StatusCode.ERROR_IN_DATA_RESOURCE_ADD_FORM.throwException(
                         "数据集的特征 " + column.getName()
                                 + " 声明为 " + column.getDataType()
                                 + " 类型，但在 " + (readDataRows + 1)

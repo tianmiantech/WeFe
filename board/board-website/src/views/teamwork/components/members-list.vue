@@ -122,6 +122,18 @@
                     </el-table-column>
                     <el-table-column
                         v-if="projectType === 'DeepLearning'"
+                        label="已标注"
+                        prop="labeled_count"
+                        width="100"
+                    >
+                        <template v-slot="scope">
+                            <template v-if="scope.row.data_set">
+                                {{scope.row.data_set ? scope.row.data_set.labeled_count : scope.row.labeled_count}}
+                            </template>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        v-if="projectType === 'DeepLearning'"
                         label="标注状态"
                         prop="label_completed"
                         width="100"

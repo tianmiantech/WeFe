@@ -31,9 +31,7 @@ import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.ImageUtil;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -146,12 +144,6 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberMobile(input.getMemberMobile());
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberGatewayUri(input.getMemberGatewayUri());
-        if (StringUtil.isNotEmpty(input.getMemberLogo()) && input.getMemberLogo().contains(",")) {
-            LOG.info("压缩前：" + input.getMemberLogo().length());
-            String[] strs = input.getMemberLogo().split(",");
-            model.setMemberLogo(strs[0] + "," + ImageUtil.compressPicForScale(strs[1], 200, 0.7));
-            LOG.info("压缩后：" + model.getMemberLogo().length());
-        }
         model.setMemberHidden(input.getMemberHidden());
 
         globalConfigService.setMemberInfo(model);

@@ -8,7 +8,6 @@
         <ServiceStatusItem service="UnionService" />
         <ServiceStatusItem service="BoardService" />
         <ServiceStatusItem service="GatewayService" />
-        <ServiceStatusItem service="StorageService" />
         <ServiceStatusItem service="FlowService" />
     </el-card>
 </template>

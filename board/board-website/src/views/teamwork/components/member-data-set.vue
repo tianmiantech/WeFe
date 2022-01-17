@@ -260,7 +260,18 @@
                         {{ scope.row.data_set ? scope.row.data_set.total_data_count : 0 }}
                     </template>
                 </el-table-column>
-
+                <el-table-column
+                    v-if="form.project_type === 'DeepLearning'"
+                    label="已标注"
+                    prop="labeled_count"
+                    width="100"
+                >
+                    <template v-slot="scope">
+                        <template v-if="scope.row.data_set">
+                            {{scope.row.data_set ? scope.row.data_set.labeled_count   : scope.row.labeled_count}}
+                        </template>
+                    </template>
+                </el-table-column>
                 <el-table-column
                     v-if="form.project_type === 'DeepLearning'"
                     label="标注状态"
@@ -531,7 +542,14 @@
                     }
                     // vData.cooperAuthDialog.show = true;
                     vData.cooperAuthDialog.flag = flag;
-                    methods.cooperAuthConfirm();
+
+                    $confirm(`确定${ flag ? '同意' : '拒绝' }协作方参与合作吗'`, '提示', {
+                        type: 'warning',
+                    }).then(action => {
+                        if(action === 'confirm') {
+                            methods.cooperAuthConfirm();
+                        }
+                    });
                 },
 
                 async cooperAuthConfirm() {

@@ -8,7 +8,7 @@
             <div v-if="currentImage.item && currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">{{currentImage.item.label_list}}</div>
             <div v-else-if="currentImage.item && !currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">请在右侧选择标签</div>
         </div>
-        <el-button type="primary" class="save_label" @click="methods.saveLabel">
+        <el-button v-if="forJobType !== 'classify'" type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
     </div>
@@ -492,11 +492,14 @@
 
                     rect_list.forEach(item => {
                         if (item.attrs.isLabeled) {
+                            const sx = item.attrs.scaleX === 1 ? (item.attrs.x + item.attrs.width)/vData.labelScaleX : item.attrs.x/vData.labelScaleX + item.attrs.width,
+                                  sy = item.attrs.scaleY === 1 ? (item.attrs.y + item.attrs.height)/vData.labelScaleY : item.attrs.y/vData.labelScaleY + item.attrs.height;
+
                             labe_list.push({
                                 label:  item.attrs.labelName,
                                 points: [
                                     { x: item.attrs.x/vData.labelScaleX, y: item.attrs.y/vData.labelScaleY },
-                                    { x: (item.attrs.x + item.attrs.width)/vData.labelScaleX, y: (item.attrs.y + item.attrs.height)/vData.labelScaleY },
+                                    { x: sx, y: sy },
                                 ],
                             });
                         }
@@ -602,7 +605,9 @@
     .show_label_info {
         position: fixed;
         right: 330px;
-        top: 245px;
+        top: 185px;
+        background: #f0f0f0;
+        padding: 10px;
         h3 {
             font-size: 16px;
             font-weight: 600;

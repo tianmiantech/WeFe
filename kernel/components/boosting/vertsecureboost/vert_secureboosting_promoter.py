@@ -63,7 +63,6 @@ from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import QuantileMeta
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import BoostingTreeModelParam
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import DecisionTreeModelParam
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import FeatureImportanceInfo
-from kernel.security import IterativeAffineEncrypt
 from kernel.security import PaillierEncrypt
 from kernel.security.encrypt_mode import EncryptModeCalculator
 from kernel.transfer.variables.transfer_class.vert_secure_boost_transfer_variable import \
@@ -114,7 +113,6 @@ class VertSecureBoostingPromoter(BoostingTree):
         self.max_sample_weight = 1
         self.max_sample_weight_computed = False
         self.cipher_compressing = False
-        self.round_decimal = None
 
         self.enable_goss = False  # GOSS
         self.top_rate = None
@@ -128,8 +126,8 @@ class VertSecureBoostingPromoter(BoostingTree):
         self.enable_goss = param.run_goss
         self.top_rate = param.top_rate
         self.other_rate = param.other_rate
-        self.round_decimal = param.cipher_compress_error
         self.new_ver = param.new_ver
+        self.cipher_compressing = param.cipher_compress
 
     def set_loss(self, objective_param):
         loss_type = objective_param.objective
@@ -217,14 +215,6 @@ class VertSecureBoostingPromoter(BoostingTree):
         if self.encrypt_param.method.lower() == consts.PAILLIER.lower():
             self.encrypter = PaillierEncrypt()
             self.encrypter.generate_key(self.encrypt_param.key_length)
-        elif self.encrypt_param.method.lower() == consts.ITERATIVEAFFINE.lower():
-            self.encrypter = IterativeAffineEncrypt()
-            self.encrypter.generate_key(key_size=self.encrypt_param.key_length,
-                                        randomized=False)
-        elif self.encrypt_param.method.lower() == consts.RANDOM_ITERATIVEAFFINE.lower():
-            self.encrypter = IterativeAffineEncrypt()
-            self.encrypter.generate_key(key_size=self.encrypt_param.key_length,
-                                        randomized=True)
         else:
             raise NotImplementedError("encrypt method not supported yes!!!")
 
@@ -500,17 +490,16 @@ class VertSecureBoostingPromoter(BoostingTree):
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   data_bin=self.data_bin, bin_split_points=self.bin_split_points,
                   bin_sparse_points=self.bin_sparse_points,
+                  valid_features = self.sample_valid_features(),
                   grad_and_hess=g_h,
                   encrypter=self.encrypter, encrypted_mode_calculator=self.encrypted_calculator,
-                  valid_features=self.sample_valid_features(),
                   provider_member_idlist=self.component_properties.provider_member_idlist,
+                  task_type=self.task_type,
                   runtime_idx=self.component_properties.local_member_id,
                   goss_subsample=self.enable_goss,
                   top_rate=self.top_rate, other_rate=self.other_rate,
                   complete_secure=True if (epoch_idx == 0 and self.complete_secure) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
-                  encrypt_key_length=self.encrypt_param.key_length,
+                  cipher_compressing=self.cipher_compressing,
                   max_sample_weight=self.max_sample_weight,
                   new_ver=self.new_ver
                   )
@@ -802,14 +791,14 @@ class VertSecureBoostingPromoter(BoostingTree):
                 tree_param = DecisionTreeModelParam()
                 for node in tree['tree']:
                     tree_param.tree_.add(id=node['id'],
-                                         sitename=node['sitename'],
-                                         fid=node['fid'],
-                                         bid=node['bid'],
-                                         weight=node['weight'],
-                                         is_leaf=node['isLeaf'],
-                                         left_nodeid=node['leftNodeid'],
-                                         right_nodeid=node['rightNodeid'],
-                                         missing_dir=node['missingDir'])
+                                             sitename=node['sitename'],
+                                             fid=node['fid'],
+                                             bid=node['bid'],
+                                             weight=node['weight'],
+                                             is_leaf=node['isLeaf'],
+                                             left_nodeid=node['leftNodeid'],
+                                             right_nodeid=node['rightNodeid'],
+                                             missing_dir=node['missingDir'])
                 splitMaskdict = dict([int(b), v] for b, v in tree['splitMaskdict'].items())
                 missingDirMaskdict = dict([int(b), v] for b, v in tree['missingDirMaskdict'].items())
                 tree_param.split_maskdict.update(splitMaskdict)
