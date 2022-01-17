@@ -29,7 +29,7 @@ public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
     private String name;
     private String baseUrl;
     private String apiName;
-    private String serviceType;
+    private Integer serviceType;
     private String queryParams;
     private int serviceStatus;
 
@@ -81,11 +81,11 @@ public class ApiMemberServiceQueryOutput extends AbstractTimedApiOutput {
         this.apiName = apiName;
     }
 
-    public String getServiceType() {
+    public Integer getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(String serviceType) {
+    public void setServiceType(Integer serviceType) {
         this.serviceType = serviceType;
     }
 
