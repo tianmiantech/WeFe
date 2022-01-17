@@ -11,7 +11,7 @@
                 label="服务名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.serviceName" />
+                <el-input v-model="search.serviceName"/>
             </el-form-item>
 
             <el-form-item
@@ -33,23 +33,10 @@
             </el-form-item>
 
             <el-form-item
-                label="是否在线:"
-                label-width="100px"
+                label="成员名称:"
+                label-width="80px"
             >
-                <el-select
-                    v-model="search.status"
-                    size="medium"
-                    clearable
-                >
-                    <el-option
-                        value="1"
-                        label="在线"
-                    />
-                    <el-option
-                        value="0"
-                        label="离线"
-                    />
-                </el-select>
+                <el-input v-model="search.memberName"/>
             </el-form-item>
 
             <el-button
@@ -72,8 +59,8 @@
                 width="45px"
             />
             <el-table-column
-                label="名称"
-                min-width="240px"
+                label="服务名称"
+                min-width="160px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.name }}
@@ -82,26 +69,39 @@
             </el-table-column>
 
             <el-table-column
+                label="供应商名称"
+                min-width="160px"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.supplier_name }}
+                    <p class="id">{{ scope.row.supplier_id }}</p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
                 label="服务类型"
-                prop="service_type"
                 min-width="100px"
             >
                 <template slot-scope="scope">
                     {{ serviceTypeMap[scope.row.service_type] }}
                 </template>
             </el-table-column>
+
             <el-table-column
-                label="状态"
-                prop="status"
-                width="100px"
+                label="API 名称"
+                min-width="140px"
             >
                 <template slot-scope="scope">
-                    <div v-if="scope.row.status == 0">
-                        离线
-                    </div>
-                    <div v-else>
-                        在线
-                    </div>
+                    {{ scope.row.api_name }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="URL"
+                min-width="140px"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.base_url }}
                 </template>
             </el-table-column>
 
@@ -114,14 +114,6 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="更新时间"
-                min-width="160px"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.updated_time | dateFormat }}
-                </template>
-            </el-table-column>
         </el-table>
 
         <div
@@ -151,13 +143,9 @@ export default {
             search: {
                 serviceName: '',
                 serviceType: '',
-                status:      '',
+                memberName: '',
             },
-            getListApi:      '/service/union/query',
-            userList:        [],
-            serviceList:     [],
-            dataDialog:      false,
-            jsonData:        '',
+            getListApi: '/service/union/query',
             serviceTypeList: [
                 {
                     name:  '两方匿踪查询',
@@ -195,10 +183,6 @@ export default {
         };
     },
 
-    created() {
-        this.getUnionService();
-
-    },
     methods: {
 
         // async getUnionService() {

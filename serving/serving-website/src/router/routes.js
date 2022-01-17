@@ -126,15 +126,6 @@ const baseRoutes = [
                 component: () => import('@views/fee/fee-detail.vue'),
             },
             {
-                path: `${prefixPath}fee-record`,
-                name: 'fee-record',
-                meta: {
-                    title:           '费用记录',
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/fee/fee-record.vue'),
-            },
-            {
                 path: `${prefixPath}payments-records`,
                 name: 'payments-records',
                 meta: {
@@ -170,6 +161,7 @@ const baseRoutes = [
                     title:  '我的服务',
                     index:  '5-1',
                     active: `${prefixPath}service-list`,
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/service/service-list.vue'),
             },
@@ -180,6 +172,7 @@ const baseRoutes = [
                     title:  '联邦服务',
                     index:  '5-2',
                     active: `${prefixPath}union-service-list`,
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/service/union-service-list.vue'),
             },

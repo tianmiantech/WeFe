@@ -155,13 +155,7 @@ export default {
                 payType: [
                     {required: true, validator: validatePayType, trigger: 'change'}
                 ],
-                // status: [
-                //     {required: true, validator: validateStatus, trigger: 'change'}
-                // ]
-
             },
-            // clientId: '',
-
         }
     },
 
@@ -297,13 +291,7 @@ export default {
 
             });
             if (code === 0) {
-                console.log(data.id, 1111111111)
                 this.clientService.clientId = data.id
-                // this.client.email = data.email
-                // this.client.ipAdd = data.ip_add
-                // this.client.pubKey = ''
-                // this.client.remark = data.remark
-                // this.client.code = data.code
             }
         },
 

@@ -32,7 +32,7 @@
                     <el-option
                         v-for="item in serviceTypes"
                         :key="item.value"
-                        :label="item.label"
+                        :label="item.name"
                         :value="item.value"
                     />
                 </el-select>
@@ -235,11 +235,11 @@ export default {
             timeRange: '',
             getListApi: '/paymentsrecords/query-list',
             serviceType: {
-                1: '匿踪查询',
-                2: '安全求交',
-                3: '安全聚合(被查询方)',
-                4: '安全聚合(查询方)',
-                5: '多方安全求交',
+                1: '两方匿踪查询',
+                2: '两方交集查询',
+                3: '多方安全统计(被查询方)',
+                4: '多方安全统计(查询方)',
+                5: '多方交集查询',
                 6: '多方匿踪查询',
             },
             payType: {
@@ -251,12 +251,30 @@ export default {
                 2: '冲正',
             },
             serviceTypes: [
-                {value: '1', label: '匿踪查询'},
-                {value: '2', label: '安全求交'},
-                {value: '3', label: '安全聚合(被查询方)'},
-                {value: '4', label: '安全聚合(查询方)'},
-                {value: '5', label: '多方安全求交'},
-                {value: '6', label: '多方匿踪查询'},
+                {
+                    name:  '两方匿踪查询',
+                    value: '1',
+                },
+                {
+                    name:  '多方匿踪查询',
+                    value: '6',
+                },
+                {
+                    name:  '两方交集查询',
+                    value: '2',
+                },
+                {
+                    name:  '多方交集查询',
+                    value: '5',
+                },
+                {
+                    name:  '多方安全统计(查询方)',
+                    value: '4',
+                },
+                {
+                    name:  '多方安全统计(被查询方)',
+                    value: '3',
+                },
             ],
             payTypes: [
                 {value: '1', label: '充值'},
