@@ -62,7 +62,7 @@ public class MemberContractService extends AbstractContractService {
      */
     public void add(Member member) throws StatusCodeWithException {
         try {
-            String extJson = " ";
+            String extJson = member.getExtJson();
             // send transaction
             TransactionReceipt transactionReceipt = memberContract.insert(
                     generateParams(member, true),

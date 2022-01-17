@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,8 +24,8 @@ import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SM2Util;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -43,6 +43,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Jervis
@@ -114,8 +116,7 @@ public class UnionService implements ApplicationContextAware {
         MemberActivityCache.getInstance().add(member);
 
         String publicKey = member.getPublicKey();
-
-        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes("UTF-8"), RSAUtil.getPublicKey(publicKey), signedApiInput.getSign());
+        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), member.getSecretKeyType());
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -123,7 +124,6 @@ public class UnionService implements ApplicationContextAware {
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_member_id", signedApiInput.getMemberId());
     }
-
 
     /**
      * SM2 Signature verify
@@ -151,5 +151,4 @@ public class UnionService implements ApplicationContextAware {
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }
-
 }

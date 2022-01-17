@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,9 @@
 
 package com.welab.wefe.gateway.interceptor;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.entity.MemberEntity;
@@ -71,10 +72,10 @@ public class SignVerifyClientInterceptor implements ClientInterceptor {
         signParam.put(GrpcConstant.SIGN_KEY_UUID, UUID.randomUUID().toString());
 
         String signParamStr = JObject.create(signParam).toString();
-
+        SecretKeyType secretKeyType = getSecretKeyType();
         try {
             return JObject.create()
-                    .append(GrpcConstant.SIGN_KEY_SIGN, RSAUtil.sign(signParamStr, privateKey, "UTF-8"))
+                    .append(GrpcConstant.SIGN_KEY_SIGN, SignUtil.sign(signParamStr, privateKey, secretKeyType))
                     .append(GrpcConstant.SIGN_KEY_DATA, signParamStr).toString();
         } catch (Exception e) {
             LOG.error("Failed to generate signature：", e);
@@ -83,4 +84,8 @@ public class SignVerifyClientInterceptor implements ClientInterceptor {
         return "";
     }
 
+    private SecretKeyType getSecretKeyType() {
+        MemberEntity memberEntity = MemberCache.getInstance().getSelfMember();
+        return memberEntity.getSecretKeyType();
+    }
 }
