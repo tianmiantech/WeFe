@@ -47,6 +47,11 @@ public abstract class FileSecurityChecker {
                 case "csv":
                     new CsvSecurityChecker().doCheck(file);
                     break;
+                case "zip":
+                case "gz":
+                case "tgz":
+                case "7z":
+                    break;
                 default:
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
             }
