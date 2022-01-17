@@ -444,7 +444,10 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setMemberId(CacheObjects.getMemberId());
         myMemberInfo.setMemberName(CacheObjects.getMemberName());
         myMemberInfo.setRole(model.getMyRole());
-//        myMemberInfo.setColumns();
+        if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
+            TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
+            myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
+        }
 //        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
 
         List<FieldInfo> fieldInfos = DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
