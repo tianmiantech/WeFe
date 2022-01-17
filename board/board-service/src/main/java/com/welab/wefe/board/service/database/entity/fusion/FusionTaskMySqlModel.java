@@ -67,7 +67,7 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of rows of data resources
      */
-    Long parnterRowCount;
+    Long partnerRowCount;
 
     /**
      * Whether the trace
@@ -275,12 +275,12 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
         this.myRole = myRole;
     }
 
-    public Long getParnterRowCount() {
-        return parnterRowCount;
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
     }
 
-    public void setParnterRowCount(Long parnterRowCount) {
-        this.parnterRowCount = parnterRowCount;
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
     }
 
     public Long getProcessedCount() {

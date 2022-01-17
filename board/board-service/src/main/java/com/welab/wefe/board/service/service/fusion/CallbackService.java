@@ -142,7 +142,7 @@ public class CallbackService {
                 task.getTraceColumn(),
                 task.getDstMemberId(),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getParnterRowCount()
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(client);
@@ -183,7 +183,7 @@ public class CallbackService {
                 new BigInteger(bf.getRsaE()),
                 new BigInteger(bf.getRsaD()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getParnterRowCount()
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(server);
