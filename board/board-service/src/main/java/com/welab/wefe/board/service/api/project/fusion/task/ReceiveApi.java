@@ -69,6 +69,9 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
         @Check(name = "数据资源类型", require = true)
         private DataResourceType partnerDataResourceType;
 
+        @Check(name = "对方数据融合公式", require = true)
+        private String partnerHashFunction;
+
         @Check(name = "数据资源的数据量")
         private Long rowCount;
 

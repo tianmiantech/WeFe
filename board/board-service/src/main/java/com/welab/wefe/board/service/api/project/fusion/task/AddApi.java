@@ -78,8 +78,8 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "对方样本量", require = true)
         private Long partnerRowCount;
 
-        @Check(name = "算法")
-        private AlgorithmType algorithm = AlgorithmType.RSA_PSI;
+        @Check(name = "算法",require = true)
+        private AlgorithmType algorithm;
 
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;

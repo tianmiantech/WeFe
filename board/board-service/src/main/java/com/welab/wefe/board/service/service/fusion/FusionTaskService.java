@@ -36,6 +36,7 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
+import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -147,6 +148,11 @@ public class FusionTaskService extends AbstractService {
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
+            task.setHashFunction(
+                    PrimaryKeyUtils.hashFunction(
+                            fieldInfoService.fieldInfoList(input.getDataResourceId())
+                    )
+            );
             fusionTaskRepository.save(task);
 
             thirdPartyService.alignApply(task);
@@ -163,7 +169,9 @@ public class FusionTaskService extends AbstractService {
             task.setPsiActuatorRole(PSIActuatorRole.client);
         }
 
-//        task.setRowCount(dataSet.getTotalDataCount());
+        task.setHashFunction(
+                PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
+        );
         fusionTaskRepository.save(task);
 
         dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
@@ -444,22 +452,14 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setMemberId(CacheObjects.getMemberId());
         myMemberInfo.setMemberName(CacheObjects.getMemberName());
         myMemberInfo.setRole(model.getMyRole());
+        myMemberInfo.setHashFunction(model.getHashFunction());
         if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
             myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
         }
 //        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
 
-        List<FieldInfo> fieldInfos = DataResourceType.BloomFilter.equals(model.getDataResourceType()) ?
-                fieldInfoService.fieldInfoList(
-                        model.getDataResourceId()
-                ) :
-                fieldInfoService.fieldInfoList(
-                        model.getBusinessId()
-                );
-        if (CollectionUtils.isNotEmpty(fieldInfos)) {
-            myMemberInfo.setHashFunction(fieldInfos);
-        }
+
 
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());
@@ -468,6 +468,7 @@ public class FusionTaskService extends AbstractService {
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
         memberInfo.setMemberName(CacheObjects.getMemberName(model.getDstMemberId()));
+        myMemberInfo.setHashFunction(model.getPartnerHashFunction());
         memberInfo.setRole(
                 model.getMyRole().equals(JobMemberRole.promoter) ?
                         JobMemberRole.provider :

@@ -58,6 +58,8 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
      */
     Long rowCount;
 
+    String hashFunction;
+
     String partnerDataResourceId;
 
     @Enumerated(EnumType.STRING)
@@ -68,6 +70,8 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
      * Number of rows of data resources
      */
     Long partnerRowCount;
+
+    String partnerHashFunction;
 
     /**
      * Whether the trace
@@ -96,17 +100,17 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of fusion
      */
-    public Long fusionCount;
+    public Long fusionCount = 0L;
 
     /**
      * Number of fusion
      */
-    public Long processedCount;
+    public Long processedCount = 0L;
 
     /**
      * Number of fusion
      */
-    public Long dataCount;
+    public Long dataCount = 0L;
 
     public long spend;
 
@@ -297,5 +301,21 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setDataCount(Long dataCount) {
         this.dataCount = dataCount;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
     }
 }
