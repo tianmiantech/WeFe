@@ -18,8 +18,8 @@ package com.welab.wefe.task;
 
 import com.welab.wefe.bo.data.BlockInfoBO;
 import com.welab.wefe.bo.data.EventBO;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncContractHeight;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncContractHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncHeight;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.constant.BlockConstant;
