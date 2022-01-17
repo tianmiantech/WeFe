@@ -97,20 +97,15 @@ export default {
         };
 
         let validateUnitPrice = (rule, value, callback) => {
-            console.log(this.clientService.unitPrice)
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-
                 let reg = /^\d+(\.\d+)?$/;
-
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
                     return callback(new Error('单价要求输入数值'));
                 }
-
-
             }
         };
 
@@ -121,15 +116,6 @@ export default {
                 callback();
             }
         };
-
-        // let validateStatus = (rule, value, callback) => {
-        //     if (!this.clientService.status) {
-        //         return callback(new Error('请选择状态'));
-        //     } else {
-        //         callback();
-        //     }
-        // };
-
 
         return {
             clientService: {
@@ -212,10 +198,6 @@ export default {
                 return
             }
 
-            //
-            // this.clientService.payType = this.form.payType
-            // this.clientService.unitPrice = this.form.unitPrice
-
             // 重新清空 fee config
             this.feeConfig = []
             this.feeConfig.push({
@@ -231,11 +213,9 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            // this.$message('保存成功！')
         },
 
         onSubmit() {
-
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
                     const {code} = await this.$http.post({
