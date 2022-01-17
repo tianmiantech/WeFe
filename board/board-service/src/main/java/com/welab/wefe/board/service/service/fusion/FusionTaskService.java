@@ -129,9 +129,9 @@ public class FusionTaskService extends AbstractService {
         }
 
         //If a task is being executed, add it after the task is completed
-        if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
-        }
+//        if (ActuatorManager.size() > 0) {
+//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//        }
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -244,7 +244,13 @@ public class FusionTaskService extends AbstractService {
         }
 
         //callback
-        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
+        thirdPartyService.callback(
+                task.getDstMemberId(),
+                task.getBusinessId(),
+                input.getAuditStatus(),
+                input.getAuditComment(),
+                PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
+        );
     }
 
 
@@ -322,9 +328,9 @@ public class FusionTaskService extends AbstractService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-//        ActuatorManager.set(client);
+        ActuatorManager.set(client);
 
-       // client.run();
+        client.run();
     }
 
 
@@ -367,9 +373,9 @@ public class FusionTaskService extends AbstractService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-//        ActuatorManager.set(server);
+        ActuatorManager.set(server);
 
-       // server.run();
+        server.run();
     }
 
     /**

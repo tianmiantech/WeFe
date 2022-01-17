@@ -52,6 +52,9 @@ public class AuditCallbackApi extends AbstractNoneOutputApi<AuditCallbackApi.Inp
         @Check(name = "审核评论")
         private String auditComment;
 
+        @Check(name = "审核评论")
+        private String partnerHashFunction;
+
         public String getBusinessId() {
             return businessId;
         }
@@ -74,6 +77,14 @@ public class AuditCallbackApi extends AbstractNoneOutputApi<AuditCallbackApi.Inp
 
         public void setAuditComment(String auditComment) {
             this.auditComment = auditComment;
+        }
+
+        public String getPartnerHashFunction() {
+            return partnerHashFunction;
+        }
+
+        public void setPartnerHashFunction(String partnerHashFunction) {
+            this.partnerHashFunction = partnerHashFunction;
         }
     }
 }

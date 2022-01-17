@@ -57,7 +57,7 @@ public class ThirdPartyService {
                 .put("partner_data_resource_id", task.getDataResourceId())
                 .put("partner_data_resource_type", task.getDataResourceType())
                 .put("partner_row_count", task.getRowCount())
-                .put("partner_hash_function",task.getHashFunction());
+                .put("partner_hash_function", task.getHashFunction());
 
         request(task.getDstMemberId(), ReceiveApi.class, params);
     }
@@ -67,11 +67,20 @@ public class ThirdPartyService {
      */
     public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
 
+        callback(dstMemberId, businessId, auditStatus, auditComment);
+    }
+
+    /**
+     * psi-callback
+     */
+    public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment, String hashFunction) throws StatusCodeWithException {
+
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
                 .put("audit_status", auditStatus)
-                .put("audit_comment", auditComment);
+                .put("audit_comment", auditComment)
+                .put("partner_hash_function", hashFunction);
 
         request(dstMemberId, AuditCallbackApi.class, params);
     }

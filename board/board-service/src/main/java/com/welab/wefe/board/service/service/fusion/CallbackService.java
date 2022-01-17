@@ -64,7 +64,7 @@ public class CallbackService {
     public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
-                running(input.getBusinessId());
+                running(input);
                 break;
             case disagree:
                 /**
@@ -84,14 +84,15 @@ public class CallbackService {
     /**
      * The other party's server-socket is ready, we start client
      *
-     * @param businessId
+     * @param input
      * @throws StatusCodeWithException
      */
-    private void running(String businessId) throws StatusCodeWithException {
-        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
+    private void running(AuditCallbackApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Await);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
         }
+        task.setPartnerHashFunction(input.getPartnerHashFunction());
         task.setStatus(FusionTaskStatus.Running);
         fusionTaskRepository.save(task);
 
@@ -145,9 +146,9 @@ public class CallbackService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-//        ActuatorManager.set(client);
+        ActuatorManager.set(client);
 
-//        client.run();
+        client.run();
     }
 
 
@@ -186,8 +187,8 @@ public class CallbackService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-//        ActuatorManager.set(server);
+        ActuatorManager.set(server);
 
-//        server.run();
+        server.run();
     }
 }
