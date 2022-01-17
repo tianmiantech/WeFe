@@ -56,7 +56,8 @@ public class ThirdPartyService {
                 .put("data_resource_type", task.getPartnerDataResourceType())
                 .put("partner_data_resource_id", task.getDataResourceId())
                 .put("partner_data_resource_type", task.getDataResourceType())
-                .put("partner_row_count", task.getRowCount());
+                .put("partner_row_count", task.getRowCount())
+                .put("partner_hash_function",task.getHashFunction());
 
         request(task.getDstMemberId(), ReceiveApi.class, params);
     }

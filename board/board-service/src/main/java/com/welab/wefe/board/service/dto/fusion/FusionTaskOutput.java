@@ -57,6 +57,8 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType dataResourceType;
 
+    String hashFunction;
+
 
     @Check(name = "Number of rows of data resources")
     Long rowCount;
@@ -66,6 +68,8 @@ public class FusionTaskOutput extends AbstractOutputModel {
     String partnerDataResourceName;
 
     DataResourceType partnerDataResourceType;
+
+    String partnerHashFunction;
 
     @Check(name = "Number of rows of data resources")
     public Long partnerRowCount;
@@ -285,5 +289,21 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     public void setDstMemberId(String dstMemberId) {
         this.dstMemberId = dstMemberId;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
     }
 }
