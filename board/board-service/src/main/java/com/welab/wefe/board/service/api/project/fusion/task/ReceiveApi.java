@@ -191,5 +191,13 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
         public void setPartnerRowCount(Long partnerRowCount) {
             this.partnerRowCount = partnerRowCount;
         }
+
+        public String getPartnerHashFunction() {
+            return partnerHashFunction;
+        }
+
+        public void setPartnerHashFunction(String partnerHashFunction) {
+            this.partnerHashFunction = partnerHashFunction;
+        }
     }
 }

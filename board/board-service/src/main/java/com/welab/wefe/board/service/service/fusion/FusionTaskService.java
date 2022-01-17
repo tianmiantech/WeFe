@@ -35,7 +35,6 @@ import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
-import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -48,7 +47,6 @@ import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -149,9 +147,9 @@ public class FusionTaskService extends AbstractService {
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
             task.setHashFunction(
-                    PrimaryKeyUtils.hashFunction(
-                            fieldInfoService.fieldInfoList(input.getDataResourceId())
-                    )
+                    bloomFilterService.findOne(
+                            input.getDataResourceId()) == null ?
+                            "" : bloomFilterService.findOne(input.getDataResourceId()).getHashFunction()
             );
             fusionTaskRepository.save(task);
 
@@ -458,7 +456,6 @@ public class FusionTaskService extends AbstractService {
             myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
         }
 //        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
-
 
 
         FusionMemberInfo memberInfo = new FusionMemberInfo();
