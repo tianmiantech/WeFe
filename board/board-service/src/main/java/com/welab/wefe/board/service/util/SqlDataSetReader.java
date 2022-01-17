@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,8 @@ import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.*;
@@ -34,7 +35,7 @@ import java.util.List;
  * @author jacky.jiang
  */
 public class SqlDataSetReader extends AbstractDataSetReader {
-    private static final Logger log = Logger.getLogger(SqlDataSetReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlDataSetReader.class);
     private long totalRowCount;
     private List<String> headers;
     private final Connection conn;
@@ -114,21 +115,21 @@ public class SqlDataSetReader extends AbstractDataSetReader {
             try {
                 rs.close();
             } catch (SQLException e) {
-                log.error("ResultSet is null" + e);
+                LOG.error("ResultSet is null" + e);
             }
         }
         if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {
-                log.error("PreparedStatement is null" + e);
+                LOG.error("PreparedStatement is null" + e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                log.error("Connection is null" + e);
+                LOG.error("Connection is null" + e);
             }
         }
     }

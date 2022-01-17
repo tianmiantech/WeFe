@@ -35,7 +35,9 @@
                     content="勾选任务后可对比, 最多勾选 3 个"
                 >
                     <template #reference>
-                        <i class="el-icon-info" />
+                        <el-icon>
+                            <elicon-info-filled />
+                        </el-icon>
                     </template>
                 </el-popover>
                 任务对比 ({{ selection.length }}/3)
@@ -188,7 +190,9 @@
                 content="勾选任务后可对比, 最多勾选 3 个"
             >
                 <template #reference>
-                    <i class="el-icon-info" />
+                    <el-icon>
+                        <elicon-info-filled />
+                    </el-icon>
                 </template>
             </el-popover>
             任务对比 ({{ selection.length }}/3)

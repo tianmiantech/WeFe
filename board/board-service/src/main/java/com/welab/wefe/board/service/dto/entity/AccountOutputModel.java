@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.dto.entity;
 
 import com.welab.wefe.common.enums.AuditStatus;
+import com.welab.wefe.common.util.Masker;
 import com.welab.wefe.common.web.CurrentAccount;
 
 /**
@@ -62,15 +63,17 @@ public class AccountOutputModel extends AbstractOutputModel {
     public String getEmail() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskEmail(email);
         }
-        return email;
     }
 
     public String getPhoneNumber() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskPhoneNumber(phoneNumber);
         }
-        return phoneNumber;
     }
 
     //region getter/setter

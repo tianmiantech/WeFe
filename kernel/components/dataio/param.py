@@ -102,6 +102,8 @@ class DataIOParam(BaseParam):
 
     need_features: list or None, None: load all features
 
+    data_set_id : data_set_id
+
     """
 
     def __init__(self, input_format="dense", delimitor=',', data_type='float64',
@@ -111,7 +113,8 @@ class DataIOParam(BaseParam):
                  missing_impute=None, outlier_replace=False, outlier_replace_method=None,
                  outlier_impute=None, outlier_replace_value=None,
                  with_label=False, label_name='y',
-                 label_type='int', output_format='dense', missing_fill_rule=None, need_features=None):
+                 label_type='int', output_format='dense', missing_fill_rule=None, need_features=None,
+                 data_set_id=""):
         self.input_format = input_format
         self.delimitor = delimitor
         self.data_type = data_type
@@ -132,6 +135,7 @@ class DataIOParam(BaseParam):
         self.output_format = output_format
         self.missing_fill_rule = missing_fill_rule
         self.need_features = need_features
+        self.data_set_id = data_set_id
 
     def check(self):
 

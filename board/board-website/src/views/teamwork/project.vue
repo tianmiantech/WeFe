@@ -6,11 +6,26 @@
         >
             <el-form
                 inline
-                label-width="100px"
                 @submit.prevent
             >
                 <el-form-item label="项目名称">
                     <el-input v-model="search.name" clearable />
+                </el-form-item>
+                <el-form-item label="项目类型">
+                    <el-select
+                        v-model="search.project_type"
+                        style="width: 176px;"
+                        clearable
+                    >
+                        <el-option
+                            label="MachineLearning"
+                            value="MachineLearning"
+                        />
+                        <el-option
+                            label="DeepLearning"
+                            value="DeepLearning"
+                        />
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="参与方">
                     <el-autocomplete
@@ -42,6 +57,7 @@
                     <el-select
                         v-model="search.audit_status"
                         style="width: 176px;"
+                        class="mr10"
                         clearable
                     >
                         <el-option
@@ -52,16 +68,26 @@
                         />
                     </el-select>
                 </el-form-item>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="search.closed"
+                        style="vertical-align:top;"
+                        true-label="true"
+                        false-label="false"
+                    >项目已关闭</el-checkbox>
+                </el-form-item>
                 <el-form-item label="创建日期">
                     <DateTimePicker @change="timeChange" />
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    native-type="submit"
-                    @click="searchList"
-                >
-                    搜索
-                </el-button>
+                <el-form-item>
+                    <el-button
+                        type="primary"
+                        native-type="submit"
+                        @click="searchList"
+                    >
+                        搜索
+                    </el-button>
+                </el-form-item>
             </el-form>
         </el-card>
 
@@ -124,6 +150,7 @@
                 member_id:  '',
                 members:    [],
                 search:     {
+                    closed:            false,
                     name:              '',
                     member_id:         '',
                     member_name:       '',
@@ -132,6 +159,7 @@
                     start_create_time: '',
                     end_create_time:   '',
                     my_role:           '',
+                    project_type:      '',
                 },
                 searchRequest: {},
                 projectStatus: [{
@@ -176,6 +204,8 @@
                         this.search[key] = val[key] || '';
                         this.searchRequest[key] = val[key] || '';
                     }
+                    this.search.closed = val.closed || 'false';
+                    this.search.searchRequest = val.closed || 'false';
                     this.getProjectList();
                 },
                 deep: true,
@@ -189,6 +219,8 @@
                 this.search[key] = query[key] || '';
                 this.searchRequest[key] = query[key] || '';
             }
+            this.search.closed = query.closed || 'false';
+            this.search.searchRequest = query.closed || 'false';
             this.$nextTick(() => {
                 this.$router.replace({
                     query: {
@@ -252,7 +284,12 @@
                 this.getProjectStatistic();
                 this.search.my_role = this.filter[this.activeTab];
                 this.searchRequest.member_name = '';
-                this.$refs[this.activeTab][0].searchList({ to: false, resetPagination: false });
+
+                //! compatible for instance
+                const $ref = this.$refs[this.activeTab];
+                const instance = Array.isArray($ref) ? $ref[0]: $ref;
+
+                instance.searchList({ to: false, resetPagination: false });
             },
             timeChange(value) {
                 if(value) {

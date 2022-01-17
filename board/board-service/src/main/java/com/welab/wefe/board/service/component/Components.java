@@ -68,7 +68,26 @@ public class Components {
     private MixStatisticComponent mixStatisticComponent;
     @Autowired
     private OotComponent ootComponent;
-
+    @Autowired
+    private FeatureTransformComponent featureTransformComponent;
+    @Autowired
+    private HorzOneHotComponent horzOneHotComponent;
+    @Autowired
+    private VertFilterComponent vertFilterComponent;
+    @Autowired
+    private VertOneHotComponent vertOneHotComponent;
+    @Autowired
+    private VertPCAComponent vertPCAComponent;
+    @Autowired
+    private HorzFeatureBinningComponent horzFeatureBinningComponent;
+    @Autowired
+    private HorzStatisticComponent horzStatisticComponent;
+    @Autowired
+    private VertNNComponent vertNNComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
+    @Autowired
+    private MixBinningComponent mixBinningComponent;
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
     }
@@ -118,6 +137,26 @@ public class Components {
                 return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case VertFilter:
+                return Launcher.CONTEXT.getBean(Components.class).vertFilterComponent;
+            case FeatureTransform:
+                return Launcher.CONTEXT.getBean(Components.class).featureTransformComponent;
+            case HorzOneHot:
+                return Launcher.CONTEXT.getBean(Components.class).horzOneHotComponent;
+            case VertOneHot:
+                return Launcher.CONTEXT.getBean(Components.class).vertOneHotComponent;
+            case VertPCA:
+                return Launcher.CONTEXT.getBean(Components.class).vertPCAComponent;
+            case HorzFeatureBinning:
+                return Launcher.CONTEXT.getBean(Components.class).horzFeatureBinningComponent;
+            case HorzStatistic:
+                return Launcher.CONTEXT.getBean(Components.class).horzStatisticComponent;
+            case HorzNN:
+                return Launcher.CONTEXT.getBean(Components.class).horzNNComponent;
+            case VertNN:
+                return Launcher.CONTEXT.getBean(Components.class).vertNNComponent;
+            case MixBinning:
+                return Launcher.CONTEXT.getBean(Components.class).mixBinningComponent;
             default:
                 return null;
         }
@@ -128,6 +167,10 @@ public class Components {
                 || type == ComponentType.HorzSecureBoost
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
-                || type == ComponentType.MixStatistic;
+                || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzStatistic
+                || type == ComponentType.HorzFeatureBinning
+                || type == ComponentType.HorzNN
+                || type == ComponentType.MixBinning;
     }
 }
