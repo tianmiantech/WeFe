@@ -231,9 +231,9 @@ public class FusionTaskService extends AbstractService {
             return;
         }
 
-        if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
-        }
+//        if (ActuatorManager.size() > 0) {
+//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//        }
 
         switch (task.getAlgorithm()) {
             case RSA_PSI:
