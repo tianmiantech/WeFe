@@ -13,7 +13,9 @@
                     class="ml10"
                 >
                     添加数据集
-                    <i class="el-icon-top-right f12"></i>
+                    <el-icon class="f12">
+                        <elicon-top-right />
+                    </el-icon>
                 </router-link>
             </div>
         </template>
@@ -70,6 +72,10 @@
                 特征量：{{ scope.row.feature_count }}
                 <br>
                 样本量：{{ scope.row.row_count }}
+                <br>
+                正例样本数量：{{ scope.row.y_positive_example_count }}
+                <br>
+                正例样本比例：{{(scope.row.y_positive_example_ratio * 100).toFixed(1)}}%
             </template>
         </el-table-column>
         <el-table-column
@@ -82,14 +88,12 @@
             width="100"
         >
             <template v-slot="scope">
-                <i
-                    v-if="scope.row.contains_y "
-                    class="el-icon-check"
-                />
-                <i
-                    v-else
-                    class="el-icon-close"
-                />
+                <el-icon v-if="scope.row.contains_y" class="el-icon-check">
+                    <elicon-check />
+                </el-icon>
+                <el-icon v-else class="el-icon-close">
+                    <elicon-close />
+                </el-icon>
             </template>
         </el-table-column>
         <el-table-column

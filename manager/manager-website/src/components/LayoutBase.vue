@@ -71,10 +71,12 @@
             });
             const methods = {
                 refresh() {
-                    vData.isRouterAlive = false;
-                    nextTick(() => {
-                        vData.isRouterAlive = true;
-                    });
+                    setTimeout(_ => {
+                        vData.isRouterAlive = false;
+                        nextTick(() => {
+                            vData.isRouterAlive = true;
+                        });
+                    }, 1000);
                 },
             };
 
@@ -107,7 +109,7 @@
         position: relative;
         background: $header-background;
         border-bottom: 1px solid $border-color-base;
-        z-index: 200;
+        z-index: 6;
     }
     .layout-main {
         padding: 20px;

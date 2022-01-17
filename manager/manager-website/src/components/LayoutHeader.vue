@@ -29,41 +29,6 @@
             />
             <span class="heading-tools">
                 <el-tooltip
-                    v-model="vData.videoTip"
-                    popper-class="video-guide-tip"
-                    placement="left"
-                    :manual="true"
-                >
-                    <template #content>
-                        <div class="video-guide-tip-content">视频在这里 👉
-                            <div class="el-popper__arrow" data-popper-arrow></div>
-                        </div>
-                    </template>
-                    <a
-                        href="javascript:;"
-                        @click="showVideoGuide"
-                    >操作指引</a>
-                </el-tooltip>
-                <a
-                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
-                    target="_blank"
-                >建议与反馈</a>
-                <el-tooltip
-                    effect="light"
-                    content="开启聊天"
-                    placement="bottom"
-                >
-                    <i
-                        class="iconfont icon-chat"
-                        @click="getConnect"
-                    >
-                        <i
-                            v-if="vData.hasUnreadNums"
-                            class="unread-num"
-                        >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
-                    </i>
-                </el-tooltip>
-                <el-tooltip
                     effect="light"
                     :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
                     placement="bottom"
@@ -81,8 +46,8 @@
                     @command="handleCommand"
                 >
                     <span class="el-dropdown-link">
-                        <strong>{{ userInfo.nickname }}</strong>
-                        <i class="el-icon-arrow-down el-icon--right" />
+                        <strong>{{ userInfo.account }}</strong>
+                        <i class="el-icon-arrow-down" />
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -101,7 +66,6 @@
 
 <script>
     import {
-        ref,
         computed,
         reactive,
         getCurrentInstance,
@@ -221,16 +185,6 @@
                     }
                 }
             };
-            // chat connection
-            const getConnect = () => {
-                const key = `${window.api.prefixPath}_chat`;
-                const inited = window.localStorage.getItem(key);
-
-                if(inited !== 'connect') {
-                    window.localStorage.setItem(key, 'connect');
-                    context.emit('start-chart');
-                }
-            };
 
             onBeforeMount(() => {
                 $bus.$on('change-layout-header-title', data => {
@@ -248,9 +202,6 @@
                     } else {
                         vData.headingTitle = data;
                     }
-                });
-                $bus.$on('has-new-message', num => {
-                    vData.hasUnreadNums = num;
                 });
 
                 // disable f11
@@ -282,38 +233,10 @@
                 backward,
                 handleCommand,
                 fullScreenSwitch,
-                getConnect,
             };
         },
     };
 </script>
-
-<style lang="scss">
-    @keyframes shift {
-        0%{transform: translateX(0);}
-        50%{transform: translateX(-10px);}
-        100%{transform: translateX(0)}
-    }
-    .video-guide-tip{
-        &.is-dark{
-            background:transparent;
-            padding:0;
-        }
-        & > .el-popper__arrow{display:none;}
-    }
-    .video-guide-tip-content{
-        position: relative;
-        color:#fff;
-        padding:10px;
-        border-radius: 4px;
-        background: #303133;
-        animation: shift 1s ease-in-out infinite;
-        .el-popper__arrow{
-            top: 12px;
-            right: -4px;
-        }
-    }
-</style>
 
 <style lang="scss" scoped>
     .heading-bar {
@@ -363,28 +286,6 @@
             height: 30px;
             line-height: 30px;
             cursor: pointer;
-        }
-    }
-
-    @keyframes zoom{
-        0%{transform: scale(0.85)};
-        50%{transform: scale(1.25)};
-        100%{transform: scale(0.85)};
-    }
-    .icon-chat{
-        position: relative;
-        .unread-num{
-            position: absolute;
-            line-height: 16px;
-            height: 16px;
-            padding:0 4px;
-            border-radius: 8px;
-            background:--color-danger;
-            font-style: normal;
-            font-size: 12px;
-            color:#fff;
-            left:16px;
-            animation: zoom 2s infinite;
         }
     }
 </style>

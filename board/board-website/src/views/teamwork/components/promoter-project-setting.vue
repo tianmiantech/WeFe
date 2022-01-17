@@ -1,9 +1,12 @@
 <template>
     <div class="project-setting-icon">
-        <i
+        <el-icon
             class="el-icon-setting f20 ml10"
             @click="showProjectSetting"
-        />
+        >
+            <elicon-setting />
+        </el-icon>
+
         <el-dialog
             v-model="showDialogForProjectSetting"
             destroy-on-close

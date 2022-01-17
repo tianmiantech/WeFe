@@ -36,7 +36,7 @@
                 >
                 <strong
                     v-else
-                    class="nickname"
+                    class="realname"
                 >{{ (memberName || userInfo.member_name || '').substring(0,1) }}</strong>
             </template>
             <template v-else>
@@ -46,7 +46,7 @@
                 >
                 <strong
                     v-else
-                    class="nickname"
+                    class="realname"
                 >{{ (memberName || userInfo.member_name || '').substring(0,1) }}</strong>
             </template>
         </div>

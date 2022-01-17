@@ -49,10 +49,12 @@
                 v-if="form.isPromoter"
                 class="result-panel"
             >
-                <i
+                <el-icon
                     class="el-icon-close close-result-panel-icon"
                     @click="hiddenResultPanel"
-                />
+                >
+                    <elicon-close />
+                </el-icon>
                 <ChartsWithTabs
                     v-if="show_result_panel"
                     ref="ChartsWithTabs"
@@ -175,7 +177,7 @@
                                 </el-button>
                             </template>
                             <el-button
-                                v-if="scope.row.role === 'promoter'"
+                                v-if="scope.row.role === 'promoter' && scope.row.component_type !== 'HorzNN' && scope.row.component_type !== 'VertNN'"
                                 size="mini"
                                 @click="addOotFlew($event, scope.row)"
                             >打分验证</el-button>
@@ -270,6 +272,12 @@
                 }, {
                     label: '横向 LR',
                     value: 'HorzLR',
+                }, {
+                    label: '纵向深度学习',
+                    value: 'VertNN',
+                }, {
+                    label: '横向深度学习',
+                    value: 'HorzNN',
                 }],
                 list:          [],
                 watchRoute:    false,
@@ -393,7 +401,6 @@
                     },
                 });
 
-                console.log(href);
                 window.open(href, '_blank');
             },
         },

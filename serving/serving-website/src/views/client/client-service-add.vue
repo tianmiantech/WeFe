@@ -37,8 +37,8 @@
 
             <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
                 <el-form :model="clientService" :rules="rules">
-                    <el-form-item label="单价：" :label-width="formLabelWidth" prop="unitPrice">
-                        <el-input v-model="clientService.unitPrice"></el-input>
+                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">
+                        <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
                     </el-form-item>
                     <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
                         <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
@@ -51,11 +51,11 @@
                 </div>
             </el-dialog>
 
-            <el-form-item prop="status">
-                <el-radio v-model="clientService.status" label="1">启用</el-radio>
-                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>
+            <!--            <el-form-item prop="status">-->
+            <!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
+            <!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
 
-            </el-form-item>
+            <!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
@@ -97,20 +97,15 @@ export default {
         };
 
         let validateUnitPrice = (rule, value, callback) => {
-            console.log(this.clientService.unitPrice)
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-
                 let reg = /^\d+(\.\d+)?$/;
-
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
                     return callback(new Error('单价要求输入数值'));
                 }
-
-
             }
         };
 
@@ -121,15 +116,6 @@ export default {
                 callback();
             }
         };
-
-        let validateStatus = (rule, value, callback) => {
-            if (!this.clientService.status) {
-                return callback(new Error('请选择状态'));
-            } else {
-                callback();
-            }
-        };
-
 
         return {
             clientService: {
@@ -169,13 +155,7 @@ export default {
                 payType: [
                     {required: true, validator: validatePayType, trigger: 'change'}
                 ],
-                status: [
-                    {required: true, validator: validateStatus, trigger: 'change'}
-                ]
-
             },
-
-
         }
     },
 
@@ -185,8 +165,16 @@ export default {
     }
     ,
     created() {
+
+
+        if (this.$route.query.id) {
+            // this.clientId = this.$route.query.id
+            this.getClientById(this.$route.query.id)
+        }
         this.getServices()
         this.getClients()
+
+
     },
 
     methods: {
@@ -204,10 +192,6 @@ export default {
                 return
             }
 
-            //
-            // this.clientService.payType = this.form.payType
-            // this.clientService.unitPrice = this.form.unitPrice
-
             // 重新清空 fee config
             this.feeConfig = []
             this.feeConfig.push({
@@ -223,11 +207,9 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            this.$message('保存成功！')
         },
 
         onSubmit() {
-
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
                     const {code} = await this.$http.post({
@@ -279,6 +261,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {
@@ -295,8 +280,20 @@ export default {
             if (code === 0) {
                 this.handleClients(data.list)
             }
-        }
-        ,
+        },
+
+        async getClientById(id) {
+            const {code, data} = await this.$http.post({
+                url: '/client/query-one',
+                data: {
+                    id: id,
+                },
+
+            });
+            if (code === 0) {
+                this.clientService.clientId = data.id
+            }
+        },
 
     }
     ,

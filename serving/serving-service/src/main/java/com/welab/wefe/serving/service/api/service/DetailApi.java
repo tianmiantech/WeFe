@@ -17,16 +17,18 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -34,6 +36,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
+import com.welab.wefe.serving.service.service.ServiceService;
 import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = "service/detail", name = "服务详情")
@@ -47,14 +50,26 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
 		Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepo.findById(input.getId());
 		if (serviceMySqlModel == null) {
-			return fail("service entity was found");
+			return fail("service entity was not found");
 		}
 		ServiceMySqlModel entity = serviceMySqlModel.get();
 
 		DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
 		if (StringUtils.isNotBlank(entity.getDataSource())) {
-			output.setDataSource(JObject.parseArray(entity.getDataSource()));
+			output.setDataSource(JSONObject.parseObject(entity.getDataSource()));
 		}
+		if (StringUtils.isNotBlank(entity.getQueryParams())) {
+			output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
+		}
+		if (StringUtils.isNotBlank(entity.getServiceConfig())) {
+			output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
+		}
+		JSONObject preview = new JSONObject();
+		preview.put("id", entity.getId());
+		preview.put("params", entity.getQueryParams());
+		preview.put("url", ServiceService.SERVICE_PRE_URL + entity.getUrl());
+		preview.put("method", "POST");
+		output.setPreview(preview);
 		return success(output);
 	}
 
@@ -80,13 +95,16 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private String name;
 		private String url;
 		private int serviceType;
-		private String queryParams;// json
-		private JSONArray dataSource;// json
+		private List<String> queryParams;// json
+		private JSONObject dataSource;// json
+		private JSONArray serviceConfig;
 		private String createdBy;
 		private String updatedBy;
 		private Date createdTime;
 		private Date updatedTime;
 		private int status;
+
+		private JSONObject preview;
 
 		public String getId() {
 			return id;
@@ -120,19 +138,19 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.serviceType = serviceType;
 		}
 
-		public String getQueryParams() {
+		public List<String> getQueryParams() {
 			return queryParams;
 		}
 
-		public void setQueryParams(String queryParams) {
+		public void setQueryParams(List<String> queryParams) {
 			this.queryParams = queryParams;
 		}
 
-		public JSONArray getDataSource() {
+		public JSONObject getDataSource() {
 			return dataSource;
 		}
 
-		public void setDataSource(JSONArray dataSource) {
+		public void setDataSource(JSONObject dataSource) {
 			this.dataSource = dataSource;
 		}
 
@@ -176,6 +194,21 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 			this.status = status;
 		}
 
+		public JSONArray getServiceConfig() {
+			return serviceConfig;
+		}
+
+		public void setServiceConfig(JSONArray serviceConfig) {
+			this.serviceConfig = serviceConfig;
+		}
+
+		public JSONObject getPreview() {
+			return preview;
+		}
+
+		public void setPreview(JSONObject preview) {
+			this.preview = preview;
+		}
 	}
 
 }

@@ -49,14 +49,21 @@ public abstract class AbstractHttpTransferVariable {
         if (mConfig.isNeedSign()) {
             String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
             JSONObject body = new JSONObject();
-            body.put("customerId", mConfig.getCommercialId());
+            body.put("customer_id", mConfig.getCommercialId());
             body.put("sign", sign);
-            body.put("data", data);
+            body.put("data", params);
             data = body.toJSONString();
         }
-
+        else {
+        	JSONObject body = new JSONObject();
+            body.put("customer_id", mConfig.getCommercialId());
+            body.put("sign", "");
+            body.put("data", params);
+            data = body.toJSONString();
+        }
+        logger.debug("request:" + data);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-
+        logger.debug("response:" + response);
         while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -64,11 +71,12 @@ public abstract class AbstractHttpTransferVariable {
                 e.printStackTrace();
             }
             response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
+            logger.debug("response:" + response);
         }
 
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
-        String result = res.getJSONObject("data").getString("result");
+        String result = res.getString("data");
         logger.debug(url);
         logger.debug(JSONObject.toJSONString(res, true));
         return result;

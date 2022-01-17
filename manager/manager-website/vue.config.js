@@ -4,6 +4,7 @@ const { context } = require('./package.json');
 const { HashedModuleIdsPlugin } = require('webpack');
 const argv = require('minimist')(process.argv.slice(2));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
 const components = require('unplugin-vue-components/webpack');
 const { ElementPlusResolver: elementPlusResolver } = require('unplugin-vue-components/resolvers');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -108,6 +109,7 @@ module.exports = {
                     'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
                     'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
                     'process.env.VERSION':     JSON.stringify(`${buildDate}`),
+                    'process.env.TAIL':        JSON.stringify(`${tailSplit}`),
                 }),
                 new HashedModuleIdsPlugin(),
                 new CopyWebpackPlugin([
@@ -195,13 +197,13 @@ module.exports = {
         hot:        true,
         liveReload: true,
         /**
-         * http://localhost:8080/board-service
+         * http://localhost:8080/manager-service
          * @author claude
          * @description webpack devServer proxy
          */
         proxy:      {
             '/api': {
-                target:       'http://xxx.com/manager-service',
+                target:       'http://localhost:8080/manager-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

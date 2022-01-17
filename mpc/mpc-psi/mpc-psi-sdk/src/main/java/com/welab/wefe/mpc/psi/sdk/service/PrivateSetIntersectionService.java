@@ -16,26 +16,19 @@
 
 package com.welab.wefe.mpc.psi.sdk.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.mpc.config.CommunicationConfig;
+import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
-
-import cn.hutool.http.HttpUtil;
+import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
 /**
  * @Author: eval
  * @Date: 2021-12-24
  **/
-public class PrivateSetIntersectionService {
+public class PrivateSetIntersectionService extends AbstractHttpTransferVariable {
 
-	public static QueryPrivateSetIntersectionResponse handle(String url, JSONObject request) {
-		try {
-			String res = HttpUtil.post(url, JSONObject.toJSONString(request));
-			return JSON.parseObject(JSONObject.parseObject(res).getString("data"),
-					QueryPrivateSetIntersectionResponse.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public QueryPrivateSetIntersectionResponse handle(CommunicationConfig config, QueryPrivateSetIntersectionRequest request) {
+		return query(request, "", config, QueryPrivateSetIntersectionResponse.class);
 	}
+
 }

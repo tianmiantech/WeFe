@@ -32,7 +32,7 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	 */
 	private String url;
 	/**
-	 * 服务类型 1匿踪查询，2交集查询，3安全聚合
+	 * 服务类型 1匿踪查询，2交集查询，3安全聚合(被查询方),4安全聚合(查询方)
 	 */
 	@Column(name = "service_type")
 	private int serviceType;
@@ -41,13 +41,19 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	 * 查询参数配置
 	 */
 	@Column(name = "query_params")
-	private String queryParams;// json
+	private String queryParams;
 
 	/**
 	 * SQL配置
 	 */
 	@Column(name = "data_source")
 	private String dataSource;// json
+
+	/**
+	 * SQL配置
+	 */
+	@Column(name = "service_config")
+	private String serviceConfig;// json
 
 	/**
 	 * 是否在线 1在线 0离线
@@ -57,6 +63,9 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	@Column(name = "ids_table_name")
 	private String idsTableName;
+
+	@Column(name = "operator")
+	private String operator;
 
 	public String getName() {
 		return name;
@@ -112,6 +121,22 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 
 	public void setIdsTableName(String idsTableName) {
 		this.idsTableName = idsTableName;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public String getServiceConfig() {
+		return serviceConfig;
+	}
+
+	public void setServiceConfig(String serviceConfig) {
+		this.serviceConfig = serviceConfig;
 	}
 
 }

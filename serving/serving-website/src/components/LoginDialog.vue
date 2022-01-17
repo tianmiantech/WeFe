@@ -5,8 +5,8 @@
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
+        width="450px"
         title="登录"
-        width="30%"
         center
     >
         <el-form
@@ -16,12 +16,15 @@
             @submit.native.prevent
         >
             <el-form-item label="手机号">
-                <el-input v-model="form.phone_number"/>
+                <el-input v-model="form.phone_number" />
             </el-form-item>
             <el-form-item label="密码">
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.native.prevent
+                    @copy.native.prevent
+                    @contextmenu.native.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">
@@ -73,12 +76,12 @@ export default {
     data() {
         return {
             loading: false,
-            show: false,
-            form: {
+            show:    false,
+            form:    {
                 phone_number: '',
-                password: '',
-                code: '',
-                key: '',
+                password:     '',
+                code:         '',
+                key:          '',
             },
             imgCode: '',
         };
@@ -91,7 +94,7 @@ export default {
     },
     methods: {
         async getImgCode() {
-            const {code, data} = await this.$http.get('/account/captcha');
+            const { code, data } = await this.$http.get('/account/captcha');
 
             if (code === 0) {
                 this.imgCode = data.image;
@@ -112,13 +115,13 @@ export default {
                 this.form.password.substr(this.form.password.length - 3),
             ].join('');
 
-            const {code, data} = await this.$http.post({
-                url: '/account/login',
+            const { code, data } = await this.$http.post({
+                url:  '/account/login',
                 data: {
                     phone_number: this.form.phone_number,
-                    password: md5(password),
-                    key: this.form.key,
-                    code: this.form.code,
+                    password:     md5(password),
+                    key:          this.form.key,
+                    code:         this.form.code,
                 },
             });
 
@@ -136,7 +139,7 @@ export default {
             this.loading = false;
         },
         register() {
-            this.$router.push({name: 'register'});
+            this.$router.push({ name: 'register' });
         },
     },
 };

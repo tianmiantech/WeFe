@@ -14,7 +14,7 @@
                     clearable
                 />
             </el-form-item>
-            <el-form-item label="名称：">
+            <el-form-item label="数据集名称：">
                 <el-input
                     v-model="vData.search.name"
                     clearable
@@ -47,15 +47,37 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item label="是否禁用：">
+            <el-form-item label="包含 Y：">
                 <el-select
-                    v-model="vData.search.status"
+                    v-model="vData.search.containsY"
+                    style="width:100px;"
                     filterable
                     clearable
-                    style="width:100px;"
                 >
-                    <el-option :key="0" value="1" label="是"></el-option>
-                    <el-option :key="1" value="0" label="否"></el-option>
+                    <el-option :key="0" value="true" label="是"></el-option>
+                    <el-option :key="1" value="false" label="否"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="已启用：">
+                <el-select
+                    v-model="vData.search.enable"
+                    style="width:100px;"
+                    filterable
+                    clearable
+                >
+                    <el-option :key="0" value="true" label="是"></el-option>
+                    <el-option :key="1" value="false" label="否"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="已删除：">
+                <el-select
+                    v-model="vData.search.status"
+                    style="width:100px;"
+                    filterable
+                    clearable
+                >
+                    <el-option :key="0" value="true" label="是"></el-option>
+                    <el-option :key="1" value="false" label="否"></el-option>
                 </el-select>
             </el-form-item>
 
@@ -163,13 +185,20 @@
             </el-table-column>
             <el-table-column
                 label="状态"
-                width="120"
+                min-width="120"
             >
                 <template v-slot="scope">
                     <p v-if="scope.row.status">已删除</p>
                     <template v-else>
-                        <el-switch v-model="scope.row.ext_json.enable" @change="methods.changeStatus($event, scope.row)" />
-                        {{ scope.row.ext_json.enable ? '已启用' : '已禁用' }}
+                        <el-button
+                            v-if="scope.row.ext_json.enable"
+                            type="danger"
+                            @click="methods.changeStatus($event, scope.row)"
+                        >禁用</el-button>
+                        <el-button
+                            v-else
+                            @click="methods.changeStatus($event, scope.row)"
+                        >启用</el-button>
                     </template>
                 </template>
             </el-table-column>
@@ -233,7 +262,7 @@
         mixins: [table],
         setup() {
             const { ctx, appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $confirm } = appContext.config.globalProperties;
             const memberCard = ref();
             const vData = reactive({
                 loading: true,
@@ -242,6 +271,8 @@
                     name:      '',
                     member_id: '',
                     tag:       '',
+                    containsY: '',
+                    enable:    '',
                     status:    '',
                 },
                 getListApi:     '/data_set/query',
@@ -305,24 +336,30 @@
                     }
                 },
 
-                async changeStatus($event, row) {
-                    await $http.post({
-                        url:  '/data_set/update_ext_json',
-                        data: {
-                            id:      row.id,
-                            extJson: {
-                                enable: !row.ext_json.enable,
+                changeStatus($event, row) {
+                    $confirm(`你确定要${ row.ext_json.enable ? '禁用' : '启用' }该数据集吗?`, '警告', {
+                        type:              'warning',
+                        cancelButtonText:  '取消',
+                        confirmButtonText: '确定',
+                    }).then(async _ => {
+                        await $http.post({
+                            url:  '/data_set/update_ext_json',
+                            data: {
+                                id:      row.id,
+                                extJson: {
+                                    enable: !row.ext_json.enable,
+                                },
                             },
-                        },
-                    });
+                        });
 
-                    ctx.refresh();
+                        ctx.refresh();
+                    });
                 },
             };
 
-            onMounted(async () => {
-                await methods.loadTags();
-                await methods.loadMemberList();
+            onMounted(() => {
+                methods.loadTags();
+                methods.loadMemberList();
                 ctx.getList();
             });
 

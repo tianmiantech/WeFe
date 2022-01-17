@@ -20,23 +20,14 @@
  *          logged in and to.path === login or like register, go index
  */
 
-import { baseIsLogin, setStorage } from './auth';
+import { baseIsLogin } from './auth';
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 const blacklist = ['register', 'find-password'];
 
 export default router => {
     router.beforeEach((to, from, next) => {
-        const { baseUrl } = window.api;
         const isLogin = baseIsLogin();
-
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if (inited && to.name === 'init') {
-            next({ name: 'index', replace: true });
-        }
 
         // matched is all path
         if (to.matched.some(record => record.meta.requiresAuth !== false)) {
@@ -78,18 +69,7 @@ export default router => {
                         }
                     }
                 } else {
-                    if (inited) {
-                        next();
-                    } else {
-                        if (to.fullPath === `${prefixPath}init`) {
-                            next();
-                        } else {
-                            next({
-                                name:    'init',
-                                replace: true,
-                            });
-                        }
-                    }
+                    next();
                 }
             } else {
                 next({
@@ -112,27 +92,7 @@ export default router => {
     });
 
     router.beforeResolve((to, from, next) => {
-        const { baseUrl } = window.api;
-        const isLogin = baseIsLogin();
-
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if (!isLogin) {
-            router.$app.config.globalProperties.$bus.$emit('change-layout-header-title', '');
-        } else {
-            if (inited) {
-                router.$app.config.globalProperties.$bus.$emit('change-layout-header-title', '');
-            } else {
-                if (to.name !== 'init') {
-                    return next({
-                        name:    'init',
-                        replace: true,
-                    });
-                }
-            }
-        }
+        router.$app.config.globalProperties.$bus.$emit('change-layout-header-title', '');
         next();
     });
 

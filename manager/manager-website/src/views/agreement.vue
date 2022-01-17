@@ -54,7 +54,7 @@
             </el-table-column>
             <el-table-column label="上传时间" min-width="140">
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.create_time) }}
+                    {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -64,11 +64,13 @@
             >
                 <template v-slot="scope">
                     <el-button
-                        type="danger"
-                        @click="remove($event, scope.row)"
+                        v-if="!scope.row.enable"
+                        type="primary"
+                        @click="enable($event, scope.row)"
                     >
-                        删除
+                        启用
                     </el-button>
+                    <span v-else>已启用</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -93,12 +95,19 @@
             v-model="editDialog"
             width="400px"
         >
+            <el-alert type="error" :closable="false">
+                新上传的文件需要在列表中启用后才能生效!
+            </el-alert>
             <el-upload
-                drag
-                :action="action"
-                accept=".png,.jpg,.pdf"
+                v-loading="pending"
+                :http-request="() => {}"
+                accept=".png,.jpg,.pdf,.doc,.docx"
+                :headers="{ token: userInfo.token }"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
+                class="mt10"
+                action="#"
+                drag
             >
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">
@@ -106,7 +115,7 @@
                 </div>
                 <template #tip>
                     <div class="el-upload__tip">
-                        支持 png, jpg 最大上传 5M, PDF 最大上传 10M
+                        支持 png, jpg 最大5M, word文档最大5M, PDF 最大10M
                     </div>
                 </template>
             </el-upload>
@@ -138,6 +147,7 @@
         mixins: [table],
         data() {
             return {
+                pending:  false,
                 editId:   '',
                 editName: '',
                 editURL:  '',
@@ -149,8 +159,7 @@
                 watchRoute:    true,
                 defaultSearch: true,
                 requestMethod: 'post',
-                getListApi:    '/auth/agreement/template/query',
-                action:        `${window.api.baseUrl}/manager-service/auth/agreement/template/upload`,
+                getListApi:    '/realname/auth/agreement/template/query',
                 editDialog:    false,
                 preview:       {
                     visible:    false,
@@ -177,7 +186,7 @@
                 this.editId = row.id;
                 this.loading = true;
                 const { code, data } = await this.$http.post({
-                    url:          '/download/file?fileId=' + row.auth_agreement_file_id,
+                    url:          '/download/file?fileId=' + row.template_file_id,
                     responseType: 'blob',
                 });
 
@@ -188,22 +197,20 @@
                         this.preview.visible = true;
                         this.preview.fullscreen = false;
                         this.preview.fileData = result;
-                        this.preview.fileName = data.file_name;
                     });
                 }
             },
-            remove(event, row) {
-                this.$confirm('是否继续删除该文件吗?', '警告', {
-                    type: 'warning',
+            enable(event, row) {
+                this.$confirm('确定要启用该文件吗? 其他文件将被禁用!', '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 })
                     .then(async () => {
                         const { code } = await this.$http.post({
-                            url:  '/auth/agreement/template/delete',
+                            url:  '/realname/auth/agreement/template/enable',
                             data: {
-                                unionNodeId: row.union_node_id,
-                            },
-                            btnState: {
-                                target: event,
+                                templateFileId: row.template_file_id,
                             },
                         });
 
@@ -215,14 +222,15 @@
             },
             beforeUpload(file) {
                 const isImg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+                const isWord = file.name.endsWith('.doc') || file.name.endsWith('.docx');
                 const isPdf = file.type === 'application/pdf';
 
-                if(!isImg && !isPdf) {
+                if(!isImg && !isWord && !isPdf) {
                     this.$message.error('文件格式不支持!');
                     return false;
                 }
 
-                if(isImg) {
+                if(isImg || isWord) {
                     if(file.size / 1024 / 1024 > 5) {
                         this.$message.error('文件大小不能超过 5M !');
                         return false;
@@ -234,7 +242,28 @@
                         return false;
                     }
                 }
+
+                this.upload(file);
                 return true;
+            },
+            async upload(file) {
+                this.pending = true;
+                const formData = new FormData();
+
+                formData.append('file', file);
+                formData.append('filename', file.name);
+
+                const { code } = await this.$http.post({
+                    url:  '/realname/auth/agreement/template/upload',
+                    data: formData,
+                });
+
+                this.pending = false;
+                if(code === 0) {
+                    this.editDialog = false;
+                    this.$message.success('上传成功!');
+                    this.refresh();
+                }
             },
             uploadFinished(res) {
                 if(res.code === 0) {

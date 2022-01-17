@@ -61,7 +61,7 @@
     --animation-transition-timing        : ease-in-out;
 }
 
-.color-danger{color: --el-color-danger !important;}
+.color-danger{color: var(--el-color-danger) !important;}
 
 .el-header{
     --el-header-height: 80px !important;

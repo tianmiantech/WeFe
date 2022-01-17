@@ -1,8 +1,11 @@
 {
   "name": "wefe-board-website",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "wefe 联邦学习前台服务",
   "author": "claude.wu",
+  "welab": {
+    "contextPath": "board-website"
+  },
   "scripts": {
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve",
@@ -11,13 +14,14 @@
   },
   "dependencies": {
     "@antv/g6": "^4.3.11",
+    "@element-plus/icons": "^0.0.11",
     "axios": "^0.21.4",
     "echarts": "^5.2.0",
-    "element-plus": "^1.1.0-beta.24",
+    "element-plus": "^1.2.0-beta.6",
     "js-md5": "^0.7.3",
     "simple-uploader.js": "^0.5.6",
     "tiny-emitter": "^2.1.0",
-    "vue": "^3.2.11",
+    "vue": "^3.2.21",
     "vue-cheetah-grid": "^1.1.5",
     "vue-router": "^4.0.11",
     "vue3-virtual-list": "^1.0.2",
@@ -30,9 +34,9 @@
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@vue/babel-preset-app": "^4.5.13",
-    "@vue/cli-plugin-babel": "~4.5.13",
-    "@vue/cli-service": "~4.5.13",
+    "@vue/babel-preset-app": "^4.5.15",
+    "@vue/cli-plugin-babel": "~4.5.15",
+    "@vue/cli-service": "~4.5.15",
     "@vue/compiler-sfc": "^3.2.11",
     "autoprefixer": "^9.8.6",
     "babel-plugin-import": "^1.13.3",
@@ -49,6 +53,7 @@
     "sass-resources-loader": "^2.2.4",
     "speed-measure-webpack-plugin": "^1.5.0",
     "style-loader": "^2.0.0",
+    "unplugin-vue-components": "^0.17.2",
     "webpack-bundle-analyzer": "^4.4.2"
   },
   "browserslist": [

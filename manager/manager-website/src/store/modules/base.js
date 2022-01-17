@@ -25,23 +25,23 @@ export default _ => {
     const USERINFO = `${baseUrl}_userInfo`;
     const KEEPALIVE = `${baseUrl}_keepAlive`;
     const TAGSLIST = `${baseUrl}_tagsList`;
-    const SYSTEM_INITED = `${baseUrl}_system_inited`;
+    // const SYSTEM_INITED = `${baseUrl}_system_inited`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
         userInfo = localStorage.getItem(USERINFO),
-        tagsList = localStorage.getItem(TAGSLIST),
-        systemInited = localStorage.getItem(SYSTEM_INITED);
+        tagsList = localStorage.getItem(TAGSLIST);
+        // systemInited = localStorage.getItem(SYSTEM_INITED);
 
     keepAlive = keepAlive ? parseKey(keepAlive, false) : false;
     userInfo = userInfo ? parseKey(userInfo, {}) : {};
     tagsList = tagsList ? parseKey(tagsList, []) : [];
-    systemInited = systemInited ? parseKey(systemInited, false) : false;
+    // systemInited = systemInited ? parseKey(systemInited, false) : false;
 
     const state = {
         keepAlive,
         userInfo,
         tagsList,
-        systemInited,
+        // systemInited,
     };
 
     const getters = {
@@ -65,10 +65,10 @@ export default _ => {
             state.tagsList = list || [];
             setStorage().setItem(TAGSLIST, JSON.stringify(list));
         },
-        'SYSTEM_INITED' (state, data) {
+        /* 'SYSTEM_INITED' (state, data) {
             state.systemInited = data;
             setStorage().setItem(SYSTEM_INITED, JSON.stringify(data));
-        },
+        }, */
     };
 
     return {

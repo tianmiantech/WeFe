@@ -54,7 +54,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
         @Check(name = "组件类型", require = true)
         private ComponentType componentType;
 
-        @Check(name = "组件参数", require = true)
+        @Check(name = "组件参数", require = true, blockXss = false)
         private String params;
 
 

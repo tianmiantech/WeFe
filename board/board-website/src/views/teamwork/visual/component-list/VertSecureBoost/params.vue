@@ -133,7 +133,7 @@
                             placeholder="0.001"
                         />
                     </el-form-item>
-                    <el-form-item label="可拆分的最大并行数量">
+                    <el-form-item label="可拆分的最大并样本量">
                         <el-input
                             v-model="vData.form.tree_param.max_split_nodes"
                             placeholder="65536"
@@ -320,7 +320,6 @@
                 encryptionTypeList: [
                     { value: '', text: '------' },
                     { value: 'Paillier', text: 'Paillier' },
-                    { value: 'IterativeAffine', text: 'IterativeAffine' },
                 ],
 
                 originForm:  { ...XGBoost },

@@ -48,15 +48,13 @@
                         @submit.prevent
                     >
                         <el-form-item
-                            prop="phone"
-                            :rules="phoneRules"
+                            prop="account"
+                            :rules="accountRules"
                         >
                             <el-input
-                                v-model="form.phone"
-                                placeholder="手机号"
-                                id="username"
-                                maxlength="11"
-                                type="tel"
+                                v-model="form.account"
+                                placeholder="用户名"
+                                maxlength="50"
                                 clearable
                             />
                         </el-form-item>
@@ -73,7 +71,7 @@
                                 clearable
                             />
                         </el-form-item>
-                        <el-form-item
+                        <!-- <el-form-item
                             prop="code"
                             :rules="codeRules"
                         >
@@ -97,20 +95,14 @@
                                     </div>
                                 </template>
                             </el-input>
-                        </el-form-item>
-                        <!-- <el-checkbox
-                            v-model="form.keepAlive"
-                            @change="changeKeepAlive"
-                        >
-                            保持登录
-                        </el-checkbox> -->
+                        </el-form-item> -->
                         <div class="sign-action">
                             <!-- <router-link
-                            :to="{name: 'find-password'}"
-                            class="mr20"
-                        >
-                            忘记密码
-                        </router-link> -->
+                                :to="{name: 'find-password'}"
+                                class="mr20"
+                            >
+                                忘记密码
+                            </router-link> -->
                             <el-button
                                 type="primary"
                                 class="login-btn"
@@ -136,7 +128,6 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
     import md5 from 'js-md5';
 
     export default {
@@ -145,23 +136,22 @@
                 version:    process.env.VERSION,
                 submitting: false,
                 form:       {
-                    keepAlive: false,
-                    password:  '',
-                    phone:     '',
-                    code:      '',
-                    key:       '',
+                    password: '',
+                    account:  '',
+                    // code:      '',
+                    // key:      '',
                 },
-                imgCode:    '',
-                phoneRules: [
-                    { required: true, message: '请输入你的手机号' },
+                imgCode:      '',
+                accountRules: [
+                    { required: true, message: '请输入用户名' },
                     {
-                        validator: (rule, value, callback) => {
+                        /* validator: (rule, value, callback) => {
                             if (/^1[3-9]\d{9}/.test(value)) {
                                 callback();
                             } else {
                                 callback(new Error('请输入正确的手机号'));
                             }
-                        },
+                        }, */
                         trigger: 'blur',
                     },
                 ],
@@ -169,24 +159,17 @@
                 codeRules:     [{ required: true, message: '请输入验证码' }],
             };
         },
-        computed: {
-            ...mapGetters(['keepAlive']),
-        },
         created() {
-            // this.form.keepAlive = this.keepAlive;
-            this.getImgCode();
+            // this.getImgCode();
         },
         methods: {
-            /* changeKeepAlive(value) {
-                this.$store.commit('KEEP_ALIVE', value);
-            }, */
             async getImgCode() {
                 const { code, data } = await this.$http.get('/account/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
                     this.form.key = data.key;
-                    this.form.code = '';
+                    // this.form.code = '';
                 }
             },
             submit(event) {
@@ -195,57 +178,24 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        const password = [
-                            this.form.phone,
-                            this.form.password,
-                            this.form.phone,
-                            this.form.phone.substr(0, 3),
-                            this.form.password.substr(this.form.password.length - 3),
-                        ].join('');
                         const { code, data } = await this.$http.post({
-                            url:  '/account/login',
+                            url:  '/user/login',
                             data: {
-                                phone_number: this.form.phone,
-                                password:     md5(password),
-                                key:          this.form.key,
-                                code:         this.form.code,
+                                account:  this.form.account,
+                                password: md5(this.form.password),
+                                // key:          this.form.key,
+                                // code:         this.form.code,
                             },
                             btnState: {
                                 target: event,
                             },
                         });
 
-                        if (code === 10000) {
-                            this.$store.commit('SYSTEM_INITED', false);
+                        if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
-
                             this.$router.replace({
-                                name: 'init',
+                                name: 'index',
                             });
-                        } else if (code === 0) {
-                            this.$store.commit('UPDATE_USERINFO', data);
-                            this.$store.commit('SYSTEM_INITED', true);
-
-                            const res = await this.$http.get({
-                                url: '/member/detail',
-                            });
-
-                            if(res.code === 0) {
-                                data.member_id = res.data.member_id;
-                                data.member_logo = res.data.member_logo;
-                                data.member_name = res.data.member_name;
-                                data.member_email = res.data.member_email;
-                                this.$store.commit('UPDATE_USERINFO', data);
-                                this.$router.replace({
-                                    name: 'index',
-                                });
-                            } else {
-                                this.$store.commit('SYSTEM_INITED', false);
-                                this.$store.commit('UPDATE_USERINFO', {});
-                                this.$message.error('请重试');
-                            }
-                        } else {
-                            this.getImgCode();
                         }
                     }
                     this.submitting = false;

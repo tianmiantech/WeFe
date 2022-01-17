@@ -11,9 +11,10 @@ CREATE TABLE `service` (
   `service_type` tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
   `query_params` text COMMENT '查询参数配置',
   `data_source` text COMMENT 'SQL配置',
-  `condition_fields` text COMMENT '查询字段',
+  `service_config` text COMMENT '服务配置',
   `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
   `ids_table_name` varchar(100) DEFAULT NULL COMMENT '主键对应的表名',
+  `operator` varchar(10) DEFAULT NULL COMMENT '操作 sum / avg',
   PRIMARY KEY (`id`),
   UNIQUE KEY `url_unique` (`url`),
   KEY `name` (`name`)
@@ -22,19 +23,19 @@ CREATE TABLE `service` (
 -- 数据源
 DROP TABLE IF EXISTS data_source;
 CREATE TABLE `data_source` (
-   `database_type` varchar(255) DEFAULT NULL,
-   `host` varchar(255) DEFAULT NULL,
-   `port` int(255) DEFAULT NULL,
-   `database_name` varchar(255) DEFAULT NULL,
-   `user_name` varchar(255) DEFAULT NULL,
-   `password` varchar(255) DEFAULT NULL,
-   `created_by` varchar(255) DEFAULT NULL,
-   `id` varchar(32) NOT NULL,
-   `created_time` datetime DEFAULT NULL,
-   `updated_time` datetime DEFAULT NULL,
-   `name` varchar(255) DEFAULT NULL,
-   `updated_by` varchar(255) DEFAULT '',
-   PRIMARY KEY (`id`) USING BTREE
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `database_type` varchar(255) DEFAULT NULL COMMENT '数据源类型',
+  `host` varchar(255) DEFAULT NULL COMMENT '数据源主机',
+  `port` int(255) DEFAULT NULL COMMENT '数据源端口',
+  `database_name` varchar(255) DEFAULT NULL COMMENT '数据库名',
+  `user_name` varchar(255) DEFAULT NULL COMMENT '用户名',
+  `password` varchar(255) DEFAULT NULL COMMENT '用户密码',
+  `created_by` varchar(255) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(255) DEFAULT NULL COMMENT '数据源名称',
+  `updated_by` varchar(255) DEFAULT '' COMMENT '更新人',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- 客户表
@@ -49,7 +50,8 @@ CREATE TABLE client(
                        email VARCHAR(255)    COMMENT '邮箱' ,
                        ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
                        pub_key VARCHAR(255) NOT NULL   COMMENT '公钥' ,
-                       remark VARCHAR(255)    COMMENT '备注' ,
+                       code VARCHAR(255)  NOT NULL UNIQUE COMMENT '客户 code' ,
+                       remark VARCHAR(255)  COMMENT '备注' ,
                        status INT NOT NULL  DEFAULT 1 COMMENT '客户状态;1正常、0删除' ,
                        PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '客户基本信息表';
@@ -65,7 +67,7 @@ CREATE TABLE client_service(
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                                updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                               status TINYINT(1) NOT NULL   COMMENT '是否启用' ,
+                               status TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否启用' ,
                                PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
 CREATE UNIQUE INDEX service_client_index ON client_service(id,service_id,client_id);
@@ -91,6 +93,9 @@ CREATE TABLE api_request_record(
                                    id VARCHAR(32) NOT NULL   COMMENT '租户号' ,
                                    service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                                    client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                                   client_name VARCHAR(32) NOT NULL   COMMENT '客户名称' ,
+                                   service_name VARCHAR(32) NOT NULL   COMMENT '服务名称' ,
+                                   service_type tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
                                    ip_add VARCHAR(255) NOT NULL   COMMENT '请求ip地址' ,
                                    spend BIGINT NOT NULL   COMMENT '耗时' ,
                                    request_result INT NOT NULL   COMMENT '请求结果' ,
@@ -117,3 +122,25 @@ CREATE TABLE fee_detail(
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
 CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);
+
+-- 收支记录表
+DROP TABLE IF EXISTS payments_records;
+CREATE TABLE payments_records(
+                                 id VARCHAR(255) NOT NULL   COMMENT '' ,
+                                 created_by varchar(32) DEFAULT NULL COMMENT '创建人',
+                                 created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
+                                 updated_time datetime DEFAULT NULL COMMENT '更新时间',
+                                 pay_type INT    COMMENT '收支类型，1充值 2 支出' ,
+                                 client_id VARCHAR(255)    COMMENT '客户id' ,
+                                 client_name VARCHAR(255)    COMMENT '客户名称' ,
+                                 service_id VARCHAR(255)    COMMENT '服务id' ,
+                                 service_name VARCHAR(255)    COMMENT '服务名称' ,
+                                 service_type INT    COMMENT '服务类型' ,
+                                 amount DECIMAL(24,6)    COMMENT '金额' ,
+                                 balance DECIMAL(24,6)    COMMENT '余额' ,
+                                 status INT    COMMENT '状态：' ,
+                                 remark VARCHAR(900)    COMMENT '备注' ,
+                                 PRIMARY KEY (id)
+)  COMMENT = '收支记录';
+CREATE UNIQUE INDEX payments_records_index ON payments_records(id,service_id,client_id);

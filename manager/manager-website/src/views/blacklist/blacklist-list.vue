@@ -100,7 +100,7 @@
             return {
                 search: {
                     phone_number: '',
-                    nickname:     '',
+                    realname:     '',
                 },
                 getListApi:     '/blacklist/list',
                 viewDataDialog: {
@@ -115,7 +115,9 @@
         methods: {
             deleteData(row) {
                 this.$confirm('是否继续 将此记录移除黑名单?', '警告', {
-                    type: 'warning',
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
                 }).then(async () => {
                     const { code } = await this.$http.post({
                         url:  '/blacklist/delete',

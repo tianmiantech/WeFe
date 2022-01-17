@@ -5,17 +5,35 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="成员名称">
+            <el-form-item label="成员名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
-            <el-form-item label="成员 ID">
+            <el-form-item label="成员 ID:">
                 <el-input v-model="search.id" />
             </el-form-item>
-            <el-form-item>
-                <el-checkbox label="已失联" v-model="search.lostContact"></el-checkbox>
-                <el-checkbox label="已隐身" v-model="search.hidden"></el-checkbox>
-                <el-checkbox label="已冻结" v-model="search.freezed"></el-checkbox>
-                <el-checkbox label="已删除" v-model="search.status"></el-checkbox>
+            <el-form-item label="已失联">
+                <el-select v-model="search.lostContact" style="width:100px;" clearable>
+                    <el-option label="是" value="true" />
+                    <el-option label="否" value="false" />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="已隐身">
+                <el-select v-model="search.hidden" style="width:100px;" clearable>
+                    <el-option label="是" value="true" />
+                    <el-option label="否" value="false" />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="已冻结">
+                <el-select v-model="search.freezed" style="width:100px;" clearable>
+                    <el-option label="是" value="true" />
+                    <el-option label="否" value="false" />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="已删除">
+                <el-select v-model="search.status" style="width:100px;" clearable>
+                    <el-option label="是" value="1" />
+                    <el-option label="否" value="0" />
+                </el-select>
             </el-form-item>
             <el-button
                 type="primary"
@@ -42,7 +60,12 @@
                     <MemberAvatar :img="scope.row.logo" />
                 </template>
             </el-table-column>
-            <el-table-column label="成员名称" prop="name" />
+            <el-table-column label="成员名称" width="120">
+                <template v-slot="scope">
+                    <strong>{{ scope.row.name }}</strong>
+                    <p class="p-id">{{ scope.row.id }}</p>
+                </template>
+            </el-table-column>
             <el-table-column label="查看数据集" width="100">
                 <template v-slot="scope">
                     <router-link
@@ -52,23 +75,34 @@
                     </router-link>
                 </template>
             </el-table-column>
-            <el-table-column label="最后活动时间" width="140">
-                <template v-slot="scope">
-                    {{ dateFormat(scope.row.last_activity_time) }}
-                </template>
-            </el-table-column>
             <el-table-column label="成员状态">
                 <template v-slot="scope">
                     {{ memberStatus(scope.row) }}
                 </template>
             </el-table-column>
+            <el-table-column label="企业认证" min-width="120">
+                <template v-slot="scope">
+                    <span v-if="scope.row.ext_json.real_name_auth_status === 0">未认证</span>
+                    <span v-if="scope.row.ext_json.real_name_auth_status === 1">待审核</span>
+                    <span v-if="scope.row.ext_json.real_name_auth_status === 2">已认证</span>
+                    <template v-if="scope.row.ext_json.real_name_auth_status === -1">
+                        <span>已拒绝</span>
+                        <p class="color-danger">理由: {{ scope.row.ext_json.audit_comment }}</p>
+                    </template>
+                </template>
+            </el-table-column>
+            <el-table-column label="最后活跃时间" width="140">
+                <template v-slot="scope">
+                    {{ dateFormat(scope.row.last_activity_time) }}
+                </template>
+            </el-table-column>
             <el-table-column
                 label="操作"
                 fixed="right"
-                width="240"
+                min-width="300"
             >
                 <template v-slot="scope">
-                    <el-button
+                    <!-- <el-button
                         v-if="!scope.row.lost_contact"
                         type="danger"
                         @click="changeStatus($event, scope.row, 'lost')"
@@ -81,28 +115,30 @@
                         @click="changeStatus($event, scope.row, 'find')"
                     >
                         取消标记失联
-                    </el-button>
-                    <el-button
-                        v-if="!scope.row.freezed"
-                        type="danger"
-                        @click="changeStatus($event, scope.row, 'freeze')"
-                    >
-                        冻结
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.freezed"
-                        type="primary"
-                        @click="changeStatus($event, scope.row, 'unfreeze')"
-                    >
-                        取消冻结
-                    </el-button>
-                    <el-button
-                        v-if="!scope.row.ext_json.real_name_auth && scope.row.ext_json.principal_name"
-                        type="primary"
-                        @click="authorized($event, scope.row)"
-                    >
-                        企业认证
-                    </el-button>
+                    </el-button> -->
+                    <template v-if="!scope.row.status">
+                        <el-button
+                            v-if="!scope.row.freezed"
+                            type="danger"
+                            @click="changeStatus($event, scope.row, 'freeze')"
+                        >
+                            冻结
+                        </el-button>
+                        <el-button
+                            v-if="scope.row.freezed"
+                            type="primary"
+                            @click="changeStatus($event, scope.row, 'unfreeze')"
+                        >
+                            取消冻结
+                        </el-button>
+                        <el-button
+                            v-if="scope.row.ext_json.principal_name && scope.row.ext_json.real_name_auth_status === 1"
+                            type="primary"
+                            @click="authorized($event, scope.row)"
+                        >
+                            企业认证
+                        </el-button>
+                    </template>
                 </template>
             </el-table-column>
         </el-table>
@@ -126,29 +162,52 @@
             title="企业认证"
             v-model="authorize"
         >
-            <el-form class="flex-form">
-                <el-form-item label="企业名称&类型">
-                    {{ member.principalName }} ({{ member.authType }})
-                </el-form-item>
-                <el-form-item label="企业简介">
-                    {{ member.description }}
-                </el-form-item>
-                <el-form-item label="附件:">
-                    {{ member.description }}
-                </el-form-item>
-            </el-form>
-            <el-button
-                type="primary"
-                @click="memberAuthorize($event, true)"
-            >
-                通过
-            </el-button>
-            <el-button
-                type="danger"
-                @click="memberAuthorize($event, false)"
-            >
-                拒绝
-            </el-button>
+            <div v-loading="pending">
+                <el-form class="flex-form">
+                    <el-form-item label="企业名称&类型:">
+                        {{ member.principalName }} ({{ member.authType }})
+                    </el-form-item>
+                    <el-form-item label="企业简介:">
+                        {{ member.description }}
+                    </el-form-item>
+                    <el-form-item>
+                        <label class="el-form-item__label">附件:</label>
+                        <ul>
+                            <li
+                                v-for="file in fileList"
+                                :key="file.fileId"
+                            >
+                                <embed
+                                    :type="file.type"
+                                    :src="file.data"
+                                    :alt="file.name"
+                                    :style="`width: 100%;${file.type.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
+                                >
+                                <p class="mb10">{{ file.name }}</p>
+                            </li>
+                        </ul>
+                        <span class="color-danger">无法查看?</span> 下载附件:
+                        <p>
+                            <el-link v-for="file in fileList" :key="file.fileId" type="primary" :underline="false" @click="downloadFile($event, file)">{{file.name}}</el-link>
+                        </p>
+                    </el-form-item>
+                </el-form>
+
+                <div class="text-r">
+                    <el-button
+                        type="danger"
+                        @click="memberAuthorize($event, false)"
+                    >
+                        拒绝
+                    </el-button>
+                    <el-button
+                        type="primary"
+                        @click="memberAuthorize($event, true)"
+                    >
+                        通过
+                    </el-button>
+                </div>
+            </div>
         </el-dialog>
     </el-card>
 </template>
@@ -171,6 +230,12 @@
                     freezed:     '',
                     status:      '',
                 },
+                statusMap: {
+                    find:     '取消失联',
+                    lost:     '失联',
+                    freeze:   '冻结',
+                    unfreeze: '解冻',
+                },
                 watchRoute:    true,
                 defaultSearch: true,
                 requestMethod: 'post',
@@ -183,6 +248,8 @@
                     description:   '',
                     list:          [],
                 },
+                pending:  false,
+                fileList: [],
             };
         },
         computed: {
@@ -199,27 +266,6 @@
             },
         },
         methods: {
-            _getUrlParams() {
-                const { query } = this.$route;
-                const params = ['lostContact', 'freezed', 'hidden', 'status'];
-
-                this.unUseParams = [];
-
-                for (const $key in this.search) {
-                    this.search[$key] = '';
-                }
-                params.forEach(key => {
-                    const val = query[key];
-
-                    if(val) {
-                        this.search[key] = val === 'true';
-                    } else {
-                        this.search[key] = false;
-                        this.unUseParams.push(key);
-                    }
-                });
-
-            },
             async changeStatus(event, member, status) {
                 const params = {
                     id: member.id,
@@ -240,34 +286,82 @@
                     break;
                 }
 
-                const { code } = await this.$http.post({
-                    url:      '/member/update',
-                    data:     params,
-                    btnState: {
-                        target: event,
+                this.$confirm(`你确定要进行${ this.statusMap[status] }操作吗?`, '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
+                }).then(async _ => {
+                    const { code } = await this.$http.post({
+                        url:      '/member/update',
+                        data:     params,
+                        btnState: {
+                            target: event,
+                        },
+                    });
+
+                    if(code === 0) {
+                        this.refresh();
+                    }
+                });
+            },
+            authorized(event, row) {
+                const list = row.ext_json.realname_auth_file_info_list;
+
+                this.authorize = true;
+                this.member.id = row.id;
+                this.member.authType = row.ext_json.auth_type;
+                this.member.description = row.ext_json.description;
+                this.member.principalName = row.ext_json.principal_name;
+                this.member.list = list;
+                this.fileList = [];
+                this.pending = true;
+
+                list.forEach(file => {
+                    this.getFile(file.file_id, list.length);
+                });
+            },
+            blobToDataURI(blob, callback) {
+                const reader = new FileReader();
+
+                reader.readAsDataURL(blob);
+                reader.onload = function (e) {
+                    callback(e.target.result);
+                };
+            },
+            async getFile(fileId, files) {
+                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                    url:          '/download/file',
+                    responseType: 'blob',
+                    data:         {
+                        fileId,
                     },
                 });
 
                 if(code === 0) {
-                    this.refresh();
+                    this.blobToDataURI(data, result => {
+                        this.fileList.push({
+                            data: result,
+                            name: window.decodeURIComponent(filename),
+                            type: data.type,
+                            fileId,
+                        });
+
+                        if(this.fileList.length === files) {
+                            setTimeout(() => {
+                                this.pending = false;
+                            }, 1000);
+                        }
+                    });
                 }
             },
-            authorized(event, row) {
-                this.authorize = true;
-                this.member.id = row.id;
-                this.member.authType = row.auth_type;
-                this.member.description = row.description;
-                this.member.principalName = row.principal_name;
-                this.member.list = row.real_name_auth_file_info_list;
-            },
             async memberAuthorize(event, flag) {
+                this.authorize = false;
                 if(flag) {
                     const { code } = await this.$http.post({
                         url:  '/member/realname/auth/audit',
                         data: {
-                            id:           this.member.id,
-                            realNameAuth: true,
-                            auditComment: '',
+                            id:                 this.member.id,
+                            realNameAuthStatus: 2,
                         },
                         btnState: {
                             target: event,
@@ -282,14 +376,16 @@
                     this.$prompt('原因:', '拒绝', {
                         inputPattern:      /\S/,
                         inputErrorMessage: '不能为空',
+                        cancelButtonText:  '取消',
+                        confirmButtonText: '确定',
                     })
                         .then(async ({ value }) => {
                             const { code } = await this.$http.post({
                                 url:  '/member/realname/auth/audit',
                                 data: {
-                                    id:           this.member.id,
-                                    realNameAuth: false,
-                                    auditComment: value,
+                                    id:                 this.member.id,
+                                    auditComment:       value,
+                                    realNameAuthStatus: -1,
                                 },
                                 btnState: {
                                     target: event,
@@ -299,10 +395,29 @@
                             if(code === 0) {
                                 this.authorize = false;
                                 this.$message.success('处理成功!');
-                                this.refresh();
+                                setTimeout(() => {
+                                    this.refresh();
+                                }, 500);
                             }
                         });
                 }
+            },
+            downloadFile(event, file) {
+                if(this.loading) return;
+                this.loading = true;
+
+                const api = `${window.api.baseUrl}/download/file?fileId=${file.fileId}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    this.loading = false;
+                }, 300);
             },
         },
     };
@@ -316,7 +431,7 @@
         position: relative;
         display: inline-block;
         vertical-align: top;
-        :deep(.nickname){font-size:40px;}
+        :deep(.realname){font-size:40px;}
     }
     .more-info{
         width: 100%;

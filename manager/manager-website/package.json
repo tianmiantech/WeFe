@@ -1,14 +1,17 @@
 {
   "name": "wefe-manager-website",
-  "description": "wefe 联邦学习前台服务",
+  "description": "wefe 联邦学习 manager 管理系统",
   "author": "claude.wu",
+  "welab": {
+    "contextPath": "manager-website"
+  },
   "scripts": {
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve",
     "report": "vue-cli-service build --report"
   },
   "dependencies": {
-    "@antv/g6": "4.3.6",
+    "@antv/g6": "^4.3.11",
     "axios": "^0.21.4",
     "echarts": "^5.2.0",
     "element-plus": "^1.1.0-beta.24",

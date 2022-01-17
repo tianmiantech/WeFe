@@ -16,8 +16,9 @@ export default () => {
                 $message,
             } = appContext.config.globalProperties;
             const $data = reactive({
-                loading: false,
-                inited:  false,
+                loading:          false,
+                inited:           false,
+                featureSelectTab: [],
             });
             const $methods = {
                 async readData (model) {
@@ -108,6 +109,8 @@ export default () => {
                                                 item.id = x.id;
                                                 item.count = x.count;
                                                 item.method = x.method;
+                                                // for binning
+                                                item.points = x.points || '';
                                             }
                                         });
                                     }
@@ -135,6 +138,7 @@ export default () => {
                             if (row.id === id) {
                                 row.method = '';
                                 row.count = 1;
+                                row.points = '';
                                 row.id = '';
                             }
                         });
@@ -302,11 +306,14 @@ export default () => {
                             if (!item) {
                                 column.id = '';
                                 column.method = '';
+                                column.points = '';
                                 column.count = 1;
                             } else if (column.id === '' || column.id === selected.id) {
                                 num++;
                                 column.method = vData.columnListType;
+                                column.points = selected.points;
                                 column.count = selected.count;
+                                column.point = selected.point;
                                 column.id = selected.id;
                             }
                         });
@@ -337,50 +344,57 @@ export default () => {
                     });
                 },
 
+                paramsCheck () {
+                    return true;
+                },
+
                 checkParams () {
-                    const strategies = [];
+                    if (methods.paramsCheck()) {
+                        const strategies = [];
 
-                    vData.selectList.forEach(row => {
-                        if (row.feature_column_count) {
-                            strategies.push({
-                                ...row,
-                                strategy_id: row.id,
-                            });
-                        }
-                    });
-
-                    const members = [];
-
-                    vData.featureSelectTab.forEach(member => {
-                        const selected = {
-                            member_id:   member.member_id,
-                            member_role: member.member_role,
-                            features:    [],
-                        };
-
-                        member.$feature_list.forEach(row => {
-                            if (row.method) {
-                                selected.features.push({
+                        vData.selectList.forEach(row => {
+                            if (row.feature_column_count) {
+                                strategies.push({
                                     ...row,
+                                    strategy_id: row.id,
                                 });
                             }
                         });
-                        if (selected.features.length) {
-                            members.push(selected);
+
+                        const members = [];
+
+                        vData.featureSelectTab.forEach(member => {
+                            const selected = {
+                                member_id:   member.member_id,
+                                member_role: member.member_role,
+                                features:    [],
+                            };
+
+                            member.$feature_list.forEach(row => {
+                                if (row.method) {
+                                    selected.features.push({
+                                        ...row,
+                                        points: row.method === 'custom' ? row.points : '',
+                                    });
+                                }
+                            });
+                            if (selected.features.length) {
+                                members.push(selected);
+                            }
+                        });
+
+                        if (members.length === 0) {
+                            $message.error('请先选择特征!');
+                            return false;
                         }
-                    });
 
-                    if (members.length === 0) {
-                        $message.error('请先选择特征!');
-                        return false;
+                        return {
+                            params: {
+                                strategies,
+                                members,
+                            },
+                        };
                     }
-
-                    return {
-                        params: {
-                            strategies,
-                            members,
-                        },
-                    };
                 },
             };
 

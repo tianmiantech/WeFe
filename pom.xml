@@ -47,7 +47,7 @@
         <module>gateway</module>
         <module>serving</module>
         <module>fusion</module>
-        <module>manager</module>
+        <module>mpc</module>
     </modules>
 
     <profiles>
