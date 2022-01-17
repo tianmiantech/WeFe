@@ -322,9 +322,9 @@ public class FusionTaskService extends AbstractService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-        ActuatorManager.set(client);
+//        ActuatorManager.set(client);
 
-        client.run();
+       // client.run();
     }
 
 
@@ -367,9 +367,9 @@ public class FusionTaskService extends AbstractService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-        ActuatorManager.set(server);
+//        ActuatorManager.set(server);
 
-        server.run();
+       // server.run();
     }
 
     /**
@@ -465,7 +465,7 @@ public class FusionTaskService extends AbstractService {
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
         memberInfo.setMemberName(CacheObjects.getMemberName(model.getDstMemberId()));
-        myMemberInfo.setHashFunction(model.getPartnerHashFunction());
+        memberInfo.setHashFunction(model.getPartnerHashFunction());
         memberInfo.setRole(
                 model.getMyRole().equals(JobMemberRole.promoter) ?
                         JobMemberRole.provider :

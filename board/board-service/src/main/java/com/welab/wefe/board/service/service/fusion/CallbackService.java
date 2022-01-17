@@ -145,9 +145,9 @@ public class CallbackService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-        ActuatorManager.set(client);
+//        ActuatorManager.set(client);
 
-        client.run();
+//        client.run();
     }
 
 
@@ -186,8 +186,8 @@ public class CallbackService {
                         task.getRowCount() : task.getPartnerRowCount()
         );
 
-        ActuatorManager.set(server);
+//        ActuatorManager.set(server);
 
-        server.run();
+//        server.run();
     }
 }
