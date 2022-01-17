@@ -1117,7 +1117,7 @@
 
                             field_info_list.push({
                                 position: i,
-                                columns:  x.features,
+                                columns:  x.features.join(','),
                                 options:  x.encryption,
                             });
                         }

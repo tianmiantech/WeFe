@@ -542,7 +542,14 @@
                     }
                     // vData.cooperAuthDialog.show = true;
                     vData.cooperAuthDialog.flag = flag;
-                    methods.cooperAuthConfirm();
+
+                    $confirm(`确定${ flag ? '同意' : '拒绝' }协作方参与合作吗'`, '提示', {
+                        type: 'warning',
+                    }).then(action => {
+                        if(action === 'confirm') {
+                            methods.cooperAuthConfirm();
+                        }
+                    });
                 },
 
                 async cooperAuthConfirm() {

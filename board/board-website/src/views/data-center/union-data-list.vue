@@ -8,7 +8,7 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="数据资源 ID：">
+            <el-form-item label="数据集 ID：">
                 <el-input
                     v-model="vData.search.data_resource_id"
                     clearable
@@ -60,8 +60,7 @@
                     <el-option
                         v-for="item in vData.sourceTypeList"
                         :key="item.label"
-                        :value="item.value"
-                        :label="item.label"
+                        :value="item.label"
                     />
                 </el-select>
             </el-form-item>
@@ -81,7 +80,7 @@
             </el-form-item>
             <el-form-item
                 v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="样本分类："
+                label="任务类型："
                 label-width="100"
             >
                 <el-select
@@ -212,7 +211,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: '布隆过滤器',
+                        label: 'BloomFilter',
                         value: 'BloomFilter',
                     },
                 ],
@@ -360,8 +359,8 @@
                 ballEnter,
                 ballAfterEnter,
                 UnionDataResourceListRef,
-                resourceTypeChange,
                 searchList,
+                resourceTypeChange,
             };
         },
     };

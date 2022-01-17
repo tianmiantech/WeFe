@@ -40,10 +40,13 @@
             </el-button>
             <el-button
                 type="text"
-                class="elicon-delete"
-                style="color:#F85564;font-size: 14px;"
+                class="f14 color-danger"
                 @click="methods.removeRow(item, index)"
-            />
+            >
+                <el-icon>
+                    <elicon-delete />
+                </el-icon>
+            </el-button>
         </el-form-item>
 
         <el-button @click="methods.addPolicy">
