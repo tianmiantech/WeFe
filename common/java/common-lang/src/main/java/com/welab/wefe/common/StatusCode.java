@@ -93,7 +93,12 @@ public enum StatusCode {
      * board
      * An error occurred in the node of the flowchart
      */
-    ERROR_IN_FLOW_GRAPH_NODE(30001, "");
+    ERROR_IN_FLOW_GRAPH_NODE(30001, ""),
+    /**
+     * 添加数据资源时的表单参数错误
+     * 区别于数据资源文件错误，这种错误不需要删除文件。
+     */
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, "");
 
 
     private int code;

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,7 +140,9 @@ public class CallbackService {
                 task.getDataResourceId(),
                 task.isTrace(),
                 task.getTraceColumn(),
-                task.getDstMemberId()
+                task.getDstMemberId(),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(client);
@@ -178,7 +181,9 @@ public class CallbackService {
                 ),
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD())
+                new BigInteger(bf.getRsaD()),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(server);

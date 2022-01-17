@@ -75,21 +75,6 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="样本分类"
-                prop="for_job_type"
-                width="100"
-            >
-                <template v-slot="scope">
-                    <template v-if="scope.row.data_set">
-                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
-                    </template>
-                    <template v-else>
-                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column
                 v-if="projectType !== 'DeepLearning'"
                 label="包含Y"
                 width="100"
@@ -125,40 +110,35 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="projectType === 'MachineLearning'"
                 label="数据信息"
                 prop="row_count"
-                min-width="140"
+                min-width="160"
             >
                 <template v-slot="scope">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.total_data_count }}
-                    <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                    <p v-if="projectType === 'DeepLearning'">
+                        样本量/已标注：{{ isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_set.labeled_count : scope.row.labeled_count}}
                         <br>
-                        正例样本数量：{{ scope.row.y_positive_sample_count }}
+                        标注进度：{{ ((scope.row.data_set ? scope.row.data_set.labeled_count : scope.row.labeled_count) / (scope.row.data_set ? scope.row.data_set.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
                         <br>
-                        正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="数据总量"
-                prop="total_data_count"
-            >
-                <template v-slot="scope">
-                    {{isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count}}
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="标注状态"
-                prop="label_completed"
-                width="100"
-            >
-                <template v-slot="scope">
-                    {{scope.row.label_completed ? '已完成' : '标注中'}}
+                        样本分类：
+                        <template v-if="scope.row.data_set">
+                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                        <template v-else>
+                            {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                    </p>
+                    <p v-else>
+                        特征量：{{ scope.row.feature_count }}
+                        <br>
+                        样本量：{{ scope.row.total_data_count }}
+                        <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                            <br>
+                            正例样本数量：{{ scope.row.y_positive_sample_count }}
+                            <br>
+                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                        </template>
+                    </p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -178,8 +158,8 @@
                 min-width="110"
             />
             <el-table-column
-                label="上传者"
-                min-width="120"
+                label="上传时间"
+                min-width="160"
             >
                 <template v-slot="scope">
                     {{ scope.row.creator_nickname }}<br>
@@ -353,7 +333,7 @@
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
-                if(this.projectType === 'DeepLearning') {
+                if(this.projectType === 'DeepLearning' && !this.isFlow) {
                     this.search.dataResourceType = ['ImageDataSet'];
                 }
                 if(this.search.dataResourceType) {

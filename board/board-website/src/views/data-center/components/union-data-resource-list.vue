@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
+                <router-link :to="{ name: 'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
                 <br>
@@ -84,11 +84,11 @@
         />
         <el-table-column
             label="数据信息"
-            width="140"
+            width="160"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    样本量：{{scope.row.total_data_count}}
+                    样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>

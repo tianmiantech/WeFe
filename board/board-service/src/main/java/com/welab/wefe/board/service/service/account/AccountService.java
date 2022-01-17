@@ -137,7 +137,7 @@ public class AccountService extends AbstractService {
      */
     public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
 
-        if (config.getEnvName().isProductionEnv()) {
+        if (!config.getEnvName().isTestEnv()) {
             // Verification code verification
             if (!CaptchaService.verify(key, code)) {
                 throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
@@ -284,7 +284,7 @@ public class AccountService extends AbstractService {
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);

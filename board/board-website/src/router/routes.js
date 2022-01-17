@@ -217,7 +217,7 @@ const baseRoutes = [
                 meta: {
                     hidden:          true,
                     loginAndRefresh: true,
-                    title:           '流程详情',
+                    title:           '深度学习流程详情',
                     active:          `${prefixPath}teamwork`,
                     titleParams:     {
                         parentTitle: '项目详情',

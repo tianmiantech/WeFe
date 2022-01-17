@@ -18,9 +18,11 @@ package com.welab.wefe.board.service.fusion.manager;
 
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.database.entity.fusion.FusionActuatorInfoMySqlModel;
+import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionActuatorInfoRepository;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
+import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -47,8 +49,11 @@ public class ActuatorManager {
     }
 
     private static final FusionActuatorInfoRepository fusionActuatorInfoRepository;
+    private static final FusionTaskService fusionTaskService;
+
     static {
         fusionActuatorInfoRepository = Launcher.CONTEXT.getBean(FusionActuatorInfoRepository.class);
+        fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
     }
 
     public static void set(AbstractActuator task) {
@@ -68,7 +73,7 @@ public class ActuatorManager {
         ACTUATORS.remove(businessId);
     }
 
-    public synchronized static List<JObject> dashboard() {
+    public synchronized static List<JObject> dashboard() throws StatusCodeWithException {
 
         List<JObject> list = Lists.newArrayList();
         Object[] keys = ACTUATORS.keySet().toArray();
@@ -85,21 +90,33 @@ public class ActuatorManager {
         return list;
     }
 
-    public static JObject getTaskInfo(String businessId) {
+    public static JObject getTaskInfo(String businessId) throws StatusCodeWithException {
         AbstractActuator actuator = ACTUATORS.get(businessId);
-        if (actuator == null) {
-            return null;
+        if (actuator != null) {
+            return JObject
+                    .create()
+                    .append("business_id", businessId)
+                    .append("fusion_count", actuator.getFusionCount())
+                    .append("processed_count", actuator.getProcessedCount())
+                    .append("data_count", actuator.getDataCount())
+                    .append("spend", actuator.getSpend())
+                    .append("estimated_spend", actuator.getEstimatedSpend())
+                    .append("progress", actuator.progress());
         }
 
-        return JObject
-                .create()
-                .append("business_id", businessId)
-//                .append("fusion_count", actuator.getFusionCount())
-//                .append("processed_count", actuator.getProcessedCount())
-//                .append("data_count", actuator.getDataCount())
-                .append("spend", actuator.getSpend())
-                .append("estimated_spend", actuator.getEstimatedSpend())
-                .append("progress", actuator.progress());
+        FusionTaskMySqlModel model = fusionTaskService.findByBusinessId(businessId);
+        if (model != null) {
+            return JObject
+                    .create()
+                    .append("business_id", businessId)
+                    .append("fusion_count", model.getFusionCount())
+                    .append("processed_count", model.getProcessedCount())
+                    .append("data_count", model.getDataCount())
+                    .append("spend", model.getSpend())
+                    .append("progress", model.getProcessedCount().doubleValue() / model.getDataCount().doubleValue());
+        }
+
+        return null;
     }
 
     /**
@@ -125,6 +142,7 @@ public class ActuatorManager {
             fusionActuatorInfoRepository.save(info);
         }
     }
+
     public static void main(String[] args) {
         AbstractActuator actuator = new AbstractActuator("1") {
             @Override
@@ -153,9 +171,6 @@ public class ActuatorManager {
             }
         };
 
-        AbstractActuator actuator1 = new ClientActuator(null, null, null, null, null);
-        System.out.println("test: " + actuator.getClass().getSimpleName());
-        System.out.println("test: " + actuator1.getClass().getSimpleName());
 
     }
 }

@@ -1,41 +1,22 @@
-import os
-import shutil
-import urllib.request
+import pymysql
 
-from service.service_action import BaseServiceAction
+# 打开数据库连接
+db = pymysql.connect(host='10.1.0.120',
+                     port=3306,
+                     user='wefe',
+                     password="ou0sqsTPN!gG",
+                     database='wefe_board_3')
 
+# 使用 cursor() 方法创建一个游标对象 cursor
+cursor = db.cursor()
 
-def replace():
-    source = "/Users/zane/data/wefe_file_upload_dir/dir1"
-    target = "/Users/zane/data/wefe_file_upload_dir/dir2"
+# 使用 execute()  方法执行 SQL 查询
+cursor.execute("SELECT VERSION()")
 
-    copydirs(source, target)
+# 使用 fetchone() 方法获取单条数据.
+data = cursor.fetchone()
 
+print("Database version : %s " % data)
 
-def copydirs(source_dir, target_dir):
-    # 如不存在目标目录则创建
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-
-    # 获取文件夹中文件和目录列表
-    files = os.listdir(source_dir)
-    for f in files:
-        # 判断是否是文件夹
-        if os.path.isdir(source_dir + '/' + f):
-            # 递归调用本函数
-            copydirs(source_dir + '/' + f, target_dir + '/' + f)
-        else:
-            # 替换文件
-            shutil.copy(source_dir + '/' + f, target_dir + '/' + f)
-
-
-def unzip():
-    action = BaseServiceAction()
-    action.unzip(
-        "/Users/zane/data/wefe_file_upload_dir/hello.zip",
-        "/Users/zane/data/wefe_file_upload_dir/unzip"
-    )
-
-
-if __name__ == '__main__':
-    replace()
+# 关闭数据库连接
+db.close()

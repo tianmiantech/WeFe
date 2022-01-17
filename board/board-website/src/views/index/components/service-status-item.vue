@@ -21,16 +21,13 @@
                                 placement="right"
                             >
                                 <template #content>
-                                    <ol v-if="status.list">
-                                        <li v-for="item in status.list" :key="item.message" class="service_list">
-                                            <p v-if="!item.success" style="color: #f56c6c;">
-                                                <span>{{item.desc}}：</span>
-                                                <br>
-                                                <span>{{item.message}}</span>
-                                            </p>
-                                            <p v-else>{{item.desc}}</p>
-                                        </li>
-                                    </ol>
+                                    <div v-for="item in status.list" :key="item.message">
+                                        <p v-if="!item.success">
+                                            <span style="color: #f56c6c;">{{status.error_service_type}}：</span>
+                                            <span>{{item.message}}</span>
+                                        </p>
+                                        <p v-else>{{item.desc}}</p>
+                                    </div>
                                 </template>
                                 <el-icon v-if="!status.available"><elicon-info-filled /></el-icon>
                                 <el-icon v-else style="color: #67c23a"><elicon-select /></el-icon>
@@ -51,7 +48,7 @@
                     </el-col>
                     <el-col
                         :span="4"
-                        class="text-r"
+                        style="text-align:right"
                     >
                         <el-button
                             class="test-btn"
@@ -146,14 +143,12 @@
     .tip-error{
         background-color: #fef0f0;
         border-left: 5px solid #f56c6c;
+        // align-items: center;
     }
 
     .tip-success{
         background-color: #f0f9eb;
         border-left: 5px solid #67c23a;
         align-items: center;
-    }
-    .service_list {
-        margin-left: 15px;
     }
 </style>

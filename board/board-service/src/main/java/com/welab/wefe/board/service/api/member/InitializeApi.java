@@ -55,7 +55,11 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
         @Check(name = "邮箱", type = StandardFieldType.Email)
         private String memberEmail;
 
-        @Check(name = "电话")
+        @Check(
+                name = "电话",
+                regex = "[0-9\\-\\+]{6,18}",
+                messageOnInvalid = "请输入正确的联系电话"
+        )
         private String memberMobile;
 
         @Check(name = "是否允许对外公开数据集基础信息", require = true)

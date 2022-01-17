@@ -99,10 +99,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据资源id"
+                            label="数据集id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据资源名称">
+                        <el-table-column label="数据集名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
@@ -129,7 +129,11 @@
                                 {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
                             </template>
                         </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
+                            <template v-slot="scope">
+                                {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
+                            </template>
+                        </el-table-column>
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
                             label="标注状态"
@@ -183,10 +187,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据资源id"
+                            label="数据集id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据资源名称">
+                        <el-table-column label="数据集名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
@@ -265,10 +269,10 @@
                     >
                         <el-table-column type="index" />
                         <el-table-column
-                            label="数据资源id"
+                            label="数据集id"
                             prop="data_resource_id"
                         />
-                        <el-table-column label="数据资源名称">
+                        <el-table-column label="数据集名称">
                             <template v-slot="scope">
                                 <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
                                     {{ scope.row.name }}
@@ -295,7 +299,11 @@
                                 {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
                             </template>
                         </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量" prop="total_data_count" />
+                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
+                            <template v-slot="scope">
+                                {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
+                            </template>
+                        </el-table-column>
                         <el-table-column
                             v-if="form.projectType === 'DeepLearning'"
                             label="标注状态"
@@ -428,7 +436,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            this.checkAllService();
+            await this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {

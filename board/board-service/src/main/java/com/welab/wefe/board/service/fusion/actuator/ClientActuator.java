@@ -20,10 +20,10 @@ package com.welab.wefe.board.service.fusion.actuator;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.PsiCryptoApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerCloseApi;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -65,8 +65,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     private String[] headers;
 
-    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.dstMemberId = dstMemberId;
     }
 
@@ -115,7 +115,39 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
-        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+        switch (status) {
+            case success:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Success,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            case falsify:
+            case running:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Interrupt,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            default:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Failure,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+        }
     }
 
     @Override
@@ -157,7 +189,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
             LOG.info("cursor {} spend: {} curList {}", currentIndex, System.currentTimeMillis() - start, curList.size());
 
             currentIndex++;
-
 
             return curList;
         }

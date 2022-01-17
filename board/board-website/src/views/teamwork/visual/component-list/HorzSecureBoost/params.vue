@@ -282,7 +282,6 @@
                 encryptionTypeList: [
                     { value: '', text: '------' },
                     { value: 'Paillier', text: 'Paillier' },
-                    { value: 'IterativeAffine', text: 'IterativeAffine' },
                 ],
 
                 originForm:  { ...XGBoost },

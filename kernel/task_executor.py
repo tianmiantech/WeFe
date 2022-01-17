@@ -31,6 +31,7 @@ import argparse
 import importlib
 import os
 import pickle
+import re
 import sys
 import traceback
 
@@ -123,7 +124,7 @@ class TaskExecutor(object):
             tracker = Tracking(project_id=project_id, job_id=job_id, role=role, member_id=member_id,
                                model_id=task_id, model_version=job_id,
                                component_name=component_name, module_name=module_name, task_id=task_id)
-            run_class_paths = parameters.get('CodePath').split('/')
+            run_class_paths = parameters.get('CodePath').replace("\\", "/").split('/')
             run_class_package = '.'.join(run_class_paths[:-2]) + '.' + run_class_paths[-2].replace('.py', '')
             run_class_name = run_class_paths[-1]
 
@@ -361,7 +362,6 @@ class TaskExecutor(object):
     @staticmethod
     def get_error_message(exc_value, e: Exception):
         message = str(exc_value)
-
         # convert to CustomBaseException
         if isinstance(e, pickle.PickleError):
             e = PickleError()
@@ -370,7 +370,12 @@ class TaskExecutor(object):
         elif "NaN" in message:
             e = NaNTypeError()
         elif "spark" in message or "Py4J" in message:
-            e = SparkError()
+            pattern = re.compile('raise .*(.*)')
+            result = re.search(pattern, message)
+            if result is not None:
+                e = SparkError(message=result.group(0))
+            else:
+                e = SparkError(message)
         elif isinstance(e, TypeError):
             e = CustomTypeError()
 

@@ -35,8 +35,10 @@ public class FusionMemberInfo {
     String dataResourceId;
     String dataResourceName;
     DataResourceType dataResourceType;
-    int rowCount;
+    Long rowCount;
     String hashFunction;
+
+    String columnNameList;
 
 
     public String getMemberId() {
@@ -87,11 +89,11 @@ public class FusionMemberInfo {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
     }
 
@@ -105,5 +107,13 @@ public class FusionMemberInfo {
 
     public void setHashFunction(List<FieldInfo> fieldInfos) {
         this.hashFunction = PrimaryKeyUtils.hashFunction(fieldInfos);
+    }
+
+    public String getColumnNameList() {
+        return columnNameList;
+    }
+
+    public void setColumnNameList(String columnNameList) {
+        this.columnNameList = columnNameList;
     }
 }

@@ -10,9 +10,9 @@ eval_type: "binary"
 task_type: "classification"
 loss_func: "cross_entropy"
 tree_depth: 5
-tree_num: 30
+tree_num: 3
 learning_rate: 0.1
-"work_mode": "mix"
+"work_mode": "layered"
 "tree_num_per_member": 1
 "promoter_depth": 3
 "provider_depth": 2

@@ -15,7 +15,7 @@
 
 
 import argparse
-
+import random
 from kernel.examples.handler.component import DataIO
 from kernel.examples.handler.component import Evaluation
 from kernel.examples.handler.component import Intersection
@@ -48,7 +48,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     provider_validate_data = {"name": param['data_provider_val'], "namespace": namespace}
 
     # init handler
-    handler = Handler(job_id="job_fast-vertsbt_0002", backend=backend, work_mode=work_mode, db_type=db_type,
+    handler = Handler(job_id="job_fast-vertsbt_"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
                       fl_type='vertical') \
         .set_initiator(role="promoter", member_id=promoter) \
         .set_roles(promoter=promoter, provider=provider)
@@ -76,7 +76,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
                                               num_trees=param['tree_num'],
                                               task_type=param['task_type'],
                                               objective_param={"objective": param['loss_func']},
-                                              encrypt_param={"method": "iterativeAffine"},
+                                              encrypt_param={"method": "Paillier"},
                                               tree_param={"max_depth": param['tree_depth']},
                                               validation_freqs=10,
                                               learning_rate=param['learning_rate'],

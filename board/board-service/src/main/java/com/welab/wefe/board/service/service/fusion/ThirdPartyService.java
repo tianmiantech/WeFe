@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
-import com.welab.wefe.board.service.api.fusion.task.ReceiveApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.ReceiveApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -49,14 +49,15 @@ public class ThirdPartyService {
                 .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
-                .put("row_count", task.getRowCount())
                 .put("psi_actuator_role", PSIActuatorRole.server.equals(task.getPsiActuatorRole()) ? PSIActuatorRole.client : PSIActuatorRole.server)
                 .put("algorithm", task.getAlgorithm())
                 .put("description", task.getDescription())
                 .put("data_resource_id", task.getPartnerDataResourceId())
                 .put("data_resource_type", task.getPartnerDataResourceType())
                 .put("partner_data_resource_id", task.getDataResourceId())
-                .put("partner_data_resource_type", task.getDataResourceType());
+                .put("partner_data_resource_type", task.getDataResourceType())
+                .put("partner_row_count", task.getRowCount())
+                .put("partner_hash_function",task.getHashFunction());
 
         request(task.getDstMemberId(), ReceiveApi.class, params);
     }
@@ -69,7 +70,6 @@ public class ThirdPartyService {
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
-                .put("project_id", "test")
                 .put("audit_status", auditStatus)
                 .put("audit_comment", auditComment);
 

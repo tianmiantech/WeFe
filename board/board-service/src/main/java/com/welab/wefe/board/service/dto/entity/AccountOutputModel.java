@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity;
 
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.Masker;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 
@@ -48,15 +49,17 @@ public class AccountOutputModel extends AbstractOutputModel {
     public String getEmail() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskEmail(email);
         }
-        return email;
     }
 
     public String getPhoneNumber() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskPhoneNumber(phoneNumber);
         }
-        return phoneNumber;
     }
 
     //region getter/setter
