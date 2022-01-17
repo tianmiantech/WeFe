@@ -116,23 +116,28 @@ public class ApiRequestRecordService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("service_id", "client_id", "client_name",
-                "service_name", "service_type", "ip_address", "spend",
-                "request_result");
+        csvWriter.writeRow("服务Id", "服务名称","服务类型" ,"客户Id", "客户名称",
+                "IP", "耗时", "请求结果");
 
         for (ApiRequestRecordMysqlModel model : dataList) {
             csvWriter.writeRow(
                     model.getServiceId(),
-                    model.getClientId(),
-                    model.getClientName(),
                     model.getServiceName(),
                     ServiceTypeEnum.getValue(model.getServiceType()),
+                    model.getClientId(),
+                    model.getClientName(),
                     model.getIpAdd(),
                     model.getSpend().toString(),
                     String.valueOf(model.getRequestResult()));
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
+        if (!csvFile.exists()) {
+            File file = new File(csvFile.getParent());
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        }
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
         bw.write(sw.toString());
         bw.flush();

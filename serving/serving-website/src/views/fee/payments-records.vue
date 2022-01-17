@@ -82,6 +82,12 @@
             </router-link>
 
 
+            <el-button
+                @click="downloadPaymentsRecords"
+            >
+                下载
+            </el-button>
+
 
         </el-form>
 
@@ -211,6 +217,7 @@
 
 <script>
 import table from '@src/mixins/table.js';
+import {mapGetters} from "vuex";
 
 export default {
     name: 'payments-records',
@@ -257,8 +264,23 @@ export default {
             ],
         };
     },
-
+    computed: {
+        ...mapGetters(['userInfo']),
+    },
     methods: {
+        downloadPaymentsRecords() {
+
+            const api = `${window.api.baseUrl}/paymentsrecords/download?serviceName=${this.search.serviceName}&clientName=${this.search.clientName}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&payType=${this.search.payType}&serviceType=${this.search.serviceType}&token=${this.userInfo.token}`;
+            const link = document.createElement('a');
+
+            link.href = api;
+            link.target = '_blank';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+
+        },
+
 
         timeChange() {
             this.search.startTime = this.timeRange[0];

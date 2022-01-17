@@ -17,20 +17,19 @@ package com.welab.wefe.serving.service.enums;
 
 /**
  * @author ivenn.zheng
- * @date 2021/12/22
+ * @date 2022/1/17
  */
-public enum PaymentsTypeEnum {
+public enum PaymentsRecordStatusEnum {
 
+    NORMAL(1, "正常"),
 
-    RECHARGE(1, "充值"),
-
-    PAID(2, "支出");
+    FLUSHES(2, "冲正");
 
     private int code;
 
     private String value;
 
-    PaymentsTypeEnum(int code, String value) {
+    PaymentsRecordStatusEnum(int code, String value) {
         this.value = value;
         this.code = code;
     }
@@ -47,10 +46,10 @@ public enum PaymentsTypeEnum {
         String result = null;
         switch (code) {
             case 1:
-                result = PaymentsTypeEnum.RECHARGE.value;
+                result = PaymentsRecordStatusEnum.NORMAL.value;
                 break;
             case 2:
-                result = PaymentsTypeEnum.PAID.value;
+                result = PaymentsRecordStatusEnum.FLUSHES.value;
                 break;
             default:
                 break;

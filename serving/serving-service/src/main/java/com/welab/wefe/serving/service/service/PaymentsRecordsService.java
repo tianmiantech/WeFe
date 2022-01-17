@@ -17,8 +17,11 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.serving.service.api.paymentsrecords.DownloadApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.QueryListApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.SaveApi;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.PaymentsRecordsMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
@@ -26,14 +29,22 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientReposito
 import com.welab.wefe.serving.service.database.serving.repository.PaymentsRecordsRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.PaymentsRecordStatusEnum;
 import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
+import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,8 +64,73 @@ public class PaymentsRecordsService {
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private Config config;
 
-    private Logger log = LoggerFactory.getLogger(PaymentsRecordsService.class);
+    private static final String filePrefix = "payments_records/";
+
+    public File downloadFile(DownloadApi.Input input) {
+        String fileName = DateUtil.getCurrentDate() + "_result.csv";
+        Specification<PaymentsRecordsMysqlModel> where = Where
+                .create()
+                .contains("serviceName", input.getServiceName())
+                .contains("clientName", input.getClientName())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
+                .equal("payType", input.getPayType())
+                .equal("serviceType", input.getServiceType())
+                .orderBy("createdTime", OrderBy.desc)
+                .build(PaymentsRecordsMysqlModel.class);
+
+        List<PaymentsRecordsMysqlModel> all = paymentsRecordsRepository.findAll(where);
+        try {
+            return writeCSV(all, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public File writeCSV(List<PaymentsRecordsMysqlModel> dataList, String fileName) throws IOException {
+        final StringWriter sw = new StringWriter();
+        CsvWriter csvWriter = CsvWriter.builder()
+                .fieldSeparator(',')
+                .quoteStrategy(QuoteStrategy.EMPTY)
+                .lineDelimiter(LineDelimiter.LF)
+                .build(sw);
+
+        csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
+                "收支类型", "时间", "金额", "余额", "状态", "备注");
+
+        for (PaymentsRecordsMysqlModel model : dataList) {
+            csvWriter.writeRow(
+                    model.getServiceId(),
+                    model.getServiceName(),
+                    ServiceTypeEnum.getValue(model.getServiceType()),
+                    model.getClientId(),
+                    model.getClientName(),
+                    PaymentsTypeEnum.getValueByCode(model.getPayType()),
+                    DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2),
+                    model.getAmount().toString(),
+                    model.getBalance().toString(),
+                    PaymentsRecordStatusEnum.getValueByCode(model.getStatus()),
+                    model.getRemark());
+        }
+
+        File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
+        if (!csvFile.exists()) {
+            File file = new File(csvFile.getParent());
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write(sw.toString());
+        bw.flush();
+        bw.close();
+
+        return csvFile;
+    }
+
 
     public PagingOutput<PaymentsRecordsMysqlModel> queryList(QueryListApi.Input input) {
 
@@ -87,7 +163,6 @@ public class PaymentsRecordsService {
             model.setServiceType(service.getServiceType());
         }
 
-
         // get client
         Optional<ClientMysqlModel> clientMysqlModel = clientRepository.findById(input.getClientId());
         if (clientMysqlModel.isPresent()) {
@@ -105,24 +180,22 @@ public class PaymentsRecordsService {
 
         if (one.isPresent()) {
             PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = one.get();
-            if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getValue()) {
+            if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().add(input.getAmount()));
-            } else if (input.getPayType() == PaymentsTypeEnum.PAID.getValue()) {
+            } else if (input.getPayType() == PaymentsTypeEnum.PAID.getCode()) {
                 // 支出，余额减少
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().subtract(input.getAmount()));
             }
         } else {
-            if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getValue()) {
+            if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(new BigDecimal("0.0").add(input.getAmount()));
-            } else if (input.getPayType() == PaymentsTypeEnum.PAID.getValue()) {
+            } else if (input.getPayType() == PaymentsTypeEnum.PAID.getCode()) {
                 // 支出，余额减少
                 model.setBalance(new BigDecimal("0.0").subtract(input.getAmount()));
             }
-
         }
-
 
         paymentsRecordsRepository.save(model);
 
