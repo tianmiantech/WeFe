@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,8 @@ package com.welab.wefe.task;
 
 import com.welab.wefe.bo.data.BlockInfoBO;
 import com.welab.wefe.bo.data.EventBO;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncContractHeight;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncContractHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncHeight;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.constant.BlockConstant;
