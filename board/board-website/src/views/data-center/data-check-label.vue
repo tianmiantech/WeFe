@@ -2,7 +2,7 @@
     <el-card class="page_layer">
         <div class="check_label">
             <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType }}">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType, unlabeled_count: vData.tabsList[2].count }}">
                     <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
@@ -215,6 +215,7 @@
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
+                    if (label_type === vData.search.labeled) return;
                     vData.search.labeled = label_type;
                     vData.search.label = '';
                     vData.search.page_index = 1;
