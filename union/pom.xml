@@ -15,7 +15,6 @@
     <modules>
         <module>union-service</module>
         <module>blockchain-data-sync</module>
-        <module>union-data-move</module>
     </modules>
 
 
