@@ -53,10 +53,10 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
 
     public byte[][] compute(List<String> bsList) throws StatusCodeWithException {
 
-        if (processedCount.longValue() >= dataCount) {
-            status = PSIActuatorStatus.falsify;
-            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, PSIActuatorStatus.falsify.description());
-        }
+//        if (processedCount.longValue() >= dataCount) {
+//            status = PSIActuatorStatus.falsify;
+//            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, PSIActuatorStatus.falsify.description());
+//        }
         LOG.info("align start...");
 
         byte[][] bs = new byte[bsList.size()][];

@@ -60,7 +60,7 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        @Check(name = "bs")
+        @Check(name = "bs", blockReactionaryKeyword = false)
         List<String> bs;
 
         public Input(String businessId, List<String> bs) {
