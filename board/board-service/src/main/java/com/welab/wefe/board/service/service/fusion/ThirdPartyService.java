@@ -66,8 +66,7 @@ public class ThirdPartyService {
      * psi-callback
      */
     public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
-
-        callback(dstMemberId, businessId, auditStatus, auditComment);
+        callback(dstMemberId, businessId, auditStatus, auditComment, null);
     }
 
     /**
