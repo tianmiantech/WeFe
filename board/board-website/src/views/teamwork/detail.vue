@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />

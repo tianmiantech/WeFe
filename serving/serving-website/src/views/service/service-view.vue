@@ -525,11 +525,11 @@
                     },
                     {
                         name:  '多方交集查询',
-                        value: 1,
+                        value: 5,
                     },
                     {
                         name:  '多方匿踪查询',
-                        value: 2,
+                        value: 6,
                     },
                 ],
                 data_sources:   [],
