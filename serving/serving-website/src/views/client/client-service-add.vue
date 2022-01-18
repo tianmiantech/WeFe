@@ -31,11 +31,6 @@
                 {{ item.value }}
             </el-form-item>
 
-            <!--            <el-form-item prop="unitPrice">-->
-            <!--                <el-input v-model="clientService.unitPrice" maxlength="10" type="hidden"></el-input>-->
-            <!--            </el-form-item>-->
-
-
             <el-form-item>
                 <el-button type="button" @click="dialogFormVisible = true">自定义计费规则</el-button>
             </el-form-item>
