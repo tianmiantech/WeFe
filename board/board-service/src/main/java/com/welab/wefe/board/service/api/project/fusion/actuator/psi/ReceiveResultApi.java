@@ -58,7 +58,7 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         @Check(name = "businessId", require = true)
         String businessId;
 
-        @Check(name = "rs")
+        @Check(name = "rs", blockReactionaryKeyword = false)
         List<String> rs;
 
         public Input(String businessId, List<String> rs) {

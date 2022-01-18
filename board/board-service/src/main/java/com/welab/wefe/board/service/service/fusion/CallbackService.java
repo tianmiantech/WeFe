@@ -60,7 +60,7 @@ public class CallbackService {
     /**
      * rsa-callback
      */
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
