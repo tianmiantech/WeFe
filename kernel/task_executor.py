@@ -124,7 +124,11 @@ class TaskExecutor(object):
             tracker = Tracking(project_id=project_id, job_id=job_id, role=role, member_id=member_id,
                                model_id=task_id, model_version=job_id,
                                component_name=component_name, module_name=module_name, task_id=task_id)
-            run_class_paths = parameters.get('CodePath').replace("\\", "/").split('/')
+            # run_class_paths = parameters.get('CodePath').replace("\\", "/").split('/')
+            base_path = os.getcwd() + '/'
+            code_path = os.path.abspath(parameters.get('CodePath'))
+            code_path = code_path.replace(base_path, "")
+            run_class_paths = code_path.replace("\\", "/").split('/')
             run_class_package = '.'.join(run_class_paths[:-2]) + '.' + run_class_paths[-2].replace('.py', '')
             run_class_name = run_class_paths[-1]
 
