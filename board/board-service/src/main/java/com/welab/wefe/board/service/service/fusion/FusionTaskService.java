@@ -314,6 +314,7 @@ public class FusionTaskService extends AbstractService {
         task.setUpdatedTime(new Date());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());
+        task.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
 
         fusionTaskRepository.save(task);
 

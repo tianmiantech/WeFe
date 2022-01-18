@@ -45,6 +45,8 @@ public class ActuatorManager {
     private static final ConcurrentHashMap<String, AbstractActuator> ACTUATORS = new ConcurrentHashMap<>();
 
     public static AbstractActuator get(String businessId) {
+
+
         return ACTUATORS.get(businessId);
     }
 
@@ -100,6 +102,7 @@ public class ActuatorManager {
                     .append("processed_count", actuator.getProcessedCount())
                     .append("data_count", actuator.getDataCount())
                     .append("spend", actuator.getSpend())
+                    .append("status", "Running")
                     .append("estimated_spend", actuator.getEstimatedSpend())
                     .append("progress", actuator.progress());
         }
@@ -113,6 +116,7 @@ public class ActuatorManager {
                     .append("processed_count", model.getProcessedCount())
                     .append("data_count", model.getDataCount())
                     .append("spend", model.getSpend())
+                    .append("status", model.getStatus())
                     .append("progress", model.getProcessedCount().doubleValue() / model.getDataCount().doubleValue());
         }
 
