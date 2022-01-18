@@ -31,6 +31,11 @@
                 {{ item.value }}
             </el-form-item>
 
+            <!--            <el-form-item prop="unitPrice">-->
+            <!--                <el-input v-model="clientService.unitPrice" maxlength="10" type="hidden"></el-input>-->
+            <!--            </el-form-item>-->
+
+
             <el-form-item>
                 <el-button type="button" @click="dialogFormVisible = true">自定义计费规则</el-button>
             </el-form-item>
@@ -51,11 +56,6 @@
                 </div>
             </el-dialog>
 
-            <!--            <el-form-item prop="status">-->
-            <!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
-            <!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
-
-            <!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
@@ -183,13 +183,13 @@ export default {
 
             if (!this.clientService.unitPrice) {
                 this.$message('请输入单价')
-                return
+                return false;
             }
 
 
             if (!this.clientService.payType) {
-                this.$message('请选择计费类型')
-                return
+                this.$message.error('请选择计费类型')
+                return false;
             }
 
             // 重新清空 fee config
@@ -212,6 +212,16 @@ export default {
         onSubmit() {
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
+
+                    if (!this.clientService.unitPrice) {
+                        this.$message.error('请输入单价');
+                        return false;
+                    }
+                    if (!this.clientService.payType) {
+                        this.$message.error('请选择付费类型');
+                        return false;
+                    }
+
                     const {code} = await this.$http.post({
                         url: '/clientservice/save',
                         data: {
