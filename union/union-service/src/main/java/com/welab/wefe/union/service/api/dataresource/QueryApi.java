@@ -60,17 +60,7 @@ public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<
 
     @Override
     protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
-        PageOutput<DataResourceQueryOutput> pageOutput = null;
-        pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
-//        if (null == input.getDataResourceType()) {
-//            pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
-//        } else if (DataResourceType.ImageDataSet.compareTo(input.getDataResourceType()) == 0) {
-//            pageOutput = imageDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
-//        } else if (DataResourceType.TableDataSet.compareTo(input.getDataResourceType()) == 0) {
-//            pageOutput = tableDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
-//        } else if (DataResourceType.BloomFilter.compareTo(input.getDataResourceType()) == 0) {
-//            pageOutput = bloomFilterMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
-//        }
+        PageOutput<DataResourceQueryOutput> pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
 
         List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()
                 .map(x -> {

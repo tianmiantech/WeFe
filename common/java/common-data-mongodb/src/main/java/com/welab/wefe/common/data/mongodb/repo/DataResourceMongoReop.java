@@ -200,7 +200,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
     private List<UnwindOperation> buildUnwindOperations(List<DataResourceType> dataResourceTypeList) {
         List<UnwindOperation> unwindOperations = new ArrayList<>();
-        UnwindOperation unwindMember = Aggregation.unwind("member");
+        UnwindOperation unwindMember = Aggregation.unwind("member", true);
         unwindOperations.add(unwindMember);
 
         for (DataResourceType dataResourceType : dataResourceTypeList) {
@@ -213,7 +213,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 unwindField = MongodbTable.Union.BLOOM_FILTER;
             }
             unwindField = StringUtil.camelCaseToUnderLineCase(unwindField);
-            unwindOperations.add(Aggregation.unwind(unwindField));
+            unwindOperations.add(Aggregation.unwind(unwindField, true));
         }
         return unwindOperations;
     }
