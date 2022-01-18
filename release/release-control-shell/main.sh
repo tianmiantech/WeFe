@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+echo "******************************************************"
 echo "******************** WeFe 升级程序 ********************"
+echo "******************************************************"
 # 配置文件所在目录
 config_path=$1
-echo config.properties:$config_path
+echo "config.properties:$config_path"
 
 # 获取 json形式的入参
-main_input=$2
-echo "main input:$main_input"
+action_info=$(echo $2 | tr -d "\n")
+echo "action       info:$action_info"
 
 # 脚本所在的目录
-echo "current dir:$(pwd)"
+workspace=$(pwd)
+echo "current       dir:$workspace"
 echo "******************************************************"
 
 
@@ -33,12 +37,12 @@ echo "******************************************************"
 
 
 echo 正在使用 python 脚本执行升级操作
-python -c "import main; Main.run('$config_path','$main_input')"
+python -c "import main; main.run('$workspace', '$action_info')"
 
-check_result=$?
-echo "升级结果：$check_result"
+python_result=$?
+echo "升级结果：$python_result"
 
-if [ $check_result != 0 ];
+if [ $python_result != 0 ];
 then
   echo "已退出升级程序"
   exit 1
