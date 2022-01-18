@@ -75,7 +75,7 @@
                         {{ row.data_resource_id || row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
-                        {{ row.total_data_count }} / {{ row.feature_count }}
+                        {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
@@ -596,7 +596,7 @@
                                     feature_count:     member.feature_count,
                                     data_set_id:       item.data_set_id,
                                     source_type:       item.source_type,
-                                    row_count:         item.row_count,
+                                    row_count:         item.row_count ? item.row_count : item.data_set.total_data_count,
                                     name:              item.name,
                                     column_name_list:  features,
                                     $column_name_list: features,
@@ -793,7 +793,7 @@
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
                                 source_type:       row[0].source_type,
-                                row_count:         row[0].row_count,
+                                row_count:         row[0].row_count ? row[0].row_count : row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }
