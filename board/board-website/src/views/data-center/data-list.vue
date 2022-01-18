@@ -67,7 +67,6 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
-                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
@@ -79,7 +78,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                v-if="vData.search.dataResourceType.indexOf('TableDataSet') !== -1"
                 label="是否包含Y值："
                 label-width="100"
             >
@@ -94,7 +93,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'ImageDataSet'"
+                v-if="vData.search.dataResourceType.indexOf('ImageDataSet') !== -1"
                 label="样本分类："
                 label-width="100"
             >
