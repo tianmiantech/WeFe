@@ -58,13 +58,18 @@ def execute_sql_list(sql_list: list):
     current_sql = ""
     try:
         for sql in sql_list:
+            # 跳过空行
+            if len(sql) == 0:
+                continue
+
             current_sql = sql
             cursor.execute(sql)
             print('sql 执行成功：', current_sql)
     except Exception as e:
-        connection.rollback()
-        print('事务执行失败，已回滚。')
         print('sql 执行失败：', current_sql)
+        print('事务执行失败，正在回滚...')
+        connection.rollback()
+        print('事务已回滚！')
         raise e
     else:
         connection.commit()

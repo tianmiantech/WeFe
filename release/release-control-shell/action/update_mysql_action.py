@@ -31,21 +31,31 @@ class UpdateMysqlAction(BaseAction):
             print("非 sql 文件，跳过：" + file_path)
             return
 
-        print("开始执行 sql：" + file_path)
-        sql = self.extract_sql_list(file_path)
-        # database.execute(sql)
-        print("sql 执行成功：" + file_path)
+        print("开始执行 sql 文件：" + file_path)
+        sql_list = self.extract_sql_list(file_path)
+        database.execute_sql_list(sql_list)
+        print("sql 文件执行成功：" + file_path)
+        print()
+        print()
+        print()
 
     def extract_sql_list(self, file_path):
+        """
+        从 sql 文件中过滤掉注释和空行，抽取出所有的 sql 语句。
+        """
 
         with open(file_path, "r", encoding='utf-8') as f:
             lines = f.readlines()
 
-        sql_lines = ""
+        all_sql = ""
         # 标记当前行是否处于多行注释中
         in_comment = False
         for line in lines:
             line = line.strip()
+
+            # 跳过空行
+            if len(line) == 0:
+                continue
 
             # 跳过单行注释
             if line.startswith("--"):
@@ -62,7 +72,6 @@ class UpdateMysqlAction(BaseAction):
             if in_comment:
                 continue
 
-            sql_lines += " " + line
+            all_sql += " " + line
 
-        database.execute_sql_list(sql_lines)
-        return sql_lines
+        return all_sql.split(";")
