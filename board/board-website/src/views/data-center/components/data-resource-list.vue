@@ -81,30 +81,31 @@
         </el-table-column>
         <el-table-column
             label="数据信息"
-            width="150"
+            width="160"
         >
             <template v-slot="scope">
-                <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.total_data_count }}
-                    <br>
-                    正例样本数量：{{ scope.row.y_positive_sample_count }}
-                    <br>
-                    正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
-                    <br>
-                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
-                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
-                    </span>
-                </p>
-                <p v-else>
-                    样本量：{{scope.row.total_data_count}}
+                <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
+                    样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>
                     样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>
+                <p v-else>
+                    特征量：{{ scope.row.feature_count }}
+                    <br>
+                    样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                        正例样本数量：{{ scope.row.y_positive_sample_count || 0 }}
+                        <br>
+                        正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                        <br>
+                        <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                        <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
+                    </span>
+                </p>
+                
             </template>
         </el-table-column>
         <el-table-column
