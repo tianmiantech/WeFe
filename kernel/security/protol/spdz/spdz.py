@@ -1,3 +1,31 @@
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Copyright 2019 The FATE Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from kernel.security.paillier import PaillierKeypair
 from kernel.security.protol.spdz.communicator import Communicator
 from kernel.security.protol.spdz.utils import NamingService
@@ -21,7 +49,8 @@ class SPDZ(object):
     def has_instance(cls):
         return cls.__instance is not None
 
-    def __init__(self, name="ss", q_field=2 << 60, local_party=None, all_parties=None, use_mix_rand=False):
+    def __init__(self, name="ss", q_field=2 << 60, local_party=None, all_parties=None, use_mix_rand=False,
+                 n_length=1024):
         self.name_service = naming.NamingService(name)
         self._prev_name_service = None
         self._pre_instance = None
@@ -32,7 +61,7 @@ class SPDZ(object):
         self.other_parties = self.communicator.other_parties
         if len(self.other_parties) > 1:
             raise EnvironmentError("support 2-party secret share only")
-        self.public_key, self.private_key = PaillierKeypair.generate_keypair(1024)
+        self.public_key, self.private_key = PaillierKeypair.generate_keypair(n_length)
         self.q_field = q_field
         self.use_mix_rand = use_mix_rand
 
@@ -54,3 +83,6 @@ class SPDZ(object):
     @classmethod
     def dot(cls, left, right, target_name=None):
         return left.dot(right, target_name)
+
+    def set_flowid(self, flowid):
+        self.communicator.set_flowid(flowid)
