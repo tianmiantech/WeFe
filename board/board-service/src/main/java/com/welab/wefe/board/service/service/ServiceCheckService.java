@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -135,7 +135,7 @@ public class ServiceCheckService {
             unionService.queryMember(0, 1);
             output.setSuccess(true);
         } catch (StatusCodeWithException e) {
-            output.setSuccess(true);
+            output.setSuccess(false);
             output.setMessage(e.getMessage());
         }
 
