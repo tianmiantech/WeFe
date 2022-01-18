@@ -62,7 +62,7 @@ class FixedPointNumber(object):
         #  Too low value preprocess;
         #  avoid "OverflowError: int too large to convert to float"
 
-        if np.abs(scalar) < 1e-200:
+        if not scalar or np.abs(scalar) < 1e-200:
             scalar = 0
 
         if n is None:

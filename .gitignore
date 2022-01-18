@@ -38,7 +38,7 @@ jobs/
 
 # 排除build
 build/
-
+**/bin/
 # 排除mac本地文件
 *.DS_Store
 *.properties

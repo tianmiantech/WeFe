@@ -122,3 +122,25 @@ CREATE TABLE fee_detail(
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
 CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);
+
+-- 收支记录表
+DROP TABLE IF EXISTS payments_records;
+CREATE TABLE payments_records(
+                                 id VARCHAR(255) NOT NULL   COMMENT '' ,
+                                 created_by varchar(32) DEFAULT NULL COMMENT '创建人',
+                                 created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
+                                 updated_time datetime DEFAULT NULL COMMENT '更新时间',
+                                 pay_type INT    COMMENT '收支类型，1充值 2 支出' ,
+                                 client_id VARCHAR(255)    COMMENT '客户id' ,
+                                 client_name VARCHAR(255)    COMMENT '客户名称' ,
+                                 service_id VARCHAR(255)    COMMENT '服务id' ,
+                                 service_name VARCHAR(255)    COMMENT '服务名称' ,
+                                 service_type INT    COMMENT '服务类型' ,
+                                 amount DECIMAL(24,6)    COMMENT '金额' ,
+                                 balance DECIMAL(24,6)    COMMENT '余额' ,
+                                 status INT    COMMENT '状态：' ,
+                                 remark VARCHAR(900)    COMMENT '备注' ,
+                                 PRIMARY KEY (id)
+)  COMMENT = '收支记录';
+CREATE UNIQUE INDEX payments_records_index ON payments_records(id,service_id,client_id);

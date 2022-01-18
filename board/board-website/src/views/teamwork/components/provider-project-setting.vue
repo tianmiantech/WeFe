@@ -1,10 +1,12 @@
 <template>
     <div class="project-setting-icon">
-        <i
+        <el-icon
             v-if="!project.is_exited && project.audit_status !== 'disagree'"
             class="el-icon-setting"
             @click="showDialogForProjectSetting=true"
-        />
+        >
+            <elicon-setting />
+        </el-icon>
         <el-dialog
             title="项目设置"
             v-model="showDialogForProjectSetting"

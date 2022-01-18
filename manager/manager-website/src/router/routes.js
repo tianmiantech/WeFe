@@ -66,7 +66,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: prefixPath,
+        path: `${prefixPath}authorize`,
         meta: {
             title:          '企业认证管理',
             requiresLogout: false,
@@ -94,7 +94,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: prefixPath,
+        path: `${prefixPath}union-list`,
         meta: {
             title:          'union节点管理',
             requiresLogout: false,
@@ -113,7 +113,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: prefixPath,
+        path: `${prefixPath}user-list`,
         meta: {
             title:          '用户管理',
             requiresLogout: false,

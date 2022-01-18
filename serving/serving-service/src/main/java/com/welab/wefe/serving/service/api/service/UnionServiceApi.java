@@ -52,6 +52,7 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 		private List<String> params;
 		private int serviceType; // 服务类型
 		private Date createdTime;// 创建时间
+		private Date updatedTime;// 更新时间
 
 		public String getId() {
 			return id;
@@ -125,29 +126,36 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 			this.createdTime = createdTime;
 		}
 
+		public Date getUpdatedTime() {
+			return updatedTime;
+		}
+
+		public void setUpdatedTime(Date updatedTime) {
+			this.updatedTime = updatedTime;
+		}
 	}
 
 	public static class Input extends PagingInput {
 
 		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合 4=安全聚合（查询方）
 		private int serviceType = -1;
-		private String serviceId;
-		private String name;
+		private String memberName;
+		private String serviceName;
 
-		public String getServiceId() {
-			return serviceId;
+		public String getMemberName() {
+			return memberName;
 		}
 
-		public void setServiceId(String serviceId) {
-			this.serviceId = serviceId;
+		public void setMemberName(String memberName) {
+			this.memberName = memberName;
 		}
 
-		public String getName() {
-			return name;
+		public String getServiceName() {
+			return serviceName;
 		}
 
-		public void setName(String name) {
-			this.name = name;
+		public void setServiceName(String serviceName) {
+			this.serviceName = serviceName;
 		}
 
 		public int getServiceType() {

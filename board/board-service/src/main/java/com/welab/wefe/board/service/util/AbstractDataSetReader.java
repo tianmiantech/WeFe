@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,6 +77,13 @@ public abstract class AbstractDataSetReader implements Closeable {
 
         if (list.stream().distinct().count() != list.size()) {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        if (list.size() == 0) {
+            throw new StatusCodeWithException("数据集首行为空", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (list.size() == 1) {
+            throw new StatusCodeWithException("数据集仅一列，不支持仅有 Id 列的数据集上传。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Convert uppercase Y to lowercase y
@@ -173,7 +180,7 @@ public abstract class AbstractDataSetReader implements Closeable {
             }
 
             if (!pattern.matcher(value).find()) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException(
+                StatusCode.ERROR_IN_DATA_RESOURCE_ADD_FORM.throwException(
                         "数据集的特征 " + column.getName()
                                 + " 声明为 " + column.getDataType()
                                 + " 类型，但在 " + (readDataRows + 1)

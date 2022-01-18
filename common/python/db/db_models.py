@@ -148,6 +148,8 @@ class DataSet(ModelBase):
     usage_count_in_project = IntegerField(constraints=[SQL("DEFAULT 0")])
     y_count = IntegerField()
     y_name_list = TextField(null=True)
+    y_positive_example_count = BigIntegerField(null=True)
+    y_positive_example_ratio = FloatField(null=True)
 
     class Meta:
         table_name = 'data_set'
@@ -493,10 +495,19 @@ class Account(ModelBase):
 
 
 class Project(ModelBase):
-    created_by = CharField(null=True)
-    created_time = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
+    audit_comment = CharField(null=True)
+    audit_status = CharField()
+    audit_status_from_myself = CharField()
+    audit_status_from_others = CharField(null=True)
+    closed = IntegerField(constraints=[SQL("DEFAULT 0")])
+    closed_by = CharField(null=True)
+    closed_time = DateTimeField(null=True)
+    deleted = IntegerField(constraints=[SQL("DEFAULT 0")])
+    exited = IntegerField(constraints=[SQL("DEFAULT 0")])
+    exited_by = CharField(null=True)
+    exited_time = DateTimeField(null=True)
     finish_time = DateTimeField(null=True)
-    id = CharField(primary_key=True)
+    flow_status_statistics = CharField(null=True)
     member_id = CharField()
     message = TextField(null=True)
     my_role = CharField()
@@ -505,11 +516,8 @@ class Project(ModelBase):
     progress_updated_time = DateTimeField(null=True)
     project_desc = TextField(null=True)
     project_id = CharField(unique=True)
-    project_status = CharField(constraints=[SQL("DEFAULT 'created'")])
     start_time = DateTimeField(null=True)
     status_updated_time = DateTimeField(null=True)
-    updated_by = CharField(null=True)
-    updated_time = DateTimeField(null=True)
 
     class Meta:
         table_name = 'project'
@@ -566,6 +574,7 @@ if int(work_mode) == 0:
         if obj != ModelBase and issubclass(obj, ModelBase):
             table_objs.append(obj)
     sqlite_utils.create_table(table_objs, DB)
+
 
 if __name__ == '__main__':
     pass

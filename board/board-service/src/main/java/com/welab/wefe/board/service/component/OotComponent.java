@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,6 +65,12 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
             ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot);
+    /**
+     * List of temporarily unsupported components
+     */
+    private final static List<ComponentType> TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.MixLR,
+            ComponentType.MixSecureBoost, ComponentType.HorzNN, ComponentType.VertNN);
+
     @Autowired
     private Config config;
 
@@ -87,7 +93,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             return;
         }
         if (FederatedLearningType.mix.equals(graph.getFederatedLearningType())) {
-            throw new FlowNodeException(node, "[打分验证]组件暂时不支持混合联邦");
+            throw new FlowNodeException(node, "【打分验证】组件暂时不支持混合联邦");
         }
 
         DataIOComponent.DataSetItem myDataSetConfig = getMyDataSetConfig(graph, params);
@@ -103,19 +109,21 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // All characteristic columns of the dataset I selected
         List<String> myFeatureNameList = Arrays.asList(dataSetMysqlModel.getFeatureNameList().split(","));
 
+        List<TaskMySqlModel> taskMySqlModelList = preTasks;
         // Dataio task component
         TaskMySqlModel dataIoTaskMysqlModel = null;
         // If the jobid is not empty, it means an OOT process (a process containing only two components of [start] and [OOT]).
         // This jobid means the jobid of the old process
         if (isOotMode(params)) {
             if (graph.allNodes.size() > 1) {
-                throw new FlowNodeException(node, "只允许只有[打分验证]组件。");
+                throw new FlowNodeException(node, "只允许只有【打分验证】组件。");
             }
             // Find the dataio task from the task list
             dataIoTaskMysqlModel = taskService.findDataIoTask(params.jobId, graph.getJob().getMyRole());
             if (null == dataIoTaskMysqlModel) {
                 throw new FlowNodeException(node, "未找到原流程中的[选择数据集]节点信息。");
             }
+            taskMySqlModelList = taskService.listByJobId(params.jobId, graph.getJob().getMyRole());
 
         } else {
             // Find modeling node
@@ -123,7 +131,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             // Find evaluation node
             FlowGraphNode evaluationNode = graph.findOneNodeFromParent(node, ComponentType.Evaluation);
             if (null == evaluationNode && null == modelingNode) {
-                throw new FlowNodeException(node, "在[打分验证]节点前必须有建模行为或评估行为");
+                throw new FlowNodeException(node, "在【打分验证】节点前必须有建模行为或评估行为");
             }
 
             dataIoTaskMysqlModel = findDataIoTask(preTasks);
@@ -140,6 +148,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // Check the correctness of the feature column of the provider member selected by the OOT component on the promoter side.
         // Because the front end should be prompted directly on the initiator side, check it on the promoter side）
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            checkUnsupportedComponent(node, taskMySqlModelList);
             checkSelectedFeatures(graph, node, params, myDataSetConfig);
             checkSelectedMembersValid(graph, node, params);
         }
@@ -458,6 +467,23 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
     }
 
+    /**
+     * Check for unsupported components
+     */
+    private void checkUnsupportedComponent(FlowGraphNode node, List<TaskMySqlModel> taskMySqlModelList) throws FlowNodeException {
+        if (CollectionUtils.isEmpty(taskMySqlModelList)) {
+            throw new FlowNodeException(node, "未找任何节点任务信息。");
+        }
+
+        for (TaskMySqlModel taskMySqlModel : taskMySqlModelList) {
+            for (ComponentType componentType : TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST) {
+                if (componentType.equals(taskMySqlModel.getTaskType())) {
+                    throw new FlowNodeException(node, "暂时不支持组件【" + componentType.getLabel() + "】");
+                }
+            }
+        }
+    }
+
 
     /**
      * Query all task lists of homologous branches
@@ -535,7 +561,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private TaskMySqlModel createEvaluationTaskMySqlModel(FlowGraph graph, FlowGraphNode node, TaskMySqlModel dataIoTask, OotComponent.Params ootParams) throws FlowNodeException {
         if (StringUtil.isEmpty(ootParams.getEvalType()) || null == ootParams.posLabel) {
-            throw new FlowNodeException(node, "请填写 打分验证 节点的评估类别或正标签类型字段。");
+            throw new FlowNodeException(node, "请填写【打分验证】节点的评估类别或正标签类型字段。");
         }
         TaskMySqlModel evaluationTaskMySqlModel = new TaskMySqlModel();
         String evaluationTaskId = dataIoTask.getTaskId();

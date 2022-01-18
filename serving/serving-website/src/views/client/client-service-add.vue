@@ -37,7 +37,7 @@
 
             <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
                 <el-form :model="clientService" :rules="rules">
-                    <el-form-item label="单价：" :label-width="formLabelWidth" prop="unitPrice">
+                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">
                         <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
                     </el-form-item>
                     <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
@@ -97,20 +97,15 @@ export default {
         };
 
         let validateUnitPrice = (rule, value, callback) => {
-            console.log(this.clientService.unitPrice)
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-
                 let reg = /^\d+(\.\d+)?$/;
-
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
                     return callback(new Error('单价要求输入数值'));
                 }
-
-
             }
         };
 
@@ -121,15 +116,6 @@ export default {
                 callback();
             }
         };
-
-        // let validateStatus = (rule, value, callback) => {
-        //     if (!this.clientService.status) {
-        //         return callback(new Error('请选择状态'));
-        //     } else {
-        //         callback();
-        //     }
-        // };
-
 
         return {
             clientService: {
@@ -169,13 +155,7 @@ export default {
                 payType: [
                     {required: true, validator: validatePayType, trigger: 'change'}
                 ],
-                // status: [
-                //     {required: true, validator: validateStatus, trigger: 'change'}
-                // ]
-
             },
-            // clientId: '',
-
         }
     },
 
@@ -185,7 +165,6 @@ export default {
     }
     ,
     created() {
-
 
 
         if (this.$route.query.id) {
@@ -213,10 +192,6 @@ export default {
                 return
             }
 
-            //
-            // this.clientService.payType = this.form.payType
-            // this.clientService.unitPrice = this.form.unitPrice
-
             // 重新清空 fee config
             this.feeConfig = []
             this.feeConfig.push({
@@ -232,11 +207,9 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            // this.$message('保存成功！')
         },
 
         onSubmit() {
-
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
                     const {code} = await this.$http.post({
@@ -288,6 +261,9 @@ export default {
         async getServices() {
             const {code, data} = await this.$http.post({
                 url: '/service/query',
+                data: {
+                    status: 1,
+                }
             });
 
             if (code === 0) {
@@ -315,13 +291,7 @@ export default {
 
             });
             if (code === 0) {
-                console.log(data.id,1111111111)
                 this.clientService.clientId = data.id
-                // this.client.email = data.email
-                // this.client.ipAdd = data.ip_add
-                // this.client.pubKey = ''
-                // this.client.remark = data.remark
-                // this.client.code = data.code
             }
         },
 

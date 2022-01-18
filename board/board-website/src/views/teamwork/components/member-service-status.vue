@@ -4,7 +4,9 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <i class="el-icon-loading" />
+            <el-icon class="is-loading">
+                <elicon-loading />
+            </el-icon>
         </span>
         <i
             v-else-if="status.all_status_is_success"
@@ -24,7 +26,9 @@
             v-if="status.all_status_is_success === null"
             class="status_waiting"
         >
-            <i class="el-icon-loading" />
+            <el-icon class="is-loading">
+                <elicon-loading />
+            </el-icon>
         </span>
 
         <el-tooltip
@@ -104,15 +108,11 @@
     .status_waiting,
     .icon-service-error,
     .icon-service-ok{
-        height:32px;
+        height:20px;
         font-size: 12px;
         display: inline-block;
         vertical-align:top;
         cursor: pointer;
-    }
-    .status_waiting{
-        position: relative;
-        top:2px;
     }
     .member-service-item{
         margin-top: 5px;

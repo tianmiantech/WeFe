@@ -50,6 +50,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -217,7 +218,7 @@ public class ServiceService {
 		if (input.getStatus() != -1) {
 			where = where.equal("status", input.getStatus());
 		}
-		Specification<ServiceMySqlModel> condition = where.build(ServiceMySqlModel.class);
+		Specification<ServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc).build(ServiceMySqlModel.class);
 
 		PagingOutput<ServiceMySqlModel> page = serviceRepository.paging(condition, input);
 
@@ -250,11 +251,18 @@ public class ServiceService {
 		if (StringUtils.isNotBlank(input.getServiceConfig())) {
 			model.setServiceConfig(input.getServiceConfig());
 		}
+		model.setUpdatedBy(CurrentAccount.id());
+		model.setUpdatedTime(new Date());
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
 		output.setParams(model.getQueryParams());
 		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		if (model.getStatus() == 1) {
+			unionServiceService.add2Union(model);
+		} else {
+			unionServiceService.offline2Union(model);
+		}
 		return output;
 	}
 
@@ -268,9 +276,7 @@ public class ServiceService {
 		}
 		model.setStatus(0);
 		serviceRepository.save(model);
-		if (model.getServiceType() == 3) {
-			unionServiceService.offline2Union(model);
-		}
+		unionServiceService.offline2Union(model);
 	}
 
 	public void onlineService(String id) throws StatusCodeWithException {
@@ -283,9 +289,7 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
-		if (model.getServiceType() == 3) {
-			unionServiceService.add2Union(model);
-		}
+		unionServiceService.add2Union(model);
 	}
 
 	public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)

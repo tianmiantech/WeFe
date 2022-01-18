@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,4 +72,21 @@ public @interface Check {
      * Declare that this parameter is hidden from the front end
      */
     boolean hiddenForFrontEnd() default false;
+
+    /**
+     * 检查输入中是否包含 xss 攻击威胁
+     */
+    boolean blockXss() default true;
+
+    /**
+     * 检查输入中是否包含反动关键字
+     */
+    boolean blockReactionaryKeyword() default true;
+
+    /**
+     * 是否阻止 sql 注入
+     * 如果为是，会对输入的不安全字符进行转义、替换等处理。
+     */
+    boolean blockSqlInjection() default false;
+
 }

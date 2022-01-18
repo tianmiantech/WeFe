@@ -13,7 +13,7 @@
 
     <div v-if="member.exited">
         <span class="member-exited">{{ member.member_name }}</span>
-        <span v-if="member.audit_comment && member.$other_audit.length" class="f12 audit_comment"> ({{member.audit_name}}意见为: {{ member.audit_comment }})</span>
+        <span v-if="member.audit_comment" class="f12 color-danger"> ({{member.audit_name}}意见为: {{ member.audit_comment }})</span>
     </div>
     <p
         v-else-if="member.audit_status === 'auditing'"
@@ -43,5 +43,4 @@
         cursor: pointer;
     }
     .member-exited{text-decoration: line-through;}
-    .audit_comment{color: $--color-danger;}
 </style>
