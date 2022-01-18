@@ -89,7 +89,7 @@
                                             <el-form
                                                 v-for="row in member.$data_set_list"
                                                 :key="row.id"
-                                                label-width="130px"
+                                                label-width="96px"
                                             >
                                                 <el-form-item label="数据资源名称：">
                                                     {{ row.data_set.name }}
@@ -114,7 +114,7 @@
                                                         </el-tag>
                                                     </template>
                                                 </el-form-item>
-                                                <el-form-item label="数据总量/已标注：">
+                                                <el-form-item label="数据总量/已标注：" label-width="130px">
                                                     {{ row.data_set.total_data_count }} / {{ row.data_set.labeled_count }}
                                                 </el-form-item>
                                                 <el-form-item label="样本分类：">
@@ -193,7 +193,7 @@
                                     </el-form>
                                 </div>
                             </el-tab-pane>
-                            <!-- <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
+                            <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
                                 <image-dataIO-result
                                     v-if="vData.showDataIOResult"
                                     :job-id="vData.jobInfo.job_id"
@@ -201,7 +201,7 @@
                                     :my-role="vData.flowInfo.project.my_role"
                                     :autoReadResult="true"
                                 />
-                            </el-tab-pane> -->
+                            </el-tab-pane>
                         </el-tabs>
                         <el-dialog
                             title="选择数据资源"

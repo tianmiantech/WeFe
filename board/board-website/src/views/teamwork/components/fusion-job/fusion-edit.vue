@@ -11,6 +11,14 @@
             title="待协作方审核"
             :closable="false"
         />
+        <el-alert
+            v-if="vData.status === 'Failure'"
+            style="max-width: 400px;margin-bottom:10px;"
+            type="error"
+            effect="dark"
+            title="任务已失败"
+            :closable="false"
+        />
 
         <h3 class="mb30">新建融合任务</h3>
         <el-form @submit.prevent>
@@ -194,7 +202,7 @@
                             <el-progress
                                 :text-inside="true"
                                 :stroke-width="24"
-                                :percentage="100"
+                                :percentage="vData.task.progress || 0"
                                 status="success"
                             />
                         </template>
@@ -226,7 +234,7 @@
                     发起融合
                 </el-button>
                 <!-- provider -->
-                <template v-else-if="vData.status === 'Pending' && userInfo.member_id === vData.provider.member_id">
+                <template v-else-if="vData.status === 'Pending' && vData.myRole === 'provider'">
                     <el-button
                         type="primary"
                         @click="methods.audit($event, 'agree')"
@@ -248,7 +256,7 @@
                     重新发起融合
                 </el-button>
                 <el-button
-                    v-if="vData.status === 'Interrupt' || vData.status === 'Failure'"
+                    v-if="vData.myRole === 'promoter' && (vData.status === 'Interrupt' || vData.status === 'Failure')"
                     type="primary"
                     @click="methods.submit"
                 >
@@ -281,7 +289,9 @@
 <script>
     import {
         ref,
+        inject,
         computed,
+        nextTick,
         reactive,
         getCurrentInstance,
     } from 'vue';
@@ -291,7 +301,6 @@
     import FusionDataResources from './fusion-data-resources';
 
     export default {
-        inject:     ['refresh'],
         components: {
             FusionDataResources,
             EncryptionDialog,
@@ -301,6 +310,7 @@
             const route = useRoute();
             const router = useRouter();
             const { appContext } = getCurrentInstance();
+            const refresh = inject('refresh');
             const {
                 $http,
                 $confirm,
@@ -311,8 +321,8 @@
             const fusionDataResourcesRef = ref(null);
             const encryptionDialogRef = ref(null);
             const {
-                project_id,
                 id,
+                project_id,
             } = route.query;
 
             const vData = reactive({
@@ -379,12 +389,17 @@
                         vData.algorithm = data.algorithm;
                         vData.business_id = data.business_id;
                         vData.bloom_filter_list = data.bloom_filter_list;
-                        vData.fusion_count = data.fusion_count;
                         vData.created_time = data.created_time;
                         vData.trace_column = data.trace_column;
                         vData.is_trace = data.is_trace;
                         vData.status = data.status;
                         vData.error = data.error;
+                        if(data.promoter.data_resource_type === 'TableDataSet') {
+                            vData.field_info_list = data.promoter.field_info_list;
+                        }
+                        if(data.provider.data_resource_type === 'TableDataSet') {
+                            vData.field_info_list = data.provider.field_info_list;
+                        }
                         // promoter
                         vData.promoter.member_id = data.promoter.member_id;
                         vData.promoter.member_name = data.promoter.member_name;
@@ -393,6 +408,7 @@
                         vData.promoter.total_data_count = data.promoter.row_count;
                         vData.promoter.hash_func = data.promoter.hash_function;
                         vData.promoter.name = data.promoter.data_resource_name;
+                        vData.promoter.columns = data.promoter.column_name_list;
                         // provider
                         vData.provider.member_id = data.provider.member_id;
                         vData.provider.member_name = data.provider.member_name;
@@ -401,8 +417,7 @@
                         vData.provider.total_data_count = data.provider.row_count;
                         vData.provider.hash_func = data.provider.hash_function;
                         vData.provider.name = data.provider.data_resource_name;
-
-                        methods.timeSpend(data.spend);
+                        vData.provider.columns = data.provider.column_name_list;
 
                         if(data.status === 'Running' || data.status === 'Success' || data.status === 'Failure' || data.status === 'Interrupt') {
                             methods.taskInfo();
@@ -427,7 +442,7 @@
                         }
                     }
                 },
-                async taskInfo() {
+                async taskInfo(opt = {}) {
                     const { code, data } = await $http.get({
                         url:    '/fusion/task/info',
                         params: {
@@ -435,16 +450,35 @@
                         },
                     });
 
-                    if(code === 0 && data) {
-                        console.log(data);
-                    }
+                    nextTick(_ => {
+                        if(code === 0 && data) {
+                            vData.fusion_count = data.fusion_count;
+                            vData.task.spend = methods.timeSpend(data.spend);
+                            setTimeout(() => {
+                                if(data.status === 'Running' || opt.status !== data.status) {
+                                    methods.taskInfo(data);
+                                }
+                            }, 5000);
+                        }
+                    });
                 },
                 timeSpend(milliseconds) {
-                    const seconds = milliseconds / 1000;
-                    const secs = seconds % 60;
+                    let ss = ~~Math.ceil(milliseconds / 1000), hh = 0, mm = 0, result = '';
 
-                    console.log(seconds, secs);
-                    vData.task.spend = 0;
+                    if(ss > 3599){
+                        hh = Math.floor(ss/3600);
+                        mm = Math.floor(ss%3600/60);
+                        ss = ss % 60;
+                        result = (hh > 9 ? hh :'0' + hh) + ':' +(mm > 9 ? mm :'0' + mm) + ':' + (ss > 9 ? ss : '0' + ss);
+                    } else if (ss > 59){
+                        mm = Math.floor(ss/60);
+                        ss = ss % 60;
+                        result = '00:'+(mm > 9 ? mm : '0' + mm)+':'+(ss>9?ss:'0'+ss);
+                    } else {
+                        result = '00:00:'+ (ss > 9 ? ss : '0' + ss);
+                    }
+
+                    return result;
                 },
                 addDataResource(role) {
                     const $ref = fusionDataResourcesRef.value;
@@ -477,7 +511,7 @@
                     const $ref = encryptionDialogRef.value;
                     const data = vData[role];
 
-                    $ref.methods.init(role, data);
+                    $ref.methods.init(role, data, vData.field_info_list);
                 },
                 removeDataSet(role) {
                     $confirm('确定要删除该条资源吗?', '警告', {
@@ -503,9 +537,14 @@
                         vData[role].encryptionList = [];
                     }
                     vData[role].hash_func = rest.hash_func;
+                    vData.field_info_list = rest.encryptionList.map((x, i) => {
+                        return {
+                            columns: x.features.join(','),
+                            options: x.encryption,
+                        };
+                    });
                     vData.trace_column = rest.trace_column;
                     vData.is_trace = rest.is_trace;
-                    console.log(rest);
                 },
                 deleteTask() {
                     $confirm('警告', {
@@ -531,6 +570,10 @@
                     });
                 },
                 audit(event, status) {
+                    const fields = vData.field_info_list;
+
+                    if(Array.isArray(fields) && !fields.length || fields == null) return $message.error('请先设置融合公式');
+
                     $prompt('请输入审核意见', status ? '警告' : '拒绝本次合作', {
                         inputPattern:      !/^\s/,
                         inputErrorMessage: '请输入审核意见',
@@ -538,8 +581,8 @@
                         const { code } = await $http.post({
                             url:  '/fusion/task/audit',
                             data: {
+                                field_info_list: fields,
                                 business_id:     vData.business_id,
-                                field_info_list: vData.field_info_list,
                                 row_count:       vData.promoter.total_data_count,
                                 trace_column:    vData.trace_column,
                                 is_trace:        vData.is_trace,
@@ -551,12 +594,7 @@
 
                         if(code === 0) {
                             $message.success('操作成功!');
-                            router.replace({
-                                name:  'project-detail',
-                                query: {
-                                    project_id,
-                                },
-                            });
+                            refresh();
                         }
                     });
                 },

@@ -255,10 +255,11 @@
             };
             const syncUrlParams = () => {
                 vData.search = {
-                    id:      '',
-                    name:    '',
-                    creator: '',
-                    tag:     '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    tag:              '',
+                    dataResourceType: '',
                     ...route.query,
                 };
             };

@@ -45,15 +45,29 @@
                 columns:    [],
             });
             const methods = {
-                init(role, data = {}) {
+                init(role, data = {}, fields) {
                     vData.role = role;
                     vData.showDialog = true;
-                    vData.columns = data.columns || [];
+                    if(data.columns) {
+                        vData.columns = data.columns.split(',').map(x => {
+                            return {
+                                label: x,
+                                value: x,
+                            };
+                        });
+                    } else {
+                        vData.columns = [];
+                    }
 
                     nextTick(_ => {
                         const $ref = encryptionGeneratorRef.value;
 
-                        console.log($ref);
+                        $ref.vData.encryptionList = fields.map(x => {
+                            return {
+                                features:   x.column_list,
+                                encryption: x.options,
+                            };
+                        });
                     });
                 },
                 confirm() {
