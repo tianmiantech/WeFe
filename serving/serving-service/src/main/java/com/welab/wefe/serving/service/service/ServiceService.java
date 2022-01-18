@@ -161,8 +161,8 @@ public class ServiceService {
 				ids.add(id);
 			}
 			String createTableSql = String.format(
-					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB",
-					keysTableName);
+					"DROP TABLE IF EXISTS %s; CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB",
+					keysTableName, keysTableName);
 			try {
 				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
 						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
@@ -253,6 +253,8 @@ public class ServiceService {
 		}
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
+		String idsTableName = generateIdsTable(model);
+		model.setIdsTableName(idsTableName);
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
