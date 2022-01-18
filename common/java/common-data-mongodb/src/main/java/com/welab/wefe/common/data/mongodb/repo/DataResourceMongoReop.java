@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -156,6 +157,12 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         return result;
     }
 
+    private List<LookupOperation> buildLookupOperations(List<DataResourceType> dataResourceTypeList) {
+        for (DataResourceType dataResourceType : dataResourceTypeList) {
+
+        }
+        return null;
+    }
 
     public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
