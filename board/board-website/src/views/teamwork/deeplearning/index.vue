@@ -1,5 +1,15 @@
 <template>
     <el-card class="page_layer" v-loading="vData.startLoading">
+        <el-alert
+            v-if="!vData.isInResult"
+            :title="vData.jobInfo.status"
+            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status"
+            description="点击查看任务详情"
+            show-icon
+            class="fixed_alert"
+            @click.prevent="methods.jumpToTaskDetail"
+        >
+        </el-alert>
         <div class="deep_flow">
             <div class="left_content">
                 <h3 class="flow_title">
@@ -252,8 +262,8 @@
                         </el-dialog>
                     </div>
                     <div v-show="vData.active === 2" class="item params_setting">
-                        <el-tabs type="border-card" @tab-click="methods.deeplearningOTabchange">
-                            <el-tab-pane label="参数">
+                        <el-tabs type="border-card" v-model="vData.activeName" @tab-click="methods.deeplearningOTabchange">
+                            <el-tab-pane label="参数" name="param">
                                 <el-form
                                     @submit.prevent
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
@@ -322,7 +332,7 @@
                                     </el-form-item>
                                 </el-form>
                             </el-tab-pane>
-                            <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
+                            <el-tab-pane v-if="vData.jobInfo.status" label="执行结果" name="result">
                                 <deeplearning-result
                                     v-if="vData.showDLResult"
                                     :job-id="vData.jobInfo.job_id"
@@ -339,7 +349,7 @@
                 <div class="operation_btn">
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next">下一步</el-button>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <el-button v-show="vData.active === 2 && vData.jobInfo.status !== 'running'" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
@@ -504,6 +514,8 @@
                 showDLResult:      false,
                 flowType:          route.query.training_type || 'PaddleDetection',
                 isAllLabel:        false,
+                activeName:        'param',
+                isInResult:        false,
             });
             const methods = {
                 async getFlowInfo() {
@@ -549,6 +561,12 @@
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
                         }});
+                },
+                jumpToTaskDetail() {
+                    vData.isInResult = true;
+                    vData.active = 2;
+                    vData.activeName = 'result';
+                    vData.showDLResult = true;
                 },
                 async createNode() {
                     vData.graphNodes = {
@@ -702,7 +720,7 @@
                     });
                 },
                 deeplearningOTabchange(val) {
-                    if (val.paneName === 1 || val.paneName === '1') {
+                    if (val.paneName === 'result') {
                         // methods.getDeeplearningOResult();
                         vData.showDLResult = true;
                     } else {
@@ -1076,6 +1094,18 @@
 <style lang="scss" scoped>
 .page_layer {
     overflow-y: auto;
+    position: relative;
+    .fixed_alert {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        width: 30%;
+        cursor: pointer;
+        :deep(.el-alert__description) {
+            text-decoration: underline;
+        }
+    }
 }
 .deep_flow {
     width: 100%;
