@@ -32,7 +32,7 @@ public class RefreshSystemConfigCacheScheduler {
     private final Logger LOG = LoggerFactory.getLogger(RefreshSystemConfigCacheScheduler.class);
 
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/15 * * * * ?")
     public void execute() {
         LOG.info("Start refresh system configuration cache........");
         if (!SystemConfigCache.getInstance().refreshCache()) {
