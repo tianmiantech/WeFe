@@ -369,7 +369,7 @@ public class ServiceService {
 
 		for (int i = 0; i < size; i++) {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-			String supplieId = serviceConfig.getString("supplier_id");
+			String supplieId = serviceConfig.getString("member_id");
 //			String supplierName = serviceConfig.getString("supplier_name");
 			String name = serviceConfig.getString("name");
 			String apiName = serviceConfig.getString("api_name");
