@@ -85,8 +85,12 @@ public enum StatusCode {
      * board
      * An error occurred in the node of the flowchart
      */
-    ERROR_IN_FLOW_GRAPH_NODE(30001, "");
+    ERROR_IN_FLOW_GRAPH_NODE(30001, ""),
 
+    /**
+     * serving
+     */
+    SQL_UNIQUE_IN_CODE(40001,"Duplicate entry for key 'code' in client");
 
     private int code;
     private String description;

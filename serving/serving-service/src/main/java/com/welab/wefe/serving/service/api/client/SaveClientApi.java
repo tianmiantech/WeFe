@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.api.client;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -24,6 +25,8 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.SQLIntegrityConstraintViolationException;
 
 
 @Api(path = "client/save", name = "save")
@@ -36,7 +39,12 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
 
-        clientService.save(input);
+        try {
+            clientService.save(input);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+            return fail(StatusCode.SQL_UNIQUE_IN_CODE.getCode(), StatusCode.SQL_UNIQUE_IN_CODE.getMessage());
+        }
         return success();
     }
 
