@@ -31,7 +31,7 @@ public class UnionConnectionCheckpoint extends AbstractUnionConnectionCheckpoint
 
     @Override
     public String getConfigValue() {
-        return config.getUNION_BASE_URL();
+        return config.getUnionBaseUrl();
     }
 
 }

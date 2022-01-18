@@ -284,7 +284,7 @@ public abstract class AbstractUnionService extends AbstractService {
         }
 
         HttpResponse response = HttpRequest
-                .create(config.getUNION_BASE_URL() + "/" + api)
+                .create(config.getUnionBaseUrl() + "/" + api)
                 .setBody(data)
                 .postJson();
 
@@ -359,7 +359,7 @@ public abstract class AbstractUnionService extends AbstractService {
             data = body.toJSONString();
         }
         HttpResponse response;
-        String url = config.getUNION_BASE_URL() + "/" + api;
+        String url = config.getUnionBaseUrl() + "/" + api;
         // send http request without files
         if (files == null) {
             response = HttpRequest
