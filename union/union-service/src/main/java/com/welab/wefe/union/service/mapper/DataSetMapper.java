@@ -26,7 +26,6 @@ import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetDetail
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
-
 /**
  * Object conversion
  * Define conversion rules,The implementation class is automatically generated when the project is built

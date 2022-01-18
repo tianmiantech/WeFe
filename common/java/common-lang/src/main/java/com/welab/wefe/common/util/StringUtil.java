@@ -152,7 +152,10 @@ public class StringUtil extends StringUtils {
         StringBuilder result = new StringBuilder(str.length());
         for (char c : str.toCharArray()) {
             if (Character.isUpperCase(c)) {
-                result.append("_").append(Character.toLowerCase(c));
+                if (c != str.charAt(0)) {
+                    result.append("_");
+                }
+                result.append(Character.toLowerCase(c));
             } else {
                 result.append(c);
             }
