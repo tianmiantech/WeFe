@@ -1,11 +1,11 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -124,13 +125,13 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
         updateExpireUUIDCache(uuid);
 
         try {
-            return RSAUtil.verify(signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes("UTF-8"), RSAUtil.getPublicKey(memberEntity.getPublicKey()), sign);
+            byte[] data = signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes(StandardCharsets.UTF_8.toString());
+            return SignUtil.verify(data, memberEntity.getPublicKey(), sign, memberEntity.getSecretKeyType());
         } catch (Exception e) {
             LOG.error("Signature verification exception：", e);
         }
         return false;
     }
-
 
     private void updateExpireUUIDCache(String uuid) {
         UUID_CACHE.entrySet().removeIf(entry -> (System.currentTimeMillis() - entry.getValue()) > SIGN_VALID_DURATION);

@@ -17,8 +17,10 @@
 package com.welab.wefe.union.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -54,6 +56,8 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             member.setGatewayUri(input.getGatewayUri());
             member.setLastActivityTime(System.currentTimeMillis());
             member.setLogo(input.getLogo());
+            SecretKeyType secretKeyType = (null == input.secretKeyType ? SecretKeyType.rsa : input.secretKeyType);
+            member.setExtJson(JObject.create("secret_key_type", secretKeyType.name()).toString());
 
             memberContractService.add(member);
         } catch (StatusCodeWithException e) {
@@ -77,6 +81,7 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
         private String publicKey;
         private String gatewayUri;
         private String logo;
+        private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
         public String getId() {
             return id;
@@ -166,6 +171,12 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             this.logo = logo;
         }
 
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
 
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
+        }
     }
 }
