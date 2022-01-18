@@ -223,6 +223,7 @@ public class FusionTaskService extends AbstractService {
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
             task.setStatus(FusionTaskStatus.Refuse);
             task.setComment(input.getAuditComment());
+            fusionTaskRepository.save(task);
 
             //callback
             thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
