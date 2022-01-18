@@ -95,8 +95,12 @@ public enum StatusCode {
      * 添加数据资源时的表单参数错误
      * 区别于数据资源文件错误，这种错误不需要删除文件。
      */
-    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, "");
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, ""),
 
+    /**
+     * serving
+     */
+    SQL_UNIQUE_IN_CODE(40001,"Duplicate entry for key 'code' in client");
 
     private int code;
     private String description;

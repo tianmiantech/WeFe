@@ -49,9 +49,9 @@ CREATE TABLE client(
                        updated_time datetime DEFAULT NULL COMMENT '更新时间',
                        email VARCHAR(255)    COMMENT '邮箱' ,
                        ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
-                       pub_key VARCHAR(255) NOT NULL   COMMENT '公钥' ,
+                       pub_key text NOT NULL   COMMENT '公钥' ,
                        code VARCHAR(255)  NOT NULL UNIQUE COMMENT '客户 code' ,
-                       remark VARCHAR(255)  COMMENT '备注' ,
+                       remark text  COMMENT '备注' ,
                        status INT NOT NULL  DEFAULT 1 COMMENT '客户状态;1正常、0删除' ,
                        PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '客户基本信息表';

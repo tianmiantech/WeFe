@@ -22,7 +22,7 @@
             </el-form-item>
 
 
-            <el-button type="primary" @click="getList('to')">
+            <el-button type="primary" @click="getList({ to: true})">
                 查询
             </el-button>
             <router-link
@@ -45,9 +45,6 @@
                 <TableEmptyData/>
             </div>
             <el-table-column label="序号" min-width="80" type="index">
-<!--                <template slot-scope="scope">-->
-<!--                    <p class="id">{{ scope.row.id }}</p>-->
-<!--                </template>-->
             </el-table-column>
 
             <el-table-column label="客户名称" min-width="80">
@@ -162,8 +159,14 @@ export default {
     },
     methods: {
         timeChange() {
-            this.search.startTime = this.timeRange[0]
-            this.search.endTime = this.timeRange[1]
+            if (!this.timeRange) {
+                this.search.startTime = ''
+                this.search.endTime = ''
+            } else {
+                this.search.startTime = this.timeRange[0]
+                this.search.endTime = this.timeRange[1]
+            }
+
         }
 
     },
