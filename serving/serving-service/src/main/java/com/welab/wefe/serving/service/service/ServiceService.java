@@ -161,8 +161,8 @@ public class ServiceService {
 				ids.add(id);
 			}
 			String createTableSql = String.format(
-					"DROP TABLE IF EXISTS %s; CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB",
-					keysTableName, keysTableName);
+					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+					keysTableName);
 			try {
 				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
 						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
@@ -173,7 +173,7 @@ public class ServiceService {
 			String insertSql = String.format("insert into %s values (?)", keysTableName);
 			dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
 					dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-					dataSource.getString("db"), ids);
+					dataSourceModel.getDatabaseName(), ids);
 
 		} catch (StatusCodeWithException e) {
 			e.printStackTrace();
