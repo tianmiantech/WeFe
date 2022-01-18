@@ -914,6 +914,8 @@
                                 member_id:   x.supplier_id,
                                 member_name: x.supplier_name,
                                 url:         x.base_url + x.api_name,
+                                base_url:	 x.base_url,
+                                api_name:	 x.api_name,
                                 params:      x.params.join(','),
                             };
                         });
