@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.fusion.task.*;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -461,17 +462,21 @@ public class FusionTaskService extends AbstractService {
         if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
             myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
-
+            myMemberInfo.setDataResourceName(tableDataSet.getName());
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
         }else {
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getDataResourceId()));
+            BloomFilterMysqlModel tableDataSet = bloomFilterService.findOne(myMemberInfo.getDataResourceId());
+            myMemberInfo.setDataResourceName(tableDataSet.getName());
         }
-//        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
+
 
 
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());
-//        memberInfo.setDataResourceName(model.getPartnerDataResourceName());
+//        memberInfo.setDataResourceName(Cache);
+       JSONObject jsonObject = unionService.getDataResourceDetail(model.getPartnerDataResourceId(), model.getPartnerDataResourceType(), JSONObject.class);
+       memberInfo.setDataResourceName(jsonObject.getString("name"));
         memberInfo.setDataResourceType(model.getPartnerDataResourceType());
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
