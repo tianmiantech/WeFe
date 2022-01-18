@@ -296,7 +296,7 @@
 
                 <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
                     <template v-slot="scope">
-                        {{ scope.row.contains_y ? '是' : '否' }}
+                        {{ scope.row.data_set && scope.row.data_set.contains_y ? '是' : '否' }}
                     </template>
                 </el-table-column>
 
