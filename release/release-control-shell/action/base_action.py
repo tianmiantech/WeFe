@@ -17,7 +17,7 @@ import shutil
 import urllib.request
 import zipfile
 
-from dto.service_action_info import ActionInfo
+from dto.action_info import ActionInfo
 
 
 class BaseAction:
@@ -51,10 +51,16 @@ class BaseAction:
         zip_output_dir = os.path.dirname(zip_file_path)
         self.unzip(zip_file_path, zip_output_dir)
 
-        return os.path.join(
+        zip_output_dir = os.path.join(
             zip_output_dir,
             "package"
         )
+
+        # 检查解压出来的内容是否在 package 目录下
+        if not os.path.exists(zip_output_dir):
+            raise Exception("压缩包不满足要求，在发布压缩包时请将文件放在名为 package 的文件夹下并压缩 package 文件夹。")
+
+        return zip_output_dir
 
     def download(self):
         """
@@ -63,28 +69,45 @@ class BaseAction:
         @param filename
         下载后的文件名
         """
-
+        print("******************************************************")
+        print("开始下载更新需要的资源...")
         output_dir = os.path.join(
             self.workspace,
             "download"
         )
 
+        print("资源保存目录：" + output_dir)
+
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
+            print("创建目录：" + output_dir)
 
         full_path = os.path.join(
             output_dir,
             "package.zip"
         )
+        print("资源保存路径：" + full_path)
 
-        url = self.action_info.file_download_address
-        urllib.request.urlretrieve(url, full_path)
+        # 这里为了方便本地测试
+        # 如果 url 是 http 开头，则下载，否则视为本地文件，执行拷贝。
+        url = self.action_info.file_download_url
+        print("资源下载地址：" + url)
+        print("开始下载...")
+        if url.startswith("http"):
+            urllib.request.urlretrieve(url, full_path)
+        else:
+            shutil.copy(url, full_path)
+
+        print("下载成功！")
+
         return full_path
 
     def unzip(self, zip_file_path, output_dir):
         """
         解压 zip 文件至指定目录
         """
+        print("******************************************************")
+        print("开始解压：" + zip_file_path)
         zip_file = zipfile.ZipFile(zip_file_path)
         zip_list = zip_file.namelist()
 
@@ -92,6 +115,7 @@ class BaseAction:
             zip_file.extract(f, output_dir)
 
         zip_file.close()
+        print("已解压至：" + output_dir)
 
     def replace_files(self, source_dir, target_dir):
         """
@@ -113,4 +137,3 @@ class BaseAction:
             else:
                 # 替换文件
                 shutil.copy(source_dir + '/' + f, target_dir + '/' + f)
-

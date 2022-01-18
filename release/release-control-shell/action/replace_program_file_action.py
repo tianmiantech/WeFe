@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from service.base_action import BaseAction
+from action.base_action import BaseAction
 
 
 class ReplaceProgramFileAction(BaseAction):
