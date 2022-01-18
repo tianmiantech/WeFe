@@ -37,6 +37,7 @@ public class FusionMemberInfo {
     DataResourceType dataResourceType;
     Long rowCount;
     String hashFunction;
+    List<FieldInfo> fieldInfoList;
 
     String columnNameList;
 
@@ -115,5 +116,13 @@ public class FusionMemberInfo {
 
     public void setColumnNameList(String columnNameList) {
         this.columnNameList = columnNameList;
+    }
+
+    public List<FieldInfo> getFieldInfoList() {
+        return fieldInfoList;
+    }
+
+    public void setFieldInfoList(List<FieldInfo> fieldInfoList) {
+        this.fieldInfoList = fieldInfoList;
     }
 }

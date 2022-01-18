@@ -26,6 +26,7 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,7 +73,7 @@ public class FieldInfoService extends AbstractService {
         return fieldInfoRepository.findAll(where);
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void saveAll(String businessId, List<FieldInfo> fieldInfoList) {
         Specification<FieldInfoMySqlModel> where = Where.
                 create().equal("businessId", businessId)

@@ -214,7 +214,6 @@ public class FusionTaskService extends AbstractService {
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
     public void handle(AuditApi.Input input) throws StatusCodeWithException {
         FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
@@ -460,6 +459,10 @@ public class FusionTaskService extends AbstractService {
         if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
             myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
+
+            myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
+        }else {
+            myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getDataResourceId()));
         }
 //        myMemberInfo.setDataResourceName(CacheObjects.getMemberName());
 
