@@ -325,9 +325,6 @@ class PaillierEncryptedNumber(object):
         """return PaillierEncryptedNumber: z = E(x) + y
         """
         if isinstance(scalar, FixedPointNumber):
-            from kernel.utils import LOGGER
-            LOGGER.debug(
-                f'bbbbb-scalar:{scalar.n},{scalar.max_int},public_key:{self.public_key.n},{self.public_key.max_int}')
             scalar = scalar.decode()
         encoded = FixedPointNumber.encode(scalar,
                                           self.public_key.n,

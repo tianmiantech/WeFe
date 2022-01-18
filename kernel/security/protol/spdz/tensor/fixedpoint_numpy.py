@@ -26,7 +26,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import functools
-
 import numpy as np
 
 from common.python.session import is_table
@@ -36,8 +35,8 @@ from kernel.security.protol.spdz.beaver_triples import beaver_triplets
 from kernel.security.protol.spdz.tensor import fixedpoint_table
 from kernel.security.protol.spdz.tensor.base import TensorBase
 # from kernel.security.protol.spdz.tensor.fixedpoint_endec import FixedPointEndec
-from kernel.security.protol.spdz.utils.random_utils import urand_tensor
-from kernel.utils import LOGGER, consts
+from kernel.security.protol.spdz.utils import urand_tensor
+from kernel.utils import LOGGER
 
 
 class FixedPointTensor(TensorBase):
@@ -99,13 +98,12 @@ class FixedPointTensor(TensorBase):
             base = kwargs['base'] if 'base' in kwargs else 10
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if isinstance(source, np.ndarray):
             source = encoder.encode(source)
-            _pre = urand_tensor(max_rand, source)
+            _pre = urand_tensor(q_field, source)
             spdz.communicator.remote_share(share=_pre, tensor_name=tensor_name, party=spdz.other_parties[0])
             for _party in spdz.other_parties[1:]:
-                r = urand_tensor(max_rand, source)
+                r = urand_tensor(q_field, source)
                 spdz.communicator.remote_share(share=(r - _pre) % q_field, tensor_name=tensor_name, party=_party)
                 _pre = r
             share = (source - _pre) % q_field
@@ -147,7 +145,6 @@ class FixedPointTensor(TensorBase):
         from kernel.security.protol.spdz import SPDZ
         spdz = SPDZ.get_instance()
         share_val = self.value
-        LOGGER.debug(f"share_val: {share_val}")
 
         name = tensor_name or self.tensor_name
 
@@ -355,9 +352,8 @@ class PaillierFixedPointTensor(TensorBase):
             frac = kwargs['frac'] if 'frac' in kwargs else 4
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
 
-        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if isinstance(source, np.ndarray):
-            _pre = urand_tensor(max_rand, source)
+            _pre = urand_tensor(q_field, source)
 
             share = _pre
 

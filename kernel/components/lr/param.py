@@ -132,7 +132,6 @@ class LogisticParam(BaseParam):
                  use_mix_rand=False,
                  reveal_strategy="respectively",
                  reveal_every_iter=True,
-                 callback_param=CallbackParam(),
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam()
                  ):
         super(LogisticParam, self).__init__()
@@ -161,7 +160,6 @@ class LogisticParam(BaseParam):
         self.use_mix_rand = use_mix_rand
         self.reveal_strategy = reveal_strategy
         self.reveal_every_iter = reveal_every_iter
-        self.callback_param = copy.deepcopy(callback_param)
         self.cv_param = cv_param
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
 
@@ -260,7 +258,6 @@ class LogisticParam(BaseParam):
             raise ValueError("use_first_metric_only should be a boolean")
 
         self.check_boolean(self.reveal_every_iter, descr)
-        self.callback_param.check()
         self.cv_param.check()
 
         return True

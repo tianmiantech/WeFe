@@ -35,13 +35,5 @@
       "thresholds": null
     },
     "need_cv": false
-  },
-  "callback_param": {
-    "callbacks": [
-      "EarlyStopping",
-      "PerformanceEvaluate"
-    ],
-    "validation_freqs": 1,
-    "early_stopping_rounds": 3
   }
 }

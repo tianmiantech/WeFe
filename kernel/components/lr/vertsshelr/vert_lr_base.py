@@ -27,16 +27,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import copy
-from abc import ABC
-
 import numpy as np
+from abc import ABC
 
 from common.python import RuntimeInstance
 from kernel.base.params.init_model_param import InitParam
 from kernel.components.lr.base_lr_model import BaseLRModel
 from kernel.components.lr.lr_model_weight import LRModelWeights
 from kernel.components.lr.one_vs_rest import one_vs_rest_factory
-from kernel.components.lr.param import LogisticParam
+from kernel.components.lr.param import VertLogisticParam
 from kernel.components.lr.vertlr.sync import iter_sync
 from kernel.protobuf.generated import lr_model_meta_pb2
 from kernel.security import PaillierEncrypt, EncryptModeCalculator
@@ -60,7 +59,7 @@ class VertLRBase(BaseLRModel, ABC):
         self.mode = consts.VERT
         self.cipher = None
         self.q_field = None
-        self.model_param = LogisticParam()
+        self.model_param = VertLogisticParam()
         self.labels = None
         self.batch_num = []
         self.one_vs_rest_obj = None
@@ -68,7 +67,6 @@ class VertLRBase(BaseLRModel, ABC):
         self._set_parties()
         self.cipher_tool = None
         self.iter_transfer = None
-        self.max_rand = 1 << 32
 
     def _transfer_q_field(self):
         if self.role == consts.PROMOTER:
@@ -79,7 +77,7 @@ class VertLRBase(BaseLRModel, ABC):
 
         return q_field
 
-    def _init_model(self, params: LogisticParam):
+    def _init_model(self, params: VertLogisticParam):
         super()._init_model(params)
         self.encrypted_mode_calculator_param = params.encrypted_mode_calculator_param
         if self.role == consts.PROVIDER:
@@ -141,12 +139,10 @@ class VertLRBase(BaseLRModel, ABC):
             wb, wa = (
                 fixedpoint_numpy.FixedPointTensor.from_source(f"wb_{suffix}", source[0],
                                                               encoder=self.fixedpoint_encoder,
-                                                              q_field=self.q_field,
-                                                              max_rand=self.max_rand),
+                                                              q_field=self.q_field),
                 fixedpoint_numpy.FixedPointTensor.from_source(f"wa_{suffix}", source[1],
                                                               encoder=self.fixedpoint_encoder,
-                                                              q_field=self.q_field,
-                                                              max_rand=self.max_rand),
+                                                              q_field=self.q_field),
             )
             return wb, wa
         else:
@@ -290,8 +286,6 @@ class VertLRBase(BaseLRModel, ABC):
                                                          features=batch_data,
                                                          suffix=current_suffix,
                                                          cipher=self.cipher_tool[batch_idx])
-
-                    LOGGER.debug(f'self_g={self_g}, remote_g={remote_g}')
 
                     # loss computing;
                     suffix = ("loss",) + current_suffix
@@ -538,10 +532,10 @@ class VertLRBase(BaseLRModel, ABC):
             del summary["intercept"]
             del summary["coef"]
 
-        if self.validation_strategy:
-            validation_summary = self.validation_strategy.summary()
-            if validation_summary:
-                summary["validation_metrics"] = validation_summary
+        # if self.validation_strategy:
+        #     validation_summary = self.validation_strategy.summary()
+        #     if validation_summary:
+        #         summary["validation_metrics"] = validation_summary
         return summary
 
     def load_model(self, model_dict):

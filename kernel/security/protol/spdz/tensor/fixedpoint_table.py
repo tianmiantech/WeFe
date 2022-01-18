@@ -25,9 +25,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import functools
-import operator
-
 import numpy as np
+import operator
 
 from common.python.session import is_table
 from common.python.utils.member import Member
@@ -37,7 +36,7 @@ from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
 # from kernel.security.protol.spdz.tensor.fixedpoint_endec import FixedPointEndec
 from kernel.security.protol.spdz.utils import NamingService
-from kernel.security.protol.spdz.utils.random_utils import urand_tensor
+from kernel.security.protol.spdz.utils import urand_tensor
 
 
 def _table_binary_op(x, y, op):
