@@ -147,12 +147,6 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberMobile(input.getMemberMobile());
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberGatewayUri(input.getMemberGatewayUri());
-        if (StringUtil.isNotEmpty(input.getMemberLogo()) && input.getMemberLogo().contains(",")) {
-            LOG.info("压缩前：" + input.getMemberLogo().length());
-            String[] strs = input.getMemberLogo().split(",");
-            model.setMemberLogo(strs[0] + "," + ImageUtil.compressPicForScale(strs[1], 200, 0.7));
-            LOG.info("压缩后：" + model.getMemberLogo().length());
-        }
         model.setMemberHidden(input.getMemberHidden());
 
         globalConfigService.setMemberInfo(model);
