@@ -630,7 +630,7 @@
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.data_set.feature_name_list.split(',');
+                        const features = item.data_set.feature_name_list && item.data_set.feature_name_list.split(',') ? item.data_set.feature_name_list.split(',') : [];
 
                         item.data_set.data_resource_id = item.data_set_id;
                         const dataset = {
