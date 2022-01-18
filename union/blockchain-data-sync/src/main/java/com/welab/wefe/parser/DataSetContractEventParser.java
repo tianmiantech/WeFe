@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,10 +17,9 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
-import com.welab.wefe.common.data.mongodb.repo.AbstractMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
@@ -33,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataSetContractEventParser extends AbstractParser {
-    protected DataSetMongoReop dataSetMongoReop = App.CONTEXT.getBean(DataSetMongoReop.class);
+    protected DataSetMongoReop dataSetMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(DataSetMongoReop.class);
     protected DataSetExtJSON extJSON;
 
 

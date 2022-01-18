@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.App;
+import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberService;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberServiceExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MemberServiceContractEventParser extends AbstractParser {
 
-    protected MemberServiceMongoReop memberServiceMongoReop = App.CONTEXT.getBean(MemberServiceMongoReop.class);
+    protected MemberServiceMongoReop memberServiceMongoReop = BlockchainDataSyncApp.CONTEXT.getBean(MemberServiceMongoReop.class);
     protected MemberServiceExtJSON extJSON;
 
     @Override
