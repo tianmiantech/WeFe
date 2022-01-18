@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -70,7 +70,12 @@ public enum StatusCode {
     REPEAT_SUBSCRIPTION(10034, "Do not repeat subscription"),
     FILE_IO_ERROR(10035, "File read / write failed"),
     RSA_ERROR(10036, "Rsa error"),
+    DUPLICATE_RESOURCE_ERROR(10037, "Duplicate resource"),
 
+
+    FILE_DOES_NOT_EXIST(10038, "file does not exist, error fileId: (%s)"),
+    INVALID_PARAMETER(10039, "Invalid parameter (%s)"),
+    MISSING_DATA(10039, "Missing data (%s)"),
     /**
      * Database related error status code
      */
@@ -86,6 +91,11 @@ public enum StatusCode {
      * An error occurred in the node of the flowchart
      */
     ERROR_IN_FLOW_GRAPH_NODE(30001, ""),
+    /**
+     * 添加数据资源时的表单参数错误
+     * 区别于数据资源文件错误，这种错误不需要删除文件。
+     */
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, ""),
 
     /**
      * serving

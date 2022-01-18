@@ -8,6 +8,7 @@
     >
         <el-form
             inline
+            size="mini"
             @submit.prevent
         >
             <el-form-item

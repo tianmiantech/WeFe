@@ -78,6 +78,9 @@ public class FlowGraph extends BaseFlowGraph {
                 result = findOneNodeFromParent(node, ComponentType.HorzLR);
                 if (result == null) {
                     result = findOneNodeFromParent(node, ComponentType.HorzSecureBoost);
+                    if (result == null) {
+                        result = findOneNodeFromParent(node, ComponentType.HorzNN);
+                    }
                 }
                 return result;
 
@@ -85,6 +88,9 @@ public class FlowGraph extends BaseFlowGraph {
                 result = findOneNodeFromParent(node, ComponentType.VertLR);
                 if (result == null) {
                     result = findOneNodeFromParent(node, ComponentType.VertSecureBoost);
+                    if (result == null) {
+                        result = findOneNodeFromParent(node, ComponentType.VertNN);
+                    }
                 }
                 return result;
             case mix:

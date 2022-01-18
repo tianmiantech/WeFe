@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,8 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.welab.wefe.common.data.mongodb.entity.sms.SmsDetailInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,8 +27,15 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public class SmsDetailInfoReop extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
 
     public void save(SmsDetailInfo smsDetailInfo) {
-        mongoTemplate.save(smsDetailInfo);
+        mongoUnionTemplate.save(smsDetailInfo);
+    }
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
     }
 }

@@ -99,6 +99,7 @@ class ModelBase(object):
         param_extracter = ParamExtract()
         param = param_extracter.parse_param_from_config(self.model_param, component_parameters)
         param.check()
+        LOGGER.debug("final parameters====>{}".format(param.__dict__))
         componentProperties = self.component_properties.parse_component_param(component_parameters, param)
         self.role = componentProperties.role
         self.member_id = componentProperties.local_member_id

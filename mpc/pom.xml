@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.welab.wefe</groupId>
-        <artifactId>serving</artifactId>
+        <artifactId>wefe</artifactId>
         <version>1.0.0</version>
     </parent>
     
