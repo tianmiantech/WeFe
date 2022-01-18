@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import pymysql
 
 
@@ -25,7 +26,7 @@ def create_connection():
 def select_one(sql: str):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.execute(sql)
+    cursor.(sql)
     data = cursor.fetchone()
     connection.close()
     return data
@@ -49,10 +50,19 @@ def execute(sql: str):
     return data
 
 
+def execute_multi(sql: str):
+    connection = create_connection()
+    cursor = connection.cursor()
+    data = cursor.executemany(sql)
+    connection.commit()
+    connection.close()
+    return data
+
+
 if __name__ == '__main__':
     count = execute("update account set admin_role=true")
     print(count)
-    
+
     rows = select_list("select nickname,admin_role from account")
     for row in rows:
         print(row)

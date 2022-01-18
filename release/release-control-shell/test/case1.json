@@ -1,5 +1,5 @@
 {
-  "service": "wefe-board-service",
+  "service": "wefe-mysql",
   "from_version": "2.2.2",
   "to_version": "2.2.1",
   "from_build": "2021081601",
