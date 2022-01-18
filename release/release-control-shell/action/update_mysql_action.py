@@ -64,5 +64,5 @@ class UpdateMysqlAction(BaseAction):
 
             sql_lines += " " + line
 
-        database.execute_multi(sql_lines)
+        database.execute_sql_list(sql_lines)
         return sql_lines

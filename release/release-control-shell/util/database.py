@@ -26,7 +26,7 @@ def create_connection():
 def select_one(sql: str):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.(sql)
+    cursor.execute(sql)
     data = cursor.fetchone()
     connection.close()
     return data
@@ -50,13 +50,26 @@ def execute(sql: str):
     return data
 
 
-def execute_multi(sql: str):
+def execute_sql_list(sql_list: list):
+    print('开始事务...')
     connection = create_connection()
     cursor = connection.cursor()
-    data = cursor.executemany(sql)
-    connection.commit()
-    connection.close()
-    return data
+
+    current_sql = ""
+    try:
+        for sql in sql_list:
+            current_sql = sql
+            cursor.execute(sql)
+            print('sql 执行成功：', current_sql)
+    except Exception as e:
+        connection.rollback()
+        print('事务执行失败，已回滚。')
+        print('sql 执行失败：', current_sql)
+        raise e
+    else:
+        connection.commit()
+    finally:
+        connection.close()
 
 
 if __name__ == '__main__':
