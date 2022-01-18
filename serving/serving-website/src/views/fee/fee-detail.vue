@@ -112,7 +112,7 @@
             </el-table-column>
 
             <el-table-column
-                label="日期"
+                label="日期(默认按月)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -261,8 +261,13 @@ export default {
     methods: {
 
         timeChange() {
-            this.search.startTime = this.timeRange[0];
-            this.search.endTime = this.timeRange[1];
+            if (!this.timeRange) {
+                this.search.startTime = ''
+                this.search.endTime = ''
+            } else {
+                this.search.startTime = this.timeRange[0]
+                this.search.endTime = this.timeRange[1]
+            }
         },
 
         handleServices(data) {
