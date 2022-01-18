@@ -226,10 +226,19 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
         //调用gateway
         JSONObject result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+        int num = 3;
+
+        while (num > 0) {
+
+            try {
+                result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
+
+                num = 0;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            num--;
         }
 
         LOG.info("downloadBloomFilter end {} ", result);
@@ -250,24 +259,13 @@ public class ClientActuator extends AbstractPsiClientActuator {
             stringList.add(Base64Util.encode(bs[i]));
         }
 
-        int num = 3;
-        PsiMeta result = null;
-        while (num > 0) {
+        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId,
+                PsiCryptoApi.class,
+                new PsiCryptoApi.Input(businessId, stringList),
+                PsiMeta.class
+        );
 
-            try {
-                result = gatewayService.callOtherMemberBoard(dstMemberId,
-                        PsiCryptoApi.class,
-                        new PsiCryptoApi.Input(businessId, stringList),
-                        PsiMeta.class
-                );
 
-                num = 0;
-
-            } catch (Exception e) {
-                throw e;
-            }
-            num--;
-        }
         List<String> list = result.getBs();
 
         byte[][] ss = new byte[list.size()][];
