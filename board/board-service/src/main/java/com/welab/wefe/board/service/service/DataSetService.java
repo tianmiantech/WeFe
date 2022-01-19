@@ -141,6 +141,10 @@ public class DataSetService extends AbstractService {
 		return repo.findOne(where).orElse(null);
 	}
 
+	public DataSetMysqlModel save(DataSetMysqlModel model) {
+		return repo.save(model);
+	}
+	
     /**
      * delete data set
      */

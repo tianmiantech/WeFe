@@ -49,7 +49,13 @@ public class UpdateMemberLogoApi extends AbstractNoneOutputApi<UpdateMemberLogoA
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "成员logo", require = true)
+        @Check(
+                name = "成员logo",
+                require = true,
+                blockReactionaryKeyword = false,
+                blockSqlInjection = false,
+                blockXss = false
+        )
         private String memberLogo;
 
         @Override

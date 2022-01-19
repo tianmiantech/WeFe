@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -562,6 +563,9 @@ public class TaskResultService extends AbstractService {
 		// need filter
 		VertOneHotComponent.Params params = JObject.create(node.getParams())
 				.toJavaObject(VertOneHotComponent.Params.class);
+		if (params == null || CollectionUtils.isEmpty(params.getMembers())) {
+			return getMemberFeatures(flowGraph, flowGraph.getNode(node.getNodeId()));
+		}
 		for (MemberInfoModel memberInfoModel : params.getMembers()) {
 			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
 				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
