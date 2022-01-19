@@ -26,10 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -161,7 +163,7 @@ public class ServiceService {
 		keysTableName += ("_" + format.format(new Date()));
 		String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSourceModel.getDatabaseName() + "."
 				+ dataSource.getString("table");
-		List<String> ids = new ArrayList<>();
+		Set<String> ids = new HashSet<>();
 		try {
 			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
 			for (Map<String, String> item : result) {
