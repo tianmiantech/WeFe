@@ -108,7 +108,7 @@ public class DataSourceService {
 		params.put("host", input.getHost());
 		params.put("port", input.getPort());
 		params.put("userName", input.getName());
-		params.put("password", input.getPassword());
+		params.put("password", input.getPassword().contains("*****") ? model.getPassword() : input.getPassword());
 		params.put("updatedBy", CurrentAccount.id());
 		params.put("updatedTime", new Date());
 		dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
