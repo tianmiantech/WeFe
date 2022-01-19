@@ -74,6 +74,7 @@ import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
@@ -110,6 +111,9 @@ public class ServiceService {
 	
 	@Autowired
 	private ClientService clientService;
+	
+	@Autowired
+	private Config config;
 
 	@Transactional(rollbackFor = Exception.class)
 	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -523,28 +527,28 @@ public class ServiceService {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-		String projectPath = System.getProperty("user.dir");
+		String basePath = config.getFileBasePath();
 		String outputPath = "";
 		List<File> fileList = new ArrayList<>();
 		String sdkZipName = "";
 		if (serviceType == 1) {
 			sdkZipName = "sdk.zip";
-			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
-			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+			fileList.add(new File(basePath + "sdk_dir/mpc-pir-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
 		} else if (serviceType == 2) {
 			sdkZipName = "sdk.zip";
-			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(projectPath + "/sdk_dir/mpc-psi-sdk-1.0.0.jar"));
-			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+			fileList.add(new File(basePath + "sdk_dir/mpc-psi-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
 		} else if (serviceType == 3 || serviceType == 4) {
 			sdkZipName = "sdk.zip";
-			outputPath = projectPath + "/sdk_dir/" + sdkZipName;
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(projectPath + "/sdk_dir/mpc-sa-sdk-1.0.0.jar"));
-			fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
+			fileList.add(new File(basePath + "sdk_dir/mpc-sa-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
 		}
 
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
