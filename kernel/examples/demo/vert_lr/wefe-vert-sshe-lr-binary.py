@@ -113,7 +113,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     # fit model
     handler.fit()
     # query component summary
-    print(handler.get_metric_summary(name='evaluation_0', component_name="vert_lr_0"))
+    print(handler.get_metric_summary(name='evaluation_0', component_name="vert_sshe_lr_0"))
 
 
 if __name__ == "__main__":

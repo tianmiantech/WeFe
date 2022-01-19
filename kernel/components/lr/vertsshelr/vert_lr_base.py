@@ -546,7 +546,7 @@ class VertLRBase(BaseLRModel, ABC):
         if self.init_param_obj is None:
             self.init_param_obj = InitParam()
         self.init_param_obj.fit_intercept = meta_obj.fit_intercept
-        self.model_param.reveal_strategy = meta_obj.reveal_strategy
+        # self.model_param.reveal_strategy = meta_obj.reveal_strategy
         LOGGER.debug(f"reveal_strategy: {self.model_param.reveal_strategy}, {self.is_respectively_reveal}")
         self.header = list(result_obj.header)
 
