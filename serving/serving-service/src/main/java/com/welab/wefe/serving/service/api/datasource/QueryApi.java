@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.DataSourceService;
@@ -43,7 +44,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 	@Override
 	protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException {
 		PagingOutput<Output> result = dataSourceService.query(input);
-		result.getList().forEach(s -> s.setPassword("*************"));
+		result.getList().forEach(s -> s.setPassword(DataSourceMySqlModel.PASSWORD_MASK));
 		return success(result);
 	}
 

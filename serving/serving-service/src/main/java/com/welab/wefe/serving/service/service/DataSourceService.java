@@ -98,7 +98,8 @@ public class DataSourceService {
 		}
 		// Test the connection
 		testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
-				input.getPassword().contains("*****") ? model.getPassword() : input.getPassword(),
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword(),
 				input.getDatabaseName());
 		Map<String, Object> params = new HashMap<>(16);
 		params.put("id", input.getId());
@@ -108,7 +109,9 @@ public class DataSourceService {
 		params.put("host", input.getHost());
 		params.put("port", input.getPort());
 		params.put("userName", input.getName());
-		params.put("password", input.getPassword().contains("*****") ? model.getPassword() : input.getPassword());
+		params.put("password",
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword());
 		params.put("updatedBy", CurrentAccount.id());
 		params.put("updatedTime", new Date());
 		dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
