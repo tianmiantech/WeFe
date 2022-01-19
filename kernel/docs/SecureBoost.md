@@ -93,7 +93,9 @@ $$
 
 同态加密的 $[[g_i]]$和$[[h_i]]$ 保持加法的同态性，provider可以直接计算分裂点的的加密梯度聚合信息  $\sum_{i}[[g_i]]$和$\sum_{i}[[h_i]]$，将计算结果并返回到promoter。promoter解密后就可以得到了 provider的梯度聚合信息$\sum_{i}g_i$和$\sum_{i}h_i$，这样promoter方就可以根据多方信息计算出全局特征的最优的分割点，交互如下图所示：
 
-![image-20211220141834182](images/SecureBoost/image-20211220141834182.png)
+![image-20220118183701756](images/SecureBoost/image-20220118183701756.png)
+
+
 
 step1：promoter方先计算出 $g_i$和$h_i$，$g_i$和$h_i$的计算方法在第一小节中已经讨论过两种。假设使用对数损失函数，初始化参数$y_i = 0$，即初始 P =0.5。promoter计算出每个样本的 $g_i$和$h_i$后，使用同态加密发送给各个参与方provider。
 
@@ -135,8 +137,6 @@ step3：重复step2的过程，直至达到最优分裂或达到最大棵树，�
 
 ![image-20211216172446252.png](images/SecureBoost/image-20211216172446252.png)
 
-横向树模型中主要使用安全聚合方法，分裂过程如下：
+因此，在树模型的模型节点，arbiter需要聚合信息计算得到最优分割点返回给各个参与者，建模过程如下：
 
-![image-20211223110448541](images/SecureBoost/image-20211223110448541.png)
-
-在每个节点都由arbiter计算全局的最优分裂点，然后把计算结果返回各方，如此迭代个节点建立安全树模型。
+![image-20220117185107366](images/SecureBoost/image-20220117185107366.png)
