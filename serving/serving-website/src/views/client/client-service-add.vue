@@ -51,11 +51,6 @@
                 </div>
             </el-dialog>
 
-            <!--            <el-form-item prop="status">-->
-            <!--                <el-radio v-model="clientService.status" label="1">启用</el-radio>-->
-            <!--                <el-radio v-model="clientService.status" label="0">暂不启用</el-radio>-->
-
-            <!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
@@ -97,20 +92,15 @@ export default {
         };
 
         let validateUnitPrice = (rule, value, callback) => {
-            console.log(this.clientService.unitPrice)
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-
                 let reg = /^\d+(\.\d+)?$/;
-
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
                     return callback(new Error('单价要求输入数值'));
                 }
-
-
             }
         };
 
@@ -121,15 +111,6 @@ export default {
                 callback();
             }
         };
-
-        // let validateStatus = (rule, value, callback) => {
-        //     if (!this.clientService.status) {
-        //         return callback(new Error('请选择状态'));
-        //     } else {
-        //         callback();
-        //     }
-        // };
-
 
         return {
             clientService: {
@@ -169,13 +150,7 @@ export default {
                 payType: [
                     {required: true, validator: validatePayType, trigger: 'change'}
                 ],
-                // status: [
-                //     {required: true, validator: validateStatus, trigger: 'change'}
-                // ]
-
             },
-            // clientId: '',
-
         }
     },
 
@@ -203,18 +178,14 @@ export default {
 
             if (!this.clientService.unitPrice) {
                 this.$message('请输入单价')
-                return
+                return false;
             }
 
 
             if (!this.clientService.payType) {
-                this.$message('请选择计费类型')
-                return
+                this.$message.error('请选择计费类型')
+                return false;
             }
-
-            //
-            // this.clientService.payType = this.form.payType
-            // this.clientService.unitPrice = this.form.unitPrice
 
             // 重新清空 fee config
             this.feeConfig = []
@@ -231,13 +202,21 @@ export default {
 
             this.dialogFormVisible = false
             this.feeVisible = true
-            // this.$message('保存成功！')
         },
 
         onSubmit() {
-
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
+
+                    if (!this.clientService.unitPrice) {
+                        this.$message.error('请输入单价');
+                        return false;
+                    }
+                    if (!this.clientService.payType) {
+                        this.$message.error('请选择付费类型');
+                        return false;
+                    }
+
                     const {code} = await this.$http.post({
                         url: '/clientservice/save',
                         data: {
@@ -317,13 +296,7 @@ export default {
 
             });
             if (code === 0) {
-                console.log(data.id, 1111111111)
                 this.clientService.clientId = data.id
-                // this.client.email = data.email
-                // this.client.ipAdd = data.ip_add
-                // this.client.pubKey = ''
-                // this.client.remark = data.remark
-                // this.client.code = data.code
             }
         },
 

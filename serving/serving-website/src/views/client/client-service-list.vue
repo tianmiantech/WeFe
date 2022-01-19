@@ -38,7 +38,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
@@ -186,13 +186,9 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import RoleTag from '../components/role-tag';
 
 export default {
-    name:       'ClientServiceList',
-    components: {
-        RoleTag,
-    },
+    name:   'ClientServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {

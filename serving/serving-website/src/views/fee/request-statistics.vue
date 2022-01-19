@@ -55,7 +55,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true})"
             >
                 查询
             </el-button>
@@ -334,8 +334,13 @@ export default {
 
 
         timeChange() {
-            this.search.startTime = this.defaultTime[0];
-            this.search.endTime = this.defaultTime[1];
+            if (!this.defaultTime) {
+                this.search.startTime = ''
+                this.search.endTime = ''
+            } else {
+                this.search.startTime = this.defaultTime[0]
+                this.search.endTime = this.defaultTime[1]
+            }
         },
 
         handleServices(data) {

@@ -32,7 +32,7 @@
                     <el-option
                         v-for="item in serviceTypes"
                         :key="item.value"
-                        :label="item.label"
+                        :label="item.name"
                         :value="item.value"
                     />
                 </el-select>
@@ -70,7 +70,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
@@ -112,7 +112,7 @@
             </el-table-column>
 
             <el-table-column
-                label="日期"
+                label="日期(默认按月)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -216,12 +216,30 @@ export default {
                 6: '多方匿踪查询',
             },
             serviceTypes: [
-                { value: '1', label: '两方匿踪查询' },
-                { value: '2', label: '两方交集查询' },
-                { value: '3', label: '多方安全统计(被查询方)' },
-                { value: '4', label: '多方安全统计(查询方)' },
-                { value: '5', label: '多方交集查询' },
-                { value: '6', label: '多方匿踪查询' },
+                {
+                    name:  '两方匿踪查询',
+                    value: '1',
+                },
+                {
+                    name:  '多方匿踪查询',
+                    value: '6',
+                },
+                {
+                    name:  '两方交集查询',
+                    value: '2',
+                },
+                {
+                    name:  '多方交集查询',
+                    value: '5',
+                },
+                {
+                    name:  '多方安全统计(查询方)',
+                    value: '4',
+                },
+                {
+                    name:  '多方安全统计(被查询方)',
+                    value: '3',
+                },
             ],
             queryDateTypes: [
                 { value: '1', label: '按年' },
@@ -243,8 +261,13 @@ export default {
     methods: {
 
         timeChange() {
-            this.search.startTime = this.timeRange[0];
-            this.search.endTime = this.timeRange[1];
+            if (!this.timeRange) {
+                this.search.startTime = ''
+                this.search.endTime = ''
+            } else {
+                this.search.startTime = this.timeRange[0]
+                this.search.endTime = this.timeRange[1]
+            }
         },
 
         handleServices(data) {

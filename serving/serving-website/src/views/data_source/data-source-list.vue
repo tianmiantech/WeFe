@@ -17,7 +17,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
@@ -142,8 +142,8 @@
         data() {
             return {
                 search: {
-                    id:     '',
-                    name:'',
+                    id:   '',
+                    name: '',
                 },
                 getListApi:         '/data_source/query',
                 dataSourceEditorId: '',

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,8 @@ package com.welab.wefe.constant;
 public class EventConstant {
     public static final String RUN_SUCCESS_CODE = "0";
 
+
+    public static final String UPDATE_EXTJSON_EVENT = "UPDATEEXTJSONEVENT";
     public static final class DataSet {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";
@@ -49,5 +51,26 @@ public class EventConstant {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_EVENT = "UPDATEEVENT";
         public static final String DELETE_BY_TAGID_EVENT = "DELETEBYTAGIDEVENT";
+    }
+
+    public static final class MemberAuthType {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_TYPEID_EVENT = "DELETEBYTYPEIDEVENT";
+    }
+
+    public static final class UnionNode {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String UPDATE_ENABLE_EVENT = "UPDATEENABLEEVENT";
+        public static final String UPDATE_PUBLIC_KEY_EVENT = "UPDATEPUBLICKEYEVENT";
+        public static final String DELETE_BY_UNIONNODEID_EVENT = "DELETEBYUNIONNODEIDEVENT";
+    }
+
+    public static final class MemberService {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_SERVICE_ID_EVENT = "DELETEBYSERVICEIDEVENT";
+        public static final String UPDATE_SERVICE_STATUS_EVENT = "UPDATESERVICESTATUSEVENT";
     }
 }

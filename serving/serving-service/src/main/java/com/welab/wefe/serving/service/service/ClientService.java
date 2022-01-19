@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,14 +43,13 @@ public class ClientService {
     private ClientRepository clientRepository;
 
 
-    public void save(SaveClientApi.Input input) {
+    public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException {
 
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
         if (null == model) {
             model = new ClientMysqlModel();
         }
-
         model.setName(input.getName());
         model.setEmail(input.getEmail());
         model.setIpAdd(input.getIpAdd());
@@ -58,6 +59,7 @@ public class ClientService {
         model.setCode(input.getCode());
         model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
         clientRepository.save(model);
+
     }
 
 

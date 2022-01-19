@@ -55,7 +55,6 @@
                             <el-input
                                 v-model="form.phone"
                                 placeholder="手机号"
-                                id="username"
                                 maxlength="11"
                                 type="tel"
                                 clearable
@@ -68,7 +67,6 @@
                             <el-input
                                 v-model="form.password"
                                 type="password"
-                                id="password"
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
@@ -232,11 +230,9 @@
                             });
 
                             if(res.code === 0) {
-                                data.member_id = res.data.member_id;
-                                data.member_logo = res.data.member_logo;
-                                data.member_name = res.data.member_name;
-                                data.member_email = res.data.member_email;
-                                this.$store.commit('UPDATE_USERINFO', data);
+                                const info = Object.assign(data, res.data);
+
+                                this.$store.commit('UPDATE_USERINFO', info);
                                 this.$router.replace({
                                     name: 'index',
                                 });
@@ -287,12 +283,18 @@
         }
 
         .el-carousel__item {
-            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             padding: 0 60px;
             text-align: center;
             background: #333;
             align-items: center;
             display: flex;
+            color: #fff;
             h3{margin-bottom: 20px;}
         }
 

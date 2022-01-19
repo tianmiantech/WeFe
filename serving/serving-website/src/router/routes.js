@@ -46,37 +46,6 @@ const baseRoutes = [
                 },
                 component: () => import('@views/model/model-view.vue'),
             },
-            // {
-            //     path: `${prefixPath}log-list`,
-            //     name: 'log-list',
-            //     meta: {
-            //         title: '调用记录',
-            //     },
-            //     component: () => import('@views/logger/log-list.vue'),
-            // },
-            // {
-            //     path: `${prefixPath}log-statistics`,
-            //     name: 'log-statistics',
-            //     meta: {
-            //         title: '调用统计',
-            //         index: '2-1',
-            //         active: `${prefixPath}log-statistics`,
-            //     },
-            //     component: () =>
-            //         import('@views/logger/log-statistics.vue'),
-            // },
-            // {
-            //     path: `${prefixPath}log-view`,
-            //     name: 'log-view',
-            //     meta: {
-            //         title: '调用详情',
-            //         index: '2-2',
-            //         hidden: true,
-            //         active: `${prefixPath}log-view`,
-            //     },
-            //     component: () =>
-            //         import('@views/logger/log-view.vue'),
-            // },
         ],
     },
     {
@@ -157,13 +126,23 @@ const baseRoutes = [
                 component: () => import('@views/fee/fee-detail.vue'),
             },
             {
-                path: `${prefixPath}fee-record`,
-                name: 'fee-record',
+                path: `${prefixPath}payments-records`,
+                name: 'payments-records',
                 meta: {
-                    title:           '费用记录',
+                    title:           '收支记录',
                     loginAndRefresh: true,
                 },
-                component: () => import('@views/fee/fee-record.vue'),
+                component: () => import('@views/fee/payments-records.vue'),
+            },
+            {
+                path: `${prefixPath}payments-records-add`,
+                name: 'payments-records-add',
+                meta: {
+                    title:           '新增收支记录',
+                    loginAndRefresh: true,
+                    hidden: true,
+                },
+                component: () => import('@views/fee/payments-records-add.vue'),
             },
         ],
     },
@@ -182,6 +161,7 @@ const baseRoutes = [
                     title:  '我的服务',
                     index:  '5-1',
                     active: `${prefixPath}service-list`,
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/service/service-list.vue'),
             },
@@ -192,6 +172,7 @@ const baseRoutes = [
                     title:  '联邦服务',
                     index:  '5-2',
                     active: `${prefixPath}union-service-list`,
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/service/union-service-list.vue'),
             },

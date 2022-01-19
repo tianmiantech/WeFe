@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import com.welab.wefe.bo.contract.EventMetaInfo;
 import com.welab.wefe.bo.contract.FieldInfo;
 import com.welab.wefe.bo.data.BlockInfoBO;
 import com.welab.wefe.bo.data.EventBO;
+import com.welab.wefe.bo.data.TransactionResponseBO;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
@@ -33,6 +34,8 @@ import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.fisco.bcos.sdk.transaction.model.exception.ContractException;
 import org.fisco.bcos.sdk.utils.Numeric;
 import org.slf4j.Logger;
@@ -130,6 +133,7 @@ public class BlockInfoParser {
             if (!opt.isPresent()) {
                 continue;
             }
+
             TransactionReceipt tr = opt.get();
             ContractInfo contractInfo = TransactionUtil.getContractInfoByTransaction(transaction);
             if (null == contractInfo) {
@@ -143,10 +147,36 @@ public class BlockInfoParser {
 
             // Explain the event
             eventBOList.addAll(parserEvent(tr, contractInfo));
+
+            // Explain transaction response
+            parseTransactionResponse(blockInfoBO, contractInfo, tr);
         }
 
         blockInfoBO.setEventBOList(eventBOList);
         return blockInfoBO;
+    }
+
+    /**
+     * Explain transaction response
+     */
+    private void parseTransactionResponse(BlockInfoBO blockInfoBO, ContractInfo contractInfo, TransactionReceipt transactionReceipt) {
+        try {
+            String contractAbi = contractInfo.getAbi();
+            TransactionDecoderInterface decoder = SyncConstant.getCurrentContext().getDecoder();
+            TransactionResponse transactionResponse = decoder.decodeReceiptWithoutValues(contractAbi, transactionReceipt);
+            if (null == transactionResponse) {
+                return;
+            }
+            TransactionResponseBO transactionResponseBO = new TransactionResponseBO();
+            transactionResponseBO.setTransactionHash(transactionReceipt.getTransactionHash());
+            transactionResponseBO.setBlockNumber(blockInfoBO.getBlockNumber());
+            transactionResponseBO.setContractAddress(transactionReceipt.getContractAddress());
+            transactionResponseBO.setContractName(contractInfo.getContractName());
+            transactionResponseBO.setTransactionResponse(transactionResponse);
+            blockInfoBO.getTransactionResponseBOList().add(transactionResponseBO);
+        } catch (Exception e) {
+            LOG.error("Failed to explain transaction receipt: ", e);
+        }
     }
 
 

@@ -31,6 +31,7 @@
             </el-form-item>
             <el-form-item label="备注">
                 <el-input v-model="client.remark" type="textarea"
+                          rows="5"
                           :maxlength="300"
                           :minlength="0"
                           show-word-limit

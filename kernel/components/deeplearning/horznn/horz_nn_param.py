@@ -39,6 +39,8 @@ from types import SimpleNamespace
 from kernel.base.params.base_param import BaseParam
 from kernel.base.params.cross_validation_param import CrossValidationParam
 from kernel.base.params.predict_param import PredictParam
+import tensorflow
+from tensorflow.keras.models import Sequential
 
 
 class HorzNNParam(BaseParam):
@@ -107,6 +109,19 @@ class HorzNNParam(BaseParam):
         self.predict_param = copy.deepcopy(predict_param)
         self.cv_param = copy.deepcopy(cv_param)
 
+    def build_nn_layers(self, nn_define):
+        if nn_define:
+            model = Sequential()
+            layers = nn_define["layers"]
+            for layer_config in layers:
+                layer = getattr(tensorflow.keras.layers, layer_config["class_name"])
+                layer_params = layer_config["config"]
+                model.add(layer(**layer_params))
+
+            return json.loads(model.to_json())
+        else:
+            return []
+
     def check(self):
         supported_config_type = ["nn", "keras", "pytorch"]
         if self.config_type not in supported_config_type:
@@ -114,6 +129,7 @@ class HorzNNParam(BaseParam):
         self.early_stop = _parse_early_stop(self.early_stop)
         self.metrics = _parse_metrics(self.metrics)
         self.optimizer = _parse_optimizer(self.optimizer)
+        self.nn_define = self.build_nn_layers(self.nn_define)
 
     def generate_pb(self):
         from kernel.protobuf.generated import nn_model_meta_pb2

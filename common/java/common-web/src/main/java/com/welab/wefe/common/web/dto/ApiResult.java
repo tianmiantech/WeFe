@@ -19,6 +19,7 @@ package com.welab.wefe.common.web.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.common.StatusCode;
+import org.springframework.http.MediaType;
 
 /**
  * @author Zane
@@ -28,6 +29,7 @@ public class ApiResult<T> {
     public String message;
     public T data;
     public long spend;
+
     /**
      * The HTTP response code
      */

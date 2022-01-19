@@ -61,10 +61,12 @@ class HorzStatisticArbiter(HorzStatisticBase):
 
         max_suffix = ('max',)
         merged_max = self.aggregator.max_model(suffix=max_suffix)
+        merged_max = np.array(merged_max).tolist()
         self.aggregator.send_aggregated_model(ListWeights(merged_max), suffix=max_suffix)
-        LOGGER.info(f'max, merged_model={np.array(merged_max)}')
+        LOGGER.info(f'max, merged_model={merged_max}')
 
         min_suffix = ('min',)
         merged_min = self.aggregator.min_model(suffix=min_suffix)
+        merged_min = np.array(merged_min).tolist()
         self.aggregator.send_aggregated_model(ListWeights(merged_min), suffix=min_suffix)
-        LOGGER.info(f'min, merged_model={np.array(merged_min)}')
+        LOGGER.info(f'min, merged_model={merged_min}')

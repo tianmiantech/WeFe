@@ -49,9 +49,9 @@ CREATE TABLE client(
                        updated_time datetime DEFAULT NULL COMMENT '更新时间',
                        email VARCHAR(255)    COMMENT '邮箱' ,
                        ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
-                       pub_key VARCHAR(255) NOT NULL   COMMENT '公钥' ,
+                       pub_key text NOT NULL   COMMENT '公钥' ,
                        code VARCHAR(255)  NOT NULL UNIQUE COMMENT '客户 code' ,
-                       remark VARCHAR(255)  COMMENT '备注' ,
+                       remark text  COMMENT '备注' ,
                        status INT NOT NULL  DEFAULT 1 COMMENT '客户状态;1正常、0删除' ,
                        PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '客户基本信息表';
@@ -127,10 +127,10 @@ CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);
 DROP TABLE IF EXISTS payments_records;
 CREATE TABLE payments_records(
                                  id VARCHAR(255) NOT NULL   COMMENT '' ,
-                                 created_time DATETIME    COMMENT '' ,
-                                 updated_time DATETIME    COMMENT '' ,
-                                 created_by VARCHAR(255)    COMMENT '' ,
-                                 updated_by VARCHAR(255)    COMMENT '' ,
+                                 created_by varchar(32) DEFAULT NULL COMMENT '创建人',
+                                 created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
+                                 updated_time datetime DEFAULT NULL COMMENT '更新时间',
                                  pay_type INT    COMMENT '收支类型，1充值 2 支出' ,
                                  client_id VARCHAR(255)    COMMENT '客户id' ,
                                  client_name VARCHAR(255)    COMMENT '客户名称' ,

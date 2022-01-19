@@ -62,7 +62,7 @@ class MultiVertPearsonBase(ModelBase):
         self.transfer_variable = MultiVertPearsonTransferVariable()
 
     def _set_parties(self):
-        base_pearson.set_parties(self)
+        self.promoter_party, self.provider_parties = base_pearson.set_parties(self)
 
     def _init_model(self, param):
         super()._init_model(param)
