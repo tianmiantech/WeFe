@@ -15,7 +15,7 @@
             <el-form-item label="客户邮箱" prop="email">
                 <el-input v-model="client.email"></el-input>
             </el-form-item>
-            <el-form-item label="IP 白名单" prop="ipAdd" >
+            <el-form-item label="IP 白名单" prop="ipAdd">
                 <el-input v-model="client.ipAdd" placeholder="支持多个，英文逗号分隔"></el-input>
             </el-form-item>
             <el-form-item label="客户 code" prop="code">
@@ -63,7 +63,10 @@ export default {
 
         let util = {
             isValidIp: function (e) {
-                return /^(?:(?:^|,)(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])(?:\.(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){3})+$/.test(e)
+                // 去除后面多余的 “,”
+                let reg = /,+$/gi;
+                const ip = e.replace(reg, "");
+                return /^(?:(?:^|,)(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])(?:\.(?:[0-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){3})+$/.test(ip)
             }
         };
 
@@ -72,7 +75,6 @@ export default {
                 return callback(new Error('IP 地址不能为空'));
             } else if (!util.isValidIp(this.client.ipAdd)) {
                 return callback(new Error('请输入合法的IP'));
-
             } else {
                 callback();
             }
@@ -98,7 +100,7 @@ export default {
                 ],
                 ipAdd: [
                     // {required: true, message: '请输入IP白名单', trigger: 'change'}
-                    { required: true, validator: validateIpAdd, trigger: 'blur'}
+                    {required: true, validator: validateIpAdd, trigger: 'blur'}
                 ],
                 code: [
                     {required: true, message: '请输入客户code', trigger: 'change'}
@@ -128,7 +130,7 @@ export default {
 
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
-                    const {code} = await this.$http.post({
+                    const {code, message} = await this.$http.post({
                         url: '/client/save',
                         data: {
                             id: this.client.id,
@@ -149,6 +151,8 @@ export default {
                         this.$router.push({
                             name: 'client-list'
                         })
+                    } else {
+                        this.$message.error(message)
                     }
                 }
             });

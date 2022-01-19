@@ -100,7 +100,10 @@ public enum StatusCode {
     /**
      * serving
      */
-    SQL_UNIQUE_IN_CODE(40001,"Duplicate entry for key 'code' in client");
+    SQL_UNIQUE_IN_CODE(40001, "Duplicate entry for key 'code' in client"),
+    IP_ADDRESS_FORMAT_ERROR(40002, "IP address format error!"),
+    CLIENT_SERVICE_ALREADY_HAS(40003, "the client service has already been added"),
+    CLIENT_SERVICE_UPDATE(40004, "update client service");
 
     private int code;
     private String description;

@@ -162,11 +162,13 @@ export default {
     created() {
 
 
-        if (this.$route.query.id) {
-            // this.clientId = this.$route.query.id
-            this.getClientById(this.$route.query.id)
+        if (this.$route.query.clientId) {
+            this.getClientById(this.$route.query.clientId)
         }
-        this.getServices()
+        if (this.$route.query.serviceId) {
+            this.getServiceById(this.$route.query.serviceId)
+        }
+        this.getServices();
         this.getClients()
 
 
@@ -297,6 +299,19 @@ export default {
             });
             if (code === 0) {
                 this.clientService.clientId = data.id
+            }
+        },
+
+        async getServiceById(id) {
+            const {code, data} = await this.$http.post({
+                url: '/service/query-one',
+                data: {
+                    id: id,
+                },
+
+            });
+            if (code === 0) {
+                this.clientService.serviceId = data.id
             }
         },
 

@@ -103,7 +103,7 @@
                         :to="{
                             name: 'client-service-add',
                             query: {
-                                id: scope.row.id
+                                clientId : scope.row.id
                             },
                         }">
                         <el-button type="success">
