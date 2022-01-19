@@ -19,6 +19,7 @@
                         <!-- <el-tab-pane label="Accuracy" name="accuracy"></el-tab-pane> -->
                     </el-tabs>
                     <LineChart
+                        ref="LineChart"
                         :config="vData.train_loss"
                     />
                 </el-collapse-item>
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-    import { ref, reactive } from 'vue';
+    import { ref, reactive, onMounted, nextTick } from 'vue';
     import CommonResult from '../../visual/component-list/common/CommonResult.vue';
     import resultMixin from '../../visual/component-list/result-mixin';
 
@@ -49,6 +50,7 @@
         },
         setup(props, context) {
             const activeName = ref('1');
+            const LineChart = ref();
 
             let vData = reactive({
                 header:       [],
@@ -56,7 +58,10 @@
                 expandparams: {
                     type: 'loss',
                 },
-                train_loss: {},
+                train_loss: {
+                    xAxis:  [],
+                    series: [[]],
+                },
             });
 
             let methods = {
@@ -64,13 +69,19 @@
                     methods.readData();
                 },
                 showResult(data) {
-                    if(data.result) {
+                    if(data[0].result) {
                         vData.result = true;
-                        const { train_loss } = data.result;
+                        const train_loss = data[0].result.data;
 
-                        train_loss.data.forEach((item, index) => {
-                            vData.train_loss.xAxis.push(index);
-                            vData.train_loss.series[0].push(item);
+                        for (const key in train_loss) {
+                            vData.train_loss.xAxis.push(key);
+                            vData.train_loss.series[0].push(train_loss[key].value);
+                        }
+                        nextTick(_=> {
+                            setTimeout(_=> {
+                                console.log(LineChart.value);
+                                LineChart.value.chartResize();
+                            }, 1000);
                         });
                     } else {
                         vData.result = false;
@@ -88,10 +99,17 @@
             vData = $data;
             methods = $methods;
 
+            onMounted(_=> {
+                window.onresize = () => {
+                    LineChart.value.chartResize();
+                };
+            });
+
             return {
                 vData,
                 activeName,
                 methods,
+                LineChart,
             };
         },
     };
