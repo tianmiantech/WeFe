@@ -37,7 +37,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -225,7 +228,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
-                .in("data_resource_type",dataResourceQueryInput.getDataResourceType())
+                .in("data_resource_type", dataResourceQueryInput.getDataResourceType().stream().map(Enum::name).collect(Collectors.toList()))
                 .getCriteria();
 
         Criteria or = new Criteria();
