@@ -48,7 +48,7 @@
                 init(role, data = {}, fields) {
                     vData.role = role;
                     vData.showDialog = true;
-                    if(data.columns) {
+                    if(data.columns && data.columns.length) {
                         vData.columns = data.columns.split(',').map(x => {
                             return {
                                 label: x,
@@ -59,18 +59,23 @@
                         vData.columns = [];
                     }
 
-                    if(fields && fields.length) {
-                        nextTick(_ => {
-                            const $ref = encryptionGeneratorRef.value;
+                    nextTick(_ => {
+                        const $ref = encryptionGeneratorRef.value;
 
+                        if(fields && fields.length) {
                             $ref.vData.encryptionList = fields.map(x => {
                                 return {
                                     features:   x.column_list,
                                     encryption: x.options,
                                 };
                             });
-                        });
-                    }
+                        } else {
+                            $ref.vData.encryptionList = [{
+                                features:   '',
+                                encryption: '',
+                            }];
+                        }
+                    });
                 },
                 confirm() {
                     const $ref = encryptionGeneratorRef.value;

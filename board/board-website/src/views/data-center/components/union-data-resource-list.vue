@@ -143,8 +143,9 @@
 </template>
 
 <script>
-    import table from '@src/mixins/table';
     import { mapGetters } from 'vuex';
+    import table from '@src/mixins/table';
+
     export default {
         mixins: [table],
         props:  {
@@ -162,6 +163,7 @@
                 defaultSearch:       false,
                 watchRoute:          false,
                 turnPageRoute:       false,
+                requestMethod:       'post',
                 dataResourceTypeMap: {
                     BloomFilter:  'BloomFilter',
                     ImageDataSet: 'img',

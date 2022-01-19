@@ -96,7 +96,7 @@
                                 <template v-slot="scope">
                                     <span style="display:none;">{{ scope.row }}</span>
                                     <el-button
-                                        v-if="vData.promoter.data_resource_type !== 'BloomFilter'"
+                                        v-if="vData.myRole !== 'provider' && (vData.status === '' || vData.status === 'Refuse' || vData.status === 'Interrupt' || vData.status === 'Failure' || vData.status === 'Success') && vData.promoter.data_resource_type !== 'BloomFilter'"
                                         :disabled="vData.myRole !== 'promoter'"
                                         @click="methods.fusionKeyMapsDialog('promoter')"
                                     >
@@ -214,6 +214,17 @@
                         <template v-slot="scope">
                             <i style="display:none;">{{ scope.row }}</i>
                             {{ vData.task.spend }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="导出融合结果" min-width="100">
+                        <template v-slot="scope">
+                            <el-button
+                                type="primary"
+                                :disabled="vData.status !== 'Success'"
+                                @click="methods.export(scope)"
+                            >
+                                导出
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -449,6 +460,8 @@
 
                     nextTick(_ => {
                         if(code === 0 && data) {
+                            vData.status = data.status;
+                            vData.task.progress = data.progress;
                             vData.fusion_count = data.fusion_count;
                             vData.task.spend = methods.timeSpend(data.spend);
                             setTimeout(() => {
@@ -492,8 +505,8 @@
                     fusionDataResourcesRef.value.vData.show = false;
                     vData[role].data_set_id = item.data_set_id;
                     vData[role].name = item.data_set.name;
-                    vData[role].columns = item.data_set.column_name_list || '';
                     vData[role].hash_func = item.data_set.hash_function;
+                    vData[role].columns = item.data_set.column_name_list || '';
                     vData[role].total_data_count = item.data_set.total_data_count;
                     vData[role].data_resource_type = item.data_resource_type;
                 },
@@ -504,6 +517,8 @@
                     $ref.methods.init(role, data, vData.field_info_list);
                 },
                 removeDataSet(role) {
+                    const { data_resource_type } = vData[role];
+
                     $confirm('确定要删除该条资源吗?', '警告', {
                         type: 'warning',
                     }).then(async () => {
@@ -512,6 +527,10 @@
                         vData[role].columns = [];
                         vData[role].data_resource_type = '';
                         vData[role].total_data_count = 0;
+
+                        if(data_resource_type === 'TableDataSet') {
+                            vData.field_info_list = [];
+                        }
                     });
                 },
                 confirmCheck({ role, ...rest }) {
@@ -562,7 +581,7 @@
                 audit(event, status) {
                     const fields = vData.field_info_list;
 
-                    if(status === 'agree' && Array.isArray(fields) && !fields.length || fields == null) return $message.error('请先设置融合公式');
+                    if(status === 'agree' && vData.provider.data_resource_type === 'TableDataSet' && (Array.isArray(fields) && !fields.length || fields == null)) return $message.error('请先设置融合公式');
 
                     $prompt('请输入审核意见', status ? '警告' : '拒绝本次合作', {
                         inputPattern:      !/^\s/,
@@ -571,7 +590,7 @@
                         const { code } = await $http.post({
                             url:  '/fusion/task/audit',
                             data: {
-                                field_info_list: fields,
+                                field_info_list: fields || [],
                                 business_id:     vData.business_id,
                                 row_count:       vData.promoter.total_data_count,
                                 trace_column:    vData.trace_column,
@@ -589,23 +608,31 @@
                     });
                 },
                 async submit(event) {
+                    const fields = vData.field_info_list ? vData.field_info_list.map(x => {
+                        return {
+                            columns:  x.columns,
+                            options:  x.options,
+                            position: x.position,
+                        };
+                    }) : [];
+
                     const { code } = await $http.post({
                         url:  id ? '/fusion/task/restart' : '/fusion/task/add',
                         data: {
                             project_id,
-                            algorithm:                  vData.algorithm,
-                            name:                       vData.name,
                             description:                vData.desc,
+                            algorithm:                  vData.algorithm,
+                            name:                       id ? `${vData.name}-copy` : vData.name,
                             data_resource_type:         vData.promoter.data_resource_type,
                             data_resource_id:           vData.promoter.data_set_id,
                             dst_member_id:              vData.provider.member_id,
-                            trace_column:               vData.trace_column,
-                            field_info_list:            vData.field_info_list || [],
-                            row_count:                  vData.promoter.total_data_count,
-                            is_trace:                   vData.is_trace,
                             partner_data_resource_id:   vData.provider.data_set_id,
                             partner_data_resource_type: vData.provider.data_resource_type,
                             partner_row_count:          vData.provider.total_data_count,
+                            row_count:                  vData.promoter.total_data_count,
+                            trace_column:               vData.trace_column,
+                            is_trace:                   vData.is_trace,
+                            field_info_list:            fields,
                         },
                         btnState: {
                             target: event,
