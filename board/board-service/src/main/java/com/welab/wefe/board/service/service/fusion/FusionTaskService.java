@@ -139,20 +139,37 @@ public class FusionTaskService extends AbstractService {
         //Add fieldInfo
         fieldInfoService.saveAll(businessId, input.getFieldInfoList());
 
+        //Different algorithms
+        switch (input.getAlgorithm()) {
+            case RSA_PSI:
+                AddPsiTask(input, businessId);
+                break;
+            case DH:
+            default:
+                break;
+        }
+
+    }
+
+    private void AddPsiTask(AddApi.Input input, String businessId) throws StatusCodeWithException {
         //Add tasks
         FusionTaskMySqlModel task = ModelMapper.map(input, FusionTaskMySqlModel.class);
         task.setBusinessId(businessId);
         task.setStatus(FusionTaskStatus.Await);
         task.setMyRole(JobMemberRole.promoter);
 
-        if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
+        if (DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
+
+            BloomFilterMysqlModel bloomFilterMysqlModel = bloomFilterService.findOne(input.getDataResourceId());
+            if (bloomFilterMysqlModel == null) {
+                throw new StatusCodeWithException(DATA_NOT_FOUND);
+            }
+
             task.setPsiActuatorRole(PSIActuatorRole.server);
-            task.setHashFunction(
-                    bloomFilterService.findOne(
-                            input.getDataResourceId()) == null ?
-                            "" : bloomFilterService.findOne(input.getDataResourceId()).getHashFunction()
-            );
+            task.setHashFunction(bloomFilterMysqlModel.getHashFunction());
             fusionTaskRepository.save(task);
+
+            dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
 
             thirdPartyService.alignApply(task);
             return;
@@ -164,14 +181,12 @@ public class FusionTaskService extends AbstractService {
             throw new StatusCodeWithException(DATA_NOT_FOUND);
         }
 
-        if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
-            task.setPsiActuatorRole(PSIActuatorRole.client);
-        }
         JSONObject jsonObject = unionService.getDataResourceDetail(input.getPartnerDataResourceId(), input.getPartnerDataResourceType(), JSONObject.class);
         task.setPartnerHashFunction(jsonObject.getString("hash_function"));
         task.setHashFunction(
                 PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
         );
+        task.setPsiActuatorRole(PSIActuatorRole.client);
         fusionTaskRepository.save(task);
 
         dataResourceService.usageCountInJobIncrement(input.getDataResourceId());
@@ -224,13 +239,7 @@ public class FusionTaskService extends AbstractService {
         }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
-            task.setStatus(FusionTaskStatus.Refuse);
-            task.setComment(input.getAuditComment());
-            fusionTaskRepository.save(task);
-
-            //callback
-            thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
-
+            disAgree(task, input);
             return;
         }
 
@@ -245,16 +254,16 @@ public class FusionTaskService extends AbstractService {
             default:
                 throw new RuntimeException("Unexpected enumeration values");
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected void disAgree(FusionTaskMySqlModel task, AuditApi.Input input) throws StatusCodeWithException {
+        task.setStatus(FusionTaskStatus.Refuse);
+        task.setComment(input.getAuditComment());
+        fusionTaskRepository.save(task);
 
         //callback
-        thirdPartyService.callback(
-                task.getDstMemberId(),
-                task.getBusinessId(),
-                input.getAuditStatus(),
-                input.getAuditComment(),
-                DataResourceType.BloomFilter.equals(task.getDataResourceType()) ?
-                        null : PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
-        );
+        thirdPartyService.callback(task.getDstMemberId(), task.getBusinessId(), input.getAuditStatus(), input.getAuditComment());
     }
 
 
@@ -305,6 +314,16 @@ public class FusionTaskService extends AbstractService {
             default:
                 break;
         }
+
+        //callback
+        thirdPartyService.callback(
+                task.getDstMemberId(),
+                task.getBusinessId(),
+                input.getAuditStatus(),
+                input.getAuditComment(),
+                DataResourceType.BloomFilter.equals(task.getDataResourceType()) ?
+                        null : PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
+        );
     }
 
     /**
@@ -412,11 +431,7 @@ public class FusionTaskService extends AbstractService {
                 throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
             }
             model.setRowCount(bloomFilter.getTotalDataCount());
-            model.setHashFunction(
-                    PrimaryKeyUtils.hashFunction(
-                            fieldInfoService.fieldInfoList(model.getDataResourceId())
-                    )
-            );
+            model.setHashFunction(bloomFilter.getHashFunction());
         }
 
         fusionTaskRepository.save(model);
@@ -469,7 +484,7 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setHashFunction(model.getHashFunction());
         if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
-            myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
+            myMemberInfo.setColumnNameList(tableDataSet.getFeatureNameList());
             myMemberInfo.setDataResourceName(tableDataSet.getName());
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
         } else {
