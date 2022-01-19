@@ -89,24 +89,27 @@ public class ClientService {
         );
     }
 
-    public QueryClientApi.Output queryById(String id) {
+	public ClientMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+		Specification<ClientMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
+				.build(ClientMysqlModel.class);
+		return clientRepository.findOne(where).orElse(null);
+	}
+    
+	public QueryClientApi.Output queryById(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		return ModelMapper.map(model, QueryClientApi.Output.class);
+	}
 
-        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-        return ModelMapper.map(model, QueryClientApi.Output.class);
+	public QueryClientApi.Output queryByName(String name) {
+		ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+		return ModelMapper.map(model, QueryClientApi.Output.class);
+	}
 
-
-    }
-
-    public QueryClientApi.Output queryByName(String name) {
-        ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
-        return ModelMapper.map(model, QueryClientApi.Output.class);
-    }
-
-    public void detele(String id) {
-        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-        model.setStatus(ClientStatusEnum.DELETED.getValue());
-        model.setUpdatedTime(new Date());
-        clientRepository.save(model);
-    }
+	public void detele(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		model.setStatus(ClientStatusEnum.DELETED.getValue());
+		model.setUpdatedTime(new Date());
+		clientRepository.save(model);
+	}
 
 }

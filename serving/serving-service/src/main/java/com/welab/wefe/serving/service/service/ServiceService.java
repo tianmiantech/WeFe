@@ -107,6 +107,9 @@ public class ServiceService {
 
 	@Autowired
 	private ClientRepository clientRepository;
+	
+	@Autowired
+	private ClientService clientService;
 
 	@Transactional(rollbackFor = Exception.class)
 	public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -320,6 +323,11 @@ public class ServiceService {
 		if (model == null || model.getStatus() != 1) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
+			ClientMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
+					input.getCustomerId());
+			if (clientMysqlModel == null || clientMysqlModel.getStatus() != 1) {
+				return JObject.create("message", "invalid request: url = " + serviceUrl);
+			}
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 			if (serviceType == 1) {// 1匿踪查询
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
