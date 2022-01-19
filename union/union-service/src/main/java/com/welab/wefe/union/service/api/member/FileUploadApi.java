@@ -29,6 +29,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
@@ -37,12 +38,18 @@ import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuxin.zhang
@@ -70,11 +77,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "purpose");
         }
 
-
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
+        Map<String, InputStreamBody> fileStreamBodyMap = buildFileStreamBodyMap(input.files);
 
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
@@ -105,7 +112,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
                     input.describe
             );
 
-            syncDataToOtherUnionNode(input);
+            syncDataToOtherUnionNode(fileStreamBodyMap, fileId);
 
         } else {
             fileId = gridFSFile.getObjectId().toString();
@@ -130,20 +137,39 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         memberFileInfoContractService.add(memberFileInfo);
     }
 
-    private void syncDataToOtherUnionNode(Input input) {
+    private Map<String, InputStreamBody> buildFileStreamBodyMap(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
+        Map<String, InputStreamBody> fileStreamBodyMap = new HashMap<>();
+        for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
+            try {
+                MultipartFile file = item.getValue();
+                ContentType contentType = StringUtil.isEmpty(file.getContentType())
+                        ? ContentType.DEFAULT_BINARY
+                        : ContentType.create(file.getContentType());
+
+                InputStreamBody streamBody = new InputStreamBody(
+                        file.getInputStream(),
+                        contentType,
+                        file.getOriginalFilename()
+                );
+                fileStreamBodyMap.put(item.getKey(), streamBody);
+            } catch (IOException e) {
+                LOG.error("File read / write failed", e);
+                throw new StatusCodeWithException(StatusCode.FILE_IO_ERROR);
+            }
+        }
+        return fileStreamBodyMap;
+    }
+
+    private void syncDataToOtherUnionNode(Map<String, InputStreamBody> fileStreamBodyMap, String fileId) {
         List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(UnionNodeConfigCache.currentBlockchainNodeId);
         for (UnionNode unionNode :
                 unionNodeList) {
-            JObject params = JObject.create("filename", input.filename);
-            params.append("memberId", input.memberId);
-            params.append("purpose", input.purpose);
-
 
             new UploadFileSyncToUnionTask(
                     unionNode.getBaseUrl(),
                     "member/file/upload/sync",
-                    params,
-                    input.files
+                    JObject.create("fileId", fileId),
+                    fileStreamBodyMap
             ).start();
         }
     }

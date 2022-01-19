@@ -29,6 +29,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.SM2Util;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -36,11 +37,17 @@ import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import com.welab.wefe.manager.service.service.RealnameAuthAgreementTemplateContractService;
 import com.welab.wefe.manager.service.task.UploadFileSyncToUnionTask;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description:
@@ -65,10 +72,11 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
+
         String fileName = input.getFilename();
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
-
+        Map<String, InputStreamBody> fileStreamBodyMap = buildFileStreamBodyMap(input.files);
         RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
         if (realnameAuthAgreementTemplate == null) {
             GridFSUploadOptions options = new GridFSUploadOptions();
@@ -79,7 +87,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             options.metadata(metadata);
 
             String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-
+            input.getFirstFile().getInputStream();
 
             realnameAuthAgreementTemplate = new RealnameAuthAgreementTemplate();
             realnameAuthAgreementTemplate.setTemplateFileId(fileId);
@@ -88,7 +96,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             realnameAuthAgreementTemplate.setEnable("0");
             contractService.add(realnameAuthAgreementTemplate);
 
-            syncFileToUnion(input, fileId);
+            syncFileToUnion(fileStreamBodyMap, fileId);
 
             return success(new UploadFileApiOutput(fileId));
         } else {
@@ -96,14 +104,40 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
         }
     }
 
-    private void syncFileToUnion(UploadFileInput input, String fileId) {
+    private Map<String, InputStreamBody> buildFileStreamBodyMap(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
+        Map<String, InputStreamBody> fileStreamBodyMap = new HashMap<>();
+        for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
+            try {
+                MultipartFile file = item.getValue();
+                ContentType contentType = StringUtil.isEmpty(file.getContentType())
+                        ? ContentType.DEFAULT_BINARY
+                        : ContentType.create(file.getContentType());
+
+                InputStreamBody streamBody = new InputStreamBody(
+                        file.getInputStream(),
+                        contentType,
+                        file.getOriginalFilename()
+                );
+                fileStreamBodyMap.put(item.getKey(), streamBody);
+            } catch (IOException e) {
+                LOG.error("File read / write failed", e);
+                throw new StatusCodeWithException(StatusCode.FILE_IO_ERROR);
+            }
+        }
+        return fileStreamBodyMap;
+    }
+
+    private void syncFileToUnion(Map<String, InputStreamBody> fileStreamBodyMap, String fileId) {
         UnionNodeSm2Config unionNodeSm2Config = unionNodeConfigMongoRepo.find();
         try {
 
             List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(currentBlockchainNodeId);
+            LOG.error("unionNodeList size:" + unionNodeList.size());
             for (UnionNode unionNode :
                     unionNodeList) {
+                LOG.error("unionNode");
                 String data = JObject.create("fileId", fileId).toJSONString();
+
                 String sign;
                 try {
                     sign = SM2Util.sign(data, unionNodeSm2Config.getPrivateKey());
@@ -121,7 +155,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
                         unionNode.getBaseUrl(),
                         "realname/auth/agreement/template/sync",
                         reqeustBody,
-                        input.files
+                        fileStreamBodyMap
                 ).start();
             }
         } catch (Exception e) {
