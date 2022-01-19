@@ -68,19 +68,19 @@ public class FusionResultStorageService extends AbstractService {
         List<String> header = new ArrayList<>();
 
         for (String item : row) {
-            if (sid == null) {
-                sid = String.valueOf(item);
-            } else {
+//            if (sid == null) {
+//                sid = String.valueOf(item);
+//            } else {
                 header.add(String.valueOf(item));
-            }
+//            }
         }
 
         String tableName = createRawDataSetTableName(businessId) + ".meta";
 
         // According to the convention,
         // sid needs to be converted to json string so that double quotation marks are added before and after.
-        sid = JSON.toJSONString(sid);
-        save(tableName, "sid", sid);
+//        sid = JSON.toJSONString(sid);
+//        save(tableName, "sid", sid);
 
         // According to the convention,
         // the header needs to be converted to json string
