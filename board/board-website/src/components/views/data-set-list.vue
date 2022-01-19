@@ -112,8 +112,8 @@
                 min-width="110"
             />
             <el-table-column
-                label="上传者"
-                min-width="120"
+                label="上传时间"
+                min-width="160"
             >
                 <template v-slot="scope">
                     {{ scope.row.creator_nickname }}<br>
