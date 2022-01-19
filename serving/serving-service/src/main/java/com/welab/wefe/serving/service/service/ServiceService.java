@@ -332,8 +332,7 @@ public class ServiceService {
 			ClientServiceMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
 					input.getCustomerId());
 			if (clientMysqlModel == null || client == null || client.getStatus() != 1
-					|| clientMysqlModel.getStatus() != 1
-					|| !Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
+					|| clientMysqlModel.getStatus() != 1) {//!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)
 				return JObject.create("message", "invalid request: url = " + serviceUrl);
 			}
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
