@@ -228,6 +228,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
+                .in("data_resource_type", dataResourceQueryInput.getDataResourceType().stream().map(Enum::name).collect(Collectors.toList()))
                 .getCriteria();
 
         Criteria or = new Criteria();
