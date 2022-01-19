@@ -78,7 +78,7 @@ def _table_dot_func(it):
 def table_dot(a_table, b_table):
     return a_table.join(b_table, lambda x, y: [x, y]) \
         .applyPartitions(lambda it: _table_dot_func(it)) \
-        .reduce(lambda x, y: x + y)
+        .reduce(lambda x, y: x if y is None else y if x is None else x + y)
 
 
 def table_dot_mod(a_table, b_table, q_field):
