@@ -11,7 +11,7 @@
                 label="服务名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.serviceName"/>
+                <el-input v-model="search.serviceName" />
             </el-form-item>
 
             <el-form-item
@@ -33,10 +33,10 @@
             </el-form-item>
 
             <el-form-item
-                label="成员名称:"
+                label="供应商名称:"
                 label-width="80px"
             >
-                <el-input v-model="search.memberName"/>
+                <el-input v-model="search.memberName" />
             </el-form-item>
 
             <el-button
@@ -113,7 +113,6 @@
                     {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
-
         </el-table>
 
         <div
@@ -143,9 +142,9 @@ export default {
             search: {
                 serviceName: '',
                 serviceType: '',
-                memberName: '',
+                memberName:  '',
             },
-            getListApi: '/service/union/query',
+            getListApi:      '/service/union/query',
             serviceTypeList: [
                 {
                     name:  '两方匿踪查询',
