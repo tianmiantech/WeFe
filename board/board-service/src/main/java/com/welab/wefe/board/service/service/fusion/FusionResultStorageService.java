@@ -21,6 +21,8 @@ import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
+import com.welab.wefe.common.data.storage.model.PageInputModel;
+import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,5 +191,37 @@ public class FusionResultStorageService extends AbstractService {
 
     public Boolean isExists(String tableName) {
         return storageService.isExists(DATABASE_NAME, tableName);
+    }
+
+    /**
+     * view the data set data rows
+     */
+    public List<List<String>> previewDataSet(String tableName, int limit) {
+        return previewDataSet(DATABASE_NAME,tableName,limit);
+    }
+
+    /**
+     * view the data set data rows
+     */
+    public List<List<String>> previewDataSet(String dbName, String tableName, int limit) {
+        PageOutputModel<?, ?> page = storageService.getPage(dbName, tableName, new PageInputModel(0, limit));
+
+        List<? extends DataItemModel<?, ?>> data = page.getData();
+        return data
+                .stream()
+                .map(x -> {
+                    List<String> list = new ArrayList<>();
+                    list.add(String.valueOf(x.getK()));
+
+                    Object value = x.getV();
+                    if (value != null) {
+                        for (String item : String.valueOf(value).split(",")) {
+                            list.add(item);
+                        }
+                    }
+
+                    return list;
+                })
+                .collect(Collectors.toList());
     }
 }
