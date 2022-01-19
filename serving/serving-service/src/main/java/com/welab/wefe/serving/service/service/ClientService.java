@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
 import com.welab.wefe.serving.service.api.client.SaveClientApi;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +46,7 @@ public class ClientService {
     private ClientRepository clientRepository;
 
 
-    public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException {
+    public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException, StatusCodeWithException {
 
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
@@ -52,12 +55,23 @@ public class ClientService {
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());
-        model.setIpAdd(input.getIpAdd());
+
         model.setRemark(input.getRemark());
         model.setPubKey(input.getPubKey());
         model.setCreatedBy(input.getCreatedBy());
         model.setCode(input.getCode());
         model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
+
+        String pattern = "(^,+)|(,+$)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(input.getIpAdd());
+        if (m.find()) {
+            String ip = m.replaceAll("");
+            model.setIpAdd(ip);
+        } else {
+            throw new StatusCodeWithException(StatusCode.IP_ADDRESS_FORMAT_ERROR);
+        }
+
         clientRepository.save(model);
 
     }
