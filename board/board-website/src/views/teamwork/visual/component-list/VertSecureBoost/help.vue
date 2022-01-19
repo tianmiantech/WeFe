@@ -5,7 +5,7 @@
         </template>
         <template #params>
             <ol>
-                <li>同态加密算法：paillier、IterativeAffine</li>
+                <li>同态加密算法：paillier</li>
                 <li>最大树数量</li>
                 <li>树的最大深度</li>
                 <li>最大桶（箱）数量：直方图算法中指定每个特征最大分箱数量</li>
