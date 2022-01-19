@@ -22,11 +22,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.welab.wefe.serving.service.api.service.QueryOneApi;
-import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -67,9 +75,12 @@ import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
+import com.welab.wefe.serving.service.api.service.QueryOneApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
@@ -100,8 +111,14 @@ public class ServiceService {
     @Autowired
     private UnionServiceService unionServiceService;
 
-    @Autowired
-    private ClientRepository clientRepository;
+	@Autowired
+	private ClientRepository clientRepository;
+	
+	@Autowired
+	private ClientService clientService;
+	
+	@Autowired
+	private Config config;
 
     @Transactional(rollbackFor = Exception.class)
     public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
@@ -126,49 +143,49 @@ public class ServiceService {
         return output;
     }
 
-    private String generateIdsTable(ServiceMySqlModel model) {
-        String keysTableName = "";
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        if (model.getServiceType() != 2) {// 对于 交集查询 需要额外生成对应的主键数据
-            return keysTableName;
-        }
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
-            return keysTableName;
-        }
-        keysTableName = dataSourceModel.getDatabaseName() + "_" + dataSource.getString("table");
-        JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
-        List<String> needFields = new ArrayList<>();
-        for (int i = 0; i < keyCalcRules.size(); i++) {
-            JSONObject item = keyCalcRules.getJSONObject(i);
-            String[] fields = item.getString("field").split(",");
-            needFields.addAll(Arrays.asList(fields));
-        }
-        keysTableName += ("_" + format.format(new Date()));
-        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSourceModel.getDatabaseName() + "."
-                + dataSource.getString("table");
-        List<String> ids = new ArrayList<>();
-        try {
-            List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
-            for (Map<String, String> item : result) {
-                String id = calcKey(keyCalcRules, item);
-                ids.add(id);
-            }
-            String createTableSql = String.format(
-                    "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB",
-                    keysTableName);
-            try {
-                dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
-                        dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-                        dataSourceModel.getDatabaseName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            String insertSql = String.format("insert into %s values (?)", keysTableName);
-            dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
-                    dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-                    dataSource.getString("db"), ids);
+	private String generateIdsTable(ServiceMySqlModel model) {
+		String keysTableName = "";
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		if (model.getServiceType() != 2) {// 对于 交集查询 需要额外生成对应的主键数据
+			return keysTableName;
+		}
+		JSONObject dataSource = JObject.parseObject(model.getDataSource());
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+		if (dataSourceModel == null) {
+			return keysTableName;
+		}
+		keysTableName = dataSourceModel.getDatabaseName() + "_" + dataSource.getString("table");
+		JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+		List<String> needFields = new ArrayList<>();
+		for (int i = 0; i < keyCalcRules.size(); i++) {
+			JSONObject item = keyCalcRules.getJSONObject(i);
+			String[] fields = item.getString("field").split(",");
+			needFields.addAll(Arrays.asList(fields));
+		}
+		keysTableName += ("_" + format.format(new Date()));
+		String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSourceModel.getDatabaseName() + "."
+				+ dataSource.getString("table");
+		Set<String> ids = new HashSet<>();
+		try {
+			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+			for (Map<String, String> item : result) {
+				String id = calcKey(keyCalcRules, item);
+				ids.add(id);
+			}
+			String createTableSql = String.format(
+					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+					keysTableName);
+			try {
+				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
+						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+						dataSourceModel.getDatabaseName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String insertSql = String.format("insert into %s values (?)", keysTableName);
+			dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
+					dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+					dataSourceModel.getDatabaseName(), ids);
 
         } catch (StatusCodeWithException e) {
             e.printStackTrace();
@@ -223,43 +240,45 @@ public class ServiceService {
         return PagingOutput.of(page.getTotal(), list);
     }
 
-    public com.welab.wefe.serving.service.api.service.AddApi.Output update(Input input) throws StatusCodeWithException {
-        ServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), ServiceMySqlModel.class);
-        if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
-        }
-        if (StringUtils.isNotBlank(input.getName())) {
-            model.setName(input.getName());
-        }
-        if (StringUtils.isNotBlank(input.getUrl())) {
-            model.setUrl(input.getUrl());
-        }
-        if (!CollectionUtils.isEmpty(input.getQueryParams())) {
-            model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
-        }
-        if (StringUtils.isNotBlank(input.getDataSource())) {
-            model.setDataSource(input.getDataSource());
-        }
-        if (input.getServiceType() != -1) {
-            model.setServiceType(input.getServiceType());
-        }
-        if (StringUtils.isNotBlank(input.getServiceConfig())) {
-            model.setServiceConfig(input.getServiceConfig());
-        }
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setUpdatedTime(new Date());
-        serviceRepository.save(model);
-        com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
-        output.setId(model.getId());
-        output.setParams(model.getQueryParams());
-        output.setUrl(SERVICE_PRE_URL + model.getUrl());
-        if (model.getStatus() == 1) {
-            unionServiceService.add2Union(model);
-        } else {
-            unionServiceService.offline2Union(model);
-        }
-        return output;
-    }
+	public com.welab.wefe.serving.service.api.service.AddApi.Output update(Input input) throws StatusCodeWithException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+		}
+		if (StringUtils.isNotBlank(input.getName())) {
+			model.setName(input.getName());
+		}
+		if (StringUtils.isNotBlank(input.getUrl())) {
+			model.setUrl(input.getUrl());
+		}
+		if (!CollectionUtils.isEmpty(input.getQueryParams())) {
+			model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
+		}
+		if (StringUtils.isNotBlank(input.getDataSource())) {
+			model.setDataSource(input.getDataSource());
+		}
+		if (input.getServiceType() != -1) {
+			model.setServiceType(input.getServiceType());
+		}
+		if (StringUtils.isNotBlank(input.getServiceConfig())) {
+			model.setServiceConfig(input.getServiceConfig());
+		}
+		model.setUpdatedBy(CurrentAccount.id());
+		model.setUpdatedTime(new Date());
+		String idsTableName = generateIdsTable(model);
+		model.setIdsTableName(idsTableName);
+		serviceRepository.save(model);
+		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
+		output.setId(model.getId());
+		output.setParams(model.getQueryParams());
+		output.setUrl(SERVICE_PRE_URL + model.getUrl());
+		if (model.getStatus() == 1) {
+			unionServiceService.add2Union(model);
+		} else {
+			unionServiceService.offline2Union(model);
+		}
+		return output;
+	}
 
     public void offlineService(String id) throws StatusCodeWithException {
         ServiceMySqlModel model = serviceRepository.findOne("id", id, ServiceMySqlModel.class);
@@ -301,52 +320,59 @@ public class ServiceService {
         return out;
     }
 
-    public JObject executeService(com.welab.wefe.serving.service.api.service.RouteApi.Input input)
-            throws StatusCodeWithException {
-        long start = System.currentTimeMillis();
-        String clientIp = ServiceUtil.getIpAddr(input.request);
-        String uri = input.request.getRequestURI();
-        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-        JObject res = JObject.create();
-        ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
-        JObject data = JObject.create(input.getData());
-        if (model == null || model.getStatus() != 1) {
-            return JObject.create("message", "invalid request: url = " + serviceUrl);
-        } else {
-            int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-            if (serviceType == 1) {// 1匿踪查询
-                List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-                QueryKeysResponse result = pir(ids, model);
-                res = JObject.create(result);
-            } else if (serviceType == 2) {// 2交集查询（10W内）
-                String p = data.getString("p");
-                List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-                QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
-                res = JObject.create(result);
-            } else if (serviceType == 3) {// 3 安全聚合 被查询方
-                QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-                request.setP(data.getString("p"));
-                request.setG(data.getString("g"));
-                request.setUuid(data.getString("uuid"));
-                request.setQueryParams(data.getJSONObject("query_params"));
-                QueryDiffieHellmanKeyResponse result = sa(request, model);
-                res = JObject.create(result);
-            } else if (serviceType == 4) {// 安全聚合（查询方）
-                Double result = sa_query(data, model);
-                res = JObject.create("result", result);
-            }
-        }
-        long duration = System.currentTimeMillis() - start;
-        try {
-            ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-                    ClientMysqlModel.class);
-            apiRequestRecordService.save(model.getId(), model.getName(), model.getServiceType(),
-                    clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, 1);
-        } catch (Exception e) {
-            LOG.error(e.toString());
-        }
-        return res;
-    }
+	public JObject executeService(com.welab.wefe.serving.service.api.service.RouteApi.Input input)
+			throws StatusCodeWithException {
+		long start = System.currentTimeMillis();
+		String clientIp = ServiceUtil.getIpAddr(input.request);
+		String uri = input.request.getRequestURI();
+		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+		JObject res = JObject.create();
+		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+		JObject data = JObject.create(input.getData());
+		if (model == null || model.getStatus() != 1) {
+			return JObject.create("message", "invalid request: url = " + serviceUrl);
+		} else {
+			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
+			ClientServiceMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
+					input.getCustomerId());
+			if (clientMysqlModel == null || client == null || client.getStatus() != 1
+					|| clientMysqlModel.getStatus() != 1) {//!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)
+				return JObject.create("message", "invalid request: url = " + serviceUrl);
+			}
+			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+			if (serviceType == 1) {// 1匿踪查询
+				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
+				QueryKeysResponse result = pir(ids, model);
+				res = JObject.create(result);
+			} else if (serviceType == 2) {// 2交集查询（10W内）
+				String p = data.getString("p");
+				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
+				res = JObject.create(result);
+			} else if (serviceType == 3) {// 3 安全聚合 被查询方
+				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
+				request.setP(data.getString("p"));
+				request.setG(data.getString("g"));
+				request.setUuid(data.getString("uuid"));
+				request.setQueryParams(data.getJSONObject("query_params"));
+				QueryDiffieHellmanKeyResponse result = sa(request, model);
+				res = JObject.create(result);
+			} else if (serviceType == 4) {// 安全聚合（查询方）
+				Double result = sa_query(data, model);
+				res = JObject.create("result", result);
+			}
+		}
+		long duration = System.currentTimeMillis() - start;
+		try {
+			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+					ClientMysqlModel.class);
+			apiRequestRecordService.save(model.getId(), model.getName(), model.getServiceType(),
+					clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, 1);
+		} catch (Exception e) {
+			LOG.error(e.toString());
+		}
+		return res;
+	}
 
     /**
      * 0.参考 SecureAggregation.query 返回结果
@@ -360,9 +386,9 @@ public class ServiceService {
         List<ServerConfig> serverConfigs = new LinkedList<>();
         List<SecureAggregationTransferVariable> transferVariables = new LinkedList<>();
 
-        for (int i = 0; i < size; i++) {
-            JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-            String supplieId = serviceConfig.getString("supplier_id");
+		for (int i = 0; i < size; i++) {
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			String supplieId = serviceConfig.getString("member_id");
 //			String supplierName = serviceConfig.getString("supplier_name");
             String name = serviceConfig.getString("name");
             String apiName = serviceConfig.getString("api_name");
@@ -501,35 +527,35 @@ public class ServiceService {
         return response;
     }
 
-    public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
-        ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
-        if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
-        }
-        int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-        String projectPath = System.getProperty("user.dir");
-        String outputPath = "";
-        List<File> fileList = new ArrayList<>();
-        String sdkZipName = "";
-        if (serviceType == 1) {
-            sdkZipName = "sdk.zip";
-            outputPath = projectPath + "/sdk_dir/" + sdkZipName;
-            // TODO 将需要提供的文件加到这个列表
-            fileList.add(new File(projectPath + "/sdk_dir/mpc-pir-sdk-1.0.0.jar"));
-            fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
-        } else if (serviceType == 2) {
-            sdkZipName = "sdk.zip";
-            outputPath = projectPath + "/sdk_dir/" + sdkZipName;
-            // TODO 将需要提供的文件加到这个列表
-            fileList.add(new File(projectPath + "/sdk_dir/mpc-psi-sdk-1.0.0.jar"));
-            fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
-        } else if (serviceType == 3 || serviceType == 4) {
-            sdkZipName = "sdk.zip";
-            outputPath = projectPath + "/sdk_dir/" + sdkZipName;
-            // TODO 将需要提供的文件加到这个列表
-            fileList.add(new File(projectPath + "/sdk_dir/mpc-sa-sdk-1.0.0.jar"));
-            fileList.add(new File(projectPath + "/sdk_dir/readme.md"));
-        }
+	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
+		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+		}
+		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+		String basePath = config.getFileBasePath();
+		String outputPath = "";
+		List<File> fileList = new ArrayList<>();
+		String sdkZipName = "";
+		if (serviceType == 1) {
+			sdkZipName = "sdk.zip";
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(basePath + "sdk_dir/mpc-pir-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
+		} else if (serviceType == 2) {
+			sdkZipName = "sdk.zip";
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(basePath + "sdk_dir/mpc-psi-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
+		} else if (serviceType == 3 || serviceType == 4) {
+			sdkZipName = "sdk.zip";
+			outputPath = basePath + "sdk_dir/" + sdkZipName;
+			// TODO 将需要提供的文件加到这个列表
+			fileList.add(new File(basePath + "sdk_dir/mpc-sa-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "sdk_dir/readme.md"));
+		}
 
         FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
         ZipUtils.toZip(fileList, fos2);

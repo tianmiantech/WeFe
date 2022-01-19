@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
@@ -138,10 +139,6 @@ public class JdbcManager {
 		try {
 			ps = conn.prepareStatement("show tables");
 			rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				return tables;
-			}
 			while (rs.next()) {
 				String tableName = rs.getString(1);
 				tables.add(tableName);
@@ -211,10 +208,6 @@ public class JdbcManager {
 		try {
 			ps = conn.prepareStatement("desc " + tableName);
 			rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				return fieldMap;
-			}
 			while (rs.next()) {
 				String fieldName = rs.getString(1);
 				String fieldType = rs.getString(2);
@@ -244,7 +237,7 @@ public class JdbcManager {
 		return true;
 	}
 
-	public void batchInsert(Connection conn, String sql, List<String> ids) throws SQLException {
+	public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
 		long start = System.currentTimeMillis();
 		conn.setAutoCommit(false);
 		PreparedStatement ps = null;

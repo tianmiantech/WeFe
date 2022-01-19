@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -188,7 +189,7 @@ public class DataSourceService {
 	}
 
 	public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-			String password, String databaseName, List<String> ids) throws StatusCodeWithException {
+			String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
 		if (conn != null) {
