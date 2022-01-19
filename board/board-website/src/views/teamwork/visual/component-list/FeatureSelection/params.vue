@@ -81,12 +81,12 @@
                     <el-table-column prop="name" label="特征名称"></el-table-column>
                     <el-table-column label="数据类型">
                         <template v-slot="scope">
-                            {{ vData.dataSetObj[scope.row.name].data_type }}
+                            {{ vData.dataSetObj[scope.row.name] ? vData.dataSetObj[scope.row.name].data_type : '' }}
                         </template>
                     </el-table-column>
                     <el-table-column label="注释">
                         <template v-slot="scope">
-                            {{ vData.dataSetObj[scope.row.name].comment }}
+                            {{ vData.dataSetObj[scope.row.name] ? vData.dataSetObj[scope.row.name].comment : '' }}
                         </template>
                     </el-table-column>
                 </el-table>
@@ -298,7 +298,7 @@
                             const { params } = data || {};
 
                             vData.hasError = '';
-                            if (params) {
+                            if (params.members) {
                                 const {
                                     strategies,
                                     members,
@@ -508,6 +508,7 @@
                                     $checkedColumns:    '',
                                 };
                             });
+                            console.log(vData.manualLastList);
                             nextTick(_ => {
                                 CheckFeatureDialogRef.value.methods.show();
                             });
