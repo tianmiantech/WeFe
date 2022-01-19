@@ -44,7 +44,9 @@ public class TestDBConnectApi extends AbstractApi<AddApi.DataSourceAddInput, Tes
 		} else {
 			DataSourceMySqlModel dataSource = dataSourceService.getDataSourceById(input.getId());
 			return success(dataSourceService.testDBConnect(dataSource.getDatabaseType(), dataSource.getHost(),
-					dataSource.getPort(), dataSource.getUserName(), dataSource.getPassword(),
+					dataSource.getPort(), dataSource.getUserName(),
+					input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? dataSource.getPassword()
+							: input.getPassword(),
 					dataSource.getDatabaseName()));
 		}
 	}
