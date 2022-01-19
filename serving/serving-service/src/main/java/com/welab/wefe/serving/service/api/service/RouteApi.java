@@ -45,7 +45,7 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	public static class Input extends AbstractApiInput {
 		
-		private String customerId;
+		private String customerId; //客户ID
 		private String data;
 
 		public String getCustomerId() {
