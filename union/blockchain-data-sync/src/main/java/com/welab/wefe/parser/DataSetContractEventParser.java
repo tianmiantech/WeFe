@@ -41,6 +41,7 @@ public class DataSetContractEventParser extends AbstractParser {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetExtJSON.class) : new DataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.DataSet.INSERT_EVENT:
+                extJSON.setEnable(true);
             case EventConstant.DataSet.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;
