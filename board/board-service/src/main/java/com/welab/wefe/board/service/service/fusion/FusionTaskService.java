@@ -409,6 +409,11 @@ public class FusionTaskService extends AbstractService {
                 throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
             }
             model.setRowCount(bloomFilter.getTotalDataCount());
+            model.setHashFunction(
+                    PrimaryKeyUtils.hashFunction(
+                            fieldInfoService.fieldInfoList(model.getDataResourceId())
+                    )
+            );
         }
 
         fusionTaskRepository.save(model);
@@ -464,19 +469,18 @@ public class FusionTaskService extends AbstractService {
             myMemberInfo.setColumnNameList(tableDataSet.getColumnNameList());
             myMemberInfo.setDataResourceName(tableDataSet.getName());
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
-        }else {
+        } else {
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getDataResourceId()));
             BloomFilterMysqlModel tableDataSet = bloomFilterService.findOne(myMemberInfo.getDataResourceId());
             myMemberInfo.setDataResourceName(tableDataSet.getName());
         }
 
 
-
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());
 //        memberInfo.setDataResourceName(Cache);
-       JSONObject jsonObject = unionService.getDataResourceDetail(model.getPartnerDataResourceId(), model.getPartnerDataResourceType(), JSONObject.class);
-       memberInfo.setDataResourceName(jsonObject.getString("name"));
+        JSONObject jsonObject = unionService.getDataResourceDetail(model.getPartnerDataResourceId(), model.getPartnerDataResourceType(), JSONObject.class);
+        memberInfo.setDataResourceName(jsonObject.getString("name"));
         memberInfo.setDataResourceType(model.getPartnerDataResourceType());
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
