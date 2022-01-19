@@ -37,8 +37,8 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/fruit/preview", name = "结果预览", desc = "结果预览",login = false)
-public class FruitPreviewApi extends AbstractApi<FruitPreviewApi.Input, FruitPreviewApi.Output> {
+@Api(path = "fusion/result/preview", name = "结果预览", desc = "结果预览",login = false)
+public class ResultPreviewApi extends AbstractApi<ResultPreviewApi.Input, ResultPreviewApi.Output> {
 
     @Autowired
     FusionTaskService fusionTaskService;
@@ -48,7 +48,7 @@ public class FruitPreviewApi extends AbstractApi<FruitPreviewApi.Input, FruitPre
     FusionResultStorageService fusionResultStorageService;
 
     @Override
-    protected ApiResult<FruitPreviewApi.Output> handle(Input input) throws Exception {
+    protected ApiResult<ResultPreviewApi.Output> handle(Input input) throws Exception {
         FusionTaskMySqlModel model = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (model == null) {
             return success();
@@ -58,7 +58,7 @@ public class FruitPreviewApi extends AbstractApi<FruitPreviewApi.Input, FruitPre
         DataItemModel headerModel = fusionResultStorageService.getByKey(
                 Constant.DBName.WEFE_DATA,
                 fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()) + ".meta",
-                "sid"
+                "header"
         );
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
         List<List<String>> rows = fusionResultStorageService.previewDataSet(
@@ -79,7 +79,7 @@ public class FruitPreviewApi extends AbstractApi<FruitPreviewApi.Input, FruitPre
             list.add(item);
         }
 
-        return success(new FruitPreviewApi.Output(columns, list));
+        return success(new ResultPreviewApi.Output(columns, list));
     }
 
     public static class Input extends AbstractApiInput {
