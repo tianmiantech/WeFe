@@ -252,7 +252,7 @@ class VertSecureBoostingProvider(BoostingTree):
 
     def fit_a_booster(self, epoch_idx: int, booster_dim: int):
 
-        self.check_run_sp_opt()
+        # self.check_run_sp_opt()
         tree = VertDecisionTreeProvider(tree_param=self.tree_param)
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   valid_features=self.sample_valid_features(),

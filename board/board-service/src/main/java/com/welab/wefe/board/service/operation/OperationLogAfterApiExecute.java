@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,7 +69,8 @@ public class OperationLogAfterApiExecute implements AfterApiExecuteFunction {
     private boolean ignore(HttpServletRequest httpServletRequest, Api annotation) {
         // Automatically refresh from the front end without writing logs.
         if (httpServletRequest.getQueryString() != null) {
-            if (httpServletRequest.getQueryString().toLowerCase().contains("request-from-refresh")) {
+            String value = httpServletRequest.getParameter("request-from-refresh");
+            if (StringUtil.isNotEmpty(value) && "true".equals(value)) {
                 return true;
             }
         }

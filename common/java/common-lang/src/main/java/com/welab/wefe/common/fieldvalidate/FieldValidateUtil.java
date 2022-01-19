@@ -34,8 +34,7 @@ import java.util.regex.Pattern;
  * @author Zane
  */
 public class FieldValidateUtil {
-    private static final String[] XSS_KEYWORDS = {"iframe", "onload", "oninput", "onerror", "onclick", "confirm", "onfocus", "alert"};
-    private static final String[] REACTIONARY_KEYWORD = {"习近平", "毛民进党", "反党", "反共"};
+    private static final String[] XSS_KEYWORDS = {">", "<"};
 
     /**
      * Normalize the value of the field
@@ -144,13 +143,13 @@ public class FieldValidateUtil {
             return;
         }
 
-        for (String keyword : REACTIONARY_KEYWORD) {
-            if (valueStr.contains(keyword)) {
-                StatusCode
-                        .PARAMETER_VALUE_INVALID
-                        .throwException(fieldName + " 包含不允许的输入：" + keyword);
-            }
+        String keyword = ReactionaryKeywords.match(valueStr);
+        if (StringUtil.isNotEmpty(keyword)) {
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException(fieldName + " 包含不允许的输入：" + keyword);
         }
+
 
     }
 
