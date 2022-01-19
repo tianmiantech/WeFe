@@ -442,7 +442,7 @@ public class ServiceService {
                 resultMap = new HashMap<>();
             }
             resultStr = resultMap.get(resultfields);// 目前只支持一个返回值
-            System.out.println(queryParams.toJSONString() + "\t " + resultStr);
+            LOG.info(queryParams.toJSONString() + "\t " + resultStr);
         } catch (StatusCodeWithException e) {
             throw e;
         }
@@ -500,7 +500,7 @@ public class ServiceService {
                     resultMap.put("rand", "thisisrandomstring");
                 }
                 String resultStr = JObject.toJSONString(resultMap);
-                System.out.println(id + "\t " + resultStr);
+                LOG.info(id + "\t " + resultStr);
                 result.put(id, resultStr);
             } catch (StatusCodeWithException e) {
                 throw e;
