@@ -76,6 +76,7 @@ import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
@@ -327,10 +328,12 @@ public class ServiceService {
 		if (model == null || model.getStatus() != 1) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
 		} else {
-			ClientMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
+			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
+			ClientServiceMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
 					input.getCustomerId());
-			if (clientMysqlModel == null || clientMysqlModel.getStatus() != 1
-					|| !Arrays.asList(clientMysqlModel.getIpAdd().split(",|，")).contains(clientIp)) {
+			if (clientMysqlModel == null || client == null || client.getStatus() != 1
+					|| clientMysqlModel.getStatus() != 1
+					|| !Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
 				return JObject.create("message", "invalid request: url = " + serviceUrl);
 			}
 			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合

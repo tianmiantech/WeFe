@@ -101,6 +101,11 @@ public class ClientService {
 		return clientServiceRepository.findOne(where).orElse(null);
 	}
     
+	public ClientMysqlModel queryByClientId(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		return model;
+	}
+	
 	public QueryClientApi.Output queryById(String id) {
 		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
 		return ModelMapper.map(model, QueryClientApi.Output.class);
