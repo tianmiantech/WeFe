@@ -16,24 +16,26 @@
 
 package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.common.StatusCode;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
 import com.welab.wefe.serving.service.api.client.SaveClientApi;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 import com.welab.wefe.serving.service.utils.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
@@ -41,6 +43,8 @@ public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private ClientServiceRepository clientServiceRepository;
 
 
     public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException {
@@ -91,10 +95,10 @@ public class ClientService {
         );
     }
 
-	public ClientMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
-		Specification<ClientMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
-				.build(ClientMysqlModel.class);
-		return clientRepository.findOne(where).orElse(null);
+	public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+		Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
+				.build(ClientServiceMysqlModel.class);
+		return clientServiceRepository.findOne(where).orElse(null);
 	}
     
 	public QueryClientApi.Output queryById(String id) {
