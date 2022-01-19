@@ -59,16 +59,18 @@
                         vData.columns = [];
                     }
 
-                    nextTick(_ => {
-                        const $ref = encryptionGeneratorRef.value;
+                    if(fields && fields.length) {
+                        nextTick(_ => {
+                            const $ref = encryptionGeneratorRef.value;
 
-                        $ref.vData.encryptionList = fields.map(x => {
-                            return {
-                                features:   x.column_list,
-                                encryption: x.options,
-                            };
+                            $ref.vData.encryptionList = fields.map(x => {
+                                return {
+                                    features:   x.column_list,
+                                    encryption: x.options,
+                                };
+                            });
                         });
-                    });
+                    }
                 },
                 confirm() {
                     const $ref = encryptionGeneratorRef.value;

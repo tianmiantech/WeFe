@@ -80,10 +80,7 @@
                                 <template v-slot="scope">
                                     <span style="display:none;">{{ scope.row }}</span>
                                     {{ vData.promoter.name }}
-                                    <el-tag
-                                        v-if="vData.provider.data_resource_type === 'BloomFilter'"
-                                        type="primary"
-                                    >
+                                    <el-tag v-if="vData.promoter.data_resource_type === 'BloomFilter'">
                                         bf
                                     </el-tag>
                                     <p class="p-id f12">{{ vData.promoter.data_set_id }}</p>
@@ -154,7 +151,7 @@
                             <template v-slot="scope">
                                 <span style="display:none;">{{ scope.row }}</span>
                                 {{ vData.provider.name }}
-                                <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'" type="primary">
+                                <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'">
                                     bf
                                 </el-tag>
                                 <p class="p-id f12">{{ vData.provider.data_set_id }}</p>
@@ -170,7 +167,7 @@
                             <template v-slot="scope">
                                 <span style="display:none;">{{ scope.row }}</span>
                                 <el-button
-                                    v-if="vData.provider.data_resource_type !== 'BloomFilter' && vData.provider.member_id === userInfo.member_id"
+                                    v-if="vData.status === 'Pending' && vData.provider.data_resource_type !== 'BloomFilter' && vData.provider.member_id === userInfo.member_id"
                                     @click="methods.fusionKeyMapsDialog('provider')"
                                 >
                                     设置
@@ -249,7 +246,7 @@
                     </el-button>
                 </template>
                 <el-button
-                    v-if="vData.myRole === 'promoter' && vData.status === 'Refuse'"
+                    v-if="vData.myRole === 'promoter' && (vData.status === 'Refuse' || vData.status === 'Interrupt' || vData.status === 'Failure' || vData.status === 'Success')"
                     type="primary"
                     @click="methods.submit"
                 >
@@ -495,14 +492,7 @@
                     fusionDataResourcesRef.value.vData.show = false;
                     vData[role].data_set_id = item.data_set_id;
                     vData[role].name = item.data_set.name;
-                    if(item.data_set.feature_name_list) {
-                        vData[role].columns = item.data_set.feature_name_list.split(',').map(x=> {
-                            return {
-                                label: x,
-                                value: x,
-                            };
-                        });
-                    }
+                    vData[role].columns = item.data_set.column_name_list || '';
                     vData[role].hash_func = item.data_set.hash_function;
                     vData[role].total_data_count = item.data_set.total_data_count;
                     vData[role].data_resource_type = item.data_resource_type;
@@ -572,7 +562,7 @@
                 audit(event, status) {
                     const fields = vData.field_info_list;
 
-                    if(Array.isArray(fields) && !fields.length || fields == null) return $message.error('请先设置融合公式');
+                    if(status === 'agree' && Array.isArray(fields) && !fields.length || fields == null) return $message.error('请先设置融合公式');
 
                     $prompt('请输入审核意见', status ? '警告' : '拒绝本次合作', {
                         inputPattern:      !/^\s/,
@@ -610,7 +600,7 @@
                             data_resource_id:           vData.promoter.data_set_id,
                             dst_member_id:              vData.provider.member_id,
                             trace_column:               vData.trace_column,
-                            field_info_list:            vData.field_info_list,
+                            field_info_list:            vData.field_info_list || [],
                             row_count:                  vData.promoter.total_data_count,
                             is_trace:                   vData.is_trace,
                             partner_data_resource_id:   vData.provider.data_set_id,

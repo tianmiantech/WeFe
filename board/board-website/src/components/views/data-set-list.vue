@@ -69,9 +69,7 @@
                 align="center"
             >
                 <template v-slot="scope">
-                    <p>
-                        {{scope.row.data_set ? scope.row.data_set.data_resource_type : scope.row.data_resource_type}}
-                    </p>
+                    {{ sourceTypeMap[scope.row.data_resource_type ]}}
                 </template>
             </el-table-column>
             <el-table-column
@@ -284,6 +282,11 @@
                 batchList:       [],
                 isShowData:      false,
                 requestMethod:   'post',
+                sourceTypeMap:   {
+                    BloomFilter:  '布隆过滤器',
+                    ImageDataSet: 'ImageDataSet',
+                    TableDataSet: 'TableDataSet',
+                },
             };
         },
         computed: {
