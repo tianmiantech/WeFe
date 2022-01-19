@@ -167,7 +167,8 @@ public class FusionTaskService extends AbstractService {
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
             task.setPsiActuatorRole(PSIActuatorRole.client);
         }
-
+        JSONObject jsonObject = unionService.getDataResourceDetail(input.getPartnerDataResourceId(), input.getPartnerDataResourceType(), JSONObject.class);
+        task.setPartnerHashFunction(jsonObject.getString("hash_function"));
         task.setHashFunction(
                 PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
         );
@@ -216,6 +217,7 @@ public class FusionTaskService extends AbstractService {
 
 
     public void handle(AuditApi.Input input) throws StatusCodeWithException {
+
         FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
@@ -250,7 +252,8 @@ public class FusionTaskService extends AbstractService {
                 task.getBusinessId(),
                 input.getAuditStatus(),
                 input.getAuditComment(),
-                PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
+                DataResourceType.BloomFilter.equals(task.getDataResourceType()) ?
+                        null : PrimaryKeyUtils.hashFunction(input.getFieldInfoList())
         );
     }
 

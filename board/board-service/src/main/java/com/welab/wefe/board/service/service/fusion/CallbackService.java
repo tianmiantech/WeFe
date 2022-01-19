@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
@@ -92,7 +93,9 @@ public class CallbackService {
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
         }
-        task.setPartnerHashFunction(input.getPartnerHashFunction());
+        if(StringUtil.isNotEmpty(input.getPartnerHashFunction())){
+            task.setPartnerHashFunction(input.getPartnerHashFunction());
+        }
         task.setStatus(FusionTaskStatus.Running);
         fusionTaskRepository.save(task);
 
