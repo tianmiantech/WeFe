@@ -155,7 +155,7 @@
                             <el-option
                                 v-for="item in data_sources"
                                 :key="item.id"
-                                :label="item.database_name"
+                                :label="`${item.database_name} (${item.name})`"
                                 :value="item.id"
                             />
                         </el-select>
@@ -578,7 +578,6 @@
 
                         if(params) {
                             this.form.paramsArr = params.map(x => {
-                                console.log(x);
                                 return {
                                     label: x,
                                     value: x,

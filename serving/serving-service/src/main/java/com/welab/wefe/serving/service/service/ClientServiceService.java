@@ -16,11 +16,14 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
+import com.welab.wefe.serving.service.api.clientservice.UpdateApi;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
@@ -31,6 +34,7 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +56,7 @@ public class ClientServiceService {
     @Autowired
     private FeeConfigRepository feeConfigRepository;
 
-    public void save(SaveApi.Input input) {
+    public void save(SaveApi.Input input) throws StatusCodeWithException {
 
         Specification<ClientServiceMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
@@ -61,22 +65,18 @@ public class ClientServiceService {
 
         // check the client-service by ids
         Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
-        ClientServiceMysqlModel model = clientServiceMysqlModel.orElse(new ClientServiceMysqlModel());
 
-        if (null != input.getStatus()) {
-            model.setStatus(input.getStatus());
-        }
 
         if (!clientServiceMysqlModel.isPresent()) {
-            model = new ClientServiceMysqlModel();
+            ClientServiceMysqlModel model = new ClientServiceMysqlModel();
             if (StringUtil.isNotEmpty(input.getClientId())) {
                 model.setClientId(input.getClientId());
             }
             if (StringUtil.isNotEmpty(input.getServiceId())) {
                 model.setServiceId(input.getServiceId());
             }
-            clientServiceRepository.save(model);
 
+            clientServiceRepository.save(model);
             FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
             feeConfigMysqlModel.setServiceId(input.getServiceId());
             feeConfigMysqlModel.setPayType(input.getPayType());
@@ -85,12 +85,31 @@ public class ClientServiceService {
             feeConfigRepository.save(feeConfigMysqlModel);
 
         } else {
-            // exist, then update client-service
-            model = clientServiceMysqlModel.get();
-            model.setUpdatedTime(new Date());
-            clientServiceRepository.updateByParam(model.getServiceId(), model.getClientId(), model.getStatus(),
-                    model.getUpdatedBy(), model.getUpdatedTime());
+            throw new StatusCodeWithException(StatusCode.CLIENT_SERVICE_ALREADY_HAS);
+        }
+    }
 
+
+    public PagingOutput<ClientServiceOutputModel> queryList(QueryListApi.Input input) {
+        List<ClientServiceOutputModel> list = clientServiceQueryRepository.queryClientServiceList(input.getServiceName(), input.getClientName(), input.getStatus());
+        return PagingOutput.of(list.size(), list);
+    }
+
+    public ClientServiceOutputModel queryOne(QueryApi.Input input) {
+        return clientServiceQueryRepository.queryOne(input.getId());
+
+    }
+
+    public void update(UpdateApi.Input input) {
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId())
+                .build(ClientServiceMysqlModel.class);
+
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (optional.isPresent()) {
+            clientServiceRepository.updateByParam(input.getServiceId(), input.getClientId(), input.getStatus(),
+                    "", new Date());
 
             Specification<FeeConfigMysqlModel> feeWhere = Where.create()
                     .equal("serviceId", input.getServiceId())
@@ -105,22 +124,6 @@ public class ClientServiceService {
                 feeConfigMysqlModel.setUpdatedTime(new Date());
                 feeConfigRepository.save(feeConfigMysqlModel);
             }
-
         }
-
-
     }
-
-
-    public PagingOutput<ClientServiceOutputModel> queryList(QueryListApi.Input input) {
-        List<ClientServiceOutputModel> list = clientServiceQueryRepository.queryClientServiceList(input.getServiceName(), input.getClientName(), input.getStatus());
-        return PagingOutput.of(list.size(), list);
-    }
-
-    public ClientServiceOutputModel queryOne(QueryApi.Input input) {
-        return clientServiceQueryRepository.queryOne(input.getId());
-
-    }
-
-
 }

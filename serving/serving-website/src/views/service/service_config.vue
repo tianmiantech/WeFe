@@ -43,6 +43,11 @@
                 label="服务名称"
                 prop="name"
             />
+            <el-table-column label="服务类型">
+                <template slot-scope="scope">
+                    {{ serviceTypeMap[scope.row.service_type] }}
+                </template>
+            </el-table-column>
             <el-table-column label="创建时间">
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -98,10 +103,18 @@
                     name:         '',
                     service_type: 3,
                 },
-                fillUrlQuery: false,
-                checkedIds:   [],
-                checkedRows:  [],
-                getListApi:   '/service/union/query',
+                fillUrlQuery:   false,
+                checkedIds:     [],
+                checkedRows:    [],
+                getListApi:     '/service/union/query',
+                serviceTypeMap: {
+                    1: '两方匿踪查询',
+                    2: '两方交集查询',
+                    3: '多方安全统计(被查询方)',
+                    4: '多方安全统计(查询方)',
+                    5: '多方交集查询',
+                    6: '多方匿踪查询',
+                },
             };
         },
         methods: {
