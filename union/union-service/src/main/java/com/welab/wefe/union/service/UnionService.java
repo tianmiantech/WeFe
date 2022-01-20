@@ -147,7 +147,6 @@ public class UnionService implements ApplicationContextAware {
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }
-
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }

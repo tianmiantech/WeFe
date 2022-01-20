@@ -24,6 +24,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.enums.FilePublicLevel;
 import com.welab.wefe.common.enums.FileRurpose;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -73,7 +74,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
         LOG.info("FileUploadApi handle..");
 
-        if (!FileRurpose.RealnameAuth.name().equals(input.getPurpose())) {
+        if (FileRurpose.RealnameAuth != input.purpose) {
             throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "purpose");
         }
 
@@ -86,7 +87,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)
-                        .append("metadata.memberId", input.getMemberId())
+                        .append("metadata.memberId", input.getCurMemberId())
                         .build()
         );
 
@@ -96,23 +97,24 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             Document metadata = new Document();
             metadata.append("contentType", contentType);
             metadata.append("sign", sign);
-            metadata.append("memberId", input.getMemberId());
+            metadata.append("memberId", input.curMemberId);
 
             options.metadata(metadata);
 
             fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
 
             saveFileInfoToBlockchain(
-                    input.memberId,
+                    input.curMemberId,
                     fileId,
                     fileName,
                     sign,
                     input.getFirstFile().getSize(),
-                    input.purpose,
+                    input.purpose.name(),
+                    input.filePublicLevel.name(),
                     input.describe
             );
 
-            syncDataToOtherUnionNode(fileStreamBodyMap, fileId);
+            syncDataToOtherUnionNode(input.curMemberId, fileStreamBodyMap);
 
         } else {
             fileId = gridFSFile.getObjectId().toString();
@@ -123,7 +125,16 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
     }
 
 
-    private void saveFileInfoToBlockchain(String memberId, String fileId, String fileName, String fileSign, long fileSize, String purpose, String describe) throws StatusCodeWithException {
+    private void saveFileInfoToBlockchain(
+            String memberId,
+            String fileId,
+            String fileName,
+            String fileSign,
+            long fileSize,
+            String purpose,
+            String filePublicLevel,
+            String describe
+    ) throws StatusCodeWithException {
         MemberFileInfo memberFileInfo = new MemberFileInfo();
         memberFileInfo.setFileId(fileId);
         memberFileInfo.setMemberId(memberId);
@@ -131,8 +142,8 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         memberFileInfo.setFileSign(fileSign);
         memberFileInfo.setFileSize(String.valueOf(fileSize));
         memberFileInfo.setBlockchainNodeId(UnionNodeConfigCache.currentBlockchainNodeId);
-        memberFileInfo.setPurpose(purpose);
-        memberFileInfo.setEnable("1");
+        memberFileInfo.setRurpose(purpose);
+        memberFileInfo.setFilePublicLevel(filePublicLevel);
         memberFileInfo.setDescribe(describe);
         memberFileInfoContractService.add(memberFileInfo);
     }
@@ -160,7 +171,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         return fileStreamBodyMap;
     }
 
-    private void syncDataToOtherUnionNode(Map<String, InputStreamBody> fileStreamBodyMap, String fileId) {
+    private void syncDataToOtherUnionNode(String memberId, Map<String, InputStreamBody> fileStreamBodyMap) {
         List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(UnionNodeConfigCache.currentBlockchainNodeId);
         for (UnionNode unionNode :
                 unionNodeList) {
@@ -168,7 +179,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             new UploadFileSyncToUnionTask(
                     unionNode.getBaseUrl(),
                     "member/file/upload/sync",
-                    JObject.create("fileId", fileId),
+                    JObject.create("memberId", memberId),
                     fileStreamBodyMap
             ).start();
         }
@@ -176,11 +187,12 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
     public static class Input extends AbstractWithFilesApiInput {
         @Check(require = true)
-        private String memberId;
+        private String curMemberId;
         @Check(require = true)
         private String filename;
         @Check(require = true)
-        private String purpose;
+        private FileRurpose purpose;
+        private FilePublicLevel filePublicLevel = FilePublicLevel.Private;
         private String describe;
 
         public String getFilename() {
@@ -191,19 +203,19 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
             this.filename = filename;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public String getCurMemberId() {
+            return curMemberId;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setCurMemberId(String curMemberId) {
+            this.curMemberId = curMemberId;
         }
 
-        public String getPurpose() {
+        public FileRurpose getPurpose() {
             return purpose;
         }
 
-        public void setPurpose(String purpose) {
+        public void setPurpose(FileRurpose purpose) {
             this.purpose = purpose;
         }
 
