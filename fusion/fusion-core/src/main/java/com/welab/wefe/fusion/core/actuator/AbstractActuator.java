@@ -134,8 +134,10 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @return
      */
-    public Double progress() {
-        return processedCount.doubleValue() / dataCount.doubleValue();
+    public int progress() {
+        return Double.valueOf(
+                processedCount.doubleValue() / dataCount.doubleValue() * 100
+        ).intValue();
     }
 
     protected void preprocess() {

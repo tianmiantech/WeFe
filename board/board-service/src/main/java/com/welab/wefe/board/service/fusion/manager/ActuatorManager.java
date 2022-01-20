@@ -104,7 +104,7 @@ public class ActuatorManager {
                     .append("spend", actuator.getSpend())
                     .append("status", "Running")
                     .append("estimated_spend", actuator.getEstimatedSpend())
-                    .append("progress", actuator.progress() * 100.0);
+                    .append("progress", actuator.progress());
         }
 
         FusionTaskMySqlModel model = fusionTaskService.findByBusinessId(businessId);
@@ -117,7 +117,11 @@ public class ActuatorManager {
                     .append("data_count", model.getDataCount())
                     .append("spend", model.getSpend())
                     .append("status", model.getStatus())
-                    .append("progress", (model.getProcessedCount().doubleValue() / model.getDataCount().doubleValue()) * 100.0);
+                    .append("progress",
+                            Double.valueOf(
+                                    model.getProcessedCount().doubleValue() / model.getDataCount() * 100
+                            ).intValue()
+                    );
         }
 
         return null;
