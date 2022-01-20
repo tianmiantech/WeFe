@@ -208,7 +208,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                                                                    role=consts.PROMOTER,
                                                                    idx=-1,
                                                                    suffix=(dep, batch,))
-            elif mode == consts.MIX_TREE:
+            elif mode == consts.SKIP_TREE:
                 return unmasked_split_info
         else:
             LOGGER.debug('skip provider computation')
@@ -395,9 +395,9 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         g_sum, h_sum = gh_list
         return g_sum, h_sum
 
-    def mix_mode_fit(self):
+    def skip_mode_fit(self):
 
-        LOGGER.info('running mix mode')
+        LOGGER.info('running skip mode')
 
         if self.tree_type == plan.tree_type_dict['promoter_feat_only']:
             LOGGER.debug('this tree uses promoter feature only, skip')
@@ -436,14 +436,14 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
                                                                                 node_map=self.get_node_map(
                                                                                     self.cur_split_nodes),
                                                                                 dep=dep, batch=batch,
-                                                                                mode=consts.MIX_TREE)
+                                                                                mode=consts.SKIP_TREE)
                 else:
                     batch_split_info = self.compute_best_splits_with_node_plan(tree_action,
                                                                                str(layer_target_provider_id),
                                                                                node_map=self.get_node_map(
                                                                                    self.cur_split_nodes),
                                                                                dep=dep, batch_idx=batch,
-                                                                               mode=consts.MIX_TREE)
+                                                                               mode=consts.SKIP_TREE)
                 batch += 1
                 split_info.extend(batch_split_info)
 
@@ -493,9 +493,9 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
             else:
                 nid = tree_node[nid].right_nodeid
 
-    def mix_mode_predict(self, data_inst):
+    def skip_mode_predict(self, data_inst):
 
-        LOGGER.debug('running mix mode predict')
+        LOGGER.debug('running skip mode predict')
 
         if not self.use_promoter_feat_when_predict and str(self.target_provider_id) == self.self_provider_id:
             LOGGER.info('predicting using local nodes')
@@ -572,7 +572,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
 
         if self.tree_type == plan.tree_type_dict['promoter_feat_only'] or \
                 self.tree_type == plan.tree_type_dict['provider_feat_only']:
-            self.mix_mode_fit()
+            self.skip_mode_fit()
         else:
             self.layered_mode_fit()
 
@@ -585,7 +585,7 @@ class VertFastDecisionTreeProvider(VertDecisionTreeProvider):
         if self.tree_type == plan.tree_type_dict['promoter_feat_only'] or \
                 self.tree_type == plan.tree_type_dict['provider_feat_only']:
 
-            self.mix_mode_predict(data_inst)
+            self.skip_mode_predict(data_inst)
 
         else:
             LOGGER.debug('running layered mode predict')

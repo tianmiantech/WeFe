@@ -54,7 +54,7 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
         self.tree_num_per_member = 1
         self.promoter_depth = 0
         self.provider_depth = 0
-        self.work_mode = consts.MIX_TREE
+        self.work_mode = consts.SKIP_TREE
         self.tree_plan = []
         self.model_param = VertFastSecureBoostParam()
         self.model_name = 'VertFastSecureBoost'
@@ -191,7 +191,7 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
     def traverse_provider_local_trees(node_pos, sample, trees: List[VertFastDecisionTreeProvider]):
 
         """
-        in mix mode, a sample can reach leaf directly
+        in skip mode, a sample can reach leaf directly
         """
 
         for i in range(len(trees)):
@@ -210,9 +210,9 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
 
         LOGGER.info('fast sbt running predict')
 
-        if self.work_mode == consts.MIX_TREE:
+        if self.work_mode == consts.SKIP_TREE:
 
-            LOGGER.info('running mix mode predict')
+            LOGGER.info('running skip mode predict')
 
             tree_num = len(trees)
             node_pos = data_inst.mapValues(lambda x: np.zeros(tree_num, dtype=np.int64))
@@ -239,9 +239,9 @@ class VertFastSecureBoostingTreeProvider(VertSecureBoostingProvider):
         _, model_param = super(VertFastSecureBoostingTreeProvider, self).get_model_param()
         param_name = "VertFastSecureBoostingTreeProviderParam"
         model_param.tree_plan.extend(plan.encode_plan(self.tree_plan))
-        model_param.model_name = consts.VERT_FAST_SBT_MIX if self.work_mode == consts.MIX_TREE else \
+        model_param.model_name = consts.VERT_FAST_SBT_SKIP if self.work_mode == consts.SKIP_TREE else \
             consts.VERT_FAST_SBT_LAYERED
-        # in mix mode, provider can output feature importance
+        # in skip mode, provider can output feature importance
         feature_importances = list(self.feature_importances_.items())
         feature_importances = sorted(feature_importances, key=itemgetter(1), reverse=True)
         feature_importance_param = []
