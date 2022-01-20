@@ -151,8 +151,6 @@ export default {
                         this.$router.push({
                             name: 'client-list'
                         })
-                    } else {
-                        this.$message.error(message)
                     }
                 }
             });

@@ -66,7 +66,8 @@ public class FeeRecordService {
                     input.getStartTime(), input.getEndTime());
         }
 
-        return PagingOutput.of(total, models);
+
+        return PagingOutput.of(total == null ? 0 : total, models);
     }
 
 }
