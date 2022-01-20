@@ -25,10 +25,12 @@ import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.fusion.FusionMemberInfo;
+import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
 import com.welab.wefe.board.service.dto.fusion.FusionTaskOutput;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
+import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
@@ -471,6 +473,12 @@ public class FusionTaskService extends AbstractService {
         FusionTaskOutput output = ModelMapper.map(model, FusionTaskOutput.class);
 
         setMemberInfo(output);
+
+        //exportStatus
+        FusionResultExportProgress progress = ExportManager.get(model.getBusinessId());
+        if (progress != null) {
+            output.setExportStatus(progress.getStatus());
+        }
 
         return output;
     }

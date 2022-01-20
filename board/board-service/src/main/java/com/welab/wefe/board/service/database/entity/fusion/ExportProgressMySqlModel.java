@@ -51,6 +51,8 @@ public class ExportProgressMySqlModel extends AbstractBaseMySqlModel {
      */
     int processedCount;
 
+    long finishTime;
+
 
     public String getBusinessId() {
         return businessId;
@@ -90,5 +92,13 @@ public class ExportProgressMySqlModel extends AbstractBaseMySqlModel {
 
     public void setProcessedCount(int processedCount) {
         this.processedCount = processedCount;
+    }
+
+    public long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
     }
 }
