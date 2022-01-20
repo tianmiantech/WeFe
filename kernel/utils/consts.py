@@ -41,6 +41,9 @@ MAX_CLASSNUM = 1000
 MIN_BATCH_SIZE = 10
 SPARSE_VECTOR = "SparseVector"
 
+SSHE_LR = "sshe-lr"
+LR = "lr"
+
 VERT = "vert"
 HORZ = "horz"
 MIX = "mix"
