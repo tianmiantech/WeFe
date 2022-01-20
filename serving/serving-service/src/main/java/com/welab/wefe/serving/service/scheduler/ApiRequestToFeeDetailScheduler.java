@@ -16,6 +16,7 @@
 package com.welab.wefe.serving.service.scheduler;
 
 
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
@@ -53,7 +54,7 @@ public class ApiRequestToFeeDetailScheduler {
     @Autowired
     private FeeConfigService feeConfigService;
 
-    @Scheduled(cron = "0 0 */1 * * ?")
+    @Scheduled(cron = "0 0 0-23 * * ?")
     public void feeRecord() {
 
         Date endTime = new Date();
@@ -84,6 +85,8 @@ public class ApiRequestToFeeDetailScheduler {
             feeDetailMysqlModel.setServiceId(apiRequestRecordMysqlModel.getServiceId());
             feeDetailService.save(feeDetailMysqlModel);
 
+            logger.info("save fee detail by the time: " + DateUtil.getCurrentDate() + ", service id: "
+                    + apiRequestRecordMysqlModel.getServiceId() + ", client id: " + apiRequestRecordMysqlModel.getClientId());
         } else {
             logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
         }

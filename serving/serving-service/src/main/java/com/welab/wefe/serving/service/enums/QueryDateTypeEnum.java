@@ -26,7 +26,9 @@ public enum QueryDateTypeEnum {
 
     MONTH(2),
 
-    DAY(3);
+    DAY(3),
+
+    HOUR(4);
 
     private int value;
 

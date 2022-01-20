@@ -22,6 +22,7 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -34,21 +35,38 @@ public class FeeRecordService {
     @Autowired
     private FeeRecordRepository feeRecordRepository;
 
-
     public PagingOutput<FeeDetailOutputModel> queryList(QueryListApi.Input input) {
         List<FeeDetailOutputModel> models = null;
-        if (input.getQueryDateType() == null || input.getQueryDateType() == QueryDateTypeEnum.MONTH.getValue()) {
+        Integer total = 0;
+        if (input.getQueryDateType() == null || input.getQueryDateType() == QueryDateTypeEnum.HOUR.getValue()) {
+            models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y-%m-%d %H:00:00",
+                    input.getStartTime(), input.getEndTime(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
+            total = feeRecordRepository.count(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y-%m-%d %H:00:00",
+                    input.getStartTime(), input.getEndTime());
+        } else if (input.getQueryDateType() == QueryDateTypeEnum.YEAR.getValue()) {
 
             models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
-                    input.getServiceType(), "%Y-%m", input.getStartTime(), input.getEndTime());
-        } else if (input.getQueryDateType() == QueryDateTypeEnum.YEAR.getValue()) {
-            models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
-                    input.getServiceType(), "%Y", input.getStartTime(), input.getEndTime());
+                    input.getServiceType(), "%Y", input.getStartTime(), input.getEndTime(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
+            total = feeRecordRepository.count(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y",
+                    input.getStartTime(), input.getEndTime());
         } else if (input.getQueryDateType() == QueryDateTypeEnum.DAY.getValue()) {
             models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
-                    input.getServiceType(), "%Y-%m-%d", input.getStartTime(), input.getEndTime());
+                    input.getServiceType(), "%Y-%m-%d", input.getStartTime(), input.getEndTime(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
+            total = feeRecordRepository.count(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y-%m-%d",
+                    input.getStartTime(), input.getEndTime());
+        } else if (input.getQueryDateType() == QueryDateTypeEnum.MONTH.getValue()) {
+            models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y-%m", input.getStartTime(), input.getEndTime(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
+            total = feeRecordRepository.count(input.getClientName(), input.getServiceName(),
+                    input.getServiceType(), "%Y-%m",
+                    input.getStartTime(), input.getEndTime());
         }
-        return PagingOutput.of(models.size(), models);
+
+        return PagingOutput.of(total, models);
     }
 
 }

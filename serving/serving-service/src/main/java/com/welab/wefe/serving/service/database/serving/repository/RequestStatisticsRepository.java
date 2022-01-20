@@ -41,7 +41,7 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
      * @param endTime
      * @return
      */
-    @Query(value = "select t.service_id + '_' + t.client_id as id ,t.service_id as serviceId, t.service_name as serviceName, t.client_id as clientId, " +
+    @Query(value = "select concat(t.service_id ,t.client_id) as id, t.service_id as serviceId, t.service_name as serviceName, t.client_id as clientId, " +
             "t.client_name as clientName, t.total_spend as totalSpend, t.success_request as totalSuccessTimes, t.total_request as totalRequestTimes, " +
             "t.total_request - t.success_request as totalFailTimes, t.service_type as serviceType " +
             "from ( " +
@@ -52,8 +52,7 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "      if(:client_id != '', arr.client_id = :client_id, 1=1) and  " +
             "      arr.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') and  " +
             "      if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by arr.service_id, arr.client_id  " +
-            ")as t ", nativeQuery = true, countProjection = "1")
+            "group by arr.service_id, arr.client_id)as t ", nativeQuery = true, countProjection = "1")
     List<RequestStatisticsMysqlModel> groupByServiceIdAndClientId(@Param("service_id") String serviceId,
                                                                   @Param("client_id") String clientId,
                                                                   @Param("start_time") Long startTime,

@@ -41,7 +41,7 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
      * @param endTime
      * @return
      */
-    @Query(value = "select replace(uuid(),'-','') as id, s.name as service_name,fd.service_id as service_id, c.name as client_name, " +
+    @Query(value = "select concat(fd.service_id, fd.client_id) as id, s.name as service_name,fd.service_id as service_id, c.name as client_name, " +
             "fd.client_id as client_id ,s.service_type ,fc.unit_price,  " +
             "fc.pay_type, sum(fd.total_request_times) as total_request_times, sum(fd.total_fee) as total_fee, " +
             "DATE_FORMAT(fd.created_time ,:query_type) as query_date " +
@@ -55,11 +55,44 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
             "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
             "       and if(:end_time is not null ,:end_time ,NOW())  " +
             "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) " +
-            "order by fd.created_time desc ", nativeQuery = true, countProjection = "1")
+            "order by fd.created_time desc limit :pageOffset,:pageSize", nativeQuery = true, countProjection = "1")
     List<FeeDetailOutputModel> queryList(@Param("client_name") String clientName,
                                          @Param("service_name") String serviceName,
                                          @Param("service_type") Integer serviceType,
                                          @Param("query_type") String queryType,
                                          @Param("start_time") Long startTime,
-                                         @Param("end_time") Long endTime);
+                                         @Param("end_time") Long endTime,
+                                         @Param("pageOffset") Integer pageOffset,
+                                         @Param("pageSize") Integer pageSize);
+
+
+    /**
+     * count
+     *
+     * @param clientName
+     * @param serviceName
+     * @param serviceType
+     * @param queryType
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @Query(value = "select count(*) " +
+            "from fee_detail fd  " +
+            "left join service s on fd.service_id = s.id  " +
+            "left join client c on fd.client_id = c.id " +
+            "left join fee_config fc on fc.service_id = fd.service_id and fc.client_id = fd.client_id  " +
+            "where if(:service_name !='', s.name like concat('%',:service_name,'%'), 1=1) " +
+            "       and if(:client_name != '', c.name like concat('%',:client_name,'%'),1=1) " +
+            "       and if(:service_type is not null, s.service_type = :service_type,1=1) " +
+            "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
+            "       and if(:end_time is not null ,:end_time ,NOW())  " +
+            "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) " +
+            "order by fd.created_time desc ", nativeQuery = true, countProjection = "1")
+    Integer count(@Param("client_name") String clientName,
+                  @Param("service_name") String serviceName,
+                  @Param("service_type") Integer serviceType,
+                  @Param("query_type") String queryType,
+                  @Param("start_time") Long startTime,
+                  @Param("end_time") Long endTime);
 }
