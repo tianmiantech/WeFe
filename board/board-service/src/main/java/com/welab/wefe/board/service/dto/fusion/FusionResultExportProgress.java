@@ -37,6 +37,9 @@ public class FusionResultExportProgress {
 
     long finishTime;
 
+    public FusionResultExportProgress() {
+    }
+
     public FusionResultExportProgress(String businessId, String tableName, int totalDataCount) {
         this.businessId = businessId;
         this.totalDataCount = totalDataCount;
