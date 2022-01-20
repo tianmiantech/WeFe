@@ -356,7 +356,7 @@ class VertLogisticParam(LogisticParam):
                                                 use_first_metric_only=use_first_metric_only)
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
         self.sqn_param = copy.deepcopy(sqn_param)
-        self.method = lr_method
+        self.lr_method = lr_method
 
     def check(self):
         super().check()

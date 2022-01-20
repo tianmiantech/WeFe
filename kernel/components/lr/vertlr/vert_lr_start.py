@@ -28,7 +28,7 @@ class VertLRStart(ModelBase):
 
     def run(self, component_parameters=None, args=None):
         self._init_runtime_parameters(component_parameters)
-        lr_method = self.model_param.method
+        lr_method = self.model_param.lr_method
         LOGGER.debug(f'lr_method={lr_method}')
         if self.role == consts.PROMOTER:
             if lr_method == consts.SSHE_LR:
