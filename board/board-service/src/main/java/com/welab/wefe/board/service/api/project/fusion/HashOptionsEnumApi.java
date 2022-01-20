@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.api.project.fusion;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -16,6 +14,7 @@ package com.welab.wefe.board.service.api.project.fusion;
  * limitations under the License.
  */
 
+package com.welab.wefe.board.service.api.project.fusion;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
