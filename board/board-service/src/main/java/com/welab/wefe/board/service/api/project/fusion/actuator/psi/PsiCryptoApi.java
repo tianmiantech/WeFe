@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,6 +13,8 @@ package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
+
 
 
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;

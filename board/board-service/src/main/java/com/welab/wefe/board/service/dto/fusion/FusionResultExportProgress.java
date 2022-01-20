@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.dto.fusion;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,6 +13,8 @@ package com.welab.wefe.board.service.dto.fusion;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.dto.fusion;
+
 
 
 import com.welab.wefe.board.service.fusion.enums.ExportStatus;
@@ -77,8 +77,8 @@ public class FusionResultExportProgress {
         processedCount++;
 
         if (processedCount == totalDataCount) {
-            finishTime = System.currentTimeMillis();
-            status = ExportStatus.success;
+            this.finishTime = System.currentTimeMillis();
+            this.status = ExportStatus.success;
         }
     }
 

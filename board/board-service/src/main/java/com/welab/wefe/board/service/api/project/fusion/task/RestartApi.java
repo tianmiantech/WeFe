@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.api.project.fusion.task;
 
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
