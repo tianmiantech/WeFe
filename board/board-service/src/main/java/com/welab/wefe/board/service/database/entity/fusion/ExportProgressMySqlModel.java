@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.dto.fusion;
+package com.welab.wefe.board.service.database.entity.fusion;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
@@ -17,30 +17,59 @@ package com.welab.wefe.board.service.dto.fusion;
  */
 
 
+import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+
+import javax.persistence.Entity;
+
 /**
  * @author hunter.zhao
  */
-public class FusionResultExportProgress {
+@Entity(name = "fusion_result_export_progress")
+public class ExportProgressMySqlModel extends AbstractBaseMySqlModel {
+    /**
+     * 融合任务businessId
+     */
     String businessId;
 
+    /**
+     * 导出表名
+     */
     String tableName;
 
+    /**
+     * 进度
+     */
     int progress;
 
+    /**
+     * 导出总数
+     */
     int totalDataCount;
 
+    /**
+     * 已导出数量
+     */
     int processedCount;
 
-    public FusionResultExportProgress(String businessId, String tableName, int totalDataCount) {
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
         this.businessId = businessId;
-        this.totalDataCount = totalDataCount;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
         this.tableName = tableName;
     }
 
     public int getProgress() {
-        return Double.valueOf(
-                Double.valueOf(processedCount) / Double.valueOf(totalDataCount) * 100
-        ).intValue();
+        return progress;
     }
 
     public void setProgress(int progress) {
@@ -61,9 +90,5 @@ public class FusionResultExportProgress {
 
     public void setProcessedCount(int processedCount) {
         this.processedCount = processedCount;
-    }
-
-    public synchronized void increment() {
-        processedCount++;
     }
 }

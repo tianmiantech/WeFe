@@ -18,6 +18,8 @@ package com.welab.wefe.board.service.fusion.manager;
 
 
 import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
+import com.welab.wefe.board.service.service.fusion.ExportProgressService;
+import com.welab.wefe.common.web.Launcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,27 @@ public class ExportManager {
      */
     private static final ConcurrentHashMap<String, FusionResultExportProgress> EXPORT_TASK = new ConcurrentHashMap<>();
 
+    private static final ExportProgressService exportProgressService;
+
+    static {
+        exportProgressService = Launcher.CONTEXT.getBean(ExportProgressService.class);
+    }
+
     public static FusionResultExportProgress get(String businessId) {
+
+//        if (EXPORT_TASK.get(businessId) == null) {
+//            //直接查表
+//            ExportProgressMySqlModel model = exportProgressService.findByBusinessId(businessId);
+//            return ModelMapper.map(model, FusionResultExportProgress.class);
+//        }
+//
+//        FusionResultExportProgress progress = EXPORT_TASK.get(businessId);
+//        if (progress.getProgress() == 100) {
+//            //remove;
+//        }
+//
+//        return progress;
+
         return EXPORT_TASK.get(businessId);
     }
 

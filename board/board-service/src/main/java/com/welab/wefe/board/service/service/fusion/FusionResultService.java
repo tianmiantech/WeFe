@@ -82,7 +82,7 @@ public class FusionResultService extends AbstractService {
         String tableName = "fusion_result_" + input.getBusinessId() + "_" + DateUtil.toString(new Date(), DateUtil.Y4_M2_D2_H2_M2_S2);
         create(columns, conn, tableName);
 
-        FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), allList.size());
+        FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
         ExportManager.set(input.getBusinessId(), progress);
 
         allList.forEach(x -> {
