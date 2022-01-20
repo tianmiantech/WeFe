@@ -86,7 +86,7 @@ class VertSecureBoostingProvider(BoostingTree):
         self.enable_goss = False
         # self.cipher_compressing = False
         # self.max_sample_weight = None
-        self.round_decimal = None
+        self.cipher_compressing = False
         self.new_ver = True
 
     def _init_model(self, param: VertSecureBoostParam):
@@ -95,7 +95,7 @@ class VertSecureBoostingProvider(BoostingTree):
         self.complete_secure = param.complete_secure
         self.sparse_opt_para = param.sparse_optimization
         self.enable_goss = param.run_goss
-        self.round_decimal = param.cipher_compress_error
+        self.cipher_compressing = param.cipher_compress
         self.new_ver = param.new_ver
 
     def convert_feature_to_bin(self, data_instance):
@@ -264,8 +264,7 @@ class VertSecureBoostingProvider(BoostingTree):
                   goss_subsample=self.enable_goss,
                   bin_num=self.bin_num,
                   complete_secure=True if (self.complete_secure and epoch_idx == 0) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
+                  cipher_compressing=self.cipher_compressing,
                   new_ver=self.new_ver
                   )
 

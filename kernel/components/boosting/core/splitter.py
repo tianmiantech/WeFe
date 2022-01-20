@@ -45,9 +45,11 @@ from kernel.utils import consts
 LOGGER = log_utils.get_logger()
 
 
+
 class SplitInfo(object):
     def __init__(self, sitename=consts.PROMOTER, best_fid=None, best_bid=None,
                  sum_grad=0, sum_hess=0, gain=None, missing_dir=1, mask_id=None, sample_count=-1):
+
         self.sitename = sitename
         self.best_fid = best_fid
         self.best_bid = best_bid
@@ -61,8 +63,8 @@ class SplitInfo(object):
     def __str__(self):
         return '(fid {} bid {}, sum_grad {}, sum_hess {}, gain {}, sitename {}, missing dir {}, mask_id {}, ' \
                'sample_count {})\n'.format(
-            self.best_fid, self.best_bid, self.sum_grad, self.sum_hess, self.gain, self.sitename, self.missing_dir,
-            self.mask_id, self.sample_count)
+                self.best_fid, self.best_bid, self.sum_grad, self.sum_hess, self.gain, self.sitename, self.missing_dir,
+                self.mask_id, self.sample_count)
 
     def __repr__(self):
         return self.__str__()
@@ -102,7 +104,11 @@ class Splitter(object):
     def _check_sample_num(self, l_cnt, r_cnt):
         return l_cnt >= self.min_leaf_node and r_cnt >= self.min_leaf_node
 
-    def find_split_single_histogram_promoter(self, histogram, valid_features, sitename, use_missing, zero_as_missing):
+    def find_split_single_histogram_promoter(self, histogram, valid_features, sitename, use_missing, zero_as_missing,
+                                          reshape_tuple=None):
+
+        if reshape_tuple:
+            histogram = histogram.reshape(reshape_tuple)
 
         # default values
         best_fid = None
@@ -145,8 +151,7 @@ class Splitter(object):
                 sum_hess_r = sum_hess - sum_hess_l
                 node_cnt_r = node_cnt - node_cnt_l
 
-                if self._check_sample_num(node_cnt_l, node_cnt_r) and self._check_min_child_weight(sum_hess_l,
-                                                                                                   sum_hess_r):
+                if self._check_sample_num(node_cnt_l, node_cnt_r) and self._check_min_child_weight(sum_hess_l, sum_hess_r):
                     gain = self.criterion.split_gain([sum_grad, sum_hess],
                                                      [sum_grad_l, sum_hess_l], [sum_grad_r, sum_hess_r])
 
@@ -171,8 +176,7 @@ class Splitter(object):
                     node_cnt_r -= histogram[fid][-1][2] - histogram[fid][-2][2]
 
                     # if have a better gain value, missing dir is left
-                    if self._check_sample_num(node_cnt_l, node_cnt_r) and self._check_min_child_weight(sum_hess_l,
-                                                                                                       sum_hess_r):
+                    if self._check_sample_num(node_cnt_l, node_cnt_r) and self._check_min_child_weight(sum_hess_l, sum_hess_r):
 
                         gain = self.criterion.split_gain([sum_grad, sum_hess],
                                                          [sum_grad_l, sum_hess_l], [sum_grad_r, sum_hess_r])
@@ -197,10 +201,10 @@ class Splitter(object):
         histogram_table = session.parallelize(histograms, include_key=False, partition=partitions)
         splitinfo_table = histogram_table.mapValues(lambda sub_hist:
                                                     self.find_split_single_histogram_promoter(sub_hist,
-                                                                                              valid_features,
-                                                                                              sitename,
-                                                                                              use_missing,
-                                                                                              zero_as_missing))
+                                                                                           valid_features,
+                                                                                           sitename,
+                                                                                           use_missing,
+                                                                                           zero_as_missing))
 
         tree_node_splitinfo = [None for i in range(len(histograms))]
         for id, splitinfo in splitinfo_table.collect():
@@ -209,7 +213,7 @@ class Splitter(object):
         return tree_node_splitinfo
 
     def find_split_single_histogram_provider(self, fid_with_histogram, valid_features, sitename, use_missing=False,
-                                             zero_as_missing=False):
+                                         zero_as_missing=False):
         node_splitinfo = []
         node_grad_hess = []
 
@@ -323,10 +327,8 @@ class Splitter(object):
             if partition_key is None:
                 partition_key = str((nid, fid))
 
-            split_info_list, g_h_sum_info = self.construct_feature_split_points(value, valid_features, sitename,
-                                                                                use_missing,
-                                                                                left_missing_dir, right_missing_dir,
-                                                                                mask_id_mapping)
+            split_info_list, g_h_sum_info = self.construct_feature_split_points(value, valid_features, sitename, use_missing,
+                                                                                left_missing_dir, right_missing_dir, mask_id_mapping)
             # collect all splitinfo of a node
             if nid not in split_info_dict:
                 split_info_dict[nid] = []
@@ -341,8 +343,7 @@ class Splitter(object):
 
             split_info_list = split_info_dict[nid]
             if len(split_info_list) == 0:
-                result_list.append(
-                    ((nid, partition_key + '-empty'), []))  # add an empty split info list if no split info available
+                result_list.append(((nid, partition_key+'-empty'), []))  # add an empty split info list if no split info available
                 continue
 
             if shuffle_random_seed:
@@ -355,23 +356,21 @@ class Splitter(object):
             batch_start_idx = range(0, len(split_info_list), batch_size)
             batch_idx = 0
             for i in batch_start_idx:
-                key = (nid, (partition_key + '-{}'.format(batch_idx)))  # nid, batch_id
+                key = (nid, (partition_key+'-{}'.format(batch_idx)))  # nid, batch_id
                 batch_idx += 1
                 g_h_sum_info = g_h_sum_dict[nid]
-                batch_split_info_list = split_info_list[i: i + batch_size]
+                batch_split_info_list = split_info_list[i: i+batch_size]
                 # compress ciphers
                 if cipher_compressor is not None:
-                    compressed_packages = cipher_compressor.compress_split_info(nid, batch_split_info_list,
-                                                                                g_h_sum_info)
-                    LOGGER.debug('packages num is {}'.format(len(compressed_packages)))
+                    compressed_packages = cipher_compressor.compress_split_info(batch_split_info_list, g_h_sum_info)
                     result_list.append((key, (nid, compressed_packages)))
                 else:
                     result_list.append((key, (batch_split_info_list, g_h_sum_info)))
 
         return result_list
 
-    def _find_provider_best_splits_map_func(self, value, decrypter, cipher_decompressor=None,
-                                            provider_sitename=consts.PROVIDER):
+    def _find_provider_best_splits_map_func(self, value, decrypter, gh_packer=None,
+                                        provider_sitename=consts.PROVIDER):
 
         # find best split points in a node for every provider feature, mapValues function
         best_gain = self.min_impurity_split - consts.FLOAT_ZERO
@@ -382,24 +381,20 @@ class Splitter(object):
         if len(value) == 0:  # this node can not be further split, because split info list is empty
             return best_idx, best_split_info
 
-        if cipher_decompressor is None:
+        if gh_packer is None:
             split_info_list, g_h_info = value
             for split_info in split_info_list:
-                split_info.sum_grad, split_info.sum_hess = decrypter.decrypt(split_info.sum_grad), decrypter.decrypt(
-                    split_info.sum_hess)
+                split_info.sum_grad, split_info.sum_hess = decrypter.decrypt(split_info.sum_grad), decrypter.decrypt(split_info.sum_hess)
             g_sum, h_sum = decrypter.decrypt(g_h_info.sum_grad), decrypter.decrypt(g_h_info.sum_hess)
         else:
             nid, package = value
-            split_info_list = cipher_decompressor.unpack_split_info(nid, package)  # unpack and decrypt
+            split_info_list = gh_packer.decompress_and_unpack(package)
             g_sum, h_sum = split_info_list[-1].sum_grad, split_info_list[-1].sum_hess  # g/h is at last index
             split_info_list = split_info_list[:-1]
 
         for idx, split_info in enumerate(split_info_list):
 
             l_g, l_h = split_info.sum_grad, split_info.sum_hess
-
-            # if cipher_decompressor is None:  # decrypt g/h
-            #     l_g, l_h = decrypter.decrypt(l_g), decrypter.decrypt(l_h)
 
             r_g, r_h = g_sum - l_g, h_sum - l_h
             gain = self.split_gain(g_sum, h_sum, l_g, l_h, r_g, r_h)
@@ -432,15 +427,14 @@ class Splitter(object):
             else:
                 return -1
 
-    def find_provider_best_split_info(self, provider_split_info_table, provider_sitename, decrypter,
-                                      cipher_decompressor=None):
+    def find_provider_best_split_info(self, provider_split_info_table, provider_sitename, decrypter, gh_packer=None):
 
         map_func = functools.partial(self._find_provider_best_splits_map_func,
                                      decrypter=decrypter,
                                      provider_sitename=provider_sitename,
-                                     cipher_decompressor=cipher_decompressor
+                                     gh_packer=gh_packer
                                      )
-        # each features: (fid None bid None, sum_grad -119.07138859589301, sum_hess 74.27278066433084, gain 253.360991864, sitename provider:10002, missing dir 6, mask_id 654, sample_count -1)
+
         provider_feature_best_split_table = provider_split_info_table.mapValues(map_func)
         feature_best_splits = list(provider_feature_best_split_table.collect())
         sorted_list = sorted(feature_best_splits, key=functools.cmp_to_key(self.key_sort_func))
@@ -457,13 +451,12 @@ class Splitter(object):
             elif split_info.gain > self.min_impurity_split and split_info.gain > node_best_splits[node_id].gain \
                     + consts.FLOAT_ZERO:
                 node_best_splits[node_id] = split_info
-        # (fid None bid None, sum_grad -128.87987847773107, sum_hess 85.65021494539792, gain 301.3832053426, sitename provider:10002, missing dir 6, mask_id 631, sample_count -1)
+
         return node_best_splits
 
     def provider_prepare_split_points(self, histograms, valid_features, mask_id_mapping, use_missing, left_missing_dir,
-                                      right_missing_dir, sitename=consts.PROVIDER,
-                                      batch_size=consts.MAX_FEDERATED_NODES,
-                                      cipher_compressor=None, shuffle_random_seed=None):
+                                  right_missing_dir, sitename=consts.PROVIDER, batch_size=consts.MAX_FEDERATED_NODES,
+                                  cipher_compressor=None, shuffle_random_seed=None):
 
         LOGGER.info("splitter find split of provider")
         LOGGER.debug('missing dir mask dict {}, {}'.format(left_missing_dir, right_missing_dir))
@@ -480,22 +473,21 @@ class Splitter(object):
                                                shuffle_random_seed=shuffle_random_seed
                                                )
 
-        provider_splitinfo_table = histograms.mapPartitions2(map_partition_func, need_send=True)
+        provider_splitinfo_table = histograms.mapPartitions(map_partition_func, use_previous_behavior=False)
 
         return provider_splitinfo_table
 
     def find_split_provider(self, histograms, valid_features, node_map, sitename=consts.PROVIDER,
-                            use_missing=False, zero_as_missing=False):
+                        use_missing=False, zero_as_missing=False):
         LOGGER.info("splitter find split of provider")
         LOGGER.debug('node map len is {}'.format(len(node_map)))
         tree_node_splitinfo = [[] for i in range(len(node_map))]
         encrypted_node_grad_hess = [[] for i in range(len(node_map))]
         provider_splitinfo_table = histograms.mapValues(lambda fid_with_hist:
-                                                        self.find_split_single_histogram_provider(fid_with_hist,
-                                                                                                  valid_features,
-                                                                                                  sitename,
-                                                                                                  use_missing,
-                                                                                                  zero_as_missing))
+                                                    self.find_split_single_histogram_provider(fid_with_hist, valid_features,
+                                                                                          sitename,
+                                                                                          use_missing,
+                                                                                          zero_as_missing))
 
         # node_id, map it to node index
         for (idx, fid), splitinfo in provider_splitinfo_table.collect():
