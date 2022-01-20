@@ -19,7 +19,9 @@ package com.welab.wefe.board.service.service.fusion;
 
 import com.welab.wefe.board.service.database.entity.fusion.ExportProgressMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.ExportProgressRepository;
+import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +33,17 @@ public class ExportProgressService extends AbstractService {
     @Autowired
     ExportProgressRepository exportProgressRepository;
 
-   public ExportProgressMySqlModel findByBusinessId(String businessId) {
+    public ExportProgressMySqlModel findByBusinessId(String businessId) {
         return exportProgressRepository.findOne("business_id", businessId, ExportProgressMySqlModel.class);
     }
 
+
+    public ExportProgressMySqlModel findLastByBusinessId(String businessId) {
+        return exportProgressRepository.findLastByBusinessId(businessId);
+    }
+
+    public void add(FusionResultExportProgress progress) {
+        ExportProgressMySqlModel model = ModelMapper.map(progress, ExportProgressMySqlModel.class);
+        exportProgressRepository.save(model);
+    }
 }
