@@ -73,7 +73,7 @@ import {mapGetters} from 'vuex';
 
 
 export default {
-    name: "client-service-add",
+    name: "client-service-edit",
     data() {
         let validateServiceName = (rule, value, callback) => {
             if (!this.clientService.serviceId) {

@@ -20,6 +20,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 
+/**
+ * @author ivenn.zheng
+ */
 @Entity(name = "fee_detail")
 public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
 
@@ -38,6 +41,19 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "total_request_times")
     private Long totalRequestTimes;
 
+    /**
+     * unit price
+     */
+    @Column(name = "unit_price")
+    private Double unitPrice;
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
 
     public String getServiceId() {
         return serviceId;

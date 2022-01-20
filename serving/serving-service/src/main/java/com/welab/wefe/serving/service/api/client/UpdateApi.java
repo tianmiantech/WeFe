@@ -24,7 +24,6 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,11 +33,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-@Api(path = "client/save", name = "save")
-public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
+@Api(path = "client/update", name = "update")
+public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
 
-    private static final Pattern r = Pattern.compile("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}");
+    private static final Pattern R = Pattern.compile("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}");
 
     @Autowired
     private ClientService clientService;
@@ -46,7 +45,7 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        clientService.save(input);
+        clientService.update(input);
         return success();
     }
 
@@ -71,20 +70,16 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
         @Check(name = "备注")
         private String remark;
 
-        @Check(name = "状态")
-        private Integer status;
+        @Check(name = "修改人")
+        private String updateBy;
 
-        private String createdBy;
-
-        @Check(name = "客户 code")
-        private String code;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             List<String> ipArray = StringUtil.splitWithoutEmptyItem(ipAdd, ",");
             for (String ip : ipArray) {
-                Matcher m = r.matcher(ip);
+                Matcher m = R.matcher(ip);
                 if (!m.matches()) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("错误的IP：" + ip);
                 }
@@ -94,12 +89,13 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         }
 
-        public String getCode() {
-            return code;
+
+        public String getUpdateBy() {
+            return updateBy;
         }
 
-        public void setCode(String code) {
-            this.code = code;
+        public void setUpdateBy(String updateBy) {
+            this.updateBy = updateBy;
         }
 
         public String getId() {
@@ -150,21 +146,7 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
             this.remark = remark;
         }
 
-        public Integer getStatus() {
-            return status;
-        }
 
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
-
-        public String getCreatedBy() {
-            return createdBy;
-        }
-
-        public void setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
-        }
     }
 
 

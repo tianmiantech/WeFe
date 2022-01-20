@@ -2,7 +2,7 @@
 
     <el-card class="page" shadow="never">
 
-        <h2 class="title">新增客户</h2>
+        <h2 class="title">编辑客户</h2>
 
         <el-form :model="client" label-width="90px" :rules="rules" ref="client">
             <el-form-item label="客户名称" prop="name">
@@ -58,7 +58,7 @@ import {mapGetters} from 'vuex';
 
 
 export default {
-    name: "client-add",
+    name: "client-edit",
     data() {
 
         let util = {
@@ -131,7 +131,7 @@ export default {
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
                     const {code, message} = await this.$http.post({
-                        url: '/client/save',
+                        url: '/client/update',
                         data: {
                             id: this.client.id,
                             name: this.client.name,
@@ -139,8 +139,7 @@ export default {
                             ipAdd: this.client.ipAdd,
                             pubKey: this.client.pubKey,
                             remark: this.client.remark,
-                            createdBy: this.userInfo.nickname,
-                            code: this.client.code,
+                            updateBy: this.userInfo.nickname,
                         },
                     });
 

@@ -54,7 +54,7 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
             "       and if(:service_type is not null, s.service_type = :service_type,1=1) " +
             "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
             "       and if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) " +
+            "group by fd.service_id, fd.client_id ,fd.unit_price, DATE_FORMAT(fd.created_time ,:query_type) " +
             "order by fd.created_time desc limit :pageOffset,:pageSize", nativeQuery = true, countProjection = "1")
     List<FeeDetailOutputModel> queryList(@Param("client_name") String clientName,
                                          @Param("service_name") String serviceName,
@@ -87,7 +87,7 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
             "       and if(:service_type is not null, s.service_type = :service_type,1=1) " +
             "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
             "       and if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) " +
+            "group by fd.service_id, fd.client_id ,fd.unit_price, DATE_FORMAT(fd.created_time ,:query_type) " +
             "order by fd.created_time desc ", nativeQuery = true, countProjection = "1")
     Integer count(@Param("client_name") String clientName,
                   @Param("service_name") String serviceName,
