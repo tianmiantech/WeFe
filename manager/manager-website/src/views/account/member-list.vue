@@ -11,12 +11,6 @@
             <el-form-item label="成员 ID:">
                 <el-input v-model="search.id" />
             </el-form-item>
-            <el-form-item label="已失联">
-                <el-select v-model="search.lostContact" style="width:100px;" clearable>
-                    <el-option label="是" value="true" />
-                    <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
             <el-form-item label="已隐身">
                 <el-select v-model="search.hidden" style="width:100px;" clearable>
                     <el-option label="是" value="true" />
@@ -27,12 +21,6 @@
                 <el-select v-model="search.freezed" style="width:100px;" clearable>
                     <el-option label="是" value="true" />
                     <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="已删除">
-                <el-select v-model="search.status" style="width:100px;" clearable>
-                    <el-option label="是" value="1" />
-                    <el-option label="否" value="0" />
                 </el-select>
             </el-form-item>
             <el-button
@@ -102,20 +90,6 @@
                 min-width="300"
             >
                 <template v-slot="scope">
-                    <!-- <el-button
-                        v-if="!scope.row.lost_contact"
-                        type="danger"
-                        @click="changeStatus($event, scope.row, 'lost')"
-                    >
-                        标记失联
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.lost_contact"
-                        type="primary"
-                        @click="changeStatus($event, scope.row, 'find')"
-                    >
-                        取消标记失联
-                    </el-button> -->
                     <template v-if="!scope.row.status">
                         <el-button
                             v-if="!scope.row.freezed"
@@ -225,7 +199,6 @@
                 search:    {
                     id:          '',
                     name:        '',
-                    lostContact: '',
                     hidden:      '',
                     freezed:     '',
                     status:      '',
@@ -272,12 +245,6 @@
                 };
 
                 switch (status) {
-                case 'lost':
-                    params.lostContact = true;
-                    break;
-                case 'find':
-                    params.lostContact = false;
-                    break;
                 case 'freeze':
                     params.freezed = true;
                     break;

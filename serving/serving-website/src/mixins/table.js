@@ -65,8 +65,8 @@ export default (function () {
                 }
                 this.pagination.page_index = +(query.page_index || 1);
                 this.pagination.page_size = +(query.page_size || this.pagination.page_size);
-                this.search.page_index = this.pagination.page_index - 1;
-                this.search.page_size = this.pagination.page_size;
+                this.search.page_index = +this.pagination.page_index - 1;
+                this.search.page_size = +this.pagination.page_size;
             },
 
             async getList(

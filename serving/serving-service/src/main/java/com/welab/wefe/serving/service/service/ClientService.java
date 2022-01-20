@@ -16,13 +16,27 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
 import com.welab.wefe.serving.service.api.client.SaveClientApi;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 import com.welab.wefe.serving.service.utils.ModelMapper;
@@ -41,6 +55,8 @@ public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private ClientServiceRepository clientServiceRepository;
 
 
     public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException, StatusCodeWithException {
@@ -91,24 +107,32 @@ public class ClientService {
         );
     }
 
-    public QueryClientApi.Output queryById(String id) {
+	public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+		Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
+				.build(ClientServiceMysqlModel.class);
+		return clientServiceRepository.findOne(where).orElse(null);
+	}
 
-        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-        return ModelMapper.map(model, QueryClientApi.Output.class);
+	public ClientMysqlModel queryByClientId(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		return model;
+	}
 
+	public QueryClientApi.Output queryById(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		return ModelMapper.map(model, QueryClientApi.Output.class);
+	}
 
-    }
+	public QueryClientApi.Output queryByName(String name) {
+		ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+		return ModelMapper.map(model, QueryClientApi.Output.class);
+	}
 
-    public QueryClientApi.Output queryByName(String name) {
-        ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
-        return ModelMapper.map(model, QueryClientApi.Output.class);
-    }
-
-    public void detele(String id) {
-        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-        model.setStatus(ClientStatusEnum.DELETED.getValue());
-        model.setUpdatedTime(new Date());
-        clientRepository.save(model);
-    }
+	public void detele(String id) {
+		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+		model.setStatus(ClientStatusEnum.DELETED.getValue());
+		model.setUpdatedTime(new Date());
+		clientRepository.save(model);
+	}
 
 }

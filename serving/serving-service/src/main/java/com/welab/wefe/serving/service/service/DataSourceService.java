@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -91,9 +92,15 @@ public class DataSourceService {
 
 	public UpdateApi.DataSourceUpdateOutput update(UpdateApi.DataSourceUpdateInput input)
 			throws StatusCodeWithException {
+		DataSourceMySqlModel model = dataSourceRepo.findById(input.getId()).orElse(null);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+		}
 		// Test the connection
 		testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
-				input.getPassword(), input.getDatabaseName());
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword(),
+				input.getDatabaseName());
 		Map<String, Object> params = new HashMap<>(16);
 		params.put("id", input.getId());
 		params.put("name", input.getName());
@@ -102,14 +109,15 @@ public class DataSourceService {
 		params.put("host", input.getHost());
 		params.put("port", input.getPort());
 		params.put("userName", input.getName());
-		params.put("password", input.getPassword());
+		params.put("password",
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword());
 		params.put("updatedBy", CurrentAccount.id());
 		params.put("updatedTime", new Date());
 		dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 
 		UpdateApi.DataSourceUpdateOutput output = new UpdateApi.DataSourceUpdateOutput();
-		DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
-		output.setId(model.getId());
+		output.setId(input.getId());
 		return output;
 	}
 
@@ -188,7 +196,7 @@ public class DataSourceService {
 	}
 
 	public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-			String password, String databaseName, List<String> ids) throws StatusCodeWithException {
+			String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
 		if (conn != null) {

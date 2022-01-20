@@ -21,52 +21,62 @@ package com.welab.wefe.serving.service.enums;
  */
 public enum ServiceTypeEnum {
 
-    PIR(1, "两方匿踪查询"),
-    PSI(2, "两方交集查询"),
+	PIR(1, "两方匿踪查询"), PSI(2, "两方交集查询"),
 
-    SA(3, "多方安全统计(被查询方)"),
-    MULTI_SA(4, "多方安全统计(查询方)"),
+	SA(3, "多方安全统计(被查询方)"), MULTI_SA(4, "多方安全统计(查询方)"),
 
-    MULTI_PSI(5, "多方交集查询"),
-    MULTI_PIR(6, "多方匿踪查询"),
+	MULTI_PSI(5, "多方交集查询"), MULTI_PIR(6, "多方匿踪查询"),
 
+	;
 
-    ;
+	private int code;
 
-    private int code;
+	private String value;
 
-    private String value;
+	ServiceTypeEnum(int code, String value) {
+		this.code = code;
+		this.value = value;
+	}
 
+	public static String getValue(int code) {
 
-    ServiceTypeEnum(int code, String value) {
-        this.code = code;
-        this.value = value;
-    }
+		String result = null;
+		switch (code) {
+		case 1:
+			result = ServiceTypeEnum.PIR.value;
+			break;
+		case 2:
+			result = ServiceTypeEnum.MULTI_PIR.value;
+			break;
+		case 3:
+			result = ServiceTypeEnum.PSI.value;
+			break;
+		case 4:
+			result = ServiceTypeEnum.MULTI_PSI.value;
+			break;
+		case 5:
+			result = ServiceTypeEnum.MULTI_SA.value;
+			break;
+		default:
+			break;
+		}
+		return result;
+	}
 
+	public int getCode() {
+		return code;
+	}
 
-    public static String getValue(int code) {
+	public void setCode(int code) {
+		this.code = code;
+	}
 
-        String result = null;
-        switch (code) {
-            case 1:
-                result = ServiceTypeEnum.PIR.value;
-                break;
-            case 2:
-                result = ServiceTypeEnum.MULTI_PIR.value;
-                break;
-            case 3:
-                result = ServiceTypeEnum.PSI.value;
-                break;
-            case 4:
-                result = ServiceTypeEnum.MULTI_PSI.value;
-                break;
-            case 5:
-                result = ServiceTypeEnum.MULTI_SA.value;
-                break;
-            default:
-                break;
-        }
-        return result;
-    }
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 }
