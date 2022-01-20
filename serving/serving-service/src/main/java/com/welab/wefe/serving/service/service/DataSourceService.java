@@ -108,7 +108,7 @@ public class DataSourceService {
 		params.put("databaseName", input.getDatabaseName());
 		params.put("host", input.getHost());
 		params.put("port", input.getPort());
-		params.put("userName", input.getName());
+		params.put("userName", input.getUserName());
 		params.put("password",
 				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
 						: input.getPassword());

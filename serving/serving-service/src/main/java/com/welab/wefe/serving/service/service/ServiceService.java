@@ -538,29 +538,22 @@ public class ServiceService {
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 		String basePath = config.getFileBasePath();
-		String outputPath = "";
 		List<File> fileList = new ArrayList<>();
-		String sdkZipName = "";
-		if (serviceType == 1) {
-			sdkZipName = "sdk.zip";
-			outputPath = basePath + "sdk_dir/" + sdkZipName;
+		if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "sdk_dir/mpc-pir-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "sdk_dir/readme.md"));
-		} else if (serviceType == 2) {
-			sdkZipName = "sdk.zip";
-			outputPath = basePath + "sdk_dir/" + sdkZipName;
+			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "readme.md"));
+		} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "sdk_dir/mpc-psi-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "sdk_dir/readme.md"));
-		} else if (serviceType == 3 || serviceType == 4) {
-			sdkZipName = "sdk.zip";
-			outputPath = basePath + "sdk_dir/" + sdkZipName;
+			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "readme.md"));
+		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "sdk_dir/mpc-sa-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "sdk_dir/readme.md"));
+			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
+			fileList.add(new File(basePath + "readme.md"));
 		}
-
+		String sdkZipName = "sdk.zip";
+		String outputPath = basePath + sdkZipName;
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
