@@ -138,6 +138,9 @@ def fl_trainer(
         batch_size = algorithm_config_dict.get("batch_size", 1024)
         need_shuffle = algorithm_config_dict.get("need_shuffle", True)
         max_iter = algorithm_config_dict.get("max_iter")
+        download_url = algorithm_config_dict.get("download_url")
+        data_name = algorithm_config_dict.get("data_name")
+
 
 
         logging.debug(f"training program begin")
@@ -169,8 +172,8 @@ def fl_trainer(
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
 
-        #TODO download the data based on the download_url
-        reader = data_loader.train()
+        data_dir = data_loader.download(download_url,'', data_name),
+        reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(
                 reader=reader,

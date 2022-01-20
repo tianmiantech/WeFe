@@ -13,7 +13,7 @@ def _build():
         for path in [
             _project_base.joinpath("visualfl"),
             _project_base.joinpath("depends", "PaddleDetection", "ppdet"),
-            _project_base.joinpath("depends", "PaddleFL", "python", "paddle_fl","paddle_fl"),
+            _project_base.joinpath("depends", "PaddleFL", "python", "paddle_fl"),
             # _project_base.joinpath("data"),
             _project_base.joinpath("examples"),
             _project_base.joinpath("script"),

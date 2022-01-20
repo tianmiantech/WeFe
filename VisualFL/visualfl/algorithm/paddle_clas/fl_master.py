@@ -17,8 +17,8 @@ import importlib
 
 import click
 from paddle import fluid
-from paddle_fl.core.master.job_generator import JobGenerator
-from paddle_fl.core.strategy.fl_strategy_base import (
+from paddle_fl.paddle_fl.core.master.job_generator import JobGenerator
+from paddle_fl.paddle_fl.core.strategy.fl_strategy_base import (
     FedAvgStrategy,
 )
 

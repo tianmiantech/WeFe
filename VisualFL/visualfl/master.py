@@ -149,6 +149,7 @@ class RESTService(Logger):
         """
         try:
             data = await request.json()
+            self.debug(f"restful submit request data: {data}")
         except json.JSONDecodeError as e:
             return self.web_response(400,str(e))
 
@@ -161,10 +162,12 @@ class RESTService(Logger):
             config = data["env"]
             data_set = data["data_set"]
             download_url = data_set["download_url"]
+            data_name = data_set["name"]
             algorithm_config = data.get("algorithm_config")
             program = algorithm_config["program"]
             config["max_iter"] = algorithm_config["max_iter"]
             algorithm_config["download_url"] = download_url
+            algorithm_config["data_name"] = data_name
 
         except Exception:
             return self.web_response(400, traceback.format_exc(),job_id)
@@ -232,6 +235,7 @@ class RESTService(Logger):
         """
         try:
             data = await request.json()
+            self.debug(f"restful apply request data: {data}")
         except json.JSONDecodeError as e:
             return self.web_response(400, str(e))
 
@@ -245,10 +249,11 @@ class RESTService(Logger):
             callback_url = data["callback_url"]
             data_set = data["data_set"]
             download_url = data_set["download_url"]
+            data_name = data_set["name"]
             algorithm_config = data.get("algorithm_config")
-            program = algorithm_config["program"]
             config["max_iter"] = algorithm_config["max_iter"]
             algorithm_config["download_url"] = download_url
+            algorithm_config["data_name"] = data_name
 
         except Exception:
             return self.web_response(400, traceback.format_exc(),job_id)

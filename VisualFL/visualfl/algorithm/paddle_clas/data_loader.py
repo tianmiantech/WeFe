@@ -194,7 +194,7 @@ def valid(data_dir=DATA_DIR,mapper=test_mapper, buffered_size=1024, use_xmap=Tru
         buffered_size, use_xmap)
 
 
-def download(url, module_name, md5sum, save_name=None):
+def download(url, module_name, save_name=None):
     dirname = os.path.join(get_data_dir(), module_name)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
@@ -203,14 +203,12 @@ def download(url, module_name, md5sum, save_name=None):
                             url.split('/')[-1]
                             if save_name is None else save_name)
 
-    if os.path.exists(filename) and md5file(filename) == md5sum:
+    if os.path.exists(filename):
         return filename
 
     retry = 0
     retry_limit = 3
-    while not (os.path.exists(filename) and md5file(filename) == md5sum):
-        if os.path.exists(filename):
-            sys.stderr.write("file %s  md5 %s\n" % (md5file(filename), md5sum))
+    while not os.path.exists(filename):
         if retry < retry_limit:
             retry += 1
         else:
@@ -242,6 +240,8 @@ def download(url, module_name, md5sum, save_name=None):
                     sys.stdout.flush()
     sys.stderr.write("\nDownload finished\n")
     sys.stdout.flush()
+
+    un_zip(filename,dirname)
     return filename
 
 def extract(tar_file, target_path):
@@ -271,5 +271,12 @@ def un_zip(file_name,target_path):
 
 
 if __name__ == '__main__':
-    train()
+    # train()
+    url = "https://xbd-dev.wolaidai.com/board-service-03//image_data_set/download?data_set_id=f7b62e3ace574b67824e8bcd42326ba7&job_id=c3e086211d2f4a288314073f3878323a"
+    data_file = download(url,"","c3e086211d2f4a288314073f3878323a.zip")
+    # dirname = os.path.join(get_data_dir(), "fruit1")
+    # data_file = "/Users/tracy.zhang/Wefe/VisualFL/data/data_flowers/c3e086211d2f4a288314073f3878323a.zip"
+    # un_zip(data_file,dirname)
+    os.rename(os.path.join(get_data_dir(), "c3e086211d2f4a288314073f3878323a"), os.path.join(get_data_dir(), "fruit1"))
+
 
