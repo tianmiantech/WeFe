@@ -242,9 +242,10 @@ export default {
                 },
             ],
             queryDateTypes: [
-                { value: '1', label: '按年' },
-                { value: '2', label: '按月' },
-                { value: '3', label: '按日' },
+                { value: '1', label: '每年' },
+                { value: '2', label: '每月' },
+                { value: '3', label: '每日' },
+                { value: '4', label: '每小时' },
             ],
             payTypes: {
                 1: '预付费',

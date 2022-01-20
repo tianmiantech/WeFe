@@ -118,19 +118,14 @@ public class ClientServiceService {
             clientServiceRepository.updateByParam(input.getServiceId(), input.getClientId(), input.getStatus(),
                     "", new Date());
 
-            Specification<FeeConfigMysqlModel> feeWhere = Where.create()
-                    .equal("serviceId", input.getServiceId())
-                    .equal("clientId", input.getClientId())
-                    .build(FeeConfigMysqlModel.class);
 
-            Optional<FeeConfigMysqlModel> one = feeConfigRepository.findOne(feeWhere);
-            if (one.isPresent()) {
-                FeeConfigMysqlModel feeConfigMysqlModel = one.get();
-                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
-                feeConfigMysqlModel.setPayType(input.getPayType());
-                feeConfigMysqlModel.setUpdatedTime(new Date());
-                feeConfigRepository.save(feeConfigMysqlModel);
-            }
+            // 修改计费规则，新增一条计费规则记录
+            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+            feeConfigMysqlModel.setClientId(input.getClientId());
+            feeConfigMysqlModel.setServiceId(input.getServiceId());
+            feeConfigMysqlModel.setPayType(input.getPayType());
+            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+            feeConfigRepository.save(feeConfigMysqlModel);
         }
     }
 }

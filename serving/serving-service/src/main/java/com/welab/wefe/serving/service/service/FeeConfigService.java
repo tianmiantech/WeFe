@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.feeconfig.SaveApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -64,10 +66,13 @@ public class FeeConfigService {
                     .create()
                     .equal("serviceId", serviceId)
                     .equal("clientId", clientId)
+                    .orderBy("createdTime", OrderBy.desc)
                     .build(FeeConfigMysqlModel.class);
-            Optional<FeeConfigMysqlModel> one = feeConfigRepository.findOne(where);
-            return one.orElse(null);
+            // 返回最新的计费规则配置（因为一个客户服务可能存在多个计费规则）
+            List<FeeConfigMysqlModel> all = feeConfigRepository.findAll(where);
+            return all.get(0);
         }
+
         return null;
     }
 }

@@ -61,6 +61,12 @@ public class ClientService {
 
     public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException, StatusCodeWithException {
 
+        ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
+        if (clientMysqlModel != null) {
+            throw new StatusCodeWithException(StatusCode.SQL_UNIQUE_IN_CODE);
+        }
+
+
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
         if (null == model) {
@@ -107,32 +113,40 @@ public class ClientService {
         );
     }
 
-	public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
-		Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
-				.build(ClientServiceMysqlModel.class);
-		return clientServiceRepository.findOne(where).orElse(null);
-	}
 
-	public ClientMysqlModel queryByClientId(String id) {
-		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-		return model;
-	}
+    public ClientMysqlModel queryByCode(String code) {
+        Specification<ClientMysqlModel> where = Where.create()
+                .equal("code", code)
+                .build(ClientMysqlModel.class);
+        return clientRepository.findOne(where).orElse(null);
+    }
 
-	public QueryClientApi.Output queryById(String id) {
-		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-		return ModelMapper.map(model, QueryClientApi.Output.class);
-	}
+    public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId).equal("clientId", clientId)
+                .build(ClientServiceMysqlModel.class);
+        return clientServiceRepository.findOne(where).orElse(null);
+    }
 
-	public QueryClientApi.Output queryByName(String name) {
-		ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
-		return ModelMapper.map(model, QueryClientApi.Output.class);
-	}
+    public ClientMysqlModel queryByClientId(String id) {
+        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+        return model;
+    }
 
-	public void detele(String id) {
-		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
-		model.setStatus(ClientStatusEnum.DELETED.getValue());
-		model.setUpdatedTime(new Date());
-		clientRepository.save(model);
-	}
+    public QueryClientApi.Output queryById(String id) {
+        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+        return ModelMapper.map(model, QueryClientApi.Output.class);
+    }
+
+    public QueryClientApi.Output queryByName(String name) {
+        ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+        return ModelMapper.map(model, QueryClientApi.Output.class);
+    }
+
+    public void detele(String id) {
+        ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+        model.setStatus(ClientStatusEnum.DELETED.getValue());
+        model.setUpdatedTime(new Date());
+        clientRepository.save(model);
+    }
 
 }

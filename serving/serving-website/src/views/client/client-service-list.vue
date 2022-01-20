@@ -167,10 +167,11 @@
 
                     <router-link
                         :to="{
-                            name: 'client-service-add',
+                            name: 'client-service-edit',
                             query: {
                                 serviceId: scope.row.service_id,
                                 clientId: scope.row.client_id,
+                                status: scope.row.status,
                             }
                         }">
                         <el-button>
@@ -268,6 +269,8 @@ export default {
                     serviceId: row.service_id,
                     clientId: row.client_id,
                     status: status,
+                    unitPrice: row.unit_price,
+                    payType: row.pay_type,
                 },
             });
 

@@ -229,16 +229,16 @@
             </el-table>
 
             <div
-                v-if="pagination.total"
+                v-if="dialogPagination.total"
                 class="mt20 text-r"
             >
                 <el-pagination
-                    :total="pagination.total"
+                    :total="dialogPagination.total"
                     :page-sizes="[10, 20, 30, 40, 50]"
-                    :page-size="pagination.page_size"
-                    :current-page="pagination.page_index"
+                    :page-size="dialogPagination.page_size"
+                    :current-page="dialogPagination.page_index"
                     layout="total, sizes, prev, pager, next, jumper"
-                    @current-change="currentPageChange"
+                    @current-change="dialogCurrentPageChange"
                     @size-change="pageSizeChange"
                 />
             </div>
@@ -282,6 +282,13 @@ export default {
                 '',
                 '',
             ],
+            dialogPagination: {
+                total: '',
+                page_size: 10,
+                page_index: 1,
+                serviceId: '',
+                clientId: '',
+            },
             getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: '两方匿踪查询',
@@ -296,6 +303,7 @@ export default {
                 0: '失败',
             },
             apiCallDetails: [],
+
             dialogTableVisible: false,
         };
     },
@@ -319,6 +327,15 @@ export default {
     },
 
     methods: {
+
+        dialogCurrentPageChange(val) {
+
+            this.dialogPagination.page_index = val
+            this.getDetails()
+
+        },
+
+
         downloadStatistics() {
 
             const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
@@ -386,18 +403,28 @@ export default {
 
 
         async getDetails(serviceId, clientId) {
+
+            if (!this.dialogPagination.serviceId) {
+                this.dialogPagination.serviceId = serviceId
+                this.dialogPagination.clientId = clientId
+            }
+
             this.apiCallDetails = '';
             const {code, data} = await this.$http.post({
                 url: '/apirequestrecord/query-list',
                 data: {
-                    serviceId,
-                    clientId,
+                    serviceId: this.dialogPagination.serviceId,
+                    clientId: this.dialogPagination.clientId,
+                    page_index: this.dialogPagination.page_index - 1,
+                    page_size: this.dialogPagination.page_size
                 },
             });
 
             if (code === 0) {
-                this.apiCallDetails = data.list;
-                this.dialogTableVisible = true;
+                this.apiCallDetails = data.list
+                this.dialogTableVisible = true
+                this.dialogPagination.total = data.total
+
             }
         },
     },

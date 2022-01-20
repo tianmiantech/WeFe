@@ -60,7 +60,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<F
         private Integer serviceType;
 
         /**
-         * 统计类型：1 按日、 2 按月、 3 按年
+         * 统计类型：1 每年、 2 每月、 3 每日, 4 每小时
          */
         private Integer queryDateType;
 
