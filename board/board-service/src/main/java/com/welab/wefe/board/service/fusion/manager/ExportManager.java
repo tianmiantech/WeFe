@@ -17,9 +17,11 @@ package com.welab.wefe.board.service.fusion.manager;
  */
 
 
+import com.welab.wefe.board.service.database.entity.fusion.ExportProgressMySqlModel;
 import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
 import com.welab.wefe.board.service.service.fusion.ExportProgressService;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,30 +46,36 @@ public class ExportManager {
 
     public static FusionResultExportProgress get(String businessId) {
 
-//        if (EXPORT_TASK.get(businessId) == null) {
-//            //直接查表
-//            ExportProgressMySqlModel model = exportProgressService.findByBusinessId(businessId);
-//            return ModelMapper.map(model, FusionResultExportProgress.class);
-//        }
-//
-//        FusionResultExportProgress progress = EXPORT_TASK.get(businessId);
-//        if (progress.getProgress() == 100) {
-//            //remove;
-//        }
-//
-//        return progress;
+        if (EXPORT_TASK.get(businessId) == null) {
+            //直接查表
+            ExportProgressMySqlModel model = exportProgressService.findLastByBusinessId(businessId);
+            return ModelMapper.map(model, FusionResultExportProgress.class);
+        }
 
-        return EXPORT_TASK.get(businessId);
+        FusionResultExportProgress progress = EXPORT_TASK.get(businessId);
+        if (progress.getProgress() == 100) {
+            //remove;
+            romove(progress);
+        }
+
+        return progress;
+
+//        return EXPORT_TASK.get(businessId);
     }
 
     public static void set(String businessId, FusionResultExportProgress progress) {
 
         if (EXPORT_TASK.containsKey(businessId)) {
-            throw new RuntimeException(businessId + " This data already exists");
+            throw new RuntimeException(" There are fusion tasks being exported");
         }
 
         LOG.info("Set FusionResultExportProgress successfully, businessId is {}", businessId);
         EXPORT_TASK.put(businessId, progress);
+    }
 
+    public static void romove(FusionResultExportProgress progress) {
+        exportProgressService.add(progress);
+
+        EXPORT_TASK.remove(progress.getBusinessId());
     }
 }

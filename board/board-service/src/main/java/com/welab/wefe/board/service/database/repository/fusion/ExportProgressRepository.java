@@ -20,6 +20,8 @@ package com.welab.wefe.board.service.database.repository.fusion;
 import com.welab.wefe.board.service.database.entity.fusion.ExportProgressMySqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -27,4 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExportProgressRepository extends BaseRepository<ExportProgressMySqlModel, String> {
+    @Query(value = "select * from #{#entityName} where business_id=?1 order by created_time desc limit 1", nativeQuery = true)
+    ExportProgressMySqlModel findLastByBusinessId(@Param("businessId") String businessId);
+
 }
