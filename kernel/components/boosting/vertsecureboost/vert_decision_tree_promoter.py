@@ -342,75 +342,6 @@ class VertDecisionTreePromoter(DecisionTree):
                           idx=idx)
         """
 
-    def federated_find_split(self, dep=-1, batch=-1, idx=-1):
-        LOGGER.info("federated find split of depth {}, batch {}".format(dep, batch))
-        encrypted_splitinfo_provider = self.sync_encrypted_splitinfo_provider(dep, batch, idx)
-
-        for i in range(len(encrypted_splitinfo_provider)):
-            init_gain = self.min_impurity_split - consts.FLOAT_ZERO
-            encrypted_init_gain = self.encrypter.encrypt(init_gain)
-            best_splitinfo_provider = [[-1, encrypted_init_gain] for j in range(len(self.cur_split_nodes))]
-            best_gains = [init_gain for j in range(len(self.cur_split_nodes))]
-            max_nodes = max(len(encrypted_splitinfo_provider[i][j]) for j in range(len(self.cur_split_nodes)))
-            for k in range(0, max_nodes, consts.MAX_FEDERATED_NODES):
-                batch_splitinfo_provider = [encrypted_splitinfo[k: k + consts.MAX_FEDERATED_NODES] for
-                                            encrypted_splitinfo
-                                            in encrypted_splitinfo_provider[i]]
-                encrypted_splitinfo_provider_table = session.parallelize(
-                    zip(self.cur_split_nodes, batch_splitinfo_provider),
-                    include_key=False,
-                    partition=self.data_bin._partitions)
-
-                _find_provider_split = functools.partial(find_provider_split, self.min_impurity_split,
-                                                         self.encrypter.encrypt, self.encrypter.decrypt, self.splitter)
-
-                splitinfos = encrypted_splitinfo_provider_table.mapValues(_find_provider_split).collect()
-                for _, splitinfo in splitinfos:
-                    if best_splitinfo_provider[_][0] == -1:
-                        best_splitinfo_provider[_] = list(splitinfo[:2])
-                        best_gains[_] = splitinfo[2]
-                    elif splitinfo[0] != -1 and splitinfo[2] > best_gains[_]:
-                        best_splitinfo_provider[_][0] = k + splitinfo[0]
-                        best_splitinfo_provider[_][1] = splitinfo[1]
-                        best_gains[_] = splitinfo[2]
-
-            if idx != -1:
-                self.sync_federated_best_splitinfo_provider(best_splitinfo_provider, dep, batch, idx)
-                break
-
-            self.sync_federated_best_splitinfo_provider(best_splitinfo_provider, dep, batch, i)
-
-    def sync_final_split_provider(self, dep=-1, batch=-1, idx=-1):
-        LOGGER.info("get provider final splitinfo of depth {}, batch {}".format(dep, batch))
-        final_splitinfo_provider = self.transfer_inst.final_splitinfo_provider.get(idx=idx,
-                                                                                   suffix=(dep, batch,))
-        """
-        final_splitinfo_provider = federation.get(name=self.transfer_inst.final_splitinfo_provider.name,
-                                              tag=self.transfer_inst.generate_transferid(
-                                                  self.transfer_inst.final_splitinfo_provider, dep, batch),
-                                              idx=-1)
-        """
-        return final_splitinfo_provider if idx == -1 else [final_splitinfo_provider]
-
-    # def find_best_split_promoter_and_provider(self, splitinfo_promoter_provider):
-    #     best_gain_provider = self.decrypt(splitinfo_promoter_provider[1].gain)
-    #     best_gain_provider_idx = 1
-    #     for i in range(1, len(splitinfo_promoter_provider)):
-    #         gain_provider_i = self.decrypt(splitinfo_promoter_provider[i].gain)
-    #         if best_gain_provider < gain_provider_i:
-    #             best_gain_provider = gain_provider_i
-    #             best_gain_provider_idx = i
-    #
-    #     if splitinfo_promoter_provider[0].gain >= best_gain_provider - consts.FLOAT_ZERO:
-    #         best_splitinfo = splitinfo_promoter_provider[0]
-    #     else:
-    #         best_splitinfo = splitinfo_promoter_provider[best_gain_provider_idx]
-    #         best_splitinfo.sum_grad = self.decrypt(best_splitinfo.sum_grad)
-    #         best_splitinfo.sum_hess = self.decrypt(best_splitinfo.sum_hess)
-    #         best_splitinfo.gain = best_gain_provider
-    #
-    #     return best_splitinfo
-
 
     def federated_find_split(self, dep=-1, batch=-1, idx=-1):
         LOGGER.info("federated find split of depth {}, batch {}".format(dep, batch))
@@ -561,39 +492,15 @@ class VertDecisionTreePromoter(DecisionTree):
         unleaf_state, nodeid = value[1]
 
         if tree_[nodeid].is_leaf is True:
-            return tree_[nodeid].weight
+            return tree_[nodeid].id
         else:
             if tree_[nodeid].sitename == sitename:
-                fid = decoder("feature_idx", tree_[nodeid].fid, split_maskdict=split_maskdict)
-                bid = decoder("feature_val", tree_[nodeid].bid, nodeid, split_maskdict=split_maskdict)
-                if not use_missing:
-                    if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                        return 1, tree_[nodeid].left_nodeid
-                    else:
-                        return 1, tree_[nodeid].right_nodeid
-                else:
-                    missing_dir = decoder("missing_dir", tree_[nodeid].missing_dir, nodeid,
-                                          missing_dir_maskdict=missing_dir_maskdict)
 
-                    missing_val = False
-                    if zero_as_missing:
-                        if value[0].features.get_data(fid, None) is None or \
-                                value[0].features.get_data(fid) == NoneType():
-                            missing_val = True
-                    elif use_missing and value[0].features.get_data(fid) == NoneType():
-                        missing_val = True
+                next_layer_nid = VertDecisionTreePromoter.go_next_layer(tree_[nodeid], value[0], use_missing,
+                                                                       zero_as_missing, bin_sparse_points, split_maskdict,
+                                                                       missing_dir_maskdict, decoder)
+                return 1, next_layer_nid
 
-                    if missing_val:
-                        if missing_dir == 1:
-                            return 1, tree_[nodeid].right_nodeid
-                        else:
-                            return 1, tree_[nodeid].left_nodeid
-                    else:
-                        LOGGER.debug("fid is {}, bid is {}, sitename is {}".format(fid, bid, sitename))
-                        if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                            return 1, tree_[nodeid].left_nodeid
-                        else:
-                            return 1, tree_[nodeid].right_nodeid
             else:
                 return (1, tree_[nodeid].fid, tree_[nodeid].bid, tree_[nodeid].sitename,
                         nodeid, tree_[nodeid].left_nodeid, tree_[nodeid].right_nodeid)
@@ -973,14 +880,14 @@ class VertDecisionTreePromoter(DecisionTree):
         model_param = DecisionTreeModelParam()
         for node in self.tree_:
             model_param.tree_.add(id=node.id,
-                                  sitename=node.sitename,
-                                  fid=node.fid,
-                                  bid=node.bid,
-                                  weight=node.weight,
-                                  is_leaf=node.is_leaf,
-                                  left_nodeid=node.left_nodeid,
-                                  right_nodeid=node.right_nodeid,
-                                  missing_dir=node.missing_dir)
+                                      sitename=node.sitename,
+                                      fid=node.fid,
+                                      bid=node.bid,
+                                      weight=node.weight,
+                                      is_leaf=node.is_leaf,
+                                      left_nodeid=node.left_nodeid,
+                                      right_nodeid=node.right_nodeid,
+                                      missing_dir=node.missing_dir)
             LOGGER.debug("missing_dir is {}, sitename is {}, is_leaf is {}".format(node.missing_dir, node.sitename,
                                                                                    node.is_leaf))
 

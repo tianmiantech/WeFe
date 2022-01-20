@@ -201,9 +201,13 @@ class DecisionTree(object):
         # record node sample number in count_arr
         count_arr = np.zeros(len(node_map))
         for k, v in kv:
-            if v[1] not in node_map:
+            if type(v) == int:  # leaf node format: (leaf_node_id)
+                key = v
+            else:  # internal node format: (1, node_id)
+                key = v[1]
+            if key not in node_map:
                 continue
-            node_idx = node_map[v[1]]  # node position
+            node_idx = node_map[key]
             count_arr[node_idx] += 1
         return count_arr
 

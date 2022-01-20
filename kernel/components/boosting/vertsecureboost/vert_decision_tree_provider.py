@@ -130,9 +130,6 @@ class VertDecisionTreeProvider(DecisionTree):
         self.run_cipher_compressing = cipher_compressing
         self.feature_num = self.bin_split_points.shape[0]
 
-        # if self.run_cipher_compressing:
-        #     self.init_compressor()
-
         self.new_ver = new_ver
 
         self.report_init_status()
@@ -229,16 +226,6 @@ class VertDecisionTreeProvider(DecisionTree):
             self.cipher_compressor = PackedGHCompressor()
 
         self.grad_and_hess = self.transfer_inst.encrypted_grad_and_hess.get(idx=0)
-
-    def sync_encrypted_grad_and_hess(self):
-        LOGGER.info("get encrypted grad and hess")
-        self.grad_and_hess = self.transfer_inst.encrypted_grad_and_hess.get(idx=0)
-        """
-        self.grad_and_hess = federation.get(name=self.transfer_inst.encrypted_grad_and_hess.name,
-                                            tag=self.transfer_inst.generate_transferid(
-                                                self.transfer_inst.encrypted_grad_and_hess),
-                                            idx=0)
-        """
 
     def sync_node_positions(self, dep=-1):
         LOGGER.info("get node positions of depth {}".format(dep))
@@ -742,14 +729,14 @@ class VertDecisionTreeProvider(DecisionTree):
         model_param = DecisionTreeModelParam()
         for node in self.tree_:
             model_param.tree_.add(id=node.id,
-                                  sitename=node.sitename,
-                                  fid=node.fid,
-                                  bid=node.bid,
-                                  weight=node.weight,
-                                  is_leaf=node.is_leaf,
-                                  left_nodeid=node.left_nodeid,
-                                  right_nodeid=node.right_nodeid,
-                                  missing_dir=node.missing_dir)
+                                      sitename=node.sitename,
+                                      fid=node.fid,
+                                      bid=node.bid,
+                                      weight=node.weight,
+                                      is_leaf=node.is_leaf,
+                                      left_nodeid=node.left_nodeid,
+                                      right_nodeid=node.right_nodeid,
+                                      missing_dir=node.missing_dir)
 
         model_param.split_maskdict.update(self.split_maskdict)
         model_param.missing_dir_maskdict.update(self.missing_dir_maskdict)
