@@ -114,6 +114,7 @@ CREATE TABLE fee_detail(
                            service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                            client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
                            total_fee DECIMAL(24,6)    COMMENT '总费用' ,
+                           unit_price DECIMAL(24,6)    COMMENT '单价(￥)' ,
                            total_request_times INT NOT NULL  DEFAULT 0 COMMENT '总调用次数' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
