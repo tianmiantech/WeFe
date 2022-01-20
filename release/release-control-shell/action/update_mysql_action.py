@@ -7,6 +7,8 @@ from util import database
 class UpdateMysqlAction(BaseAction):
 
     def run(self):
+        # 备份数据库
+        # mysqldump --column-statistics=0 -h10.1.0.120 -P3306 -uwefe -p'ou0sqsTPN!gG' --databases wefe_board_3 > wefe_board_3.sql
         # 下载并解压文件
         zip_output_dir = self.download_and_unzip()
 

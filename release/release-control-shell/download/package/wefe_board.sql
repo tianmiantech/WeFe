@@ -960,3 +960,6 @@ CREATE TABLE `bloom_filter`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='布隆过滤器';
+
+-- 一条错误的 sql，用于测试事务回滚。
+select * from abcd;

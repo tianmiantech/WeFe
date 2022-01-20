@@ -4,6 +4,6 @@
   "to_version": "2.2.1",
   "from_build": "2021081601",
   "to_build": "2021081201",
-  "file_download_url": "/Users/zane/Code/WeLab/Wefe/release/release-control-shell/test/sql/package.zip",
+  "file_download_url": "/Users/zane/Code/WeLab/Wefe/release/release-control-shell/test/sql/package-fail.zip",
   "program_dir": "/Users/zane/Code/WeLab/Wefe/release/release-control-shell/test/program_dir"
 }
