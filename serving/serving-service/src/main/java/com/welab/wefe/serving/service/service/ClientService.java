@@ -64,7 +64,7 @@ public class ClientService {
 
         ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
         if (clientMysqlModel != null) {
-            throw new StatusCodeWithException("客户 code 已存在!", StatusCode.SQL_UNIQUE_IN_CODE);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
         }
 
 
@@ -89,7 +89,7 @@ public class ClientService {
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
         if (null == model) {
-            throw new StatusCodeWithException("该客户不存在，ID：" + input.getId(), StatusCode.SQL_UNIQUE_IN_CODE);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());

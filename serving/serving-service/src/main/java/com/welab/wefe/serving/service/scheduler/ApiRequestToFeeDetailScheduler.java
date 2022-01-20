@@ -57,39 +57,42 @@ public class ApiRequestToFeeDetailScheduler {
     @Scheduled(cron = "0 0 0-23 * * ?")
     public void feeRecord() {
 
-        Date endTime = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endTime);
-        calendar.add(Calendar.HOUR, -1);
-        Date startTime = calendar.getTime();
+        try {
+            Date endTime = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(endTime);
+            calendar.add(Calendar.HOUR, -1);
+            Date startTime = calendar.getTime();
 
-        // get request records
-        List<ApiRequestRecordMysqlModel> list = apiRequestRecordService.getList(startTime, endTime);
-        if (list.size() != 0) {
-            ApiRequestRecordMysqlModel apiRequestRecordMysqlModel = list.get(0);
-            System.out.println("service_id: " + apiRequestRecordMysqlModel.getServiceId() + ", client_id: " + apiRequestRecordMysqlModel.getClientId());
-            FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(apiRequestRecordMysqlModel.getServiceId(), apiRequestRecordMysqlModel.getClientId());
-            Double unitPrice = feeConfigMysqlModel.getUnitPrice();
-            if (unitPrice == 0) {
-                logger.warn("unit price is zero!");
+            // get request records
+            List<ApiRequestRecordMysqlModel> list = apiRequestRecordService.getList(startTime, endTime);
+            if (list.size() != 0) {
+                ApiRequestRecordMysqlModel apiRequestRecordMysqlModel = list.get(0);
+                FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(apiRequestRecordMysqlModel.getServiceId(), apiRequestRecordMysqlModel.getClientId());
+                Double unitPrice = feeConfigMysqlModel.getUnitPrice();
+                if (unitPrice == 0) {
+                    logger.warn("unit price is zero!");
+                }
+
+                // cal total fee
+                BigDecimal totalFee = BigDecimal.valueOf(list.size() * unitPrice);
+
+                // save fee detail
+                FeeDetailMysqlModel feeDetailMysqlModel = new FeeDetailMysqlModel();
+                feeDetailMysqlModel.setTotalRequestTimes((long) list.size());
+                feeDetailMysqlModel.setTotalFee(totalFee);
+                feeDetailMysqlModel.setClientId(apiRequestRecordMysqlModel.getClientId());
+                feeDetailMysqlModel.setServiceId(apiRequestRecordMysqlModel.getServiceId());
+                feeDetailMysqlModel.setUnitPrice(unitPrice);
+                feeDetailService.save(feeDetailMysqlModel);
+
+                logger.info("save fee detail by the time: " + DateUtil.getCurrentDate() + ", service id: "
+                        + apiRequestRecordMysqlModel.getServiceId() + ", client id: " + apiRequestRecordMysqlModel.getClientId());
+            } else {
+                logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
             }
-
-            // cal total fee
-            BigDecimal totalFee = BigDecimal.valueOf(list.size() * unitPrice);
-
-            // save fee detail
-            FeeDetailMysqlModel feeDetailMysqlModel = new FeeDetailMysqlModel();
-            feeDetailMysqlModel.setTotalRequestTimes((long) list.size());
-            feeDetailMysqlModel.setTotalFee(totalFee);
-            feeDetailMysqlModel.setClientId(apiRequestRecordMysqlModel.getClientId());
-            feeDetailMysqlModel.setServiceId(apiRequestRecordMysqlModel.getServiceId());
-            feeDetailMysqlModel.setUnitPrice(unitPrice);
-            feeDetailService.save(feeDetailMysqlModel);
-
-            logger.info("save fee detail by the time: " + DateUtil.getCurrentDate() + ", service id: "
-                    + apiRequestRecordMysqlModel.getServiceId() + ", client id: " + apiRequestRecordMysqlModel.getClientId());
-        } else {
-            logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
+        } catch (Exception e) {
+            logger.error("");
         }
 
 
