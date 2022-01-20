@@ -106,6 +106,19 @@ const baseRoutes = [
 
                 component: () => import('@views/client/client-service-edit.vue'),
             },
+            {
+                path: `${prefixPath}client-edit`,
+                name: 'client-edit',
+                meta: {
+                    title:           '修改客户',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/client/client-edit.vue'),
+            },
+
+
         ],
     },
     {

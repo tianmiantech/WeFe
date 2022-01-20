@@ -42,7 +42,7 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
      * @return
      */
     @Query(value = "select * from " +
-            "(SELECT cs.id , s.name as serviceName, s.id as serviceId, c.id as clientId, c.name as clientName, cs.status ," +
+            "(SELECT cs.id , s.name as serviceName, cs.service_id as serviceId, cs.client_id as clientId, c.name as clientName, cs.status ," +
             " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url, " +
             "fc.unit_price as unitPrice, fc.pay_type as payType " +
             "FROM client_service cs " +
@@ -51,7 +51,8 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
             "left join fee_config fc on cs.service_id = fc.service_id and cs.client_id = fc.client_id) as t " +
             "where if(:service_name != '' ,t.serviceName like CONCAT('%',:service_name,'%'), 1=1) " +
             "and if(:client_name != '' ,t.clientName like CONCAT('%',:client_name,'%') , 1=1) " +
-            "and if(:status is not null ,t.status = :status, 1=1) " +
+            "and if(:status is not null ,t.status = :status, 1 = 1 ) " +
+            "group by t.serviceId, t.clientId " +
             "order by t.createdTime desc limit :pageOffset,:pageSize ", nativeQuery = true, countProjection = "1")
     List<ClientServiceOutputModel> queryClientServiceList(@Param("service_name") String serviceName,
                                                           @Param("client_name") String clientName,
@@ -68,13 +69,14 @@ public interface ClientServiceQueryRepository extends BaseRepository<ClientServi
      * @return
      */
     @Query(value = "select count(*) from " +
-            "(SELECT cs.id , s.name as serviceName, s.id as serviceId, c.id as clientId, c.name as clientName, cs.status ," +
+            "(SELECT cs.id , s.name as serviceName,cs.service_id as serviceId, cs.client_id as clientId, c.name as clientName, cs.status ," +
             " cs.created_time as createdTime, s.service_type as serviceType, c.ip_add as ipAdd ,s.url, " +
             "fc.unit_price as unitPrice, fc.pay_type as payType " +
             "FROM client_service cs " +
             "left join service s on cs.service_id = s.id " +
             "left join client c on cs.client_id = c.id " +
-            "left join fee_config fc on cs.service_id = fc.service_id and cs.client_id = fc.client_id) as t " +
+            "left join fee_config fc on cs.service_id = fc.service_id and cs.client_id = fc.client_id " +
+            "group by cs.service_id, cs.client_id) as t " +
             "where if(:service_name != '' ,t.serviceName like CONCAT('%',:service_name,'%'), 1=1) " +
             "and if(:client_name != '' ,t.clientName like CONCAT('%',:client_name,'%') , 1=1) " +
             "and if(:status is not null ,t.status = :status, 1=1) ", nativeQuery = true, countProjection = "1")

@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.welab.wefe.serving.service.api.client.UpdateApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -59,11 +60,11 @@ public class ClientService {
     private ClientServiceRepository clientServiceRepository;
 
 
-    public void save(SaveClientApi.Input input) throws SQLIntegrityConstraintViolationException, StatusCodeWithException {
+    public void save(SaveClientApi.Input input) throws StatusCodeWithException {
 
         ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
         if (clientMysqlModel != null) {
-            throw new StatusCodeWithException(StatusCode.SQL_UNIQUE_IN_CODE);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
         }
 
 
@@ -79,6 +80,21 @@ public class ClientService {
         model.setCreatedBy(input.getCreatedBy());
         model.setCode(input.getCode());
         model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
+        model.setIpAdd(input.getIpAdd());
+
+        clientRepository.save(model);
+    }
+
+    public void update(UpdateApi.Input input) throws StatusCodeWithException {
+        ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
+
+        if (null == model) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+        model.setName(input.getName());
+        model.setEmail(input.getEmail());
+        model.setRemark(input.getRemark());
+        model.setPubKey(input.getPubKey());
         model.setIpAdd(input.getIpAdd());
 
         clientRepository.save(model);
@@ -148,5 +164,6 @@ public class ClientService {
         model.setUpdatedTime(new Date());
         clientRepository.save(model);
     }
+
 
 }

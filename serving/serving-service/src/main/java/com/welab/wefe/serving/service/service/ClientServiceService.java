@@ -89,7 +89,7 @@ public class ClientServiceService {
             feeConfigRepository.save(feeConfigMysqlModel);
 
         } else {
-            throw new StatusCodeWithException(StatusCode.CLIENT_SERVICE_ALREADY_HAS);
+            throw new StatusCodeWithException(StatusCode.DATA_EXISTED);
         }
     }
 

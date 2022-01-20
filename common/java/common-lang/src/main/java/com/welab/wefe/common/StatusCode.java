@@ -53,7 +53,7 @@ public enum StatusCode {
     PARAMETER_VALUE_INVALID(10017, "参数值非法 (%s): (%s)"),
     DATA_NOT_FOUND(10019, "数据不存在"),
     REQUEST_API_NOT_FOUND(10020, "接口不存在：%s"),
-    PRIMARY_KEY_CONFLICT(10026, "数据值 (%s) 已经存在 (%s)"),
+    PRIMARY_KEY_CONFLICT(10026, "数据 (%s) 已经存在 (%s)"),
     UNEXPECTED_ENUM_CASE(10027, "枚举值错误：(%s)"),
     DIRECTORY_NOT_FOUND(10028, "字典不存在"),
     PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能唯恐!"),
@@ -86,15 +86,7 @@ public enum StatusCode {
      * 添加数据资源时的表单参数错误
      * 区别于数据资源文件错误，这种错误不需要删除文件。
      */
-    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, ""),
-
-    /**
-     * serving
-     */
-    SQL_UNIQUE_IN_CODE(40001, "Duplicate entry for key 'code' in client"),
-    IP_ADDRESS_FORMAT_ERROR(40002, "IP address format error!"),
-    CLIENT_SERVICE_ALREADY_HAS(40003, "the client service has already been added"),
-    CLIENT_SERVICE_UPDATE(40004, "update client service");
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, "");
 
     private int code;
     private String description;

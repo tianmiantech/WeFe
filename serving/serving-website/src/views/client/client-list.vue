@@ -86,7 +86,7 @@
 
                     <router-link
                         :to="{
-                            name: 'client-add',
+                            name: 'client-edit',
                             query: {
                                 id: scope.row.id
                             },
