@@ -40,6 +40,14 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientServiceR
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 import com.welab.wefe.serving.service.utils.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
@@ -60,25 +68,14 @@ public class ClientService {
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());
-
         model.setRemark(input.getRemark());
         model.setPubKey(input.getPubKey());
         model.setCreatedBy(input.getCreatedBy());
         model.setCode(input.getCode());
         model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
-
-        String pattern = "(^,+)|(,+$)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(input.getIpAdd());
-        if (m.find()) {
-            String ip = m.replaceAll("");
-            model.setIpAdd(ip);
-        } else {
-            throw new StatusCodeWithException(StatusCode.IP_ADDRESS_FORMAT_ERROR);
-        }
+        model.setIpAdd(input.getIpAdd());
 
         clientRepository.save(model);
-
     }
 
 
@@ -115,12 +112,12 @@ public class ClientService {
 				.build(ClientServiceMysqlModel.class);
 		return clientServiceRepository.findOne(where).orElse(null);
 	}
-    
+
 	public ClientMysqlModel queryByClientId(String id) {
 		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
 		return model;
 	}
-	
+
 	public QueryClientApi.Output queryById(String id) {
 		ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
 		return ModelMapper.map(model, QueryClientApi.Output.class);
