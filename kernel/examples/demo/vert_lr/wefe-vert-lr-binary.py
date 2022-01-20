@@ -93,7 +93,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
         "batch_size": param["batch_size"],
         "early_stop": "diff",
         "tol": 1e-5,
-        "method": consts.LR,
+        "lr_method": consts.SSHE_LR,
         "init_param": {
             "init_method": param.get("init_method", 'random_uniform')
         }

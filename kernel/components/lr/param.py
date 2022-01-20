@@ -341,7 +341,7 @@ class VertLogisticParam(LogisticParam):
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  metrics=['auc', 'ks'],
                  use_first_metric_only=False,
-                 method='lr'
+                 lr_method='lr'
                  ):
         super(VertLogisticParam, self).__init__(penalty=penalty, tol=tol, alpha=alpha, optimizer=optimizer,
                                                 batch_size=batch_size,
@@ -356,7 +356,7 @@ class VertLogisticParam(LogisticParam):
                                                 use_first_metric_only=use_first_metric_only)
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
         self.sqn_param = copy.deepcopy(sqn_param)
-        self.method = method
+        self.method = lr_method
 
     def check(self):
         super().check()
