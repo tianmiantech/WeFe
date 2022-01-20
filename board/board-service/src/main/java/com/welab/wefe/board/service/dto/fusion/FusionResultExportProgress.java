@@ -17,6 +17,8 @@ package com.welab.wefe.board.service.dto.fusion;
  */
 
 
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
+
 /**
  * @author hunter.zhao
  */
@@ -31,10 +33,15 @@ public class FusionResultExportProgress {
 
     int processedCount;
 
+    ExportStatus status;
+
+    long finishTime;
+
     public FusionResultExportProgress(String businessId, String tableName, int totalDataCount) {
         this.businessId = businessId;
         this.totalDataCount = totalDataCount;
         this.tableName = tableName;
+        this.status = ExportStatus.exporting;
     }
 
     public int getProgress() {
@@ -65,5 +72,42 @@ public class FusionResultExportProgress {
 
     public synchronized void increment() {
         processedCount++;
+
+        if (processedCount == totalDataCount) {
+            finishTime = System.currentTimeMillis();
+            status = ExportStatus.success;
+        }
+    }
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public ExportStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ExportStatus status) {
+        this.status = status;
+    }
+
+    public long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
     }
 }

@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.util.JdbcManager;
@@ -88,8 +89,14 @@ public class FusionResultService extends AbstractService {
         allList.forEach(x -> {
             CommonThreadPool.run(
                     () -> {
-                        writer(columns, x, conn, tableName);
-                        progress.increment();
+                            try {
+                                writer(columns, x, conn, tableName);
+                                progress.increment();
+                            } catch (SQLException e) {
+                                progress.setStatus(ExportStatus.failure);
+                                e.printStackTrace();
+                                return;
+                            }
                     }
             );
         });
@@ -118,7 +125,7 @@ public class FusionResultService extends AbstractService {
     }
 
 
-    private void writer(List<String> headers, DataItemModel model, Connection conn, String tableName) {
+    private void writer(List<String> headers, DataItemModel model, Connection conn, String tableName) throws SQLException {
         StringBuilder sql = new StringBuilder().append("INSERT INTO  " + tableName + "(");
         headers.forEach(
                 x -> {
@@ -134,11 +141,7 @@ public class FusionResultService extends AbstractService {
 
         sql.deleteCharAt(sql.length() - 1).append(")");
 
-        try {
-            PreparedStatement statement = conn.prepareStatement(sql.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        PreparedStatement statement = conn.prepareStatement(sql.toString());
+        statement.execute();
     }
 }
