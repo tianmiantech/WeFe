@@ -474,7 +474,7 @@ class VertFastSecureBoostParam(VertSecureBoostParam):
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
                  complete_secure=False, sparse_optimization=False,
                  run_goss=False, top_rate=0.2, other_rate=0.1, cipher_compress_error=None, new_ver=True,cipher_compress=True,
-                 tree_num_per_member=1, promoter_depth=1, provider_depth=1, work_mode='mix'):
+                 tree_num_per_member=1, promoter_depth=1, provider_depth=1, work_mode='skip'):
 
         """
         work_mode：
@@ -517,7 +517,7 @@ class VertFastSecureBoostParam(VertSecureBoostParam):
         if type(self.tree_num_per_member).__name__ not in ["int", "long"] or self.tree_num_per_member <= 0:
             raise ValueError("tree_num_per_member should be larger than 0")
 
-        work_modes = [consts.MIX_TREE, consts.LAYERED_TREE]
+        work_modes = [consts.SKIP_TREE, consts.LAYERED_TREE]
         if self.work_mode not in work_modes:
             raise ValueError('only work_modes: {} are supported, input work mode is {}'.
                              format(work_modes, self.work_mode))

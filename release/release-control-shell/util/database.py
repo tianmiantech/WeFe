@@ -15,11 +15,11 @@ import pymysql
 
 
 def create_connection():
-    return pymysql.connect(host='10.1.0.120',
+    return pymysql.connect(host='localhost',
                            port=3306,
-                           user='wefe',
-                           password="ou0sqsTPN!gG",
-                           database='wefe_board_3')
+                           user='root',
+                           password="",
+                           database='wefe_upgrade_test01')
 
 
 def select_one(sql: str):

@@ -240,6 +240,9 @@
         methods: {
             getDataList(opt) {
                 this.search = this.searchField;
+                if (this.search.dataResourceType && typeof this.search.dataResourceType === 'string') {
+                    this.search.dataResourceType = [this.search.dataResourceType];
+                }
                 this.pagination.page_index = +this.$route.query.page_index || 1;
                 this.pagination.page_size = +this.$route.query.page_size || 20;
                 this.getList(opt);

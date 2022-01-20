@@ -223,6 +223,8 @@ public class AccountService extends AbstractService {
         model.setPassword(newPassword);
 
         accountRepository.save(model);
+
+        CurrentAccount.logout(model.getId());
     }
 
 
