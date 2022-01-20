@@ -32,6 +32,10 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientServiceR
 import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -91,8 +95,11 @@ public class ClientServiceService {
 
 
     public PagingOutput<ClientServiceOutputModel> queryList(QueryListApi.Input input) {
-        List<ClientServiceOutputModel> list = clientServiceQueryRepository.queryClientServiceList(input.getServiceName(), input.getClientName(), input.getStatus());
-        return PagingOutput.of(list.size(), list);
+        List<ClientServiceOutputModel> list = clientServiceQueryRepository.queryClientServiceList(input.getServiceName(),
+                input.getClientName(), input.getStatus(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
+        Integer total = clientServiceQueryRepository.count(input.getServiceName(), input.getClientName(), input.getStatus());
+
+        return PagingOutput.of(total, list);
     }
 
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {

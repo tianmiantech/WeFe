@@ -19,6 +19,7 @@ package com.welab.wefe.serving.service.api.client;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -27,14 +28,20 @@ import com.welab.wefe.serving.service.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Api(path = "client/save", name = "save")
 public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
 
+    private static final Pattern r = Pattern.compile("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}");
+
     @Autowired
     private ClientService clientService;
+
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
@@ -76,6 +83,19 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         @Check(name = "客户 code")
         private String code;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            List<String> ipArray = StringUtil.splitWithoutEmptyItem(ipAdd, ",");
+            for (String ip : ipArray) {
+                Matcher m = r.matcher(ip);
+                if (!m.matches()) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("错误的IP：" + ip);
+                }
+            }
+            ipAdd = StringUtil.join(ipArray, ",");
+        }
 
         public String getCode() {
             return code;

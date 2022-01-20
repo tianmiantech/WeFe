@@ -41,8 +41,8 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
      * @param endTime
      * @return
      */
-    @Query(value = "select replace(uuid(),'-','') as id, s.name as service_name,s.id as service_id, c.name as client_name, " +
-            "c.id as client_id ,s.service_type ,fc.unit_price,  " +
+    @Query(value = "select replace(uuid(),'-','') as id, s.name as service_name,fd.service_id as service_id, c.name as client_name, " +
+            "fd.client_id as client_id ,s.service_type ,fc.unit_price,  " +
             "fc.pay_type, sum(fd.total_request_times) as total_request_times, sum(fd.total_fee) as total_fee, " +
             "DATE_FORMAT(fd.created_time ,:query_type) as query_date " +
             "from fee_detail fd  " +
@@ -54,7 +54,7 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
             "       and if(:service_type is not null, s.service_type = :service_type,1=1) " +
             "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
             "       and if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by DATE_FORMAT(fd.created_time ,:query_type) " +
+            "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) " +
             "order by fd.created_time desc ", nativeQuery = true, countProjection = "1")
     List<FeeDetailOutputModel> queryList(@Param("client_name") String clientName,
                                          @Param("service_name") String serviceName,
