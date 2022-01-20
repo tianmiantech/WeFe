@@ -27,7 +27,7 @@ board-service 的启动依赖 `config.properties` 配置文件，需要在 jar �
 修改 mysql 相关配置项
 
 ```bash
-db.mysql.url=jdbc:mysql://0.0.0.0:3306/wefe_board?serverTimezone=GMT%2B8
+db.mysql.url=jdbc:mysql://0.0.0.0:3306/wefe_board?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=GMT%2B8
 db.mysql.host=0.0.0.0
 db.mysql.port=3306
 db.mysql.database=wefe_board

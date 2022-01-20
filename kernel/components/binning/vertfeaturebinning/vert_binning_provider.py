@@ -31,6 +31,7 @@
 
 
 import functools
+import copy
 
 from common.python.utils import log_utils
 from kernel.components.binning.core.bucket_binning import BucketBinning
@@ -48,75 +49,19 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
     def fit(self, data_instances):
         self._abnormal_detection(data_instances)
 
-        binning_obj_list = []
+        # get the encrypted_label from promoter
         encrypted_label_table = self.transfer_variable.encrypted_label.get(idx=0)
-        send_results = []
+
+        # caculate encrypted bin sum and send the variable binning results to promoter
         modes = self.model_param.modes
-        for mode in modes:
-            method = mode["method"]
-            bin_num = mode["bin_num"]
-            members = mode["members"]
+        send_results = self.cal_encrypted_bin_sum(modes, encrypted_label_table, data_instances)
+        self.transfer_variable.encrypted_bin_sum.remote(send_results, role=consts.PROMOTER, idx=0)
 
-            self.model_param.bin_indexes = []
-            self.model_param.bin_num = 10
-            self.model_param.method = "quantile"
-            for member in members:
-                role = member["role"]
-                member_id = member["member_id"]
-                bin_feature_names = member["bin_feature_names"]
-                # bin_indexes = member["bin_indexes"]
-                feature_split_points = member.get('feature_split_points')
-
-                if (role == self.role) and (str(member_id) == self.member_id):
-                    bin_indexes = self.get_indexes(bin_feature_names, data_instances)
-                    self.model_param.bin_indexes = bin_indexes
-                    self.model_param.bin_num = bin_num
-                    self.model_param.method = method
-                    self.model_param.feature_split_points = feature_split_points
-                    break
-
-            if self.model_param.method == consts.QUANTILE:
-                self.binning_obj = QuantileBinning(self.model_param)
-            elif self.model_param.method == consts.BUCKET:
-                self.binning_obj = BucketBinning(self.model_param)
-            elif self.model_param.method == consts.CUSTOM:
-                self.binning_obj = CustomBinning(self.model_param)
-                self.binning_obj.params.feature_split_points = self.model_param.feature_split_points
-            elif self.model_param.method == consts.OPTIMAL:
-                if self.role == consts.PROVIDER:
-                    self.model_param.bin_num = self.model_param.optimal_binning_param.init_bin_nums
-                    self.binning_obj = QuantileBinning(self.model_param)
-                else:
-                    self.binning_obj = OptimalBinning(self.model_param)
-            LOGGER.debug("in _init_model, role: {}, local_member_id: {}".format(self.role, self.component_properties))
-            self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
-
-            """
-            Apply binning method for both data instances in local party as well as the other one. Afterwards, calculate
-            the specific metric value for specific columns.
-            """
-
-            # self._parse_cols(data_instances)
-            self._setup_bin_inner_param(data_instances, self.model_param)
-
-            # Calculates split points of datas in self party
-            split_points = self.binning_obj.fit_split_points(data_instances)
-
-            if not self.model_param.local_only:
-                if self.model_param.method == consts.OPTIMAL:
-                    self.model_param.bin_num = bin_num
-
-                send_result = self._sync_init_bucket(encrypted_label_table, data_instances, split_points)
-                send_results.append(send_result)
-
-            self.binning_obj_list.append(self.binning_obj)
-
-        print(self.transfer_variable.encrypted_bin_sum.remote(send_results,
-                                                              role=consts.PROMOTER,
-                                                              idx=0))
+        # get the provider bin results list
         provider_bin_results_list = self.transfer_variable.provider_bin_results.get(idx=0)
-
+        LOGGER.debug(" get provider_bin_results_list from promoter {}".format(provider_bin_results_list))
         bucket_idx_result_list = self.transfer_variable.bucket_idx.get(idx=0)
+
         for id, bucket_idx_result in enumerate(bucket_idx_result_list):
             binning_obj_method = bucket_idx_result["method"]
             if binning_obj_method == consts.OPTIMAL:
@@ -128,14 +73,17 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             result = provider_bin_results["result"]
             bin_results = result.bin_results
             provider_bin_results = bin_results.all_cols_results
+            LOGGER.debug("provider_bin_results.keys() {}".format(provider_bin_results.keys()))
             for feature in provider_bin_results.keys():
                 old_all_cols_results = self.binning_obj_list[i].bin_results.all_cols_results
+                LOGGER.debug("old_all_cols_results{}".format(old_all_cols_results))
                 feature_name = self.bin_inner_param.decode_col_name(feature)
                 bin_col_results = provider_bin_results[feature]
                 bin_col_results.split_points = old_all_cols_results[feature_name].split_points
                 all_cols_results[feature_name] = bin_col_results
             self.binning_obj_list[i].bin_results.all_cols_results = all_cols_results
 
+        LOGGER.debug("binning_obj_list :{}".format(self.binning_obj_list))
         if self.transform_type != 'woe':
             data_instances = self.transform(data_instances)
         self.set_schema(data_instances)
@@ -163,21 +111,26 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             encrypted_bin_sum = self.binning_obj.shuffle_static_counts(encrypted_bin_sum)
 
         encrypted_bin_sum = self.bin_inner_param.encode_col_name_dict(encrypted_bin_sum)
+        model_param  = copy.deepcopy(self.model_param)
+        model_param.category_names = []
+        model_param.category_indexs = []
+        model_param.bin_indexes = []
         send_result = {
             "encrypted_bin_sum": encrypted_bin_sum,
             "category_names": self.bin_inner_param.encode_col_name_list(self.bin_inner_param.category_names),
-            "bin_method": self.model_param.method,
-            "bin_nums": self.model_param.bin_num,
-            "optimal_params": {
-                "metric_method": self.model_param.optimal_binning_param.metric_method,
-                "bin_num": self.model_param.bin_num,
-                "mixture": self.model_param.optimal_binning_param.mixture,
-                "max_bin_pct": self.model_param.optimal_binning_param.max_bin_pct,
-                "min_bin_pct": self.model_param.optimal_binning_param.min_bin_pct
-            }
+            "model_param": model_param
+            # "bin_method": self.model_param.method,
+            # "bin_nums": self.model_param.bin_num,
+            # "optimal_params": {
+            #     "metric_method": self.model_param.optimal_binning_param.metric_method,
+            #     "bin_num": self.model_param.bin_num,
+            #     "mixture": self.model_param.optimal_binning_param.mixture,
+            #     "max_bin_pct": self.model_param.optimal_binning_param.max_bin_pct,
+            #     "min_bin_pct": self.model_param.optimal_binning_param.min_bin_pct
+            # }
         }
         LOGGER.debug("Send bin_info.category_names: {}, bin_info.bin_method: {}".format(send_result['category_names'],
-                                                                                        send_result['bin_method']))
+                                                                                        send_result['model_param']))
 
         return send_result
 
@@ -209,3 +162,58 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             ori_sp_list = original_split_points.get(col_name)
             optimal_result = [ori_sp_list[i] for i in b_idx]
             self.binning_obj_list[index].bin_results.put_col_split_points(col_name, optimal_result)
+
+    def cal_encrypted_bin_sum(self, modes, encrypted_label_table, data_instances):
+        send_results = []
+        binning_obj_list = []
+        all_bin_col_indexs = []
+        all_bin_col_names= []
+        for mode in modes:
+            for member in mode["members"]:
+                if (member["role"] == self.role) and (member["bin_feature_names"]) \
+                        and (member["member_id"] == self.member_id):
+                    bin_feature_names = member["bin_feature_names"]
+                    bin_indexes = self.get_indexes(bin_feature_names, data_instances)
+                    self.model_param.method = mode["method"]
+                    self.model_param.bin_num = mode["bin_num"]
+                    self.model_param.bin_indexes = bin_indexes
+                    all_bin_col_names.extend(bin_feature_names)
+                    all_bin_col_indexs.extend(bin_indexes)
+
+                    if self.model_param.method == consts.QUANTILE:
+                        self.binning_obj = QuantileBinning(self.model_param)
+                    elif self.model_param.method == consts.BUCKET:
+                        self.binning_obj = BucketBinning(self.model_param)
+                    elif self.model_param.method == consts.CUSTOM:
+                        self.model_param.feature_split_points = member["feature_split_points"]
+                        self.binning_obj = CustomBinning(self.model_param)
+                        self.binning_obj.params.feature_split_points = self.model_param.feature_split_points
+                    elif self.model_param.method == consts.OPTIMAL:
+                        if self.role == consts.PROVIDER:
+                            self.model_param.bin_num = self.model_param.optimal_binning_param.init_bin_nums
+                            self.binning_obj = QuantileBinning(self.model_param)
+                        else:
+                            self.binning_obj = OptimalBinning(self.model_param)
+                    LOGGER.debug("in _init_model, role: {}, local_member_id: {}".format(self.role,
+                                                                                        self.component_properties))
+                    self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
+
+                    """
+                    Apply binning method for both data instances in local party as well as the other one. Afterwards, calculate
+                    the specific metric value for specific columns.
+                    """
+                    # self._parse_cols(data_instances)
+                    self._setup_bin_inner_param(data_instances, self.model_param)
+
+                    # Calculates split points of datas in self party
+                    split_points = self.binning_obj.fit_split_points(data_instances)
+                    if not self.model_param.local_only:
+                        if self.model_param.method == consts.OPTIMAL:
+                            self.model_param.bin_num = mode["bin_num"]
+                        send_result = self._sync_init_bucket(encrypted_label_table, data_instances, split_points)
+                        send_results.append(send_result)
+
+                    self.binning_obj_list.append(self.binning_obj)
+        self.model_param.bin_indexes = all_bin_col_indexs
+        self.model_param.bin_names = all_bin_col_names
+        return send_results

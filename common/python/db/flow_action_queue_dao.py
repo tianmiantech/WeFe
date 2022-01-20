@@ -43,3 +43,8 @@ class FlowActionQueueDao:
         """
         with DB.connection_context():
             action.delete_instance()
+
+    @staticmethod
+    def save(model: FlowActionQueue, force_insert=False):
+        with DB.connection_context():
+            model.save(force_insert=force_insert)

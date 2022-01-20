@@ -349,7 +349,7 @@ class InterActivePromoterDenseLayer(object):
         self.provider_model.restore_model(interactive_layer_param.interactive_provider_saved_model_bytes)
 
 
-class InteractiveHostDenseLayer(object):
+class InteractiveProviderDenseLayer(object):
     def __init__(self, params):
         self.acc_noise = None
         self.learning_rate = params.interactive_layer_lr

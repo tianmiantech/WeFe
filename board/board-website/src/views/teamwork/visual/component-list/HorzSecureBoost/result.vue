@@ -30,35 +30,8 @@
                 </el-collapse-item>
                 <template v-if="vData.result">
                     <el-collapse-item
-                        title="特征权重"
-                        name="2"
-                    >
-                        <el-table
-                            :data="vData.loss.weight"
-                            style="max-width:355px;"
-                            max-height="600px"
-                            stripe
-                            border
-                        >
-                            <el-table-column
-                                prop="number"
-                                label="序号"
-                                width="60"
-                            />
-                            <el-table-column
-                                prop="name"
-                                label="列名"
-                                width="140"
-                            />
-                            <el-table-column
-                                prop="height"
-                                label="权重"
-                            />
-                        </el-table>
-                    </el-collapse-item>
-                    <el-collapse-item
                         title="任务跟踪指标（LOSS）"
-                        name="3"
+                        name="2"
                     >
                         <LineChart
                             v-if="vData.loss.show"
@@ -94,7 +67,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
@@ -108,16 +80,15 @@
                     series:      [[]],
                     iters:       0,
                     isConverged: null,
-                    weight:      [],
                 },
                 pollingOnJobRunning: true,
             });
 
             let methods = {
                 showResult(data) {
-                    if(data.result && data.result.model_param) {
+                    if(data[0].result && data[0].result.model_param) {
                         vData.result = true;
-                        const { losses, isConverged, lossHistory, weight } = data.result.model_param;
+                        const { losses, isConverged, lossHistory } = data[0].result.model_param;
 
                         losses.forEach((item, index) => {
                             vData.loss.xAxis.push(index);
@@ -126,14 +97,13 @@
                         vData.loss.isConverged = isConverged;
                         vData.loss.lossHistory = lossHistory;
                         vData.loss.iters = losses.length;
-                        vData.loss.weight = weight || [];
                         vData.loss.loading = false;
                     } else {
                         vData.result = false;
                     }
                 },
                 collapseChanged(val) {
-                    if(val.includes('3')){
+                    if(val.includes('2')){
                         vData.loss.show = true;
                     }
                 },

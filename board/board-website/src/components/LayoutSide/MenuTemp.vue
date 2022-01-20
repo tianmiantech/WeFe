@@ -8,11 +8,26 @@
                     popper-class="sidebar-menu-popover"
                 >
                     <template #title>
-                        <i
+                        <el-icon
                             v-if="item.meta.icon"
-                            :class="['icon', item.meta.icon]"
-                        />
-                        <span>{{ item.meta.title }}</span>
+                            class="icon"
+                        >
+                            <component :is="`elicon-${item.meta.icon}`" />
+                        </el-icon>
+                        <span>{{ item.meta.title }}
+                            <el-tooltip
+                                v-if="item.meta.tooltip"
+                                placement="top-start"
+                                effect="light"
+                            >
+                                <template #content>
+                                    <p class="color-danger" v-html="item.meta.tooltip"></p>
+                                </template>
+                                <el-icon class="ml5">
+                                    <elicon-info-filled />
+                                </el-icon>
+                            </el-tooltip>
+                        </span>
                     </template>
                     <el-menu-item-group>
                         <menu-temp :menus="item.children" />
@@ -25,7 +40,9 @@
                     :key="index"
                     :index="item.children[0].path"
                 >
-                    <i :class="['icon', item.children[0].meta.icon]" />
+                    <el-icon class="icon">
+                        <component :is="`elicon-${item.children[0].meta.icon}`" />
+                    </el-icon>
                     <template #title>
                         <span>{{ item.children[0].meta.title }}</span>
                     </template>
@@ -37,9 +54,11 @@
                     :key="index"
                     :index="item.path"
                 >
-                    <i :class="['icon', item.meta.icon]" />
+                    <el-icon v-if="item.meta.icon" class="icon">
+                        <component :is="`elicon-${item.meta.icon}`" />
+                    </el-icon>
                     <template #title>
-                        <span>{{ item.meta.title }}</span>
+                        <span class="pl10">{{ item.meta.title }}</span>
                     </template>
                 </el-menu-item>
             </template>
@@ -59,7 +78,7 @@
                 default: () => [],
             },
         },
-        setup(props) {
+        setup() {
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
 

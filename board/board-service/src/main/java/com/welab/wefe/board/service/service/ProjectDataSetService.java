@@ -130,7 +130,8 @@ public class ProjectDataSetService extends AbstractService {
 
         // Create a derived dataset object
         DerivedProjectDataSetOutputModel derivedDataSet = json.toJavaObject(DerivedProjectDataSetOutputModel.class);
-
+		derivedDataSet.setSourceTypeCn(
+				derivedDataSet.getSourceType() != null ? derivedDataSet.getSourceType().getLabel() : "");
         if (dataSet != null) {
             // Query the feature list from each member
             List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getSourceJobId(), false);

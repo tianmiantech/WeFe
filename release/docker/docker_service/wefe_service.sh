@@ -5,6 +5,7 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
+source ./spark_cluster.sh
 
 export PWD=$(pwd)
 
@@ -80,6 +81,7 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
+    cp -f ./config.properties wefe_python_gpu_service/resources/mount/
 }
 
 init(){
@@ -87,6 +89,35 @@ init(){
     edit_wefe_config
     # 分发配置
     send_wefe_config
+}
+
+_run_python_service(){
+    if [ ${ACCELERATION,,} = "gpu" ];then
+      cd $PWD/wefe_python_service
+      sh wefe_python_service_start.sh gpu
+    fi
+
+    if [ $SPARK_MODE = "STANDALONE" ]
+    then
+      # 集群方式启动
+      start_cluster
+    else
+      # 单机启动
+      cd $PWD/wefe_python_service
+      sh wefe_python_service_start.sh
+    fi
+}
+
+_stop_cluster_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]; then
+      stop_cluster
+    fi
+}
+
+_remove_cluster_python_service(){
+    if [ $SPARK_MODE = "STANDALONE" ]; then
+      remove_cluster
+    fi
 }
 
 start(){
@@ -103,8 +134,7 @@ start(){
             sh wefe_gateway_service_start.sh
             ;;
         python)
-            cd $PWD/wefe_python_service
-            sh wefe_python_service_start.sh
+            _run_python_service
             ;;
         middleware)
             cd $PWD/wefe_middleware_service
@@ -130,10 +160,36 @@ stop(){
         board | gateway | python | middleware)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker stop $CONTAINER
+            if [ $INPUT_SERVICE = "python" ]; then
+              _stop_cluster_python_service
+            fi
             ;;
         '')
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep wefe | awk '{print $1}' | xargs)
             docker stop $CONTAINER
+            _stop_cluster_python_service
+            ;;
+        *)
+            echo "Please Input a Legal Service"
+            echo "eg. {board|gateway|python|middleware}"
+            exit -1
+    esac
+}
+
+remove(){
+    # init
+    case $INPUT_SERVICE in
+        board | gateway | python | middleware)
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            if [ $INPUT_SERVICE = "python" ]; then
+              _remove_cluster_python_service
+            fi
+            ;;
+        '')
+            CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep wefe | awk '{print $1}' | xargs)
+            docker rm $CONTAINER
+            _remove_cluster_python_service
             ;;
         *)
             echo "Please Input a Legal Service"
@@ -174,6 +230,9 @@ case $INPUT_ACTION in
         ;;
     restart)
         restart
+        ;;
+    remove)
+        remove
         ;;
     help)
         help

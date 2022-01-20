@@ -38,10 +38,12 @@
                                 >
                                     {{ item.unread_num }}
                                 </p>
-                                <i
+                                <el-icon
                                     class="el-icon-delete"
                                     @click.stop="deleteLastAccount(item, index)"
-                                />
+                                >
+                                    <elicon-delete />
+                                </el-icon>
                             </li>
                         </ul>
                         <div
@@ -191,7 +193,6 @@
 
             // hide chat room
             const hide = () => {
-                console.log('hide');
                 vData.dom.classList.add('hide');
                 vData.dom.classList.remove('show');
                 window.localStorage.removeItem(`${window.api.baseUrl}_chat`);
@@ -222,11 +223,14 @@
                 rect.top = 100;
                 rect.left = window.innerWidth - 560;
             };
-            const getLastChatAccount = async () => {
+            const getLastChatAccount = async (opt = {
+                requestFromRefresh: false,
+            }) => {
                 const { code, data } = await $http.get({
                     url:    '/chat/chat_last_account',
                     params: {
-                        accountId: userInfo.value.id,
+                        accountId:              userInfo.value.id,
+                        'request-from-refresh': opt.requestFromRefresh,
                     },
                 });
 
@@ -250,7 +254,7 @@
 
                 if(!userInfoLocalStorage) return;
 
-                await getLastChatAccount();
+                await getLastChatAccount({ requestFromRefresh: true });
 
                 setTimeout(() => {
                     // every 10s

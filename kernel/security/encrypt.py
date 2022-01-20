@@ -257,7 +257,7 @@ class PadsCipher(Encrypt):
 
     def encrypt_table(self, table):
         def _pad(key, value, seeds, amplify_factor):
-            has_key = int(hashlib.md5(f"{key}".encode("ascii")).hexdigest(), 16)
+            has_key = int(hashlib.md5(f"{key}".encode("utf-8")).hexdigest(), 16)
             # LOGGER.debug(f"hash_key: {has_key}")
             cur_seeds = {uid: has_key + seed for uid, seed in seeds.items()}
             # LOGGER.debug(f"cur_seeds: {cur_seeds}")
@@ -292,7 +292,7 @@ class PadsCipher(Encrypt):
         f = functools.partial(
             _pad, seeds=self._seeds, amplify_factor=self._amplify_factor
         )
-        return table.map(f)
+        return table.map(f, need_send=True)
 
     def decrypt(self, value):
         return value

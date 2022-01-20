@@ -114,6 +114,8 @@ class VertNNProvider(VertNNBase):
 
             cur_epoch += 1
 
+            self.tracker.add_task_progress(1)
+
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)
 
