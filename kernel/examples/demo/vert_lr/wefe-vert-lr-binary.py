@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
-
 import argparse
 import os
-import random
+import time
 
 from kernel.examples.handler.component import DataIO
 from kernel.examples.handler.component import Evaluation
@@ -25,6 +24,7 @@ from kernel.examples.handler.component import VertLR
 from kernel.examples.handler.handler import Handler
 from kernel.examples.handler.interface import Data
 from kernel.examples.handler.utils.tools import load_job_config, JobConfig
+from kernel.utils import consts
 
 
 def main(config="../../config.yaml", param="./binary_config.yaml", namespace="wefe_data"):
@@ -63,7 +63,8 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     # initialize handler
-    handler = Handler(job_id="job_vertlr_" + str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode,
+    job_id = "job_" + time.strftime("%Y%m%d%H%M%S")
+    handler = Handler(job_id=job_id, backend=backend, work_mode=work_mode,
                       db_type=db_type, fl_type='vertical')
     handler.set_initiator(role='promoter', member_id=promoter)
     handler.set_roles(promoter=promoter, provider=provider)
@@ -92,6 +93,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
         "batch_size": param["batch_size"],
         "early_stop": "diff",
         "tol": 1e-5,
+        "method": consts.LR,
         "init_param": {
             "init_method": param.get("init_method", 'random_uniform')
         }

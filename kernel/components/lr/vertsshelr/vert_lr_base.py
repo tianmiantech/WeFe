@@ -185,7 +185,7 @@ class VertLRBase(BaseLRModel, ABC):
         self.one_vs_rest_obj.fit(data_instances=train_data, validate_data=validate_data)
 
     def fit_binary(self, data_instances, validate_data=None):
-        LOGGER.info("Starting to hetero_sshe_logistic_regression")
+        LOGGER.info("Starting to vert_sshe_logistic_regression")
         self.validation_strategy = self.init_validation_strategy(data_instances, validate_data)
 
         model_shape = self.get_features_shape(data_instances)

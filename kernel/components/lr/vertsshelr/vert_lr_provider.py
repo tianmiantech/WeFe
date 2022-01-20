@@ -95,7 +95,7 @@ class VertLRProvider(VertLRBase):
         batch_num = self.batch_num[int(suffix[1])]
 
         ga = features.dot_local(error)
-        LOGGER.debug(f"ga: {ga}, batch_num: {batch_num}")
+        # LOGGER.debug(f"ga: {ga}, batch_num: {batch_num}")
         ga = ga * (1 / batch_num)
 
         zb_suffix = ("ga2",) + suffix
@@ -104,7 +104,7 @@ class VertLRProvider(VertLRBase):
                                                          cipher=None,
                                                          suffix=zb_suffix)
 
-        LOGGER.debug(f"ga2_1: {ga2_1}")
+        # LOGGER.debug(f"ga2_1: {ga2_1}")
 
         ga_new = ga + ga2_1
 
@@ -116,7 +116,7 @@ class VertLRProvider(VertLRBase):
                                        self.fixedpoint_encoder,
                                        is_fixedpoint_table=False)
 
-        LOGGER.debug(f"gb1: {gb1}")
+        # LOGGER.debug(f"gb1: {gb1}")
 
         return ga_new, gb1
 
