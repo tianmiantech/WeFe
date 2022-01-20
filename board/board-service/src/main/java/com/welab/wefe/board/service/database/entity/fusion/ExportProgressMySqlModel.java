@@ -18,8 +18,11 @@ package com.welab.wefe.board.service.database.entity.fusion;
 
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 /**
  * @author hunter.zhao
@@ -52,6 +55,9 @@ public class ExportProgressMySqlModel extends AbstractBaseMySqlModel {
     int processedCount;
 
     long finishTime;
+
+    @Enumerated(EnumType.STRING)
+    ExportStatus status;
 
 
     public String getBusinessId() {
@@ -100,5 +106,13 @@ public class ExportProgressMySqlModel extends AbstractBaseMySqlModel {
 
     public void setFinishTime(long finishTime) {
         this.finishTime = finishTime;
+    }
+
+    public ExportStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ExportStatus status) {
+        this.status = status;
     }
 }

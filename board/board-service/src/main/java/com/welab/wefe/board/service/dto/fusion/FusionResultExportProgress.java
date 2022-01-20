@@ -77,8 +77,8 @@ public class FusionResultExportProgress {
         processedCount++;
 
         if (processedCount == totalDataCount) {
-            finishTime = System.currentTimeMillis();
-            status = ExportStatus.success;
+            this.finishTime = System.currentTimeMillis();
+            this.status = ExportStatus.success;
         }
     }
 
