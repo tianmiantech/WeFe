@@ -161,7 +161,7 @@
             return {
                 getListApi:          '/union/data_resource/query',
                 defaultSearch:       false,
-                watchRoute:          false,
+                watchRoute:          true,
                 turnPageRoute:       false,
                 requestMethod:       'post',
                 dataResourceTypeMap: {
