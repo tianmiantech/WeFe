@@ -28,12 +28,15 @@
 
 import abc
 import hashlib
+import os
 from collections import Iterable
 
 import six
+import uuid
 
 from common.python.utils.core_utils import string_to_bytes, serialize
 from common.python.utils.store_type import DBTypes
+
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -148,7 +151,7 @@ class Storage(object):
         pass
 
     @abc.abstractmethod
-    def collect(self, min_chunk_size=0, use_serialize=True) -> list:
+    def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> list:
         """
         Returns an iterator of (key, value) 2-tuple from the Table.
 
@@ -335,3 +338,16 @@ class Storage(object):
             _key = ((_key * 2862933555777941757) + 1) & 0xffffffffffffffff
             j = float(b + 1) * (float(1 << 31) / float((_key >> 33) + 1))
         return int(b)
+
+    @staticmethod
+    def generate_file_relative_path(namespace, name, partition, file_data_count):
+        """
+        get file path for fs
+
+        :param namespace:
+        :param name:
+        :param partition:
+        :param file_data_count:
+        :return:
+        """
+        return f'{namespace}/{name}/{partition}/{os.getpid()}-{uuid.uuid1()}_cnt{file_data_count}'

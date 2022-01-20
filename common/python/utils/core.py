@@ -30,7 +30,7 @@ from typing import MutableMapping
 
 from common.python.common.consts import NAMESPACE
 from common.python.storage import NamingPolicy, ComputingEngine
-from common.python.storage.impl.dsource import DBRuntime
+from common.python.p_session.base_impl.db_runtime import DBRuntime
 from common.python.utils.log_utils import get_logger
 from common.python.utils.store_type import DBTypes
 

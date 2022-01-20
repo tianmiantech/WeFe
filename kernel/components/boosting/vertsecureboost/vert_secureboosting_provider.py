@@ -84,9 +84,8 @@ class VertSecureBoostingProvider(BoostingTree):
 
         self.complete_secure = False
         self.enable_goss = False
-        # self.cipher_compressing = False
-        # self.max_sample_weight = None
-        self.round_decimal = None
+
+        self.cipher_compressing = False
         self.new_ver = True
 
     def _init_model(self, param: VertSecureBoostParam):
@@ -95,7 +94,7 @@ class VertSecureBoostingProvider(BoostingTree):
         self.complete_secure = param.complete_secure
         self.sparse_opt_para = param.sparse_optimization
         self.enable_goss = param.run_goss
-        self.round_decimal = param.cipher_compress_error
+        self.cipher_compressing = param.cipher_compress
         self.new_ver = param.new_ver
 
     def convert_feature_to_bin(self, data_instance):
@@ -264,8 +263,7 @@ class VertSecureBoostingProvider(BoostingTree):
                   goss_subsample=self.enable_goss,
                   bin_num=self.bin_num,
                   complete_secure=True if (self.complete_secure and epoch_idx == 0) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
+                  cipher_compressing=self.cipher_compressing,
                   new_ver=self.new_ver
                   )
 
@@ -346,24 +344,6 @@ class VertSecureBoostingProvider(BoostingTree):
             return
 
         self.boosting_fast_predict(processed_data, trees=trees)
-
-    # def predict(self, data_inst, predict_param=None):
-    #     LOGGER.info("start predict")
-    #     data_inst = self.data_alignment(data_inst)
-    #     rounds = len(self.trees_) // self.tree_dim
-    #     predict_start_round = self.sync_predict_start_round()
-    #     for i in range(predict_start_round, rounds):
-    #         # n_tree = self.trees_[i]
-    #         for tidx in range(self.tree_dim):
-    #             tree_inst = VertDecisionTreeProvider(self.tree_param)
-    #             tree_inst.load_model(self.tree_meta, self.trees_[i * self.tree_dim + tidx])
-    #             # tree_inst.set_tree_model(self.trees_[i * self.tree_dim + tidx])
-    #             tree_inst.set_flowid(self.generate_flowid(i, tidx))
-    #             tree_inst.set_runtime_idx(self.component_properties.local_member_id)
-    #
-    #             tree_inst.predict(data_inst)
-    #
-    #     LOGGER.info("end predict")
 
     def get_model_meta(self):
         model_meta = BoostingTreeModelMeta()

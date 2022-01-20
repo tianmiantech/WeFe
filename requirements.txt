@@ -27,7 +27,7 @@ flask~=1.1.2
 werkzeug~=1.0.1
 oss2==2.14.0
 scikit-learn==0.19.2
-tensorflow>=2.4.1
+tensorflow==2.4.1
 torch
 torchvision
 coverage==4.5.2
