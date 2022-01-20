@@ -1,4 +1,4 @@
-package com.welab.wefe.board.service.api.project.fusion.task;
+package com.welab.wefe.board.service.api.project.fusion.result;
 
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.

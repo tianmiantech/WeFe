@@ -150,6 +150,14 @@ public class FusionResultStorageService extends AbstractService {
     }
 
     /**
+     * real all record from storage table
+     */
+    public List<DataItemModel> getList(String tableName) {
+        return storageService.getList(DATABASE_NAME, tableName);
+    }
+
+
+    /**
      * Generate the raw data set table name
      */
     public String createRawDataSetTableName(String businessId) {
