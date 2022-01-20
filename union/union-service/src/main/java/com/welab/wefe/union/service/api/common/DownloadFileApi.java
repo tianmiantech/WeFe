@@ -28,6 +28,7 @@ import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.enums.FileRurpose;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -35,7 +36,7 @@ import com.welab.wefe.common.util.UrlUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonObjectId;
 import org.bson.BsonValue;
@@ -77,7 +78,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
                 throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.fileId);
             }
         } else {
-            if (!memberFileInfo.getMemberId().equals(input.getMemberId())) {
+            if (!memberFileInfo.getMemberId().equals(input.curMemberId) && FileRurpose.RealnameAuth.name().equals(memberFileInfo.getPurpose())) {
                 throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
             }
         }
@@ -138,7 +139,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     }
 
 
-    public static class Input extends SignedApiInput {
+    public static class Input extends BaseInput {
         @Check(require = true)
         private String fileId;
 

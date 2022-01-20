@@ -37,6 +37,7 @@ import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import com.welab.wefe.manager.service.service.RealnameAuthAgreementTemplateContractService;
 import com.welab.wefe.manager.service.task.UploadFileSyncToUnionTask;
+import com.welab.wefe.manager.service.util.VersionUtil;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.bson.Document;
@@ -87,13 +88,14 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
             options.metadata(metadata);
 
             String fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-            input.getFirstFile().getInputStream();
 
             realnameAuthAgreementTemplate = new RealnameAuthAgreementTemplate();
             realnameAuthAgreementTemplate.setTemplateFileId(fileId);
             realnameAuthAgreementTemplate.setTemplateFileSign(sign);
             realnameAuthAgreementTemplate.setFileName(fileName);
-            realnameAuthAgreementTemplate.setEnable("0");
+            realnameAuthAgreementTemplate.setBlockchainNodeId(currentBlockchainNodeId);
+            String version = VersionUtil.generateVersion(realnameAuthAgreementTemplateMongoRepo.findLastVersion());
+            realnameAuthAgreementTemplate.setVersion(version);
             contractService.add(realnameAuthAgreementTemplate);
 
             syncFileToUnion(fileStreamBodyMap, fileId);

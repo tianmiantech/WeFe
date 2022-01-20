@@ -6,7 +6,7 @@ import "./Table.sol";
 
 contract MemberFileInfoContract{
     string constant TABLE_NAME = "member_file_info_contract";
-    string constant FIX_ID = "fix_id_008";
+    string constant FIX_ID = "member_file_info_contract";
 
 
     TableFactory tableFactory;
