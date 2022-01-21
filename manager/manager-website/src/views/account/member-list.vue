@@ -161,8 +161,8 @@
                             </li>
                         </ul>
                         <span class="color-danger">无法查看?</span> 下载附件:
-                        <p>
-                            <el-link v-for="file in fileList" :key="file.fileId" type="primary" :underline="false" @click="downloadFile($event, file)">{{file.name}}</el-link>
+                        <p v-for="file in fileList" :key="file.fileId">
+                            <el-link type="primary" :underline="false" @click="downloadFile($event, file)">{{file.name}}</el-link>
                         </p>
                     </el-form-item>
                 </el-form>

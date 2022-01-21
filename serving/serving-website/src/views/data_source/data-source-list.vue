@@ -125,6 +125,7 @@
         <DataSourceEditor
             :id="dataSourceEditorId"
             ref="DataSourceEditor"
+            @data-source-add="refresh"
         />
     </el-card>
 </template>

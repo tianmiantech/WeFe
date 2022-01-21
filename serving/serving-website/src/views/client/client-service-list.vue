@@ -44,7 +44,7 @@
             </el-button>
             <router-link :to="{name: 'client-service-add'}">
                 <el-button>
-                    新增
+                    添加客户服务
                 </el-button>
             </router-link>
         </el-form>
@@ -56,7 +56,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号 ID"
@@ -173,15 +173,13 @@
                                 clientId: scope.row.client_id,
                                 status: scope.row.status,
                             }
-                        }">
+                        }"
+                    >
                         <el-button>
                             修改
                         </el-button>
                     </router-link>
-
                 </template>
-
-
             </el-table-column>
         </el-table>
         <div
@@ -206,14 +204,14 @@
 import table from '@src/mixins/table.js';
 
 export default {
-    name: 'ClientServiceList',
+    name:   'ClientServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
             search: {
-                clientName: '',
-                status: '',
+                clientName:  '',
+                status:      '',
                 serviceName: '',
             },
             options: [{
@@ -241,21 +239,20 @@ export default {
                 0: '未启用',
             },
             changeStatusType: '',
-            getListApi: '/clientservice/query-list',
-
+            getListApi:       '/clientservice/query-list',
         };
     },
     methods: {
         open(row, status) {
             this.$alert('是否确定修改启用状态？', '修改启用状态', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     this.changeStatus(row, status);
                     setTimeout(() => {
                         this.refresh();
                     }, 1000);
                     this.$message({
-                        type: 'info',
+                        type:    'info',
                         message: '修改成功',
                     });
                 },
@@ -263,14 +260,14 @@ export default {
         },
 
         async changeStatus(row, status) {
-            const {code} = await this.$http.post({
-                url: '/clientservice/update',
+            const { code } = await this.$http.post({
+                url:  '/clientservice/update',
                 data: {
                     serviceId: row.service_id,
-                    clientId: row.client_id,
-                    status: status,
+                    clientId:  row.client_id,
+                    status,
                     unitPrice: row.unit_price,
-                    payType: row.pay_type,
+                    payType:   row.pay_type,
                 },
             });
 

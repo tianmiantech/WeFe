@@ -167,6 +167,7 @@
                 const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
 
                 this.loading = false;
+                this.pending = false;
                 if(code === 0) {
                     const { file_id_list } = data;
 

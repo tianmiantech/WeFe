@@ -114,7 +114,7 @@
                         <i class="iconfont icon-visiting-card" />
                         {{ scope.row.member_name }}
                     </span>
-                    <span class="p-id">{{ scope.row.member_id }}</span>
+                    <p class="p-id">{{ scope.row.member_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column

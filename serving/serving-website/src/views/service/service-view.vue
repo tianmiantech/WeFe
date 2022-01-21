@@ -16,7 +16,6 @@
                     v-model="form.name"
                     :maxlength="30"
                     :minlength="4"
-                    show-word-limit
                     size="medium"
                 />
             </el-form-item>
@@ -30,7 +29,6 @@
                     v-model="form.url"
                     :maxlength="100"
                     :minlength="4"
-                    show-word-limit
                     size="medium"
                 >
                     <template #prepend>
@@ -95,7 +93,7 @@
                         />
                         <i
                             class="icons el-icon-delete color-danger"
-                            @click="delete_params(index)"
+                            @click="deleteParams(index, form.paramsArr)"
                         />
                     </el-form-item>
                     <el-form-item>
@@ -210,10 +208,10 @@
                     >
                         <el-select
                             v-model="form.data_source.return_fields"
-                            placeholder="支持多选"
+                            :placeholder="form.service_type === 3 ? '' : '支持多选'"
+                            :multiple="form.service_type !== 3"
                             value-key="value"
                             clearable
-                            multiple
                         >
                             <el-option
                                 v-for="item in data_fields"
@@ -259,7 +257,7 @@
                             <i
                                 v-if="form.data_source.condition_fields.length > 1"
                                 class="icons el-icon-delete color-danger"
-                                @click="delete_params($index)"
+                                @click="deleteParams($index, form.data_source.condition_fields)"
                             />
                         </el-form-item>
                         <el-button
@@ -550,7 +548,9 @@
         },
         created() {
             this.serviceId = this.$route.query.id;
+
             this.getDataResources();
+
             if (this.serviceId) {
                 this.getSqlConfigDetail();
             }
@@ -695,15 +695,8 @@
                     this.data_fields = data.fields;
                 }
             },
-            delete_params(index){
-                const value = this.form.paramsArr[index];
-
-                // 清空查询字段里对应的值
-                if(value) {
-                    //
-                }
-
-                this.form.paramsArr.splice(index, 1);
+            deleteParams(index, array){
+                array.splice(index, 1);
             },
             addConditionFields() {
                 this.form.data_source.condition_fields.push({
@@ -913,23 +906,28 @@
                                 member_id:   x.supplier_id,
                                 member_name: x.supplier_name,
                                 url:         x.base_url + x.api_name,
-                                base_url:	 x.base_url,
-                                api_name:	 x.api_name,
+                                base_url:	   x.base_url,
+                                api_name:	   x.api_name,
                                 params:      x.params.join(','),
                             };
                         });
                         $params.operator = operator;
                     } else {
                         // 1 || 3
-                        const return_fields = [];
+                        let return_fields = [];
 
-                        this.form.data_source.return_fields.forEach(x => {
-                            const item = this.data_fields.find(y => y.name === x);
+                        if(type === 1) {
+                            this.form.data_source.return_fields.forEach(x => {
+                                const item = this.data_fields.find(y => y.name === x);
 
-                            if(item) {
-                                return_fields.push(item);
-                            }
-                        });
+                                if(item) {
+                                    return_fields.push(item);
+                                }
+                            });
+                        } else {
+                            return_fields = [this.form.data_source.return_fields];
+                        }
+
                         for(const i in obj.condition_fields) {
                             const item = obj.condition_fields[i];
 

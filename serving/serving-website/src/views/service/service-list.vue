@@ -82,7 +82,9 @@
                 min-width="240px"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.name }}
+                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id } }">
+                        {{ scope.row.name }}
+                    </router-link>
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>

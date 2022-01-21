@@ -70,7 +70,8 @@ const baseRoutes = [
                 path: `${prefixPath}client-add`,
                 name: 'client-add',
                 meta: {
-                    title: '新增客户',
+                    title:  '新增客户',
+                    hidden: true,
                 },
                 component: () => import('@views/client/client-add.vue'),
             },
@@ -154,6 +155,7 @@ const baseRoutes = [
                 meta: {
                     title:           '收支记录',
                     loginAndRefresh: true,
+                    hidden:          true,
                 },
                 component: () => import('@views/fee/payments-records.vue'),
             },
@@ -163,7 +165,7 @@ const baseRoutes = [
                 meta: {
                     title:           '新增收支记录',
                     loginAndRefresh: true,
-                    hidden: true,
+                    hidden:          true,
                 },
                 component: () => import('@views/fee/payments-records-add.vue'),
             },
@@ -181,9 +183,9 @@ const baseRoutes = [
                 path: `${prefixPath}service-list`,
                 name: 'service-list',
                 meta: {
-                    title:  '我的服务',
-                    index:  '5-1',
-                    active: `${prefixPath}service-list`,
+                    title:           '我的服务',
+                    index:           '5-1',
+                    active:          `${prefixPath}service-list`,
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/service/service-list.vue'),
@@ -192,9 +194,9 @@ const baseRoutes = [
                 path: `${prefixPath}union-service-list`,
                 name: 'union-service-list',
                 meta: {
-                    title:  '联邦服务',
-                    index:  '5-2',
-                    active: `${prefixPath}union-service-list`,
+                    title:           '联邦服务',
+                    index:           '5-2',
+                    active:          `${prefixPath}union-service-list`,
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/service/union-service-list.vue'),

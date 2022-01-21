@@ -1,9 +1,17 @@
 <template>
-
-    <el-card class="page" shadow="never">
-        <el-form class="mb20" inline>
+    <el-card
+        class="page"
+        shadow="never"
+    >
+        <el-form
+            class="mb20"
+            inline
+        >
             <el-form-item label="客户名称：">
-                <el-input v-model="search.clientName" clearable/>
+                <el-input
+                    v-model="search.clientName"
+                    clearable
+                />
             </el-form-item>
 
             <el-form-item label="创建时间：">
@@ -14,25 +22,25 @@
                         range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
-                        @change="timeChange()"
                         value-format="timestamp"
-                    >
-                    </el-date-picker>
+                        @change="timeChange()"
+                    />
                 </div>
             </el-form-item>
 
-
-            <el-button type="primary" @click="getList({ to: true})">
+            <el-button
+                type="primary"
+                @click="getList({ to: true})"
+            >
                 查询
             </el-button>
             <router-link
-                :to="{name: 'client-add',}">
+                :to="{name: 'client-add',}"
+            >
                 <el-button>
-                    新增
+                    新增客户
                 </el-button>
             </router-link>
-
-
         </el-form>
 
         <el-table
@@ -42,55 +50,74 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
-            <el-table-column label="序号" min-width="80" type="index">
-            </el-table-column>
+            <el-table-column
+                label="序号"
+                min-width="80"
+                type="index"
+            />
 
-            <el-table-column label="客户名称" min-width="80">
+            <el-table-column
+                label="客户名称"
+                min-width="80"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.name }}</p>
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="客户 code" min-width="60">
+            <el-table-column
+                label="客户 code"
+                min-width="60"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.code }}</p>
                 </template>
             </el-table-column>
 
 
-            <el-table-column label="客户邮箱" min-width="60">
+            <el-table-column
+                label="客户邮箱"
+                min-width="60"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.email }}</p>
                 </template>
             </el-table-column>
 
-            <el-table-column label="IP 白名单" min-width="60">
+            <el-table-column
+                label="IP 白名单"
+                min-width="60"
+            >
                 <template slot-scope="scope">
                     <p>{{ scope.row.ip_add }}</p>
                 </template>
             </el-table-column>
 
 
-            <el-table-column label="创建时间" min-width="80">
+            <el-table-column
+                label="创建时间"
+                min-width="80"
+            >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
 
-            <el-table-column label="操作" align="center">
+            <el-table-column
+                label="操作"
+                align="center"
+                min-width="140"
+            >
                 <template slot-scope="scope">
-
-
                     <router-link
                         :to="{
                             name: 'client-edit',
                             query: {
                                 id: scope.row.id
                             },
-
                         }"
                     >
                         <el-button type="primary">
@@ -105,14 +132,13 @@
                             query: {
                                 clientId : scope.row.id
                             },
-                        }">
+                        }"
+                    >
                         <el-button type="success">
-                            新增服务
+                            新增客户服务
                         </el-button>
                     </router-link>
                 </template>
-
-
             </el-table-column>
         </el-table>
         <div
@@ -130,16 +156,15 @@
             />
         </div>
     </el-card>
-
 </template>
 
 <script>
 
 import table from '@src/mixins/table.js';
-import RoleTag from "../components/role-tag";
+import RoleTag from '../components/role-tag';
 
 export default {
-    name: "client",
+    name:       'Client',
     components: {
         RoleTag,
     },
@@ -148,26 +173,26 @@ export default {
         return {
             search: {
                 clientName: '',
-                status: '',
-                startTime: '',
-                endTime: '',
+                status:     '',
+                startTime:  '',
+                endTime:    '',
 
             },
-            timeRange: '',
+            timeRange:  '',
             getListApi: '/client/query-list',
         };
     },
     methods: {
         timeChange() {
             if (!this.timeRange) {
-                this.search.startTime = ''
-                this.search.endTime = ''
+                this.search.startTime = '';
+                this.search.endTime = '';
             } else {
-                this.search.startTime = this.timeRange[0]
-                this.search.endTime = this.timeRange[1]
+                this.search.startTime = this.timeRange[0];
+                this.search.endTime = this.timeRange[1];
             }
 
-        }
+        },
 
     },
 };

@@ -44,17 +44,6 @@
                             autosize
                         />
                     </el-form-item>
-                    <el-form-item
-                        label="Gateway Uri："
-                    >
-                        <el-input
-                            v-model="form.gateway_uri"
-                            :disabled="is_update"
-                        />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <p>名片预览：</p>
                 </el-col>
             </el-row>
             <el-row :gutter="100">
