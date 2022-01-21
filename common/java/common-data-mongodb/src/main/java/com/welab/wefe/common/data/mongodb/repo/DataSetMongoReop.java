@@ -173,7 +173,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .append("member.name", dataSetQueryInput.getMemberName())
+                .like("member.name", dataSetQueryInput.getMemberName())
                 .append("member.hidden", "0")
                 .append("member.freezed", "0")
                 .append("member.lostContact", "0")
