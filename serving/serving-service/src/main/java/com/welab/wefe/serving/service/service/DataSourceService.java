@@ -172,7 +172,7 @@ public class DataSourceService {
 		if (conn != null) {
 			boolean success = jdbcManager.testQuery(conn, "select 1", false);
 			if (!success) {
-				throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+				throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
 			}
 		}
 
@@ -188,7 +188,7 @@ public class DataSourceService {
 		if (conn != null) {
 			boolean success = jdbcManager.execute(conn, sql);
 			if (!success) {
-				throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
+				throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
 			}
 		}
 	}
@@ -205,7 +205,7 @@ public class DataSourceService {
 			}
 			return;
 		}
-		throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
+		throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class DataSourceService {
 	public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
 		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -238,7 +238,7 @@ public class DataSourceService {
 			throws StatusCodeWithException {
 		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		LOG.info("dataSourceModel = " + JSONObject.toJSONString(model));
 		JdbcManager jdbcManager = new JdbcManager();
@@ -251,7 +251,7 @@ public class DataSourceService {
 			throws StatusCodeWithException {
 		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -263,7 +263,7 @@ public class DataSourceService {
 		Output out = new Output();
 		DataSourceMySqlModel model = getDataSourceById(input.getId());
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -282,7 +282,7 @@ public class DataSourceService {
 		com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output out = new com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output();
 		DataSourceMySqlModel model = getDataSourceById(input.getId());
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
