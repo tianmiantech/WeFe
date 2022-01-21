@@ -29,9 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 
 /**
- * Check service availability
- *
- * @author aaron.li
+ * @author yuxin.zhang
  **/
 @Api(path = "realname/auth/agreement/template/query", name = "available", rsaVerify = true, login = false)
 public class QueryRealnameAuthAgreementTemplateApi extends AbstractApi<BaseInput, RealnameAuthAgreementTemplateOutput> {

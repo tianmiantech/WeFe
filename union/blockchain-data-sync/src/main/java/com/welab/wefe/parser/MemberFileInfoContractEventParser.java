@@ -59,11 +59,12 @@ public class MemberFileInfoContractEventParser extends AbstractParser {
         memberFileInfo.setFileSize(StringUtil.strTrim2(params.getString(3)));
         memberFileInfo.setMemberId(StringUtil.strTrim2(params.getString(4)));
         memberFileInfo.setBlockchainNodeId(StringUtil.strTrim2(params.getString(5)));
-        memberFileInfo.setPurpose(StringUtil.strTrim2(params.getString(6)));
-        memberFileInfo.setDescribe(StringUtil.strTrim2(params.getString(7)));
-        memberFileInfo.setEnable(StringUtil.strTrim2(params.getString(8)));
-        memberFileInfo.setCreatedTime(StringUtil.strTrim2(params.getString(9)));
-        memberFileInfo.setUpdatedTime(StringUtil.strTrim2(params.getString(10)));
+        memberFileInfo.setRurpose(StringUtil.strTrim2(params.getString(6)));
+        memberFileInfo.setFilePublicLevel(StringUtil.strTrim2(params.getString(7)));
+        memberFileInfo.setDescribe(StringUtil.strTrim2(params.getString(8)));
+        memberFileInfo.setEnable(StringUtil.strTrim2(params.getString(9)));
+        memberFileInfo.setCreatedTime(StringUtil.strTrim2(params.getString(10)));
+        memberFileInfo.setUpdatedTime(StringUtil.strTrim2(params.getString(11)));
         memberFileInfo.setExtJson(extJSON);
 
         unionNodeMongoRepo.save(memberFileInfo);

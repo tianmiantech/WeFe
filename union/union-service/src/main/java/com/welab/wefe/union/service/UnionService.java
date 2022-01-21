@@ -136,7 +136,7 @@ public class UnionService implements ApplicationContextAware {
             throw new StatusCodeWithException("UnionNode not registered blockchainNodeId: " + signedApiInput.getCurrentBlockchainNodeId(), StatusCode.INVALID_MEMBER);
         }
 
-        if ("1".equals(unionNode.getEnable())) {
+        if ("0".equals(unionNode.getEnable())) {
             throw new StatusCodeWithException("UnionNode has been disabled nodeId: " + unionNode.getNodeId(), StatusCode.INVALID_MEMBER);
         }
 
@@ -147,7 +147,6 @@ public class UnionService implements ApplicationContextAware {
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }
-
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }

@@ -48,6 +48,7 @@
         <module>serving</module>
         <module>fusion</module>
         <module>mpc</module>
+        <module>manager</module>
     </modules>
 
     <profiles>

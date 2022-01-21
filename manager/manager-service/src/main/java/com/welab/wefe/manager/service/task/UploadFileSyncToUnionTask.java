@@ -40,13 +40,13 @@ public class UploadFileSyncToUnionTask extends Thread {
     private String baseUrl;
     private String api;
     private JObject params;
-    private MultiValueMap<String, MultipartFile> files;
+    private Map<String, InputStreamBody> fileStreamBodyMap;
 
-    public UploadFileSyncToUnionTask(String baseUrl, String api, JObject params, MultiValueMap<String, MultipartFile> files) {
+    public UploadFileSyncToUnionTask(String baseUrl, String api, JObject params, Map<String, InputStreamBody> fileStreamBodyMap) {
         this.baseUrl = baseUrl;
         this.params = params;
         this.api = api;
-        this.files = files;
+        this.fileStreamBodyMap = fileStreamBodyMap;
     }
 
     @Override
@@ -61,25 +61,8 @@ public class UploadFileSyncToUnionTask extends Thread {
                     .setContentType(HttpContentType.MULTIPART);
 
             request.appendParameters(params);
-
-            for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
-                try {
-                    MultipartFile file = item.getValue();
-                    ContentType contentType = StringUtil.isEmpty(file.getContentType())
-                            ? ContentType.DEFAULT_BINARY
-                            : ContentType.create(file.getContentType());
-
-                    InputStreamBody streamBody = new InputStreamBody(
-                            file.getInputStream(),
-                            contentType,
-                            file.getOriginalFilename()
-                    );
-
-
-                    request.appendParameter(item.getKey(), streamBody);
-                } catch (IOException e) {
-                    LOG.error("File read / write failed", e);
-                }
+            for (Map.Entry<String, InputStreamBody> item : fileStreamBodyMap.entrySet()){
+                request.appendParameter(item.getKey(),item.getValue());
             }
 
             response = request.post();

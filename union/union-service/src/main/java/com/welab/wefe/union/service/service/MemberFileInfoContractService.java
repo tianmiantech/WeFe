@@ -22,7 +22,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.contract.MemberContract;
 import com.welab.wefe.union.service.contract.MemberFileInfoContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -102,7 +101,8 @@ public class MemberFileInfoContractService extends AbstractContractService {
         list.add(memberFileInfo.getFileSize());
         list.add(memberFileInfo.getMemberId());
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getBlockchainNodeId()));
-        list.add(StringUtil.isEmptyToBlank(memberFileInfo.getPurpose()));
+        list.add(memberFileInfo.getRurpose());
+        list.add(memberFileInfo.getFilePublicLevel());
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getDescribe()));
         list.add(memberFileInfo.getEnable());
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));

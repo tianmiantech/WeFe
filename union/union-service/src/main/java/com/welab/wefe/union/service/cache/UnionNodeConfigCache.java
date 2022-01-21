@@ -38,4 +38,8 @@ public class UnionNodeConfigCache {
     }
 
 
+    public static void setUnionNodeSm2Config(UnionNodeSm2Config unionNodeSm2Config) {
+        unionNodeConfigMap.put(UnionNodeConfigType.SM2.name(),unionNodeSm2Config);
+    }
+
 }
