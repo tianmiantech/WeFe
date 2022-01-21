@@ -113,7 +113,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataSetQueryInput.getMemberName())
+                .like("member_name", dataSetQueryInput.getMemberName())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
@@ -123,12 +123,12 @@ public class DataSetMongoReop extends AbstractMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots,unwind,dataSetMatch, memberMatch,   addFieldsOperation);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots,unwind,dataSetMatch, memberMatch, skipOperation, limitOperation, addFieldsOperation);
 
         List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
 
@@ -156,6 +156,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
 
         Criteria dataSetCriteria = new QueryBuilder()
                 .notRemoved()
+                .append("ext_json.enable", true)
                 .like("name", dataSetQueryInput.getName())
                 .like("tags", dataSetQueryInput.getTag())
                 .append("member_id", dataSetQueryInput.getMemberId())
@@ -172,7 +173,10 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataSetQueryInput.getMemberName())
+                .append("member.name", dataSetQueryInput.getMemberName())
+                .append("member.hidden", "0")
+                .append("member.freezed", "0")
+                .append("member.lostContact", "0")
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
