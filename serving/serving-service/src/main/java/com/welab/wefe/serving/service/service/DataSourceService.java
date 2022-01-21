@@ -69,9 +69,7 @@ public class DataSourceService {
 	public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
 		if (dataSourceRepo.countByName(input.getName()) > 0) {
-			throw new StatusCodeWithException(
-					"This data source name already exists, please change the data source name",
-					StatusCode.PARAMETER_VALUE_INVALID);
+			throw new StatusCodeWithException("数据源名称已存在，请更改后再试", StatusCode.PARAMETER_VALUE_INVALID);
 		}
 
 		// 测试连接
