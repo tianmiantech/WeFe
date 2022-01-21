@@ -8,7 +8,7 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="数据集 ID：">
+            <el-form-item label="数据资源 ID：">
                 <el-input
                     v-model="vData.search.data_resource_id"
                     clearable
@@ -55,17 +55,19 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
                         :key="item.label"
-                        :value="item.label"
+                        :value="item.value"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'TableDataSet'"
                 label="是否包含Y值："
                 label-width="100"
             >
@@ -79,9 +81,9 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
+                v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'ImageDataSet'"
                 label-width="100"
+                label="任务类型："
             >
                 <el-select
                     v-model="vData.search.forJobType"
@@ -111,6 +113,7 @@
             key="UnionDataResourceListRef"
             :table-loading="vData.loading"
             :search-field="vData.search"
+            @search-update="methods.searchUpdate"
             @add-data-set="addDataSet"
             @check-card="checkCard"
         />
@@ -211,7 +214,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -227,11 +230,17 @@
                 ],
             });
             const methods = {
+                searchUpdate(search) {
+                    Object.assign(vData.search, {
+                        ...search,
+                        dataResourceType: search.dataResourceType ? Array.isArray(search.dataResourceType) ? search.dataResourceType : [search.dataResourceType] : '',
+                    });
+                },
                 async loadTags() {
                     const { code, data } = await $http.post({
                         url:  '/union/data_resource/tags/query',
                         data: {
-                            dataResourceType: vData.search.dataResourceType,
+                            dataResourceType: '',
                         },
                     });
 
@@ -336,7 +345,7 @@
             };
             const searchList = (opt = {}) => {
                 UnionDataResourceListRef.value.search = vData.search;
-                UnionDataResourceListRef.value.getDataList();
+                UnionDataResourceListRef.value.getDataList({ to: true });
             };
             const resourceTypeChange = () => {
                 vData.search.containsY = '';
@@ -351,6 +360,7 @@
 
             return {
                 vData,
+                methods,
                 speedCart,
                 memberCard,
                 addDataSet: methods.addDataSet,
@@ -359,8 +369,8 @@
                 ballEnter,
                 ballAfterEnter,
                 UnionDataResourceListRef,
-                searchList,
                 resourceTypeChange,
+                searchList,
             };
         },
     };

@@ -143,8 +143,9 @@
 </template>
 
 <script>
-    import table from '@src/mixins/table';
     import { mapGetters } from 'vuex';
+    import table from '@src/mixins/table';
+
     export default {
         mixins: [table],
         props:  {
@@ -160,8 +161,9 @@
             return {
                 getListApi:          '/union/data_resource/query',
                 defaultSearch:       false,
-                watchRoute:          false,
+                watchRoute:          true,
                 turnPageRoute:       false,
+                requestMethod:       'post',
                 dataResourceTypeMap: {
                     BloomFilter:  'BloomFilter',
                     ImageDataSet: 'img',
