@@ -155,7 +155,6 @@ const baseRoutes = [
                 meta: {
                     title:           '收支记录',
                     loginAndRefresh: true,
-                    hidden:          true,
                 },
                 component: () => import('@views/fee/payments-records.vue'),
             },

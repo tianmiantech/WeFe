@@ -92,7 +92,8 @@ public class ApiRequestToFeeDetailScheduler {
                 logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
             }
         } catch (Exception e) {
-            logger.error("");
+            e.printStackTrace();
+            logger.error("error occur when fee details scheduler execute, happen in " + DateUtil.getCurrentDate());
         }
 
 
