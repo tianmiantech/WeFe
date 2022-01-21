@@ -7,7 +7,7 @@ from util import database
 class UpdateMysqlAction(BaseAction):
 
     def run(self):
-        # 备份数据库
+        # 备份
         backup_output_path = os.path.join(
             self.workspace,
             database.db_info.database + ".sql"
