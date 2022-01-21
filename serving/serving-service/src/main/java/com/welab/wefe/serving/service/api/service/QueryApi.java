@@ -110,6 +110,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 		// 是否在线 1=在线 0=离线
 		private int status = -1;
+		
+		// 创建人
+		private String createdBy;
 
 		public String getName() {
 			return name;
@@ -143,5 +146,12 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 			this.id = id;
 		}
 
+		public String getCreatedBy() {
+			return createdBy;
+		}
+
+		public void setCreatedBy(String createdBy) {
+			this.createdBy = createdBy;
+		}
 	}
 }
