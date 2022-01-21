@@ -67,6 +67,7 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
@@ -255,10 +256,11 @@
             };
             const syncUrlParams = () => {
                 vData.search = {
-                    id:      '',
-                    name:    '',
-                    creator: '',
-                    tag:     '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    tag:              '',
+                    dataResourceType: '',
                     ...route.query,
                 };
             };

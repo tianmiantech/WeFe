@@ -41,7 +41,6 @@
                     v-model="search.dataResourceType"
                     :disabled="true"
                     filterable
-                    clearable
                 >
                     <el-option
                         label="ImageDataSet"
@@ -52,7 +51,6 @@
                     v-else
                     v-model="search.dataResourceType"
                     filterable
-                    clearable
                     multiple
                     @change="resourceTypeChange"
                 >
@@ -264,7 +262,11 @@
                 this.projectType = projectType || this.projectType;
 
                 this.$nextTick(_ => {
-                    this.search.dataResourceType = this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'];
+                    if(this.projectType === 'DeepLearning') {
+                        this.search.dataResourceType = ['ImageDataSet'];
+                    } else if(this.search.dataResourceType.length === 0) {
+                        this.search.dataResourceType = ['TableDataSet', 'BloomFilter'];
+                    }
 
                     if (memberId) {
                         this.memberId = memberId;
