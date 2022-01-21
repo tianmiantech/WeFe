@@ -61,7 +61,7 @@ contract BloomFilterContract{
     function updateHashFuntion(string data_resource_id,string hash_function,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(data_resource_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateHashFunctionEvent(ret_code,data_resource_id,hash_function,updated_time);
             return ret_code;
         }
@@ -129,6 +129,10 @@ contract BloomFilterContract{
 
     function deleteByDataResourceId(string data_resource_id) public returns (int) {
         int256 ret_code = 0;
+        if (!isExist(data_resource_id)) {
+            emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
+            return ret_code;
+        }
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("data_resource_id", data_resource_id);

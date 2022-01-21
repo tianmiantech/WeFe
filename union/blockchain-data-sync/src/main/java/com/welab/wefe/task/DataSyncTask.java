@@ -206,4 +206,5 @@ public class DataSyncTask {
             return copyBlockInfoBO;
         }
     }
+
 }

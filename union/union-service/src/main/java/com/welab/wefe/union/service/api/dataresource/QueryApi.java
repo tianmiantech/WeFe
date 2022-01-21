@@ -18,6 +18,7 @@ package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
+import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
@@ -46,6 +47,8 @@ public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
     @Autowired
+    protected BloomFilterMongoReop bloomFilterMongoReop;
+    @Autowired
     protected ImageDataSetMongoReop imageDataSetMongoReop;
     @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
@@ -58,12 +61,14 @@ public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<
     @Override
     protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
         PageOutput<DataResourceQueryOutput> pageOutput = null;
-        if (null == input.getDataResourceType() || DataResourceType.BloomFilter.compareTo(input.getDataResourceType()) == 0) {
+        if (null == input.getDataResourceType()) {
             pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         } else if (DataResourceType.ImageDataSet.compareTo(input.getDataResourceType()) == 0) {
             pageOutput = imageDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         } else if (DataResourceType.TableDataSet.compareTo(input.getDataResourceType()) == 0) {
             pageOutput = tableDataSetMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        } else if (DataResourceType.BloomFilter.compareTo(input.getDataResourceType()) == 0) {
+            pageOutput = bloomFilterMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
         }
 
         List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()

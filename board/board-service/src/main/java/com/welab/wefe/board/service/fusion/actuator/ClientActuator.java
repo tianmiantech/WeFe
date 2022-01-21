@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.fusion.actuator;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,6 +13,8 @@ package com.welab.wefe.board.service.fusion.actuator;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.fusion.actuator;
+
 
 
 import com.alibaba.fastjson.JSON;
@@ -65,8 +65,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     private String[] headers;
 
-    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.dstMemberId = dstMemberId;
     }
 
@@ -115,7 +115,39 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
-        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+        switch (status) {
+            case success:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Success,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            case falsify:
+            case running:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Interrupt,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            default:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Failure,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+        }
     }
 
     @Override
@@ -158,7 +190,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
             currentIndex++;
 
-
             return curList;
         }
     }
@@ -195,10 +226,19 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
         //调用gateway
         JSONObject result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+        int num = 3;
+
+        while (num > 0) {
+
+            try {
+                result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
+
+                num = 0;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            num--;
         }
 
         LOG.info("downloadBloomFilter end {} ", result);
@@ -225,13 +265,13 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 PsiMeta.class
         );
 
+
         List<String> list = result.getBs();
 
         byte[][] ss = new byte[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             ss[i] = Base64Util.base64ToByteArray(list.get(i));
         }
-
         return ss;
     }
 

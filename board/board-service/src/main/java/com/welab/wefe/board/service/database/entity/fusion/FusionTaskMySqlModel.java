@@ -58,6 +58,8 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
      */
     Long rowCount;
 
+    String hashFunction;
+
     String partnerDataResourceId;
 
     @Enumerated(EnumType.STRING)
@@ -67,7 +69,9 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of rows of data resources
      */
-    Long parnterRowCount;
+    Long partnerRowCount;
+
+    String partnerHashFunction;
 
     /**
      * Whether the trace
@@ -96,7 +100,17 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of fusion
      */
-    public int fusionCount;
+    public Long fusionCount = 0L;
+
+    /**
+     * Number of fusion
+     */
+    public Long processedCount = 0L;
+
+    /**
+     * Number of fusion
+     */
+    public Long dataCount = 0L;
 
     public long spend;
 
@@ -225,11 +239,11 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     }
 
 
-    public int getFusionCount() {
+    public Long getFusionCount() {
         return fusionCount;
     }
 
-    public void setFusionCount(int fusionCount) {
+    public void setFusionCount(Long fusionCount) {
         this.fusionCount = fusionCount;
     }
 
@@ -265,11 +279,43 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
         this.myRole = myRole;
     }
 
-    public Long getParnterRowCount() {
-        return parnterRowCount;
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
     }
 
-    public void setParnterRowCount(Long parnterRowCount) {
-        this.parnterRowCount = parnterRowCount;
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
+    }
+
+    public Long getProcessedCount() {
+        return processedCount;
+    }
+
+    public void setProcessedCount(Long processedCount) {
+        this.processedCount = processedCount;
+    }
+
+    public Long getDataCount() {
+        return dataCount;
+    }
+
+    public void setDataCount(Long dataCount) {
+        this.dataCount = dataCount;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
     }
 }

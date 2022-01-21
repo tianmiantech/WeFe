@@ -16,8 +16,8 @@
 
 package com.welab.wefe.constant;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -27,7 +27,7 @@ public class BlockConstant {
     /**
      * The latest block height corresponding to the group
      */
-    public static final Map<Integer, Long> GROUP_CURRENT_BLOCK_NUMBER_MAP = new HashMap<>();
+    public static final Map<Integer, Long> GROUP_CURRENT_BLOCK_NUMBER_MAP = new ConcurrentHashMap<>();
 
     /**
      * Get the latest block height of the current group

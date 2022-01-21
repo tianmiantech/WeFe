@@ -41,7 +41,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     protected String businessId;
 
-    public Integer dataCount;
+    public Long dataCount;
 
     public LongAdder processedCount = new LongAdder();
 
@@ -88,6 +88,32 @@ public abstract class AbstractActuator implements AutoCloseable {
         return System.currentTimeMillis() - startTime;
     }
 
+    /**
+     * get processedCount
+     *
+     * @return
+     */
+    public long getProcessedCount() {
+        return processedCount.longValue();
+    }
+
+    /**
+     * get fusionCount
+     *
+     * @return
+     */
+    public long getFusionCount() {
+        return fusionCount.longValue();
+    }
+
+    /**
+     * get dataCount
+     *
+     * @return
+     */
+    public long getDataCount() {
+        return dataCount.longValue();
+    }
 
     /**
      * Estimated remaining time
@@ -108,8 +134,10 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @return
      */
-    public Integer progress() {
-        return processedCount.intValue() / dataCount.intValue();
+    public int progress() {
+        return Double.valueOf(
+                processedCount.doubleValue() / dataCount.doubleValue() * 100
+        ).intValue();
     }
 
     protected void preprocess() {

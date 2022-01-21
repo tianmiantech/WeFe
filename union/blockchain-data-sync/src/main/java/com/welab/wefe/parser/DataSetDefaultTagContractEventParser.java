@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
-import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author yuxin.zhang
  */
 public class DataSetDefaultTagContractEventParser extends AbstractParser {
-    protected AbstractDataSetDefaultTagMongoRepo abstractDataSetDefaultTagMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(AbstractDataSetDefaultTagMongoRepo.class);
+    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo = BlockchainDataSyncApp.CONTEXT.getBean(DataSetDefaultTagMongoRepo.class);
     protected DataSetDefaultTagExtJSON extJSON;
 
     @Override
@@ -46,7 +46,7 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
         dataSetDefaultTag.setUpdatedTime(StringUtil.strTrim2(params.getString(3)));
         dataSetDefaultTag.setExtJson(extJSON);
 
-        abstractDataSetDefaultTagMongoRepo.save(dataSetDefaultTag);
+        dataSetDefaultTagMongoRepo.save(dataSetDefaultTag);
 
     }
 
@@ -54,17 +54,17 @@ public class DataSetDefaultTagContractEventParser extends AbstractParser {
         String tagId = eventBO.getEntity().get("tag_id").toString();
         String tagName = eventBO.getEntity().get("tag_name").toString();
         String updatedTime = eventBO.getEntity().get("updated_time").toString();
-        abstractDataSetDefaultTagMongoRepo.update(tagId, tagName, extJSON, updatedTime);
+        dataSetDefaultTagMongoRepo.update(tagId, tagName, extJSON, updatedTime);
     }
 
     private void parseDeleteByTagIdEvent() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
-        abstractDataSetDefaultTagMongoRepo.deleteByTagId(tagId);
+        dataSetDefaultTagMongoRepo.deleteByTagId(tagId);
     }
 
     private void parseUpdateExtJson() {
         String tagId = eventBO.getEntity().get("tag_id").toString();
-        abstractDataSetDefaultTagMongoRepo.updateExtJSONById(tagId, extJSON);
+        dataSetDefaultTagMongoRepo.updateExtJSONById(tagId, extJSON);
     }
 
 }
