@@ -93,7 +93,8 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("tree_param", treeParam)
                 .append("objective_param", objectiveParam)
                 .append("encrypt_param", encryptParam)
-                .append("cv_param", cvParam);
+				.append("cv_param", cvParam)
+				.append("work_mode", params.otherParam.workMode);
 
         taskParam.put("params", vertSecureBoostParam);
 
@@ -137,6 +138,8 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 
         @Check(require = true)
         private EncryptParam encryptParam;
+        
+        
 
         public EncryptParam getEncryptParam() {
             return encryptParam;
@@ -189,6 +192,9 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
+            @Check(name = "工作模式", require = true)
+            private String workMode; // normal、layered、skip
+            
 
             public String getTaskType() {
                 return taskType;
@@ -261,6 +267,14 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             public void setEarlyStoppingRounds(int earlyStoppingRounds) {
                 this.earlyStoppingRounds = earlyStoppingRounds;
             }
+
+			public String getWorkMode() {
+				return workMode;
+			}
+
+			public void setWorkMode(String workMode) {
+				this.workMode = workMode;
+			}
         }
 
     }
