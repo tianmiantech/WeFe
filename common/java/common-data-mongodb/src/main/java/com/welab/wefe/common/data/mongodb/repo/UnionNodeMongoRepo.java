@@ -77,6 +77,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate.findOne(
                 new QueryBuilder()
                         .append("blockchainNodeId", blockchainNodeId)
+                        .append("enable","1")
                         .notRemoved()
                         .build()
                 ,
