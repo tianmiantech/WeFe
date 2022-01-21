@@ -1117,7 +1117,7 @@
 
                             field_info_list.push({
                                 position: i,
-                                columns:  x.features,
+                                columns:  x.features.join(','),
                                 options:  x.encryption,
                             });
                         }
@@ -1127,7 +1127,7 @@
                     params = {
                         ...this.form,
                         field_info_list,
-                        hash_function:        $ref.formula,
+                        hash_function:        $ref.hash_func,
                         BloomfilterAddMethod: this.form.data_set_add_method,
                     };
                 } else {
