@@ -233,6 +233,9 @@ public class ServiceService {
 		if (input.getStatus() != -1) {
 			where = where.equal("status", input.getStatus());
 		}
+		if(StringUtils.isNotBlank(input.getCreatedBy())) {
+			where = where.equal("createdBy", input.getCreatedBy());	
+		}
 		Specification<ServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc)
 				.build(ServiceMySqlModel.class);
 
