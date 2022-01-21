@@ -186,15 +186,6 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
-            @Check(name = "工作模式", require = true)
-            private String workMode; // normal、layered、skip
-            // 当work_mode==layered时，需要下面三个参数
-            @Check(name = "总层数")
-            private int maxDepth;
-            @Check(name = "promoter层数")
-            private int promoterDepth;
-            @Check(name = "provider层数")
-            private int providerDepth;
 
             public String getTaskType() {
                 return taskType;
@@ -267,38 +258,6 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
             public void setEarlyStoppingRounds(int earlyStoppingRounds) {
                 this.earlyStoppingRounds = earlyStoppingRounds;
             }
-
-			public String getWorkMode() {
-				return workMode;
-			}
-
-			public void setWorkMode(String workMode) {
-				this.workMode = workMode;
-			}
-			
-			public int getMaxDepth() {
-				return maxDepth;
-			}
-
-			public void setMaxDepth(int maxDepth) {
-				this.maxDepth = maxDepth;
-			}
-
-			public int getPromoterDepth() {
-				return promoterDepth;
-			}
-
-			public void setPromoterDepth(int promoterDepth) {
-				this.promoterDepth = promoterDepth;
-			}
-
-			public int getProviderDepth() {
-				return providerDepth;
-			}
-
-			public void setProviderDepth(int providerDepth) {
-				this.providerDepth = providerDepth;
-			}
         }
 
     }
