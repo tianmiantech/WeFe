@@ -65,7 +65,7 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
         for (int i = 0; i < 3; i++) {
             memberFileInfo = memberFileInfoMongoRepo.findByFileSign(sign);
             if (memberFileInfo == null) {
-                ThreadUtil.sleep(1000);
+                ThreadUtil.sleep(2000);
                 continue;
             }
             break;
