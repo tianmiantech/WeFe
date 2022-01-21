@@ -176,7 +176,7 @@ public class DataSetMongoReop extends AbstractMongoRepo {
                 .like("member.name", dataSetQueryInput.getMemberName())
                 .append("member.hidden", "0")
                 .append("member.freezed", "0")
-                .append("member.lostContact", "0")
+                .append("member.lost_contact", "0")
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
