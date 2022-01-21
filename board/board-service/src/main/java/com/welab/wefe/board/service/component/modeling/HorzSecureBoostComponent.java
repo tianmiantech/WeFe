@@ -147,6 +147,8 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
             private float tol;
             @Check(name = "最大分箱数", require = true)
             private int binNum;
+            @Check(name = "工作模式", require = true)
+            private String workMode; // normal、layered、skip
 
             public String getTaskType() {
                 return taskType;
@@ -203,6 +205,14 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
             public void setBinNum(int binNum) {
                 this.binNum = binNum;
             }
+
+			public String getWorkMode() {
+				return workMode;
+			}
+
+			public void setWorkMode(String workMode) {
+				this.workMode = workMode;
+			}
         }
 
     }

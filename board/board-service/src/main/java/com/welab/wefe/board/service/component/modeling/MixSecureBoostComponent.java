@@ -186,6 +186,8 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
+            @Check(name = "工作模式", require = true)
+            private String workMode; // normal、layered、skip
 
             public String getTaskType() {
                 return taskType;
@@ -258,6 +260,14 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
             public void setEarlyStoppingRounds(int earlyStoppingRounds) {
                 this.earlyStoppingRounds = earlyStoppingRounds;
             }
+
+			public String getWorkMode() {
+				return workMode;
+			}
+
+			public void setWorkMode(String workMode) {
+				this.workMode = workMode;
+			}
         }
 
     }
