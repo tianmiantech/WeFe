@@ -39,28 +39,43 @@ db_info = DataBaseInfo(
 )
 
 
-def backup_database(output_file_path: str):
-    auth_str = "-h{host} -P{port} -u{user} -p'{password}' " \
+def execute_file(file_path: str):
+    command = "mysql -h{host} -P{port} -u{user} " \
         .format(
         host=db_info.host,
         port=db_info.port,
-        user=db_info.user,
-        password=db_info.password,
+        user=db_info.user
     )
 
-    command = "mysqldump " \
-              "--column-statistics=0 " \
-              "--set-gtid-purged=OFF " \
- \
-    "--databases {database} " \
-    "> '{output_file_path}' " \
+    if len(db_info.password) > 0:
+        command += " -p'{password}' ".format(password=db_info.password)
+
+    command += "< '{file_path}' ".format(file_path=file_path)
+
+    print(command)
+
+
+def backup_database(output_file_path: str):
+    command = "mysqldump -h{host} -P{port} -u{user} " \
+        .format(
+        host=db_info.host,
+        port=db_info.port,
+        user=db_info.user
+    )
+
+    if len(db_info.password) > 0:
+        command += " -p'{password}' ".format(password=db_info.password)
+
+    command += " --column-statistics=0 " \
+               "--set-gtid-purged=OFF " \
+               "--databases {database} " \
+               "> '{output_file_path}' " \
         .format(
         database=db_info.database,
         output_file_path=output_file_path
     )
 
-
-print(command)
+    print(command)
 
 
 def create_connection():
@@ -126,4 +141,4 @@ def execute_sql_list(sql_list: list):
 
 
 if __name__ == '__main__':
-    backup_database("test.sql")
+    execute_file("test.sql")

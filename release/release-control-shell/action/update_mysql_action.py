@@ -8,7 +8,15 @@ class UpdateMysqlAction(BaseAction):
 
     def run(self):
         # 备份数据库
-        # mysqldump --column-statistics=0 -h10.1.0.120 -P3306 -uwefe -p'ou0sqsTPN!gG' --databases wefe_board_3 > wefe_board_3.sql
+        backup_output_path = os.path.join(
+            self.workspace,
+            database.db_info.database + ".sql"
+        )
+        print("开始备份数据库至：" + backup_output_path)
+        database.execute_file(backup_output_path)
+        print("数据库整库备份成功：" + backup_output_path)
+        print()
+
         # 下载并解压文件
         zip_output_dir = self.download_and_unzip()
 
@@ -17,6 +25,7 @@ class UpdateMysqlAction(BaseAction):
         print("解压后的文件列表：", files)
         files.sort()
 
+        # 逐个执行sql文件
         for file_name in files:
             file_path = os.path.join(
                 zip_output_dir,
@@ -34,46 +43,6 @@ class UpdateMysqlAction(BaseAction):
             return
 
         print("开始执行 sql 文件：" + file_path)
-        sql_list = self.extract_sql_list(file_path)
-        database.execute_sql_list(sql_list)
+        database.execute_file(file_path)
         print("sql 文件执行成功：" + file_path)
         print()
-        print()
-        print()
-
-    def extract_sql_list(self, file_path):
-        """
-        从 sql 文件中过滤掉注释和空行，抽取出所有的 sql 语句。
-        """
-
-        with open(file_path, "r", encoding='utf-8') as f:
-            lines = f.readlines()
-
-        all_sql = ""
-        # 标记当前行是否处于多行注释中
-        in_comment = False
-        for line in lines:
-            line = line.strip()
-
-            # 跳过空行
-            if len(line) == 0:
-                continue
-
-            # 跳过单行注释
-            if line.startswith("--"):
-                continue
-            # 跳过多行注释
-            if line.startswith("/*"):
-                in_comment = True
-                continue
-
-            if line.endswith("*/"):
-                in_comment = False
-                continue
-
-            if in_comment:
-                continue
-
-            all_sql += " " + line
-
-        return all_sql.split(";")
