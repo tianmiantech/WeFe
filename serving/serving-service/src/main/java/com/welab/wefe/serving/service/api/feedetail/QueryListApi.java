@@ -19,9 +19,11 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.service.FeeDetailService;
 import com.welab.wefe.serving.service.service.FeeRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,14 +34,14 @@ import java.io.IOException;
  * @date 2021/12/23
  */
 @Api(path = "feedetail/query-list", name = "fee detail query")
-public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<FeeDetailOutputModel>> {
+public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<FeeDetailMysqlModel>> {
 
     @Autowired
-    private FeeRecordService feeRecordService;
+    private FeeDetailService feeDetailService;
 
     @Override
-    protected ApiResult<PagingOutput<FeeDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(feeRecordService.queryList(input));
+    protected ApiResult<PagingOutput<FeeDetailMysqlModel>> handle(Input input) throws StatusCodeWithException, IOException {
+        return success(feeDetailService.queryStatistics(input));
     }
 
     public static class Input extends PagingInput {

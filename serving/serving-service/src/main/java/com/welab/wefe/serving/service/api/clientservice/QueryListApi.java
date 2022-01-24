@@ -21,6 +21,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
@@ -31,14 +32,14 @@ import java.io.IOException;
 /**
  * @author ivenn.zheng
  */
-@Api(path = "clientservice/query-list", name = "query list")
-public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<ClientServiceOutputModel>> {
+@Api(path = "clientservice/query-list", name = "query list" ,login = false)
+public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<ClientServiceMysqlModel>> {
 
     @Autowired
     private ClientServiceService clientServiceService;
 
     @Override
-    protected ApiResult<PagingOutput<ClientServiceOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<PagingOutput<ClientServiceMysqlModel>> handle(Input input) throws StatusCodeWithException, IOException {
         return success(clientServiceService.queryList(input));
     }
 

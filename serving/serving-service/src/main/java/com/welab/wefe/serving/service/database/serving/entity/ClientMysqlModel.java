@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.serving.service.database.serving.entity;
 
+import com.welab.wefe.serving.service.enums.ClientStatusEnum;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -24,7 +26,7 @@ import javax.persistence.Entity;
  * @author ivenn.zheng
  */
 @Entity(name = "client")
-public class ClientMysqlModel extends AbstractBaseMySqlModel{
+public class ClientMysqlModel extends AbstractBaseMySqlModel {
 
     private static final long serialVersionUID = -3524660109499676484L;
     /**
@@ -57,7 +59,7 @@ public class ClientMysqlModel extends AbstractBaseMySqlModel{
     /**
      * status, 1 normal、 0 deleted
      */
-    private Integer status;
+    private Integer status = ClientStatusEnum.NORMAL.getValue();
 
     /**
      * client code

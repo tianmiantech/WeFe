@@ -16,18 +16,30 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.serving.service.api.feedetail.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
+import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.database.serving.repository.FeeDetailRepository;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FeeDetailService {
 
     @Autowired
     private FeeDetailRepository feeDetailRepository;
+
+    @Autowired
+    private ClientServiceRepository clientServiceRepository;
 
     public void save(FeeDetailMysqlModel input) {
 
@@ -45,5 +57,59 @@ public class FeeDetailService {
         feeDetailRepository.save(model);
     }
 
+
+    /**
+     * 该接口用于统计
+     *
+     * @param input
+     * @return
+     */
+    public PagingOutput<FeeDetailMysqlModel> queryStatistics(QueryListApi.Input input) {
+
+        // return result
+        List<FeeDetailOutputModel> list = new ArrayList<>();
+
+        Specification<FeeDetailMysqlModel> feeDetailMysqlModelSpecification = Where.create()
+                .contains("serviceName", input.getServiceName())
+                .contains("clientName", input.getClientName())
+                .equal("serviceType", input.getServiceType())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
+                .build(FeeDetailMysqlModel.class);
+
+        List<FeeDetailMysqlModel> feeDetailMysqlModels = feeDetailRepository.findAll(feeDetailMysqlModelSpecification);
+//            feeDetailMysqlModels.stream()
+//                    .collect(Collectors.groupingBy(feeDetailMysqlModel -> DateUtil.toString(feeDetailMysqlModel.getCreatedTime(), "%Y-%m-%d %H:00:00")))
+//                    .forEach((k, v) -> {
+//                        v.stream().reduce((v1, v2) -> {
+//                            v1.setTotalFee(v1.getTotalFee().add(v2.getTotalFee()));
+//                            v1.setTotalRequestTimes(v1.getTotalRequestTimes() + v2.getTotalRequestTimes());
+//                            return v1;
+//                        });
+//                    });
+
+        Map<String, Map<String, List<FeeDetailMysqlModel>>> collect = feeDetailMysqlModels.stream().collect(
+                Collectors.groupingBy(
+                        FeeDetailMysqlModel::getFeeConfigId,
+                        Collectors.groupingBy(
+                                item -> {
+                                    if (input.getQueryDateType() == null || input.getQueryDateType() == QueryDateTypeEnum.HOUR.getValue()) {
+                                        // 按小时分组
+                                        return DateUtil.toString(item.getCreatedTime(), "%Y-%m-%d %H:00:00");
+                                    } else if (input.getQueryDateType() == QueryDateTypeEnum.YEAR.getValue()) {
+                                        // 按年分组
+                                        return DateUtil.toString(item.getCreatedTime(), "%Y");
+                                    } else if (input.getQueryDateType() == QueryDateTypeEnum.DAY.getValue()) {
+                                        // 按日分组
+                                        return DateUtil.toString(item.getCreatedTime(), "%Y-%m-%d");
+                                    } else {
+                                        // 按月分组
+                                        return DateUtil.toString(item.getCreatedTime(), "%Y-%m");
+                                    }
+                                }
+                        )));
+
+        return null;
+
+    }
 
 }

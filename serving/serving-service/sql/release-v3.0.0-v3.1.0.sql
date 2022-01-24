@@ -63,6 +63,13 @@ CREATE TABLE client_service(
                                id VARCHAR(32) NOT NULL   COMMENT '客户服务id' ,
                                service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                                client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                               client_name VARCHAR(255)  COMMENT '客户名称' ,
+                               service_name VARCHAR(255) COMMENT '服务名称' ,
+                               service_type tinyint(2) COMMENT '服务类型',
+                               unit_price double NOT NULL   COMMENT '调用单价' ,
+                               url varchar(128) NOT NULL COMMENT '服务地址',
+                               pay_type tinyint(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
+                               ip_add VARCHAR(255) NOT NULL   COMMENT 'ip地址' ,
                                created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                                created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
@@ -82,7 +89,7 @@ CREATE TABLE fee_config(
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                           unit_price double (10,6) NOT NULL   COMMENT '调用单价' ,
+                           unit_price double NOT NULL   COMMENT '调用单价' ,
                            pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '计费配置';
@@ -113,13 +120,18 @@ CREATE TABLE fee_detail(
                            id VARCHAR(32) NOT NULL   COMMENT '' ,
                            service_id VARCHAR(32) NOT NULL   COMMENT '服务id' ,
                            client_id VARCHAR(32) NOT NULL   COMMENT '客户id' ,
+                           fee_config_id varchar(32) NOT NULL COMMENT '计费规则id',
                            total_fee DECIMAL(24,6)    COMMENT '总费用' ,
                            unit_price DECIMAL(24,6)    COMMENT '单价(￥)' ,
+                           pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            total_request_times INT NOT NULL  DEFAULT 0 COMMENT '总调用次数' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
+                           service_name varchar(32) DEFAULT NULL COMMENT '服务名称',
+                           client_name varchar(32) DEFAULT NULL COMMENT '客户名称',
+                           service_type INT  COMMENT '服务类型',
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
 CREATE UNIQUE INDEX fee_detail_index ON fee_detail(id,service_id,client_id);

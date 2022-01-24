@@ -50,7 +50,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
             <el-table-column
                 label="序号"
@@ -107,16 +107,61 @@
             </el-table-column>
 
             <el-table-column
+                label="创建人"
+                min-width="50"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.created_by }}</p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="修改人"
+                min-width="50"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.updated_by }}</p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="状态"
+                min-width="50"
+            >
+                <template slot-scope="scope">
+                    <p>{{ clientStatus[scope.row.status] }}</p>
+                </template>
+            </el-table-column>
+
+
+            <el-table-column
                 label="操作"
                 align="center"
                 min-width="140"
             >
                 <template slot-scope="scope">
+
+                    <el-button
+                        v-if="scope.row.status === 1"
+                        type="danger"
+                        @click="open(scope.row,0)"
+                    >
+                        禁用
+                    </el-button>
+                    <el-button
+                        v-if="scope.row.status === 0"
+                        type="success"
+                        @click="open(scope.row,1)"
+                    >
+                        启用
+                    </el-button>
+
                     <router-link
                         :to="{
                             name: 'client-edit',
                             query: {
-                                id: scope.row.id
+                                id: scope.row.id,
+                                status: scope.row.status
                             },
                         }"
                     >
@@ -135,7 +180,7 @@
                         }"
                     >
                         <el-button type="success">
-                            新增客户服务
+                            开通服务
                         </el-button>
                     </router-link>
                 </template>
@@ -162,27 +207,77 @@
 
 import table from '@src/mixins/table.js';
 import RoleTag from '../components/role-tag';
+import {mapGetters} from "vuex";
 
 export default {
-    name:       'Client',
+    name: 'client-list',
     components: {
         RoleTag,
     },
+    inject: ['refresh'],
     mixins: [table],
     data() {
         return {
             search: {
                 clientName: '',
-                status:     '',
-                startTime:  '',
-                endTime:    '',
+                status: '',
+                startTime: '',
+                endTime: '',
 
             },
-            timeRange:  '',
+            timeRange: '',
             getListApi: '/client/query-list',
+            clientStatus: {
+                1: '启用',
+                0: '禁用'
+            },
         };
     },
+
+    computed: {
+        ...mapGetters(['userInfo']),
+    },
+
     methods: {
+
+        open(row, status) {
+            this.$alert('是否修改？', '警告', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    if (action === 'confirm') {
+                        this.changeStatus(row, status);
+                        setTimeout(() => {
+                            this.refresh();
+                        }, 1000);
+                    }
+
+
+                },
+            });
+        },
+
+        async changeStatus(row, status) {
+            const {code} = await this.$http.post({
+                url: '/client/update',
+                data: {
+                    id: row.id,
+                    status: status,
+                    name: row.name,
+                    email: row.email,
+                    pubKey: 'changeStatus',
+                    ipAdd: row.ip_add,
+                    updatedBy: this.userInfo.nickname,
+                },
+            });
+
+            if (code === 0) {
+                this.$message({
+                    type: 'info',
+                    message: '修改成功',
+                });
+            }
+        },
+
         timeChange() {
             if (!this.timeRange) {
                 this.search.startTime = '';

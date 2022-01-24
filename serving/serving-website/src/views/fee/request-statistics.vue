@@ -139,14 +139,6 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="总耗时(s)"
-                min-width="50"
-            >
-                <template slot-scope="scope">
-                    <p>{{ scope.row.total_spend }}</p>
-                </template>
-            </el-table-column>
 
             <el-table-column
                 label="操作"
@@ -203,21 +195,14 @@
                 </el-table-column>
 
                 <el-table-column
-                    label="耗时(s)"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.spend }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    label="IP 白名单"
+                    label="调用 IP"
                     min-width="40"
                 >
                     <template slot-scope="scope">
                         <p>{{ scope.row.ip_add }}</p>
                     </template>
                 </el-table-column>
+                
                 <el-table-column
                     label="请求结果"
                     min-width="30"

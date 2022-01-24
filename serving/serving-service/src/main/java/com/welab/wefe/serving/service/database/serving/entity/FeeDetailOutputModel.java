@@ -28,7 +28,7 @@ import java.util.UUID;
 @Entity
 public class FeeDetailOutputModel {
     @Id
-    private String id = UUID.randomUUID().toString().replaceAll("-", "");
+    private String id;
 
     @Column(name = "service_id")
     private String serviceId;

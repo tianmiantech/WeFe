@@ -86,7 +86,13 @@ public enum StatusCode {
      * 添加数据资源时的表单参数错误
      * 区别于数据资源文件错误，这种错误不需要删除文件。
      */
-    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, "");
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, ""),
+
+    /**
+     * serving
+     */
+    CLIENT_SERVICE_EXIST(40001, "该客户已存在此服务！"),
+    ERROR_PUBKEY_LENGTH(40002,"公钥长度不符合规范！");
 
     private int code;
     private String description;

@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.client.UpdateApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -79,7 +80,6 @@ public class ClientService {
         model.setPubKey(input.getPubKey());
         model.setCreatedBy(input.getCreatedBy());
         model.setCode(input.getCode());
-        model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
         model.setIpAdd(input.getIpAdd());
 
         clientRepository.save(model);
@@ -94,8 +94,13 @@ public class ClientService {
         model.setName(input.getName());
         model.setEmail(input.getEmail());
         model.setRemark(input.getRemark());
-        model.setPubKey(input.getPubKey());
+
+        if (StringUtil.isNotEmpty(input.getPubKey()) && !"changeStatus".equals(input.getPubKey())) {
+            model.setPubKey(input.getPubKey());
+        }
         model.setIpAdd(input.getIpAdd());
+        model.setUpdatedBy(input.getUpdatedBy());
+        model.setStatus(input.getStatus());
 
         clientRepository.save(model);
     }
@@ -111,7 +116,7 @@ public class ClientService {
                 .contains("name", input.getClientName())
                 .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime(),
                         input.getEndTime() == null ? null : input.getEndTime())
-                .equal("status", ClientStatusEnum.NORMAL.getValue())
+//                .equal("status", ClientStatusEnum.NORMAL.getValue())
                 .build(ClientMysqlModel.class);
 
         PagingOutput<ClientMysqlModel> page = clientRepository.paging(where, input);
@@ -119,8 +124,8 @@ public class ClientService {
         List<QueryClientListApi.Output> list = page
                 .getList()
                 .stream()
-                // .filter(x -> member.contains(x.getModelId()))
                 .map(x -> ModelMapper.map(x, QueryClientListApi.Output.class))
+                .peek(x -> x.setPubKey(x.getPubKey().substring(0, 4) + "*****" + x.getPubKey().substring(x.getPubKey().length() - 4)))
                 .collect(Collectors.toList());
 
         return PagingOutput.of(
@@ -150,11 +155,13 @@ public class ClientService {
 
     public QueryClientApi.Output queryById(String id) {
         ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
+        model.setPubKey(model.getPubKey().substring(0, 4) + "*****" + model.getPubKey().substring(model.getPubKey().length() - 4));
         return ModelMapper.map(model, QueryClientApi.Output.class);
     }
 
     public QueryClientApi.Output queryByName(String name) {
         ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+        model.setPubKey(model.getPubKey().substring(0, 4) + "*****" + model.getPubKey().substring(model.getPubKey().length() - 4));
         return ModelMapper.map(model, QueryClientApi.Output.class);
     }
 

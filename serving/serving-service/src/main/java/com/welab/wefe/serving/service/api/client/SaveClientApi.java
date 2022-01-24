@@ -39,6 +39,7 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
 
     private static final Pattern r = Pattern.compile("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}");
+    private static final int pubKeyMinLength = 128;
 
     @Autowired
     private ClientService clientService;
@@ -71,13 +72,12 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
         @Check(name = "备注")
         private String remark;
 
-        @Check(name = "状态")
-        private Integer status;
-
+        @Check(name = "创建人")
         private String createdBy;
 
         @Check(name = "客户 code")
         private String code;
+
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -90,6 +90,10 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
                 }
             }
             ipAdd = StringUtil.join(ipArray, ",");
+
+            if (StringUtil.strTrim(pubKey).length() < pubKeyMinLength) {
+                throw new StatusCodeWithException(StatusCode.ERROR_PUBKEY_LENGTH);
+            }
 
 
         }
@@ -148,14 +152,6 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         public void setRemark(String remark) {
             this.remark = remark;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
         }
 
         public String getCreatedBy() {
