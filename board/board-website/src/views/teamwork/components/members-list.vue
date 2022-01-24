@@ -55,9 +55,17 @@
                                 <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: projectType === 'DeepLearning' ? 'img' : 'csv' } }">
                                     {{ scope.row.data_set.name }}
                                 </router-link>
+                                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                                    bf
+                                </el-tag>
                                 <br>
                                 <span>{{ scope.row.data_set_id }}</span>
                             </template>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="数据类型" min-width="100">
+                        <template v-slot="scope">
+                            {{ sourceTypeMap[scope.row.data_resource_type] }}
                         </template>
                     </el-table-column>
                     <el-table-column label="关键词">
@@ -77,12 +85,17 @@
                             </template>
                         </template>
                     </el-table-column>
-                    <el-table-column v-if="projectType === 'MachineLearning'" label="数据量">
+                    <el-table-column v-if="projectType === 'MachineLearning'" label="数据量" min-width="150">
                         <template v-slot="scope">
-                            <template v-if="scope.row.data_set">
+                            <p v-if="scope.row.data_resource_type === 'BloomFilter'">
+                                样本量：{{ scope.row.data_set.total_data_count }}
+                                <br>
+                                融合公式: {{ scope.row.data_set.hash_function }}
+                            </p>
+                            <template v-else>
                                 特征量：{{ scope.row.data_set.feature_count }}
                                 <br>
-                                样本量：{{ scope.row.data_set.row_count }}
+                                样本量：{{ scope.row.data_set.total_data_count }}
                             </template>
                         </template>
                     </el-table-column>
@@ -362,6 +375,11 @@
                 checkedMembersList:  [],
                 memberTabName:       '',
                 batchDataSetList:    [],
+                sourceTypeMap:       {
+                    TableDataSet: 'TableDataSet',
+                    ImageDataSet: 'ImageDataSet',
+                    BloomFilter:  '布隆过滤器',
+                },
             };
         },
         computed: {

@@ -207,11 +207,19 @@
                             <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: form.project_type === 'DeepLearning' ? 'img' : 'csv' } }">
                                 {{ scope.row.data_set.name }}
                             </router-link>
+                            <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                                bf
+                            </el-tag>
                             <p class="p-id pt5">{{ scope.row.data_set_id }}</p>
                         </template>
                     </template>
                 </el-table-column>
 
+                <el-table-column label="数据类型" min-width="100">
+                    <template v-slot="scope">
+                        {{ vData.sourceTypeMap[scope.row.data_resource_type] }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="关键词">
                     <template v-slot="scope">
                         <template v-if="scope.row.data_set && scope.row.data_set.tags">
@@ -228,12 +236,17 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量" min-width="150">
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set">
+                        <p v-if="scope.row.data_resource_type === 'BloomFilter'">
+                            样本量：{{ scope.row.data_set.total_data_count }}
+                            <br>
+                            融合公式: {{ scope.row.data_set.hash_function }}
+                        </p>
+                        <template v-else>
                             特征量：{{ scope.row.data_set.feature_count }}
                             <br>
-                            样本量：{{ scope.row.data_set.row_count }}
+                            样本量：{{ scope.row.data_set.total_data_count }}
                         </template>
                     </template>
                 </el-table-column>
@@ -451,8 +464,8 @@
         inject,
         getCurrentInstance,
     } from 'vue';
-    import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import DataSetPreview from '@comp/views/data_set-preview';
+    import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
 
     export default{
@@ -469,7 +482,7 @@
             PreviewImageList,
         },
         emits: ['deleteDataSetEmit'],
-        setup(props, context) {
+        setup(props) {
             const store = useStore();
             const refresh = inject('refresh');
             const { appContext } = getCurrentInstance();
@@ -495,6 +508,11 @@
                 },
                 memberAuditComments: [],
                 batchDataSetList:    [],
+                sourceTypeMap:       {
+                    TableDataSet: 'TableDataSet',
+                    ImageDataSet: 'ImageDataSet',
+                    BloomFilter:  '布隆过滤器',
+                },
             });
             const methods = {
                 showDataSetPreview(item){
