@@ -32,9 +32,10 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
     private String fileSize;
     private String memberId;
     private String blockchainNodeId;
-    private String purpose;
+    private String rurpose;
+    private String filePublicLevel;
     private String describe;
-    private String enable;
+    private String enable = "1";
     private MemberFileInfoExtJSON extJson = new MemberFileInfoExtJSON();
 
     public String getFileId() {
@@ -85,12 +86,12 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
         this.blockchainNodeId = blockchainNodeId;
     }
 
-    public String getPurpose() {
-        return purpose;
+    public String getRurpose() {
+        return rurpose;
     }
 
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
+    public void setRurpose(String rurpose) {
+        this.rurpose = rurpose;
     }
 
     public String getDescribe() {
@@ -107,6 +108,14 @@ public class MemberFileInfo extends AbstractBlockChainBusinessModel {
 
     public void setEnable(String enable) {
         this.enable = enable;
+    }
+
+    public String getFilePublicLevel() {
+        return filePublicLevel;
+    }
+
+    public void setFilePublicLevel(String filePublicLevel) {
+        this.filePublicLevel = filePublicLevel;
     }
 
     public MemberFileInfoExtJSON getExtJson() {

@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
@@ -60,11 +61,19 @@ public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
-        MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileSign(sign);
+        MemberFileInfo memberFileInfo = null;
+        for (int i = 0; i < 3; i++) {
+            memberFileInfo = memberFileInfoMongoRepo.findByFileSign(sign);
+            if (memberFileInfo == null) {
+                ThreadUtil.sleep(2000);
+                continue;
+            }
+            break;
+        }
+
         if (memberFileInfo == null) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
         }
-
 
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()

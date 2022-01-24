@@ -64,7 +64,6 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
         private String apiName;
         @Check(require = true)
         private String serviceType;
-        @Check(require = true)
         private String queryParams;
         @Check(require = true)
         private int serviceStatus;

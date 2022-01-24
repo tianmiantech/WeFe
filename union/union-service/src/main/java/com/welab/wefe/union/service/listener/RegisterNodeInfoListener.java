@@ -100,6 +100,7 @@ public class RegisterNodeInfoListener implements ApplicationListener<Application
             }
 
             UnionNodeConfigCache.currentBlockchainNodeId = currentBlockchainNodeId;
+            UnionNodeConfigCache.setUnionNodeSm2Config(unionNodeSm2Config);
         } catch (StatusCodeWithException e) {
             LOG.error("registerUnionNode to blockchain failed", e);
             System.exit(1);

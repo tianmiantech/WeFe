@@ -28,6 +28,7 @@ import com.welab.wefe.common.data.mongodb.repo.MemberFileInfoMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.enums.FileRurpose;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -35,7 +36,7 @@ import com.welab.wefe.common.util.UrlUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.union.service.dto.base.BaseInput;
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonObjectId;
 import org.bson.BsonValue;
@@ -72,28 +73,37 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws IOException, StatusCodeWithException {
         MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileId(input.fileId);
         RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileId(input.fileId);
+
+        String fileUploadCurrentBlockchainNodeId;
         if (memberFileInfo == null) {
             if (realnameAuthAgreementTemplate == null) {
                 throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.fileId);
+            } else {
+                fileUploadCurrentBlockchainNodeId = realnameAuthAgreementTemplate.getBlockchainNodeId();
             }
         } else {
-            if (!memberFileInfo.getMemberId().equals(input.getMemberId())) {
-                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            if (!memberFileInfo.getMemberId().equals(input.curMemberId) && FileRurpose.RealnameAuth.name().equals(memberFileInfo.getRurpose())) {
+                throw new StatusCodeWithException("没有下载该文件的权限", StatusCode.ILLEGAL_REQUEST);
+            } else {
+                fileUploadCurrentBlockchainNodeId = memberFileInfo.getBlockchainNodeId();
             }
         }
 
 
         GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", input.getFileId()).build());
         if (gridFSFile == null) {
-            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(memberFileInfo.getBlockchainNodeId());
+            UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(fileUploadCurrentBlockchainNodeId);
             String url = unionNode.getBaseUrl() + "/download/file";
             url = UrlUtil.appendQueryParameters(url, JObject.create(input));
             RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<byte[]> response = restTemplate.exchange(requestEntity, byte[].class);
-
             new Thread(() -> {
-                saveFileToCurrentNode(memberFileInfo, response);
+                if (memberFileInfo != null) {
+                    saveFileToCurrentNode(memberFileInfo, response);
+                } else {
+                    saveFileToCurrentNode(realnameAuthAgreementTemplate, response);
+                }
             }).start();
 
             return success(response);
@@ -120,25 +130,53 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
         return success(response);
     }
 
+    private void saveFileToCurrentNode(RealnameAuthAgreementTemplate realnameAuthAgreementTemplate, ResponseEntity<byte[]> response) {
+        saveFileToCurrentNode(
+                realnameAuthAgreementTemplate.getTemplateFileSign(),
+                realnameAuthAgreementTemplate.getTemplateFileId(),
+                realnameAuthAgreementTemplate.getFileName(),
+                null,
+                response
+        );
+    }
+
     private void saveFileToCurrentNode(MemberFileInfo memberFileInfo, ResponseEntity<byte[]> response) {
+        saveFileToCurrentNode(
+                memberFileInfo.getFileSign(),
+                memberFileInfo.getFileId(),
+                memberFileInfo.getFileName(),
+                memberFileInfo.getMemberId(),
+                response
+        );
+    }
+
+    private void saveFileToCurrentNode(
+            String fileSign,
+            String fileId,
+            String fileName,
+            String memberId,
+            ResponseEntity<byte[]> response
+    ) {
         GridFSUploadOptions options = new GridFSUploadOptions();
         Document metadata = new Document();
         metadata.append("contentType", response.getHeaders().getFirst("Content-Type"));
-        metadata.append("sign", memberFileInfo.getFileSign());
-        metadata.append("memberId", memberFileInfo.getMemberId());
+        metadata.append("sign", fileSign);
+        if (memberId != null) {
+            metadata.append("memberId", memberId);
+        }
 
         options.metadata(metadata);
-        BsonValue fileId = new BsonObjectId(new ObjectId(memberFileInfo.getFileId()));
+        BsonValue fileObjectId = new BsonObjectId(new ObjectId(fileId));
         gridFSBucket.uploadFromStream(
-                fileId,
-                memberFileInfo.getFileName(),
+                fileObjectId,
+                fileName,
                 new ByteArrayInputStream(response.getBody()),
                 options);
 
     }
 
 
-    public static class Input extends SignedApiInput {
+    public static class Input extends BaseInput {
         @Check(require = true)
         private String fileId;
 

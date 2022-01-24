@@ -57,6 +57,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
                 new QueryBuilder()
                         .notEq("blockchainNodeId", blockchainNodeId)
                         .notRemoved()
+                        .append("enable","1")
                         .build()
                 ,
                 UnionNode.class);

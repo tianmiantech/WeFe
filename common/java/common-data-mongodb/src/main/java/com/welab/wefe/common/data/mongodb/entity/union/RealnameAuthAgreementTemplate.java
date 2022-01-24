@@ -29,7 +29,10 @@ public class RealnameAuthAgreementTemplate extends AbstractBlockChainBusinessMod
     private String templateFileId;
     private String templateFileSign;
     private String fileName;
-    private String enable;
+    private String blockchainNodeId;
+    private String enable = "0";
+    private String version;
+
     private RealnameAuthAgreementTemplateExtJSON extJson = new RealnameAuthAgreementTemplateExtJSON();
 
     public String getTemplateFileId() {
@@ -56,12 +59,28 @@ public class RealnameAuthAgreementTemplate extends AbstractBlockChainBusinessMod
         this.fileName = fileName;
     }
 
+    public String getBlockchainNodeId() {
+        return blockchainNodeId;
+    }
+
+    public void setBlockchainNodeId(String blockchainNodeId) {
+        this.blockchainNodeId = blockchainNodeId;
+    }
+
     public String getEnable() {
         return enable;
     }
 
     public void setEnable(String enable) {
         this.enable = enable;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public RealnameAuthAgreementTemplateExtJSON getExtJson() {

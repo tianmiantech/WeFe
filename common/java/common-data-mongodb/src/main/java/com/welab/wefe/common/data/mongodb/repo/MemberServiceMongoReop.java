@@ -116,12 +116,12 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, memberServiceMatch, memberMatch, unwind, addFieldsOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, memberServiceMatch, memberMatch);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) pageIndex * pageSize);
         LimitOperation limitOperation = Aggregation.limit(pageSize);
-        aggregation = Aggregation.newAggregation(lookupToLots, memberServiceMatch, memberMatch, unwind, skipOperation, limitOperation, addFieldsOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, memberServiceMatch, memberMatch, skipOperation, limitOperation);
 
         List<MemberServiceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults();
 

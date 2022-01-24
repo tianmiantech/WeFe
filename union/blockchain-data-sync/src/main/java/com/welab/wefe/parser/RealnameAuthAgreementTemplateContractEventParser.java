@@ -56,9 +56,11 @@ public class RealnameAuthAgreementTemplateContractEventParser extends AbstractPa
         realnameAuthAgreementTemplate.setTemplateFileId(StringUtil.strTrim2(params.getString(0)));
         realnameAuthAgreementTemplate.setTemplateFileSign(StringUtil.strTrim2(params.getString(1)));
         realnameAuthAgreementTemplate.setFileName(StringUtil.strTrim2(params.getString(2)));
-        realnameAuthAgreementTemplate.setEnable(StringUtil.strTrim2(params.getString(3)));
-        realnameAuthAgreementTemplate.setCreatedTime(StringUtil.strTrim2(params.getString(4)));
-        realnameAuthAgreementTemplate.setUpdatedTime(StringUtil.strTrim2(params.getString(5)));
+        realnameAuthAgreementTemplate.setBlockchainNodeId(StringUtil.strTrim2(params.getString(3)));
+        realnameAuthAgreementTemplate.setEnable(StringUtil.strTrim2(params.getString(4)));
+        realnameAuthAgreementTemplate.setVersion(StringUtil.strTrim2(params.getString(5)));
+        realnameAuthAgreementTemplate.setCreatedTime(StringUtil.strTrim2(params.getString(6)));
+        realnameAuthAgreementTemplate.setUpdatedTime(StringUtil.strTrim2(params.getString(7)));
         realnameAuthAgreementTemplate.setExtJson(extJSON);
 
         mongoRepo.save(realnameAuthAgreementTemplate);

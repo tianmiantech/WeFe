@@ -69,17 +69,18 @@ public class MemberServiceContractService extends AbstractContractService {
                     .decodeReceiptWithValues(MemberServiceContract.ABI, MemberServiceContract.FUNC_INSERT, transactionReceipt);
             if(transactionDataIsExist(transactionResponse.getValues())){
                 update(memberService);
+            } else {
+                transactionIsSuccess(transactionResponse);
             }
-            LOG.info("MemberServiceContract add transaction, member service id: {},  receipt response: {}", memberService.getServiceId(), JObject.toJSON(transactionResponse).toString());
+            LOG.info("MemberServiceContract save transaction, member service id: {},  receipt response: {}", memberService.getServiceId(), JObject.toJSON(transactionResponse).toString());
 
-            transactionIsSuccess(transactionResponse);
 
         } catch (StatusCodeWithException e) {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOG.error("add member service error: ", e);
-            throw new StatusCodeWithException("add member service error: ", StatusCode.SYSTEM_ERROR);
+            LOG.error("save member service error: ", e);
+            throw new StatusCodeWithException("save member service error: ", StatusCode.SYSTEM_ERROR);
         }
     }
 

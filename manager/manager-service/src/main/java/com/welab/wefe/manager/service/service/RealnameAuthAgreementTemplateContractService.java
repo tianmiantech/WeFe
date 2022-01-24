@@ -103,9 +103,11 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
         list.add(realnameAuthAgreementTemplate.getTemplateFileId());
         list.add(realnameAuthAgreementTemplate.getTemplateFileSign());
         list.add(realnameAuthAgreementTemplate.getFileName());
+        list.add(realnameAuthAgreementTemplate.getBlockchainNodeId());
         list.add(realnameAuthAgreementTemplate.getEnable());
-        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
-        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+        list.add(realnameAuthAgreementTemplate.getVersion());
+        list.add(realnameAuthAgreementTemplate.getCreatedTime());
+        list.add(realnameAuthAgreementTemplate.getUpdatedTime());
         return list;
     }
 
