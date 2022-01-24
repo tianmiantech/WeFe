@@ -174,11 +174,11 @@ public class PaymentsRecordsService {
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
-        Optional<PaymentsRecordsMysqlModel> one = paymentsRecordsRepository.findOne(where);
+        PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = paymentsRecordsRepository.findAll(where).get(0);
 
-        if (one.isPresent()) {
-            PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = one.get();
+        if (paymentsRecordsMysqlModel != null) {
             if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().add(input.getAmount()));
