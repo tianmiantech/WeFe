@@ -345,6 +345,11 @@ public class ServiceService {
 		} else if (service.getStatus() != 1) {
 			res.append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 			res.append("message", "invalid request: url = " + serviceUrl);
+			long duration = System.currentTimeMillis() - start;
+			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+					ClientMysqlModel.class);
+			apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
+					clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 			return res;
 		} else {
 			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
@@ -354,11 +359,21 @@ public class ServiceService {
 					|| clientServiceMysqlModel.getStatus() != 1) {
 				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
 				res.append("message", "invalid request: url = " + serviceUrl);
+				long duration = System.currentTimeMillis() - start;
+				ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+						ClientMysqlModel.class);
+				apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
+						clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
 			if (!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
 				res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
 				res.append("message", "invalid request: url = " + serviceUrl);
+				long duration = System.currentTimeMillis() - start;
+				ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+						ClientMysqlModel.class);
+				apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
+						clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
 			int serviceType = service.getServiceType();
