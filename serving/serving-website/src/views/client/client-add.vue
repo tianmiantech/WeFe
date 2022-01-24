@@ -32,10 +32,10 @@
                           show-word-limit></el-input>
             </el-form-item>
 
-            <el-form-item label="状态：" prop="status">
-                <el-radio v-model="client.status" label="0">正常</el-radio>
-                <el-radio v-model="client.status" label="1">禁用</el-radio>
-            </el-form-item>
+<!--            <el-form-item label="状态：" prop="status">-->
+<!--                <el-radio v-model="client.status" label="0">正常</el-radio>-->
+<!--                <el-radio v-model="client.status" label="1">禁用</el-radio>-->
+<!--            </el-form-item>-->
 
 
             <el-form-item label="备注">
@@ -103,13 +103,13 @@ export default {
             }
         };
 
-        let validateStatus = (rule, value, callback) => {
-            if (!this.client.status) {
-                return callback(new Error('请选择客户状态'));
-            } else {
-                callback();
-            }
-        };
+        // let validateStatus = (rule, value, callback) => {
+        //     if (!this.client.status) {
+        //         return callback(new Error('请选择客户状态'));
+        //     } else {
+        //         callback();
+        //     }
+        // };
 
 
         return {
@@ -135,9 +135,9 @@ export default {
                     // {required: true, message: '请输入IP白名单', trigger: 'change'}
                     {required: true, validator: validateIpAdd, trigger: 'blur'}
                 ],
-                status: [
-                    {required: true, validator: validateStatus, trigger: 'change'}
-                ],
+                // status: [
+                //     {required: true, validator: validateStatus, trigger: 'change'}
+                // ],
                 code: [
                     {required: true, message: '请输入客户code', trigger: 'change'}
                 ],
@@ -163,7 +163,6 @@ export default {
 
 
         onSubmit() {
-            console.log(this.userInfo.nickname, 11111)
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
                     const {code, message} = await this.$http.post({
@@ -177,7 +176,6 @@ export default {
                             remark: this.client.remark,
                             createdBy: this.userInfo.nickname,
                             code: this.client.code,
-                            status: this.client.status,
                         },
                     });
 

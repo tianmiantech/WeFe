@@ -80,7 +80,6 @@ public class ClientService {
         model.setPubKey(input.getPubKey());
         model.setCreatedBy(input.getCreatedBy());
         model.setCode(input.getCode());
-        model.setStatus(input.getStatus() == null ? ClientStatusEnum.NORMAL.getValue() : input.getStatus());
         model.setIpAdd(input.getIpAdd());
 
         clientRepository.save(model);

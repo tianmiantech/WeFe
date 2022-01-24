@@ -125,6 +125,16 @@
             </el-table-column>
 
             <el-table-column
+                label="状态"
+                min-width="50"
+            >
+                <template slot-scope="scope">
+                    <p>{{ clientStatus[scope.row.status] }}</p>
+                </template>
+            </el-table-column>
+
+
+            <el-table-column
                 label="操作"
                 align="center"
                 min-width="140"
@@ -143,7 +153,7 @@
                         type="success"
                         @click="open(scope.row,1)"
                     >
-                        解禁
+                        启用
                     </el-button>
 
                     <router-link
@@ -217,6 +227,10 @@ export default {
             },
             timeRange: '',
             getListApi: '/client/query-list',
+            clientStatus: {
+                1: '启用',
+                0: '禁用'
+            },
         };
     },
 
@@ -230,10 +244,13 @@ export default {
             this.$alert('是否修改？', '警告', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.changeStatus(row, status);
-                    setTimeout(() => {
-                        this.refresh();
-                    }, 1000);
+                    if (action === 'confirm') {
+                        this.changeStatus(row, status);
+                        setTimeout(() => {
+                            this.refresh();
+                        }, 1000);
+                    }
+
 
                 },
             });

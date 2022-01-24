@@ -59,6 +59,16 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "fee_config_id")
     private String feeConfigId;
 
+    @Column(name = "pay_type")
+    private Integer payType;
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
+    }
 
     public Integer getServiceType() {
         return serviceType;

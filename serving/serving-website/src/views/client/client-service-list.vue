@@ -247,10 +247,13 @@ export default {
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.changeStatus(row, status);
-                    setTimeout(() => {
-                        this.refresh();
-                    }, 1000);
+                    if (action === 'confirm') {
+                        this.changeStatus(row, status);
+                        setTimeout(() => {
+                            this.refresh();
+                        }, 1000);
+                    }
+
 
                 },
             });

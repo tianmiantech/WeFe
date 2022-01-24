@@ -89,7 +89,7 @@ CREATE TABLE fee_config(
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                            updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                            updated_time datetime DEFAULT NULL COMMENT '更新时间',
-                           unit_price double (10,6) NOT NULL   COMMENT '调用单价' ,
+                           unit_price double NOT NULL   COMMENT '调用单价' ,
                            pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '计费配置';
@@ -123,6 +123,7 @@ CREATE TABLE fee_detail(
                            fee_config_id varchar(32) NOT NULL COMMENT '计费规则id',
                            total_fee DECIMAL(24,6)    COMMENT '总费用' ,
                            unit_price DECIMAL(24,6)    COMMENT '单价(￥)' ,
+                           pay_type TINYINT(1) NOT NULL   COMMENT '付费类型: 1 预付费、0 后付费' ,
                            total_request_times INT NOT NULL  DEFAULT 0 COMMENT '总调用次数' ,
                            created_by varchar(32) DEFAULT NULL COMMENT '创建人',
                            created_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
