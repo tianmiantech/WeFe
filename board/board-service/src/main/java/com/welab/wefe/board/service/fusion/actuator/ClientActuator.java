@@ -226,12 +226,13 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 break;
             }
 
-            serverIsReady = gatewayService.callOtherMemberBoard(
+            JSONObject result = gatewayService.callOtherMemberBoard(
                     dstMemberId,
                     ServerSynStatusApi.class,
                     new ServerSynStatusApi.Input(businessId),
-                    Boolean.class
+                    JSONObject.class
             );
+            serverIsReady = result.getBoolean("ready");
         }
 
         //调用gateway

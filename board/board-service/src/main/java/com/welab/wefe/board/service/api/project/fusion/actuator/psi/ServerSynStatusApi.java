@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -33,16 +34,16 @@ import com.welab.wefe.common.web.dto.ApiResult;
         login = false,
         rsaVerify = true
 )
-public class ServerSynStatusApi extends AbstractApi<ServerSynStatusApi.Input, Boolean> {
+public class ServerSynStatusApi extends AbstractApi<ServerSynStatusApi.Input, JObject> {
 
     @Override
-    protected ApiResult<Boolean> handle(Input input) throws Exception {
+    protected ApiResult<JObject> handle(Input input) throws Exception {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
-            return success(false);
+            return success(JObject.create().append("ready", false));
         }
 
-        return success(true);
+        return success(JObject.create().append("ready", true));
     }
 
     public static class Input extends AbstractApiInput {
