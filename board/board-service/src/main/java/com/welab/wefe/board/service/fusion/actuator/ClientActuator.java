@@ -16,14 +16,10 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.DownloadBFApi;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.PsiCryptoApi;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ReceiveResultApi;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -64,6 +60,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
     private String[] headers;
+    public Boolean serverIsReady;
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
         super(businessId, dataSetId, isTrace, traceColumn, dataCount);
@@ -220,26 +217,31 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public PsiActuatorMeta downloadBloomFilter() {
+    public PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException {
 
         LOG.info("downloadBloomFilter start");
 
-        //调用gateway
-        JSONObject result = null;
-        int num = 3;
-
-        while (num > 0) {
-
-            try {
-                result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-
-                num = 0;
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        while (true) {
+            if (serverIsReady) {
+                break;
             }
-            num--;
+
+            serverIsReady = gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ServerSynStatusApi.class,
+                    new ServerSynStatusApi.Input(businessId),
+                    Boolean.class
+            );
         }
+
+        //调用gateway
+        JSONObject result = gatewayService.callOtherMemberBoard(
+                dstMemberId,
+                DownloadBFApi.class,
+                new DownloadBFApi.Input(businessId),
+                JSONObject.class
+        );
+
 
         LOG.info("downloadBloomFilter end {} ", result);
 

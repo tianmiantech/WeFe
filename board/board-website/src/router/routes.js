@@ -307,12 +307,7 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '新建数据融合任务',
                     active:          `${prefixPath}teamwork`,
-                    /* titleParams:     {
-                        params: ['flow_id', 'project_id'],
-                        name:   'fusion-task',
-                        title:  '数据融合',
-                    }, */
-                    navigation:      true,
+                    navigation:      false,
                 },
                 component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },
@@ -324,12 +319,7 @@ const baseRoutes = [
                     hidden:          true,
                     title:           '数据融合详情',
                     active:          `${prefixPath}teamwork`,
-                    /* titleParams:     {
-                        params: ['flow_id', 'project_id'],
-                        name:   'fusion-task',
-                        title:  '数据融合',
-                    }, */
-                    navigation:      true,
+                    navigation:      false,
                 },
                 component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
             },

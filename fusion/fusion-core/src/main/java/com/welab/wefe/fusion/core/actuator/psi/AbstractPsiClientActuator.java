@@ -66,7 +66,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      *
      * @return
      */
-    public abstract PsiActuatorMeta downloadBloomFilter();
+    public abstract PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException;
 
     /**
      * Download the Server Square Bloom filter
