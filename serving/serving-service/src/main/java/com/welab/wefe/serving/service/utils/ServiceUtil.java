@@ -144,4 +144,15 @@ public class ServiceUtil {
 			return where;
 		}
 	}
+	
+	/**
+	 * 前面保留 index 位明文，后面保留 end 位明文,如：[身份证号] 110****58，前面保留3位明文，后面保留2位明文
+	 */
+	public static String around(String str, int index, int end) {
+		if (StringUtils.isBlank(str)) {
+			return "";
+		}
+		return StringUtils.left(str, index).concat(StringUtils
+				.removeStart(StringUtils.leftPad(StringUtils.right(str, end), StringUtils.length(str), "*"), "***"));
+	}
 }

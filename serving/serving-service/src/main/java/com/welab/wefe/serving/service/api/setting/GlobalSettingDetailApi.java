@@ -22,6 +22,8 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
 import com.welab.wefe.serving.service.utils.ModelMapper;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -36,6 +38,8 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
     @Override
     protected ApiResult<GlobalSettingDetailApi.Output> handle() {
         GlobalSettingDetailApi.Output output = ModelMapper.map(repo.singleton(), Output.class);
+        output.setRsaPrivateKey(ServiceUtil.around(output.getRsaPrivateKey(), 10, 10));
+        output.setRsaPublicKey(ServiceUtil.around(output.getRsaPublicKey(), 10, 10));
         return success(output);
     }
 
