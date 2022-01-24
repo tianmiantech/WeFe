@@ -34,6 +34,7 @@ public class PrivateSetIntersectionTest1 {
         String clientId = MD5Util.getMD5String(data.getString("phone_number") + data.getString("nickname"))
                 + SHA256Utils.getSHA256(data.getString("email"));
         List<String> clientIds = Arrays.asList(new String[]{clientId});
+        
         int keySize = 1024;
         PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
         CommunicationConfig config = new CommunicationConfig();

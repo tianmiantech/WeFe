@@ -65,6 +65,7 @@ import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 import com.welab.wefe.mpc.sa.sdk.SecureAggregation;
@@ -383,6 +384,13 @@ public class ServiceService {
 				Double result = sa_query(data, service);
 				res = JObject.create("result", result);
 				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
+				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				List<String> result = multi_psi(clientIds, service);
+				res = JObject.create("result", result);
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+				
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
@@ -500,6 +508,29 @@ public class ServiceService {
 				.forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
 		response.setClientIdByServerKeys(encryptClientIds);
 		return response;
+	}
+	
+	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model) {
+		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
+		int size = serviceConfigs.size();
+		List<CommunicationConfig> communicationConfigs = new LinkedList<>();
+		for (int i = 0; i < size; i++) {
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			String supplieId = serviceConfig.getString("member_id");
+			String apiName = serviceConfig.getString("api_name");
+			String base_url = serviceConfig.getString("base_url");
+			CommunicationConfig communicationConfig = new CommunicationConfig();
+			communicationConfig.setApiName(apiName);
+			communicationConfig.setServerUrl(base_url);
+			communicationConfig.setCommercialId(supplieId);
+			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfigs.add(communicationConfig);
+		}
+
+		PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
+		List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
+		return result;
 	}
 
 	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
