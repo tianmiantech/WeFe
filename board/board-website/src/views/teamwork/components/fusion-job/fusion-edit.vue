@@ -113,7 +113,7 @@
                                     >
                                         设置
                                     </el-button>
-                                    <p class="mt5">融合公式: {{ vData.promoter.hash_func || '无' }}</p>
+                                    <p class="mt5">主键组合方式: {{ vData.promoter.hash_func || '无' }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column
@@ -184,7 +184,7 @@
                                 >
                                     设置
                                 </el-button>
-                                <p class="mt5">融合公式: {{ vData.provider.hash_func || '无' }}</p>
+                                <p class="mt5">主键组合方式: {{ vData.provider.hash_func || '无' }}</p>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -746,7 +746,7 @@
                 audit(event, status) {
                     const fields = vData.field_info_list;
 
-                    if(status === 'agree' && vData.provider.data_resource_type === 'TableDataSet' && (Array.isArray(fields) && !fields.length || fields == null)) return $message.error('请先设置融合公式');
+                    if(status === 'agree' && vData.provider.data_resource_type === 'TableDataSet' && (Array.isArray(fields) && !fields.length || fields == null)) return $message.error('请先设置主键组合方式');
 
                     const actions = status === 'agree' ? $confirm('同意本次合作', '警告', {
                         type: 'warning',

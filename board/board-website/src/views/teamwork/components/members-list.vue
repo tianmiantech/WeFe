@@ -52,7 +52,14 @@
                     >
                         <template v-slot="scope">
                             <template v-if="scope.row.data_set">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_set_id, type: projectType === 'DeepLearning' ? 'img' : 'csv' } }">
+                                <router-link :to="{
+                                    name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view',
+                                    query: {
+                                        id: scope.row.data_set_id,
+                                        type: projectType === 'DeepLearning' ? 'img' : scope.row.data_resource_type === 'BloomFilter' ? 'BloomFilter' : 'csv',
+                                        data_resource_type: scope.row.data_resource_type,
+                                    }
+                                }">
                                     {{ scope.row.data_set.name }}
                                 </router-link>
                                 <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
@@ -90,7 +97,7 @@
                             <p v-if="scope.row.data_resource_type === 'BloomFilter'">
                                 样本量：{{ scope.row.data_set.total_data_count }}
                                 <br>
-                                融合公式: {{ scope.row.data_set.hash_function }}
+                                主键组合方式: {{ scope.row.data_set.hash_function }}
                             </p>
                             <template v-else>
                                 特征量：{{ scope.row.data_set.feature_count }}

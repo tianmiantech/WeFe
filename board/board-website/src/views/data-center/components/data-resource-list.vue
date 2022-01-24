@@ -97,7 +97,7 @@
                 <p v-else-if="scope.row.data_resource_type === 'BloomFilter'">
                     样本量：{{ scope.row.total_data_count }}
                     <br>
-                    融合公式: {{ scope.row.hash_function }}
+                    主键组合方式: {{ scope.row.hash_function }}
                 </p>
                 <p v-else>
                     特征量：{{ scope.row.feature_count }}
@@ -248,9 +248,6 @@
         methods: {
             getDataList(opt) {
                 this.search = this.searchField;
-                if (this.search.dataResourceType && typeof this.search.dataResourceType === 'string') {
-                    this.search.dataResourceType = [this.search.dataResourceType];
-                }
                 this.pagination.page_index = +this.$route.query.page_index || 1;
                 this.pagination.page_size = +this.$route.query.page_size || 20;
                 this.getList(opt);
@@ -294,9 +291,8 @@
                             ImageDataSet: '/image_data_set/delete',
                             BloomFilter:  '/bloom_filter/delete',
                         };
-                        const url = map[row.data_resource_type];
                         const { code } = await this.$http.post({
-                            url,
+                            url:  map[row.data_resource_type],
                             data: {
                                 id: row.id,
                             },

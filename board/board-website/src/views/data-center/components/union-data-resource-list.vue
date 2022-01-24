@@ -103,7 +103,7 @@
                 <p v-else-if="scope.row.data_resource_type === 'BloomFilter'">
                     样本量：{{ scope.row.total_data_count }}
                     <br>
-                    融合公式: {{ scope.row.hash_function }}
+                    主键组合方式: {{ scope.row.hash_function }}
                 </p>
                 <p v-else>
                     特征量：{{ scope.row.feature_count }}
