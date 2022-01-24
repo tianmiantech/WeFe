@@ -295,12 +295,12 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
-        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("created_time")));
 
         dataAggregationOperations.add(addFieldsOperation);
+        dataAggregationOperations.add(sortOperation);
         dataAggregationOperations.add(skipOperation);
         dataAggregationOperations.add(limitOperation);
-        dataAggregationOperations.add(sortOperation);
 
         CountOperation countOperation = Aggregation.count().as("count");
         totalAggregationOperations.add(countOperation);
