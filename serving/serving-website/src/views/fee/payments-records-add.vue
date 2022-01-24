@@ -38,18 +38,18 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="状态" prop="status">
-                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">
-                    <el-option
-                        v-for="item in statusMap"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
+            <!--            <el-form-item label="状态" prop="status">-->
+            <!--                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">-->
+            <!--                    <el-option-->
+            <!--                        v-for="item in statusMap"-->
+            <!--                        :key="item.value"-->
+            <!--                        :label="item.label"-->
+            <!--                        :value="item.value">-->
+            <!--                    </el-option>-->
+            <!--                </el-select>-->
+            <!--            </el-form-item>-->
 
-            <el-form-item label="金额" prop="amount">
+            <el-form-item label="金额" prop="amount" class="amount">
                 <el-input v-model="paymentsRecords.amount"></el-input>
             </el-form-item>
 
@@ -167,9 +167,6 @@ export default {
                     });
 
                     if (code === 0) {
-                        // setTimeout(() => {
-                        //
-                        // }, 1000)
                         this.$router.push({
                             name: 'payments-records'
                         })
@@ -182,7 +179,6 @@ export default {
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
 
-                console.log(data[i].id, ' ', data[i].name, 11111)
                 this.services.push({
                     label: data[i].name,
                     value: data[i].id
@@ -239,5 +235,9 @@ export default {
 
 .el-form {
     width: 600px;
+}
+
+.amount {
+    width: 285px;
 }
 </style>

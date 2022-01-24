@@ -29,10 +29,71 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "client_id")
     private String clientId;
 
+    @Column(name = "service_name")
+    private String serviceName;
+
+    @Column(name = "client_name")
+    private String clientName;
+
+    @Column(name = "service_type")
+    private Integer serviceType;
+
+
     /**
-     * status: false means unused, true means used, default = true
+     * status: false means unused, true means used, default = 0
      */
-    private Integer status = ServiceStatusEnum.USED.getValue();
+    private Integer status = ServiceStatusEnum.UNUSED.getValue();
+
+    @Column(name = "ip_add")
+    private String ipAdd;
+
+    private String url;
+
+    @Column(name = "pay_type")
+    private Integer payType;
+
+    @Column(name = "unit_price")
+    private Double unitPrice;
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public String getIpAdd() {
+        return ipAdd;
+    }
+
+    public void setIpAdd(String ipAdd) {
+        this.ipAdd = ipAdd;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Integer getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(Integer serviceType) {
+        this.serviceType = serviceType;
+    }
 
     public String getServiceId() {
         return serviceId;
@@ -58,4 +119,19 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
         this.status = status;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
 }

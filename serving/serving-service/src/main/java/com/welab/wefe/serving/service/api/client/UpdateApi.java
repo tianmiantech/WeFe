@@ -71,8 +71,10 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         private String remark;
 
         @Check(name = "修改人")
-        private String updateBy;
+        private String updatedBy;
 
+        @Check(name = "客户状态")
+        private Integer status;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -90,12 +92,20 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         }
 
 
-        public String getUpdateBy() {
-            return updateBy;
+        public Integer getStatus() {
+            return status;
         }
 
-        public void setUpdateBy(String updateBy) {
-            this.updateBy = updateBy;
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public String getUpdatedBy() {
+            return updatedBy;
+        }
+
+        public void setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
         }
 
         public String getId() {

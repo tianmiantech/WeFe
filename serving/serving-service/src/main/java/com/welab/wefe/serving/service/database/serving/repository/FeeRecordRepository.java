@@ -81,14 +81,12 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
             "from fee_detail fd  " +
             "left join service s on fd.service_id = s.id  " +
             "left join client c on fd.client_id = c.id " +
-            "left join fee_config fc on fc.service_id = fd.service_id and fc.client_id = fd.client_id  " +
             "where if(:service_name !='', s.name like concat('%',:service_name,'%'), 1=1) " +
             "       and if(:client_name != '', c.name like concat('%',:client_name,'%'),1=1) " +
             "       and if(:service_type is not null, s.service_type = :service_type,1=1) " +
             "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
             "       and if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by fd.service_id, fd.client_id ,fd.unit_price, DATE_FORMAT(fd.created_time ,:query_type) " +
-            "order by fd.created_time desc ", nativeQuery = true, countProjection = "1")
+            "group by fd.service_id, fd.client_id ,fd.unit_price, DATE_FORMAT(fd.created_time ,:query_type) ", nativeQuery = true, countProjection = "1")
     Integer count(@Param("client_name") String clientName,
                   @Param("service_name") String serviceName,
                   @Param("service_type") Integer serviceType,

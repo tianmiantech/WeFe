@@ -32,6 +32,15 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "client_id")
     private String clientId;
 
+    @Column(name = "service_name")
+    private String serviceName;
+
+    @Column(name = "service_type")
+    private Integer serviceType;
+
+    @Column(name = "client_name")
+    private String clientName;
+
     /**
      * total fee
      */
@@ -46,6 +55,42 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
      */
     @Column(name = "unit_price")
     private Double unitPrice;
+
+    @Column(name = "fee_config_id")
+    private String feeConfigId;
+
+
+    public Integer getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(Integer serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getFeeConfigId() {
+        return feeConfigId;
+    }
+
+    public void setFeeConfigId(String feeConfigId) {
+        this.feeConfigId = feeConfigId;
+    }
 
     public Double getUnitPrice() {
         return unitPrice;

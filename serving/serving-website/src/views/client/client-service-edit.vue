@@ -2,7 +2,7 @@
 
     <el-card class="page" shadow="never">
 
-        <h2 class="title">编辑客户服务</h2>
+        <h2 class="title">编辑服务</h2>
 
         <el-form :model="clientService" label-width="102px" :rules="rules" ref="clientService">
             <el-form-item label="服务名称：" prop="serviceName">
@@ -27,29 +27,15 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item v-for="item in feeConfig" :label="item.key" :prop="item.rule_" :key="item.key">
-                {{ item.value }}
+
+            <el-form-item label="单价(￥)：" prop="unitPrice" class="unit_price">
+                <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
             </el-form-item>
 
-            <el-form-item>
-                <el-button type="button" @click="dialogFormVisible = true">自定义计费规则</el-button>
+            <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
+                <el-radio v-model="clientService.payType" :label="0">后付费</el-radio>
+                <el-radio v-model="clientService.payType" :label="1">预付费</el-radio>
             </el-form-item>
-
-            <el-dialog title="计费规则" :visible.sync="dialogFormVisible">
-                <el-form :model="clientService" :rules="rules">
-                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">
-                        <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
-                    </el-form-item>
-                    <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
-                        <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
-                        <el-radio v-model="clientService.payType" label="1">预付费</el-radio>
-                    </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogFormVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="saveFeeConfig()">确 定</el-button>
-                </div>
-            </el-dialog>
 
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
@@ -105,7 +91,7 @@ export default {
         };
 
         let validatePayType = (rule, value, callback) => {
-            if (!this.clientService.payType) {
+            if (this.clientService.payType === '') {
                 return callback(new Error('请选择计费类型'));
             } else {
                 callback();
@@ -131,7 +117,7 @@ export default {
 
             },
             formLabelWidth: '100px',
-            feeConfig: [],
+            // feeConfig: [],
             payType: {
                 0: "后付费",
                 1: "预付费"
@@ -160,54 +146,23 @@ export default {
     ,
     created() {
 
-
-        if (this.$route.query.clientId) {
+        if (this.$route.query.clientId && this.$route.query.serviceId) {
             this.getClientById(this.$route.query.clientId)
-        }
-        if (this.$route.query.serviceId) {
             this.getServiceById(this.$route.query.serviceId)
+            this.getFeeConfig(this.$route.query.serviceId, this.$route.query.clientId)
         }
-        if (this.$route.query.status) {
-            this.clientService.status = this.$route.query.status
-        }
+        // if (this.$route.query.status) {
+        //     // console.log(11111111, this.$route.query.status)
+        //     this.clientService.status = this.$route.query.status
+        // }
 
-        this.getServices();
+        this.getServices()
         this.getClients()
 
 
     },
 
     methods: {
-
-        saveFeeConfig() {
-
-            if (!this.clientService.unitPrice) {
-                this.$message('请输入单价')
-                return false;
-            }
-
-
-            if (!this.clientService.payType) {
-                this.$message.error('请选择计费类型')
-                return false;
-            }
-
-            // 重新清空 fee config
-            this.feeConfig = []
-            this.feeConfig.push({
-                key: '单价:',
-                value: this.clientService.unitPrice,
-                rule_: 'unitPrice'
-            })
-            this.feeConfig.push({
-                key: '付费类型:',
-                value: this.payType[this.clientService.payType],
-                rule_: 'payType'
-            })
-
-            this.dialogFormVisible = false
-            this.feeVisible = true
-        },
 
         onSubmit() {
             this.$refs.clientService.validate(async (valid) => {
@@ -217,7 +172,7 @@ export default {
                         this.$message.error('请输入单价');
                         return false;
                     }
-                    if (!this.clientService.payType) {
+                    if (this.clientService.payType === '') {
                         this.$message.error('请选择付费类型');
                         return false;
                     }
@@ -229,7 +184,7 @@ export default {
                             clientId: this.clientService.clientId,
                             unitPrice: this.clientService.unitPrice,
                             payType: this.clientService.payType,
-                            status: this.clientService.status,
+                            status: this.$route.query.status,
                         },
                     });
 
@@ -280,8 +235,7 @@ export default {
             if (code === 0) {
                 this.handleServices(data.list)
             }
-        }
-        ,
+        },
 
         async getClients() {
             const {code, data} = await this.$http.post({
@@ -319,6 +273,22 @@ export default {
             }
         },
 
+        async getFeeConfig(serviceId, clientId) {
+            const {code, data} = await this.$http.post({
+                url: '/feeconfig/query-one',
+                data: {
+                    serviceId: serviceId,
+                    clientId: clientId,
+                }
+            });
+
+            if (code === 0) {
+
+                this.clientService.payType = data.pay_type
+                this.clientService.unitPrice = data.unit_price
+            }
+        },
+
     }
     ,
 
@@ -330,5 +300,9 @@ export default {
 .title {
     padding: 15px;
     margin: 5px;
+}
+
+.unit_price {
+    width: 295px;
 }
 </style>

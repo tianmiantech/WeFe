@@ -84,6 +84,7 @@ public class ApiRequestToFeeDetailScheduler {
                 feeDetailMysqlModel.setClientId(apiRequestRecordMysqlModel.getClientId());
                 feeDetailMysqlModel.setServiceId(apiRequestRecordMysqlModel.getServiceId());
                 feeDetailMysqlModel.setUnitPrice(unitPrice);
+                feeDetailMysqlModel.setFeeConfigId(feeConfigMysqlModel.getId());
                 feeDetailService.save(feeDetailMysqlModel);
 
                 logger.info("save fee detail by the time: " + DateUtil.getCurrentDate() + ", service id: "

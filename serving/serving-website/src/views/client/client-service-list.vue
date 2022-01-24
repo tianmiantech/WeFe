@@ -56,7 +56,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
             <el-table-column
                 label="序号 ID"
@@ -204,14 +204,14 @@
 import table from '@src/mixins/table.js';
 
 export default {
-    name:   'ClientServiceList',
+    name: 'client-service-list',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
             search: {
-                clientName:  '',
-                status:      '',
+                clientName: '',
+                status: '',
                 serviceName: '',
             },
             options: [{
@@ -239,40 +239,40 @@ export default {
                 0: '未启用',
             },
             changeStatusType: '',
-            getListApi:       '/clientservice/query-list',
+            getListApi: '/clientservice/query-list',
         };
     },
     methods: {
         open(row, status) {
-            this.$alert('是否确定修改启用状态？', '修改启用状态', {
+            this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
-                callback:          action => {
+                callback: action => {
                     this.changeStatus(row, status);
                     setTimeout(() => {
                         this.refresh();
                     }, 1000);
-                    this.$message({
-                        type:    'info',
-                        message: '修改成功',
-                    });
+
                 },
             });
         },
 
         async changeStatus(row, status) {
-            const { code } = await this.$http.post({
-                url:  '/clientservice/update',
+            const {code} = await this.$http.post({
+                url: '/clientservice/update',
                 data: {
                     serviceId: row.service_id,
-                    clientId:  row.client_id,
+                    clientId: row.client_id,
                     status,
                     unitPrice: row.unit_price,
-                    payType:   row.pay_type,
+                    payType: row.pay_type,
                 },
             });
 
             if (code === 0) {
-                this.success('修改成功');
+                this.$message({
+                    type: 'success',
+                    message: status === 1 ? '启用成功' : '禁用成功',
+                });
             }
         },
     },

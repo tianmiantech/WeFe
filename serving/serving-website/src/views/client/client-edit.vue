@@ -29,6 +29,12 @@
             <el-form-item label="公钥" prop="pubKey">
                 <el-input v-model="client.pubKey" type="textarea"></el-input>
             </el-form-item>
+
+            <el-form-item label="状态：" prop="status">
+                <el-radio v-model="client.status" :label="1">正常</el-radio>
+                <el-radio v-model="client.status" :label="0">禁用</el-radio>
+            </el-form-item>
+
             <el-form-item label="备注">
                 <el-input v-model="client.remark" type="textarea"
                           rows="5"
@@ -55,10 +61,14 @@
 
 <script>
 import {mapGetters} from 'vuex';
+import RoleTag from '../components/role-tag';
 
 
 export default {
     name: "client-edit",
+    components: {
+        RoleTag,
+    },
     data() {
 
         let util = {
@@ -80,6 +90,14 @@ export default {
             }
         };
 
+        let validateStatus = (rule, value, callback) => {
+            if (this.client.status === '') {
+                return callback(new Error('请选择客户状态'));
+            } else {
+                callback();
+            }
+        };
+
         return {
             client: {
                 id: '',
@@ -89,6 +107,7 @@ export default {
                 ipAdd: '',
                 remark: '',
                 code: '',
+                status: '',
             },
             rules: {
 
@@ -101,6 +120,9 @@ export default {
                 ipAdd: [
                     // {required: true, message: '请输入IP白名单', trigger: 'change'}
                     {required: true, validator: validateIpAdd, trigger: 'blur'}
+                ],
+                status: [
+                    {required: true, validator: validateStatus, trigger: 'change'}
                 ],
                 code: [
                     {required: true, message: '请输入客户code', trigger: 'change'}
@@ -121,13 +143,14 @@ export default {
             this.clientId = this.$route.query.id
             this.getClientById(this.$route.query.id)
         }
+        this.client.status = this.$route.query.status
 
     },
     methods: {
 
 
         onSubmit() {
-
+            console.log(this.userInfo.nickname, 111111111, 2222)
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
                     const {code, message} = await this.$http.post({
@@ -139,7 +162,8 @@ export default {
                             ipAdd: this.client.ipAdd,
                             pubKey: this.client.pubKey,
                             remark: this.client.remark,
-                            updateBy: this.userInfo.nickname,
+                            updatedBy: this.userInfo.nickname,
+                            status: this.client.status
                         },
                     });
 
@@ -170,9 +194,10 @@ export default {
                 this.client.name = data.name
                 this.client.email = data.email
                 this.client.ipAdd = data.ip_add
-                this.client.pubKey = ''
+                this.client.pubKey = data.pub_key
                 this.client.remark = data.remark
                 this.client.code = data.code
+                this.client.status = data.status
             }
         }
     },

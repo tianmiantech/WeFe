@@ -63,11 +63,6 @@ public class RequestStatisticsMysqlModel{
      */
     private Integer serviceType;
 
-    /**
-     * 总耗时
-     */
-    private long totalSpend;
-
     public String getServiceId() {
         return serviceId;
     }
@@ -140,11 +135,4 @@ public class RequestStatisticsMysqlModel{
         this.serviceType = serviceType;
     }
 
-    public long getTotalSpend() {
-        return totalSpend;
-    }
-
-    public void setTotalSpend(long totalSpend) {
-        this.totalSpend = totalSpend;
-    }
 }

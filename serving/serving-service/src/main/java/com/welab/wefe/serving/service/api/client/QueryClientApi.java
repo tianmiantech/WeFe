@@ -59,6 +59,17 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
         @Check(name = "client name")
         private String name;
 
+        @Check(name = "客户状态")
+        private Integer status;
+
+        public Integer getStatus() {
+            return status;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
         public String getId() {
             return id;
         }
@@ -99,7 +110,7 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
         /**
          * public key
          */
-//        private String pubKey;
+        private String pubKey;
 
         /**
          * remark
@@ -108,6 +119,25 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
 
         private String code;
 
+        private String createdBy;
+
+        private Integer status;
+
+        public Integer getStatus() {
+            return status;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
 
         public String getId() {
             return id;
@@ -149,13 +179,13 @@ public class QueryClientApi extends AbstractApi<QueryClientApi.Input, QueryClien
             this.ipAdd = ipAdd;
         }
 
-//        public String getPubKey() {
-//            return pubKey;
-//        }
-//
-//        public void setPubKey(String pubKey) {
-//            this.pubKey = pubKey;
-//        }
+        public String getPubKey() {
+            return pubKey;
+        }
+
+        public void setPubKey(String pubKey) {
+            this.pubKey = pubKey;
+        }
 
         public String getRemark() {
             return remark;
