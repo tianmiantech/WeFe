@@ -62,6 +62,8 @@ import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
+import com.welab.wefe.mpc.pir.sdk.PrivateInformationRetrievalQuery;
+import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
@@ -390,7 +392,11 @@ public class ServiceService {
 				res = JObject.create("result", result);
 				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-				
+				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
+				int idx = data.getIntValue("index");
+				List<JObject> results = multi_pir(ids, idx,  service);
+				res = JObject.create("result", results);
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
@@ -406,8 +412,6 @@ public class ServiceService {
 	 */
 	private Double sa_query(JObject data, ServiceMySqlModel model) {
 		JObject userParams = data.getJObject("query_params");
-//		String queryParams = model.getQueryParams();
-//		String operator = model.getOperator();
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<ServerConfig> serverConfigs = new LinkedList<>();
@@ -416,10 +420,7 @@ public class ServiceService {
 		for (int i = 0; i < size; i++) {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
 			String supplieId = serviceConfig.getString("member_id");
-//			String supplierName = serviceConfig.getString("supplier_name");
-			String name = serviceConfig.getString("name");
 			String apiName = serviceConfig.getString("api_name");
-//			String params = serviceConfig.getString("params");
 			String base_url = serviceConfig.getString("base_url");
 			ServerConfig config = new ServerConfig();
 			config.setServerName(apiName);
@@ -531,6 +532,41 @@ public class ServiceService {
 		PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
 		List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
 		return result;
+	}
+
+	private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model) {
+		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
+		int size = serviceConfigs.size();
+		List<JObject> results = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			CommunicationConfig communicationConfig = new CommunicationConfig();
+			String memberId = serviceConfig.getString("member_id");
+			String memberName = serviceConfig.getString("member_name");
+			String apiName = serviceConfig.getString("api_name");
+			String base_url = serviceConfig.getString("base_url");
+
+			communicationConfig.setApiName(apiName);
+			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setCommercialId(memberId);
+//			communicationConfig.setSignPrivateKey("");
+			communicationConfig.setServerUrl(base_url);
+
+			PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
+			PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
+			String result = null;
+			try {
+				config.setTargetIndex(index); // right index
+				result = privateInformationRetrievalQuery.query(config, communicationConfig);
+				System.out.println("index = " + i);
+				System.out.println("result = " + result);
+				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
+						.append("result", result));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
 	}
 
 	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
