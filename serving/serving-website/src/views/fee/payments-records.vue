@@ -175,15 +175,6 @@
             </el-table-column>
 
             <el-table-column
-                label="状态"
-                min-width="40"
-            >
-                <template slot-scope="scope">
-                    <p>{{ status[scope.row.status] }}</p>
-                </template>
-            </el-table-column>
-
-            <el-table-column
                 label="备注"
                 min-width="40"
             >

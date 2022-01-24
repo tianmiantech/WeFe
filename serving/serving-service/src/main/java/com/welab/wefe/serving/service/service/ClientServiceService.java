@@ -71,7 +71,6 @@ public class ClientServiceService {
         // check the client-service by ids
         Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
 
-
         if (!clientServiceMysqlModel.isPresent()) {
             ClientServiceMysqlModel model = new ClientServiceMysqlModel();
             if (StringUtil.isNotEmpty(input.getClientId())) {
@@ -80,17 +79,17 @@ public class ClientServiceService {
             if (StringUtil.isNotEmpty(input.getServiceId())) {
                 model.setServiceId(input.getServiceId());
             }
-            model.setClientName(input.getClientName());
-            model.setServiceName(input.getServiceName());
 
             // 保存服务类型
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
             model.setServiceType(serviceMySqlModel.getServiceType());
             model.setUrl(serviceMySqlModel.getUrl());
+            model.setServiceName(serviceMySqlModel.getName());
 
             // 保存客户相关信息
             ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getClientId(), ClientMysqlModel.class);
             model.setIpAdd(clientMysqlModel.getIpAdd());
+            model.setClientName(clientMysqlModel.getName());
 
             // 保存计费规则相关信息
             model.setPayType(input.getPayType());
@@ -110,20 +109,7 @@ public class ClientServiceService {
     }
 
 
-//    public PagingOutput<ClientServiceOutputModel> queryList(QueryListApi.Input input) {
-//        List<ClientServiceOutputModel> list = clientServiceQueryRepository.queryClientServiceList(input.getServiceName(),
-//                input.getClientName(), input.getStatus(), input.getPageIndex() * input.getPageSize(), input.getPageSize());
-//        Integer total = clientServiceQueryRepository.count(input.getServiceName(), input.getClientName(), input.getStatus());
-//
-//        return PagingOutput.of(total, list);
-//    }
-
     public PagingOutput<ClientServiceMysqlModel> queryList(QueryListApi.Input input) {
-
-//        List<ClientServiceOutputModel> result = new ArrayList<>();
-
-
-        // 根据service name 模糊查询
         Specification<ClientServiceMysqlModel> where = Where.create()
                 .contains("serviceName", input.getServiceName())
                 .contains("clientName", input.getClientName())
@@ -131,39 +117,6 @@ public class ClientServiceService {
                 .build(ClientServiceMysqlModel.class);
 
         return clientServiceRepository.paging(where, input);
-
-//        List<ClientServiceMysqlModel> list = paging.getList();
-//
-//        for (ClientServiceMysqlModel clientServiceMysqlModel : list) {
-//            ClientServiceOutputModel clientServiceOutputModel = new ClientServiceOutputModel();
-//            clientServiceOutputModel.setStatus(clientServiceMysqlModel.getStatus());
-//
-//            // 保存服务相关信息
-//            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", clientServiceMysqlModel.getServiceId(), ServiceMySqlModel.class);
-//            clientServiceOutputModel.setServiceId(serviceMySqlModel.getId());
-//            clientServiceOutputModel.setServiceName(serviceMySqlModel.getName());
-//            clientServiceOutputModel.setServiceType(serviceMySqlModel.getServiceType());
-//            clientServiceOutputModel.setUrl(serviceMySqlModel.getUrl());
-//
-//            // 保存计费规则相关
-//            Specification<FeeConfigMysqlModel> feeConfigMysqlModelSpecification = Where.create()
-//                    .equal("serviceId", clientServiceMysqlModel.getServiceId())
-//                    .equal("clientId", clientServiceMysqlModel.getClientId())
-//                    .orderBy("createdTime", OrderBy.desc)
-//                    .build(FeeConfigMysqlModel.class);
-//            FeeConfigMysqlModel feeConfigRepositoryOne = feeConfigRepository.findAll(feeConfigMysqlModelSpecification).get(0);
-//            clientServiceOutputModel.setPayType(feeConfigRepositoryOne.getPayType());
-//            clientServiceOutputModel.setUnitPrice(feeConfigRepositoryOne.getUnitPrice());
-//
-//            // 保存客户相关信息
-//            ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", clientServiceMysqlModel.getClientId(), ClientMysqlModel.class);
-//            clientServiceOutputModel.setIpAdd(clientMysqlModel.getIpAdd());
-//            clientServiceOutputModel.setClientId(clientMysqlModel.getId());
-//            clientServiceOutputModel.setClientName(clientMysqlModel.getName());
-//
-//            result.add(clientServiceOutputModel);
-//        }
-
 
     }
 

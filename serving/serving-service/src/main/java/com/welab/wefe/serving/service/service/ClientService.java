@@ -95,7 +95,7 @@ public class ClientService {
         model.setEmail(input.getEmail());
         model.setRemark(input.getRemark());
 
-        if (StringUtil.isNotEmpty(input.getPubKey()) && !"changeStatus".equals(input.getPubKey())) {
+        if (StringUtil.isNotEmpty(input.getPubKey()) && !"changeStatus".equals(input.getPubKey()) && !input.getPubKey().contains("****")) {
             model.setPubKey(input.getPubKey());
         }
         model.setIpAdd(input.getIpAdd());

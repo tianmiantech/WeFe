@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.paymentsrecords.DownloadApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.QueryListApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.SaveApi;
@@ -99,7 +100,7 @@ public class PaymentsRecordsService {
                 .build(sw);
 
         csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
-                "收支类型", "时间", "金额", "余额", "状态", "备注");
+                "收支类型", "时间", "金额", "余额", "备注");
 
         for (PaymentsRecordsMysqlModel model : dataList) {
             csvWriter.writeRow(
@@ -112,8 +113,7 @@ public class PaymentsRecordsService {
                     DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2),
                     model.getAmount().toString(),
                     model.getBalance().toString(),
-                    PaymentsRecordStatusEnum.getValueByCode(model.getStatus()),
-                    model.getRemark());
+                    StringUtil.isEmptyToBlank(model.getRemark()));
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
@@ -152,7 +152,6 @@ public class PaymentsRecordsService {
         model.setRemark(input.getRemark());
         model.setAmount(input.getAmount());
         model.setPayType(input.getPayType());
-        model.setStatus(input.getStatus());
 
         // get service by id
         Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
@@ -175,11 +174,11 @@ public class PaymentsRecordsService {
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
-        Optional<PaymentsRecordsMysqlModel> one = paymentsRecordsRepository.findOne(where);
+        PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = paymentsRecordsRepository.findAll(where).get(0);
 
-        if (one.isPresent()) {
-            PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = one.get();
+        if (paymentsRecordsMysqlModel != null) {
             if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().add(input.getAmount()));

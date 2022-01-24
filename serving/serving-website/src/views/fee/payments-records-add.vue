@@ -112,10 +112,10 @@ export default {
                 {value: '1', label: '充值'},
                 {value: '2', label: '支出'},
             ],
-            statusMap: [
-                {value: '1', label: '正常'},
-                {value: '2', label: '冲正'},
-            ],
+            // statusMap: [
+            //     {value: '1', label: '正常'},
+            //     {value: '2', label: '冲正'},
+            // ],
             rules: {
 
                 clientId: [
@@ -129,9 +129,6 @@ export default {
                 ],
                 payType: [
                     {required: true, message: '请选择收支类型', trigger: 'change'}
-                ],
-                status: [
-                    {required: true, message: '请选择状态', trigger: 'change'}
                 ],
             },
         }
@@ -161,7 +158,6 @@ export default {
                             serviceId: this.paymentsRecords.serviceId,
                             clientId: this.paymentsRecords.clientId,
                             amount: this.paymentsRecords.amount,
-                            status: this.paymentsRecords.status,
                             remark: this.paymentsRecords.remark,
                         },
                     });

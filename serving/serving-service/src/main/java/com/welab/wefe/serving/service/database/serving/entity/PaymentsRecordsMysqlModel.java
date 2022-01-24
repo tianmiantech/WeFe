@@ -58,11 +58,6 @@ public class PaymentsRecordsMysqlModel extends AbstractBaseMySqlModel {
      */
     private BigDecimal balance;
 
-    /**
-     * 状态:
-     */
-    private Integer status;
-
     private String remark;
 
     public String getRemark() {
@@ -137,11 +132,4 @@ public class PaymentsRecordsMysqlModel extends AbstractBaseMySqlModel {
         this.balance = balance;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 }
