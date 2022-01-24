@@ -16,17 +16,16 @@
 
 package com.welab.wefe.serving.service.api.service;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
@@ -36,16 +35,24 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 	private ServiceService service;
 
 	@Override
-	protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<JObject> handle(Input input) {
 		LOG.info("request =" + JObject.toJSONString(input));
-		JObject result = service.executeService(input);
-		LOG.info("response =" + JObject.toJSONString(result));
-		return success(result);
+		try {
+			JObject result = service.executeService(input);
+			LOG.info("response =" + JObject.toJSONString(result));
+			return success(result);
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+			JObject res = new JObject();
+			res.put("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+			res.put("message", e.getMessage());
+			return success(res);
+		}
 	}
 
 	public static class Input extends AbstractApiInput {
-		
-		private String customerId; //客户ID
+
+		private String customerId; // 客户ID
 		private String data;
 
 		public String getCustomerId() {

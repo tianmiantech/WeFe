@@ -16,8 +16,11 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
@@ -27,15 +30,32 @@ import com.welab.wefe.mpc.psi.sdk.operation.impl.IntersectionOperator;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * @Author: eval
  * @Date: 2021-12-23
  **/
 public class PrivateSetIntersection {
+
+    /**
+     * 多方求交集
+     * @param configs 服务器的通信配置信息列表
+     * @param ids 本方id集
+     * @return
+     */
+    public List<String> query(List<CommunicationConfig> configs, List<String> ids) {
+        List<String> result = new ArrayList<>(ids);
+        for (CommunicationConfig config : configs) {
+            List<String> psi = query(config, ids);
+            if (result.isEmpty()) {
+                break;
+            }
+            result = result.stream().filter(item -> psi.contains(item)).collect(Collectors.toList());
+        }
+        return result;
+    }
 
     public List<String> query(CommunicationConfig config, List<String> ids) {
         return query(config, ids, 1024);

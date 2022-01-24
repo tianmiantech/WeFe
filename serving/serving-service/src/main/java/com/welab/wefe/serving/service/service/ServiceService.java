@@ -65,6 +65,7 @@ import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 import com.welab.wefe.mpc.sa.sdk.SecureAggregation;
@@ -86,6 +87,7 @@ import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.utils.MD5Util;
 import com.welab.wefe.serving.service.utils.ModelMapper;
@@ -334,50 +336,68 @@ public class ServiceService {
 		String uri = input.request.getRequestURI();
 		String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
 		JObject res = JObject.create();
-		ServiceMySqlModel model = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+		ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
-		if (model == null || model.getStatus() != 1) {
+		if (service == null) {
 			return JObject.create("message", "invalid request: url = " + serviceUrl);
+		} else if (service.getStatus() != 1) {
+			res.append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
+			res.append("message", "invalid request: url = " + serviceUrl);
+			return res;
 		} else {
 			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
-			ClientServiceMysqlModel clientMysqlModel = clientService.queryByServiceIdAndClientId(model.getId(),
+			ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
 					input.getCustomerId());
-			if (clientMysqlModel == null || client == null || client.getStatus() != 1
-					|| clientMysqlModel.getStatus() != 1) {// !Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)
-				return JObject.create("message", "invalid request: url = " + serviceUrl);
+			if (clientServiceMysqlModel == null || client == null || client.getStatus() != 1
+					|| clientServiceMysqlModel.getStatus() != 1) {
+				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
+				res.append("message", "invalid request: url = " + serviceUrl);
+				return res;
 			}
-			int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-			if (serviceType == 1) {// 1匿踪查询
+			if (!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
+				res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
+				res.append("message", "invalid request: url = " + serviceUrl);
+				return res;
+			}
+			int serviceType = service.getServiceType();
+			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-				QueryKeysResponse result = pir(ids, model);
+				QueryKeysResponse result = pir(ids, service);
 				res = JObject.create(result);
-			} else if (serviceType == 2) {// 2交集查询（10W内）
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, model);
+				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, service);
 				res = JObject.create(result);
-			} else if (serviceType == 3) {// 3 安全聚合 被查询方
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.SA.getCode()) {
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
 				request.setP(data.getString("p"));
 				request.setG(data.getString("g"));
 				request.setUuid(data.getString("uuid"));
 				request.setQueryParams(data.getJSONObject("query_params"));
-				QueryDiffieHellmanKeyResponse result = sa(request, model);
+				QueryDiffieHellmanKeyResponse result = sa(request, service);
 				res = JObject.create(result);
-			} else if (serviceType == 4) {// 安全聚合（查询方）
-				Double result = sa_query(data, model);
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
+				Double result = sa_query(data, service);
 				res = JObject.create("result", result);
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
+				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				List<String> result = multi_psi(clientIds, service);
+				res = JObject.create("result", result);
+				res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+				
 			}
 		}
 		long duration = System.currentTimeMillis() - start;
-		try {
-			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-					ClientMysqlModel.class);
-			apiRequestRecordService.save(model.getId(), model.getName(), model.getServiceType(),
-					clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, 1);
-		} catch (Exception e) {
-			LOG.error(e.toString());
-		}
+		ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
+				ClientMysqlModel.class);
+		apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
+				clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 		return res;
 	}
 
@@ -488,6 +508,29 @@ public class ServiceService {
 				.forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
 		response.setClientIdByServerKeys(encryptClientIds);
 		return response;
+	}
+	
+	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model) {
+		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
+		int size = serviceConfigs.size();
+		List<CommunicationConfig> communicationConfigs = new LinkedList<>();
+		for (int i = 0; i < size; i++) {
+			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
+			String supplieId = serviceConfig.getString("member_id");
+			String apiName = serviceConfig.getString("api_name");
+			String base_url = serviceConfig.getString("base_url");
+			CommunicationConfig communicationConfig = new CommunicationConfig();
+			communicationConfig.setApiName(apiName);
+			communicationConfig.setServerUrl(base_url);
+			communicationConfig.setCommercialId(supplieId);
+			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfigs.add(communicationConfig);
+		}
+
+		PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
+		List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
+		return result;
 	}
 
 	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
