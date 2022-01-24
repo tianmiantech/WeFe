@@ -1,7 +1,7 @@
 <template>
     <el-card class="page_layer" v-loading="vData.startLoading">
         <el-alert
-            v-if="!vData.isInResult"
+            v-if="vData.isInResult"
             :title="vData.jobInfo.status"
             :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status"
             description="点击查看任务详情"
@@ -560,10 +560,11 @@
                         if (code === 0 && data) {
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
+                            vData.isInResult = data.job.status;
                         }});
                 },
                 jumpToTaskDetail() {
-                    vData.isInResult = true;
+                    vData.isInResult = false;
                     vData.active = 2;
                     vData.activeName = 'result';
                     vData.showDLResult = true;

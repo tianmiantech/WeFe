@@ -4,7 +4,7 @@
         class="result"
     >
         <template v-if="vData.commonResultData.task">
-            <el-collapse v-model="activeName">
+            <el-collapse v-model="activeName" @change="methods.collapseChanged">
                 <el-collapse-item title="基础信息" name="1">
                     <CommonResult
                         :result="vData.commonResultData"
@@ -19,6 +19,7 @@
                         <!-- <el-tab-pane label="Accuracy" name="accuracy"></el-tab-pane> -->
                     </el-tabs>
                     <LineChart
+                        v-if="vData.isshow"
                         ref="LineChart"
                         :config="vData.train_loss"
                     />
@@ -35,7 +36,7 @@
 </template>
 
 <script>
-    import { ref, reactive, onMounted, nextTick } from 'vue';
+    import { ref, reactive, onMounted } from 'vue';
     import CommonResult from '../../visual/component-list/common/CommonResult.vue';
     import resultMixin from '../../visual/component-list/result-mixin';
 
@@ -62,11 +63,17 @@
                     xAxis:  [],
                     series: [[]],
                 },
+                isshow: false,
             });
 
             let methods = {
                 tabChange() {
                     methods.readData();
+                },
+                collapseChanged(val) {
+                    if(val.includes('2')){
+                        vData.isshow = true;
+                    }
                 },
                 showResult(data) {
                     if(data[0].result) {
@@ -77,12 +84,6 @@
                             vData.train_loss.xAxis.push(key);
                             vData.train_loss.series[0].push(train_loss[key].value);
                         }
-                        nextTick(_=> {
-                            setTimeout(_=> {
-                                console.log(LineChart.value);
-                                LineChart.value.chartResize();
-                            }, 1000);
-                        });
                     } else {
                         vData.result = false;
                     }
