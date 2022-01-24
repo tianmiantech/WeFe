@@ -45,6 +45,7 @@ public class DataResourceLazyUpdateTask {
         for (DataResourceLazyUpdateModel dataResourceLazyUpdateModel :
                 list) {
             try {
+                LOG.info("DataResourceLazyUpdate start dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
                 DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
                 dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
                 dataResourceContractService.update(dataResource);
@@ -55,6 +56,7 @@ public class DataResourceLazyUpdateTask {
                 imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
                 imageDataSet.setLabelCompleted(String.valueOf(dataResourceLazyUpdateModel.isLabelCompleted() ? 1 : 0));
                 imageDataSetContractService.update(imageDataSet);
+                LOG.info("DataResourceLazyUpdate end dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
             } catch (StatusCodeWithException e) {
                 LOG.error("DataResourceLazyUpdate error dataResourceId: " + dataResourceLazyUpdateModel.getDataResourceId(), e);
             }
