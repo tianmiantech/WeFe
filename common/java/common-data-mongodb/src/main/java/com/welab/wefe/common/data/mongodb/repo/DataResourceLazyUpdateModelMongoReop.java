@@ -51,7 +51,7 @@ public class DataResourceLazyUpdateModelMongoReop extends AbstractMongoRepo {
     }
 
     public List<DataResourceLazyUpdateModel> findAll() {
-        Query query = new QueryBuilder().notRemoved().sort("updateTime").build();
+        Query query = new QueryBuilder().sort("updateTime").build();
         return mongoUnionTemplate.find(query, DataResourceLazyUpdateModel.class);
     }
 
