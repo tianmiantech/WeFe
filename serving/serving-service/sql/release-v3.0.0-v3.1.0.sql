@@ -152,7 +152,6 @@ CREATE TABLE payments_records(
                                  service_type INT    COMMENT '服务类型' ,
                                  amount DECIMAL(24,6)    COMMENT '金额' ,
                                  balance DECIMAL(24,6)    COMMENT '余额' ,
-                                 status INT    COMMENT '状态：' ,
                                  remark VARCHAR(900)    COMMENT '备注' ,
                                  PRIMARY KEY (id)
 )  COMMENT = '收支记录';
