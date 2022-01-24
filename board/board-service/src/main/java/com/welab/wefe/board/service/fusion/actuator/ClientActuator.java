@@ -60,7 +60,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
     private String[] headers;
-    public Boolean serverIsReady;
+    public Boolean serverIsReady = false;
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
         super(businessId, dataSetId, isTrace, traceColumn, dataCount);
