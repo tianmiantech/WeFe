@@ -1,13 +1,13 @@
 <template>
     <CommonHelp>
         <template #intro>
-            特征转换把数据资源中字符串类型数据转换成数值类型。
+            特征转换把数据集中字符串类型数据转换成数值类型。
         </template>
         <template #params>
-            数据资源特征的某个值转换成指定值。
+            数据集特征的某个值转换成指定值。
         </template>
         <template #desc>
-            选择数据资源特征，给特征的可能值转换成指定数值。
+            选择数据集特征，给特征的可能值转换成指定数值。
             <br>
             填写枚举与数值, 如:
             <br>
@@ -19,7 +19,7 @@
         </template>
 
         <template #output>
-            输出转换后的数据资源。
+            输出转换后的数据集。
         </template>
         <template #error-tip />
     </CommonHelp>

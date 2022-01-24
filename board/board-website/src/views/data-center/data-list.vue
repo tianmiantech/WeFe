@@ -72,9 +72,9 @@
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
-                        :key="item.label"
-                        :value="item.value"
+                        :key="item.value"
                         :label="item.label"
+                        :value="item.value"
                     />
                 </el-select>
             </el-form-item>
@@ -129,6 +129,7 @@
             key="DataResourceListRef"
             :table-loading="vData.loading"
             :search-field="vData.search"
+            @search-update="methods.searchUpdate"
         />
 
         <el-dialog
@@ -230,6 +231,13 @@
                 ],
             });
             const methods = {
+                searchUpdate(search) {
+                    Object.assign(vData.search, {
+                        ...search,
+                        dataResourceType: search.dataResourceType ? Array.isArray(search.dataResourceType) ? search.dataResourceType : [search.dataResourceType] : '',
+                    });
+                },
+
                 async getTags() {
                     const { code, data } = await $http.post({
                         url:  '/union/data_resource/tags/query',
@@ -254,16 +262,6 @@
                     }
                 },
             };
-            const syncUrlParams = () => {
-                vData.search = {
-                    id:               '',
-                    name:             '',
-                    creator:          '',
-                    tag:              '',
-                    dataResourceType: '',
-                    ...route.query,
-                };
-            };
             const searchList = (opt = {}) => {
                 DataResourceListRef.value.getDataList(opt);
             };
@@ -279,9 +277,8 @@
             };
 
             onMounted(async () => {
-                syncUrlParams();
-                await methods.getTags();
-                await methods.getUploaders();
+                methods.getTags();
+                methods.getUploaders();
                 searchList();
             });
 
@@ -292,7 +289,6 @@
             watch(
                 () => route.query,
                 (newVal) => {
-                    syncUrlParams();
                     searchList();
                 },
                 { deep: true },
@@ -300,10 +296,10 @@
 
             return {
                 vData,
+                methods,
                 searchList,
-                syncUrlParams,
-                checkUploadingData,
                 uploadingRef,
+                checkUploadingData,
                 DataResourceListRef,
                 resourceTypeChange,
             };

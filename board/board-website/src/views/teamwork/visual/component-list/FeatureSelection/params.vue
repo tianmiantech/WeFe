@@ -508,6 +508,7 @@
                                     $checkedColumns:    '',
                                 };
                             });
+                            console.log(vData.manualLastList);
                             nextTick(_ => {
                                 CheckFeatureDialogRef.value.methods.show();
                             });

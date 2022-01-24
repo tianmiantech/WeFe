@@ -48,7 +48,7 @@
                     >
                         {{ item.service }}
                     </el-tag> : {{ item.available ? "正常" : item.message }}
-                    <ol v-if="item.list" class="service_list">
+                    <ol v-if="item.list" class="service_list mt10">
                         <li v-for="sitem in item.list" :key="sitem.message">
                             <p v-if="!sitem.success" style="color: #f56c6c;">
                                 <span>{{sitem.desc}}：</span>
@@ -58,7 +58,7 @@
                         </li>
                     </ol>
                 </div>
-                
+
             </template>
             <i
                 class="iconfont icon-service-ok"
@@ -85,7 +85,7 @@
                     >
                         {{ item.service }}
                     </el-tag> : {{ item.available ? "正常" : item.message }}
-                    <ol v-if="item.list" class="service_list">
+                    <ol v-if="item.list" class="service_list mt10">
                         <li v-for="sitem in item.list" :key="sitem.message">
                             <p v-if="!sitem.success" style="color: #f56c6c;">
                                 <span>{{sitem.desc}}：</span>

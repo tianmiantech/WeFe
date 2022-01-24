@@ -50,6 +50,10 @@
             </template>
         </el-descriptions>
 
+        <p class="mt10" v-if="addDataType === 'BloomFilter'">
+            主键组合方式: {{ dataInfo.hash_function || '无' }}
+        </p>
+
         <template v-if="addDataType === 'csv'">
             <el-divider></el-divider>
             <h3 class="mb10">数据信息</h3>
