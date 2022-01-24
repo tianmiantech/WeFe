@@ -345,11 +345,6 @@ public class ServiceService {
 		} else if (service.getStatus() != 1) {
 			res.append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 			res.append("message", "invalid request: url = " + serviceUrl);
-			long duration = System.currentTimeMillis() - start;
-			ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-					ClientMysqlModel.class);
-			apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
-					clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 			return res;
 		} else {
 			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
@@ -360,20 +355,14 @@ public class ServiceService {
 				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
 				res.append("message", "invalid request: url = " + serviceUrl);
 				long duration = System.currentTimeMillis() - start;
-				ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-						ClientMysqlModel.class);
-				apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
-						clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
+				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
 			if (!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
 				res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
 				res.append("message", "invalid request: url = " + serviceUrl);
 				long duration = System.currentTimeMillis() - start;
-				ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-						ClientMysqlModel.class);
-				apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
-						clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
+				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
 			int serviceType = service.getServiceType();
@@ -381,13 +370,11 @@ public class ServiceService {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, service);
 				res = JObject.create(result);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, service);
 				res = JObject.create(result);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.SA.getCode()) {
 				QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
 				request.setP(data.getString("p"));
@@ -396,30 +383,29 @@ public class ServiceService {
 				request.setQueryParams(data.getJSONObject("query_params"));
 				QueryDiffieHellmanKeyResponse result = sa(request, service);
 				res = JObject.create(result);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 				Double result = sa_query(data, service);
 				res = JObject.create("result", result);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				List<String> result = multi_psi(clientIds, service);
 				res = JObject.create("result", result);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				int idx = data.getIntValue("index");
 				List<JObject> results = multi_pir(ids, idx,  service);
 				res = JObject.create("result", results);
-				res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			}
+			res.append("code", ServiceResultEnum.SUCCESS.getCode());
+			long duration = System.currentTimeMillis() - start;
+			log(service, client, duration, clientIp, res.getIntValue("code"));
 		}
-		long duration = System.currentTimeMillis() - start;
-		ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getCustomerId(),
-				ClientMysqlModel.class);
-		apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
-				clientMysqlModel.getName(), clientMysqlModel.getId(), duration, clientIp, res.getIntValue("code"));
 		return res;
+	}
+	
+	private void log(ServiceMySqlModel service, ClientMysqlModel client, long duration, String clientIp, int code) {
+		apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(), client.getName(),
+				client.getId(), duration, clientIp, code);
 	}
 
 	/**
