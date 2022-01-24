@@ -920,11 +920,14 @@
 
                 if (code === 0) {
                     this.data_set_header = data.header;
-                    this.dataSetHeaderOptions = data.header.map(x => {
-                        return {
-                            label: x,
-                            value: x,
-                        };
+                    this.dataSetHeaderOptions = [];
+                    data.header.forEach((x, i) => {
+                        if(i) {
+                            this.dataSetHeaderOptions.push({
+                                label: x,
+                                value: x,
+                            });
+                        }
                     });
                     this.metadata_pagination.list = [];
                     this.raw_data_list = data.raw_data_list.map(item => {

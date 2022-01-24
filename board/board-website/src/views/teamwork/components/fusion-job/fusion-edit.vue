@@ -21,7 +21,7 @@
         />
 
         <h3 class="mb30">新建融合任务</h3>
-        <el-form @submit.prevent style="max-width:650px;">
+        <el-form @submit.prevent style="max-width:700px;">
             <el-form-item label="任务名称:" required>
                 <el-input
                     v-model="vData.name"
@@ -88,7 +88,7 @@
                         <el-table :data="[{}]" size="mini" border>
                             <el-table-column label="资源名称:" min-width="210">
                                 <template v-slot="scope">
-                                    <span style="display:none;">{{ scope.row }}</span>
+                                    <i style="display:none;">{{ scope.row }}</i>
                                     {{ vData.promoter.name }}
                                     <el-tag v-if="vData.promoter.data_resource_type === 'BloomFilter'">
                                         bf
@@ -96,10 +96,11 @@
                                     <p class="p-id f12">{{ vData.promoter.data_set_id }}</p>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="数据量:" width="70">
+                            <el-table-column label="数据量:" min-width="100">
                                 <template v-slot="scope">
-                                    <span style="display:none;">{{ scope.row }}</span>
-                                    {{ vData.promoter.total_data_count }}
+                                    <i style="display:none;">{{ scope.row }}</i>
+                                    {{ vData.promoter.data_resource_type === 'BloomFilter' ? '布隆过滤器' : '数据集' }}
+                                    <p>{{ vData.promoter.total_data_count }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column label="融合主键 (可选):" min-width="200">
@@ -112,11 +113,11 @@
                                     >
                                         设置
                                     </el-button>
-                                    <p class="mt5">融合公式: {{ vData.promoter.hash_func || '无' }}</p>
+                                    <p class="mt5">主键组合方式: {{ vData.promoter.hash_func || '无' }}</p>
                                 </template>
                             </el-table-column>
                             <el-table-column
-                                v-if="vData.myRole === 'promoter' && vData.status !== 'Await'"
+                                v-if="vData.myRole === 'promoter' && vData.status !== 'Await' && vData.status !== 'Refuse' && vData.status !== 'Running'"
                                 fixed="right"
                                 label="操作"
                             >
@@ -159,7 +160,7 @@
                     >
                         <el-table-column label="资源名称:" min-width="210">
                             <template v-slot="scope">
-                                <span style="display:none;">{{ scope.row }}</span>
+                                <i style="display:none;">{{ scope.row }}</i>
                                 {{ vData.provider.name }}
                                 <el-tag v-if="vData.provider.data_resource_type === 'BloomFilter'">
                                     bf
@@ -167,9 +168,10 @@
                                 <p class="p-id f12">{{ vData.provider.data_set_id }}</p>
                             </template>
                         </el-table-column>
-                        <el-table-column label="数据量:" width="70">
+                        <el-table-column label="数据量:" min-width="100">
                             <template v-slot="scope">
-                                <span style="display:none;">{{ scope.row }}</span>
+                                <i style="display:none;">{{ scope.row }}</i>
+                                <p>{{ vData.provider.data_resource_type === 'BloomFilter' ? '过滤器' : '数据集' }}</p>
                                 {{ vData.provider.total_data_count }}
                             </template>
                         </el-table-column>
@@ -182,11 +184,11 @@
                                 >
                                     设置
                                 </el-button>
-                                <p class="mt5">融合公式: {{ vData.provider.hash_func || '无' }}</p>
+                                <p class="mt5">主键组合方式: {{ vData.provider.hash_func || '无' }}</p>
                             </template>
                         </el-table-column>
                         <el-table-column
-                            v-if="vData.myRole === 'promoter' && vData.status !== 'Await'"
+                            v-if="vData.myRole === 'promoter' && vData.status !== 'Await' && vData.status !== 'Refuse' && vData.status !== 'Running'"
                             fixed="right"
                             label="操作"
                         >
@@ -744,7 +746,7 @@
                 audit(event, status) {
                     const fields = vData.field_info_list;
 
-                    if(status === 'agree' && vData.provider.data_resource_type === 'TableDataSet' && (Array.isArray(fields) && !fields.length || fields == null)) return $message.error('请先设置融合公式');
+                    if(status === 'agree' && vData.provider.data_resource_type === 'TableDataSet' && (Array.isArray(fields) && !fields.length || fields == null)) return $message.error('请先设置主键组合方式');
 
                     const actions = status === 'agree' ? $confirm('同意本次合作', '警告', {
                         type: 'warning',
@@ -916,8 +918,8 @@
 
 <style lang="scss" scoped>
     .el-input,
-    .el-textarea{max-width: 360px;}
-    .member-list{max-width: 570px;
+    .el-textarea{max-width: 400px;}
+    .member-list{max-width: 650px;
         .flex-form {
             .el-form-item{margin-bottom: 0;}
             :deep(.el-form-item__label){
