@@ -65,7 +65,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResouceId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
+        Query query = new QueryBuilder().append("dataResourceId", dataResouceId).build();
         return mongoUnionTemplate.exists(query, ImageDataSet.class);
     }
 
@@ -73,7 +73,7 @@ public class ImageDataSetMongoReop extends AbstractDataSetMongoRepo {
         if (StringUtils.isEmpty(dataResouceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataResouceId", dataResouceId).build();
+        Query query = new QueryBuilder().append("dataResourceId", dataResouceId).build();
         return mongoUnionTemplate.findOne(query, ImageDataSet.class);
     }
 
