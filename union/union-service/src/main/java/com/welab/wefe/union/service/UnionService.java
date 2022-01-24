@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
@@ -60,7 +61,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                UnionService.class
+                UnionService.class,
+                CheckpointManager.class
         }
 )
 public class UnionService implements ApplicationContextAware {

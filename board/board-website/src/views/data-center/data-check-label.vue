@@ -2,12 +2,12 @@
     <el-card class="page_layer">
         <div class="check_label">
             <div class="tabs_nav_btns">
-                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType }}">
+                <router-link :to="{ name: 'data-label', query: { id: vData.sampleId, for_job_type: vData.forJobType, unlabeled_count: vData.tabsList[2].count }}">
                     <el-button type="primary">标注图片</el-button>
                 </router-link>
             </div>
             <el-tabs v-model="vData.activeName" @tab-click="methods.tabChange">
-                <div class="label_list_box">
+                <div v-if="vData.search.labeled || vData.search.labeled === ''" class="label_list_box">
                     <div class="label_bar">
                         <p>标签栏</p>
                     </div>
@@ -19,11 +19,13 @@
                         </el-input>
                     </div>
                     <div class="label_info">
-                        <div class="label_title"><span>标签名称</span><span>标签框数</span></div>
+                        <div class="label_title"><span>标签名称</span><span>{{vData.forJobType === 'classify' ? '数量' : '标签框数'}}</span></div>
                         <template v-if="vData.count_by_label_list.length">
-                            <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
-                                <span class="span_label">{{item.label}}</span>
-                                <span class="span_count">{{item.count}}</span>
+                            <div class="label_info_list">
+                                <div v-for="item in vData.count_by_label_list" :key="item.label" class="label_item" :style="{border: item.label === vData.search.label ? '1px solid #438bff' : ''}" @click="methods.searchLabeledList(item.label)">
+                                    <span class="span_label">{{item.label}}</span>
+                                    <span class="span_count">{{item.count}}</span>
+                                </div>
                             </div>
                         </template>
                         <template v-else>
@@ -88,12 +90,12 @@
                         count: '',
                     },
                     {
-                        label: '有标注信息',
+                        label: '已标注',
                         name:  'labeled',
                         count: '',
                     },
                     {
-                        label: '无标注信息',
+                        label: '未标注',
                         name:  'unlabeled',
                         count: '',
                     },
@@ -213,6 +215,7 @@
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
+                    if (label_type === vData.search.labeled) return;
                     vData.search.labeled = label_type;
                     vData.search.label = '';
                     vData.search.page_index = 1;
@@ -297,7 +300,7 @@
         position: relative;
         .tabs_nav_btns {
             position: absolute;
-            right: 20px;
+            right: 0;
             z-index: 2;
         }
         .el-tab-pane {
@@ -355,6 +358,10 @@
                         font-size: 12px;
                         color: #666;
                         padding: 16px 10px 6px;
+                    }
+                    .label_info_list {
+                        height: calc(100vh - 450px);
+                        overflow-y: auto;
                     }
                     .label_item {
                         height: 40px;

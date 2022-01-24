@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
@@ -133,9 +132,6 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
 
-        // Push the message to the destination member through the gateway
-        ApiResult<?> result = gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
-
         Date createdTime = new Date();
         // Message detail object
         MemberChatMySqlModel memberChatModel = new MemberChatMySqlModel();
@@ -154,12 +150,18 @@ public class MemberChatService extends AbstractService {
         memberChatModel.setUpdatedTime(createdTime);
         memberChatModel.setMessageId(messageId);
 
-        // Message sending failed
-        if (!result.success()) {
+
+        // Push the message to the destination member through the gateway
+        try {
+            gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+        } catch (Exception e) {
+            // Message sending failed
             memberChatModel.setStatus(ChatConstant.MESSAGE_STATUS_SEND_FAIL);
             ret.append(ChatConstant.KEY_CODE, StatusCode.SYSTEM_ERROR.getCode())
-                    .append(ChatConstant.KEY_MESSAGE, result.getMessage());
+                    .append(ChatConstant.KEY_MESSAGE, e.getMessage());
         }
+
+
         ret.append(ChatConstant.KEY_MEMBER_CHAT_ID, memberChatModel.getId());
 
         // Save message details
@@ -213,11 +215,8 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
         // Push the message to the destination member through the gateway
-        ApiResult<?> result = gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
-        // Message sending failed
-        if (!result.success()) {
-            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
-        }
+        gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+
         // Update message status is successful
         memberChatRepository.updateById(model.getId(), "status", ChatConstant.MESSAGE_STATUS_SEND_SUCCESS, MemberChatMySqlModel.class, false);
     }

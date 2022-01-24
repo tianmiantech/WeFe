@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,8 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import java.util.function.Consumer;
  * @date 2020/9/17
  */
 public class JdbcManager {
-    private static final Logger log = Logger.getLogger(JdbcManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
 
     public JdbcManager() {
 
@@ -76,7 +77,7 @@ public class JdbcManager {
 
             conn = getConnection(databaseType, url, userName, password);
         } catch (Exception e) {
-            log.error("Database connection failure", e);
+            LOG.error("Database connection failure", e);
             throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
         }
 
@@ -115,10 +116,10 @@ public class JdbcManager {
                     throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
             }
 
-            log.info("url: " + url);
+            LOG.info("url: " + url);
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
-            log.error("数据库连接失败", e);
+            LOG.error("数据库连接失败", e);
             throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
         }
 
@@ -151,7 +152,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
 
 //            if (e instanceof MySQLSyntaxErrorException) {
 //                throw new StatusCodeWithException(StatusCode.SQL_SYNTAX_ERROR);
@@ -218,7 +219,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
         }
@@ -266,7 +267,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
         }
@@ -302,7 +303,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
         }
@@ -339,7 +340,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
         }
@@ -362,7 +363,7 @@ public class JdbcManager {
                 totalCount = rs.getLong(1);
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(ps, rs);
         }
@@ -398,7 +399,7 @@ public class JdbcManager {
                 }
             }
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         } finally {
             close(ps, rs);
         }
@@ -410,17 +411,17 @@ public class JdbcManager {
         if (rs != null) try {
             rs.close();
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         }
         if (ps != null) try {
             ps.close();
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         }
         if (conn != null) try {
             conn.close();
         } catch (SQLException e) {
-            log.error(e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -429,14 +430,14 @@ public class JdbcManager {
             try {
                 rs.close();
             } catch (SQLException e) {
-                log.error(e);
+                LOG.error(e.getMessage(), e);
             }
         }
         if (ps != null) {
             try {
                 ps.close();
             } catch (SQLException e) {
-                log.error(e);
+                LOG.error(e.getMessage(), e);
             }
         }
     }

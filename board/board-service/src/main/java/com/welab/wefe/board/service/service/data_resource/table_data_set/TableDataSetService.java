@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,14 @@
  */
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
+
+import java.io.File;
+import java.sql.Connection;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
@@ -35,13 +43,9 @@ import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.sql.Connection;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 /**
  * @author Zane
@@ -191,4 +195,12 @@ public class TableDataSetService extends DataResourceService {
         // save data set column info to database
         dataSetColumnService.update(in.getId(), input.getMetadataList());
     }
+
+
+	public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
+		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
+				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+
+		return tableDataSetRepository.findOne(where).orElse(null);
+	}
 }

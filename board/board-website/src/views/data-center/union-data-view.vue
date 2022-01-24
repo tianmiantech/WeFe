@@ -1,6 +1,6 @@
 <template>
     <el-card v-loading="loading">
-        <h4 class="mb10">数据集简介</h4>
+        <h4 class="mb10">数据资源简介</h4>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <el-descriptions class="dataset-desc" :column="2">
             <template #extra>
@@ -27,14 +27,14 @@
             <template v-if="addDataType === 'csv'">
                 <template v-if="dataInfo.contains_y">
                     <el-descriptions-item label="正例样本数量：">
-                        {{ dataInfo.y_positive_example_count }}
+                        {{ dataInfo.y_positive_sample_count }}
                     </el-descriptions-item>
                     <el-descriptions-item label="正例样本比例：">
-                        {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
+                        {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                     </el-descriptions-item>
                 </template>
                 <el-descriptions-item label="样本量/特征量：">
-                    {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
+                    {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>
             </template>
             <template v-if="addDataType === 'img'">
@@ -44,8 +44,8 @@
                 <el-descriptions-item label="标注状态：">
                     {{ dataInfo.label_completed ? '已完成' : '标注中' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="样本数量：">
-                    {{ dataInfo.total_data_count }}
+                <el-descriptions-item label="样本量/已标注：">
+                    {{ dataInfo.total_data_count }} / {{ dataInfo.labeled_count }}
                 </el-descriptions-item>
             </template>
         </el-descriptions>
@@ -84,35 +84,38 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    this.addDataType === 'csv' ? '/union/table_data_set/detail' : '/union/image_data_set/detail',
+                    url:    '/union/data_resource/detail',
                     params: {
-                        data_set_id: this.$route.query.id,
+                        dataResourceId:   this.$route.query.id,
+                        dataResourceType: this.$route.query.data_resource_type,
                     },
                 });
 
                 if(code === 0 && data) {
                     this.dataInfo = data;
                     if (this.addDataType === 'csv') {
-                        this.data_list = data.feature_name_list.split(',').map((name, index) => {
-                            return {
-                                序号:   String(index),
-                                特征名称: name,
-                            };
-                        });
-                    
-                        this.$nextTick(_ => {
-                            const featuresRef = this.$refs['DataSetFeatures'];
+                        if (data.feature_name_list && data.feature_name_list.length) {
+                            this.data_list = data.feature_name_list.split(',').map((name, index) => {
+                                return {
+                                    序号:   String(index),
+                                    特征名称: name,
+                                };
+                            });
 
-                            let { length } = this.data_list;
+                            this.$nextTick(_ => {
+                                const featuresRef = this.$refs['DataSetFeatures'];
 
-                            if(length >= 15) length = 15;
+                                let { length } = this.data_list;
 
-                            featuresRef.resize(length);
-                            featuresRef.loading = true;
-                            featuresRef.table_data.header = ['序号', '特征名称'];
-                            featuresRef.table_data.rows = this.data_list;
-                            featuresRef.loading = false;
-                        });
+                                if(length >= 15) length = 15;
+
+                                featuresRef.resize(length);
+                                featuresRef.loading = true;
+                                featuresRef.table_data.header = ['序号', '特征名称'];
+                                featuresRef.table_data.rows = this.data_list;
+                                featuresRef.loading = false;
+                            });
+                        }
                     }
                 }
                 this.loading = false;

@@ -1,10 +1,10 @@
 <template>
     <el-card
-        name="衍生数据集"
+        name="衍生数据资源"
         class="nav-title"
         shadow="never"
     >
-        <h3 class="mb20 card-title">衍生数据集</h3>
+        <h3 class="mb20 card-title">衍生数据资源</h3>
         <el-form inline>
             <el-form-item label="来源：">
                 <el-select
@@ -45,7 +45,7 @@
         >
             <el-table-column type="index" />
             <el-table-column
-                label="数据集名称"
+                label="数据资源名称"
                 min-width="150"
             >
                 <template v-slot="scope">
@@ -60,7 +60,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="数据集来源"
+                label="数据资源来源"
                 width="100"
             >
                 <template v-slot="scope">
@@ -198,12 +198,12 @@
                 const params = {
                     url:    '/project/derived_data_set/query',
                     params: {
-                        sourceType:    this.derived.name,
-                        project_id:    this.project_id,
-                        sourceJobId:   this.derived.sourceJobId,
-                        page_index:    this.derived.page_index - 1,
-                        page_size:     this.derived.page_size,
-                        data_set_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                        sourceType:         this.derived.name,
+                        project_id:         this.project_id,
+                        sourceJobId:        this.derived.sourceJobId,
+                        page_index:         this.derived.page_index - 1,
+                        page_size:          this.derived.page_size,
+                        data_resource_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
                     },
                 };
 

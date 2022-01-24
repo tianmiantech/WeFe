@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,17 @@ package com.welab.wefe.board.service.dto.fusion;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
-import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 
 ;
@@ -42,9 +47,13 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     String error;
 
-    String partnerId;
+    FusionMemberInfo promoter;
 
-    String partnerName;
+    FusionMemberInfo provider;
+
+    JobMemberRole myRole;
+
+    String dstMemberId;
 
     String dataResourceId;
 
@@ -52,21 +61,32 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType dataResourceType;
 
+    String hashFunction;
+
+
+    @Check(name = "Number of rows of data resources")
+    Long rowCount;
+
+    String partnerDataResourceId;
+
+    String partnerDataResourceName;
+
+    DataResourceType partnerDataResourceType;
+
+    String partnerHashFunction;
+
+    @Check(name = "Number of rows of data resources")
+    public Long partnerRowCount;
+
     @Check(name = "Whether the trace")
     public boolean isTrace;
 
     @Check(name = "Traces the field")
     public String traceColumn;
 
-    @Check(name = "Number of rows of data resources")
-    int rowCount;
-
     PSIActuatorRole psiActuatorRole;
 
     AlgorithmType algorithm;
-
-    @Check(name = "Number of aligned samples")
-    public int dataCount;
 
     @Check(name = "Number of fusion")
     public int fusionCount;
@@ -76,15 +96,10 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     private String description;
 
-    /**
-     * Data set list
-     */
-    private List<TableDataSetOutputModel> dataSetList;
 
-    /**
-     * bloomFilterList
-     */
-    private List<BloomFilterOutputModel> bloomFilterList;
+    public String comment;
+
+    public ExportStatus ExportStatus;
 
 
     public String getBusinessId() {
@@ -119,21 +134,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
-    }
-
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
-    }
-
-    public String getPartnerName() {
-        return partnerName;
-    }
-
-    public void setPartnerName(String partnerName) {
-        this.partnerName = partnerName;
-    }
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -159,12 +159,20 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
+    }
+
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
     }
 
     public PSIActuatorRole getPsiActuatorRole() {
@@ -183,13 +191,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.algorithm = algorithm;
     }
 
-    public int getDataCount() {
-        return dataCount;
-    }
-
-    public void setDataCount(int dataCount) {
-        this.dataCount = dataCount;
-    }
 
     public int getFusionCount() {
         return fusionCount;
@@ -216,20 +217,12 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.description = description;
     }
 
-    public List<TableDataSetOutputModel> getDataSetList() {
-        return dataSetList;
+    public String getComment() {
+        return comment;
     }
 
-    public void setDataSetList(List<TableDataSetOutputModel> dataSetList) {
-        this.dataSetList = dataSetList;
-    }
-
-    public List<BloomFilterOutputModel> getBloomFilterList() {
-        return bloomFilterList;
-    }
-
-    public void setBloomFilterList(List<BloomFilterOutputModel> bloomFilterList) {
-        this.bloomFilterList = bloomFilterList;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public boolean isTrace() {
@@ -246,5 +239,85 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public FusionMemberInfo getPromoter() {
+        return promoter;
+    }
+
+    public void setPromoter(FusionMemberInfo promoter) {
+        this.promoter = promoter;
+    }
+
+    public FusionMemberInfo getProvider() {
+        return provider;
+    }
+
+    public void setProvider(FusionMemberInfo provider) {
+        this.provider = provider;
+    }
+
+    public JobMemberRole getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(JobMemberRole myRole) {
+        this.myRole = myRole;
+    }
+
+    public String getPartnerDataResourceId() {
+        return partnerDataResourceId;
+    }
+
+    public void setPartnerDataResourceId(String partnerDataResourceId) {
+        this.partnerDataResourceId = partnerDataResourceId;
+    }
+
+    public String getPartnerDataResourceName() {
+        return partnerDataResourceName;
+    }
+
+    public void setPartnerDataResourceName(String partnerDataResourceName) {
+        this.partnerDataResourceName = partnerDataResourceName;
+    }
+
+    public DataResourceType getPartnerDataResourceType() {
+        return partnerDataResourceType;
+    }
+
+    public void setPartnerDataResourceType(DataResourceType partnerDataResourceType) {
+        this.partnerDataResourceType = partnerDataResourceType;
+    }
+
+    public String getDstMemberId() {
+        return dstMemberId;
+    }
+
+    public void setDstMemberId(String dstMemberId) {
+        this.dstMemberId = dstMemberId;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
+    }
+
+    public com.welab.wefe.board.service.fusion.enums.ExportStatus getExportStatus() {
+        return ExportStatus;
+    }
+
+    public void setExportStatus(com.welab.wefe.board.service.fusion.enums.ExportStatus exportStatus) {
+        ExportStatus = exportStatus;
     }
 }

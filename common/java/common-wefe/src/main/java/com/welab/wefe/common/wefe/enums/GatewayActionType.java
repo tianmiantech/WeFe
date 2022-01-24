@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,5 +39,5 @@ public enum GatewayActionType {
      * Placeholder action (no business meaning, just taking a place)
      * tips：In the ProBuffer, the value of the field must be filled in instead of null. Therefore, when the Processor field is added in the later gateway to replace the action, the action in the message should use this field
      */
-    not_null
+    none
 }

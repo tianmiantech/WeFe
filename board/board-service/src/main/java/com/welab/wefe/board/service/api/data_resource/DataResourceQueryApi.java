@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,8 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author Zane
@@ -54,7 +56,7 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
         @Check(name = "上传者")
         private String creator;
         @Check(name = "资源类型")
-        private DataResourceType dataResourceType;
+        private List<DataResourceType> dataResourceType;
 
         /***********↓ TableDataSet ↓***********/
         @Check(name = "是否包含 Y 值")
@@ -98,11 +100,11 @@ public class DataResourceQueryApi extends AbstractApi<DataResourceQueryApi.Input
             this.creator = creator;
         }
 
-        public DataResourceType getDataResourceType() {
+        public List<DataResourceType> getDataResourceType() {
             return dataResourceType;
         }
 
-        public void setDataResourceType(DataResourceType dataResourceType) {
+        public void setDataResourceType(List<DataResourceType> dataResourceType) {
             this.dataResourceType = dataResourceType;
         }
 

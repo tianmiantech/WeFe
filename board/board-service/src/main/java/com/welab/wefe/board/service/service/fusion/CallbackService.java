@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service.fusion;
 
-import com.welab.wefe.board.service.api.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -28,6 +28,8 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,18 +54,18 @@ public class CallbackService {
     private FusionTaskRepository fusionTaskRepository;
 
     @Autowired
-    private BloomFilterService bloomfilterService;
+    private BloomFilterService bloomFilterService;
     @Autowired
     private TableDataSetService tableDataSetService;
 
     /**
      * rsa-callback
      */
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
-                running(input.getBusinessId());
+                running(input);
                 break;
             case disagree:
                 /**
@@ -83,17 +85,16 @@ public class CallbackService {
     /**
      * The other party's server-socket is ready, we start client
      *
-     * @param businessId
+     * @param input
      * @throws StatusCodeWithException
      */
-    private void running(String businessId) throws StatusCodeWithException {
-//        if (ActuatorManager.get(businessId) != null) {
-//            return;
-//        }
-
-        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
+    private void running(AuditCallbackApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Await);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
+        if(StringUtil.isNotEmpty(input.getPartnerHashFunction())){
+            task.setPartnerHashFunction(input.getPartnerHashFunction());
         }
         task.setStatus(FusionTaskStatus.Running);
         fusionTaskRepository.save(task);
@@ -143,7 +144,9 @@ public class CallbackService {
                 task.getDataResourceId(),
                 task.isTrace(),
                 task.getTraceColumn(),
-                task.getDstMemberId()
+                task.getDstMemberId(),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(client);
@@ -167,7 +170,7 @@ public class CallbackService {
         /**
          * Find your party by task ID
          */
-        BloomFilterMysqlModel bf = bloomfilterService.findOne(task.getDataResourceId());
+        BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
         if (bf == null) {
             throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -182,7 +185,9 @@ public class CallbackService {
                 ),
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD())
+                new BigInteger(bf.getRsaD()),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(server);

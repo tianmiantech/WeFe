@@ -70,10 +70,6 @@ class EncryptParam(BaseParam):
             user_input = self.method.lower()
             if user_input == "paillier":
                 self.method = consts.PAILLIER
-            elif user_input == "iterativeaffine":
-                self.method = consts.ITERATIVEAFFINE
-            elif user_input == "randomiterativeaffine":
-                self.method = consts.RANDOM_ITERATIVEAFFINE
             else:
                 raise ValueError(
                     "encrypt_param's method {} not supported".format(user_input))

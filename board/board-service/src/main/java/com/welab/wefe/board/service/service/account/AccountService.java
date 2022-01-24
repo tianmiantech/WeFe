@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service.account;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
@@ -36,7 +35,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
@@ -139,7 +137,7 @@ public class AccountService extends AbstractService {
      */
     public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
 
-        if (config.getEnvName().isProductionEnv()) {
+        if (!config.getEnvName().isTestEnv()) {
             // Verification code verification
             if (!CaptchaService.verify(key, code)) {
                 throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
@@ -154,7 +152,9 @@ public class AccountService extends AbstractService {
         AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
         // phone number error
         if (model == null) {
-            throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         if (!model.getEnable()) {
@@ -166,7 +166,9 @@ public class AccountService extends AbstractService {
 
             // Log a login failure event
             LoginSecurityPolicy.onLoginFail(phoneNumber);
-            throw new StatusCodeWithException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         // Check audit status
@@ -221,6 +223,8 @@ public class AccountService extends AbstractService {
         model.setPassword(newPassword);
 
         accountRepository.save(model);
+
+        CurrentAccount.logout(model.getId());
     }
 
 
@@ -282,7 +286,7 @@ public class AccountService extends AbstractService {
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
@@ -358,6 +362,10 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
+        if (model.getSuperAdminRole()) {
+            throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
+        }
+
         String salt = createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
@@ -383,16 +391,13 @@ public class AccountService extends AbstractService {
         if (CacheObjects.getMemberId().equals(input.getMemberId())) {
             pagingOutput = query(input);
         } else {
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, input, QueryApi.class);
-            if (0 == apiResult.code) {
-                if (null == apiResult.data) {
-                    return null;
-                }
-                JObject dataObj = JObject.create(apiResult.data);
-                pagingOutput = JObject.parseObject(dataObj.toJSONString(), pagingOutput.getClass());
-            } else {
-                throw new StatusCodeWithException(apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
+            pagingOutput = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryApi.class,
+                    input,
+                    pagingOutput.getClass()
+            );
         }
 
         List<AccountOutputModel> accountOutputModelList = new ArrayList<>();
@@ -433,11 +438,15 @@ public class AccountService extends AbstractService {
         try {
             JObject data = JObject.create().append("memberId", input.getMemberId())
                     .append("accountId", input.getAccountId());
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, data, QueryOnlineApi.class);
-            if (apiResult.code != 0) {
-                throw new StatusCodeWithException("系统异常: " + apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
-            QueryOnlineApi.Output output = JSONObject.toJavaObject(JObject.create(apiResult.data), QueryOnlineApi.Output.class);
+
+            QueryOnlineApi.Output output = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryOnlineApi.class,
+                    data,
+                    QueryOnlineApi.Output.class
+            );
+
             return output.getList();
         } catch (Exception e) {
             throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);

@@ -5,7 +5,7 @@
     >
         <el-form
             inline
-            class="mb20 clearfix"
+            class="clearfix"
             @submit.prevent
         >
             <el-form-item
@@ -55,7 +55,7 @@
                     <el-option
                         v-for="(tag, index) in vData.tagList"
                         :key="index"
-                        :value="index"
+                        :value="tag.tag_name"
                     />
                 </el-select>
             </el-form-item>
@@ -67,22 +67,25 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
                         :key="item.label"
-                        :value="item.label"
+                        :value="item.value"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                v-if="vData.search.dataResourceType && vData.search.dataResourceType.indexOf('TableDataSet') !== -1"
                 label="是否包含Y值："
                 label-width="100"
             >
                 <el-select
                     v-model="vData.search.containsY"
+                    style="width:90px;"
                     filterable
                     clearable
                 >
@@ -91,12 +94,13 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
+                v-if="vData.search.dataResourceType && vData.search.dataResourceType.indexOf('ImageDataSet') !== -1"
+                label="样本分类："
                 label-width="100"
             >
                 <el-select
                     v-model="vData.search.forJobType"
+                    style="width:120px;"
                     filterable
                     clearable
                 >
@@ -115,8 +119,8 @@
             >
                 查询
             </el-button>
-            <el-button plain native-type="submit" class="fr" @click="checkUploadingData">
-                上传中的数据集 <i class="el-icon-right"></i>
+            <el-button native-type="submit" class="mb20 fr" @click="checkUploadingData">
+                上传中的数据资源 <i class="el-icon-right"></i>
             </el-button>
         </el-form>
 
@@ -128,7 +132,7 @@
         />
 
         <el-dialog
-            title="上传中的数据集"
+            title="上传中的数据资源"
             v-model="vData.showUploadingDialog"
             custom-class="dialog-min-width"
             :close-on-click-modal="false"
@@ -210,7 +214,7 @@
                         value: 'ImageDataSet',
                     },
                     {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -227,11 +231,18 @@
             });
             const methods = {
                 async getTags() {
-                    const { code, data } = await $http.get('/table_data_set/all_tags');
+                    const { code, data } = await $http.post({
+                        url:  '/union/data_resource/tags/query',
+                        data: {
+                            dataResourceType: vData.search.dataResourceType,
+                        },
+                    });
 
-                    if (code === 0) {
-                        vData.tagList = data;
-                    }
+                    nextTick(_=> {
+                        if (code === 0) {
+                            vData.tagList = data;
+                        }
+                    });
                 },
 
                 // uploader account list
@@ -272,8 +283,6 @@
                 await methods.getTags();
                 await methods.getUploaders();
                 searchList();
-                // Get the list of data sets being uploaded and display corner markers
-                // await methods.getImagesList();
             });
 
             onBeforeUnmount(() => {

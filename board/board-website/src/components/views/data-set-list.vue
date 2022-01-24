@@ -2,8 +2,8 @@
     <div class="data-set-list">
         <div class="flexbox">
             <el-alert
-                v-if="search.dataResourceType === 'TableDataSet' && containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
+                v-if="projectType !== 'DeepLearning' && containsY === 'true'"
+                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据资源' : ''"
                 :closable="false"
                 type="warning"
             />
@@ -14,11 +14,11 @@
                     :style="containsY != 'true' || containsY !== 'false' ? 'width: 100%;':''"
                 >
                     <router-link
-                        :to="{ name: 'data-add' }"
+                        :to="{ name: 'data-add-transition' }"
                         target="_blank"
                     >
                         <el-button style="display:block;" type="primary" size="mini">
-                            上传数据集
+                            上传数据资源
                             <el-icon>
                                 <elicon-arrow-right />
                             </el-icon>
@@ -29,7 +29,6 @@
         </div>
 
         <el-table
-            v-if="list.length"
             v-loading="tableLoading"
             max-height="500"
             :data="list"
@@ -45,7 +44,7 @@
             >
                 <template v-slot="scope">
                     {{ isFlow ? scope.row.data_set.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id }}</p>
+                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -70,28 +69,11 @@
                 align="center"
             >
                 <template v-slot="scope">
-                    <p>
-                        {{scope.row.data_set ? scope.row.data_set.data_resource_type : scope.row.data_resource_type}}
-                    </p>
+                    {{ sourceTypeMap[scope.row.data_resource_type ]}}
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="任务类型"
-                prop="for_job_type"
-                width="100"
-            >
-                <template v-slot="scope">
-                    <template v-if="scope.row.data_set">
-                        {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
-                    </template>
-                    <template v-else>
-                        {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="search.dataResourceType !== 'ImageDataSet'"
+                v-if="projectType !== 'DeepLearning'"
                 label="包含Y"
                 width="100"
                 align="center"
@@ -126,40 +108,35 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="projectType === 'MachineLearning'"
                 label="数据信息"
                 prop="row_count"
-                min-width="140"
+                min-width="160"
             >
                 <template v-slot="scope">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.total_data_count }}
-                    <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                    <p v-if="projectType === 'DeepLearning'">
+                        样本量/已标注：{{ isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_set.labeled_count : scope.row.labeled_count}}
                         <br>
-                        正例样本数量：{{ scope.row.y_positive_sample_count }}
+                        标注进度：{{ ((scope.row.data_set ? scope.row.data_set.labeled_count : scope.row.labeled_count) / (scope.row.data_set ? scope.row.data_set.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
                         <br>
-                        正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="数据总量"
-                prop="total_data_count"
-            >
-                <template v-slot="scope">
-                    {{isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count}}
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="projectType === 'DeepLearning'"
-                label="标注状态"
-                prop="label_completed"
-                width="100"
-            >
-                <template v-slot="scope">
-                    {{scope.row.label_completed ? '已完成' : '标注中'}}
+                        样本分类：
+                        <template v-if="scope.row.data_set">
+                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                        <template v-else>
+                            {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        </template>
+                    </p>
+                    <p v-else>
+                        特征量：{{ scope.row.feature_count }}
+                        <br>
+                        样本量：{{ scope.row.total_data_count }}
+                        <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                            <br>
+                            正例样本数量：{{ scope.row.y_positive_sample_count }}
+                            <br>
+                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                        </template>
+                    </p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -179,8 +156,8 @@
                 min-width="110"
             />
             <el-table-column
-                label="上传者"
-                min-width="120"
+                label="上传时间"
+                min-width="160"
             >
                 <template v-slot="scope">
                     {{ scope.row.creator_nickname }}<br>
@@ -189,7 +166,7 @@
             </el-table-column>
             <el-table-column
                 fixed="right"
-                label="选择数据集"
+                label="选择数据资源"
                 width="140px"
             >
                 <template v-slot="scope">
@@ -304,6 +281,12 @@
                 oldCheckedList:  [],    // checked list from parent component
                 batchList:       [],
                 isShowData:      false,
+                requestMethod:   'post',
+                sourceTypeMap:   {
+                    BloomFilter:  '布隆过滤器',
+                    ImageDataSet: 'ImageDataSet',
+                    TableDataSet: 'TableDataSet',
+                },
             };
         },
         computed: {
@@ -353,11 +336,15 @@
                 this.tableLoading = true;
                 this.isIndeterminate = false;
                 this.search = this.searchField;
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                if(this.search) {
-                    if(this.search.dataResourceType === 'TableDataSet' && this.containsY === true) {
+                if(this.projectType === 'DeepLearning' && !this.isFlow) {
+                    this.search.dataResourceType = ['ImageDataSet'];
+                }
+                if(this.search.dataResourceType) {
+                    const flag = this.search.dataResourceType.includes('TableDataSet');
+
+                    if(flag && this.containsY === true) {
                         this.search.containsY = true;
-                    } else if (this.dataResourceType === 'TableDataSet' && this.containsY === false) {
+                    } else if (flag && this.containsY === false) {
                         this.search.containsY = false;
                     }
                 }
@@ -370,7 +357,7 @@
                     item.$unchanged = false;
                     this.list[index] = item;
                     this.oldCheckedList.find(sitem => {
-                        if (item.id === sitem.data_set_id ) {
+                        if (item.data_resource_id === sitem.data_set_id ) {
                             item.$checked = true;
                             item.$unchanged = true;
                         }
@@ -429,7 +416,7 @@
                     return this.$message({
                         type:                     'error',
                         dangerouslyUseHTMLString: true,
-                        message:                  '数据集暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
+                        message:                  '数据资源暂未授权, 无法使用! <div class="mt10"><strong>请先在项目详情中对数据进行授权!</strong></div>',
                     });
                 }
                 item.$source_page = this.emitEventName;

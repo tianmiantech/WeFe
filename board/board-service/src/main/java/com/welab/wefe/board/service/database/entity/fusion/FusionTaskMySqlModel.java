@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,9 @@
 package com.welab.wefe.board.service.database.entity.fusion;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
-import com.welab.wefe.fusion.core.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 
@@ -52,12 +53,25 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "data_resource_type")
     DataResourceType dataResourceType;
 
+    /**
+     * Number of rows of data resources
+     */
+    Long rowCount;
+
+    String hashFunction;
+
     String partnerDataResourceId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "partner_data_resource_type")
     DataResourceType partnerDataResourceType;
 
+    /**
+     * Number of rows of data resources
+     */
+    Long partnerRowCount;
+
+    String partnerHashFunction;
 
     /**
      * Whether the trace
@@ -69,14 +83,14 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
      */
     public String traceColumn;
 
-    /**
-     * Number of rows of data resources
-     */
-    Long rowCount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "psi_actuator_role")
     PSIActuatorRole psiActuatorRole;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "my_role")
+    JobMemberRole myRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "algorithm")
@@ -86,7 +100,17 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of fusion
      */
-    public int fusionCount;
+    public Long fusionCount = 0L;
+
+    /**
+     * Number of fusion
+     */
+    public Long processedCount = 0L;
+
+    /**
+     * Number of fusion
+     */
+    public Long dataCount = 0L;
 
     public long spend;
 
@@ -215,11 +239,11 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
     }
 
 
-    public int getFusionCount() {
+    public Long getFusionCount() {
         return fusionCount;
     }
 
-    public void setFusionCount(int fusionCount) {
+    public void setFusionCount(Long fusionCount) {
         this.fusionCount = fusionCount;
     }
 
@@ -245,5 +269,53 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public JobMemberRole getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(JobMemberRole myRole) {
+        this.myRole = myRole;
+    }
+
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
+    }
+
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
+    }
+
+    public Long getProcessedCount() {
+        return processedCount;
+    }
+
+    public void setProcessedCount(Long processedCount) {
+        this.processedCount = processedCount;
+    }
+
+    public Long getDataCount() {
+        return dataCount;
+    }
+
+    public void setDataCount(Long dataCount) {
+        this.dataCount = dataCount;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
     }
 }

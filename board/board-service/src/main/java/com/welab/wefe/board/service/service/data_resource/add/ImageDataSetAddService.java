@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.database.repository.ImageDataSetSampleReposi
 import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.ImageDataSetAddInputModel;
-import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -57,20 +56,26 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
     @Override
     protected void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
 
+        LOG.info("{} 开始解析图片数据集文件...", m.getId());
+
         ImageDataSetAddInputModel input = (ImageDataSetAddInputModel) in;
         ImageDataSetMysqlModel model = (ImageDataSetMysqlModel) m;
 
         File inputFile = new File(config.getFileUploadDir(), input.getFilename());
+
+        LOG.info("{} 获取到图片数据集文件：{}", m.getId(), inputFile.getAbsolutePath());
 
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
             fileDecompressionResult = SuperDecompressor.decompression(inputFile, true);
             dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
+            LOG.info("{} 完成解压，包含文件 {} 个", m.getId(), fileDecompressionResult.files.size());
 
             sampleList = AbstractImageDataSetParser
                     .getParser(input.forJobType)
                     .parseFilesToSamples(model, fileDecompressionResult.files);
+            LOG.info("{} 完成样本解析，包含样本 {} 个", m.getId(), sampleList.size());
 
             setImageDataSetModel(input, model, sampleList);
             dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
@@ -81,26 +86,35 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
 
         // save models to database
         imageDataSetRepository.save(model);
+        LOG.info("{} 数据集信息已入库，开始保存 {} 个样本信息。", m.getId(), sampleList.size());
 
         AtomicInteger count = new AtomicInteger();
         int totalCount = sampleList.size();
-        sampleList
-                .parallelStream()
-                .forEach(sample -> {
-                    imageDataSetSampleRepository.save(sample);
-                    count.incrementAndGet();
-                    if (count.get() % 20 == 0) {
-                        dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
-                    }
-                });
 
+        ListUtil.parallelEach(
+                sampleList,
+                sample -> {
+                    try {
+                        imageDataSetSampleRepository.save(sample);
+                        count.incrementAndGet();
+                        if (count.get() % 50 == 0) {
+                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
+                            LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
+                        }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                }
+        );
+
+        LOG.info("{} 样本保存完毕 {}/{}", m.getId(), count.get(), totalCount);
 
         // delete source images
         FileUtil.deleteFileOrDir(inputFile);
-        fileDecompressionResult.deleteAllDirAndFiles();
+        LOG.info("{} 原始数据集文件已删除：{}", m.getId(), inputFile.getAbsolutePath());
 
-        // Refresh the data set tag list
-        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
+        fileDecompressionResult.deleteAllDirAndFiles();
+        LOG.info("{} 原始数据集解压后的文件夹已删除：{}", m.getId(), fileDecompressionResult.baseDir);
     }
 
     private void setImageDataSetModel(ImageDataSetAddInputModel input, ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> sampleList) {

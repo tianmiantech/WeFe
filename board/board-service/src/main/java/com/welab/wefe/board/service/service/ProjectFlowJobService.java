@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
 import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
 import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
 import com.welab.wefe.board.service.api.project.job.StopJobApi;
@@ -26,19 +25,16 @@ import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
-import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
-import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Project;
 import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -49,6 +45,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -175,11 +172,17 @@ public class ProjectFlowJobService extends AbstractService {
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
+
+        JObject params =
+                project.getProjectType() == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
         flowActionQueueService.notifyFlow(
                 input,
                 input.getJobId(),
                 FlowActionType.run_job,
-                JObject.create("type", "visualfl")
+                params
         );
 
         //update flow
@@ -222,17 +225,6 @@ public class ProjectFlowJobService extends AbstractService {
      */
     private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project, boolean isOotMode) throws StatusCodeWithException {
 
-        // 深度学习项目独有的检查
-        if (ProjectType.DeepLearning.equals(project.getProjectType())) {
-            DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
-            if (StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
-                StatusCode
-                        .PARAMETER_VALUE_INVALID
-                        .throwException("请在 [全局设置 - 计算引擎设置] 中为深度学习设置飞桨可视化服务地址。");
-            }
-        }
-
-
         if (CollectionUtils.isEmpty(graph.getStartNodes())) {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -256,15 +248,13 @@ public class ProjectFlowJobService extends AbstractService {
 
         // Check whether the services of each member are available
         for (JobMemberMySqlModel member : graph.getMembers()) {
-            ServiceStatusCheckApi.Output status = serviceCheckService.checkMemberServiceStatus(new ServiceStatusCheckApi.Input(member.getMemberId()));
-            MemberServiceStatusOutput errorService = status.getStatus().values().stream().filter(x -> !x.isSuccess()).findFirst().orElse(null);
-            if (errorService != null) {
-                throw new StatusCodeWithException("成员 "
-                        + CacheObjects.getMemberName(member.getMemberId())
-                        + " 的 " + errorService.getService().name() + " 服务不可用："
-                        + errorService.getMessage(),
-
-                        StatusCode.REMOTE_SERVICE_ERROR
+            MemberAvailableCheckOutput status = serviceCheckService.getMemberAvailableInfo(member.getMemberId());
+            if (!status.available) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(
+                        "成员 "
+                                + CacheObjects.getMemberName(member.getMemberId())
+                                + " 的 " + status.errorServiceType.name() + " 服务不可用："
+                                + status.message
                 );
             }
         }
@@ -301,12 +291,7 @@ public class ProjectFlowJobService extends AbstractService {
                     if (projectDataSet.getSourceType() != null) {
                         continue;
                     } else {
-                        DataResourceOutputModel resource = dataResourceService.findDataResourceFromLocalOrUnion(
-                                member.getMemberId(),
-                                member.getDataSetId(),
-                                DataResourceMysqlModel.class,
-                                DataResourceOutputModel.class
-                        );
+                        DataResourceOutputModel resource = dataResourceService.findDataResourceFromLocalOrUnion(projectDataSet);
                         if (resource == null) {
                             throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除或不可见。", StatusCode.PARAMETER_VALUE_INVALID);
                         }
@@ -509,6 +494,7 @@ public class ProjectFlowJobService extends AbstractService {
             } catch (FlowNodeException e) {
                 throw e;
             } catch (Exception e) {
+                super.log(e);
                 throw new FlowNodeException(node, e.getClass() + " " + e.getMessage());
             }
         }

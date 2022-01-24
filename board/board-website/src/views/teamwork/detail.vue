@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />
@@ -107,6 +107,8 @@
             @deleteDataSetEmit="deleteDataSetEmit"
         />
 
+        <FusionList :form="form" />
+
         <FlowList :form="form" />
 
         <el-card
@@ -117,7 +119,7 @@
             <h3 class="mb10">TopN 展示</h3>
             <TopN ref="topnRef"></TopN>
         </el-card>
-        
+
         <ModelingList
             v-if="form.project_type === 'MachineLearning'"
             ref="ModelingList"
@@ -159,10 +161,11 @@
     import FlowList from './components/flow-list';
     import DerivedList from './components/derived-list';
     import MembersList from './components/members-list';
+    import FusionList from './components/fusion-job/fusion-list';
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
-    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN';
 
     let timer = null;
 
@@ -171,6 +174,7 @@
             FlowList,
             DerivedList,
             MembersList,
+            FusionList,
             ModelingList,
             PromoterProjectSetting,
             ProviderProjectSetting,
@@ -212,8 +216,10 @@
                     $data_set:      [],
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 promoterService: {},
@@ -359,8 +365,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: promoterService[member.member_id] ? promoterService[member.member_id].all_status_is_success : null,
-                                status:                promoterService[member.member_id] ? promoterService[member.member_id].status : null,
+                                available: promoterService[member.member_id] ? promoterService[member.member_id].available : null,
+                                details:   promoterService[member.member_id] ? promoterService[member.member_id].details : null,
                             }, // services state
                             $other_audit:   [], // audit comment from others
                             $audit_comment: '', // audit other members
@@ -382,8 +388,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: providerService[member.member_id] ? providerService[member.member_id].all_status_is_success : null,
-                                status:                providerService[member.member_id] ? providerService[member.member_id].status : null,
+                                available: providerService[member.member_id] ? providerService[member.member_id].available : null,
+                                details:   providerService[member.member_id] ? providerService[member.member_id].details : null,
                             }, // service state
                             $other_audit:   [], // audit from other members
                             $audit_comment: '', // audit other members
@@ -519,15 +525,20 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                     // cache service current state

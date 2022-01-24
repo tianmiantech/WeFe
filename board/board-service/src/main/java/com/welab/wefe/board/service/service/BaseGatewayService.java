@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
@@ -50,14 +49,14 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send a message to your own gateway service
      */
-    protected ApiResult<?> sendToMyselfGateway(GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected JSONObject sendToMyselfGateway(GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         return sendToMyselfGateway(null, action, data, processorType);
     }
 
     /**
      * Send a message to your own gateway service
      */
-    protected ApiResult<JSONObject> sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected JSONObject sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         if (gatewayUri == null) {
             GatewayConfigModel gatewayConfig = globalConfigService.getGatewayConfig();
             if (gatewayConfig != null) {
@@ -65,7 +64,7 @@ public class BaseGatewayService extends AbstractService {
             }
         }
 
-        return sendMessage(
+        return callGateway(
                 gatewayUri,
                 CacheObjects.getMemberId(),
                 CacheObjects.getMemberName(),
@@ -77,14 +76,15 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send message to other party's gateway service
      */
-    protected ApiResult<JSONObject> sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) {
-        return sendMessage(
+    protected JSONObject sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+        return callGateway(
                 globalConfigService.getGatewayConfig().intranetBaseUri,
                 dstMemberId,
                 CacheObjects.getMemberName(dstMemberId),
                 action,
                 data,
-                processorType);
+                processorType
+        );
     }
 
     /**
@@ -97,39 +97,39 @@ public class BaseGatewayService extends AbstractService {
      * @param data          data of the message
      * @param processorType enum, see:{@link com.welab.wefe.common.wefe.enums.GatewayProcessorType}
      */
-    private ApiResult<JSONObject> sendMessage(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
 
         if (StringUtil.isEmpty(gatewayUri)) {
-            ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, "尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
+            StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
         ManagedChannel grpcChannel = null;
-        ApiResult<JSONObject> result = null;
+        String message = "[grpc] end to " + dstMemberName;
         try {
             grpcChannel = getGrpcChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
             BasicMetaProto.ReturnStatus returnStatus = clientStub.send(transferMeta);
             if (returnStatus.getCode() != 0) {
-                result = ApiResult.ofErrorWithStatusCode(StatusCode.REMOTE_SERVICE_ERROR, returnStatus.getMessage());
-                return result;
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
-            if (StringUtil.isEmpty(returnStatus.getData())) {
-                result = ApiResult.ofSuccess(null);
-                return result;
-            }
-            result = JSON
-                    .parseObject(returnStatus.getData())
-                    .toJavaObject(ApiResult.class);
+
+            message += "success request:" + data;
+            LOG.info(message);
+
+            return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
+            message += "fail message:" + e.getMessage() + " request:" + data;
+            LOG.error(message);
+
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
+
             try {
                 checkPermission(e);
             } catch (StatusCodeWithException ex) {
-                result = ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, ex.getMessage());
-                return result;
+                StatusCode.RPC_ERROR.throwException(ex.getMessage());
             }
-            result = ApiResult.ofErrorWithStatusCode(StatusCode.RPC_ERROR, e.getMessage());
+            StatusCode.RPC_ERROR.throwException(e.getMessage());
 
         } finally {
             if (null != grpcChannel) {
@@ -139,18 +139,9 @@ public class BaseGatewayService extends AbstractService {
                     LOG.error("Closing gateway connection exception：", e);
                 }
             }
-
-            String message = "[grpc] end to " + dstMemberName;
-            message += " " + (result.success() ? "success" : "fail message:" + result.getMessage() + " request:" + data);
-
-            if (result.success()) {
-                LOG.info(message);
-            } else {
-                LOG.error(message);
-            }
         }
 
-        return result;
+        return null;
     }
 
 

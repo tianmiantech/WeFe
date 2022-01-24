@@ -2,7 +2,7 @@
     <el-dialog
         v-model="show"
         width="75%"
-        title="请选择数据集"
+        title="请选择数据资源"
         destroy-on-close
         :close-on-click-modal="false"
     >
@@ -37,26 +37,39 @@
                 label-width="100"
             >
                 <el-select
+                    v-if="projectType === 'DeepLearning'"
+                    v-model="search.dataResourceType"
+                    :disabled="true"
+                    filterable
+                >
+                    <el-option
+                        label="ImageDataSet"
+                        value="ImageDataSet"
+                    />
+                </el-select>
+                <el-select
+                    v-else
                     v-model="search.dataResourceType"
                     filterable
-                    clearable
+                    multiple
                     @change="resourceTypeChange"
-                    :disabled="isTypeDisabled"
                 >
                     <el-option
                         v-for="item in sourceTypeList"
                         :key="item.label"
-                        :value="item.label"
+                        :value="item.value"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="search.dataResourceType === 'TableDataSet'"
+                v-if="projectType !== 'DeepLearning'"
                 label="是否包含Y值："
                 label-width="100"
             >
                 <el-select
                     v-model="search.containsY"
+                    style="width: 90px"
                     filterable
                     clearable
                 >
@@ -65,8 +78,8 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="search.dataResourceType === 'ImageDataSet'"
-                label="任务类型："
+                v-else
+                label="样本分类："
                 label-width="100"
             >
                 <el-select
@@ -103,7 +116,6 @@
 
         <DataSetList
             ref="raw"
-            source-type="Raw"
             :is-show="isShow"
             :data-sets="dataSets"
             :search-field="search"
@@ -119,6 +131,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -149,10 +162,11 @@
                 projectType: '',
                 myMemberId:  '',
                 search:      {
-                    id:         '',
-                    name:       '',
-                    creator:    '',
-                    contains_y: '',
+                    id:               '',
+                    name:             '',
+                    creator:          '',
+                    contains_y:       '',
+                    dataResourceType: '',
                 },
                 hideRelateSourceTab: false,
                 isShow:              false,
@@ -162,11 +176,7 @@
                         value: 'TableDataSet',
                     },
                     {
-                        label: 'ImageDataSet',
-                        value: 'ImageDataSet',
-                    },
-                    {
-                        label: 'BloomFilter',
+                        label: '布隆过滤器',
                         value: 'BloomFilter',
                     },
                 ],
@@ -180,9 +190,11 @@
                         value: 'classify',
                     },
                 ],
-                isTypeDisabled:  false,
                 checkedDataList: [],
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -212,14 +224,14 @@
                     const $ref = this.$refs['raw'];
 
                     this.search = {
-                        id:         '',
-                        name:       '',
-                        creator:    '',
-                        contains_y: '',
+                        id:               '',
+                        name:             '',
+                        creator:          '',
+                        contains_y:       '',
+                        dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
 
                     if(this.containsY) {
-                        this.search.source_type = 'Raw';
                         this.search.contains_y = true;
                     }
 
@@ -233,7 +245,7 @@
                 this.loadDataList({ memberId, resetPagination, $data_set: this.checkedDataList });
             },
 
-            async loadDataList({
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
@@ -248,23 +260,21 @@
 
                 this.jobRole = jobRole || this.jobRole;
                 this.projectType = projectType || this.projectType;
-                await this.$nextTick((_)=>{}); // Asynchronous queue update dataResourceType field
-                this.search.dataResourceType = this.projectType === 'DeepLearning' ? 'ImageDataSet' : 'TableDataSet';
-                this.isTypeDisabled = true;
-                
-                if (memberId) {
-                    this.memberId = memberId;
-                }
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
+                this.$nextTick(_ => {
+                    if(this.projectType === 'DeepLearning') {
+                        this.search.dataResourceType = ['ImageDataSet'];
+                    } else if(this.search.dataResourceType.length === 0) {
+                        this.search.dataResourceType = ['TableDataSet', 'BloomFilter'];
+                    }
 
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
+                    if (memberId) {
+                        this.memberId = memberId;
+                    }
 
+                    this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
-                }
+                });
             },
 
             searchList(opt = {}) {
@@ -276,24 +286,19 @@
                 } else {
                     // my own data set，search from board
                     if (this.memberId === this.myMemberId) {
-                        if (this.projectType === 'DeepLearning') {
-                            url = '/image_data_set/query';
-                        } else {
-                            url = this.jobRole === 'promoter' || this.jobRole === 'promoter_creator' ? `/data_set/query?member_id=${this.memberId}` : '/data_set/query';
-                        }
+                        url = '/data_resource/query';
                     } else {
                         // search from union
-                        if (this.projectType === 'DeepLearning') {
-                            url = `/union/image_data_set/query?member_id=${this.memberId}`;
-                        } else {
-                            url = `/union/data_set/query?member_id=${this.memberId}`;
-                        }
+                        url = `/union/data_resource/query?member_id=${this.memberId}`;
                     }
+
                 }
 
-                const $ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {

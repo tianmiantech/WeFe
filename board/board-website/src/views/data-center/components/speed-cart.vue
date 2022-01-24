@@ -26,7 +26,7 @@
                     placement="bottom"
                 >
                     <template #content>
-                        <p>1, 添加数据集到此处可快速创建项目</p>
+                        <p>1, 添加资源到此处可快速创建项目</p>
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
 
@@ -74,7 +74,7 @@
                             </el-form-item>
                             <el-form-item>
                                 <span class="f12 mr10">数据集类型:</span>
-                                <span class="p-id f12 under-line">{{ dataset.data_set_type }}</span>
+                                <span class="p-id f12 under-line">{{ dataset.data_resource_type }}</span>
                             </el-form-item>
                             <el-form-item>
                                 <span class="f12 mr10">是否含 Y:</span>
@@ -116,7 +116,7 @@
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">数据集类型:</span>
-                                    <span class="p-id f12">{{ dataset.data_set_type }}</span>
+                                    <span class="p-id f12">{{ dataset.data_resource_type }}</span>
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">是否含 Y:</span>
@@ -219,13 +219,13 @@
             const addDataSet = (item) => {
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
-                    data_set_id: item.id ? item.id : item.data_set_id,
-                    id:          item.id ? item.id : item.data_set_id,
+                    data_set_id: item.id ? item.id : item.data_resource_id,
+                    id:          item.id ? item.id : item.data_resource_id,
                     ...item,
                 };
 
                 if(item.member_id === userInfo.value.member_id) {
-                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_set_id);
+                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_resource_id);
 
                     if(index < 0) {
                         promoterDataSetList.value.push(dataset);
@@ -282,7 +282,7 @@
                     $message.error('项目中的数据集必须为同一类型的数据');
                     return;
                 } else {
-                    projectType.value = allDataSetList.value[0].data_set_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_set_type === 'TableDataSet' ? 'MachineLearning' : '';
+                    projectType.value = allDataSetList.value[0].data_resource_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_resource_type === 'TableDataSet' ? 'MachineLearning' : '';
                 }
 
                 const list = providerList.value.map(item => {
@@ -328,7 +328,7 @@
             const isAllEqual = (arr) => {
                 if (arr.length > 0) {
                     return !arr.some(function(value, index) {
-                        return value.data_set_type !== arr[0].data_set_type;
+                        return value.data_resource_type !== arr[0].data_resource_type;
                     });
                 } else {
                     return true;

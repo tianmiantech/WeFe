@@ -35,6 +35,7 @@ from typing import Iterable
 
 # noinspection PyProtectedMember
 from common.python import WorkMode, Backend, RuntimeInstance, _STORAGE_VERSION
+from common.python.common import consts
 from common.python.p_session.session import WefeSession
 from common.python.table import Table
 from common.python.utils import log_utils, conf_utils
@@ -105,13 +106,16 @@ def init(job_id=None,
 
     if not db_type:
         # Priority reads the data.type node of the public configuration
-        data_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_DATA_TYPE)
-        if data_type == DBTypes.CLICKHOUSE:
-            db_type = DBTypes.CLICKHOUSE
-        else:
-            db_type = DBTypes.LMDB
+        db_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_DATA_TYPE)
+
+    print(f"db_type:{db_type}")
+    if db_type not in [DBTypes.CLICKHOUSE, DBTypes.LOCAL_FS, DBTypes.LMDB]:
+        raise ValueError(f"{db_type} not supported")
 
     if backend.is_local():
+        if db_type not in [DBTypes.LOCAL_FS, DBTypes.LMDB]:
+            raise ValueError(f"{db_type} not supported in Local backend")
+
         from common.python.p_session.base_impl import build
         builder = build.Builder(session_id=job_id, work_mode=mode, persistent_engine=persistent_engine, db_type=db_type)
 

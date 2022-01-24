@@ -4,7 +4,8 @@
 
 export default (function () {
     return {
-        name: 'mixin-table',
+        name:  'mixin-table',
+        emits: ['search-update'],
         data () {
             return {
                 loading:       true,
@@ -65,6 +66,10 @@ export default (function () {
                 }
                 this.pagination.page_index = +(query.page_index || 1);
                 this.pagination.page_size = +(query.page_size || this.pagination.page_size);
+                this.search.page_index = +this.pagination.page_index - 1;
+                this.search.page_size = +this.pagination.page_size;
+
+                this.$emit('search-update', this.search);
             },
 
             async getList (opt = {
@@ -144,7 +149,7 @@ export default (function () {
                         this.vData.list = data.list || [];
                     }
                     this.pagination.total = data.total;
-                    this.afterTableRender(data.list);
+                    data.list && this.afterTableRender(data.list);
                 }
 
                 setTimeout(() => {

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,7 +42,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY);
+        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY, input.forJobType);
         return success(new Output(list));
     }
 
@@ -61,6 +62,9 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
         @Check(name = "是否包含Y")
         private Boolean containsY;
 
+        @Check(name = "目标任务类型")
+        private DeepLearningJobType forJobType;
+
         //region getter/setter
 
         public String getProjectId() {
@@ -79,11 +83,11 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
             this.memberId = memberId;
         }
 
-        public DataResourceType getDataSetType() {
+        public DataResourceType getDataResourceType() {
             return dataResourceType;
         }
 
-        public void setDataSetType(DataResourceType dataResourceType) {
+        public void setDataResourceType(DataResourceType dataResourceType) {
             this.dataResourceType = dataResourceType;
         }
 
@@ -101,6 +105,14 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         public void setContainsY(Boolean containsY) {
             this.containsY = containsY;
+        }
+
+        public DeepLearningJobType getForJobType() {
+            return forJobType;
+        }
+
+        public void setForJobType(DeepLearningJobType forJobType) {
+            this.forJobType = forJobType;
         }
 
         //endregion

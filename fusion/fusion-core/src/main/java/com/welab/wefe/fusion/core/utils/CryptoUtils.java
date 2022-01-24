@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,15 +39,24 @@ public class CryptoUtils {
         return gen.generateKeyPair();
     }
 
+    public static void main(String[] args) {
+        RSAKeyPairGenerator gen = new RSAKeyPairGenerator();
+        gen.init(new RSAKeyGenerationParameters(new BigInteger("10001", 16), new SecureRandom(),
+                1024, 80));
+
+        System.out.println(gen.generateKeyPair()); ;
+        System.out.println(gen.generateKeyPair().getPrivate()); ;
+        System.out.println(gen.generateKeyPair().getPublic()); ;
+    }
     public static byte[][] sign(AsymmetricCipherKeyPair keyPair, byte[][] query) {
         try {
             RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();
-            BigInteger N = sk.getModulus();
+            BigInteger n = sk.getModulus();
             BigInteger d = sk.getExponent();
             byte[][] bs = new byte[query.length][];
             for (int i = 0; i < query.length; i++) {
                 BigInteger x = PSIUtils.bytesToBigInteger(query[i], 0, query[i].length);
-                BigInteger y = x.modPow(d, N);
+                BigInteger y = x.modPow(d, n);
                 bs[i] = PSIUtils.bigIntegerToBytes(y, false);
             }
 
@@ -59,26 +68,26 @@ public class CryptoUtils {
     }
 
 
-    public static byte[][] sign(BigInteger N, BigInteger d, List<byte[]> query) {
+    public static byte[][] sign(BigInteger n, BigInteger d, List<byte[]> query) {
         try {
             byte[][] bs = new byte[query.size()][];
             for (int i = 0; i < query.size(); i++) {
                 bs[i] = query.get(i);
             }
 
-            return sign(N, d, bs);
+            return sign(n, d, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return (new byte[1][1]);
     }
 
-    public static byte[][] sign(BigInteger N, BigInteger d, byte[][] query) {
+    public static byte[][] sign(BigInteger n, BigInteger d, byte[][] query) {
         try {
             byte[][] bs = new byte[query.length][];
             for (int i = 0; i < query.length; i++) {
                 BigInteger x = PSIUtils.bytesToBigInteger(query[i], 0, query[i].length);
-                BigInteger y = x.modPow(d, N);
+                BigInteger y = x.modPow(d, n);
                 bs[i] = PSIUtils.bigIntegerToBytes(y, false);
             }
 
@@ -89,10 +98,10 @@ public class CryptoUtils {
         return (new byte[1][1]);
     }
 
-    public static byte[] sign(BigInteger N, BigInteger d, byte[] query) {
+    public static byte[] sign(BigInteger n, BigInteger d, byte[] query) {
         try {
             BigInteger x = PSIUtils.bytesToBigInteger(query, 0, query.length);
-            BigInteger y = x.modPow(d, N);
+            BigInteger y = x.modPow(d, n);
             return PSIUtils.bigIntegerToBytes(y, false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,9 +114,9 @@ public class CryptoUtils {
         byte[][] ret = new byte[2][];
         RSAKeyParameters pk = (RSAKeyParameters) keyPair.getPublic();
         BigInteger e = pk.getExponent();
-        BigInteger N = pk.getModulus();
+        BigInteger n = pk.getModulus();
         ret[0] = PSIUtils.bigIntegerToBytes(e, false);
-        ret[1] = PSIUtils.bigIntegerToBytes(N, false);
+        ret[1] = PSIUtils.bigIntegerToBytes(n, false);
 
         return ret;
     }

@@ -1,31 +1,30 @@
-package com.welab.wefe.board.service.fusion.actuator;
-
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.fusion.actuator;
+
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.PsiCryptoApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -41,8 +40,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
@@ -51,14 +49,15 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class ClientActuator extends PsiClientActuator {
+@SuppressWarnings("SynchronizeOnNonFinalField")
+public class ClientActuator extends AbstractPsiClientActuator {
     public List<String> columnList;
 
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 1000;
-    private Integer current_index = 0;
+    public int shardSize = 1000;
+    public Integer currentIndex = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
@@ -66,8 +65,8 @@ public class ClientActuator extends PsiClientActuator {
 
     private String[] headers;
 
-    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.dstMemberId = dstMemberId;
     }
 
@@ -81,7 +80,7 @@ public class ClientActuator extends PsiClientActuator {
         /**
          * Calculate the fragment size based on the number of fields
          */
-        shard_size = shard_size / columnList.size();
+        shardSize = shardSize / columnList.size();
 
         /**
          * Supplementary trace field
@@ -116,7 +115,39 @@ public class ClientActuator extends PsiClientActuator {
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
-        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+        switch (status) {
+            case success:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Success,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            case falsify:
+            case running:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Interrupt,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            default:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Failure,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+        }
     }
 
     @Override
@@ -124,20 +155,20 @@ public class ClientActuator extends PsiClientActuator {
         //notify the server that the task has ended
         try {
             gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
-        } catch (MemberGatewayException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public List<JObject> next() {
-        synchronized (current_index) {
+        synchronized (dataSetStorageService) {
             long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(current_index, shard_size)
+                    new PageInputModel(currentIndex, shardSize)
             );
 
             List<DataItemModel> list = model.getData();
@@ -155,10 +186,9 @@ public class ClientActuator extends PsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {}", current_index, System.currentTimeMillis() - start, curList.size());
+            LOG.info("cursor {} spend: {} curList {}", currentIndex, System.currentTimeMillis() - start, curList.size());
 
-            current_index++;
-
+            currentIndex++;
 
             return curList;
         }
@@ -173,15 +203,17 @@ public class ClientActuator extends PsiClientActuator {
         LOG.info("fruit insert end...");
 
         System.out.println("测试结果：" + JSON.toJSONString(fruit));
+
+        //记录进度
     }
 
     @Override
     public Boolean hasNext() {
-        synchronized (current_index) {
+        synchronized (dataSetStorageService) {
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(current_index, shard_size)
+                    new PageInputModel(currentIndex, shardSize)
             );
             return model.getData().size() > 0;
         }
@@ -194,10 +226,19 @@ public class ClientActuator extends PsiClientActuator {
 
         //调用gateway
         JSONObject result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-        } catch (MemberGatewayException e) {
-            e.printStackTrace();
+        int num = 3;
+
+        while (num > 0) {
+
+            try {
+                result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
+
+                num = 0;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            num--;
         }
 
         LOG.info("downloadBloomFilter end {} ", result);
@@ -208,7 +249,7 @@ public class ClientActuator extends PsiClientActuator {
     }
 
     @Override
-    public byte[][] queryFusionData(byte[][] bs) {
+    public byte[][] queryFusionData(byte[][] bs) throws StatusCodeWithException {
 
         LOG.info("queryFusionData start");
 
@@ -217,22 +258,20 @@ public class ClientActuator extends PsiClientActuator {
         for (int i = 0; i < bs.length; i++) {
             stringList.add(Base64Util.encode(bs[i]));
         }
-        ApiResult<JSONObject> result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, "fusion/psi/crypto", JObject.create(new PsiCryptoApi.Input(businessId, stringList)));
-        } catch (MemberGatewayException e) {
-            LOG.info("error: {}", e);
-            e.printStackTrace();
+
+        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId,
+                PsiCryptoApi.class,
+                new PsiCryptoApi.Input(businessId, stringList),
+                PsiMeta.class
+        );
+
+
+        List<String> list = result.getBs();
+
+        byte[][] ss = new byte[list.size()][];
+        for (int i = 0; i < list.size(); i++) {
+            ss[i] = Base64Util.base64ToByteArray(list.get(i));
         }
-
-        JSONArray response = result.data.getJSONArray("bs");
-
-        byte[][] ss = new byte[response.size()][];
-        for (int i = 0; i < response.size(); i++) {
-            ss[i] = Base64Util.base64ToByteArray(response.getString(i));
-        }
-
-        LOG.info("qureyFusionData end,{}", JSON.toJSONString(ss));
         return ss;
     }
 
@@ -244,9 +283,13 @@ public class ClientActuator extends PsiClientActuator {
         }
 
         try {
-            gatewayService.callOtherMemberBoard(dstMemberId, "fusion/receive/result", JObject.create(new ReceiveResultApi.Input(businessId, stringList)));
-        } catch (MemberGatewayException e) {
-            LOG.info("sendFusionData error: {}", e);
+            gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ReceiveResultApi.class,
+                    new ReceiveResultApi.Input(businessId, stringList)
+            );
+        } catch (Exception e) {
+            LOG.info("sendFusionData error: ", e);
             e.printStackTrace();
         }
     }

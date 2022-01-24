@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author winter.zou
@@ -47,6 +49,8 @@ public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<P
         private boolean deleted = false;
         @Check(name = "项目ID 主键")
         private String projectId;
+        @Check(name = "flow id 列表")
+        private List<String> flowIdList;
 
 
         public boolean isDeleted() {
@@ -65,5 +69,12 @@ public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<P
             this.projectId = projectId;
         }
 
+        public List<String> getFlowIdList() {
+            return flowIdList;
+        }
+
+        public void setFlowIdList(List<String> flowIdList) {
+            this.flowIdList = flowIdList;
+        }
     }
 }

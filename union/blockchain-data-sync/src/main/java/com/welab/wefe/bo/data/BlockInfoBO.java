@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.bo.data;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class BlockInfoBO {
     private BigInteger blockNumber;
 
     private List<EventBO> eventBOList;
+    private List<TransactionResponseBO> transactionResponseBOList = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -59,5 +61,13 @@ public class BlockInfoBO {
 
     public void setBlockNumber(BigInteger blockNumber) {
         this.blockNumber = blockNumber;
+    }
+
+    public List<TransactionResponseBO> getTransactionResponseBOList() {
+        return transactionResponseBOList;
+    }
+
+    public void setTransactionResponseBOList(List<TransactionResponseBO> transactionResponseBOList) {
+        this.transactionResponseBOList = transactionResponseBOList;
     }
 }

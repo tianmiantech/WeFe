@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.IpAddressUtil;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.SystemConfigCache;
@@ -66,7 +67,7 @@ public class IpAddressWhiteListServerInterceptor extends AbstractServerIntercept
                             remoteIpAddr = IpAddressUtil.getIpAddress(remoteSocketAddress);
                             GatewayMetaProto.TransferMeta transferMeta = (GatewayMetaProto.TransferMeta) message;
                             // It is equivalent to Ping and does not intercept the request
-                            String ping = "gatewayAliveProcessor";
+                            String ping = GatewayProcessorType.gatewayAliveProcessor.name();
                             if (!ping.equals(transferMeta.getProcessor()) && !isValidRemoteAddr(localSocketAddress, remoteSocketAddress)) {
                                 LOG.info("IpAddressServerInterceptor called, localIpAddr: {}, remoteIpAddr: {}", IpAddressUtil.getIpAddress(localSocketAddress), remoteIpAddr);
                                 LOG.info("The remote address is illegal. Close this connection");

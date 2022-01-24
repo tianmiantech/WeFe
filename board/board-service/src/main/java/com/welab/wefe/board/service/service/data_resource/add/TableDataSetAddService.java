@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMy
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.TableDataSetAddInputModel;
-import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
@@ -72,7 +71,20 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
 
         // Parse and save the original data set
         AbstractTableDataSetReader dataSetReader = createDataSetReader(input);
-        readAllToStorage(model, dataSetReader, input.isDeduplication());
+        try {
+            readAllToStorage(model, dataSetReader, input.isDeduplication());
+        } catch (Exception e) {
+            // 如果是表单错误，则用户重新编辑表单后提交即可，不用重新上传文件。
+            boolean isFormError = false;
+            if (e instanceof StatusCodeWithException) {
+                isFormError = ((StatusCodeWithException) e).getStatusCode().equals(StatusCode.ERROR_IN_DATA_RESOURCE_ADD_FORM);
+            }
+            if (!isFormError) {
+                deleteFile(input);
+            }
+
+            throw e;
+        }
 
         // save data set info to database
         tableDataSetRepository.save(model);
@@ -80,6 +92,12 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         // save data set column info to database
         dataSetColumnService.update(model.getId(), input.getMetadataList());
 
+        // Delete files uploaded by HttpUpload
+        deleteFile(input);
+
+    }
+
+    private void deleteFile(TableDataSetAddInputModel input) {
         // Delete files uploaded by HttpUpload
         try {
             if (input.getDataSetAddMethod().equals(DataSetAddMethod.HttpUpload)) {
@@ -89,11 +107,8 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         } catch (StatusCodeWithException e) {
             super.log(e);
         }
-
-        // Refresh the data set tag list
-        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
-
     }
+
 
     @Override
     protected Class<? extends DataResourceMysqlModel> getMysqlModelClass() {

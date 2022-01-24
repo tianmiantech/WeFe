@@ -28,7 +28,7 @@
             </template>
         </el-table-column>
         <el-table-column
-            label="数据集"
+            label="数据资源"
             min-width="100"
         >
             <template v-slot="scope">

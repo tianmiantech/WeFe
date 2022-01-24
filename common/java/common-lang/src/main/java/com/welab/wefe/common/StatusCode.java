@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,7 +60,7 @@ public enum StatusCode {
     IP_REQUESTS_OUT_OF_RATE_LIMIT(10022, "IP request frequency exceeds the upper limit"),
     USER_REQUESTS_OUT_OF_RATE_LIMIT(10023, "User request frequency exceeds the upper limit"),
     PRIMARY_KEY_CONFLICT(10026, "Data with value (%s) already exists for parameter (%s)"),
-    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item：(%s)"),
+    UNEXPECTED_ENUM_CASE(10027, "Unexpected enumeration item"),
     DIRECTORY_NOT_FOUND(10028, "directory does not exist"),
     PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s can not be empty!"),
     SQL_ERROR(10030, "SQL execution failed"),
@@ -93,7 +93,12 @@ public enum StatusCode {
      * board
      * An error occurred in the node of the flowchart
      */
-    ERROR_IN_FLOW_GRAPH_NODE(30001, "");
+    ERROR_IN_FLOW_GRAPH_NODE(30001, ""),
+    /**
+     * 添加数据资源时的表单参数错误
+     * 区别于数据资源文件错误，这种错误不需要删除文件。
+     */
+    ERROR_IN_DATA_RESOURCE_ADD_FORM(30002, "");
 
 
     private int code;

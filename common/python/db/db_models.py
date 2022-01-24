@@ -75,7 +75,7 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
-class JobApplyResult(Model):
+class JobApplyResult(ModelBase):
     id = CharField(primary_key=True)
     created_by = CharField(null=True)
     created_time = DateTimeField()
@@ -89,11 +89,7 @@ class JobApplyResult(Model):
     status = CharField()
 
     class Meta:
-        database = DB
         table_name = 'job_apply_result'
-
-    def to_json(self):
-        return self.__dict__['__data__']
 
 
 # GlobalSetting
@@ -148,53 +144,49 @@ class GlobalSetting(object):
         return GlobalConfigDao.get('wefe_flow', 'visual_fl_base_url')
 
 
-# DataSet
-class DataSet(ModelBase):
+class DataResource(ModelBase):
+    data_resource_type = CharField()
+    derived_from = CharField(null=True)
+    derived_from_flow_id = CharField(null=True)
+    derived_from_job_id = CharField(null=True)
+    derived_from_task_id = CharField(null=True)
+    derived_resource = IntegerField(constraints=[SQL("DEFAULT 0")], null=True)
+    description = CharField(null=True)
+    id = CharField(primary_key=True)
+    name = CharField()
+    public_level = CharField(null=True)
+    public_member_list = CharField(null=True)
+    statistical_information = TextField(null=True)
+    storage_namespace = CharField()
+    storage_resource_name = CharField(null=True)
+    storage_type = CharField(null=True)
+    tags = CharField(null=True)
+    total_data_count = BigIntegerField()
+    usage_count_in_flow = IntegerField(constraints=[SQL("DEFAULT 0")])
+    usage_count_in_job = IntegerField(constraints=[SQL("DEFAULT 0")])
+    usage_count_in_member = IntegerField(constraints=[SQL("DEFAULT 0")])
+    usage_count_in_project = IntegerField(constraints=[SQL("DEFAULT 0")])
+
+    class Meta:
+        table_name = 'data_resource'
+
+
+class TableDataSet(ModelBase):
     column_count = IntegerField()
     column_name_list = TextField()
     contains_y = IntegerField()
-    created_by = CharField(null=True)
-    created_time = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
-    description = CharField(null=True)
     feature_count = IntegerField()
     feature_name_list = TextField(null=True)
     id = CharField(primary_key=True)
-    name = CharField()
-    namespace = CharField()
+    positive_sample_value = CharField(null=True)
     primary_key_column = CharField()
-    public_level = CharField(null=True)
-    public_member_list = CharField(null=True)
-    row_count = BigIntegerField()
-    source_flow_id = CharField(null=True)
-    source_job_id = CharField(null=True)
-    source_task_id = CharField(null=True)
-    source_type = CharField(null=True)
-    storage_type = CharField(null=True)
-    table_name = CharField()
-    tags = CharField(null=True)
-    updated_by = CharField(null=True)
-    updated_time = DateTimeField(null=True)
-    usage_count_in_flow = IntegerField(constraints=[SQL("DEFAULT 0")])
-    usage_count_in_job = IntegerField(constraints=[SQL("DEFAULT 0")])
-    usage_count_in_project = IntegerField(constraints=[SQL("DEFAULT 0")])
     y_count = IntegerField()
     y_name_list = TextField(null=True)
-    y_positive_example_count = BigIntegerField(null=True)
-    y_positive_example_ratio = FloatField(null=True)
+    y_positive_sample_count = BigIntegerField(null=True)
+    y_positive_sample_ratio = FloatField(null=True)
 
     class Meta:
-        table_name = 'data_set'
-
-    # wingo: use in local test
-    @staticmethod
-    def check_if_data_exit(data_set_id):
-        with DB.connection_context():
-            data_set = DataSet.get_or_none()
-            if data_set is None:
-                raise Exception("need register from board,then start flow")
-            data = data_set.get_or_none(DataSet.id == data_set_id)
-            if data is None:
-                return None
+        table_name = 'table_data_set'
 
 
 # DataSetColumn

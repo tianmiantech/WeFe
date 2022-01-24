@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.database.entity.fusion;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.wefe.enums.Options;
+import com.welab.wefe.common.wefe.enums.HashOptions;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,7 +33,7 @@ public class FieldInfoMySqlModel extends AbstractBaseMySqlModel {
     private String columns;
 
     @Enumerated(EnumType.STRING)
-    private Options options;
+    private HashOptions options;
 
     private int fristIndex;
 
@@ -57,11 +57,11 @@ public class FieldInfoMySqlModel extends AbstractBaseMySqlModel {
         this.columns = columns;
     }
 
-    public Options getOptions() {
+    public HashOptions getOptions() {
         return options;
     }
 
-    public void setOptions(Options options) {
+    public void setOptions(HashOptions options) {
         this.options = options;
     }
 

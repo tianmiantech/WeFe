@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
@@ -46,7 +45,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -197,7 +195,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
-                dataSet.setDataSetType(dataSetInput.getDataSetType());
+                dataSet.setDataResourceType(dataSetInput.getDataResourceType());
 
                 projectDataSetRepo.save(dataSet);
 
@@ -495,7 +493,7 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setMemberRole(item.getMemberRole());
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
-                projectDataSet.setDataSetType(item.getDataSetType());
+                projectDataSet.setDataResourceType(item.getDataResourceType());
             }
 
             projectDataSetRepo.save(projectDataSet);
@@ -551,7 +549,7 @@ public class ProjectService extends AbstractService {
                 if (project.getMyRole() != JobMemberRole.promoter) {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
-                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataSetType());
+                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataResourceType());
             }
 
         }
@@ -927,9 +925,13 @@ public class ProjectService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterProjectMember.getMemberId(), JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output dataInfoOutput = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
+        DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
+                promoterProjectMember.getMemberId(),
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
 
         for (ProjectMemberMySqlModel projectMemberMySqlModel : dataInfoOutput.getProjectMembers()) {
 
@@ -1064,7 +1066,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
-                        dataSet.setDataSetType(x.getDataSetType());
+                        dataSet.setDataResourceType(x.getDataResourceType());
                         projectDataSetRepo.save(dataSet);
                     });
 
@@ -1146,13 +1148,17 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListInProjectApi.Input(projectId), ListInProjectApi.class);
+        ListInProjectApi.Output output = gatewayService.callOtherMemberBoard(
+                callerMemberId,
+                JobMemberRole.provider,
+                ListInProjectApi.class,
+                new ListInProjectApi.Input(projectId),
+                ListInProjectApi.Output.class
+        );
 
         // Find the promoter in the current project from all members of the sender
-        ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)
-                .getJSONList("list")
+        ProjectMemberOutputModel promoterMember = output.getList()
                 .stream()
-                .map(x -> JSONObject.toJavaObject(x, ProjectMemberOutputModel.class))
                 .filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                 .findFirst()
                 .orElse(null);
@@ -1164,11 +1170,13 @@ public class ProjectService extends AbstractService {
         String promoterMemberId = promoterMember.getMemberId();
 
         // Get project details from the promoter
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterMemberId, JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output projectOutputModel = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
-
-        return projectOutputModel;
+        return gatewayService.callOtherMemberBoard(
+                promoterMemberId,
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
     }
 
 

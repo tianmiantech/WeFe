@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@ package com.welab.wefe.fusion.core.actuator;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.fusion.core.actuator.psi.PsiClientActuator;
+import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     protected String businessId;
 
-    public Integer dataCount;
+    public Long dataCount;
 
     public LongAdder processedCount = new LongAdder();
 
@@ -65,7 +65,7 @@ public abstract class AbstractActuator implements AutoCloseable {
      * @return
      */
     public AbstractActuator setMaxExecuteTimeSpan(int minute) {
-        this.maxExecuteTimeSpan = new TimeSpan(minute * 60 * 1000);
+        this.maxExecuteTimeSpan = new TimeSpan(minute * 60 * 1000L);
         return this;
     }
 
@@ -88,6 +88,32 @@ public abstract class AbstractActuator implements AutoCloseable {
         return System.currentTimeMillis() - startTime;
     }
 
+    /**
+     * get processedCount
+     *
+     * @return
+     */
+    public long getProcessedCount() {
+        return processedCount.longValue();
+    }
+
+    /**
+     * get fusionCount
+     *
+     * @return
+     */
+    public long getFusionCount() {
+        return fusionCount.longValue();
+    }
+
+    /**
+     * get dataCount
+     *
+     * @return
+     */
+    public long getDataCount() {
+        return dataCount.longValue();
+    }
 
     /**
      * Estimated remaining time
@@ -108,8 +134,10 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @return
      */
-    public Integer progress() {
-        return processedCount.intValue() / dataCount.intValue();
+    public int progress() {
+        return Double.valueOf(
+                processedCount.doubleValue() / dataCount.doubleValue() * 100
+        ).intValue();
     }
 
     protected void preprocess() {
@@ -142,6 +170,8 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     /**
      * Alignment data into the library implementation method
+     *
+     * @param fruit
      */
     public abstract void dump(List<JObject> fruit);
 
@@ -167,7 +197,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            LOG.info("error: {}", e);
+            LOG.info("error: ", e);
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
         }
     }
@@ -183,9 +213,9 @@ public abstract class AbstractActuator implements AutoCloseable {
             }
 
             try {
-                if (this instanceof PsiClientActuator) {
+                if (this instanceof AbstractPsiClientActuator) {
                     LOG.info("notify the server that the task has ended...");
-                    ((PsiClientActuator) this).notifyServerClose();
+                    ((AbstractPsiClientActuator) this).notifyServerClose();
                 }
             } catch (Exception e) {
                 LOG.error(e.getClass().getSimpleName() + " notify the server error：" + e.getMessage());

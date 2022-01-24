@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -192,10 +191,10 @@ public class ProjectFlowService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到该流程", StatusCode.ILLEGAL_REQUEST);
         }
-		if (input.getFederatedLearningType() != null
-				&& flow.getFederatedLearningType() != input.getFederatedLearningType()) {
-			throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
-		}
+        if (input.getFederatedLearningType() != null
+                && flow.getFederatedLearningType() != input.getFederatedLearningType()) {
+            throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
+        }
 //        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
 //        if (nodes != null && !nodes.isEmpty()) {
 //            for (ProjectFlowNodeMySqlModel node : nodes) {
@@ -358,6 +357,7 @@ public class ProjectFlowService extends AbstractService {
                 .create()
                 .equal("projectId", input.getProjectId())
                 .equal("deleted", input.isDeleted())
+                .in("flowId", input.getFlowIdList())
                 .build(ProjectFlowMySqlModel.class);
 
         PagingOutput<ProjectFlowListOutputModel> page = projectFlowRepo.paging(where, input, ProjectFlowListOutputModel.class);
@@ -409,17 +409,28 @@ public class ProjectFlowService extends AbstractService {
         ProjectFlowMySqlModel sourceProjectFlow = findOne(input.getSourceFlowId());
         if (sourceProjectFlow == null) {
             // If the source replication flow cannot be found locally, obtain the source flow from the initiator
-            ApiResult<?> flowDetail = gatewayService.sendToBoardRedirectApi(targetPromoterProjectMember.getMemberId(), JobMemberRole.provider, new DetailFlowApi.Input(input.getSourceFlowId()), DetailFlowApi.class);
-            sourceProjectFlow = JSONObject.toJavaObject(JObject.create(flowDetail.data), ProjectFlowMySqlModel.class);
+
+            sourceProjectFlow = gatewayService.callOtherMemberBoard(
+                    targetPromoterProjectMember.getMemberId(),
+                    JobMemberRole.provider,
+                    DetailFlowApi.class,
+                    new DetailFlowApi.Input(input.getSourceFlowId()),
+                    ProjectFlowMySqlModel.class
+            );
         }
         if (sourceProjectFlow == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程信息：" + input.getSourceFlowId());
         }
 
         // Get the node information of the original process
-        ApiResult<?> sourceProjectFlowNodeListApiResult = gatewayService.sendToBoardRedirectApi(targetPromoterProjectMember.getMemberId(), JobMemberRole.provider, new QueryFlowNodeListApi.Input(input.getSourceFlowId()), QueryFlowNodeListApi.class);
-        JObject sourceProjectFlowNodeDataObj = JObject.create(sourceProjectFlowNodeListApiResult.data);
-        List<ProjectFlowNodeOutputModel> sourceProjectFlowNodeList = JObject.parseArray(sourceProjectFlowNodeDataObj.getStringByPath("list")).toJavaList(ProjectFlowNodeOutputModel.class);
+        QueryFlowNodeListApi.Output output = gatewayService.callOtherMemberBoard(
+                targetPromoterProjectMember.getMemberId(),
+                JobMemberRole.provider,
+                QueryFlowNodeListApi.class,
+                new QueryFlowNodeListApi.Input(input.getSourceFlowId()),
+                QueryFlowNodeListApi.Output.class
+        );
+        List<ProjectFlowNodeOutputModel> sourceProjectFlowNodeList = output.getList();
         if (CollectionUtils.isEmpty(sourceProjectFlowNodeList)) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程节点信息：" + input.getSourceFlowId());
         }

@@ -7,12 +7,12 @@
     >
         <template #empty>
             <div class="empty f14">
-                您当前没有数据集，请前往
+                您当前没有数据资源，请前往
                 <router-link
                     :to="{ path: 'data-add', query: {type: 'img'} }"
                     class="ml10"
                 >
-                    添加数据集
+                    添加资源
                     <i class="el-icon-top-right f12"></i>
                 </router-link>
             </div>
@@ -198,7 +198,7 @@
                 const res = await this.$http.get({
                     url:    '/data_resource/usage_in_project_list',
                     params: {
-                        dataSetId: row.id,
+                        dataResourceId: row.id,
                     },
                 });
 
@@ -215,9 +215,9 @@
                             return `<a href="${path.href}" target="_blank">${row.name}</a>`;
                         });
 
-                        message = `该数据集在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${list.join(', ')}, 共 ${res.data.length} 个项目中被使用，您确定要删除吗？`;
                     } else if (row.usage_count_in_project > 0) {
-                        message = `该数据集在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
+                        message = `该数据资源在 ${row.usage_count_in_project} 个项目中被使用，您确定要删除吗？`;
                     }
 
                     this.$confirm('警告', {
