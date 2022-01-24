@@ -25,6 +25,7 @@ import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.RequestResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
@@ -32,6 +33,7 @@ import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -116,7 +118,7 @@ public class ApiRequestRecordService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("服务Id", "服务名称","服务类型" ,"客户Id", "客户名称",
+        csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
                 "IP", "耗时", "请求结果");
 
         for (ApiRequestRecordMysqlModel model : dataList) {
@@ -128,7 +130,7 @@ public class ApiRequestRecordService {
                     model.getClientName(),
                     model.getIpAdd(),
                     model.getSpend().toString(),
-                    String.valueOf(model.getRequestResult()));
+                    RequestResultEnum.getValueByCode(model.getRequestResult()));
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
