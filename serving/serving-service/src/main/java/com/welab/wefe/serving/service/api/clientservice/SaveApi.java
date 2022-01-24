@@ -54,12 +54,6 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "客户 id", require = true, messageOnEmpty = "请选择客户")
         private String clientId;
 
-        @Check(name = "服务名称")
-        private String serviceName;
-
-        @Check(name = "客户名称")
-        private String clientName;
-
         @Check(name = "use status")
         private Integer status = ServiceStatusEnum.USED.getValue();
 
@@ -68,22 +62,6 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         @Check(name = "unit price")
         private Double unitPrice;
-
-        public String getServiceName() {
-            return serviceName;
-        }
-
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
-        }
-
-        public String getClientName() {
-            return clientName;
-        }
-
-        public void setClientName(String clientName) {
-            this.clientName = clientName;
-        }
 
         public Double getUnitPrice() {
             return unitPrice;

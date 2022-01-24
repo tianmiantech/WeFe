@@ -128,6 +128,8 @@ export default {
                 unitPrice: '',
                 // 预留字段
                 payType: '',
+                serviceName: '',
+                clientName: '',
             },
             services: [],
             clients: [],
@@ -234,6 +236,8 @@ export default {
                             clientId: this.clientService.clientId,
                             unitPrice: this.clientService.unitPrice,
                             payType: this.clientService.payType,
+                            serviceName: this.clientService.serviceName,
+                            clientName: this.clientService.clientName,
                         },
                     });
 
@@ -305,8 +309,10 @@ export default {
                 },
 
             });
+            console.log(data, 'client')
             if (code === 0) {
                 this.clientService.clientId = data.id
+                this.clientService.clientName = data.name
             }
         },
 
@@ -318,8 +324,11 @@ export default {
                 },
 
             });
+
+            console.log(data, 'service')
             if (code === 0) {
                 this.clientService.serviceId = data.id
+                this.clientService.serviceName = data.name
             }
         },
 
