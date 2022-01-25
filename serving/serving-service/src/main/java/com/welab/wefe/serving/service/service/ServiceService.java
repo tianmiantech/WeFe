@@ -628,11 +628,11 @@ public class ServiceService {
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
 		String basePath = config.getFileBasePath();
 		List<File> fileList = new ArrayList<>();
-		if (serviceType == ServiceTypeEnum.PIR.getCode()) {
+		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
 			fileList.add(new File(basePath + "readme.md"));
-		} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
+		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
 			fileList.add(new File(basePath + "readme.md"));
