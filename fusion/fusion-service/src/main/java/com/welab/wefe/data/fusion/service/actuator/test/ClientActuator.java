@@ -61,8 +61,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
     private int current_index = 0;
     public List<FieldInfo> fieldInfoList;
 
-    public ClientActuator(String businessId, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.ip = ip;
         this.port = port;
 //        this.columnList = columnList;

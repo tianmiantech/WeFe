@@ -28,6 +28,8 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +61,11 @@ public class CallbackService {
     /**
      * rsa-callback
      */
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
-                running(input.getBusinessId());
+                running(input);
                 break;
             case disagree:
                 /**
@@ -83,13 +85,16 @@ public class CallbackService {
     /**
      * The other party's server-socket is ready, we start client
      *
-     * @param businessId
+     * @param input
      * @throws StatusCodeWithException
      */
-    private void running(String businessId) throws StatusCodeWithException {
-        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(businessId, FusionTaskStatus.Await);
+    private void running(AuditCallbackApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Await);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+        }
+        if(StringUtil.isNotEmpty(input.getPartnerHashFunction())){
+            task.setPartnerHashFunction(input.getPartnerHashFunction());
         }
         task.setStatus(FusionTaskStatus.Running);
         fusionTaskRepository.save(task);
@@ -139,7 +144,9 @@ public class CallbackService {
                 task.getDataResourceId(),
                 task.isTrace(),
                 task.getTraceColumn(),
-                task.getDstMemberId()
+                task.getDstMemberId(),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(client);
@@ -178,7 +185,9 @@ public class CallbackService {
                 ),
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD())
+                new BigInteger(bf.getRsaD()),
+                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
+                        task.getRowCount() : task.getPartnerRowCount()
         );
 
         ActuatorManager.set(server);

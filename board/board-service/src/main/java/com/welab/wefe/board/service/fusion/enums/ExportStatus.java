@@ -13,37 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.fusion;
+package com.welab.wefe.board.service.fusion.enums;
 
-
-
-
-import com.welab.wefe.common.util.Base64Util;
-import org.apache.commons.compress.utils.Lists;
-
-import java.util.List;
 
 /**
  * @author hunter.zhao
  */
-public class PsiMeta {
-    List<String> bs;
+public enum ExportStatus {
 
-    public List<String> getBs() {
-        return bs;
-    }
+    /**
+     * 导出失败
+     */
+    failure,
 
-    public void setBs(List<String> bs) {
-        this.bs = bs;
-    }
+    /**
+     * 导出成功
+     */
+    success,
 
-    public static PsiMeta of(byte[][] bs) {
-        PsiMeta psiMeta = new PsiMeta();
-        List<String> bitStr = Lists.newArrayList();
-        for (int i = 0; i < bs.length; i++) {
-            bitStr.add(Base64Util.encode(bs[i]));
-        }
-        psiMeta.bs = bitStr;
-        return psiMeta;
-    }
+    /**
+     * 正在导出
+     */
+    exporting;
 }

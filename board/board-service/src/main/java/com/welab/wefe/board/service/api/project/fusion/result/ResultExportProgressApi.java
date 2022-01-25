@@ -13,42 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.api.project.fusion.result;
 
-package com.welab.wefe.board.service.api.project.fusion.task;
 
-import com.welab.wefe.board.service.dto.fusion.FusionTaskOutput;
-import com.welab.wefe.board.service.service.fusion.FusionTaskService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
+import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/detail", name = "任务列表", desc = "任务列表", login = false)
-public class DetailApi extends AbstractApi<DetailApi.Input, FusionTaskOutput> {
-    @Autowired
-    FusionTaskService fusionTaskService;
+@Api(path = "fusion/result/export_progress", name = "结果导出", desc = "结果导出", login = false)
+public class ResultExportProgressApi extends AbstractApi<ResultExportProgressApi.Input, FusionResultExportProgress> {
+
 
     @Override
-    protected ApiResult<FusionTaskOutput> handle(Input input) throws StatusCodeWithException {
-        return success(fusionTaskService.detail(input.id));
+    protected ApiResult<FusionResultExportProgress> handle(Input input) throws Exception {
+        return success(ExportManager.get(input.getBusinessId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "指定操作的taskId", require = true)
-        private String id;
+        @Check(name = "指定操作的businessId", require = true)
+        private String businessId;
 
-        public String getId() {
-            return id;
+        //region
+
+
+        public String getBusinessId() {
+            return businessId;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setBusinessId(String businessId) {
+            this.businessId = businessId;
         }
+
+        //endregion
     }
 }

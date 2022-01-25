@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.welab.wefe.board.service.database.repository.fusion;
 
 
-
-import com.welab.wefe.board.service.database.entity.fusion.FusionActuatorInfoMySqlModel;
+import com.welab.wefe.board.service.database.entity.fusion.ExportProgressMySqlModel;
+import com.welab.wefe.board.service.database.entity.fusion.FusionResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author hunter.zhao
+ * @author Hunter
  */
 @Repository
-public interface FusionActuatorInfoRepository extends BaseRepository<FusionActuatorInfoMySqlModel, String> {
+public interface ExportProgressRepository extends BaseRepository<ExportProgressMySqlModel, String> {
+    @Query(value = "select * from #{#entityName} where business_id=?1 order by created_time desc limit 1", nativeQuery = true)
+    ExportProgressMySqlModel findLastByBusinessId(@Param("businessId") String businessId);
+
 }
