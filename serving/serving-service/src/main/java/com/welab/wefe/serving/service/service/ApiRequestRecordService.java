@@ -79,6 +79,18 @@ public class ApiRequestRecordService {
         return apiRequestRecordRepository.findAll(where);
     }
 
+    public List<ApiRequestRecordMysqlModel> getList(String serviceId, String clientId, Date startTime, Date endTime) {
+
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .equal("serviceId", serviceId)
+                .equal("clientId", clientId)
+                .betweenAndDate("createdTime", startTime.getTime(), endTime.getTime())
+                .build(ApiRequestRecordMysqlModel.class);
+
+        return apiRequestRecordRepository.findAll(where);
+    }
+
     public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
 
         Specification<ApiRequestRecordMysqlModel> where = Where

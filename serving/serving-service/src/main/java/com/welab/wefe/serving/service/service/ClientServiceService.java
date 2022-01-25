@@ -114,6 +114,7 @@ public class ClientServiceService {
                 .contains("serviceName", input.getServiceName())
                 .contains("clientName", input.getClientName())
                 .equal("status", input.getStatus())
+                .orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
         return clientServiceRepository.paging(where, input);
@@ -150,5 +151,9 @@ public class ClientServiceService {
             feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
             feeConfigRepository.save(feeConfigMysqlModel);
         }
+    }
+
+    public List<ClientServiceMysqlModel> getAll() {
+        return clientServiceRepository.findAll();
     }
 }

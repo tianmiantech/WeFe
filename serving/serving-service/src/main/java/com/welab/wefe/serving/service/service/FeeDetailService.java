@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.serving.service.api.feedetail.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
@@ -24,10 +26,12 @@ import com.welab.wefe.serving.service.database.serving.repository.FeeRecordRepos
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FeeDetailService {
@@ -45,15 +49,19 @@ public class FeeDetailService {
             model = new FeeDetailMysqlModel();
         }
 
-        model.setServiceId(input.getServiceId());
-        model.setClientId(input.getClientId());
-        model.setTotalFee(input.getTotalFee());
         model.setTotalRequestTimes(input.getTotalRequestTimes());
-        model.setCreatedTime(new Date());
-
+        model.setTotalFee(input.getTotalFee());
+        model.setClientId(input.getClientId());
+        model.setServiceId(input.getServiceId());
+        model.setUnitPrice(input.getUnitPrice());
+        model.setFeeConfigId(input.getFeeConfigId());
+        model.setPayType(input.getPayType());
+        model.setCreatedTime(input.getCreatedTime() != null ? input.getCreatedTime() : new Date());
+        model.setServiceName(input.getServiceName());
+        model.setClientName(input.getClientName());
+        model.setServiceType(input.getServiceType());
         feeDetailRepository.save(model);
     }
-
 
 
     public PagingOutput<FeeDetailOutputModel> queryList(QueryListApi.Input input) {
@@ -91,7 +99,15 @@ public class FeeDetailService {
         return PagingOutput.of(total == null ? 0 : total, models);
     }
 
-//    public FeeDetailMysqlModel getBy
+    public FeeDetailMysqlModel getByIdAndDateTime(String serviceId, String clientId, Date lastTime) {
+
+        Specification<FeeDetailMysqlModel> where = Where.create()
+                .equal("serviceId", serviceId)
+                .equal("clientId", clientId)
+                .equal("createdTime", lastTime)
+                .build(FeeDetailMysqlModel.class);
+        return feeDetailRepository.findOne(where).orElse(null);
+    }
 
 
 }
