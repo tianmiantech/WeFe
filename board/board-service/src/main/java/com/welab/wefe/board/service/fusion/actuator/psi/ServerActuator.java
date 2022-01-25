@@ -35,8 +35,8 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class ServerActuator extends AbstractPsiServerActuator {
-    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d) {
-        super(businessId, bloomFilters, n, e, d);
+    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, Long dataCount) {
+        super(businessId, bloomFilters, n, e, d, dataCount);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ServerActuator extends AbstractPsiServerActuator {
         LOG.info("fruit insert ready...");
 
         List<String> headers = Lists.newArrayList();
-        if(fruit.isEmpty()){
+        if (fruit.isEmpty()) {
             return;
         }
 
@@ -66,6 +66,38 @@ public class ServerActuator extends AbstractPsiServerActuator {
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
-        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+        switch (status) {
+            case success:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Success,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            case falsify:
+            case running:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Interrupt,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            default:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Failure,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+        }
     }
 }

@@ -13,59 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
-
-
-import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
  * @author hunter.zhao
  */
-@Api(
-        path = "fusion/psi/crypto",
-        name = "psi crypto",
-        desc = "psi crypto",
+@Api(path = "fusion/psi/server_is_ready",
+        name = "query server status",
+        desc = "query server status",
         login = false,
         rsaVerify = true
 )
-public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
-
+public class ServerSynStatusApi extends AbstractApi<ServerSynStatusApi.Input, JObject> {
 
     @Override
-    protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<JObject> handle(Input input) throws Exception {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
-            LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
-            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+            return success(JObject.create().append("ready", false));
         }
 
-        return success(PsiMeta.of(actuator.compute(input.getBs())));
+        return success(JObject.create().append("ready", true));
     }
-
 
     public static class Input extends AbstractApiInput {
         @Check(name = "businessId", require = true)
         String businessId;
 
-        @Check(name = "bs", blockReactionaryKeyword = false)
-        List<String> bs;
-
-        public Input(String businessId, List<String> bs) {
+        public Input(String businessId) {
             this.businessId = businessId;
-            this.bs = bs;
         }
 
         public String getBusinessId() {
@@ -74,14 +60,6 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public List<String> getBs() {
-            return bs;
-        }
-
-        public void setBs(List<String> bs) {
-            this.bs = bs;
         }
     }
 }
