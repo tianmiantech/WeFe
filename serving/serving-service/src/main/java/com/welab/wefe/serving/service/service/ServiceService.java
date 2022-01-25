@@ -372,7 +372,10 @@ public class ServiceService {
 				res = JObject.create(result);
 			} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 				String p = data.getString("p");
-				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+				if(CollectionUtils.isEmpty(clientIds)) {
+					clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				}
 				QueryPrivateSetIntersectionResponse result = psi(p, clientIds, service);
 				res = JObject.create(result);
 			} else if (serviceType == ServiceTypeEnum.SA.getCode()) {
@@ -387,7 +390,10 @@ public class ServiceService {
 				Double result = sa_query(data, service);
 				res = JObject.create("result", result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
-				List<String> clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+				if(CollectionUtils.isEmpty(clientIds)) {
+					clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+				}
 				List<String> result = multi_psi(clientIds, service);
 				res = JObject.create("result", result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {

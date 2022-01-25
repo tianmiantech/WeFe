@@ -41,7 +41,7 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 			LOG.info("response =" + JObject.toJSONString(result));
 			return success(result);
 		} catch (Exception e) {
-			LOG.error(e.getMessage());
+			e.printStackTrace();
 			JObject res = new JObject();
 			res.put("code", ServiceResultEnum.SERVICE_FAIL.getCode());
 			res.put("message", e.getMessage());
