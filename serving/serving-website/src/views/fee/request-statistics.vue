@@ -285,7 +285,11 @@ export default {
             },
             requestResult: {
                 1: '成功',
-                0: '失败',
+                2: '没有数据',
+                3: '服务不可用',
+                4: '服务未授权',
+                5: 'IP被限制',
+                6: '服务异常',
             },
             apiCallDetails: [],
 
