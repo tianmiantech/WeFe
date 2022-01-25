@@ -119,7 +119,7 @@ public class ApiRequestRecordService {
                 .build(sw);
 
         csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
-                "IP", "耗时", "请求结果");
+                "调用IP", "请求结果");
 
         for (ApiRequestRecordMysqlModel model : dataList) {
             csvWriter.writeRow(
@@ -129,7 +129,6 @@ public class ApiRequestRecordService {
                     model.getClientId(),
                     model.getClientName(),
                     model.getIpAdd(),
-                    model.getSpend().toString(),
                     RequestResultEnum.getValueByCode(model.getRequestResult()));
         }
 

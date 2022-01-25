@@ -103,6 +103,22 @@ public class ClientService {
         model.setStatus(input.getStatus());
 
         clientRepository.save(model);
+
+
+        // 客户信息变动时，客户服务表中的字段也更新
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("clientId", input.getId())
+                .build(ClientServiceMysqlModel.class);
+
+        List<ClientServiceMysqlModel> all = clientServiceRepository.findAll(where);
+        List<ClientServiceMysqlModel> collect = all.stream().map(x -> {
+            x.setIpAdd(input.getIpAdd());
+            x.setClientName(input.getName());
+            return x;
+        }).collect(Collectors.toList());
+
+        clientServiceRepository.saveAll(collect);
+
     }
 
 

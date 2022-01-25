@@ -17,7 +17,6 @@ package com.welab.wefe.serving.service.database.serving.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.math.BigDecimal;
 
 /**
  * @author ivenn.zheng
