@@ -83,6 +83,10 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
 
     private BigInteger rsaD;
 
+    private BigInteger rsaP;
+
+    private BigInteger rsaQ;
+
     public List<FieldInfo> fieldInfoList;
 
     private Integer processCount = 0;
@@ -123,6 +127,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.rsaN = rsaPK.getModulus();
         this.rsaSK = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();
         this.rsaD = rsaSK.getExponent();
+        this.rsaP = rsaSK.getP();
+        this.rsaQ = rsaSK.getQ();
 
         if (deduplication) {
             this.uniqueFilter = createUniqueFilter(bloomfilterReader.getTotalDataRowCount());
@@ -139,6 +145,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         model.setRsaD(this.rsaD.toString());
         model.setRsaN(this.rsaN.toString());
         model.setRsaE(this.rsaE.toString());
+//        model.setRsaP(this.rsaP.toString());
+//        model.setRsaQ(this.rsaQ.toString());
         model.setTotalDataCount(this.totalDataCount);
         this.bloomFilterRepository.save(model);
 
@@ -171,7 +179,18 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
             try {
                 String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                 BigInteger h = PSIUtils.stringToBigInteger(key);
-                BigInteger z = h.modPow(rsaD, rsaN);
+//                BigInteger z = h.modPow(rsaD, rsaN);
+
+                BigInteger tq = rsaP.modInverse(rsaQ);
+                BigInteger tp = rsaQ.modInverse(rsaP);
+                BigInteger cp = tp.multiply(rsaQ);
+                BigInteger cq = tq.multiply(rsaP);
+
+                BigInteger rp = h.modPow(rsaD.remainder(rsaP.subtract(BigInteger.valueOf(1))), rsaP);
+                BigInteger rq = h.modPow(rsaD.remainder(rsaQ.subtract(BigInteger.valueOf(1))), rsaQ);
+
+                BigInteger z = (rp.multiply(cp).add(rq.multiply(cq))).remainder(rsaN);
+
                 this.bf.add(z);
                 this.processCount = this.processCount + 1;
             } catch (Exception e) {
