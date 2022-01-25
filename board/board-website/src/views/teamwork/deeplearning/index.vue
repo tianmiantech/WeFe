@@ -343,7 +343,7 @@
                                 />
                             </el-tab-pane>
                         </el-tabs>
-                        
+
                     </div>
                 </div>
                 <div class="operation_btn">
@@ -368,13 +368,11 @@
     import { useRoute, useRouter } from 'vue-router';
     import { nextTick, onBeforeMount, watch, onBeforeUnmount } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
-    import ImageDataIOResult from './components/image-dataIO-result.vue';
     import DeeplearningResult from './components/deeplearning-result.vue';
 
     export default {
         components: {
             DataSetList,
-            ImageDataIOResult,
             DeeplearningResult,
         },
         setup(props, context) {
@@ -695,7 +693,6 @@
                 },
                 dataIOTabchange(val) {
                     if (val.paneName === 1 || val.paneName === '1') {
-                        // methods.getImageDataIOResult();
                         vData.showDataIOResult = true;
                     } else {
                         vData.showDataIOResult = false;
