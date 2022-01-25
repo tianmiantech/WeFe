@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -68,9 +69,10 @@ public class ApiRequestRecordService {
         model.setRequestResult(requestResult);
         model.setSpend(spend);
         model.setIpAdd(ipAdd);
-        SimpleDateFormat bjSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        bjSdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        model.setCreatedTime(bjSdf.getCalendar().getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        calendar.setTime(new Date());
+        model.setCreatedTime(calendar.getTime());
         apiRequestRecordRepository.save(model);
     }
 
@@ -163,6 +165,5 @@ public class ApiRequestRecordService {
 
         return csvFile;
     }
-
 
 }
