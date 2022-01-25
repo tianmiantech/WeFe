@@ -360,7 +360,7 @@ public class ServiceService {
 			}
 			if (!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
 				res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
-				res.append("message", "invalid request: url = " + serviceUrl);
+				res.append("message", "invalid request: url = " + serviceUrl + ",clientIp="+clientIp);
 				long duration = System.currentTimeMillis() - start;
 				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
@@ -630,7 +630,7 @@ public class ServiceService {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
 			fileList.add(new File(basePath + "readme.md"));
-		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.SA.getCode()) {
+		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
 			fileList.add(new File(basePath + "readme.md"));
