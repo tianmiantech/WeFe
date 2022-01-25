@@ -25,7 +25,7 @@ import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.RequestResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
@@ -73,6 +73,18 @@ public class ApiRequestRecordService {
 
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
+                .betweenAndDate("createdTime", startTime.getTime(), endTime.getTime())
+                .build(ApiRequestRecordMysqlModel.class);
+
+        return apiRequestRecordRepository.findAll(where);
+    }
+
+    public List<ApiRequestRecordMysqlModel> getList(String serviceId, String clientId, Date startTime, Date endTime) {
+
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .equal("serviceId", serviceId)
+                .equal("clientId", clientId)
                 .betweenAndDate("createdTime", startTime.getTime(), endTime.getTime())
                 .build(ApiRequestRecordMysqlModel.class);
 
@@ -129,7 +141,7 @@ public class ApiRequestRecordService {
                     model.getClientId(),
                     model.getClientName(),
                     model.getIpAdd(),
-                    RequestResultEnum.getValueByCode(model.getRequestResult()));
+                    ServiceResultEnum.getValueByCode(model.getRequestResult()));
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
