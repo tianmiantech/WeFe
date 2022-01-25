@@ -492,21 +492,22 @@ public class FusionTaskService extends AbstractService {
         myMemberInfo.setHashFunction(model.getHashFunction());
         if (DataResourceType.TableDataSet.equals(myMemberInfo.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(myMemberInfo.getDataResourceId());
-            myMemberInfo.setColumnNameList(tableDataSet.getFeatureNameList());
-            myMemberInfo.setDataResourceName(tableDataSet.getName());
-            myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
+            if (tableDataSet != null) {
+                myMemberInfo.setColumnNameList(tableDataSet.getFeatureNameList());
+                myMemberInfo.setDataResourceName(tableDataSet.getName());
+                myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getBusinessId()));
+            }
         } else {
             myMemberInfo.setFieldInfoList(fieldInfoService.fieldInfoList(model.getDataResourceId()));
-            BloomFilterMysqlModel tableDataSet = bloomFilterService.findOne(myMemberInfo.getDataResourceId());
-            myMemberInfo.setDataResourceName(tableDataSet.getName());
+            BloomFilterMysqlModel bloomFilterMysqlModel = bloomFilterService.findOne(myMemberInfo.getDataResourceId());
+            if (bloomFilterMysqlModel != null) {
+                myMemberInfo.setDataResourceName(bloomFilterMysqlModel.getName());
+            }
         }
-
-
         FusionMemberInfo memberInfo = new FusionMemberInfo();
         memberInfo.setDataResourceId(model.getPartnerDataResourceId());
-//        memberInfo.setDataResourceName(Cache);
         JSONObject jsonObject = unionService.getDataResourceDetail(model.getPartnerDataResourceId(), model.getPartnerDataResourceType(), JSONObject.class);
-        memberInfo.setDataResourceName(jsonObject.getString("name"));
+        memberInfo.setDataResourceName(jsonObject != null ? jsonObject.getString("name") : null);
         memberInfo.setDataResourceType(model.getPartnerDataResourceType());
         memberInfo.setRowCount(model.getPartnerRowCount());
         memberInfo.setMemberId(model.getDstMemberId());
