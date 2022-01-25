@@ -202,7 +202,7 @@
                         <p>{{ scope.row.ip_add }}</p>
                     </template>
                 </el-table-column>
-                
+
                 <el-table-column
                     label="请求结果"
                     min-width="30"
@@ -224,7 +224,7 @@
                     :current-page="dialogPagination.page_index"
                     layout="total, sizes, prev, pager, next, jumper"
                     @current-change="dialogCurrentPageChange"
-                    @size-change="pageSizeChange"
+                    @size-change="dialogCurrentPageSizeChange"
                 />
             </div>
         </el-dialog>
@@ -314,10 +314,13 @@ export default {
     methods: {
 
         dialogCurrentPageChange(val) {
-
             this.dialogPagination.page_index = val
-            this.getDetails()
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId)
+        },
 
+        dialogCurrentPageSizeChange(val) {
+            this.dialogPagination.page_size = val;
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId);
         },
 
 
@@ -389,10 +392,9 @@ export default {
 
         async getDetails(serviceId, clientId) {
 
-            if (!this.dialogPagination.serviceId) {
-                this.dialogPagination.serviceId = serviceId
-                this.dialogPagination.clientId = clientId
-            }
+            this.dialogPagination.serviceId = serviceId
+            this.dialogPagination.clientId = clientId
+
 
             this.apiCallDetails = '';
             const {code, data} = await this.$http.post({
