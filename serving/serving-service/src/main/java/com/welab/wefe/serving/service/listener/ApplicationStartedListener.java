@@ -36,6 +36,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -74,6 +75,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         // 获取1h之前的时间
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         calendar.setTime(now);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);

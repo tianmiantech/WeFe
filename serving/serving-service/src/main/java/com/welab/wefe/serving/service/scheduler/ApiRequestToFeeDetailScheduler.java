@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * 用于定时将接口调用信息转化为费用记录
@@ -65,6 +66,7 @@ public class ApiRequestToFeeDetailScheduler {
 
             Date endTime = new Date();
             Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.setTime(endTime);
