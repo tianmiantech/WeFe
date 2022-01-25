@@ -16,7 +16,9 @@
 
 package com.welab.wefe.union.service.service;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
@@ -55,9 +57,13 @@ public class DatasetContractService extends AbstractContractService {
 
     public void upsert(DataSet dataset) throws StatusCodeWithException {
         try {
-            String extJson = " ";
+            String extJson;
             if (null != dataSetMongoReop.findDataSetId(dataset.getId())) {
                 extJson = JObject.create(dataSetMongoReop.findDataSetId(dataset.getId()).getExtJson()).toString();
+            } else {
+                DataSetExtJSON dataSetExtJSON = new DataSetExtJSON();
+                dataSetExtJSON.setEnable(true);
+                extJson = JSON.toJSONString(dataSetExtJSON);
             }
             if (!memberContractService.isExist(dataset.getMemberId())) {
                 throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
