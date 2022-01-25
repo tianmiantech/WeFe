@@ -8,7 +8,7 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="数据资源 ID：">
+            <el-form-item label="数据集 ID：">
                 <el-input
                     v-model="vData.search.data_resource_id"
                     clearable
