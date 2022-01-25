@@ -28,7 +28,7 @@ nas_upload(){
   then
     echo "has python, root environment."
   else
-    root_dir=".s/build/artifacts/wefe-fc/index/.s/python"
+    root_dir="/data/environment/.s/python"
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
       s build --use-docker --debug
