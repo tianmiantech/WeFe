@@ -36,8 +36,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author ivenn.zheng
@@ -66,6 +68,9 @@ public class ApiRequestRecordService {
         model.setRequestResult(requestResult);
         model.setSpend(spend);
         model.setIpAdd(ipAdd);
+        SimpleDateFormat bjSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        bjSdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        model.setCreatedTime(bjSdf.getCalendar().getTime());
         apiRequestRecordRepository.save(model);
     }
 
