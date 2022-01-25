@@ -42,7 +42,7 @@
                 <el-select
                     v-model="search.queryDateType"
                     clearable
-                    placeholder="请选择统计方式"
+                    placeholder="请选择(默认每小时)"
                 >
                     <el-option
                         v-for="item in queryDateTypes"
@@ -112,7 +112,7 @@
             </el-table-column>
 
             <el-table-column
-                label="日期(默认按月)"
+                label="日期"
                 min-width="50"
             >
                 <template slot-scope="scope">

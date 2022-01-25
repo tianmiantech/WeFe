@@ -34,14 +34,14 @@ import java.io.IOException;
  * @date 2021/12/23
  */
 @Api(path = "feedetail/query-list", name = "fee detail query")
-public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<FeeDetailMysqlModel>> {
+public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<FeeDetailOutputModel>> {
 
     @Autowired
     private FeeDetailService feeDetailService;
 
     @Override
-    protected ApiResult<PagingOutput<FeeDetailMysqlModel>> handle(Input input) throws StatusCodeWithException, IOException {
-        return success(feeDetailService.queryStatistics(input));
+    protected ApiResult<PagingOutput<FeeDetailOutputModel>> handle(Input input) throws StatusCodeWithException, IOException {
+        return success(feeDetailService.queryList(input));
     }
 
     public static class Input extends PagingInput {
