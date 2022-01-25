@@ -18,12 +18,16 @@ package com.welab.wefe.mpc.psi.request;
 
 import java.util.List;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * @Author: eval
  * @Date: 2021-12-24
  **/
 public class QueryPrivateSetIntersectionRequest {
     private String p;
+    
+    @JSONField(name = "client_ids")
     private List<String> clientIds;
 
     public String getP() {

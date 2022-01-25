@@ -38,7 +38,7 @@ public abstract class AbstractHttpTransferVariable {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHttpTransferVariable.class);
 
     public <T> T query(Object request, String apiName, CommunicationConfig config, Class<T> clz) {
-        String url = config.getServerUrl() + apiName;
+        String url = config.getServerUrl() + config.getApiName();
         JSONObject data = (JSONObject) JSONObject.toJSON(request);
         return JSON.parseObject(query(url, data, config), clz);
     }
