@@ -400,7 +400,7 @@ export default {
             this.dialogPagination.clientId = clientId
 
 
-            this.apiCallDetails = '';
+            this.apiCallDetails = []
             const {code, data} = await this.$http.post({
                 url: '/apirequestrecord/query-list',
                 data: {
