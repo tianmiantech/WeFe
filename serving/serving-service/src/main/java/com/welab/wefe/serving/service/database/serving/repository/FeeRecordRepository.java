@@ -74,14 +74,18 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
      * @param endTime
      * @return
      */
-    @Query(value = "select count(*) " +
-            "from fee_detail fd  " +
-            "where if(:service_name !='', fd.service_name like concat('%',:service_name,'%'), 1=1) " +
-            "       and if(:client_name != '', fd.client_name like concat('%',:client_name,'%'),1=1) " +
-            "       and if(:service_type is not null, fd.service_type = :service_type,1=1) " +
-            "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
-            "       and if(:end_time is not null ,:end_time ,NOW())  " +
-            "group by fd.service_id, fd.client_id , DATE_FORMAT(fd.created_time ,:query_type) ", nativeQuery = true, countProjection = "1")
+    @Query(value =
+            "select count(t.total) " +
+            "from(  " +
+                "select count(*) as total " +
+                "from fee_detail fd  " +
+                "where if(:service_name !='', fd.service_name like concat('%',:service_name,'%'), 1=1) " +
+                "       and if(:client_name != '', fd.client_name like concat('%',:client_name,'%'),1=1) " +
+                "       and if(:service_type is not null, fd.service_type = :service_type,1=1) " +
+                "       and fd.created_time  between if(:start_time is not null, :start_time, '1900-01-01 00:00:00') " +
+                "       and if(:end_time is not null ,:end_time ,NOW())  " +
+                "group by fd.service_id, fd.client_id , fd.fee_config_id,DATE_FORMAT(fd.created_time ,:query_type) " +
+            ")t ", nativeQuery = true, countProjection = "1")
     Integer count(@Param("client_name") String clientName,
                   @Param("service_name") String serviceName,
                   @Param("service_type") Integer serviceType,
