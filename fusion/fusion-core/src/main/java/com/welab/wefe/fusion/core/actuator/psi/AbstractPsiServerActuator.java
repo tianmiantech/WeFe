@@ -16,12 +16,10 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
-import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
 
@@ -37,12 +35,20 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
     protected BigInteger n;
     protected BigInteger d;
     protected BigInteger e;
+    protected BigInteger p;
+    protected BigInteger q;
+    protected BigInteger cp;
+    protected BigInteger cq;
 
-    public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, Long dataCount) {
+    public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
         super(businessId);
         this.n = n;
         this.e = e;
         this.d = d;
+        this.p = p;
+        this.q = q;
+        this.cp = q.modInverse(p).multiply(q);
+        this.cq = p.modInverse(q).multiply(p);
         this.bf = bloomFilters;
         this.dataCount = dataCount;
     }
@@ -71,7 +77,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
         try {
 
             //Encrypted again
-            return CryptoUtils.sign(n, d, bs);
+            return CryptoUtils.sign(n, d, p, q, cp, cq, bs);
         } catch (Exception e) {
             e.printStackTrace();
         }
