@@ -46,7 +46,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		private String name;
 		private int serviceType;
 		private int status;
+		private String createdBy;
 		private Date createdTime;
+		private String updatedBy;
 		private Date updatedTime;
 
 		public String getId() {
@@ -95,6 +97,22 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 		public void setUpdatedTime(Date updatedTime) {
 			this.updatedTime = updatedTime;
+		}
+
+		public String getCreatedBy() {
+			return createdBy;
+		}
+
+		public void setCreatedBy(String createdBy) {
+			this.createdBy = createdBy;
+		}
+
+		public String getUpdatedBy() {
+			return updatedBy;
+		}
+
+		public void setUpdatedBy(String updatedBy) {
+			this.updatedBy = updatedBy;
 		}
 
 	}
