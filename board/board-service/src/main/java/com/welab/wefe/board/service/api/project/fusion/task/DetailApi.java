@@ -57,24 +57,31 @@ public class DetailApi extends AbstractApi<DetailApi.Input, FusionTaskOutput> {
         BigInteger q = ((RSAPrivateCrtKeyParameters) sk).getQ();
 
 
+        long s1 = System.currentTimeMillis();
         BigInteger tq = p.modInverse(q);
         BigInteger tp = q.modInverse(p);
         BigInteger cp = tp.multiply(q);
         BigInteger cq = tq.multiply(p);
 
-        BigInteger x = BigInteger.valueOf(4328423048302L);
 
-        BigInteger rp = x.modPow(d.remainder(p.subtract(BigInteger.valueOf(1))), p);
-        BigInteger rq = x.modPow(d.remainder(q.subtract(BigInteger.valueOf(1))), q);
 
-        long s1 = System.currentTimeMillis();
-        BigInteger r = (rp.multiply(cp).add(rq.multiply(cq))).remainder(N);
+      for(int i=1; i <= 200000;i++) {
+          BigInteger x = BigInteger.valueOf(4328423048302L * i);
+
+          BigInteger rp = x.modPow(d.remainder(p.subtract(BigInteger.valueOf(1))), p);
+          BigInteger rq = x.modPow(d.remainder(q.subtract(BigInteger.valueOf(1))), q);
+          BigInteger r = (rp.multiply(cp).add(rq.multiply(cq))).remainder(N);
+      }
         long s2 = System.currentTimeMillis();
-        System.out.println(s2-s1);
-        BigInteger r1 = x.modPow(d,N);
+        System.out.println(s2-s1 + "ms");
         long s3 = System.currentTimeMillis();
-        System.out.println(s3-s2);
-        System.out.println(r1.equals(r));
+        for(int i=1; i <= 200000;i++) {
+            BigInteger x = BigInteger.valueOf(4328423048302L * i);
+            BigInteger r1 = x.modPow(d, N);
+        }
+        long s4 = System.currentTimeMillis();
+        System.out.println(s4-s3 + "ms");
+//        System.out.println(r1.equals(r));
 
     }
 

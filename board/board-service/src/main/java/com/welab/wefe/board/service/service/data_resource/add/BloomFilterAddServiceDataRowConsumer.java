@@ -87,6 +87,10 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
 
     private BigInteger rsaQ;
 
+    private BigInteger cp;
+
+    private BigInteger cq;
+
     public List<FieldInfo> fieldInfoList;
 
     private Integer processCount = 0;
@@ -129,6 +133,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.rsaD = rsaSK.getExponent();
         this.rsaP = rsaSK.getP();
         this.rsaQ = rsaSK.getQ();
+        this.cp = rsaQ.modInverse(rsaP).multiply(rsaQ);
+        this.cq = rsaP.modInverse(rsaQ).multiply(rsaP);
 
         if (deduplication) {
             this.uniqueFilter = createUniqueFilter(bloomfilterReader.getTotalDataRowCount());
@@ -145,8 +151,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         model.setRsaD(this.rsaD.toString());
         model.setRsaN(this.rsaN.toString());
         model.setRsaE(this.rsaE.toString());
-//        model.setRsaP(this.rsaP.toString());
-//        model.setRsaQ(this.rsaQ.toString());
+        model.setRsaP(this.rsaP.toString());
+        model.setRsaQ(this.rsaQ.toString());
         model.setTotalDataCount(this.totalDataCount);
         this.bloomFilterRepository.save(model);
 
@@ -179,13 +185,10 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
             try {
                 String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                 BigInteger h = PSIUtils.stringToBigInteger(key);
+                //优化前加密方法
 //                BigInteger z = h.modPow(rsaD, rsaN);
 
-                BigInteger tq = rsaP.modInverse(rsaQ);
-                BigInteger tp = rsaQ.modInverse(rsaP);
-                BigInteger cp = tp.multiply(rsaQ);
-                BigInteger cq = tq.multiply(rsaP);
-
+                //crt优化后
                 BigInteger rp = h.modPow(rsaD.remainder(rsaP.subtract(BigInteger.valueOf(1))), rsaP);
                 BigInteger rq = h.modPow(rsaD.remainder(rsaQ.subtract(BigInteger.valueOf(1))), rsaQ);
 
