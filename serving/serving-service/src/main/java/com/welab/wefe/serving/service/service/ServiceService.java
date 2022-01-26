@@ -83,10 +83,12 @@ import com.welab.wefe.serving.service.api.service.QueryOneApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
+import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
@@ -112,7 +114,8 @@ public class ServiceService {
 	private DataSourceService dataSourceService;
 	@Autowired
 	private ApiRequestRecordService apiRequestRecordService;
-
+	@Autowired
+	private AccountRepository accountRepository;
 	@Autowired
 	private UnionServiceService unionServiceService;
 
@@ -253,10 +256,18 @@ public class ServiceService {
 				.build(ServiceMySqlModel.class);
 
 		PagingOutput<ServiceMySqlModel> page = serviceRepository.paging(condition, input);
-
+		List<AccountMySqlModel> accounts = accountRepository.findAll();
+		Map<String, String> accountMap = new HashMap<>();
+		accounts.stream().forEach(s -> {
+			accountMap.put(s.getId(), s.getNickname());
+		});
+		page.getList().stream().forEach(s -> {
+			s.setCreatedBy(accountMap.get(s.getCreatedBy()));
+			s.setUpdatedBy(accountMap.get(s.getUpdatedBy()));
+		});
 		List<QueryApi.Output> list = page.getList().stream().map(x -> ModelMapper.map(x, QueryApi.Output.class))
 				.collect(Collectors.toList());
-
+		
 		return PagingOutput.of(page.getTotal(), list);
 	}
 
