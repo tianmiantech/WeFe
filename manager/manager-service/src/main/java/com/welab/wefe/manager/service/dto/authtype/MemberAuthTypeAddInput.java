@@ -27,7 +27,6 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
 public class MemberAuthTypeAddInput extends BaseInput {
     @Check(require = true)
     private String typeName;
-    private MemberAuthTypeExtJSON extJson;
 
     public String getTypeName() {
         return typeName;
@@ -37,12 +36,5 @@ public class MemberAuthTypeAddInput extends BaseInput {
         this.typeName = typeName;
     }
 
-    public MemberAuthTypeExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(MemberAuthTypeExtJSON extJson) {
-        this.extJson = extJson;
-    }
 }
 

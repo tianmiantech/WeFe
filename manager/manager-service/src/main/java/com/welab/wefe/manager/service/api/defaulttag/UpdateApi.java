@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -34,11 +35,17 @@ public class UpdateApi extends AbstractApi<DataSetDefaultTagUpdateInput, Abstrac
 
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
-
+    @Autowired
+    private DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
     @Override
     protected ApiResult<AbstractApiOutput> handle(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
         LOG.info("UpdateApi handle..");
         try {
+            boolean isExist = dataSetDefaultTagMongoRepo.exists(input.getTagName());
+            if (isExist) {
+                throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
+            }
+
             datSetDefaultTagContractService.updateByTagId(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
