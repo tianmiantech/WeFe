@@ -109,8 +109,6 @@ public class BaseGatewayService extends AbstractService {
         try {
             grpcChannel = getGrpcChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
-            clientStub.withMaxInboundMessageSize(2000 * 1024 * 1024);
-            clientStub.withMaxOutboundMessageSize(2000 * 1024 * 1024);
             BasicMetaProto.ReturnStatus returnStatus = clientStub.send(transferMeta);
             if (returnStatus.getCode() != 0) {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
@@ -196,6 +194,7 @@ public class BaseGatewayService extends AbstractService {
         return ManagedChannelBuilder
                 .forTarget(gatewayUri)
                 .usePlaintext()
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 
