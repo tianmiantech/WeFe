@@ -511,7 +511,10 @@
         }
     }
     :deep(.el-form-item__label),
-    :deep(.el-form-item__content){line-height: 20px;}
+    :deep(.el-form-item__content){
+        line-height: 30px;
+        margin:0;
+    }
 }
 .el-tabs--border-card{
     box-shadow: none;

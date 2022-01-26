@@ -31,7 +31,7 @@
                             placeholder="0.1"
                         />
                     </el-form-item>
-                    <el-form-item label="最大树数量">
+                    <el-form-item v-if="vData.form.other_param.work_mode !== 'layered'" label="最大树数量">
                         <el-input
                             v-model="vData.form.other_param.num_trees"
                             placeholder="num_trees"
@@ -101,6 +101,44 @@
                             placeholder="5"
                         />
                     </el-form-item>
+
+                    <el-form-item
+                        v-if="vData.member_list.length === 2"
+                        prop="work_mode"
+                        label="工作模式"
+                    >
+                        <el-select
+                            v-model="vData.form.other_param.work_mode"
+                            clearable
+                        >
+                            <el-option
+                                label="普通模式"
+                                value="normal"
+                            />
+                            <el-option
+                                label="layered 模式"
+                                value="layered"
+                            />
+                            <el-option
+                                label="skip 模式"
+                                value="skip"
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item
+                        v-if="vData.form.other_param.work_mode === 'skip'"
+                        label="单方每次构建树的数量"
+                    >
+                        <el-input v-model="vData.tree_num_per_member" />
+                    </el-form-item>
+                    <template v-if="vData.form.other_param.work_mode === 'layered'">
+                        <el-form-item label="promoter深度">
+                            <el-input v-model="vData.promoter_depth" />
+                        </el-form-item>
+                        <el-form-item label="provider深度">
+                            <el-input v-model="vData.provider_depth" />
+                        </el-form-item>
+                    </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
                     <el-form-item label="标准函数">
@@ -225,7 +263,7 @@
 </template>
 
 <script>
-    import { reactive } from 'vue';
+    import { getCurrentInstance, reactive } from 'vue';
     import dataStore from '../data-store-mixin';
 
     const XGBoost = {
@@ -260,6 +298,7 @@
             bin_num:                50,
             validation_freqs:       10,
             early_stopping_rounds:  5,
+            work_mode:              'normal',
         },
     };
 
@@ -275,7 +314,11 @@
             class:        String,
         },
         setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+
             let vData = reactive({
+                member_list: [],
                 penaltyList: [
                     { value: 'L1',text: 'L1' },
                     { value: 'L2',text: 'L2' },
@@ -322,19 +365,45 @@
                     { value: 'Paillier', text: 'Paillier' },
                 ],
 
-                originForm:  { ...XGBoost },
-                form:        { ...XGBoost },
-                activeNames: ['1'],
+                originForm:          { ...XGBoost },
+                form:                { ...XGBoost },
+                activeNames:         ['1'],
+                tree_num_per_member: 1,
+                promoter_depth:      1,
+                provider_depth:      2,
             });
 
             let methods = {
                 formatter(params) {
                     vData.form = params;
+                    vData.tree_num_per_member = params.other_param.tree_num_per_member || 1;
+                    vData.promoter_depth = params.other_param.promoter_depth || 1;
+                    vData.provider_depth = params.other_param.provider_depth || 2;
+
                     if(Array.isArray(params.tree_param.criterion_params)) {
                         vData.form.tree_param.criterion_params = params.tree_param.criterion_params.join('');
                     }
                     if(Array.isArray(params.objective_param.params)) {
                         vData.form.objective_param.params = params.objective_param.params.join('');
+                    }
+                },
+                async getNodeData() {
+                    const { code, data } = await $http.get({
+                        url:    '/project/member/list',
+                        params: {
+                            projectId: props.projectId,
+                        },
+                    });
+
+                    if(code === 0) {
+                        if(data.list.length) {
+                            data.list.forEach(row => {
+                                if(!row.exited) {
+                                    vData.member_list.push(row);
+                                }
+                            });
+                        }
+                        vData.inited = true;
                     }
                 },
                 checkParams() {
@@ -361,11 +430,23 @@
                         $params.objective_param.params = [+params];
                     }
 
+                    if($params.other_param.work_mode === 'skip') {
+                        $params.other_param.tree_num_per_member = vData.tree_num_per_member;
+                    }
+
+                    if($params.other_param.work_mode === 'layered') {
+                        $params.other_param.promoter_depth = +vData.promoter_depth;
+                        $params.other_param.provider_depth = +vData.provider_depth;
+                        $params.tree_param.max_depth = +vData.promoter_depth + (+vData.provider_depth);
+                    }
+
                     return {
                         params: $params,
                     };
                 },
             };
+
+            methods.getNodeData();
 
             const { $data, $methods } = dataStore.mixin({
                 props,
