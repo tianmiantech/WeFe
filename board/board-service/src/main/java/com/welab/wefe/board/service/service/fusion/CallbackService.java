@@ -34,7 +34,6 @@ import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.nio.file.Paths;
@@ -93,7 +92,7 @@ public class CallbackService {
         if (task == null) {
             throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
         }
-        if(StringUtil.isNotEmpty(input.getPartnerHashFunction())){
+        if (StringUtil.isNotEmpty(input.getPartnerHashFunction())) {
             task.setPartnerHashFunction(input.getPartnerHashFunction());
         }
         task.setStatus(FusionTaskStatus.Running);
@@ -186,6 +185,8 @@ public class CallbackService {
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
                 new BigInteger(bf.getRsaD()),
+                new BigInteger(bf.getRsaP()),
+                new BigInteger(bf.getRsaQ()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
         );
