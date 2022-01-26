@@ -160,6 +160,8 @@ public class GrpcUtil {
                     originalChannel = GrpcUtil.getManagedChannel(dstMember.getEndpoint());
                     channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor(), new AntiTamperClientInterceptor());
                     clientStub = NetworkDataTransferProxyServiceGrpc.newBlockingStub(channel);
+                    clientStub.withMaxInboundMessageSize(2000 * 1024 * 1024);
+                    clientStub.withMaxOutboundMessageSize(2000 * 1024 * 1024);
                     return clientStub.push(transferMeta);
                 } catch (StatusRuntimeException e) {
                     LOG.error("Message push failed, message info: " + GrpcUtil.toJsonString(transferMeta) + ",exception：", e);

@@ -9,9 +9,9 @@
                 <el-col :span="10">
                     <el-form-item
                         prop="name"
-                        label="数据集名称"
+                        label="数据资源名称"
                         :rules="[
-                            { required: true, message: '数据集名称必填!' }
+                            { required: true, message: '数据资源名称必填!' }
                         ]"
                     >
                         <el-input
@@ -50,7 +50,7 @@
                             + 关键词
                         </el-button>
                         <br>
-                        <span class="tags-tips">为数据集设置关键词，方便大家快速了解你 ：）</span>
+                        <span class="tags-tips">为数据资源设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
@@ -213,12 +213,12 @@
                     </div>
                 </el-col>
                 <el-col :span="14">
-                    <h4 class="m5">数据集预览：</h4>
+                    <h4 class="m5">数据资源预览：</h4>
                     <DataSetPreview ref="DataSetPreview" />
                 </el-col>
             </el-row>
             <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
-                <h4 style="margin-bottom: 6px;">数据集预览</h4>
+                <h4 style="margin-bottom: 6px;">数据资源预览</h4>
                 <preview-image-list ref="PreviewImageListRef" />
             </el-row>
             <el-button
