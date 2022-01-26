@@ -19,15 +19,20 @@ package com.welab.wefe.serving.service.api.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.api.service.AddApi.Output;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/update", name = "update service info")
@@ -45,11 +50,11 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
 		@Check(require = true, name = "ID")
 		private String id;
-		@Check(name = "服务名")
+		@Check(name = "服务名", require = true)
 		private String name;
-		@Check(name = "服务地址")
+		@Check(name = "服务地址", require = true)
 		private String url;
-		@Check(name = "服务类型")
+		@Check(name = "服务类型", require = true)
 		private int serviceType;
 		@Check(name = "查询参数配置")
 		private List<String> queryParams;// json
@@ -58,6 +63,32 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 		@Check(name = "服务配置")
 		private String serviceConfig;// json
 
+		@Override
+		public void checkAndStandardize() throws StatusCodeWithException {
+			super.checkAndStandardize();
+			if (!ServiceTypeEnum.checkServiceType(serviceType)) {
+				StatusCode.PARAMETER_VALUE_INVALID.throwException("服务类型错误：" + serviceType);
+			}
+			if (ServiceTypeEnum.needDataSource(serviceType)) {
+				if (StringUtils.isBlank(dataSource)) {
+					StatusCode.PARAMETER_VALUE_INVALID.throwException("SQL 配置不能为空");
+				}
+				if (serviceType == ServiceTypeEnum.PSI.getCode()) {
+					JObject dataS = JObject.create(dataSource);
+					JSONArray keyCalcRules = dataS.getJSONArray("key_calc_rules");
+					if (keyCalcRules == null || keyCalcRules.isEmpty()) {
+						StatusCode.PARAMETER_VALUE_INVALID.throwException("求交主键不能为空");
+					}
+				}
+			}
+			if (ServiceTypeEnum.needServiceConfig(serviceType)) {
+				if (StringUtils.isBlank(serviceConfig)) {
+					StatusCode.PARAMETER_VALUE_INVALID.throwException("服务配置不能为空");
+				}
+
+			}
+		}
+		
 		public String getId() {
 			return id;
 		}

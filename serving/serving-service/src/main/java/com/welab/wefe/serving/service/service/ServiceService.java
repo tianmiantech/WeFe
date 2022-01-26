@@ -175,6 +175,9 @@ public class ServiceService {
 		Set<String> ids = new HashSet<>();
 		try {
 			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+			if(result == null || result.isEmpty()) {
+				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
+			}
 			for (Map<String, String> item : result) {
 				String id = calcKey(keyCalcRules, item);
 				ids.add(id);
