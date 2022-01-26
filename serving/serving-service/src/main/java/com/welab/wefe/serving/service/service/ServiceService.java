@@ -134,7 +134,7 @@ public class ServiceService {
 		model.setCreatedTime(new Date());
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-		if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
+		if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
 			String idsTableName = generateIdsTable(model);
 			model.setIdsTableName(idsTableName);
 		}
@@ -184,6 +184,7 @@ public class ServiceService {
 					if (result == null || result.isEmpty()) {
 						return;
 					}
+					LOG.info(dataSourceModel.getDatabaseName() + "." + dataSource.getString("table") + " count = " + result.size());
 					for (Map<String, String> item : result) {
 						String id = calcKey(keyCalcRules, item);
 						ids.add(id);
@@ -284,7 +285,7 @@ public class ServiceService {
 		}
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-		if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
+		if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
 			String idsTableName = generateIdsTable(model);
 			model.setIdsTableName(idsTableName);
 		}
