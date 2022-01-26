@@ -18,16 +18,23 @@ package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/add", name = "add service")
@@ -98,6 +105,32 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 		private String dataSource;// json
 		@Check(name = "服务配置")
 		private String serviceConfig;// json
+
+		@Override
+		public void checkAndStandardize() throws StatusCodeWithException {
+			super.checkAndStandardize();
+			if (!ServiceTypeEnum.checkServiceType(serviceType)) {
+				StatusCode.PARAMETER_VALUE_INVALID.throwException("服务类型错误：" + serviceType);
+			}
+			if (ServiceTypeEnum.needDataSource(serviceType)) {
+				if (StringUtils.isBlank(dataSource)) {
+					StatusCode.PARAMETER_VALUE_INVALID.throwException("SQL 配置不能为空");
+				}
+				if (serviceType == ServiceTypeEnum.PSI.getCode()) {
+					JObject dataS = JObject.create(dataSource);
+					JSONArray keyCalcRules = dataS.getJSONArray("key_calc_rules");
+					if (keyCalcRules == null || keyCalcRules.isEmpty()) {
+						StatusCode.PARAMETER_VALUE_INVALID.throwException("求交主键不能为空");
+					}
+				}
+			}
+			if (ServiceTypeEnum.needServiceConfig(serviceType)) {
+				if (StringUtils.isBlank(serviceConfig)) {
+					StatusCode.PARAMETER_VALUE_INVALID.throwException("服务配置不能为空");
+				}
+
+			}
+		}
 
 		public String getName() {
 			return name;
