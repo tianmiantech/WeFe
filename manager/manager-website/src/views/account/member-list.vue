@@ -6,10 +6,10 @@
             @submit.prevent
         >
             <el-form-item label="成员名称:">
-                <el-input v-model="search.name" />
+                <el-input v-model="search.name" clearable />
             </el-form-item>
             <el-form-item label="成员 ID:">
-                <el-input v-model="search.id" />
+                <el-input v-model="search.id" clearable />
             </el-form-item>
             <el-form-item label="已隐身">
                 <el-select v-model="search.hidden" style="width:100px;" clearable>
@@ -56,9 +56,7 @@
             </el-table-column>
             <el-table-column label="查看数据集" width="100">
                 <template v-slot="scope">
-                    <router-link
-                        :to="{ name: 'data-list', query: { member_id: scope.row.id }}"
-                    >
+                    <router-link :to="{ name: 'data-list', query: { member_id: scope.row.id }}">
                         数据集
                     </router-link>
                 </template>
@@ -68,7 +66,7 @@
                     {{ memberStatus(scope.row) }}
                 </template>
             </el-table-column>
-            <el-table-column label="企业认证" min-width="120">
+            <el-table-column label="企业实名认证" min-width="120">
                 <template v-slot="scope">
                     <span v-if="scope.row.ext_json.real_name_auth_status === 0">未认证</span>
                     <span v-if="scope.row.ext_json.real_name_auth_status === 1">待审核</span>
@@ -110,7 +108,7 @@
                             type="primary"
                             @click="authorized($event, scope.row)"
                         >
-                            企业认证
+                            企业实名认证
                         </el-button>
                     </template>
                 </template>
@@ -133,7 +131,7 @@
         </div>
 
         <el-dialog
-            title="企业认证"
+            title="企业实名认证"
             v-model="authorize"
         >
             <div v-loading="pending">

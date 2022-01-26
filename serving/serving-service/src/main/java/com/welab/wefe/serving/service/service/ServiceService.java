@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
@@ -86,7 +87,6 @@ import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
@@ -115,9 +115,6 @@ public class ServiceService {
 
 	@Autowired
 	private UnionServiceService unionServiceService;
-
-	@Autowired
-	private ClientRepository clientRepository;
 
 	@Autowired
 	private ClientService clientService;
@@ -174,26 +171,37 @@ public class ServiceService {
 				+ dataSource.getString("table");
 		Set<String> ids = new HashSet<>();
 		try {
-			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
-			for (Map<String, String> item : result) {
-				String id = calcKey(keyCalcRules, item);
-				ids.add(id);
+			String tmpSql = "SELECT * FROM " + dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
+			long count = dataSourceService.count(dataSourceModel, tmpSql);
+			if (count <= 0) {
+				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
 			}
-			String createTableSql = String.format(
-					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
-					keysTableName);
-			try {
-				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
-						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-						dataSourceModel.getDatabaseName());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			String insertSql = String.format("insert into %s values (?)", keysTableName);
-			dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
-					dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-					dataSourceModel.getDatabaseName(), ids);
-
+			// 异步
+			final String keysTableNameTmp = keysTableName;
+			CommonThreadPool.run(() -> {
+				try {
+					List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
+					if (result == null || result.isEmpty()) {
+						return;
+					}
+					for (Map<String, String> item : result) {
+						String id = calcKey(keyCalcRules, item);
+						ids.add(id);
+					}
+					String createTableSql = String.format(
+							"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+							keysTableNameTmp);
+					dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
+							dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+							dataSourceModel.getDatabaseName());
+					String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
+					dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
+							dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+							dataSourceModel.getDatabaseName(), ids);
+				} catch (StatusCodeWithException e1) {
+					e1.printStackTrace();
+				}
+			});
 		} catch (StatusCodeWithException e) {
 			e.printStackTrace();
 		}
@@ -276,8 +284,10 @@ public class ServiceService {
 		}
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-		String idsTableName = generateIdsTable(model);
-		model.setIdsTableName(idsTableName);
+		if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
+			String idsTableName = generateIdsTable(model);
+			model.setIdsTableName(idsTableName);
+		}
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
@@ -324,7 +334,7 @@ public class ServiceService {
 		String dataSourceId = dataSource.getString("id");
 		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
 		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
-		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
+		Map<String, String> result = dataSourceService.queryOne(dataSourceModel, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
 		out.setResult(JObject.create(result));
@@ -410,8 +420,8 @@ public class ServiceService {
 	}
 	
 	private void log(ServiceMySqlModel service, ClientMysqlModel client, long duration, String clientIp, int code) {
-		apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(), client.getName(),
-				client.getId(), duration, clientIp, code);
+		CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
+				service.getServiceType(), client.getName(), client.getId(), duration, clientIp, code));
 	}
 
 	/**
@@ -471,7 +481,7 @@ public class ServiceService {
 		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String resultStr = "";
 		try {
-			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
+			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
 					Arrays.asList(resultfields.split(",")));
 			if (resultMap == null || resultMap.isEmpty()) {
 				resultMap = new HashMap<>();
@@ -501,7 +511,13 @@ public class ServiceService {
 		String sql = "select id from " + model.getIdsTableName();
 		List<String> needFields = new ArrayList<>();
 		needFields.add("id");
-		List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+		
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+		if (dataSourceModel == null) {
+			return response;
+		}
+		
+		List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
 		List<String> serverIds = new ArrayList<>();
 		for (Map<String, String> item : result) {
 			serverIds.add(item.get("id"));
@@ -586,7 +602,7 @@ public class ServiceService {
 			String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
 			String resultfields = ServiceUtil.parseReturnFields(dataSource);
 			try {
-				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
+				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
 						Arrays.asList(resultfields.split(",")));
 				if (resultMap == null || resultMap.isEmpty()) {
 					resultMap = new HashMap<>();

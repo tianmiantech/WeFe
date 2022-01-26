@@ -79,4 +79,21 @@ public enum ServiceTypeEnum {
 		this.value = value;
 	}
 
+	public static boolean checkServiceType(int serviceType) {
+		for (ServiceTypeEnum enu : ServiceTypeEnum.values()) {
+			if (enu.code == serviceType) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean needDataSource(int serviceType) {
+		return serviceType == PIR.code || serviceType == PSI.code || serviceType == SA.code;
+	}
+
+	public static boolean needServiceConfig(int serviceType) {
+		return serviceType == MULTI_SA.code || serviceType == MULTI_PSI.code || serviceType == MULTI_PIR.code;
+	}
+
 }
