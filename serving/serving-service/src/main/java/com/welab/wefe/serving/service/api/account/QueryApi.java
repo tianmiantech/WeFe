@@ -20,21 +20,21 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.NoneApiInput;
 import com.welab.wefe.serving.service.service.AccountService;
 
-@Api(path = "account/query", name = "login", login = false)
-public class QueryApi extends AbstractNoneInputApi<List<QueryApi.Output>> {
+@Api(path = "account/query", name = "account/query", login = false)
+public class QueryApi extends AbstractApi<NoneApiInput, List<QueryApi.Output>> {
 
 	@Autowired
 	private AccountService accountService;
 
 	@Override
-	protected ApiResult<List<Output>> handle() throws StatusCodeWithException {
+	protected ApiResult<List<Output>> handle(NoneApiInput input) throws Exception {
 		return success(accountService.query());
 	}
 
