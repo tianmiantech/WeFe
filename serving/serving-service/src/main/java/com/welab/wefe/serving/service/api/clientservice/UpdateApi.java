@@ -62,6 +62,17 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "unit price")
         private Double unitPrice;
 
+        @Check(name = "updated by")
+        private String updatedBy;
+
+        public String getUpdatedBy() {
+            return updatedBy;
+        }
+
+        public void setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
+        }
+
         public String getServiceId() {
             return serviceId;
         }

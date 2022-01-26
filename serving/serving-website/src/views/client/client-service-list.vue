@@ -59,13 +59,13 @@
                 <TableEmptyData/>
             </div>
             <el-table-column
-                label="序号 ID"
-                min-width="80"
+                label="序号"
+                width="50"
                 type="index"
             />
             <el-table-column
                 label="客户名称"
-                min-width="80"
+                width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -74,7 +74,7 @@
             </el-table-column>
             <el-table-column
                 label="服务名称"
-                min-width="80"
+                width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -84,7 +84,7 @@
 
             <el-table-column
                 label="服务类型"
-                min-width="60"
+                width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ serviceType[scope.row.service_type] }}</p>
@@ -93,7 +93,7 @@
 
             <el-table-column
                 label="IP 白名单"
-                min-width="80"
+                width="200"
             >
                 <template slot-scope="scope">
                     {{ scope.row.ip_add }}
@@ -102,7 +102,7 @@
 
             <el-table-column
                 label="请求地址"
-                min-width="80"
+                width="100"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -119,7 +119,7 @@
 
             <el-table-column
                 label="单价(￥)"
-                min-width="50"
+                width="65"
             >
                 <template slot-scope="scope">
                     {{ scope.row.unit_price }}
@@ -128,7 +128,7 @@
 
             <el-table-column
                 label="付费类型"
-                min-width="50"
+                width="70"
             >
                 <template slot-scope="scope">
                     {{ payType[scope.row.pay_type] }}
@@ -137,7 +137,7 @@
 
             <el-table-column
                 label="启用状态"
-                min-width="40"
+                width="70"
             >
                 <template slot-scope="scope">
                     {{ statusType[scope.row.status] }}
@@ -145,8 +145,36 @@
             </el-table-column>
 
             <el-table-column
+                label="创建时间"
+                width="120"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.created_time | dateFormat }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="创建人"
+                width="70"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.created_by }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="修改人"
+                width="70"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.updated_by }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
                 label="操作"
-                min-width="80"
+                width="140"
+                fixed="right"
             >
                 <template slot-scope="scope">
                     <el-button

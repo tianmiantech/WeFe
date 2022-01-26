@@ -85,7 +85,7 @@
 
             <el-table-column
                 label="服务名称"
-                min-width="80"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -95,7 +95,7 @@
             </el-table-column>
             <el-table-column
                 label="客户名称"
-                min-width="80"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -143,6 +143,7 @@
             <el-table-column
                 label="操作"
                 min-width="40"
+                fixed="right"
             >
                 <template slot-scope="scope">
                     <el-button
@@ -161,6 +162,13 @@
             width="70%"
         >
             <el-table :data="apiCallDetails">
+
+                <el-table-column
+                    label="序号"
+                    min-width="40"
+                    type="index"
+                ></el-table-column>
+
                 <el-table-column
                     label="服务名称"
                     min-width="30"

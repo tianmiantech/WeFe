@@ -54,13 +54,13 @@
             </div>
             <el-table-column
                 label="序号"
-                min-width="80"
+                width="50"
                 type="index"
             />
 
             <el-table-column
                 label="客户名称"
-                min-width="80"
+                width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.name }}</p>
@@ -70,7 +70,7 @@
 
             <el-table-column
                 label="客户 code"
-                min-width="60"
+                width="120"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.code }}</p>
@@ -80,7 +80,7 @@
 
             <el-table-column
                 label="客户邮箱"
-                min-width="60"
+                width="150"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.email }}</p>
@@ -89,17 +89,25 @@
 
             <el-table-column
                 label="IP 白名单"
-                min-width="60"
+                width="200"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.ip_add }}</p>
+                    <el-tooltip
+                        class="item"
+                        effect="dark"
+                        :content="scope.row.ip_add"
+                        placement="left-start"
+                    >
+                        <p v-if="scope.row.ip_add.length >= 20">{{ scope.row.ip_add.substring(0, 20) }} ...</p>
+                        <p v-if="scope.row.ip_add.length < 20">{{ scope.row.ip_add }} </p>
+                    </el-tooltip>
                 </template>
             </el-table-column>
 
 
             <el-table-column
                 label="创建时间"
-                min-width="80"
+                width="120"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -108,7 +116,7 @@
 
             <el-table-column
                 label="创建人"
-                min-width="50"
+                width="60"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.created_by }}</p>
@@ -117,7 +125,7 @@
 
             <el-table-column
                 label="修改人"
-                min-width="50"
+                width="60"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.updated_by }}</p>
@@ -126,7 +134,7 @@
 
             <el-table-column
                 label="状态"
-                min-width="50"
+                width="70"
             >
                 <template slot-scope="scope">
                     <p>{{ clientStatus[scope.row.status] }}</p>
@@ -137,7 +145,8 @@
             <el-table-column
                 label="操作"
                 align="center"
-                min-width="140"
+                width="250"
+                fixed="right"
             >
                 <template slot-scope="scope">
 
