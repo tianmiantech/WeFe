@@ -43,7 +43,6 @@ public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOut
         try {
             DataSetDefaultTag dataSetDefaultTag = new DataSetDefaultTag();
             dataSetDefaultTag.setTagName(input.getTagName());
-            dataSetDefaultTag.setExtJson(input.getExtJson());
             datSetDefaultTagContractService.add(dataSetDefaultTag);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
