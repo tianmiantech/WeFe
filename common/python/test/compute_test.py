@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import inspect
+import time
 import uuid
 
 from common.python import session, Backend, RuntimeInstance
@@ -44,11 +45,16 @@ class ComputerTest(object):
         self.map_partition2()
         self.reduce()
         self.join()
+        # self.map_reduce_partitions()
+        self.union()
+        self.filter()
+        self.flat_map()
 
     def reset_data(self, backend, multi_dataset=1, diff_count=0):
         RuntimeInstance.SESSION = None
-        session.init(job_id="computer-test", db_type=DBTypes.CLICKHOUSE, backend=backend, options={
-            "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
+        session.init(job_id="computer-test", db_type=DBTypes.LMDB, backend=backend, options={
+            # "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
+            "fc_partition": 2,
             "features_count": 10})
         self.current_backend = backend
 
@@ -316,4 +322,5 @@ def process_pool_test():
 
 
 if __name__ == '__main__':
-    pass
+    ct = ComputerTest(backend_list=[Backend.LOCAL, Backend.FC])
+    ct.main()

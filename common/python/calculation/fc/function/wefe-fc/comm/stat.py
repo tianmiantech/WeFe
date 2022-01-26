@@ -11,3 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import time
+
+
+class Stat(object):
+
+    def __int__(self):
+        self.count = 0
+        self.acc_time = 0
+
+    def incr(self):
+        self.count += 1
+
+    def acc_time_start(self):
+        self.time_start = time.time()
+
+    def acc_time_end(self):
+        self.acc_time += time.time() - self.time_start
+
+    def print_acc_time(self):
+        pass
