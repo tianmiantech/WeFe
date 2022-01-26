@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.enums.DatabaseType;
@@ -175,29 +176,32 @@ public class ServiceService {
 			if (count <= 0) {
 				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
 			}
-			List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
-			if(result == null || result.isEmpty()) {
-				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
-			}
-			for (Map<String, String> item : result) {
-				String id = calcKey(keyCalcRules, item);
-				ids.add(id);
-			}
-			String createTableSql = String.format(
-					"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
-					keysTableName);
-			try {
-				dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
-						dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-						dataSourceModel.getDatabaseName());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			String insertSql = String.format("insert into %s values (?)", keysTableName);
-			dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
-					dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-					dataSourceModel.getDatabaseName(), ids);
-
+			// 异步
+			final String keysTableNameTmp = keysTableName;
+			CommonThreadPool.run(() -> {
+				try {
+					List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
+					if (result == null || result.isEmpty()) {
+						return;
+					}
+					for (Map<String, String> item : result) {
+						String id = calcKey(keyCalcRules, item);
+						ids.add(id);
+					}
+					String createTableSql = String.format(
+							"CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+							keysTableNameTmp);
+					dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
+							dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+							dataSourceModel.getDatabaseName());
+					String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
+					dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
+							dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
+							dataSourceModel.getDatabaseName(), ids);
+				} catch (StatusCodeWithException e1) {
+					e1.printStackTrace();
+				}
+			});
 		} catch (StatusCodeWithException e) {
 			e.printStackTrace();
 		}
@@ -280,8 +284,10 @@ public class ServiceService {
 		}
 		model.setUpdatedBy(CurrentAccount.id());
 		model.setUpdatedTime(new Date());
-		String idsTableName = generateIdsTable(model);
-		model.setIdsTableName(idsTableName);
+		if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
+			String idsTableName = generateIdsTable(model);
+			model.setIdsTableName(idsTableName);
+		}
 		serviceRepository.save(model);
 		com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
 		output.setId(model.getId());
@@ -414,8 +420,8 @@ public class ServiceService {
 	}
 	
 	private void log(ServiceMySqlModel service, ClientMysqlModel client, long duration, String clientIp, int code) {
-		apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(), client.getName(),
-				client.getId(), duration, clientIp, code);
+		CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
+				service.getServiceType(), client.getName(), client.getId(), duration, clientIp, code));
 	}
 
 	/**
