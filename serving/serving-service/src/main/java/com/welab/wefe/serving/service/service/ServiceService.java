@@ -86,7 +86,6 @@ import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
@@ -115,9 +114,6 @@ public class ServiceService {
 
 	@Autowired
 	private UnionServiceService unionServiceService;
-
-	@Autowired
-	private ClientRepository clientRepository;
 
 	@Autowired
 	private ClientService clientService;
@@ -174,7 +170,12 @@ public class ServiceService {
 				+ dataSource.getString("table");
 		Set<String> ids = new HashSet<>();
 		try {
-			List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+			String tmpSql = "SELECT * FROM " + dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
+			long count = dataSourceService.count(dataSourceModel, tmpSql);
+			if (count <= 0) {
+				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
+			}
+			List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
 			if(result == null || result.isEmpty()) {
 				throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
 			}
@@ -327,7 +328,7 @@ public class ServiceService {
 		String dataSourceId = dataSource.getString("id");
 		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
 		String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
-		Map<String, String> result = dataSourceService.queryOne(dataSourceId, sql,
+		Map<String, String> result = dataSourceService.queryOne(dataSourceModel, sql,
 				Arrays.asList(resultfields.split(",")));
 		Output out = new Output();
 		out.setResult(JObject.create(result));
@@ -474,7 +475,7 @@ public class ServiceService {
 		String resultfields = ServiceUtil.parseReturnFields(dataSource);
 		String resultStr = "";
 		try {
-			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
+			Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
 					Arrays.asList(resultfields.split(",")));
 			if (resultMap == null || resultMap.isEmpty()) {
 				resultMap = new HashMap<>();
@@ -504,7 +505,13 @@ public class ServiceService {
 		String sql = "select id from " + model.getIdsTableName();
 		List<String> needFields = new ArrayList<>();
 		needFields.add("id");
-		List<Map<String, String>> result = dataSourceService.queryList(dataSource.getString("id"), sql, needFields);
+		
+		DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+		if (dataSourceModel == null) {
+			return response;
+		}
+		
+		List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
 		List<String> serverIds = new ArrayList<>();
 		for (Map<String, String> item : result) {
 			serverIds.add(item.get("id"));
@@ -589,7 +596,7 @@ public class ServiceService {
 			String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
 			String resultfields = ServiceUtil.parseReturnFields(dataSource);
 			try {
-				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceId, sql,
+				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
 						Arrays.asList(resultfields.split(",")));
 				if (resultMap == null || resultMap.isEmpty()) {
 					resultMap = new HashMap<>();

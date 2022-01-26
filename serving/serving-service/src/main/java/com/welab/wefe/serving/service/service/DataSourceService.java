@@ -43,7 +43,6 @@ import com.welab.wefe.serving.service.api.datasource.AddApi;
 import com.welab.wefe.serving.service.api.datasource.DeleteApi;
 import com.welab.wefe.serving.service.api.datasource.QueryApi;
 import com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.FieldOutput;
-import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Input;
 import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Output;
 import com.welab.wefe.serving.service.api.datasource.TestDBConnectApi;
 import com.welab.wefe.serving.service.api.datasource.UpdateApi;
@@ -221,8 +220,7 @@ public class DataSourceService {
 	/**
 	 * Test whether SQL can be queried normally
 	 */
-	public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+	public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
 		if (model == null) {
 			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
@@ -234,9 +232,8 @@ public class DataSourceService {
 		return result;
 	}
 
-	public Map<String, String> queryOne(String dataSourceId, String sql, List<String> returnFields)
+	public Map<String, String> queryOne(DataSourceMySqlModel model, String sql, List<String> returnFields)
 			throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
 			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
@@ -247,9 +244,18 @@ public class DataSourceService {
 		return jdbcManager.query(conn, sql, returnFields);
 	}
 
-	public List<Map<String, String>> queryList(String dataSourceId, String sql, List<String> returnFields)
+	public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
+		if (model == null) {
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+		}
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+				model.getUserName(), model.getPassword(), model.getDatabaseName());
+		return jdbcManager.count(conn, sql);
+	}
+	
+	public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)
 			throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
 			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
@@ -259,9 +265,9 @@ public class DataSourceService {
 		return jdbcManager.queryList(conn, sql, returnFields);
 	}
 
-	public Output queryTables(Input input) throws StatusCodeWithException {
+	public Output queryTables(String dataSourceId) throws StatusCodeWithException {
+		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		Output out = new Output();
-		DataSourceMySqlModel model = getDataSourceById(input.getId());
 		if (model == null) {
 			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
