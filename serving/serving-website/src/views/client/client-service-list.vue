@@ -153,23 +153,23 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="创建人"
-                width="70"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.created_by }}
-                </template>
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                label="创建人"-->
+<!--                width="70"-->
+<!--            >-->
+<!--                <template slot-scope="scope">-->
+<!--                    {{ scope.row.created_by }}-->
+<!--                </template>-->
+<!--            </el-table-column>-->
 
-            <el-table-column
-                label="修改人"
-                width="70"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.updated_by }}
-                </template>
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                label="修改人"-->
+<!--                width="70"-->
+<!--            >-->
+<!--                <template slot-scope="scope">-->
+<!--                    {{ scope.row.updated_by }}-->
+<!--                </template>-->
+<!--            </el-table-column>-->
 
             <el-table-column
                 label="操作"
