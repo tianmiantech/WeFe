@@ -151,10 +151,6 @@ export default {
             this.getServiceById(this.$route.query.serviceId)
             this.getFeeConfig(this.$route.query.serviceId, this.$route.query.clientId)
         }
-        // if (this.$route.query.status) {
-        //     // console.log(11111111, this.$route.query.status)
-        //     this.clientService.status = this.$route.query.status
-        // }
 
         this.getServices()
         this.getClients()
@@ -185,6 +181,7 @@ export default {
                             unitPrice: this.clientService.unitPrice,
                             payType: this.clientService.payType,
                             status: this.$route.query.status,
+                            updatedBy: this.userInfo.nickname,
                         },
                     });
 

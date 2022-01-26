@@ -43,21 +43,6 @@
                 <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
                 <el-radio v-model="clientService.payType" label="1">预付费</el-radio>
             </el-form-item>
-            <!--            <el-dialog title="计费规则" :visible.sync="dialogFormVisible">-->
-            <!--                <el-form :model="clientService" :rules="rules">-->
-            <!--                    <el-form-item label="单价(￥)：" :label-width="formLabelWidth" prop="unitPrice">-->
-            <!--                        <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>-->
-            <!--                    </el-form-item>-->
-            <!--                    <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">-->
-            <!--                        <el-radio v-model="clientService.payType" label="0">后付费</el-radio>-->
-            <!--                        <el-radio v-model="clientService.payType" label="1">预付费</el-radio>-->
-            <!--                    </el-form-item>-->
-            <!--                </el-form>-->
-            <!--                <div slot="footer" class="dialog-footer">-->
-            <!--                    <el-button @click="dialogFormVisible = false">取 消</el-button>-->
-            <!--                    <el-button type="primary" @click="saveFeeConfig()">确 定</el-button>-->
-            <!--                </div>-->
-            <!--            </el-dialog>-->
 
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
@@ -186,36 +171,6 @@ export default {
 
     methods: {
 
-        // saveFeeConfig() {
-        //
-        //     if (!this.clientService.unitPrice) {
-        //         this.$message('请输入单价')
-        //         return false;
-        //     }
-        //
-        //
-        //     if (!this.clientService.payType) {
-        //         this.$message.error('请选择计费类型')
-        //         return false;
-        //     }
-        //
-        //     // 重新清空 fee config
-        //     this.feeConfig = []
-        //     this.feeConfig.push({
-        //         key: '单价:',
-        //         value: this.clientService.unitPrice,
-        //         rule_: 'unitPrice'
-        //     })
-        //     this.feeConfig.push({
-        //         key: '付费类型:',
-        //         value: this.payType[this.clientService.payType],
-        //         rule_: 'payType'
-        //     })
-        //
-        //     this.dialogFormVisible = false
-        //     this.feeVisible = true
-        // },
-
         onSubmit() {
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
@@ -238,6 +193,7 @@ export default {
                             payType: this.clientService.payType,
                             serviceName: this.clientService.serviceName,
                             clientName: this.clientService.clientName,
+                            createdBy: this.userInfo.nickname,
                         },
                     });
 

@@ -63,6 +63,17 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "unit price")
         private Double unitPrice;
 
+        @Check(name = "created by")
+        private String createdBy;
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
+
         public Double getUnitPrice() {
             return unitPrice;
         }

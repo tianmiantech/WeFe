@@ -79,6 +79,7 @@ public class ClientServiceService {
             if (StringUtil.isNotEmpty(input.getServiceId())) {
                 model.setServiceId(input.getServiceId());
             }
+            model.setCreatedBy(input.getCreatedBy());
 
             // 保存服务类型
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
@@ -137,7 +138,7 @@ public class ClientServiceService {
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
             model.setStatus(input.getStatus());
-            model.setUpdatedBy("");
+            model.setUpdatedBy(input.getUpdatedBy());
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
