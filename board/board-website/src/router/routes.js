@@ -305,7 +305,7 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '成员信息',
+                    title:           '成员设置',
                 },
                 component: () => import('../views/system-config/member-view'),
             },
@@ -316,7 +316,7 @@ const baseRoutes = [
                     hidden:          true,
                     loginAndRefresh: true,
                     active:          `${prefixPath}member-view`,
-                    title:           '企业认证',
+                    title:           '企业实名认证',
                 },
                 component: () => import('../views/system-config/enterprise-certification'),
             },

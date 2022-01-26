@@ -68,7 +68,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}authorize`,
         meta: {
-            title:          '企业认证管理',
+            title:          '企业实名认证管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
