@@ -49,9 +49,9 @@
                             :closable="false"
                             type="info"
                         >
-                            1. 下载 <el-link type="primary" @click="downloadFile">认证文件</el-link>
-                            <p>2. 盖上公章</p>
-                            3. 上传带有公章的图片/word/pdf文件
+                            1. 请上传已盖贵司公章的认证文件。（<el-link type="primary" @click="downloadFile">下载认证文件 </el-link>）
+                            <p>2. 请上传贵司的营业执照、组织机构代码证等相关证明文件。</p>
+                            文件格式支持：图片、word、pdf （大小10MB内）
                         </el-alert>
                     </template>
 
@@ -191,7 +191,7 @@
                 const { code, data } = await this.$http.get('/union/member/authtype/query');
 
                 if(code === 0) {
-                    const index = data.list.findIndex(x => x.type_id === this.form.authType);
+                    const index = data.list.findIndex(x => x.type_name === this.form.authType);
 
                     if(index < 0) {
                         this.form.authType = '';
@@ -200,7 +200,7 @@
                     data.list.forEach(item => {
                         this.options.push({
                             label: item.type_name,
-                            value: item.type_id,
+                            value: item.type_name,
                         });
                     });
                 }
@@ -381,6 +381,7 @@
     .el-form{max-width: 500px;}
     .el-link{line-height: 1;}
     .el-uploader{
+        :deep(.el-upload-dragger){width:500px;}
         :deep(.el-upload-list__item-thumbnail){display: none;}
         :deep(.el-upload-list__item-name){
             line-height: 30px !important;
@@ -396,7 +397,10 @@
         padding:20px;
         line-height: 16px;
     }
-    .el-icon--upload{margin:20px 0 0;}
+    .el-icon--upload{
+        display: block;
+        margin:20px auto 0;
+    }
     .el-select{
         height:32px;
         :deep(.el-input) {
