@@ -1,25 +1,25 @@
 # 函数计算部署
 
 - [函数计算部署](#函数计算部署)
-  - [一、服务开通](#一服务开通)
-    - [1. FC 函数计算](#1-fc-函数计算)
-    - [2. OSS（对象存储）](#2-oss对象存储)
-    - [3. NAS（文件存储）](#3-nas文件存储)
-    - [4. LOG（日志服务）可选，用于函数计算执行日志的关联](#4-log日志服务可选用于函数计算执行日志的关联)
-  - [二、相关配置（按需配置）](#二相关配置按需配置)
-    - [1. 函数部署相关用户创建](#1-函数部署相关用户创建)
-      - [1.1、admin 用户创建](#11admin-用户创建)
-      - [1.2 API 用户创建](#12-api-用户创建)
-    - [2. OSS 服务配置](#2-oss-服务配置)
-      - [2.1、创建 bucket](#21创建-bucket)
-      - [2.2、OSS 服务相关RAM权限配置](#22oss-服务相关ram权限配置)
-    - [3. FC 函数计算服务配置](#3-fc-函数计算服务配置)
-      - [3.1、函数部署相关权限配置](#31函数部署相关权限配置)
-    - [4. LOG 服务配置](#4-log-服务配置)
-      - [4.1、创建 Project](#41创建-project)
-      - [4.2、创建 Logstore](#42创建-logstore)
-    - [5、项目参数配置](#5项目参数配置)
-    - [6、函数计算服务关联日志(按需配置)](#6函数计算服务关联日志按需配置)
+    - [一、服务开通](#一服务开通)
+        - [1. FC 函数计算](#1-fc-函数计算)
+        - [2. OSS（对象存储）](#2-oss对象存储)
+        - [3. NAS（文件存储）](#3-nas文件存储)
+        - [4. LOG（日志服务）可选，用于函数计算执行日志的关联](#4-log日志服务可选用于函数计算执行日志的关联)
+    - [二、相关配置（按需配置）](#二相关配置按需配置)
+        - [1. 函数部署相关用户创建](#1-函数部署相关用户创建)
+            - [1.1、admin 用户创建](#11admin-用户创建)
+            - [1.2 API 用户创建](#12-api-用户创建)
+        - [2. OSS 服务配置](#2-oss-服务配置)
+            - [2.1、创建 bucket](#21创建-bucket)
+            - [2.2、OSS 服务相关RAM权限配置](#22oss-服务相关ram权限配置)
+        - [3. FC 函数计算服务配置](#3-fc-函数计算服务配置)
+            - [3.1、函数部署相关权限配置](#31函数部署相关权限配置)
+        - [4. LOG 服务配置](#4-log-服务配置)
+            - [4.1、创建 Project](#41创建-project)
+            - [4.2、创建 Logstore](#42创建-logstore)
+        - [5、项目参数配置](#5项目参数配置)
+        - [6、函数计算服务关联日志(按需配置)](#6函数计算服务关联日志按需配置)
 
 ## 一、服务开通
 
@@ -67,6 +67,9 @@
 > 如无需对账号权限进行细粒度控制(即用`API`账号进行函数计算相关部署和接口调用)，可不用创建`API`用户，
 > 直接使用`admin`账号的`AccessKey ID`、`AccessKey Secret`，配置过程中，可跳过`3. FC 函数计算服务配置`的相关配置过程
 
+<font color="orange"> 下载保存 AccessKey ID、AccessKey Secret，后续配置 wefe.cfg 需要用到,如下所示：</font>
+
+![](../_media/fc/admin_ram.png)
 
 #### 1.2、API 用户创建
 
@@ -76,7 +79,9 @@
 
 ![](../_media/fc/create_api_ram.png)
 
-注：保存`AccessKey ID`、`AccessKey Secret`，后续配置需要用到
+<font color="orange"> 下载保存 AccessKey ID、AccessKey Secret，后续配置 wefe.cfg 需要用到,如下所示：</font>
+
+![](../_media/fc/api_ram.png)
 
 - 前往`访问控制`控制台，在权限策略管理中,创建自定义策略
 
@@ -181,7 +186,7 @@ wefe-fc-policy
     {
       "Effect": "Allow",
       "Action": "oss:Get*",
-      "Resource": "acs:oss:*:*:{bucket_name}/wefe_transfer/*"
+      "Resource": "acs:oss:*:*:{bucket_name}/wefe_process/*"
     },
     {
       "Effect": "Allow",
@@ -189,18 +194,21 @@ wefe-fc-policy
       "Resource": "acs:oss:*:*:{bucket_name}",
       "Condition": {
         "StringLike": {
-          "oss:Prefix": "wefe_transfer/*"
+          "oss:Prefix": "wefe_process/*"
         }
       }
     }
   ]
 }
 ```
+
 ```
 配置中 Resource 格式为 "acs:oss:{region}:{bucket_owner}:{bucket_name}"
 
-例如："acs:oss:*:*:wefe-fc/wefe_transfer/*" 表示允许访问 "wefe_fc" bucket 下的 wefe_transfer 目录下的所有文件
+例如："acs:oss:*:*:wefe-fc/wefe_process/*" 表示允许访问 "wefe_fc" bucket 下的 wefe_process 目录下的所有文件
 ```
+
+![](../_media/fc/oss_policy.png)
 
 - 创建 RAM 角色，如图：
 
@@ -220,10 +228,9 @@ wefe-fc-policy
 
 ![](../_media/fc/oss_max_duration_time.png)
 
-> 添加  oss-readOnly 权限
+> 添加 oss-readOnly 权限
 
 ![](../_media/fc/choice_oss_readOnly_policy.png)
-
 
 ### 3. FC 函数计算服务配置
 
@@ -276,7 +283,6 @@ AliyunNASFullAccess
 
 注：记录创建的 Logstore 名称，后续修改配置需用到
 
-
 ### 5、项目参数配置
 
 - 统一修改 wefe.cfg 文件进行配置
@@ -286,7 +292,7 @@ AliyunNASFullAccess
 ```
 ##### 函数计算的相关配置  #####
 
-# 函数部署账号: api / admin 
+# 函数部署账号: api / admin (该账号为文档中第二章 1.1或1.2 创建的RAM用户，下面的FC_ACCESS_KEY_ID、FC_ACCESS_KEY_SECRET配置要与账号一致)
 FC_ACCOUNT_TYPE=admin
 
 # 阿里云账号UID: 主账号 UID, 而非 api 或者 admin 账号 UID
@@ -318,6 +324,7 @@ FC_QUALIFIER="LATEST"
 > 至此全部配置完毕，可启动项目，部署函数！
 
 ### 6、函数计算服务关联日志(按需配置)
+
 关联函数计算服务到日志服务后，函数计算执行的相关日志会写入日志仓库，后续如出现异常，便于排查问题！
 > 前提：已开通日志服务, 且函数部署完毕
 
