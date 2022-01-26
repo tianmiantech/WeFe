@@ -90,17 +90,24 @@
                 <el-table-column
                     label="数据信息"
                     prop="row_count"
-                    min-width="140"
+                    min-width="160"
                 >
                     <template v-slot="scope">
-                        特征量：{{ scope.row.feature_count }}
-                        <br>
-                        样本量：{{ scope.row.total_data_count }}
-                        <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                        <p v-if="scope.row.data_resource_type === 'BloomFilter'">
+                            样本量：{{ scope.row.data_set.total_data_count }}
                             <br>
-                            正例样本数量：{{ scope.row.y_positive_sample_count }}
+                            主键组合方式: {{ scope.row.data_set.hash_function }}
+                        </p>
+                        <template v-else>
+                            特征量：{{ scope.row.data_set.feature_count }}
                             <br>
-                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                            样本量：{{ scope.row.data_set.total_data_count }}
+                            <template v-if="scope.row.data_set.contains_y && scope.row.data_set.y_positive_sample_count">
+                                <br>
+                                正例样本数量：{{ scope.row.data_set.y_positive_sample_count }}
+                                <br>
+                                正例样本比例：{{(scope.row.data_set.y_positive_sample_ratio * 100).toFixed(1)}}%
+                            </template>
                         </template>
                     </template>
                 </el-table-column>

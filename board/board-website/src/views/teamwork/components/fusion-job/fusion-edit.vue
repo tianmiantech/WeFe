@@ -70,7 +70,7 @@
                     v-if="vData.algorithm === 'RSA_PSI'"
                     class="f12 color-danger"
                 >
-                    RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据集资源
+                    RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源
                 </span>
 
                 <el-form class="el-card p20 flex-form">
@@ -99,7 +99,7 @@
                             <el-table-column label="数据量:" min-width="100">
                                 <template v-slot="scope">
                                     <i style="display:none;">{{ scope.row }}</i>
-                                    {{ vData.promoter.data_resource_type === 'BloomFilter' ? '布隆过滤器' : '数据集' }}
+                                    {{ vData.promoter.data_resource_type === 'BloomFilter' ? '布隆过滤器' : '数据资源' }}
                                     <p>{{ vData.promoter.total_data_count }}</p>
                                 </template>
                             </el-table-column>
@@ -171,7 +171,7 @@
                         <el-table-column label="数据量:" min-width="100">
                             <template v-slot="scope">
                                 <i style="display:none;">{{ scope.row }}</i>
-                                <p>{{ vData.provider.data_resource_type === 'BloomFilter' ? '过滤器' : '数据集' }}</p>
+                                <p>{{ vData.provider.data_resource_type === 'BloomFilter' ? '过滤器' : '数据资源' }}</p>
                                 {{ vData.provider.total_data_count }}
                             </template>
                         </el-table-column>
