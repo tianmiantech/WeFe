@@ -111,7 +111,7 @@ fc_deploy(){
     echo "not support type: ${account_type}, please check again !"
   fi
 
-  if [[ ! ${vpc_id} -o ${vpc_id} = "" ]]; then
+  if [[ ${vpc_id} == "" ]]; then
     echo "vpc_id is null"
     sed -i '11,14s/^/#/' s.yaml
   else
