@@ -39,16 +39,18 @@ class ComputerTest(object):
         self.data_size = data_size
 
     def main(self):
-        self.map()
-        self.map_values()
-        self.map_partition()
-        self.map_partition2()
-        self.reduce()
-        self.join()
-        # self.map_reduce_partitions()
-        self.union()
-        self.filter()
-        self.flat_map()
+        # self.map()
+        # self.map_values()
+        # self.map_partition()
+        # self.map_partition2()
+        # self.reduce()
+        # self.join()
+        # self.union()
+        # self.filter()
+        # self.flat_map()
+        # self.apply_partitions()
+        self.map_reduce_partitions()
+
 
     def reset_data(self, backend, multi_dataset=1, diff_count=0):
         RuntimeInstance.SESSION = None
@@ -266,15 +268,15 @@ class ComputerTest(object):
         self.check_result_and_clear()
 
     def apply_partitions(self):
-        def f(it):
-            r = []
-            for k, v in it:
-                r.append((v, v ** 2, v ** 3))
-            return r
+        def _func(data_list):
+            deal_result = []
+            for item in data_list:
+                deal_result.append((f'mp:{item[0]}', f'mp:{item[1]}'))
+            return deal_result
 
         for backend in self.backend_list:
-            datatable = self.reset_data(backend).apply_partitions(f)
-            self.record_data(datatable, get_function_name())
+            datatable = self.reset_data(backend).applyPartitions(_func)
+            self.record_data(datatable, get_function_name(), True)
         self.check_result_and_clear()
 
     def map_reduce_partitions(self):
@@ -286,7 +288,7 @@ class ComputerTest(object):
             return x + y
 
         for backend in self.backend_list:
-            datatable = self.reset_data(backend).map_reduce_partitions(_map_func, _reduce_func)
+            datatable = self.reset_data(backend).mapReducePartitions(_map_func, _reduce_func)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
