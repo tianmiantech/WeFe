@@ -184,6 +184,7 @@ public class ServiceService {
 					if (result == null || result.isEmpty()) {
 						return;
 					}
+					LOG.info(dataSourceModel.getDatabaseName() + "." + dataSource.getString("table") + " count = " + result.size());
 					for (Map<String, String> item : result) {
 						String id = calcKey(keyCalcRules, item);
 						ids.add(id);
