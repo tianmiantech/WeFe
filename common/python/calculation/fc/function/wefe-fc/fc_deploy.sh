@@ -15,7 +15,7 @@ nas_upload(){
 #    echo "does not init s-config, now start to init ..."
 #  fi
 
-  s clean --cache
+  s clean --all
 
   s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
 
@@ -28,13 +28,13 @@ nas_upload(){
   then
     echo "has python, root environment."
   else
-    root_dir=".s/build/artifacts/wefe-fc/index/.s/python"
+    root_dir="/data/environment/.s/python"
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload -r -o /data/environment/.s/python nas:///mnt/auto/python --debug
+      s nas upload /data/environment/.s/python nas:///mnt/auto/python -r -o --debug
     fi
 
   fi
@@ -44,7 +44,7 @@ nas_upload(){
 
   # create env dir
   mkdir -p $nas_env/pythonCode
-  s nas upload -r -o ./$nas_env nas:///mnt/auto/$nas_env --debug
+  s nas upload ./$nas_env nas:///mnt/auto/$nas_env  -r -o --debug
   rm -rf $nas_env
 
   # cp common, kernel to build dir
@@ -54,8 +54,8 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload -o ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ --debug
-  s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode --debug
+  s nas upload ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ -o --debug
+  s nas upload ../../../../../../build/ /mnt/auto/$nas_env/pythonCode -r -o --debug
 
   rm -rf ../../../../../../build
 
@@ -101,17 +101,17 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-  if [ ${account_type,,} == "admin" ]; then
+  if [[ ${account_type,,} = "admin" ]]; then
     echo "account_type is admin, auto to create fc role"
     sed -i '9s/^/#/' s.yaml
-  elif [ ${account_type,,} == "api" ]; then
+  elif [[ ${account_type,,} = "api" ]]; then
     echo "account_type is api, create fc role manually"
     sed -i '9s/^#*//' s.yaml
   else
     echo "not support type: ${account_type}, please check again !"
   fi
 
-  if [ ! ${vpc_id} -o ${vpc_id} == "" ]; then
+  if [[ ! ${vpc_id} -o ${vpc_id} = "" ]]; then
     echo "vpc_id is null"
     sed -i '11,14s/^/#/' s.yaml
   else
