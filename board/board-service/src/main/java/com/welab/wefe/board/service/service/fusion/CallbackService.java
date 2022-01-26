@@ -185,6 +185,8 @@ public class CallbackService {
                 new BigInteger(bf.getRsaN()),
                 new BigInteger(bf.getRsaE()),
                 new BigInteger(bf.getRsaD()),
+                new BigInteger(bf.getRsaP()),
+                new BigInteger(bf.getRsaQ()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
         );

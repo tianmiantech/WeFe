@@ -57,8 +57,8 @@ public class ServerActuator extends AbstractPsiServerActuator {
     protected String ip;
     protected int port;
 
-    public ServerActuator(String businessId, BloomFilters bloomFilters, String ip, int port, BigInteger N, BigInteger e, BigInteger d, Long dataCount) {
-        super(businessId, bloomFilters, N, e, d, dataCount);
+    public ServerActuator(String businessId, BloomFilters bloomFilters, String ip, int port, BigInteger N, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
+        super(businessId, bloomFilters, N, e, d, p, q, dataCount);
         this.ip = ip;
         this.port = port;
     }

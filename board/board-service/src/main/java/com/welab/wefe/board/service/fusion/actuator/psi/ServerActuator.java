@@ -35,8 +35,8 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class ServerActuator extends AbstractPsiServerActuator {
-    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, Long dataCount) {
-        super(businessId, bloomFilters, n, e, d, dataCount);
+    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
+        super(businessId, bloomFilters, n, e, d, p, q, dataCount);
     }
 
     @Override
