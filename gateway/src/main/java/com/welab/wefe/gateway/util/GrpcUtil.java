@@ -53,7 +53,7 @@ public class GrpcUtil {
     }
 
     public static ManagedChannel getManagedChannel(String ip, int port) {
-        return ManagedChannelBuilder.forTarget(ip + ":" + port).usePlaintext().build();
+        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(2000 * 1024 * 1024).usePlaintext().build();
     }
 
     public static String toJsonString(MessageOrBuilder message) {
