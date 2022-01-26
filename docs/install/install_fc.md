@@ -186,7 +186,9 @@ wefe-fc-policy
     {
       "Effect": "Allow",
       "Action": "oss:Get*",
-      "Resource": "acs:oss:*:*:{bucket_name}/wefe_process/*"
+      "Resource": [
+        "acs:oss:*:*:{bucket_name}/*"
+      ]
     },
     {
       "Effect": "Allow",
