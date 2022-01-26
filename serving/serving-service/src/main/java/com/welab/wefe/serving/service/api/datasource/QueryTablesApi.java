@@ -41,7 +41,7 @@ public class QueryTablesApi extends AbstractApi<QueryTablesApi.Input, QueryTable
 
 	@Override
 	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-		return success(dataSourceService.queryTables(input));
+		return success(dataSourceService.queryTables(input.getId()));
 	}
 
 	public static class Input extends AbstractApiInput{
