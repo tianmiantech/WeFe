@@ -43,14 +43,21 @@ public class MemberAuthTypeMongoRepo extends AbstractMongoRepo {
     protected MongoTemplate getMongoTemplate() {
         return mongoUnionTemplate;
     }
+
     public List<MemberAuthType> findList() {
-        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(),MemberAuthType.class);
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), MemberAuthType.class);
+    }
+
+    public boolean exists(String typeName) {
+        Query query = new QueryBuilder().append("typeName", typeName).notRemoved().build();
+        return mongoUnionTemplate.exists(query, MemberAuthType.class);
     }
 
     public boolean deleteByTypeId(String typeId) {
         if (StringUtils.isEmpty(typeId)) {
             return false;
         }
+
         Query query = new QueryBuilder().append("typeId", typeId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, MemberAuthType.class);

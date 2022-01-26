@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -46,6 +47,11 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
 
     public List<DataSetDefaultTag> findAll() {
         return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), DataSetDefaultTag.class);
+    }
+
+    public boolean exists(String tagName) {
+        Query query = new QueryBuilder().append("tagName", tagName).notRemoved().build();
+        return mongoUnionTemplate.exists(query, DataSetDefaultTag.class);
     }
 
     public boolean deleteByTagId(String tagId) {

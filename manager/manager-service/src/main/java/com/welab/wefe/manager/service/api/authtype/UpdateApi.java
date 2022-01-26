@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service.api.authtype;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.repo.MemberAuthTypeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -35,10 +36,18 @@ public class UpdateApi extends AbstractApi<MemberAuthTypeUpdateInput, AbstractAp
     @Autowired
     private MemberAuthTypeContractService memberAuthTypeContractService;
 
+    @Autowired
+    private MemberAuthTypeMongoRepo memberAuthTypeMongoRepo;
+
     @Override
     protected ApiResult<AbstractApiOutput> handle(MemberAuthTypeUpdateInput input) throws StatusCodeWithException {
         LOG.info("UpdateApi handle..");
         try {
+            boolean isExist = memberAuthTypeMongoRepo.exists(input.getTypeName());
+            if (isExist) {
+                throw new StatusCodeWithException("该类型已存在", StatusCode.DATA_EXISTED);
+            }
+
             memberAuthTypeContractService.updateByTypeId(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

@@ -173,10 +173,10 @@ public class DataSetMongoReop extends AbstractMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .append("member.name", dataSetQueryInput.getMemberName())
+                .like("member.name", dataSetQueryInput.getMemberName())
                 .append("member.hidden", "0")
                 .append("member.freezed", "0")
-                .append("member.lostContact", "0")
+                .append("member.lost_contact", "0")
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
@@ -186,12 +186,12 @@ public class DataSetMongoReop extends AbstractMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, dataSetMatch, memberMatch);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, addFieldsOperation);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, dataSetMatch, memberMatch, skipOperation, limitOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, addFieldsOperation, skipOperation, limitOperation);
 
         List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
 
