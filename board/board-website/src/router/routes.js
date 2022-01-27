@@ -408,7 +408,7 @@ const baseRoutes = [
                     hidden:          true,
                     loginAndRefresh: true,
                     active:          `${prefixPath}member-view`,
-                    title:           '企业认证',
+                    title:           '企业实名认证',
                 },
                 component: () => import('../views/system-config/enterprise-certification'),
             },
