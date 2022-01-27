@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="服务名称:"
-                label-width="80px"
-            >
+            <el-form-item label="服务名称:">
                 <el-input v-model="search.serviceName" />
             </el-form-item>
 
-            <el-form-item
-                label="服务类型:"
-                label-width="100px"
-            >
+            <el-form-item label="服务类型:">
                 <el-select
                     v-model="search.serviceType"
                     size="medium"
@@ -32,10 +26,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item
-                label="供应商名称:"
-                label-width="80px"
-            >
+            <el-form-item label="供应商名称:">
                 <el-input v-model="search.memberName" />
             </el-form-item>
 

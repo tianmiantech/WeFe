@@ -185,7 +185,7 @@ export default (function () {
                         query: {
                             ...this.search,
                             page_index: this.pagination.page_index,
-                            page_size: val,
+                            page_size:  val,
                         },
                     });
                 } else {

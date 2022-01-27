@@ -75,6 +75,41 @@
             </el-form-item>
 
             <template v-if="form.service_type">
+                <template v-if="form.service_type === 4">
+                    <el-divider />
+                    <p class="mb10">服务配置：</p>
+                    <el-form-item
+                        v-for="(item, index) in service_config"
+                        :key="index"
+                        class="service-list"
+                    >
+                        <p>
+                            服务: {{ item.name }}
+                            <i
+                                class="icons el-icon-delete color-danger"
+                                @click="service_config.splice(index, 1)"
+                            />
+                        </p>
+                        <p>成员: {{ item.supplier_name }}</p>
+                        <p>URL: {{ item.base_url }}{{ item.api_name }}</p>
+                        <p>Param:</p>
+                        <p
+                            v-for="each in item.params"
+                            :key="each"
+                            style="padding-left:50px;"
+                        >
+                            参数名称: {{ each }}
+                        </p>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button
+                            type="primary"
+                            @click="addService"
+                        >
+                            添加服务
+                        </el-button>
+                    </el-form-item>
+                </template>
                 <template v-if="form.service_type !== 2">
                     <el-divider />
                     <p class="mb10">查询参数配置：</p>
@@ -104,41 +139,6 @@
                             新增参数
                         </el-button>
                     </el-form-item>
-                    <template v-if="form.service_type === 4">
-                        <el-divider />
-                        <p class="mb10">服务配置：</p>
-                        <el-form-item
-                            v-for="(item, index) in service_config"
-                            :key="index"
-                            class="service-list"
-                        >
-                            <p>
-                                服务: {{ item.name }}
-                                <i
-                                    class="icons el-icon-delete color-danger"
-                                    @click="service_config.splice(index, 1)"
-                                />
-                            </p>
-                            <p>成员: {{ item.supplier_name }}</p>
-                            <p>URL: {{ item.base_url }}{{ item.api_name }}</p>
-                            <p>Param:</p>
-                            <p
-                                v-for="each in item.params"
-                                :key="each"
-                                style="padding-left:50px;"
-                            >
-                                参数名称: {{ each }}
-                            </p>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button
-                                type="primary"
-                                @click="addService"
-                            >
-                                添加服务
-                            </el-button>
-                        </el-form-item>
-                    </template>
                 </template>
 
                 <template v-if="form.service_type !== 4">
@@ -605,8 +605,12 @@
                                         this.form.stringResult += `${i > 0 ? ' + ' : ''}${x.operator}(${x.field.split(',').join('+')})`;
                                     });
                                 }
-                            } else if (type === 1 || type === 3) {
-                                this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
+                            } else if(type === 1 || type === 3){
+                                if (type === 1) {
+                                    this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
+                                } else {
+                                    this.form.data_source.return_fields = data_source.return_fields[0].name;
+                                }
                                 this.form.data_source.condition_fields = data_source.condition_fields;
                             }
                         }

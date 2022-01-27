@@ -20,7 +20,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-        title: '模型管理',
+        title: '模型中心',
             icon:  'el-icon-monitor',
             index: 0,
         },
@@ -123,6 +123,49 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}service`,
+        meta: {
+            title: '服务中心',
+            icon:  'el-icon-service',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}service-list`,
+                name: 'service-list',
+                meta: {
+                    title:           '我的服务',
+                    index:           '5-1',
+                    active:          `${prefixPath}service-list`,
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/service/service-list.vue'),
+            },
+            {
+                path: `${prefixPath}union-service-list`,
+                name: 'union-service-list',
+                meta: {
+                    title:           '联邦服务',
+                    index:           '5-2',
+                    active:          `${prefixPath}union-service-list`,
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/service/union-service-list.vue'),
+            },
+            {
+                path: `${prefixPath}service-view`,
+                name: 'service-view',
+                meta: {
+                    title:  '服务详情',
+                    index:  '5-3',
+                    hidden: true,
+                    active: `${prefixPath}service-view`,
+                },
+                component: () => import('@views/service/service-view.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}fee`,
         meta: {
             title: '计费中心',
@@ -167,49 +210,6 @@ const baseRoutes = [
                     hidden:          true,
                 },
                 component: () => import('@views/fee/payments-records-add.vue'),
-            },
-        ],
-    },
-    {
-        path: `${prefixPath}service`,
-        meta: {
-            title: '服务中心',
-            icon:  'el-icon-service',
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
-            {
-                path: `${prefixPath}service-list`,
-                name: 'service-list',
-                meta: {
-                    title:           '我的服务',
-                    index:           '5-1',
-                    active:          `${prefixPath}service-list`,
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/service/service-list.vue'),
-            },
-            {
-                path: `${prefixPath}union-service-list`,
-                name: 'union-service-list',
-                meta: {
-                    title:           '联邦服务',
-                    index:           '5-2',
-                    active:          `${prefixPath}union-service-list`,
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/service/union-service-list.vue'),
-            },
-            {
-                path: `${prefixPath}service-view`,
-                name: 'service-view',
-                meta: {
-                    title:  '服务详情',
-                    index:  '5-3',
-                    hidden: true,
-                    active: `${prefixPath}service-view`,
-                },
-                component: () => import('@views/service/service-view.vue'),
             },
         ],
     },
@@ -284,10 +284,10 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}data_source`,
+        path: `${prefixPath}global-setting`,
         meta: {
-            title: '数据源管理',
-            icon:  'el-icon-document',
+            title: '全局设置',
+            icon:  'el-icon-setting',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -301,16 +301,6 @@ const baseRoutes = [
                 },
                 component: () => import('@views/data_source/data-source-list.vue'),
             },
-        ],
-    },
-    {
-        path: `${prefixPath}global-setting`,
-        meta: {
-            title: '全局设置',
-            icon:  'el-icon-setting',
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
             {
                 path: `${prefixPath}global-setting-view`,
                 name: 'global-setting-view',

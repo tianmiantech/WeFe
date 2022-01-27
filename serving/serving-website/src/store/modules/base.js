@@ -2,11 +2,7 @@
 export default _ => {
 
     function setStorage () {
-        let keepAlive = localStorage.getItem(KEEPALIVE);
-
-        keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-        return keepAlive ? localStorage : sessionStorage;
+        return localStorage;
     }
 
     /* 此处加上后台接口地址作为 存储对象的前缀

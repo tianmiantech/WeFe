@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="服务名称:"
-                label-width="80px"
-            >
+            <el-form-item label="服务名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
-            <el-form-item
-                label="服务类型:"
-                label-width="100px"
-            >
+            <el-form-item label="服务类型:">
                 <el-select
                     v-model="search.service_type"
                     size="medium"
@@ -32,10 +26,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item
-                label="是否在线:"
-                label-width="100px"
-            >
+            <el-form-item label="是否在线:">
                 <el-select
                     v-model="search.status"
                     size="medium"
@@ -51,6 +42,9 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item label="创建人:">
+                <el-input v-model="search.created_by" />
+            </el-form-item>
 
             <el-button
                 type="primary"
@@ -59,7 +53,10 @@
                 查询
             </el-button>
 
-            <router-link :to="{name: 'service-view'}">
+            <router-link
+                class="ml20"
+                :to="{name: 'service-view'}"
+            >
                 <el-button>
                     新增
                 </el-button>
@@ -130,6 +127,15 @@
                     {{ scope.row.updated_time | dateFormat }}
                 </template>
             </el-table-column>
+
+            <el-table-column
+                label="创建人"
+                prop="created_by"
+            />
+            <el-table-column
+                label="修改人"
+                prop="updated_by"
+            />
 
             <el-table-column
                 label="操作"
