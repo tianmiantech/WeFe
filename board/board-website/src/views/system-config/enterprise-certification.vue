@@ -1,7 +1,7 @@
 <template>
     <div v-loading="loading" class="page">
         <el-card shadow="never">
-            <h3>企业认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
+            <h3>企业实名认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
             <el-form
                 class="mt20"
                 :model="form"

@@ -120,12 +120,15 @@
                                 <span
                                     v-if="enterpriseAuth === 0"
                                     class="el-link el-link--danger"
+                                    style="white-space: nowrap;"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
                                     </el-icon>
                                     未认证
+                                    <p class="ml10 f12">(超级管理员可申请实名认证)</p>
                                 </span>
+
                                 <span
                                     v-if="enterpriseAuth === 1"
                                     class="el-link el-link--danger"

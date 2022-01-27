@@ -43,8 +43,8 @@
                 min-width="120px"
             >
                 <template slot-scope="scope">
-                    <p class="id">{{ scope.row.id }}</p>
                     {{ scope.row.name }}
+                    <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
 
