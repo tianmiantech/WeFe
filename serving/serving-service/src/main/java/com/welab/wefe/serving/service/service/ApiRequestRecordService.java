@@ -99,13 +99,14 @@ public class ApiRequestRecordService {
     }
 
     public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
-
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ApiRequestRecordMysqlModel.class);
+
         return apiRequestRecordRepository.paging(where, input);
 
     }

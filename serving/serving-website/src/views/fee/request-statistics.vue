@@ -271,10 +271,7 @@ export default {
                 startTime: '',
                 endTime: '',
             },
-            defaultTime: [
-                '',
-                '',
-            ],
+            defaultTime: [],
             dialogPagination: {
                 total: '',
                 page_size: 10,
@@ -307,13 +304,13 @@ export default {
 
     created() {
 
-        this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
-            + new Date().getMonth() + 1 + '-'
-            + new Date().getDate() + ' 00:00:00');
-
-        this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
-            + new Date().getMonth() + 1 + '-'
-            + new Date().getDate() + ' 23:59:59');
+        // this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
+        //     + new Date().getMonth() + 1 + '-'
+        //     + new Date().getDate() + ' 00:00:00');
+        //
+        // this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
+        //     + new Date().getMonth() + 1 + '-'
+        //     + new Date().getDate() + ' 23:59:59');
 
         this.getServices();
         this.getClients();
@@ -407,7 +404,6 @@ export default {
             this.dialogPagination.serviceId = serviceId
             this.dialogPagination.clientId = clientId
 
-
             this.apiCallDetails = []
             const {code, data} = await this.$http.post({
                 url: '/apirequestrecord/query-list',
@@ -415,7 +411,9 @@ export default {
                     serviceId: this.dialogPagination.serviceId,
                     clientId: this.dialogPagination.clientId,
                     page_index: this.dialogPagination.page_index - 1,
-                    page_size: this.dialogPagination.page_size
+                    page_size: this.dialogPagination.page_size,
+                    startTime: this.search.startTime,
+                    endTime: this.search.endTime
                 },
             });
 

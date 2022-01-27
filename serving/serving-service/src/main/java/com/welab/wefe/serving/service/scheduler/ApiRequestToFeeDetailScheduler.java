@@ -63,6 +63,7 @@ public class ApiRequestToFeeDetailScheduler {
     public void feeRecord() {
 
         try {
+            logger.info("ApiRequestToFeeDetailScheduler start in: " + DateUtil.getCurrentDate());
 
             Date endTime = new Date();
             Calendar calendar = Calendar.getInstance();
@@ -79,8 +80,13 @@ public class ApiRequestToFeeDetailScheduler {
                 // get request records
                 List<ApiRequestRecordMysqlModel> list = apiRequestRecordService.getList(model.getServiceId(), model.getClientId(), startTime, endTime);
                 if (list.size() != 0) {
-                    ApiRequestRecordMysqlModel apiRequestRecordMysqlModel = list.get(0);
-                    FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(apiRequestRecordMysqlModel.getServiceId(), apiRequestRecordMysqlModel.getClientId());
+
+                    FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(model.getServiceId(), model.getClientId());
+                    if (feeConfigMysqlModel == null) {
+                        logger.error("client service cannot set fee config, serviceId: " + model.getServiceId() + ", clientId: " + model.getClientId());
+                        continue;
+                    }
+
                     Double unitPrice = feeConfigMysqlModel.getUnitPrice();
                     if (unitPrice == 0) {
                         logger.warn("unit price is zero!");
@@ -102,16 +108,17 @@ public class ApiRequestToFeeDetailScheduler {
                     // 创建时间为整点
                     feeDetailMysqlModel.setCreatedTime(endTime);
                     // 其他信息
-                    feeDetailMysqlModel.setClientName(apiRequestRecordMysqlModel.getClientName());
-                    feeDetailMysqlModel.setServiceType(apiRequestRecordMysqlModel.getServiceType());
-                    feeDetailMysqlModel.setServiceName(apiRequestRecordMysqlModel.getServiceName());
+                    feeDetailMysqlModel.setClientName(model.getClientName());
+                    feeDetailMysqlModel.setServiceType(model.getServiceType());
+                    feeDetailMysqlModel.setServiceName(model.getServiceName());
 
                     feeDetailService.save(feeDetailMysqlModel);
 
                     logger.info("save fee detail by the scheduler in: " + DateUtil.getCurrentDate() + ", service id: "
-                            + apiRequestRecordMysqlModel.getServiceId() + ", client id: " + apiRequestRecordMysqlModel.getClientId()
+                            + model.getServiceId() + ", client id: " + model.getClientId()
                             + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
                             + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
+                    logger.info("ApiRequestToFeeDetailScheduler end.");
                 } else {
                     logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
                 }
@@ -119,6 +126,7 @@ public class ApiRequestToFeeDetailScheduler {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
             logger.error("error occur when fee details scheduler execute, happen in " + DateUtil.getCurrentDate());
         }
 
