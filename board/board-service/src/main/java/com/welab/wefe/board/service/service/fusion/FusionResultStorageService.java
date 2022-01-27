@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.service.fusion;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,12 +13,16 @@ package com.welab.wefe.board.service.service.fusion;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.service.fusion;
+
 
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
+import com.welab.wefe.common.data.storage.model.PageInputModel;
+import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,19 +68,19 @@ public class FusionResultStorageService extends AbstractService {
         List<String> header = new ArrayList<>();
 
         for (String item : row) {
-            if (sid == null) {
-                sid = String.valueOf(item);
-            } else {
+//            if (sid == null) {
+//                sid = String.valueOf(item);
+//            } else {
                 header.add(String.valueOf(item));
-            }
+//            }
         }
 
         String tableName = createRawDataSetTableName(businessId) + ".meta";
 
         // According to the convention,
         // sid needs to be converted to json string so that double quotation marks are added before and after.
-        sid = JSON.toJSONString(sid);
-        save(tableName, "sid", sid);
+//        sid = JSON.toJSONString(sid);
+//        save(tableName, "sid", sid);
 
         // According to the convention,
         // the header needs to be converted to json string
@@ -148,6 +150,14 @@ public class FusionResultStorageService extends AbstractService {
     }
 
     /**
+     * real all record from storage table
+     */
+    public List<DataItemModel> getList(String tableName) {
+        return storageService.getList(DATABASE_NAME, tableName);
+    }
+
+
+    /**
      * Generate the raw data set table name
      */
     public String createRawDataSetTableName(String businessId) {
@@ -189,5 +199,37 @@ public class FusionResultStorageService extends AbstractService {
 
     public Boolean isExists(String tableName) {
         return storageService.isExists(DATABASE_NAME, tableName);
+    }
+
+    /**
+     * view the data set data rows
+     */
+    public List<List<String>> previewDataSet(String tableName, int limit) {
+        return previewDataSet(DATABASE_NAME,tableName,limit);
+    }
+
+    /**
+     * view the data set data rows
+     */
+    public List<List<String>> previewDataSet(String dbName, String tableName, int limit) {
+        PageOutputModel<?, ?> page = storageService.getPage(dbName, tableName, new PageInputModel(0, limit));
+
+        List<? extends DataItemModel<?, ?>> data = page.getData();
+        return data
+                .stream()
+                .map(x -> {
+                    List<String> list = new ArrayList<>();
+                    list.add(String.valueOf(x.getK()));
+
+                    Object value = x.getV();
+                    if (value != null) {
+                        for (String item : String.valueOf(value).split(",")) {
+                            list.add(item);
+                        }
+                    }
+
+                    return list;
+                })
+                .collect(Collectors.toList());
     }
 }

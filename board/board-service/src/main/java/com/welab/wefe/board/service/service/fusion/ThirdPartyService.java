@@ -49,14 +49,15 @@ public class ThirdPartyService {
                 .put("dst_member_id", CacheObjects.getMemberId())
                 .put("business_id", task.getBusinessId())
                 .put("name", task.getName())
-                .put("row_count", task.getRowCount())
                 .put("psi_actuator_role", PSIActuatorRole.server.equals(task.getPsiActuatorRole()) ? PSIActuatorRole.client : PSIActuatorRole.server)
                 .put("algorithm", task.getAlgorithm())
                 .put("description", task.getDescription())
                 .put("data_resource_id", task.getPartnerDataResourceId())
                 .put("data_resource_type", task.getPartnerDataResourceType())
                 .put("partner_data_resource_id", task.getDataResourceId())
-                .put("partner_data_resource_type", task.getDataResourceType());
+                .put("partner_data_resource_type", task.getDataResourceType())
+                .put("partner_row_count", task.getRowCount())
+                .put("partner_hash_function", task.getHashFunction());
 
         request(task.getDstMemberId(), ReceiveApi.class, params);
     }
@@ -65,12 +66,20 @@ public class ThirdPartyService {
      * psi-callback
      */
     public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
+        callback(dstMemberId, businessId, auditStatus, auditComment, null);
+    }
+
+    /**
+     * psi-callback
+     */
+    public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment, String hashFunction) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
                 .put("business_id", businessId)
                 .put("audit_status", auditStatus)
-                .put("audit_comment", auditComment);
+                .put("audit_comment", auditComment)
+                .put("partner_hash_function", hashFunction);
 
         request(dstMemberId, AuditCallbackApi.class, params);
     }

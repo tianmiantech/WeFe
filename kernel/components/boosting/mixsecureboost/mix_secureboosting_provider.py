@@ -280,7 +280,7 @@ class MixSecureBoostingProvider(BoostingTree):
 
     def fit_a_booster(self, epoch_idx: int, booster_dim: int):
 
-        self.check_run_sp_opt()
+        # self.check_run_sp_opt()
         tree = MixDecisionTreeProvider(tree_param=self.tree_param)
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   valid_features=self.sample_valid_features(),
@@ -437,7 +437,7 @@ class MixSecureBoostingProvider(BoostingTree):
 
         model_param.anonymous_name_mapping.update(anonymous_name_mapping)
         model_param.feature_name_fid_mapping.update(self.feature_name_fid_mapping)
-        model_param.model_name = consts.VERT_SBT
+        model_param.model_name = consts.MIX_SBT
 
         model_param.best_iteration = -1 if self.validation_strategy is None else self.validation_strategy.best_iteration
 

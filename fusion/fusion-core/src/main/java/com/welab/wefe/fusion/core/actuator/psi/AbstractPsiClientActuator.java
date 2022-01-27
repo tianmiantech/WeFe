@@ -38,11 +38,12 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
 
     private PsiActuatorMeta psiClientMeta;
 
-    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
+    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, Long dataCount) {
         super(businessId);
         this.dataSetId = dataSetId;
         this.isTrace = isTrace;
         this.traceColumn = traceColumn;
+        this.dataCount = dataCount;
     }
 
     /**
@@ -65,7 +66,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      *
      * @return
      */
-    public abstract PsiActuatorMeta downloadBloomFilter();
+    public abstract PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException;
 
     /**
      * Download the Server Square Bloom filter

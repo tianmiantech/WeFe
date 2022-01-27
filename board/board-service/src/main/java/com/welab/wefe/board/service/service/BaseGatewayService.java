@@ -194,6 +194,7 @@ public class BaseGatewayService extends AbstractService {
         return ManagedChannelBuilder
                 .forTarget(gatewayUri)
                 .usePlaintext()
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 

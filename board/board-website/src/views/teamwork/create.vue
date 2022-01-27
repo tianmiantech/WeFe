@@ -436,7 +436,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            this.checkAllService();
+            await this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {

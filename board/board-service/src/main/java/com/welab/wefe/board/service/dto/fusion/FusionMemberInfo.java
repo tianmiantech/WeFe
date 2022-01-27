@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.dto.fusion;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -15,6 +13,8 @@ package com.welab.wefe.board.service.dto.fusion;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.dto.fusion;
+
 
 
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
@@ -35,8 +35,11 @@ public class FusionMemberInfo {
     String dataResourceId;
     String dataResourceName;
     DataResourceType dataResourceType;
-    int rowCount;
+    Long rowCount;
     String hashFunction;
+    List<FieldInfo> fieldInfoList;
+
+    String columnNameList;
 
 
     public String getMemberId() {
@@ -87,11 +90,11 @@ public class FusionMemberInfo {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
     }
 
@@ -105,5 +108,21 @@ public class FusionMemberInfo {
 
     public void setHashFunction(List<FieldInfo> fieldInfos) {
         this.hashFunction = PrimaryKeyUtils.hashFunction(fieldInfos);
+    }
+
+    public String getColumnNameList() {
+        return columnNameList;
+    }
+
+    public void setColumnNameList(String columnNameList) {
+        this.columnNameList = columnNameList;
+    }
+
+    public List<FieldInfo> getFieldInfoList() {
+        return fieldInfoList;
+    }
+
+    public void setFieldInfoList(List<FieldInfo> fieldInfoList) {
+        this.fieldInfoList = fieldInfoList;
     }
 }

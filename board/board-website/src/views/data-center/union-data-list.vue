@@ -55,18 +55,19 @@
                     v-model="vData.search.dataResourceType"
                     filterable
                     clearable
+                    multiple
                     @change="resourceTypeChange"
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
-                        :key="item.label"
-                        :value="item.value"
+                        :key="item.value"
                         :label="item.label"
+                        :value="item.value"
                     />
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'TableDataSet'"
+                v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'TableDataSet'"
                 label="是否包含Y值："
                 label-width="100"
             >
@@ -80,9 +81,9 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="vData.search.dataResourceType === 'ImageDataSet'"
-                label="样本分类："
+                v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'ImageDataSet'"
                 label-width="100"
+                label="任务类型："
             >
                 <el-select
                     v-model="vData.search.forJobType"
@@ -112,6 +113,7 @@
             key="UnionDataResourceListRef"
             :table-loading="vData.loading"
             :search-field="vData.search"
+            @search-update="methods.searchUpdate"
             @add-data-set="addDataSet"
             @check-card="checkCard"
         />
@@ -228,11 +230,17 @@
                 ],
             });
             const methods = {
+                searchUpdate(search) {
+                    Object.assign(vData.search, {
+                        ...search,
+                        dataResourceType: search.dataResourceType ? Array.isArray(search.dataResourceType) ? search.dataResourceType : [search.dataResourceType] : '',
+                    });
+                },
                 async loadTags() {
                     const { code, data } = await $http.post({
                         url:  '/union/data_resource/tags/query',
                         data: {
-                            dataResourceType: vData.search.dataResourceType,
+                            dataResourceType: '',
                         },
                     });
 
@@ -337,7 +345,7 @@
             };
             const searchList = (opt = {}) => {
                 UnionDataResourceListRef.value.search = vData.search;
-                UnionDataResourceListRef.value.getDataList();
+                UnionDataResourceListRef.value.getDataList({ to: true });
             };
             const resourceTypeChange = () => {
                 vData.search.containsY = '';
@@ -352,6 +360,7 @@
 
             return {
                 vData,
+                methods,
                 speedCart,
                 memberCard,
                 addDataSet: methods.addDataSet,
