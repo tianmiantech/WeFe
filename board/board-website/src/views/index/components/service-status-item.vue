@@ -5,9 +5,7 @@
                 <el-row
                     :class="status.success ? 'tip tip-success' : 'tip tip-error' "
                 >
-                    <el-col
-                        :span="20"
-                    >
+                    <el-col :span="20">
                         <p class="item-name">
                             <el-icon
                                 v-if="status.success"

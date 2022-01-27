@@ -43,7 +43,14 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="创建人:">
-                <el-input v-model="search.created_by" />
+                <el-select v-model="search.created_by">
+                    <el-option
+                        v-for="item in accounts"
+                        :key="item.id"
+                        :label="item.nickname"
+                        :value="item.id"
+                    />
+                </el-select>
             </el-form-item>
 
             <el-button
@@ -191,7 +198,8 @@
         mixins: [table],
         data() {
             return {
-                search: {
+                accounts: [],
+                search:   {
                     name:         '',
                     service_type: '',
                     status:       '',
@@ -242,7 +250,17 @@
                 },
             };
         },
+        created() {
+            this.getAccounts();
+        },
         methods: {
+            async getAccounts () {
+                const { code, data } = await this.$http.get('/account/query');
+
+                if(code === 0) {
+                    this.accounts = data;
+                }
+            },
             showStrategys (string) {
                 this.dataDialog = true;
                 setTimeout(() => {
