@@ -278,6 +278,7 @@ export default {
                 page_index: 1,
                 serviceId: '',
                 clientId: '',
+                change_flag: false,
             },
             getListApi: '/requeststatistics/query-list',
             serviceType: {
@@ -323,13 +324,16 @@ export default {
     methods: {
 
         dialogCurrentPageChange(val) {
+            this.dialogPagination.change_flag = true
             this.dialogPagination.page_index = val
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId)
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
         },
 
         dialogCurrentPageSizeChange(val) {
-            this.dialogPagination.page_size = val;
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId);
+            this.dialogPagination.change_flag = true
+            this.dialogPagination.page_size = val
+            this.dialogPagination.page_index = 1
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
         },
 
 
@@ -399,7 +403,7 @@ export default {
         },
 
 
-        async getDetails(serviceId, clientId) {
+        async getDetails(serviceId, clientId, change_flag) {
 
             this.dialogPagination.serviceId = serviceId
             this.dialogPagination.clientId = clientId
@@ -410,8 +414,8 @@ export default {
                 data: {
                     serviceId: this.dialogPagination.serviceId,
                     clientId: this.dialogPagination.clientId,
-                    page_index: this.dialogPagination.page_index - 1,
-                    page_size: this.dialogPagination.page_size,
+                    page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
+                    page_size: change_flag ? this.dialogPagination.page_size : 10,
                     startTime: this.search.startTime,
                     endTime: this.search.endTime
                 },
