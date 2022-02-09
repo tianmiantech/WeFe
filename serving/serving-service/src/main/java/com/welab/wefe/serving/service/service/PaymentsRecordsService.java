@@ -99,11 +99,12 @@ public class PaymentsRecordsService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
+        csvWriter.writeRow("Id", "服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
                 "收支类型", "时间", "金额", "余额", "备注");
 
         for (PaymentsRecordsMysqlModel model : dataList) {
             csvWriter.writeRow(
+                    model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
                     ServiceTypeEnum.getValue(model.getServiceType()),
@@ -176,9 +177,9 @@ public class PaymentsRecordsService {
                 .equal("clientId", input.getClientId())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
-        PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = paymentsRecordsRepository.findAll(where).get(0);
-
-        if (paymentsRecordsMysqlModel != null) {
+        List<PaymentsRecordsMysqlModel> paymentsRecordsRepositoryAll = paymentsRecordsRepository.findAll(where);
+        if (paymentsRecordsRepositoryAll.size() != 0) {
+            PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = paymentsRecordsRepositoryAll.get(0);
             if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().add(input.getAmount()));
