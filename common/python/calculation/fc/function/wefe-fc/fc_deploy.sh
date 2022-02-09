@@ -101,17 +101,17 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-  if [[ ${account_type,,} = "admin" ]]; then
+  if [[ ${account_type,,} == "admin" ]]; then
     echo "account_type is admin, auto to create fc role"
     sed -i '9s/^/#/' s.yaml
-  elif [[ ${account_type,,} = "api" ]]; then
+  elif [[ ${account_type,,} == "api" ]]; then
     echo "account_type is api, create fc role manually"
     sed -i '9s/^#*//' s.yaml
   else
     echo "not support type: ${account_type}, please check again !"
   fi
 
-  if [[ ! ${vpc_id} -o ${vpc_id} = "" ]]; then
+  if [[ ! $vpc_id ]] || [[ $vpc_id == "" ]]; then
     echo "vpc_id is null"
     sed -i '11,14s/^/#/' s.yaml
   else
@@ -147,7 +147,7 @@ if_fc(){
   backend=$(grep -v "^#" ${wefe_code_path}/config.properties | grep "wefe.job.backend=*")
   backend=${backend##*=}
 
-  if [ "$backend" == "FC" -o "$backend" == "fc" ]; then
+  if [[ $backend == "FC" ]] || [[ $backend == "fc" ]] ; then
     echo "use Function Computing, now deploy Functions ... "
     fc_deploy
   fi
