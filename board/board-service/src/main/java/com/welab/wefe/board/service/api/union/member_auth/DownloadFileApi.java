@@ -31,7 +31,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
 
     @Override
     protected ApiResult<ResponseEntity<byte[]>> handle(DownloadFileApi.Input input) throws StatusCodeWithException, IOException {
-        String url = config.getUNION_BASE_URL() + "/download/file";
+        String url = config.getUnionBaseUrl() + "/download/file";
 
         JObject params = JObject.create();
         String data = JObject.create("file_id", input.fileId).toJSONString();

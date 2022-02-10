@@ -30,7 +30,7 @@
                 min-width="220px"
             >
                 <template v-slot="scope">
-                    <router-link :to="{ name: 'fusion-detail', query: { business_id: scope.row.business_id, project_id } }">
+                    <router-link :to="{ name: 'fusion-detail', query: { id: scope.row.id, project_id } }">
                         {{ scope.row.name }}
                     </router-link>
                 </template>
@@ -49,7 +49,7 @@
             >
                 <template v-slot="scope">
                     <span :class="{ 'color-danger': scope.row.status === 'Await' || scope.row.status === 'Failure' || scope.row.status === 'Interrupt' || scope.row.status === 'Refuse' }">{{ statusMap[scope.row.status] }}</span>
-                    <p>耗时: {{ scope.row.spend }}</p>
+                    <p>耗时: {{ timeSpend(scope.row.spend || 0) }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -178,6 +178,25 @@
                 this.flowTimer = setTimeout(() => {
                     this.getTaskList({ requestFromRefresh: true });
                 }, 5000);
+            },
+
+            timeSpend(milliseconds) {
+                let ss = ~~Math.ceil(milliseconds / 1000), hh = 0, mm = 0, result = '';
+
+                if(ss > 3599){
+                    hh = Math.floor(ss/3600);
+                    mm = Math.floor(ss%3600/60);
+                    ss = ss % 60;
+                    result = (hh > 9 ? hh :'0' + hh) + ':' +(mm > 9 ? mm :'0' + mm) + ':' + (ss > 9 ? ss : '0' + ss);
+                } else if (ss > 59){
+                    mm = Math.floor(ss/60);
+                    ss = ss % 60;
+                    result = '00:'+(mm > 9 ? mm : '0' + mm)+':'+(ss>9?ss:'0'+ss);
+                } else {
+                    result = '00:00:'+ (ss > 9 ? ss : '0' + ss);
+                }
+
+                return result;
             },
 
             currentPageChange (val) {

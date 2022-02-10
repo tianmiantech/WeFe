@@ -770,6 +770,7 @@ CREATE TABLE `member_chat`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息明细表';
 
 
+DROP TABLE IF EXISTS `model_oot_record`;
 CREATE TABLE `model_oot_record`
 (
     `id`                     varchar(32) NOT NULL COMMENT '全局唯一标识',
@@ -959,3 +960,6 @@ CREATE TABLE `bloom_filter`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='布隆过滤器';
+
+-- 一条错误的 sql，用于测试事务回滚。
+select * from abcd;

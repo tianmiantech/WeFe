@@ -150,7 +150,7 @@
                     nextTick(_ => {
                         vData.loading = false;
                         if (code === 0) {
-                            if(data.params) {
+                            if(data.params && data.params.members) {
                                 const { method, members } = data.params;
 
                                 vData.columnListType = method;

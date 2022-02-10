@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.dto.fusion;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -26,6 +27,9 @@ import com.welab.wefe.fusion.core.enums.AlgorithmType;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorRole;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 
 ;
@@ -57,9 +61,11 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType dataResourceType;
 
+    String hashFunction;
+
 
     @Check(name = "Number of rows of data resources")
-    int rowCount;
+    Long rowCount;
 
     String partnerDataResourceId;
 
@@ -67,8 +73,10 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     DataResourceType partnerDataResourceType;
 
+    String partnerHashFunction;
+
     @Check(name = "Number of rows of data resources")
-    public int partnerRowCount;
+    public Long partnerRowCount;
 
     @Check(name = "Whether the trace")
     public boolean isTrace;
@@ -91,15 +99,7 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     public String comment;
 
-//    /**
-//     * Data set list
-//     */
-//    private List<TableDataSetOutputModel> dataSetList;
-//
-//    /**
-//     * bloomFilterList
-//     */
-//    private List<BloomFilterOutputModel> bloomFilterList;
+    public ExportStatus ExportStatus;
 
 
     public String getBusinessId() {
@@ -159,12 +159,20 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
+    public Long getRowCount() {
         return rowCount;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Long rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public Long getPartnerRowCount() {
+        return partnerRowCount;
+    }
+
+    public void setPartnerRowCount(Long partnerRowCount) {
+        this.partnerRowCount = partnerRowCount;
     }
 
     public PSIActuatorRole getPsiActuatorRole() {
@@ -183,13 +191,6 @@ public class FusionTaskOutput extends AbstractOutputModel {
         this.algorithm = algorithm;
     }
 
-    public int getPartnerRowCount() {
-        return partnerRowCount;
-    }
-
-    public void setPartnerRowCount(int partnerRowCount) {
-        this.partnerRowCount = partnerRowCount;
-    }
 
     public int getFusionCount() {
         return fusionCount;
@@ -294,5 +295,29 @@ public class FusionTaskOutput extends AbstractOutputModel {
 
     public void setDstMemberId(String dstMemberId) {
         this.dstMemberId = dstMemberId;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
+    }
+
+    public String getPartnerHashFunction() {
+        return partnerHashFunction;
+    }
+
+    public void setPartnerHashFunction(String partnerHashFunction) {
+        this.partnerHashFunction = partnerHashFunction;
+    }
+
+    public com.welab.wefe.board.service.fusion.enums.ExportStatus getExportStatus() {
+        return ExportStatus;
+    }
+
+    public void setExportStatus(com.welab.wefe.board.service.fusion.enums.ExportStatus exportStatus) {
+        ExportStatus = exportStatus;
     }
 }

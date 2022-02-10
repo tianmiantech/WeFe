@@ -63,7 +63,6 @@ from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import QuantileMeta
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import BoostingTreeModelParam
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import DecisionTreeModelParam
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import FeatureImportanceInfo
-from kernel.security import IterativeAffineEncrypt
 from kernel.security import PaillierEncrypt
 from kernel.security.encrypt_mode import EncryptModeCalculator
 from kernel.transfer.framework.weights import DictWeights
@@ -241,14 +240,6 @@ class MixSecureBoostingPromoter(BoostingTree):
         if self.encrypt_param.method.lower() == consts.PAILLIER.lower():
             self.encrypter = PaillierEncrypt()
             self.encrypter.generate_key(self.encrypt_param.key_length)
-        elif self.encrypt_param.method.lower() == consts.ITERATIVEAFFINE.lower():
-            self.encrypter = IterativeAffineEncrypt()
-            self.encrypter.generate_key(key_size=self.encrypt_param.key_length,
-                                        randomized=False)
-        elif self.encrypt_param.method.lower() == consts.RANDOM_ITERATIVEAFFINE.lower():
-            self.encrypter = IterativeAffineEncrypt()
-            self.encrypter.generate_key(key_size=self.encrypt_param.key_length,
-                                        randomized=True)
         else:
             raise NotImplementedError("encrypt method not supported yes!!!")
 

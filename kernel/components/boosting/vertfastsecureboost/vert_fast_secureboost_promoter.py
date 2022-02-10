@@ -49,7 +49,7 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
         self.tree_num_per_member = 1
         self.promoter_depth = 0
         self.provider_depth = 0
-        self.work_mode = consts.MIX_TREE
+        self.work_mode = consts.SKIP_TREE
         self.tree_plan = []
         self.model_param = VertFastSecureBoostParam()
         self.model_name = 'VertFastSecureBoost'
@@ -105,7 +105,8 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
                 self.trees_.append(tree_param)
                 if self.tree_meta is None:
                     self.tree_meta = tree_meta
-                self.update_predict_score(new_f=model.predict_weights, dim=tidx)
+                cur_sample_weights = model.get_sample_weights()
+                self.update_predict_score(cur_sample_weights, dim=tidx)
                 # self.update_feature_importance(model.get_feature_importance())
 
             loss = self.compute_loss()
@@ -150,7 +151,7 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
     def fit_a_booster(self, epoch_idx: int, booster_dim: int):
 
         # prepare tree plan
-        tree_type, target_host_id = self.get_tree_plan(epoch_idx)
+        tree_type, target_provider_id = self.get_tree_plan(epoch_idx)
         LOGGER.info('tree work mode is {}'.format(tree_type))
         self.check_provider_number(tree_type)
 
@@ -164,17 +165,16 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
                   encrypter=self.encrypter, encrypted_mode_calculator=self.encrypted_calculator,
                   valid_features=self.sample_valid_features(),
                   provider_member_idlist=self.component_properties.provider_member_idlist,
+                  task_type=self.task_type,
                   runtime_idx=self.component_properties.local_member_id,
                   goss_subsample=self.enable_goss,
                   top_rate=self.top_rate, other_rate=self.other_rate,
                   complete_secure=True if (epoch_idx == 0 and self.complete_secure) else False,
-                  cipher_compressing=self.round_decimal is not None,
-                  round_decimal=self.round_decimal,
-                  encrypt_key_length=self.encrypt_param.key_length,
+                  cipher_compressing=self.cipher_compressing,
                   max_sample_weight=self.max_sample_weight,
                   new_ver=self.new_ver
                   )
-        tree.set_tree_work_mode(tree_type, target_host_id)
+        tree.set_tree_work_mode(tree_type, target_provider_id)
         tree.set_layered_depth(self.promoter_depth, self.provider_depth)
         tree.fit()
         self.update_feature_importance(tree.get_feature_importance())
@@ -184,7 +184,7 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
     def traverse_promoter_local_trees(node_pos, sample, trees: List[VertFastDecisionTreePromoter]):
 
         """
-        in mix mode, a sample can reach leaf directly
+        in skip mode, a sample can reach leaf directly
         """
 
         for t_idx, tree in enumerate(trees):
@@ -206,9 +206,9 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
 
         LOGGER.info('fast sbt running predict')
 
-        if self.work_mode == consts.MIX_TREE:
+        if self.work_mode == consts.SKIP_TREE:
 
-            LOGGER.info('running mix mode predict')
+            LOGGER.info('running skip mode predict')
 
             tree_num = len(trees)
             node_pos = data_inst.mapValues(lambda x: np.zeros(tree_num, dtype=np.int64))
@@ -264,7 +264,7 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
         _, model_param = super(VertFastSecureBoostingTreePromoter, self).get_model_param()
         param_name = "VertFastSecureBoostingTreePromoterParam"
         model_param.tree_plan.extend(plan.encode_plan(self.tree_plan))
-        model_param.model_name = consts.VERT_FAST_SBT_MIX if self.work_mode == consts.MIX_TREE else \
+        model_param.model_name = consts.VERT_FAST_SBT_SKIP if self.work_mode == consts.SKIP_TREE else \
             consts.VERT_FAST_SBT_LAYERED
 
         return param_name, model_param

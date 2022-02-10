@@ -33,5 +33,7 @@ def run(workspace, action_info_str):
     else:
         action = ReplaceProgramFileAction(action_info, workspace)
 
+    print("service:", action_info.service, " action:", type(action))
+
     # 执行升级动作
     action.run()

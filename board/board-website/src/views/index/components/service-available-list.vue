@@ -51,5 +51,7 @@
 </script>
 
 <style lang="scss" scoped>
-.el-card{ :deep(.el-card__body) {padding-top: 0px;} }
+.el-card{
+    :deep(.el-card__body) {padding-top: 0px;}
+}
 </style>
