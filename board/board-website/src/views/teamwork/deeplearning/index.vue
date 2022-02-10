@@ -384,10 +384,11 @@
             const router = useRouter();
             const rawDataSetListRef = ref();
             const vData = reactive({
-                loading: false,
-                active:  0,
-                flow_id: route.query.flow_id,
-                form:    {
+                loading:    false,
+                active:     0,
+                flow_id:    route.query.flow_id,
+                project_id: route.query.project_id,
+                form:       {
                     flow_name: '',
                     flow_desc: '',
                 },
@@ -532,7 +533,6 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
-                            methods.getMemberList();
                             methods.getJobDetail();
                             if(!data.graph) {
                                 methods.createNode();
@@ -753,14 +753,14 @@
                     const { code, data } = await $http.get({
                         url:    '/project/member/list',
                         params: {
-                            projectId: vData.flowInfo.project_id,
+                            projectId: vData.project_id,
                         },
                     });
 
                     nextTick(() => {
                         if(code === 0) {
                             if(data.list.length) {
-                                vData.member_list = data.list.forEach(row => {
+                                data.list.forEach(row => {
                                     row.$data_set_list = [];
                                     if(!row.exited) {
                                         if (row.member_role === 'promoter') {
@@ -1056,6 +1056,7 @@
 
             onBeforeMount(() => {
                 methods.getFlowInfo();
+                methods.getMemberList();
                 $bus.$on('history-backward', () => {
                     router.push({
                         name:  'project-detail',
