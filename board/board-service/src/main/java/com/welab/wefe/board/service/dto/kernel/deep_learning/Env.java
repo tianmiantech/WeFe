@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +70,17 @@ public class Env {
 
     public Env(ImageDataIOComponent.Params imageDataIoParam) throws StatusCodeWithException {
         imageDataIoParam.fillDataSetDetail();
+        if (CollectionUtils.isEmpty(imageDataIoParam.dataSetList)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("未选择数据集");
+        }
         LOG.info("dataSetList:" + JSON.toJSONString(imageDataIoParam.dataSetList));
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
         double min = imageDataIoParam.dataSetList
                 .stream()
-                .mapToDouble(x -> x.dataSet.getLabeledCount())
+                .mapToLong(x -> x.dataSet.getLabeledCount())
                 .min()
                 .orElse(0);
+
 
         /**
          * 1. 前端应该不允许使用标注量为0的样本
