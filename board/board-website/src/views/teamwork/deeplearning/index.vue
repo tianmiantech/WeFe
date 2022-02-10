@@ -3,7 +3,7 @@
         <el-alert
             v-if="vData.isInResult"
             :title="vData.jobInfo.status"
-            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status"
+            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
             description="点击查看任务详情"
             show-icon
             class="fixed_alert"
