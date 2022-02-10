@@ -87,7 +87,7 @@ public class Env {
         }
 
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
-        long min = imageDataIoParam.dataSetList
+        double min = imageDataIoParam.dataSetList
                 .stream()
                 .mapToLong(x -> x.dataSet.getLabeledCount())
                 .min()
@@ -101,7 +101,7 @@ public class Env {
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
                     Math.round(
-                            new Double(dataSetItem.dataSet.getLabeledCount()) / min
+                            dataSetItem.dataSet.getLabeledCount() / min
                     )
             );
 
