@@ -74,8 +74,14 @@ public class Env {
             StatusCode.PARAMETER_VALUE_INVALID.throwException("未选择数据集");
         }
         LOG.info("dataSetList:" + JSON.toJSONString(imageDataIoParam.dataSetList));
+        Object[] labeledCountArray = imageDataIoParam.dataSetList
+                .stream()
+                .map(x -> x.dataSet.getLabeledCount())
+                .toArray();
+        LOG.info("labeledCountArray:" + JSON.toJSONString(labeledCountArray));
+
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
-        double min = imageDataIoParam.dataSetList
+        long min = imageDataIoParam.dataSetList
                 .stream()
                 .mapToLong(x -> x.dataSet.getLabeledCount())
                 .min()
@@ -100,7 +106,7 @@ public class Env {
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
                     Math.round(
-                            dataSetItem.dataSet.getLabeledCount() / min
+                            new Double(dataSetItem.dataSet.getLabeledCount()) / min
                     )
             );
 
