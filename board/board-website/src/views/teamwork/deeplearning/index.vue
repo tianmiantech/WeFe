@@ -7,8 +7,10 @@
             description="点击查看任务详情"
             show-icon
             class="fixed_alert"
-            @click.prevent="methods.jumpToTaskDetail"
         >
+            <slot>
+                <p @click.stop="methods.jumpToTaskDetail">点击查看任务详情</p>
+            </slot>
         </el-alert>
         <div class="deep_flow">
             <div class="left_content">
