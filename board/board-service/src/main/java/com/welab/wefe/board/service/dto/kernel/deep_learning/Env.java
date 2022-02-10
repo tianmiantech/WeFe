@@ -68,22 +68,30 @@ public class Env {
 
     public Env(ImageDataIOComponent.Params imageDataIoParam) throws StatusCodeWithException {
         imageDataIoParam.fillDataSetDetail();
-        // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
-        double min = imageDataIoParam.dataSetList
-                .stream()
-                .mapToDouble(x -> x.dataSet.getLabeledCount())
-                .min()
-                .orElse(0);
-
         /**
          * 1. 前端应该不允许使用标注量为0的样本
          * 2. ImageDataIO 中阻止了标注量为 0 的样本
          *
          * 所以正常情况下不应会让这里出现0
          */
-        if (min == 0) {
-            StatusCode.PARAMETER_VALUE_INVALID.throwException("有成员的数据集已标注样本量为 0");
+        for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
+            if (dataSetItem.dataSet.getLabeledCount() < 1) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(
+                                "成员【" + CacheObjects.getMemberName(dataSetItem.memberId) + "】的数据集("
+                                        + dataSetItem.dataSet.getName() + ")已标注样本量为 0，"
+                                        + "请检查各成员的数据集在 union 中的标注量是否正确。"
+                        );
+            }
         }
+
+        // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
+        long min = imageDataIoParam.dataSetList
+                .stream()
+                .mapToLong(x -> x.dataSet.getLabeledCount())
+                .min()
+                .orElse(0);
 
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
@@ -93,7 +101,7 @@ public class Env {
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
                     Math.round(
-                            dataSetItem.dataSet.getLabeledCount() / min
+                            new Double(dataSetItem.dataSet.getLabeledCount()) / min
                     )
             );
 
