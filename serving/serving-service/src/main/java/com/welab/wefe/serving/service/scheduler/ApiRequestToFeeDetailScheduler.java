@@ -57,6 +57,7 @@ public class ApiRequestToFeeDetailScheduler {
     @Autowired
     private FeeConfigService feeConfigService;
 
+    @Autowired
     private ClientServiceService clientServiceService;
 
     @Scheduled(cron = "0 0 0-23 * * ?")
