@@ -336,6 +336,11 @@ public class ServiceService {
 		}
 		model.setStatus(1);
 		serviceRepository.save(model);
+		if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+			JSONObject dataSource = JObject.parseObject(model.getDataSource());
+			String key_calc_rule = dataSource.getString("key_calc_rule");
+			model.setQueryParams(key_calc_rule);
+		}
 		unionServiceService.add2Union(model);
 	}
 
