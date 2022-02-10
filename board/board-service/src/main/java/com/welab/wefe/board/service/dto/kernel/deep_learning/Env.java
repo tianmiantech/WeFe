@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
@@ -68,6 +69,7 @@ public class Env {
 
     public Env(ImageDataIOComponent.Params imageDataIoParam) throws StatusCodeWithException {
         imageDataIoParam.fillDataSetDetail();
+        LOG.info("dataSetList:" + JSON.toJSONString(imageDataIoParam.dataSetList));
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
         double min = imageDataIoParam.dataSetList
                 .stream()
