@@ -17,7 +17,7 @@ import time
 
 class Stat(object):
 
-    def __int__(self):
+    def __init__(self):
         self.count = 0
         self.acc_time = 0
 
