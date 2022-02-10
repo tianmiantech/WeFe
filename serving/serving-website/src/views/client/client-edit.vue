@@ -150,7 +150,6 @@ export default {
 
 
         onSubmit() {
-            console.log(this.userInfo.nickname, 111111111, 2222)
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
                     const {code, message} = await this.$http.post({
