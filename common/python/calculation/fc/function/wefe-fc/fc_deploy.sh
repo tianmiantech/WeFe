@@ -19,6 +19,9 @@ nas_upload(){
 
   s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
 
+  # init project
+  s nas init
+
   # copy root, python, config.properties
   has_python=`s nas command ls  -l nas:///mnt/auto`
   if [[ $has_python =~ 'python' ]]
@@ -29,14 +32,10 @@ nas_upload(){
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
       s build --use-docker --debug
-      # init project
-      s nas init
     else
       echo "remote nas has no python environment, now upload to nas ..."
-
-      # init project
-      s nas init
       s nas upload /data/environment/.s/python nas:///mnt/auto/ -r -o --debug
+      rm -rf .s/
     fi
 
   fi
