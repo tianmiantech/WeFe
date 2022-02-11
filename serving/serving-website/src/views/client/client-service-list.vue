@@ -230,6 +230,7 @@
 <script>
 
 import table from '@src/mixins/table.js';
+import {mapGetters} from 'vuex';
 
 export default {
     name: 'client-service-list',
@@ -270,6 +271,11 @@ export default {
             getListApi: '/clientservice/query-list',
         };
     },
+
+    computed: {
+        ...
+            mapGetters(['userInfo']),
+    },
     methods: {
         open(row, status) {
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
@@ -296,6 +302,7 @@ export default {
                     status,
                     unitPrice: row.unit_price,
                     payType: row.pay_type,
+                    updatedBy: this.userInfo.nickname,
                 },
             });
 

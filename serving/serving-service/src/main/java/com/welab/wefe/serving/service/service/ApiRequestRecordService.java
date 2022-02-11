@@ -105,13 +105,14 @@ public class ApiRequestRecordService {
     }
 
     public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
-
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ApiRequestRecordMysqlModel.class);
+
         return apiRequestRecordRepository.paging(where, input);
 
     }
@@ -143,18 +144,21 @@ public class ApiRequestRecordService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
-                "调用IP", "请求结果");
+        csvWriter.writeRow("Id", "服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
+                "调用IP", "请求结果", "请求时间");
 
         for (ApiRequestRecordMysqlModel model : dataList) {
             csvWriter.writeRow(
+                    model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
                     ServiceTypeEnum.getValue(model.getServiceType()),
                     model.getClientId(),
                     model.getClientName(),
                     model.getIpAdd(),
-                    ServiceResultEnum.getValueByCode(model.getRequestResult()));
+                    ServiceResultEnum.getValueByCode(model.getRequestResult()),
+                    DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2)
+            );
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
