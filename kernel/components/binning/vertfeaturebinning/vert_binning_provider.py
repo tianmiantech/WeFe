@@ -32,6 +32,9 @@
 
 import functools
 import copy
+import operator
+
+import numpy as np
 
 from common.python.utils import log_utils
 from kernel.components.binning.core.bucket_binning import BucketBinning
@@ -39,6 +42,7 @@ from kernel.components.binning.core.custom_binning import CustomBinning
 from kernel.components.binning.core.optimal_binning.optimal_binning import OptimalBinning
 from kernel.components.binning.core.quantile_binning import QuantileBinning
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
+from kernel.security.cipher_compressor.compressor import CipherCompressorProvider, PackingCipherTensor
 from kernel.utils import consts
 
 LOGGER = log_utils.get_logger()
@@ -46,15 +50,19 @@ LOGGER = log_utils.get_logger()
 
 class VertFeatureBinningProvider(BaseVertFeatureBinning):
 
+    def __init__(self):
+        super(VertFeatureBinningProvider, self).__init__()
+        self.compressor = CipherCompressorProvider()
+
     def fit(self, data_instances):
         self._abnormal_detection(data_instances)
 
         # get the encrypted_label from promoter
-        encrypted_label_table = self.transfer_variable.encrypted_label.get(idx=0)
+        # encrypted_label_table = self.transfer_variable.encrypted_label.get(idx=0)
 
         # caculate encrypted bin sum and send the variable binning results to promoter
         modes = self.model_param.modes
-        send_results = self.cal_encrypted_bin_sum(modes, encrypted_label_table, data_instances)
+        send_results = self.cal_encrypted_bin_sum(modes, data_instances)
         self.transfer_variable.encrypted_bin_sum.remote(send_results, role=consts.PROMOTER, idx=0)
 
         # get the provider bin results list
@@ -105,13 +113,20 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
 
         encrypted_bin_sum = self.__static_encrypted_bin_label(data_bin_table, encrypted_label_table,
                                                               self.bin_inner_param.bin_cols_map, split_points)
+        encrypted_bin_sum = self.compressor.compress_dtable(encrypted_bin_sum)
         # LOGGER.debug("encrypted_bin_sum: {}".format(encrypted_bin_sum))
 
-        if need_shuffle:
-            encrypted_bin_sum = self.binning_obj.shuffle_static_counts(encrypted_bin_sum)
+        encode_name_f = functools.partial(self.bin_inner_param.encode_col_name_dict,
+                                          model=self,
+                                          col_name_maps=self.bin_inner_param.col_name_maps)
+        # encrypted_bin_sum = self.bin_inner_param.encode_col_name_dict(encrypted_bin_sum, self)
+        encrypted_bin_sum = encrypted_bin_sum.map(encode_name_f)
 
-        encrypted_bin_sum = self.bin_inner_param.encode_col_name_dict(encrypted_bin_sum)
-        model_param  = copy.deepcopy(self.model_param)
+        self.transfer_variable.encrypted_bin_sum.remote(encrypted_bin_sum,
+                                                        role=consts.PROMOTER,
+                                                        idx=0)
+
+        model_param = copy.deepcopy(self.model_param)
         model_param.category_names = []
         model_param.category_indexs = []
         model_param.bin_indexes = []
@@ -135,13 +150,123 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
         return send_result
 
     def __static_encrypted_bin_label(self, data_bin_table, encrypted_label, cols_dict, split_points):
-        data_bin_with_label = data_bin_table.join(encrypted_label, lambda x, y: (x, y))
-        f = functools.partial(self.binning_obj.add_label_in_partition,
-                              split_points=split_points,
-                              cols_dict=cols_dict)
-        result_sum = data_bin_with_label.mapPartitions(f)
-        encrypted_bin_sum = result_sum.reduce(self.binning_obj.aggregate_partition_label)
+        label_counts = encrypted_label.reduce(operator.add)
+        sparse_bin_points = self.binning_obj.get_sparse_bin(self.bin_inner_param.bin_indexes,
+                                                            self.binning_obj.bin_results.all_split_points)
+        sparse_bin_points = {self.bin_inner_param.header[k]: v for k, v in sparse_bin_points.items()}
+
+        encrypted_bin_sum = self.cal_bin_label(
+            data_bin_table=data_bin_table,
+            sparse_bin_points=sparse_bin_points,
+            label_table=encrypted_label,
+            label_counts=label_counts
+        )
         return encrypted_bin_sum
+
+    def cal_bin_label(self, data_bin_table, sparse_bin_points, label_table, label_counts):
+        """
+
+        data_bin_table : Table.
+            Each element represent for the corresponding bin number this feature belongs to.
+            e.g. it could be:
+            [{'x1': 1, 'x2': 5, 'x3': 2}
+            ...
+             ]
+
+        sparse_bin_points: dict
+            Dict of sparse bin num
+                {"x0": 2, "x1": 3, "x2": 5 ... }
+
+        label_table : Table
+            id with labels
+
+        Returns:
+            Table with value:
+            [[label_0_sum, label_1_sum, ...], [label_0_sum, label_1_sum, ...] ... ]
+        """
+        data_bin_with_label = data_bin_table.join(label_table, lambda x, y: (x, y))
+        f = functools.partial(self.add_label_in_partition,
+                              sparse_bin_points=sparse_bin_points)
+
+        result_counts = data_bin_with_label.mapReducePartitions(f, self.aggregate_partition_label)
+
+        return result_counts
+
+    @staticmethod
+    def add_label_in_partition(data_bin_with_table, sparse_bin_points):
+        """
+        Add all label, so that become convenient to calculate woe and iv
+
+        Parameters
+        ----------
+        data_bin_with_table : Table
+            The input data, the Table is like:
+            (id, {'x1': 1, 'x2': 5, 'x3': 2}, y)
+            where y = [is_label_0, is_label_1, ...]  which is one-hot format array of label
+
+        sparse_bin_points: dict
+            Dict of sparse bin num
+                {0: 2, 1: 3, 2:5 ... }
+
+        Returns
+        -------
+            ['x1', [[label_0_sum, label_1_sum, ...], [label_0_sum, label_1_sum, ...] ... ],
+             'x2', [[label_0_sum, label_1_sum, ...], [label_0_sum, label_1_sum, ...] ... ],
+             ...
+            ]
+
+        """
+        result_sum = {}
+        for _, datas in data_bin_with_table:
+            bin_idx_dict = datas[0]
+            y = datas[1]
+            for col_name, bin_idx in bin_idx_dict.items():
+                result_sum.setdefault(col_name, [])
+                col_sum = result_sum[col_name]
+                while bin_idx >= len(col_sum):
+                    if isinstance(y, PackingCipherTensor):
+                        zero_y = np.zeros(y.dim)
+                        col_sum.append(PackingCipherTensor(zero_y.tolist()))
+                    else:
+                        col_sum.append(np.zeros(len(y)))
+
+                # if bin_idx == sparse_bin_points[col_name]:
+                #     continue
+                col_sum[bin_idx] = col_sum[bin_idx] + y
+        return list(result_sum.items())
+
+    @staticmethod
+    def aggregate_partition_label(sum1, sum2):
+        """
+        Used in reduce function. Aggregate the result calculate from each partition.
+
+        Parameters
+        ----------
+        sum1 :  list.
+            It is like:
+            [[label_0_sum, label_1_sum, ...], [label_0_sum, label_1_sum, ...] ... ]
+        sum2 : list
+            Same as sum1
+        Returns
+        -------
+        Merged sum. The format is same as sum1.
+
+        """
+        if sum1 is None and sum2 is None:
+            return None
+
+        if sum1 is None:
+            return sum2
+
+        if sum2 is None:
+            return sum1
+
+        for idx, label_sum2 in enumerate(sum2):
+            if idx >= len(sum1):
+                sum1.append(label_sum2)
+            else:
+                sum1[idx] = sum1[idx] + label_sum2
+        return sum1
 
     def optimal_binning_sync(self):
         bucket_idx = self.transfer_variable.bucket_idx.get(idx=0)
@@ -163,11 +288,14 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             optimal_result = [ori_sp_list[i] for i in b_idx]
             self.binning_obj_list[index].bin_results.put_col_split_points(col_name, optimal_result)
 
-    def cal_encrypted_bin_sum(self, modes, encrypted_label_table, data_instances):
+    def cal_encrypted_bin_sum(self, modes, data_instances):
+
+        encrypted_label_table = None
+
         send_results = []
         binning_obj_list = []
         all_bin_col_indexs = []
-        all_bin_col_names= []
+        all_bin_col_names = []
         for mode in modes:
             for member in mode["members"]:
                 if (member["role"] == self.role) and (member["bin_feature_names"]) \
@@ -189,11 +317,8 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
                         self.binning_obj = CustomBinning(self.model_param)
                         self.binning_obj.params.feature_split_points = self.model_param.feature_split_points
                     elif self.model_param.method == consts.OPTIMAL:
-                        if self.role == consts.PROVIDER:
-                            self.model_param.bin_num = self.model_param.optimal_binning_param.init_bin_nums
-                            self.binning_obj = QuantileBinning(self.model_param)
-                        else:
-                            self.binning_obj = OptimalBinning(self.model_param)
+                        self.model_param.bin_num = self.model_param.optimal_binning_param.init_bin_nums
+                        self.binning_obj = QuantileBinning(self.model_param)
                     LOGGER.debug("in _init_model, role: {}, local_member_id: {}".format(self.role,
                                                                                         self.component_properties))
                     self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
@@ -207,9 +332,16 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
 
                     # Calculates split points of datas in self party
                     split_points = self.binning_obj.fit_split_points(data_instances)
+
                     if not self.model_param.local_only:
                         if self.model_param.method == consts.OPTIMAL:
                             self.model_param.bin_num = mode["bin_num"]
+
+                        if encrypted_label_table is None:
+                            # get the encrypted_label from promoter
+                            encrypted_label_table = self.transfer_variable.encrypted_label.get(idx=0)
+                            LOGGER.info("Get encrypted_label_table from promoter")
+
                         send_result = self._sync_init_bucket(encrypted_label_table, data_instances, split_points)
                         send_results.append(send_result)
 

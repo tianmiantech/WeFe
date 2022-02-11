@@ -1,0 +1,10 @@
+{
+  "CipherCompressorTransferVariable": {
+    "compress_para": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}
