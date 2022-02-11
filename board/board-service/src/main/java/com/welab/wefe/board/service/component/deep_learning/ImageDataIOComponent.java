@@ -38,6 +38,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -80,6 +81,7 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         }
 
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            String labelList = null;
             // 检查数据集的有效性
             for (DataSetItem dataSetItem : params.getDataSetList()) {
 
@@ -94,6 +96,14 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
                 }
                 if (one.getLabeledCount() == 0) {
                     throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSetItem.memberId) + " 的数据集【" + one.getName() + "】已标注的样本量为 0，无法使用。");
+                }
+                // 检查各成员的数据集的标签列表是否一致
+                if (labelList == null) {
+                    labelList = StringUtil.join(one.getLabelSet(), ",");
+                } else {
+                    if (!labelList.equals(StringUtil.join(one.getLabelSet(), ","))) {
+                        throw new FlowNodeException(node, "各成员提供的数据集标签列表不一致，无法创建任务。");
+                    }
                 }
             }
         }
