@@ -46,7 +46,7 @@ public class UpdateApi extends AbstractApi<MemberUpdateInput, AbstractApiOutput>
         try {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
-                throw new StatusCodeWithException("data does not exist ", StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
             }
 
             if (input.getFreezed() != null) {

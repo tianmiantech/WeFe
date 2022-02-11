@@ -36,6 +36,7 @@ import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zane
@@ -108,6 +109,24 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
                 .createQuery(update)
                 .executeUpdate();
     }
+    
+	@Override
+	public int updateById(String id, Map<String, Object> updateParams, Class<T> clazz) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaUpdate<T> update = cb.createCriteriaUpdate(clazz);
+		Root<T> root = update.from(clazz);
+
+		for (Map.Entry<String, Object> entry : updateParams.entrySet()) {
+			update.set(entry.getKey(), entry.getValue());
+		}
+
+		update.set(root.get("updatedTime"), new Date()).set(root.get("updatedBy"), CurrentAccount.id())
+				.where(cb.equal(root.get("id"), id));
+
+		return entityManager.createQuery(update).executeUpdate();
+
+	}
+
 
     @Override
     public PagingOutput<T> paging(@Nullable Specification<T> queryCondition, PagingInput pagingInput) {

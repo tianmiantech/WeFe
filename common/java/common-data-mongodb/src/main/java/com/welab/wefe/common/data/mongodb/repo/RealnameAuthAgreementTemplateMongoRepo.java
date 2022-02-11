@@ -42,6 +42,14 @@ public class RealnameAuthAgreementTemplateMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate.find(new QueryBuilder().sort("createdTime").build(), RealnameAuthAgreementTemplate.class);
     }
 
+    public String findLastVersion() {
+        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = mongoUnionTemplate.findOne(new QueryBuilder().sort("createdTime").build(), RealnameAuthAgreementTemplate.class);
+        if (realnameAuthAgreementTemplate == null) {
+            return null;
+        }
+        return realnameAuthAgreementTemplate.getVersion();
+    }
+
     public RealnameAuthAgreementTemplate findByTemplateFileSign(String templateFileSign) {
         return mongoUnionTemplate.findOne(
                 new QueryBuilder().append("templateFileSign", templateFileSign).notRemoved().build(),

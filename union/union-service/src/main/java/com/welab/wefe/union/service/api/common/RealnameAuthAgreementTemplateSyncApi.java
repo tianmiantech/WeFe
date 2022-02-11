@@ -55,10 +55,19 @@ public class RealnameAuthAgreementTemplateSyncApi extends AbstractApi<AbstractWi
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
-        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
+        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = null;
+        for (int i = 0; i < 3; i++) {
+            realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileSign(sign);
+            if (realnameAuthAgreementTemplate == null) {
+                continue;
+            }
+            break;
+        }
+
         if (realnameAuthAgreementTemplate == null) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
         }
+
         GridFSFile gridFSFile = gridFsTemplate.findOne(
                 new QueryBuilder()
                         .append("metadata.sign", sign)

@@ -16,13 +16,15 @@
 
 package com.welab.wefe.serving.service.api.setting;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
 
 /**
  * @author Zane
@@ -36,6 +38,8 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
     @Override
     protected ApiResult<GlobalSettingDetailApi.Output> handle() {
         GlobalSettingDetailApi.Output output = ModelMapper.map(repo.singleton(), Output.class);
+        output.setRsaPrivateKey(ServiceUtil.around(output.getRsaPrivateKey(), 10, 10));
+        output.setRsaPublicKey(ServiceUtil.around(output.getRsaPublicKey(), 10, 10));
         return success(output);
     }
 
@@ -47,6 +51,8 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
         private String memberName;
 
         private String rsaPublicKey;
+        
+        private String rsaPrivateKey;
 
         //region getter/setter
 
@@ -73,6 +79,14 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
         public void setRsaPublicKey(String rsaPublicKey) {
             this.rsaPublicKey = rsaPublicKey;
         }
+
+		public String getRsaPrivateKey() {
+			return rsaPrivateKey;
+		}
+
+		public void setRsaPrivateKey(String rsaPrivateKey) {
+			this.rsaPrivateKey = rsaPrivateKey;
+		}
 
         //endregion
     }

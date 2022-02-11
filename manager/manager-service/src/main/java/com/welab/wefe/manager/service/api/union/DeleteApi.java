@@ -39,7 +39,6 @@ public class DeleteApi extends AbstractApi<UnionNodeDeleteInput, AbstractApiOutp
     protected ApiResult<AbstractApiOutput> handle(UnionNodeDeleteInput input) throws StatusCodeWithException {
         LOG.info("DeleteApi handle..");
         try {
-
             unionNodeContractService.deleteByUnionNodeId(input.getNodeId());
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

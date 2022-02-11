@@ -203,4 +203,9 @@ public class TableDataSetService extends DataResourceService {
 
 		return tableDataSetRepository.findOne(where).orElse(null);
 	}
+
+
+	public void save(TableDataSetMysqlModel newDataSetModel) {
+		tableDataSetRepository.save(newDataSetModel);
+	}
 }

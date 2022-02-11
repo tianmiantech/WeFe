@@ -16,9 +16,9 @@
 
 package com.welab.wefe.common.data.mongodb.entity.base;
 
-import com.welab.wefe.common.util.DateUtil;
-
 import java.util.Date;
+
+import com.welab.wefe.common.util.DateUtil;
 
 /**
  * @author yuxin.zhang

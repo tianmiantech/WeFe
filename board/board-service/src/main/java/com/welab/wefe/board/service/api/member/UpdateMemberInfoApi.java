@@ -43,7 +43,13 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
 
     public static class Input extends InitializeApi.Input {
-
+        @Check(
+                name = "成员logo",
+                blockReactionaryKeyword = false,
+                blockSqlInjection = false,
+                blockXss = false
+        )
+        private String memberLogo;
         @Check(name = "成员隐身状态")
         private Boolean memberHidden;
 

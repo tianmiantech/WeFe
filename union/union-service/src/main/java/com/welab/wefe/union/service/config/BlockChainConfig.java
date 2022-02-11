@@ -70,6 +70,7 @@ public class BlockChainConfig {
     private String dataResourceContractName;
     private String tableDataSetContractName;
     private String bloomFilterContractName;
+    private String memberServiceContractName;
 
 
     // add channel disconnect
@@ -233,7 +234,12 @@ public class BlockChainConfig {
         String address = getLatestContractAddressByName(cnsService, bloomFilterContractName);
         return BloomFilterContract.load(address, client, cryptoKeyPair);
     }
-
+    
+    @Bean
+    public MemberServiceContract getLatestVersionMemberServiceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, memberServiceContractName);
+        return MemberServiceContract.load(address, client, cryptoKeyPair);
+    }
 
     /**
      * Obtain the latest version of the contract address according to the name
@@ -388,5 +394,12 @@ public class BlockChainConfig {
 
     public void setBloomFilterContractName(String bloomFilterContractName) {
         this.bloomFilterContractName = bloomFilterContractName;
+    }
+    public String getMemberServiceContractName() {
+        return memberServiceContractName;
+    }
+
+    public void setMemberServiceContractName(String memberServiceContractName) {
+        this.memberServiceContractName = memberServiceContractName;
     }
 }

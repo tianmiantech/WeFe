@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zane
@@ -69,6 +70,12 @@ public interface BaseRepository<T, ID extends Serializable> extends JpaRepositor
     @Transactional(rollbackFor = Exception.class)
     int updateById(String id, String key, Object value, Class<T> clazz);
 
+    /**
+     * Update multiple fields by Id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    int updateById(String id, Map<String, Object> updateParams, Class<T> clazz);
+    
     /**
      * Paging query
      *

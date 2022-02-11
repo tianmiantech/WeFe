@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author zane.luo
+ * @author Winter
  */
 @Service
 public class MixStatisticComponent extends AbstractComponent<MixStatisticComponent.Params> {

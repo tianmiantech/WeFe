@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Longitudinal Pearson correlation coefficient between the two parties based on the spdz agreement
  *
- * @author lonnie
+ * @author Winter
  */
 @Service
 public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent.Params> {

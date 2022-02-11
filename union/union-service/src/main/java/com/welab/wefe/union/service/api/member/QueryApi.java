@@ -74,8 +74,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<MemberQuery
     public static class Input extends BaseInput{
         private String id;
         private String name;
-
-
         private Integer pageIndex = 0;
         private Integer pageSize = 10;
 

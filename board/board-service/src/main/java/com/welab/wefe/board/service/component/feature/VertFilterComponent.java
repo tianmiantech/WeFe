@@ -102,7 +102,7 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
         }
 
         public static class MemberInfoModel extends MemberModel {
-            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=")
+            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=", blockXss=false)
             private String filterRules;
 
             public String getFilterRules() {

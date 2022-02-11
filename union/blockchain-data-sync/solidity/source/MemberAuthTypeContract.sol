@@ -6,7 +6,7 @@ import "./Table.sol";
 
 contract MemberAuthTypeContract{
     string constant TABLE_NAME = "member_auth_type";
-    string constant FIX_ID = "fix_id_006";
+    string constant FIX_ID = "member_auth_type";
 
 
     TableFactory tableFactory;

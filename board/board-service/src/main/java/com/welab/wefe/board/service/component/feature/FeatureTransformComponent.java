@@ -40,7 +40,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 
 /**
- * @author lonnie
+ * @author Winter
  * @date 2021-04-25
  */
 @Service

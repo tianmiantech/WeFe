@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -559,48 +561,51 @@ public class TaskResultService extends AbstractService {
 
         List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
-        // need filter
-        VertOneHotComponent.Params params = JObject.create(node.getParams())
-                .toJavaObject(VertOneHotComponent.Params.class);
-        for (MemberInfoModel memberInfoModel : params.getMembers()) {
-            for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
-                if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
-                        && memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
-                    List<String> needPassFeatures = memberInfoModel.getFeatures();
-                    MemberFeatureInfoModel member = new MemberFeatureInfoModel();
-                    member.setMemberId(dataSetItem.getMemberId());
-                    member.setMemberRole(dataSetItem.getMemberRole());
-                    List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
-                    for (String name : dataSetItem.getFeatures()) {
-                        if (needPassFeatures != null && needPassFeatures.contains(name)) {
-                            continue; // pass
-                        }
-                        MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
-                        feature.setName(name);
-                        features.add(feature);
-                    }
-                    member.setFeatures(features);
-                    member.setDataSetId(dataSetItem.getDataSetId());
-                    member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
-                    members.add(member);
-                }
-            }
-        }
-        TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
-                node.getComponentType());
-        if (myTmpDataSet != null) {
-            for (MemberFeatureInfoModel member : members) {
-                if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
-                    DetailApi.Input input = new DetailApi.Input();
-                    input.setId(myTmpDataSet.getId());
-                    try {
-						TableDataSetOutputModel apiResult = gatewayService.callOtherMemberBoard(member.getMemberId(),
-								DetailApi.class, input, TableDataSetOutputModel.class);
-                        if (apiResult != null) {
-                            LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-                            List<String> newColumnNameList = new ArrayList<>(
-                                    Arrays.asList(apiResult.getFeatureNameList().split(",")));
-                            List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+		// need filter
+		VertOneHotComponent.Params params = JObject.create(node.getParams())
+				.toJavaObject(VertOneHotComponent.Params.class);
+		if (params == null || CollectionUtils.isEmpty(params.getMembers())) {
+			return getMemberFeatures(flowGraph, flowGraph.getNode(node.getNodeId()));
+		}
+		for (MemberInfoModel memberInfoModel : params.getMembers()) {
+			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
+				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
+						&& memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
+					List<String> needPassFeatures = memberInfoModel.getFeatures();
+					MemberFeatureInfoModel member = new MemberFeatureInfoModel();
+					member.setMemberId(dataSetItem.getMemberId());
+					member.setMemberRole(dataSetItem.getMemberRole());
+					List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
+					for (String name : dataSetItem.getFeatures()) {
+						if (needPassFeatures != null && needPassFeatures.contains(name)) {
+							continue; // pass
+						}
+						MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
+						feature.setName(name);
+						features.add(feature);
+					}
+					member.setFeatures(features);
+					member.setDataSetId(dataSetItem.getDataSetId());
+					member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
+					members.add(member);
+				}
+			}
+		}
+		TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
+				node.getComponentType());
+		if (myTmpDataSet != null) {
+			for (MemberFeatureInfoModel member : members) {
+				if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+					DetailApi.Input input = new DetailApi.Input();
+					input.setId(myTmpDataSet.getId());
+					try {
+						TableDataSetOutputModel output = gatewayService.callOtherMemberBoard(member.getMemberId(),
+								JobMemberRole.promoter,DetailApi.class, input,  TableDataSetOutputModel.class);
+						if (output != null) {
+							LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
+							List<String> newColumnNameList = new ArrayList<>(
+									Arrays.asList(output.getFeatureNameList().split(",")));
+							List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
                             List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
                             for (MemberFeatureInfoModel.Feature feature : oldFeatures) {

@@ -69,4 +69,9 @@ public @interface Api {
      * The level of logging
      */
     String logLevel() default "info";
+    
+    /**
+     * forward matching uri
+     * */
+    boolean forward() default false;
 }

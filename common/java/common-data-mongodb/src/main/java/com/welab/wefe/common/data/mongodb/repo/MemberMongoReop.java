@@ -151,7 +151,7 @@ public class MemberMongoReop extends AbstractMongoRepo {
         if (StringUtils.isEmpty(memberId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("memberId", memberId).build();
+        Query query = new QueryBuilder().append("memberId", memberId).notRemoved().build();
         return mongoUnionTemplate.exists(query, Member.class);
     }
 

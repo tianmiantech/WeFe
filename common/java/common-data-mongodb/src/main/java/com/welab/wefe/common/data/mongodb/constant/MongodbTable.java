@@ -44,6 +44,7 @@ public class MongodbTable {
         public static final String DATA_RESOURCE = "DataResource";
         public static final String TABLE_DATASET = "TableDataSet";
         public static final String BLOOM_FILTER = "BloomFilter";
+        public static final String MEMBER_SERVICE = "MemberService";
     }
 
     public static final class Sms {

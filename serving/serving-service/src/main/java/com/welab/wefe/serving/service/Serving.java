@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
@@ -63,6 +64,9 @@ public class Serving {
                         case Board:
                             rsaVerifyBoard(params);
                             break;
+                        case Customer:
+                        	rsaVerifyCustomer(params);
+                        	break;
                         default:
                             throw new RuntimeException("Unexpected enumeration value");
                     }
@@ -77,9 +81,42 @@ public class Serving {
 
         //Initialize verification code memory
         CaptchaService.init();
+        
+        // init PrivateInformationRetrievalServer
+        PrivateInformationRetrievalServer.init(100);
     }
 
-    /**
+	/**
+	 * rsa Signature check
+	 * <p>
+	 * customer
+	 * </p>
+	 */
+	private static void rsaVerifyCustomer(JSONObject params) throws Exception {
+		SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+		/**
+		 * Find signature information
+		 */
+		// TODO
+//		MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
+//		MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
+//
+//		if (member == null) {
+//			throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(),
+//					StatusCode.PARAMETER_VALUE_INVALID);
+//		}
+//
+//		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+//				RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
+//		if (!verified) {
+//			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+//		}
+
+		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+		params.put("customer_id", signedApiInput.getCustomerId());
+	}
+
+	/**
      * rsa Signature check
      * <p>
      * Federal member
