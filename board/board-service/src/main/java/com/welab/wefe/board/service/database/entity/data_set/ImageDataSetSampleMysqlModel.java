@@ -17,13 +17,17 @@
 package com.welab.wefe.board.service.database.entity.data_set;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.util.StringUtil;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * @author Zane
@@ -67,6 +71,20 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
      * xml 形式的标注信息
      */
     private String xmlAnnotation;
+
+    @JSONField(serialize = false)
+    public TreeSet<String> getLabelSet() {
+        TreeSet<String> labelSet = new TreeSet<>();
+        if (StringUtil.isEmpty(labelList)) {
+            return labelSet;
+        }
+
+        List<String> list = StringUtil.splitWithoutEmptyItem(labelList, ",");
+        for (String label : list) {
+            labelSet.add(label);
+        }
+        return labelSet;
+    }
 
     //region getter/setter
 

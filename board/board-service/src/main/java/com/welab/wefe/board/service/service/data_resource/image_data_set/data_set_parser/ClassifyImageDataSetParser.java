@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -129,12 +132,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
     }
 
     private List<String> emitLabelListFile(ImageDataSetMysqlModel dataSet, Path outputDir) throws IOException {
-        Set<String> labelSet = new TreeSet<>();
-        for (String label : dataSet.getLabelList().split(",")) {
-            labelSet.add(label);
-        }
-        List<String> labelList = new ArrayList<>();
-        labelList.addAll(labelSet);
+        List<String> labelList = new ArrayList<>(dataSet.getLabelSet());
 
         String labelListStr = "";
         for (int i = 0; i < labelList.size(); i++) {

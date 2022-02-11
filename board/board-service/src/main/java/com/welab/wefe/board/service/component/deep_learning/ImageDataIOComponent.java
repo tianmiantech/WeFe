@@ -81,19 +81,19 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
             // 检查数据集的有效性
-            for (DataSetItem dataSet : params.getDataSetList()) {
+            for (DataSetItem dataSetItem : params.getDataSetList()) {
 
                 ImageDataSetOutputModel one = null;
                 try {
-                    one = imageDataSetService.findDataSetFromLocalOrUnion(dataSet.memberId, dataSet.dataSetId);
+                    one = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
                 } catch (StatusCodeWithException e) {
                     throw new FlowNodeException(node, e.getMessage());
                 }
                 if (one == null) {
-                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
+                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSetItem.memberId) + " 的数据集 " + dataSetItem.getDataSetId() + " 不存在，请检查是否已删除。");
                 }
                 if (one.getLabeledCount() == 0) {
-                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集【" + one.getName() + "】已标注的样本量为 0，无法使用。");
+                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSetItem.memberId) + " 的数据集【" + one.getName() + "】已标注的样本量为 0，无法使用。");
                 }
             }
         }

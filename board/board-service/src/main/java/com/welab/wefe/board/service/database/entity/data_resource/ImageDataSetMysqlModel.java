@@ -16,6 +16,8 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
@@ -23,6 +25,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * @author zane
@@ -55,6 +59,20 @@ public class ImageDataSetMysqlModel extends DataResourceMysqlModel {
 
     public ImageDataSetMysqlModel() {
         super.setDataResourceType(DataResourceType.ImageDataSet);
+    }
+
+    @JSONField(serialize = false)
+    public TreeSet<String> getLabelSet() {
+        TreeSet<String> labelSet = new TreeSet<>();
+        if (StringUtil.isEmpty(labelList)) {
+            return labelSet;
+        }
+
+        List<String> list = StringUtil.splitWithoutEmptyItem(labelList, ",");
+        for (String label : list) {
+            labelSet.add(label);
+        }
+        return labelSet;
     }
 
     // region getter/setter

@@ -87,7 +87,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
      */
     private void emitLabelListFile(ImageDataSetMysqlModel dataSet, Path outputDir) throws IOException {
         String labelListStr = StringUtil.join(
-                StringUtil.splitWithoutEmptyItem(dataSet.getLabelList(), ","),
+                dataSet.getLabelSet(),
                 System.lineSeparator()
         );
         Path labelListPath = Paths.get(
