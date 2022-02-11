@@ -448,10 +448,6 @@ class FCSource(Table):
                                      flow_name='singleJob_main', unfold_result=True)
         return self._tmp_source_from_fcs(rtn_fcs)
 
-        # data = fc_source.reduce(_dict_reduce)
-        # from common.python import session
-        # return session.parallelize(data.items(), include_key=True, partition=10)
-
     @log_elapsed
     def reduce(self, func, key_func=None):
         rtn_fcs = self._call_fc(fc_name='reduce', func=func, key_func=key_func)
