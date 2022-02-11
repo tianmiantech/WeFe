@@ -135,9 +135,14 @@ class RDDSource(Table):
 
         num_partition = self._dsource._partitions
 
-        # If the system forces to specify the number of shards, use the specified number
-        num_slices = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
-        num_partition = int(num_slices) if num_slices else num_partition
+        # use runtime partition first
+        runtime_partition = RuntimeInstance.get_spark_partition()
+        if runtime_partition:
+            num_partition = int(runtime_partition)
+        else:
+            # If the system forces to specify the number of shards, use the specified number
+            num_slices = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
+            num_partition = int(num_slices) if num_slices else num_partition
 
         from pyspark import SparkContext
         self._rdd = SparkContext.getOrCreate() \
