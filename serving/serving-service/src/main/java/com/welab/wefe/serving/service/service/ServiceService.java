@@ -306,6 +306,11 @@ public class ServiceService {
 		output.setParams(model.getQueryParams());
 		output.setUrl(SERVICE_PRE_URL + model.getUrl());
 		if (model.getStatus() == 1) {
+			if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+				JSONObject dataSource = JObject.parseObject(model.getDataSource());
+				String key_calc_rule = dataSource.getString("key_calc_rule");
+				model.setQueryParams(key_calc_rule);
+			}
 			unionServiceService.add2Union(model);
 		} else {
 			unionServiceService.offline2Union(model);
