@@ -27,7 +27,7 @@
         >
             <el-table-column
                 label="训练"
-                min-width="220px"
+                min-width="160px"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
@@ -518,6 +518,7 @@
                     const query = {
                         flow_id:       data.flow_id,
                         training_type: this.form.project_type === 'DeepLearning' ? opt.federated_learning_type : '',
+                        project_id:    this.project_id,
                     };
 
                     this.$router.push({

@@ -105,12 +105,13 @@
                                             >
                                                 <el-form-item label="数据资源名称：">
                                                     {{ row.data_set.name }}
-                                                    <i
+                                                    <el-icon 
                                                         v-if="!vData.disabled"
-                                                        title="移除"
-                                                        class="el-icon-circle-close f20 ml10"
+                                                        class="el-icon-circle-close f16 ml10"
                                                         @click="methods.removeDataSet(index)"
-                                                    />
+                                                    >
+                                                        <elicon-circle-close />
+                                                    </el-icon>
                                                 </el-form-item>
                                                 <el-form-item label="数据资源id："> {{ row.data_set_id }} </el-form-item>
                                                 <el-form-item v-if="row.data_set.description" label="数据资源简介：">
@@ -309,10 +310,10 @@
                                         />
                                     </el-form-item>
                                     <el-form-item label="图片通道数：" required>
-                                        <el-input
-                                            type="number"
-                                            v-model="vData.image_shape.aisle"
-                                        />
+                                        <el-radio-group v-model="vData.image_shape.aisle">
+                                            <el-radio :label="3">彩色（3）</el-radio>
+                                            <el-radio :label="1">黑白（1）</el-radio>
+                                        </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="图片宽度：" required>
                                         <el-input
@@ -356,9 +357,9 @@
             </div>
             <div class="step_header">
                 <el-steps direction="vertical" :active="vData.active" align-center>
-                    <el-step title="基本设置" />
-                    <el-step title="数据输入与处理" />
-                    <el-step title="调整流程参数" />
+                    <el-step title="基本设置" @click="methods.changeSteps(0)" />
+                    <el-step title="数据输入与处理" @click="methods.changeSteps(1)" />
+                    <el-step title="调整流程参数" @click="methods.changeSteps(2)" />
                 </el-steps>
             </div>
         </div>
@@ -402,8 +403,10 @@
                     image_shape:  [],
                     batch_size:   128,
                 },
-                image_shape: {},
-                flowInfo:    {
+                image_shape: {
+                    aisle: 3,
+                },
+                flowInfo: {
                     project_id: '',
                 },
                 promoterList:      [],
@@ -955,7 +958,7 @@
                             vData.deepLearnParams.program = data.component_type === 'PaddleDetection' ? 'paddle_detection' : data.component_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
-                                    vData.image_shape.aisle = params.image_shape[0] || 0;
+                                    vData.image_shape.aisle = params.image_shape[0] || 3;
                                     vData.image_shape.width = params.image_shape[1] || 0;
                                     vData.image_shape.height = params.image_shape[2] || 0;
                                 }
@@ -999,7 +1002,7 @@
                     }
                     vData.formImageDataIO.flowId = vData.flow_id;
                     vData.formImageDataIO.nodeId = vData.flowInfo.graph ? vData.flowInfo.graph.nodes[1].id : vData.graphNodes.graph.nodes[1].id;
-                    vData.deepLearnParams.image_shape[0] = Number(vData.image_shape.aisle) || 0;
+                    vData.deepLearnParams.image_shape[0] = Number(vData.image_shape.aisle) || 3;
                     vData.deepLearnParams.image_shape[1] = Number(vData.image_shape.width) || 0;
                     vData.deepLearnParams.image_shape[2] = Number(vData.image_shape.height) || 0;
                     const params = {
@@ -1009,6 +1012,7 @@
                         params:        vData.deepLearnParams,
                     };
 
+                    // return;
                     vData.startLoading = true;
                     const { code } = await $http.post({
                         url:  '/project/flow/node/update',
@@ -1150,7 +1154,7 @@
                     cursor: pointer;
                     color: $--color-danger;
                     position: relative;
-                    top: 4px;
+                    top: 2px;
                 }
             }
         }
