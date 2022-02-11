@@ -125,7 +125,7 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.save(model);
 
         AddApi.BloomfilterAddOutput output = new AddApi.BloomfilterAddOutput();
-        output.setDataSourceId(model.getDataSourceId());
+        output.setDataSourceId(model.getId());
         return output;
     }
 
