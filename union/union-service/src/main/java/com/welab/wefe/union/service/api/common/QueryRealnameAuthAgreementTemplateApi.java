@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,9 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 
 /**
- * Check service availability
- *
- * @author aaron.li
+ * @author yuxin.zhang
  **/
 @Api(path = "realname/auth/agreement/template/query", name = "available", rsaVerify = true, login = false)
 public class QueryRealnameAuthAgreementTemplateApi extends AbstractApi<BaseInput, RealnameAuthAgreementTemplateOutput> {

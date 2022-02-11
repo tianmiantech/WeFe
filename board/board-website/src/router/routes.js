@@ -397,7 +397,7 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '成员信息',
+                    title:           '成员设置',
                 },
                 component: () => import('../views/system-config/member-view'),
             },

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -108,7 +108,7 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
                 .append("member_id", dataSetQueryInput.getMemberId())
                 .append("data_set_id", dataSetQueryInput.getDataSetId())
                 .append("contains_y", null == dataSetQueryInput.getContainsY() ? null : String.valueOf(dataSetQueryInput.getContainsY() ? 1 : 0))
-                .append("ext_json.enable",dataSetQueryInput.getEnable())
+                .append("ext_json.enable", dataSetQueryInput.getEnable())
                 .append("status", dataSetQueryInput.getStatus() != null ? (dataSetQueryInput.getStatus() ? 1 : 0) : null)
                 .getCriteria();
 
@@ -116,7 +116,7 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataSetQueryInput.getMemberName())
+                .like("member_name", dataSetQueryInput.getMemberName())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
@@ -126,12 +126,12 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, addFieldsOperation);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, skipOperation, limitOperation, addFieldsOperation);
 
         List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
 
@@ -159,6 +159,7 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
 
         Criteria dataSetCriteria = new QueryBuilder()
                 .notRemoved()
+                .append("ext_json.enable", true)
                 .like("name", dataSetQueryInput.getName())
                 .like("tags", dataSetQueryInput.getTag())
                 .append("member_id", dataSetQueryInput.getMemberId())
@@ -175,7 +176,10 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataSetMatch = Aggregation.match(dataSetCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataSetQueryInput.getMemberName())
+                .like("member.name", dataSetQueryInput.getMemberName())
+                .append("member.hidden", "0")
+                .append("member.freezed", "0")
+                .append("member.lost_contact", "0")
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
@@ -185,12 +189,12 @@ public class DataSetMongoReop extends AbstractDataSetMongoRepo {
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, addFieldsOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, addFieldsOperation);
         int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults().size();
 
         SkipOperation skipOperation = Aggregation.skip((long) dataSetQueryInput.getPageIndex() * dataSetQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataSetQueryInput.getPageSize());
-        aggregation = Aggregation.newAggregation(dataSetMatch, memberMatch, lookupToLots, unwind, skipOperation, limitOperation, addFieldsOperation);
+        aggregation = Aggregation.newAggregation(lookupToLots, unwind, dataSetMatch, memberMatch, addFieldsOperation, skipOperation, limitOperation);
 
         List<DataSetQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATASET, DataSetQueryOutput.class).getMappedResults();
 

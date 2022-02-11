@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -90,5 +90,11 @@ public class EventConstant {
     public static final class BloomFilterEvent {
         public static final String INSERT_EVENT = "INSERTEVENT";
         public static final String UPDATE_HASH_FUNCTION_EVENT = "UPDATEHASHFUNCTIONEVENT";
+    }
+    public static final class MemberService {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_SERVICE_ID_EVENT = "DELETEBYSERVICEIDEVENT";
+        public static final String UPDATE_SERVICE_STATUS_EVENT = "UPDATESERVICESTATUSEVENT";
     }
 }
