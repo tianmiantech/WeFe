@@ -29,6 +29,7 @@
 import uuid
 from typing import Iterable
 
+from common.python import RuntimeInstance
 from common.python.calculation.spark import util
 from common.python.common import consts
 from common.python.common.consts import NAMESPACE
@@ -326,7 +327,7 @@ class RDDSource(Table):
         if partition is None:
             partition = self._partitions
         partition = partition or self._partitions
-        from common.python import RuntimeInstance
+        # from common.python import RuntimeInstance
         persistent_engine = RuntimeInstance.SESSION.get_persistent_engine()
         if self._dsource:
             _dtable = self._dsource.save_as(name, namespace, partition,
