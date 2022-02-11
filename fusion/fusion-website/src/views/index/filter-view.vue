@@ -623,7 +623,7 @@ export default {
                     this.$message.success(`保存成功，过滤器包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                 } else {
                     this.$message.success('保存成功!');
-                    this.getDataSetStatus(data.id);
+                    this.getDataSetStatus(data.data_source_id);
                 }
             } else {
                 this.saveLoading = false;
