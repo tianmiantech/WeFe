@@ -39,16 +39,16 @@ class ComputerTest(object):
         self.data_size = data_size
 
     def main(self):
-        # self.map()
-        # self.map_values()
-        # self.map_partition()
-        # self.map_partition2()
-        # self.reduce()
-        # self.join()
-        # self.union()
-        # self.filter()
-        # self.flat_map()
-        # self.apply_partitions()
+        self.map()
+        self.map_values()
+        self.map_partition()
+        self.map_partition2()
+        self.reduce()
+        self.join()
+        self.union()
+        self.filter()
+        self.flat_map()
+        self.apply_partitions()
         self.map_reduce_partitions()
 
 
@@ -324,5 +324,5 @@ def process_pool_test():
 
 
 if __name__ == '__main__':
-    ct = ComputerTest(backend_list=[Backend.LOCAL, Backend.FC])
+    ct = ComputerTest(backend_list=[Backend.LOCAL, Backend.FC], data_size=100)
     ct.main()

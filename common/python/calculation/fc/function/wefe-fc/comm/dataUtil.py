@@ -80,7 +80,7 @@ def get_source_fc_storage(evt):
 
 
 def get_other_fc_storage(evt):
-    return _get_assign_fc_storage(evt, name="other")
+    return _get_assign_fc_storage(evt, name="others")
 
 
 def get_dest_fc_storage(evt):
@@ -112,8 +112,8 @@ def _get_assign_fc_storage(evt, name='source'):
                      cloud_store_temp_auth=cloud_store_temp_auth)
 
 
-def get_data_from_fcs(fcs, partition, only_key=False, dispersal=True):
-    return fcs.collect(partition=partition, only_key=only_key, dispersal=dispersal)
+def get_data_from_fcs(fcs, partition, only_key=False):
+    return fcs.collect(partition=partition, only_key=only_key)
 
 
 def get_execution_id(evt):
