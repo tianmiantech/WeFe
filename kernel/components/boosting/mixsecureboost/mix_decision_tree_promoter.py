@@ -44,7 +44,7 @@ from kernel.components.boosting.core.subsample import goss_sampling
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import CriterionMeta
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import DecisionTreeModelMeta
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import DecisionTreeModelParam
-from kernel.security.encrypt import PaillierEncrypt, IterativeAffineEncrypt
+from kernel.security.encrypt import PaillierEncrypt
 from kernel.transfer.variables.transfer_class.mix_decision_tree_transfer_variable import MixDecisionTreeTransferVariable
 from kernel.utils import consts
 from kernel.utils.data_util import NoneType
@@ -151,8 +151,6 @@ class MixDecisionTreePromoter(DecisionTree):
 
         if type(self.encrypter) == PaillierEncrypt:
             return consts.PAILLIER
-        elif type(self.encrypter) == IterativeAffineEncrypt:
-            return consts.ITERATIVEAFFINE
         else:
             raise ValueError('unknown encrypter type: {}'.format(type(self.encrypter)))
 

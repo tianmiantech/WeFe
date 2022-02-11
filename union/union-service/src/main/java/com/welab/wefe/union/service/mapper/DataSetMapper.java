@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,6 +61,9 @@ public interface DataSetMapper {
      */
     @Mappings({
             @Mapping(source = "dataSetId", target = "id"),
+            @Mapping(target = "usageCountInJob",expression = "java(com.welab.wefe.common.util.StringUtil.isEmpty(entity.getUsageCountInJob()) ? 0 : Integer.parseInt(entity.getUsageCountInJob()))"),
+            @Mapping(target = "usageCountInFlow",expression = "java(com.welab.wefe.common.util.StringUtil.isEmpty(entity.getUsageCountInFlow()) ? 0 : Integer.parseInt(entity.getUsageCountInFlow()))"),
+            @Mapping(target = "usageCountInProject",expression = "java(com.welab.wefe.common.util.StringUtil.isEmpty(entity.getUsageCountInProject()) ? 0 : Integer.parseInt(entity.getUsageCountInProject()))"),
             @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
             @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })

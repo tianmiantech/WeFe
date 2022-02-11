@@ -25,6 +25,9 @@
                 <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }}">
                     {{ scope.row.name }}
                 </router-link>
+                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                    bf
+                </el-tag>
                 <br>
                 <span class="p-id">{{ scope.row.id }}</span>
             </template>
@@ -59,18 +62,18 @@
         </el-table-column>
         <el-table-column
             label="资源类型"
-            width="130"
             align="center"
+            width="130"
         >
             <template v-slot="scope">
                 {{ dataResourceTypeMap[scope.row.data_resource_type].label }}
             </template>
         </el-table-column>
         <el-table-column
-            label="任务类型"
-            width="100"
             v-if="search.dataResourceType === 'ImageDataSet'"
+            label="任务类型"
             align="center"
+            width="100"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
@@ -81,15 +84,20 @@
         </el-table-column>
         <el-table-column
             label="数据信息"
-            width="150"
+            width="160"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    样本量：{{scope.row.total_data_count}}
+                    样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>
                     样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
+                <p v-else-if="scope.row.data_resource_type === 'BloomFilter'">
+                    样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    主键组合方式: {{ scope.row.hash_function }}
                 </p>
                 <p v-else>
                     特征量：{{ scope.row.feature_count }}
@@ -105,7 +113,7 @@
                         <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                     </span>
                 </p>
-                
+
             </template>
         </el-table-column>
         <el-table-column
@@ -179,7 +187,7 @@
                                 class="iconfont icon-mark"
                             />
                         </el-icon>
-                        
+
                     </el-tooltip>
                 </router-link>
             </template>
@@ -240,6 +248,9 @@
         methods: {
             getDataList(opt) {
                 this.search = this.searchField;
+                if (this.search.dataResourceType && typeof this.search.dataResourceType === 'string') {
+                    this.search.dataResourceType = [this.search.dataResourceType];
+                }
                 this.pagination.page_index = +this.$route.query.page_index || 1;
                 this.pagination.page_size = +this.$route.query.page_size || 20;
                 this.getList(opt);
@@ -283,9 +294,8 @@
                             ImageDataSet: '/image_data_set/delete',
                             BloomFilter:  '/bloom_filter/delete',
                         };
-                        const url = map[row.data_resource_type];
                         const { code } = await this.$http.post({
-                            url,
+                            url:  map[row.data_resource_type],
                             data: {
                                 id: row.id,
                             },

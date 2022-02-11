@@ -41,9 +41,12 @@
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <router-link :to="{ name: userInfo.member_id === scope.row.member_id ? 'data-view':'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
+                <router-link :to="{ name: 'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
+                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                    bf
+                </el-tag>
                 <br>
                 <span class="p-id">{{ scope.row.data_resource_id }}</span>
             </template>
@@ -78,21 +81,29 @@
         </el-table-column>
         <el-table-column
             label="资源类型"
-            prop="data_resource_type"
-            width="130"
             align="center"
-        />
+            width="130"
+        >
+            <template v-slot="scope">
+                {{ sourceTypeMap[scope.row.data_resource_type] }}
+            </template>
+        </el-table-column>
         <el-table-column
             label="数据信息"
-            width="140"
+            width="160"
         >
             <template v-slot="scope">
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
-                    样本量：{{scope.row.total_data_count}}
+                    样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
                     标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
                     <br>
                     样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                </p>
+                <p v-else-if="scope.row.data_resource_type === 'BloomFilter'">
+                    样本量：{{ scope.row.total_data_count }}
+                    <br>
+                    主键组合方式: {{ scope.row.hash_function }}
                 </p>
                 <p v-else>
                     特征量：{{ scope.row.feature_count }}
@@ -143,8 +154,9 @@
 </template>
 
 <script>
-    import table from '@src/mixins/table';
     import { mapGetters } from 'vuex';
+    import table from '@src/mixins/table';
+
     export default {
         mixins: [table],
         props:  {
@@ -160,12 +172,18 @@
             return {
                 getListApi:          '/union/data_resource/query',
                 defaultSearch:       false,
-                watchRoute:          false,
+                watchRoute:          true,
                 turnPageRoute:       false,
+                requestMethod:       'post',
                 dataResourceTypeMap: {
                     BloomFilter:  'BloomFilter',
                     ImageDataSet: 'img',
                     TableDataSet: 'csv',
+                },
+                sourceTypeMap: {
+                    TableDataSet: 'TableDataSet',
+                    ImageDataSet: 'ImageDataSet',
+                    BloomFilter:  '布隆过滤器',
                 },
             };
         },

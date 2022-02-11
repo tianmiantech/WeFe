@@ -6,7 +6,7 @@ package com.welab.wefe.data.fusion.service.actuator.test;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,8 +61,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
     private int current_index = 0;
     public List<FieldInfo> fieldInfoList;
 
-    public ClientActuator(String businessId, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.ip = ip;
         this.port = port;
 //        this.columnList = columnList;

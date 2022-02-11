@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -82,9 +82,6 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
             // 检查数据集的有效性
             for (DataSetItem dataSet : params.getDataSetList()) {
-                if (!CacheObjects.getMemberId().equals(dataSet.memberId)) {
-                    continue;
-                }
 
                 ImageDataSetOutputModel one = null;
                 try {

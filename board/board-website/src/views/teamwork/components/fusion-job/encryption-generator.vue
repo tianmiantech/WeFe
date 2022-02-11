@@ -34,7 +34,7 @@
             <i class="iconfont icon-circle-plus" @click="methods.addLi" />
             <i :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
         </el-form-item>
-        <p v-if="hash_func">融合公式: {{ hash_func }}</p>
+        <p v-if="hash_func">主键组合方式: {{ hash_func }}</p>
 
         <div v-if="isTrace" class="mt20">
             <el-switch v-model="vData.is_trace" class="mr10" />是否需要回溯

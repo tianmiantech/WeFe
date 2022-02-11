@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity;
 
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.Masker;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 
@@ -48,15 +49,17 @@ public class AccountOutputModel extends AbstractOutputModel {
     public String getEmail() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskEmail(email);
         }
-        return email;
     }
 
     public String getPhoneNumber() {
         if (!CurrentAccount.isAdmin()) {
             return "";
+        } else {
+            return Masker.maskPhoneNumber(phoneNumber);
         }
-        return phoneNumber;
     }
 
     //region getter/setter

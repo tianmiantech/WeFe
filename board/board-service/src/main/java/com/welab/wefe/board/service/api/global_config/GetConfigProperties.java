@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,14 @@ public class GetConfigProperties extends AbstractNoneInputApi<GetConfigPropertie
     @Value("${config.path}")
     private String configFilePath;
 
-    private static final List<String> WHITE_LIST = Arrays.asList("wefe.job.backend");
+    private static final List<String> WHITE_LIST = Arrays.asList(
+            "flow.spark.submit.default.driver.memory",
+            "flow.spark.submit.default.driver.maxResultSize",
+            "flow.spark.submit.default.num.executors",
+            "flow.spark.submit.default.executor.memory",
+            "flow.spark.submit.default.executor.cores",
+            "flow.spark.default.num.slices"
+    );
 
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {

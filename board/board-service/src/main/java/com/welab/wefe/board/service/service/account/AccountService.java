@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -137,7 +137,7 @@ public class AccountService extends AbstractService {
      */
     public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
 
-        if (config.getEnvName().isProductionEnv()) {
+        if (!config.getEnvName().isTestEnv()) {
             // Verification code verification
             if (!CaptchaService.verify(key, code)) {
                 throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
@@ -152,7 +152,9 @@ public class AccountService extends AbstractService {
         AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
         // phone number error
         if (model == null) {
-            throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         if (!model.getEnable()) {
@@ -164,7 +166,9 @@ public class AccountService extends AbstractService {
 
             // Log a login failure event
             LoginSecurityPolicy.onLoginFail(phoneNumber);
-            throw new StatusCodeWithException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         // Check audit status
@@ -219,6 +223,8 @@ public class AccountService extends AbstractService {
         model.setPassword(newPassword);
 
         accountRepository.save(model);
+
+        CurrentAccount.logout(model.getId());
     }
 
 
@@ -280,7 +286,7 @@ public class AccountService extends AbstractService {
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
@@ -356,7 +362,7 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
-        if (model.getSuperAdminRole()){
+        if (model.getSuperAdminRole()) {
             throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
         }
 

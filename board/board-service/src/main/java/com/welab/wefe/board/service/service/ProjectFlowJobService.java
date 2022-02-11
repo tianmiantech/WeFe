@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,22 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
 import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
 import com.welab.wefe.board.service.api.project.job.StopJobApi;
@@ -25,8 +41,20 @@ import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
-import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.database.repository.*;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.database.repository.JobMemberRepository;
+import com.welab.wefe.board.service.database.repository.JobRepository;
+import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
+import com.welab.wefe.board.service.database.repository.TaskRepository;
+import com.welab.wefe.board.service.database.repository.TaskResultRepository;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
@@ -46,16 +74,14 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
-import com.welab.wefe.common.wefe.enums.*;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.FlowActionType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobStatus;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 
 /**
  * @author winter.zou
@@ -638,10 +664,8 @@ public class ProjectFlowJobService extends AbstractService {
             int count = Integer.parseInt(oldTask.getTaskId().split("_")[oldTask.getTaskId().split("_").length - 1]);
             // copy task
             if (copyTask) {
-
                 newTask = new TaskMySqlModel();
                 BeanUtils.copyProperties(oldTask, newTask);
-
                 newTask.setId(new TaskMySqlModel().getId());
                 newTask.setRole(newJob.getMyRole());
                 newTask.setJobId(newJob.getJobId());
@@ -650,24 +674,34 @@ public class ProjectFlowJobService extends AbstractService {
                 newTask.setTaskId(node.createTaskId(newJob, count));
                 newTask.setParentTaskIdList(node.createParentTaskIds(newJob, count));
                 taskRepository.save(newTask);
-            }
+                
+                List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+				// copy task_result
+				for (TaskResultMySqlModel oldResult : oldResults) {
 
-            List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-            // copy task_result
-            for (TaskResultMySqlModel oldResult : oldResults) {
+					TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+					BeanUtils.copyProperties(oldResult, newResult);
 
-                TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-                BeanUtils.copyProperties(oldResult, newResult);
+					newResult.setId(new TaskResultMySqlModel().getId());
+					newResult.setRole(newJob.getMyRole());
+					newResult.setJobId(newJob.getJobId());
+					newResult.setTaskId(node.createTaskId(newJob, count));
+					taskResultRepository.save(newResult);
+				}
 
-                newResult.setId(new TaskResultMySqlModel().getId());
-                newResult.setRole(newJob.getMyRole());
-                newResult.setJobId(newJob.getJobId());
-                newResult.setTaskId(node.createTaskId(newJob, count));
-                taskResultRepository.save(newResult);
+				TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+				if (dataSetModel != null) {
+					TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+					BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+					newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+					newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+					newDataSetModel.setDerivedFrom(node.getComponentType());
+					tableDataSetService.save(newDataSetModel);
+				}
             }
-            if (newTask != null) {
-                newTasks.add(newTask);
-            }
+			if (newTask != null) {
+				newTasks.add(newTask);
+			}
         }
 
         return newTasks;
@@ -705,23 +739,32 @@ public class ProjectFlowJobService extends AbstractService {
             newTask.setParentTaskIdList(node.createParentTaskIds(newJob));
 
             taskRepository.save(newTask);
+            
+            List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+            // copy task_result
+            for (TaskResultMySqlModel oldResult : oldResults) {
+
+                TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+                BeanUtils.copyProperties(oldResult, newResult);
+
+                newResult.setId(new TaskResultMySqlModel().getId());
+                newResult.setRole(newJob.getMyRole());
+                newResult.setJobId(newJob.getJobId());
+                newResult.setTaskId(node.createTaskId(newJob));
+
+                taskResultRepository.save(newResult);
+            }
+            
+            TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+			if (dataSetModel != null) {
+				TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+				BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+				newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+				newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+				newDataSetModel.setDerivedFrom(node.getComponentType());
+				tableDataSetService.save(newDataSetModel);
+			}
         }
-
-        List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-        // copy task_result
-        for (TaskResultMySqlModel oldResult : oldResults) {
-
-            TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-            BeanUtils.copyProperties(oldResult, newResult);
-
-            newResult.setId(new TaskResultMySqlModel().getId());
-            newResult.setRole(newJob.getMyRole());
-            newResult.setJobId(newJob.getJobId());
-            newResult.setTaskId(node.createTaskId(newJob));
-
-            taskResultRepository.save(newResult);
-        }
-
         return newTask;
     }
 

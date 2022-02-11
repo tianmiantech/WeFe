@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,16 @@
 package com.welab.wefe.serving.service.service;
 
 
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
@@ -25,16 +35,10 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.serving.service.api.account.LoginApi;
+import com.welab.wefe.serving.service.api.account.QueryApi.Output;
 import com.welab.wefe.serving.service.api.account.RegisterApi;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.security.SecureRandom;
-import java.util.Random;
-import java.util.UUID;
 
 /**
  * @author Zane
@@ -119,9 +123,9 @@ public class AccountService {
      */
     public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
         //Verification code verification
-        if (!CaptchaService.verify(key, code)) {
-            throw new StatusCodeWithException("Verification code error！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+//        if (!CaptchaService.verify(key, code)) {
+//            throw new StatusCodeWithException("Verification code error！", StatusCode.PARAMETER_VALUE_INVALID);
+//        }
 
         // Check whether it is in the small black room
         if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
@@ -158,4 +162,10 @@ public class AccountService {
 
         return Base64Util.encode(salt);
     }
+
+	public List<Output> query() {
+		List<AccountMySqlModel> accounts = accountRepository.findAll();
+		return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
+				.collect(Collectors.toList());
+	}
 }

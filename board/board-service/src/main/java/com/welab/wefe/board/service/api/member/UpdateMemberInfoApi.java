@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,10 +43,13 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
 
     public static class Input extends InitializeApi.Input {
-
-        @Check(name = "成员logo")
+        @Check(
+                name = "成员logo",
+                blockReactionaryKeyword = false,
+                blockSqlInjection = false,
+                blockXss = false
+        )
         private String memberLogo;
-
         @Check(name = "成员隐身状态")
         private Boolean memberHidden;
 
@@ -68,14 +71,6 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
         }
 
         //region getter/setter
-
-        public String getMemberLogo() {
-            return memberLogo;
-        }
-
-        public void setMemberLogo(String memberLogo) {
-            this.memberLogo = memberLogo;
-        }
 
         public Boolean getMemberHidden() {
             return memberHidden;

@@ -37,7 +37,7 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
@@ -84,7 +84,7 @@
                 <template v-slot="scope">
                     <router-link
                         class="link mr10"
-                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id }}"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
                     >
                         查看
                     </router-link>
@@ -282,6 +282,40 @@
                 </template>
             </div>
         </el-dialog>
+        <!-- 深度学习流程 -->
+        <el-dialog
+            v-model="addDeeplearningFlow"
+            destroy-on-close
+        >
+            <template #title>
+                选择模版:
+                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+            </template>
+
+            <div
+                v-loading="loading"
+                class="model-list"
+            >
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'PaddleDetection' })"
+                >
+                    <span class="model-img f30">
+                        目标检测
+                    </span>
+                </el-button>
+                <el-button
+                    type="text"
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'PaddleClassify' })"
+                >
+                    <span class="model-img f30">
+                        图像分类
+                    </span>
+                </el-button>
+            </div>
+        </el-dialog>
     </el-card>
 </template>
 
@@ -300,14 +334,15 @@
         },
         data() {
             return {
-                timer:          null,
-                locker:         false,
-                loading:        false,
-                project_id:     '',
-                thisProject:    true,
-                disabled:       true,
-                addFlow:        false,
-                copyFlowDialog: {
+                timer:               null,
+                locker:              false,
+                loading:             false,
+                project_id:          '',
+                thisProject:         true,
+                disabled:            true,
+                addFlow:             false,
+                addDeeplearningFlow: false,
+                copyFlowDialog:      {
                     visible:         false,
                     sourceFlowId:    '',
                     targetProject:   '',
@@ -480,11 +515,14 @@
                 this.locker = false;
                 this.loading = false;
                 if(code === 0) {
+                    const query = {
+                        flow_id:       data.flow_id,
+                        training_type: this.form.project_type === 'DeepLearning' ? opt.federated_learning_type : '',
+                    };
+
                     this.$router.push({
-                        name:  this.form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow',
-                        query: {
-                            flow_id: data.flow_id,
-                        },
+                        name: this.form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow',
+                        query,
                     });
                 }
             },
@@ -579,7 +617,7 @@
                     this.addFlow = true;
                 } else {
                     // 创建深度学习流程
-                    this.createFlow();
+                    this.addDeeplearningFlow = true;
                 }
             },
 

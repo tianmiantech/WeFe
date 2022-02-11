@@ -9,8 +9,10 @@
                 <el-col :span="10">
                     <el-form-item
                         prop="name"
-                        label="数据资源名称："
-                        :rules="[{ required: true, message: '数据资源名称必填!' }]"
+                        label="数据资源名称"
+                        :rules="[
+                            { required: true, message: '数据资源名称必填!' }
+                        ]"
                     >
                         <el-input
                             v-model="form.name"
@@ -61,9 +63,6 @@
                             clearable
                             rows="4"
                         />
-                    </el-form-item>
-                    <el-form-item v-if="form.hash_function" label="融合公式：">
-                        {{ form.hash_function }}
                     </el-form-item>
                 </el-col>
                 <el-col
@@ -223,7 +222,7 @@
                 <preview-image-list ref="PreviewImageListRef" />
             </el-row>
             <el-button
-                class="save-btn"
+                class="save-btn mt20"
                 type="primary"
                 size="large"
                 @click="update"
@@ -279,7 +278,6 @@
                     description:        '',
                     public_member_list: [],
                     metadata_list:      [],
-                    hash_function:      '',
                 },
                 raw_data_list:       [],
                 metadata_pagination: {
@@ -396,16 +394,9 @@
 
             async getData() {
                 this.loading = true;
-                const map = {
-                    BloomFilter: '/bloom_filter/detail',
-                    img:         '/image_data_set/detail',
-                    csv:         '/table_data_set/detail',
-                };
+                const url = this.addType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail';
                 const { code, data } = await this.$http.get({
-                    url:    map[this.addType],
-                    params: {
-                        id: this.id,
-                    },
+                    url: `${url}?id=` + this.id,
                 });
 
                 if (code === 0) {
@@ -465,13 +456,8 @@
                 }
 
                 this.loading = true;
-                const map = {
-                    BloomFilter: '/bloom_filter/update',
-                    img:         '/image_data_set/update',
-                    csv:         '/table_data_set/update',
-                };
                 const { code } = await this.$http.post({
-                    url:     map[this.addType],
+                    url:     this.addType === 'csv' ? '/table_data_set/update' : '/image_data_set/update',
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,

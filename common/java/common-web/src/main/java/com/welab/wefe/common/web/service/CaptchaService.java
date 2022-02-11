@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,7 +68,7 @@ public class CaptchaService {
     /**
      * Verification code
      */
-    public static Boolean verify(String key, String code) {
+    public synchronized static Boolean verify(String key, String code) {
 
         try {
             String verCode = captchaMap.get(key);
@@ -79,6 +79,10 @@ public class CaptchaService {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+        } finally {
+            if (captchaMap.containsKey(key)) {
+                captchaMap.remove(key);
+            }
         }
 
         return false;

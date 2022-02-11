@@ -769,7 +769,7 @@ CREATE TABLE `member_chat`
     KEY                 `index_created_time` (`created_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息明细表';
 
-
+DROP TABLE IF EXISTS `model_oot_record`;
 CREATE TABLE `model_oot_record`
 (
     `id`                     varchar(32) NOT NULL COMMENT '全局唯一标识',

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,9 @@ package com.welab.wefe.board.service.util.primarykey;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.Sha1;
+import com.welab.wefe.common.wefe.enums.HashOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,9 +45,9 @@ public class PrimaryKeyUtils {
                 case SHA1:
                     builder.append(sha1(data, x.getColumnList()));
                     break;
-                case SUBSTRING:
-                    builder.append(subString(data, x.getColumnList(), x.getFristIndex(), x.getEndIndex()));
-                    break;
+//                case SUBSTRING:
+//                    builder.append(subString(data, x.getColumnList(), x.getFristIndex(), x.getEndIndex()));
+//                    break;
                 case NONE:
                     builder.append(none(data, x.getColumnList()));
                     break;
@@ -119,4 +121,48 @@ public class PrimaryKeyUtils {
         return builder.toString();
     }
 
+    public static String hashFunction(List<FieldInfo> fieldInfos) {
+        StringBuilder builder = new StringBuilder();
+        fieldInfos.forEach(x -> {
+            switch (x.getOptions()) {
+                case MD5:
+                    builder.append(md5HashStr(x.getColumnList()) + "+");
+                    break;
+                case SHA1:
+                    builder.append(shaHashStr(x.getColumnList()) + "+");
+                    break;
+                case NONE:
+                    builder.append(noneHashStr(x.getColumnList()) + "+");
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        return builder.substring(0, builder.length() - 1);
+    }
+
+    private static String md5HashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return "MD5(" + builder.substring(0, builder.length() - 1) + ")";
+    }
+
+    private static String shaHashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return "SHA(" + builder.substring(0, builder.length() - 1) + ")";
+    }
+
+    private static String noneHashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return builder.substring(0, builder.length() - 1);
+    }
 }

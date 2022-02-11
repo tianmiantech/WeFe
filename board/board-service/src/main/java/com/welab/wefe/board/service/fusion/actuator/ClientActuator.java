@@ -1,5 +1,3 @@
-package com.welab.wefe.board.service.fusion.actuator;
-
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -7,7 +5,7 @@ package com.welab.wefe.board.service.fusion.actuator;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +13,13 @@ package com.welab.wefe.board.service.fusion.actuator;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.board.service.fusion.actuator;
 
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.DownloadBFApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.PsiCryptoApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ReceiveResultApi;
-import com.welab.wefe.board.service.api.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -64,9 +60,10 @@ public class ClientActuator extends AbstractPsiClientActuator {
     GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
     private String[] headers;
+    public Boolean serverIsReady = false;
 
-    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId) {
-        super(businessId, dataSetId, isTrace, traceColumn);
+    public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
+        super(businessId, dataSetId, isTrace, traceColumn, dataCount);
         this.dstMemberId = dstMemberId;
     }
 
@@ -115,7 +112,39 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
-        fusionTaskService.updateByBusinessId(businessId, FusionTaskStatus.Success, fusionCount.intValue(), getSpend());
+        switch (status) {
+            case success:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Success,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            case falsify:
+            case running:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Interrupt,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+            default:
+                fusionTaskService.updateByBusinessId(
+                        businessId,
+                        FusionTaskStatus.Failure,
+                        dataCount,
+                        fusionCount.longValue(),
+                        processedCount.longValue(),
+                        getSpend()
+                );
+                break;
+        }
     }
 
     @Override
@@ -158,7 +187,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
             currentIndex++;
 
-
             return curList;
         }
     }
@@ -189,17 +217,32 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public PsiActuatorMeta downloadBloomFilter() {
+    public PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException {
 
         LOG.info("downloadBloomFilter start");
 
-        //调用gateway
-        JSONObject result = null;
-        try {
-            result = gatewayService.callOtherMemberBoard(dstMemberId, DownloadBFApi.class, new DownloadBFApi.Input(businessId), JSONObject.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (true) {
+            if (serverIsReady) {
+                break;
+            }
+
+            JSONObject result = gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ServerSynStatusApi.class,
+                    new ServerSynStatusApi.Input(businessId),
+                    JSONObject.class
+            );
+            serverIsReady = result.getBoolean("ready");
         }
+
+        //调用gateway
+        JSONObject result = gatewayService.callOtherMemberBoard(
+                dstMemberId,
+                DownloadBFApi.class,
+                new DownloadBFApi.Input(businessId),
+                JSONObject.class
+        );
+
 
         LOG.info("downloadBloomFilter end {} ", result);
 
@@ -225,13 +268,13 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 PsiMeta.class
         );
 
+
         List<String> list = result.getBs();
 
         byte[][] ss = new byte[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             ss[i] = Base64Util.base64ToByteArray(list.get(i));
         }
-
         return ss;
     }
 

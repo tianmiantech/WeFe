@@ -59,8 +59,8 @@
                     {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>
                 <template v-if="addDataType === 'img'">
-                    <el-descriptions-item label="数据总量：">
-                        {{ dataInfo.total_data_count }}
+                    <el-descriptions-item label="样本量/已标注：">
+                        {{ dataInfo.total_data_count }}/{{dataInfo.labeled_count}}
                     </el-descriptions-item>
                     <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
                         {{ dataInfo.label_list.split(',').length }}
@@ -93,7 +93,7 @@
         </div>
 
         <p class="mt10" v-if="addDataType === 'BloomFilter'">
-            融合公式: {{ dataInfo.hash_function || '无' }}
+            主键组合方式: {{ dataInfo.hash_function || '无' }}
         </p>
 
         <template v-else>

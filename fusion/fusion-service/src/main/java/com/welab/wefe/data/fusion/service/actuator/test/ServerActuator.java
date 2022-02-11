@@ -6,7 +6,7 @@ package com.welab.wefe.data.fusion.service.actuator.test;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,8 +57,8 @@ public class ServerActuator extends AbstractPsiServerActuator {
     protected String ip;
     protected int port;
 
-    public ServerActuator(String businessId, BloomFilters bloomFilters, String ip, int port, BigInteger N, BigInteger e, BigInteger d) {
-        super(businessId, bloomFilters, N, e, d);
+    public ServerActuator(String businessId, BloomFilters bloomFilters, String ip, int port, BigInteger N, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
+        super(businessId, bloomFilters, N, e, d, p, q, dataCount);
         this.ip = ip;
         this.port = port;
     }
@@ -71,8 +71,8 @@ public class ServerActuator extends AbstractPsiServerActuator {
     @Override
     public void dump(List<JObject> fruit) {
 
-            //Put in storage
-            dump(fruit);
+        //Put in storage
+        dump(fruit);
 
         LOG.info("fruit insert ready...");
 

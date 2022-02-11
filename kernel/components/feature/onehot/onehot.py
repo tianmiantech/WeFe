@@ -135,6 +135,7 @@ class OneHotEncoder(ModelBase):
         self.schema = {}
         self.model_param = OneHotEncoderParam()
         self.inner_param: OneHotInnerParam = None
+        self.set_show_name("(One Hot Encoder)")
 
     def _init_model(self, model_param):
         self.model_param = model_param
@@ -208,11 +209,12 @@ class OneHotEncoder(ModelBase):
         LOGGER.debug("original_dimension:{}".format(len(header)))
         self.inner_param.set_header(header)
 
-        if self.model_param.transform_col_indexes == -1:
-            self.inner_param.set_transform_all()
-        else:
-            self.inner_param.add_transform_indexes(self.model_param.transform_col_indexes)
+        if self.model_param.transform_col_names is not None:
             self.inner_param.add_transform_names(self.model_param.transform_col_names)
+            self.inner_param.add_transform_indexes(
+                [header.index(feature) for feature in self.model_param.transform_col_names])
+        else:
+            self.inner_param.set_transform_all()
 
     @staticmethod
     def record_new_header(data, inner_param: OneHotInnerParam):
@@ -291,9 +293,11 @@ class OneHotEncoder(ModelBase):
                 _transformed_value[new_col_name] = 1
 
         new_feature = [_transformed_value[x] if x in _transformed_value else 0 for x in result_header]
-
-        feature_array = np.array(new_feature, dtype='float64')
-        instance.features = feature_array
+        try:
+            feature_array = np.array(new_feature, dtype='float64')
+            instance.features = feature_array
+        except Exception as e:
+            raise ValueError(e.message)
         return instance
 
     def set_schema(self, data_instance):

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -71,6 +71,12 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "数据集是否已被删除")
     private boolean deleted;
 
+	public String getDerivedFromCn() {
+		if (derivedFrom != null) {
+			return derivedFrom.getLabel();
+		}
+		return "";
+	}
 
     public String getDataResourceId() {
         return super.getId();

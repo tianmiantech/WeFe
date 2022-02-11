@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,11 +38,12 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
 
     private PsiActuatorMeta psiClientMeta;
 
-    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn) {
+    public AbstractPsiClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, Long dataCount) {
         super(businessId);
         this.dataSetId = dataSetId;
         this.isTrace = isTrace;
         this.traceColumn = traceColumn;
+        this.dataCount = dataCount;
     }
 
     /**
@@ -65,7 +66,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      *
      * @return
      */
-    public abstract PsiActuatorMeta downloadBloomFilter();
+    public abstract PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException;
 
     /**
      * Download the Server Square Bloom filter

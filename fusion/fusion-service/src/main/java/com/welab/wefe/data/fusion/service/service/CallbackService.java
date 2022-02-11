@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,15 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
 import com.welab.wefe.data.fusion.service.actuator.test.ClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
+import com.welab.wefe.data.fusion.service.task.AbstractTask;
+import com.welab.wefe.data.fusion.service.task.PsiClientTask;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,26 +103,27 @@ public class CallbackService {
         /*
          * The other side is ready, we modify the task status and start client
          */
-//        AbstractTask client = new PsiClientTask(
-//                businessId,
-//                new PsiClientActuator(
-//                        businessId,
-//                        task.getDataCount(),
-//                        ip,
-//                        port,
-//                        task.getDataResourceId(),
-//                        task.isTrace(),
-//                        task.getTraceColumn()
-//                ));
-
-        ClientActuator client = new ClientActuator(
+        AbstractTask client = new PsiClientTask(
+                businessId,
+                new PsiClientActuator(
                         businessId,
+                        task.getDataCount(),
                         ip,
                         port,
                         task.getDataResourceId(),
                         task.isTrace(),
                         task.getTraceColumn()
-                );
+                ));
+
+
+//        ClientActuator client = new ClientActuator(
+//                        businessId,
+//                        ip,
+//                        port,
+//                        task.getDataResourceId(),
+//                        task.isTrace(),
+//                        task.getTraceColumn()
+//                );
 
 //        ActuatorManager.set(client);
 

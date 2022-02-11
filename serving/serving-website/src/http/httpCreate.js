@@ -13,14 +13,7 @@ import { baseLogout } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
 
 function setStorage () {
-    const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage;
+    return localStorage;
 }
 
 const cancelTokenQueue = {}; // 取消请求 token 队列

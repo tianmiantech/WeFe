@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,10 @@ package com.welab.wefe.board.service.dto.kernel.deep_learning;
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -28,6 +31,7 @@ import java.util.LinkedHashMap;
  * @date 2021/11/22
  */
 public class Env {
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     /**
      * 本方 worker 个数
      * <p>
@@ -64,13 +68,30 @@ public class Env {
 
     public Env(ImageDataIOComponent.Params imageDataIoParam) throws StatusCodeWithException {
         imageDataIoParam.fillDataSetDetail();
+        /**
+         * 1. 前端应该不允许使用标注量为0的样本
+         * 2. ImageDataIO 中阻止了标注量为 0 的样本
+         *
+         * 所以正常情况下不应会让这里出现0
+         */
+        for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
+            if (dataSetItem.dataSet.getLabeledCount() < 1) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(
+                                "成员【" + CacheObjects.getMemberName(dataSetItem.memberId) + "】的数据集("
+                                        + dataSetItem.dataSet.getName() + ")已标注样本量为 0，"
+                                        + "请检查各成员的数据集在 union 中的标注量是否正确。"
+                        );
+            }
+        }
+
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
-        double min = imageDataIoParam.dataSetList
+        long min = imageDataIoParam.dataSetList
                 .stream()
-                .mapToDouble(x -> x.dataSet.getLabeledCount())
+                .mapToLong(x -> x.dataSet.getLabeledCount())
                 .min()
                 .orElse(0);
-
 
         // 对成员按 member_id 排序，使各成员生成的 worker 顺序一致。
         imageDataIoParam.dataSetList.sort(Comparator.comparing(x -> x.getMemberId()));
@@ -80,7 +101,7 @@ public class Env {
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
                     Math.round(
-                            dataSetItem.dataSet.getLabeledCount() / min
+                            new Double(dataSetItem.dataSet.getLabeledCount()) / min
                     )
             );
 
