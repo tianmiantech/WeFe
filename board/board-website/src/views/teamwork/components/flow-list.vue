@@ -89,7 +89,7 @@
                         查看
                     </router-link>
                     <router-link
-                        v-if="form.project_type === 'DeepLearning'"
+                        v-if="form.project_type === 'DeepLearning' && scope.row.flow_status === 'success'"
                         class="link mr10"
                         :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id }}"
                     >
