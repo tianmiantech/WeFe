@@ -39,6 +39,7 @@ public class CryptoUtils {
         return gen.generateKeyPair();
     }
 
+
     public static byte[][] sign(AsymmetricCipherKeyPair keyPair, byte[][] query) {
         try {
             RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters) keyPair.getPrivate();
@@ -79,6 +80,34 @@ public class CryptoUtils {
             for (int i = 0; i < query.length; i++) {
                 BigInteger x = PSIUtils.bytesToBigInteger(query[i], 0, query[i].length);
                 BigInteger y = x.modPow(d, n);
+                bs[i] = PSIUtils.bigIntegerToBytes(y, false);
+            }
+
+            return bs;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (new byte[1][1]);
+    }
+
+    public static byte[][] sign(BigInteger n,
+                                BigInteger d,
+                                BigInteger p,
+                                BigInteger q,
+                                BigInteger cp,
+                                BigInteger cq,
+                                byte[][] query) {
+        try {
+            byte[][] bs = new byte[query.length][];
+            for (int i = 0; i < query.length; i++) {
+                BigInteger x = PSIUtils.bytesToBigInteger(query[i], 0, query[i].length);
+
+                //crt优化后
+                BigInteger rp = x.modPow(d.remainder(p.subtract(BigInteger.valueOf(1))), p);
+                BigInteger rq = x.modPow(d.remainder(q.subtract(BigInteger.valueOf(1))), q);
+
+                BigInteger y = (rp.multiply(cp).add(rq.multiply(cq))).remainder(n);
+
                 bs[i] = PSIUtils.bigIntegerToBytes(y, false);
             }
 

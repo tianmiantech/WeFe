@@ -5,10 +5,10 @@
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
         <div class="show_label_info">
             <h3 v-if="forJobType === 'classify'">标注结果</h3>
-            <div v-if="currentImage.item && currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">{{currentImage.item.label_list}}</div>
+            <div v-if="currentImage.item && currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt labeled_txt">{{currentImage.item.label_list}}</div>
             <div v-else-if="currentImage.item && !currentImage.item.labeled && forJobType === 'classify'" class="show_label_txt">请在右侧选择标签</div>
         </div>
-        <el-button type="primary" class="save_label" @click="methods.saveLabel">
+        <el-button v-if="forJobType !== 'classify'" type="primary" class="save_label" @click="methods.saveLabel">
             保存当前标注
         </el-button>
     </div>
@@ -605,7 +605,9 @@
     .show_label_info {
         position: fixed;
         right: 330px;
-        top: 245px;
+        top: 185px;
+        background: #f0f0f0;
+        padding: 10px;
         h3 {
             font-size: 16px;
             font-weight: 600;
@@ -614,6 +616,10 @@
         .show_label_txt {
             font-size: 14px;
             color: #666;
+        }
+        .labeled_txt {
+            color: #438bff;
+            font-weight: bold;
         }
     }
 }

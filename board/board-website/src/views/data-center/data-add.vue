@@ -920,11 +920,14 @@
 
                 if (code === 0) {
                     this.data_set_header = data.header;
-                    this.dataSetHeaderOptions = data.header.map(x => {
-                        return {
-                            label: x,
-                            value: x,
-                        };
+                    this.dataSetHeaderOptions = [];
+                    data.header.forEach((x, i) => {
+                        if(i) {
+                            this.dataSetHeaderOptions.push({
+                                label: x,
+                                value: x,
+                            });
+                        }
                     });
                     this.metadata_pagination.list = [];
                     this.raw_data_list = data.raw_data_list.map(item => {
@@ -1117,7 +1120,7 @@
 
                             field_info_list.push({
                                 position: i,
-                                columns:  x.features,
+                                columns:  x.features.join(','),
                                 options:  x.encryption,
                             });
                         }
@@ -1127,7 +1130,7 @@
                     params = {
                         ...this.form,
                         field_info_list,
-                        hash_function:        $ref.formula,
+                        hash_function:        $ref.hash_func,
                         BloomfilterAddMethod: this.form.data_set_add_method,
                     };
                 } else {

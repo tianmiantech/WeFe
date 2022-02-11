@@ -23,11 +23,10 @@
                     </div>
                     <div class="label_info">
                         <template v-if="vData.count_by_sample_list.length>0">
-                            <div class="label_title"><span>标签名称</span><span>快捷键</span></div>
                             <div class="label_info_list">
-                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">
-                                    <span class="span_label">{{item.label}}</span>
-                                    <span v-if="item.keycode !== '' && index<10" class="span_count">{{item.keycode}}</span>
+                                <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
+                                    <p class="span_label" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">{{item.label}}</p>
+                                    <span v-if="item.keycode !== '' && index<10" class="span_tips">快捷键<span class="span_count">{{item.keycode}}</span></span>
                                     <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
                             </div>
@@ -78,14 +77,14 @@
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const vData = reactive({
-                activeName: '',
+                activeName: route.query.unlabeled_count !== '0' ? 'unlabeled' : '',
                 sampleId:   route.query.id,
                 forJobType: route.query.for_job_type,
                 search:     {
                     page_index: route.query.page_index || 1,
                     page_size:  route.query.page_size || 20,
                     label:      '',
-                    labeled:    '',
+                    labeled:    route.query.unlabeled_count !== '0' ? false : '',
                     total:      1,
                 },
                 tabsList: [
@@ -95,12 +94,12 @@
                         count: '',
                     },
                     {
-                        label: '有标注信息',
+                        label: '已标注',
                         name:  'labeled',
                         count: '',
                     },
                     {
-                        label: '无标注信息',
+                        label: '未标注',
                         name:  'unlabeled',
                         count: '',
                     },
@@ -245,6 +244,7 @@
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
+                    if (label_type === vData.search.labeled) return;
                     vData.search.labeled = label_type;
                     vData.search.page_index = 1;
                     vData.sampleList = [];
@@ -414,14 +414,8 @@
                 }
                 .label_info {
                     padding: 0 10px;
-                    .label_title {
-                        @include flex_box;
-                        font-size: 12px;
-                        color: #666;
-                        padding: 12px 10px 0;
-                    }
                     .label_info_list {
-                        height: calc(100vh - 490px);
+                        height: calc(100vh - 460px);
                         overflow-y: auto;
                     }
                     .label_item {
@@ -432,8 +426,19 @@
                         padding: 0 10px;
                         font-size: 14px;
                         position: relative;
+                        .span_label {
+                            flex: 1;
+                            height: 100%;
+                            cursor: pointer;
+                            line-height: 40px;
+                        }
+                        .span_tips {
+                            font-size: 12px;
+                            color: #999;
+                        }
                         .span_count {
                             flex-shrink: 0;
+                            display: inline-block;
                             width: 18px;
                             height: 18px;
                             font-size: 12px;
@@ -445,7 +450,7 @@
                             border: 1px solid #ddd;
                             align-self: center;
                             border-radius: 2px;
-                            margin-left: 12px;
+                            margin-left: 4px;
                         }
                         .label_close {
                             font-size: 15px;

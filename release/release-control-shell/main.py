@@ -13,28 +13,27 @@
 # limitations under the License.
 
 
-from dto.service_action_info import ActionInfo
-from service.base_action import BaseAction
-from service.replace_program_file_action import ReplaceProgramFileAction
-from service.update_mysql_action import UpdateMysqlAction
+from action.base_action import BaseAction
+from action.replace_program_file_action import ReplaceProgramFileAction
+from action.update_mysql_action import UpdateMysqlAction
+from dto.action_info import ActionInfo
 from util import object_util
 
 
-class Main:
+def run(workspace, action_info_str):
+    """
+    wefe 程序升级行为的入口方法
+    """
+    action_info: ActionInfo = object_util.json_to_model(action_info_str, ActionInfo)
 
-    @staticmethod
-    def run(workspace, config_file_path, action_info_str):
-        """
-        wefe 程序升级行为的入口方法
-        """
-        action_info: ActionInfo = object_util.json_to_model(action_info_str, ActionInfo)
+    # 根据参数实例化 action 对象
+    action: BaseAction
+    if action_info.service.find("mysql") >= 0:
+        action = UpdateMysqlAction(action_info, workspace)
+    else:
+        action = ReplaceProgramFileAction(action_info, workspace)
 
-        # 根据参数实例化 action 对象
-        action: BaseAction
-        if action_info.service.index("mysql") >= 0:
-            action = UpdateMysqlAction(action_info, workspace)
-        else:
-            action = ReplaceProgramFileAction(action_info, workspace)
+    print("service:", action_info.service, " action:", type(action))
 
-        # 执行升级动作
-        action.run()
+    # 执行升级动作
+    action.run()

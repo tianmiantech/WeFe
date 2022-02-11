@@ -39,6 +39,9 @@ public class BlockSyncContractHeightMongoRepo extends AbstractMongoRepo {
     public void upsertByGroupIdAndContractName(BlockSyncContractHeight blockSyncContractHeight) {
         BlockSyncContractHeight dbRecord = findByGroupIdAndContractName(blockSyncContractHeight.getGroupId(), blockSyncContractHeight.getContractName());
         if (dbRecord != null) {
+            if (dbRecord.getBlockNumber() >= blockSyncContractHeight.getBlockNumber()) {
+                return;
+            }
             blockSyncContractHeight.setId(dbRecord.getId());
             blockSyncContractHeight.setCreateTime(dbRecord.getCreateTime());
         }

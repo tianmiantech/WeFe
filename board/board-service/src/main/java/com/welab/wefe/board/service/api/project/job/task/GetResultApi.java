@@ -22,59 +22,77 @@ import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author zane.luo
  */
-@Api(
-        path = "flow/job/task/result",
-        name = "get task result",
-        desc = "Use taskId or flowId + nodeId to get the node execution result."
-)
-public class GetResultApi extends AbstractApi<GetResultApi.Input, TaskResultOutputModel> {
+@Api(path = "flow/job/task/result", name = "get task result", desc = "Use taskId or flowId + nodeId to get the node execution result.")
+public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResultOutputModel>> {
 
     @Autowired
     private TaskService taskService;
 
     @Override
-    protected ApiResult<TaskResultOutputModel> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
 
-        TaskMySqlModel task = taskService.findOne(input);
-        if (task == null) {
+        List<TaskMySqlModel> tasks = taskService.findAll(input);
+        if (tasks == null || tasks.isEmpty()) {
             return success();
         }
+        List<TaskResultOutputModel> results = new ArrayList<>();
+        Set<String> temp = new HashSet<>();
+        for (TaskMySqlModel task : tasks) {
+            String taskConf = task.getTaskConf();
+            JObject taskConfigJson = JObject.create(taskConf);
+            TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
+                    input.type);
+            if (result == null) {
+                result = new TaskResultOutputModel();
+            }
+            // put task info to TaskResultOutputModel
+            result.setStatus(task.getStatus());
+            result.setStartTime(task.getStartTime());
+            result.setFinishTime(task.getFinishTime());
+            result.setMessage(task.getMessage());
+            result.setErrorCause(task.getErrorCause());
+            result.setPosition(task.getPosition());
+            result.setSpend(task.getSpend());
+            JObject taskInfo = taskConfigJson.getJObject("task");
+            if (taskInfo != null) {
+                result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
+            }
 
-        TaskResultOutputModel result = Components
-                .get(task.getTaskType())
-                .getTaskResult(task.getTaskId(), input.type);
-
-        if (result == null) {
-            result = new TaskResultOutputModel();
+            if (result.getResult() != null && !temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
+                    && (task.getTaskType() == ComponentType.MixStatistic
+                    || task.getTaskType() == ComponentType.MixBinning
+                    || task.getTaskType() == ComponentType.FillMissingValue
+                    || task.getTaskType() == ComponentType.MixLR)) {
+                continue;
+            }
+            results.add(result);
         }
 
-        // put task info to TaskResultOutputModel
-        result.setStatus(task.getStatus());
-        result.setStartTime(task.getStartTime());
-        result.setFinishTime(task.getFinishTime());
-        result.setMessage(task.getMessage());
-        result.setErrorCause(task.getErrorCause());
-        result.setPosition(task.getPosition());
-        result.setSpend(task.getSpend());
-
-        return success(result);
+        return success(results);
     }
-
 
     public static class Input extends DetailApi.Input {
 
         @Check(name = "结果类型")
         private String type;
 
-        //region getter/setter
+        // region getter/setter
 
         public String getType() {
             return type;
@@ -84,7 +102,7 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, TaskResultOutp
             this.type = type;
         }
 
-        //endregion
+        // endregion
     }
 
 }

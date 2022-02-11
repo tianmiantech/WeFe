@@ -107,7 +107,7 @@
                         <MemberCard />
 
                         <div v-if="enterpriseAuth !== ''" class="mt40">
-                            <el-form-item label="企业认证：">
+                            <el-form-item label="企业实名认证：">
                                 <p
                                     v-if="enterpriseAuth === -1"
                                     class="color-danger"
