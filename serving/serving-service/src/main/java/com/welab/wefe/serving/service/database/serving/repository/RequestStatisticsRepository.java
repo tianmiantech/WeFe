@@ -55,7 +55,7 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "group by arr.service_id, arr.client_id)as t ", nativeQuery = true, countProjection = "1")
     List<RequestStatisticsMysqlModel> groupByServiceIdAndClientId(@Param("service_id") String serviceId,
                                                                   @Param("client_id") String clientId,
-                                                                  @Param("start_time") Long startTime,
-                                                                  @Param("end_time") Long endTime);
+                                                                  @Param("start_time") Date startTime,
+                                                                  @Param("end_time") Date endTime);
 
 }

@@ -22,6 +22,7 @@ import com.welab.wefe.serving.service.database.serving.repository.RequestStatist
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 
@@ -37,6 +38,7 @@ public class RequestStatisticsService {
 
     /**
      * query request statistics list
+     *
      * @param input
      * @return
      */
