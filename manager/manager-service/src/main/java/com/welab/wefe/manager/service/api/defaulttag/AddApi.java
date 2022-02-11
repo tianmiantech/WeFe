@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -37,13 +38,20 @@ public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOut
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
 
+    @Autowired
+    private DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+
     @Override
     protected ApiResult<AbstractApiOutput> handle(DatSetDefaultTagAddInput input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
         try {
+            boolean isExist = dataSetDefaultTagMongoRepo.exists(input.getTagName());
+            if (isExist) {
+                throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
+            }
+
             DataSetDefaultTag dataSetDefaultTag = new DataSetDefaultTag();
             dataSetDefaultTag.setTagName(input.getTagName());
-            dataSetDefaultTag.setExtJson(input.getExtJson());
             datSetDefaultTagContractService.add(dataSetDefaultTag);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

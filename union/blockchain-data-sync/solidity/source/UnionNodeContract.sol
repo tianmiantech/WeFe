@@ -6,7 +6,7 @@ import "./Table.sol";
 
 contract UnionNodeContract{
     string constant TABLE_NAME = "union_node";
-    string constant FIX_ID = "fix_id_005";
+    string constant FIX_ID = "union_node";
 
 
     TableFactory tableFactory;

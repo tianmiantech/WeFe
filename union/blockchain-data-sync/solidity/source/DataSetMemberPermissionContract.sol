@@ -69,9 +69,9 @@ contract DataSetMemberPermissionContract{
 
     function update(string id, string data_set_id, string member_id, string created_time, string updated_time,int log_time,string ext_json) public returns (int) {
         int256 ret_code = 0;
-        // 不存在待更新的记录
+
         if (!isExist(id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,id,data_set_id,member_id,created_time,updated_time,log_time,ext_json);
             return ret_code;
         }

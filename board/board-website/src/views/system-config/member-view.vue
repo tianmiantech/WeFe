@@ -120,12 +120,15 @@
                                 <span
                                     v-if="enterpriseAuth === 0"
                                     class="el-link el-link--danger"
+                                    style="white-space: nowrap;"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
                                     </el-icon>
                                     未认证
+                                    <p class="ml10 f12">(超级管理员可申请实名认证)</p>
                                 </span>
+
                                 <span
                                     v-if="enterpriseAuth === 1"
                                     class="el-link el-link--danger"
@@ -225,15 +228,13 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                enterpriseAuth: '',
-                audit_comment:  '',
+                audit_comment: '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -274,15 +275,6 @@
                 }
 
                 this.loading = false;
-            },
-
-            async getAuthStatus() {
-                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
-
-                if(code === 0) {
-                    this.enterpriseAuth = data.real_name_auth_status;
-                    this.audit_comment = data.audit_comment;
-                }
             },
 
             // upload avatar
