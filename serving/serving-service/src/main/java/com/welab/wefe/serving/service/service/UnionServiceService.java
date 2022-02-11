@@ -43,6 +43,7 @@ import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 
 @Service
 public class UnionServiceService {
@@ -72,12 +73,17 @@ public class UnionServiceService {
 				output.setSupplierName(item.getString("member_name"));
 				output.setBaseUrl(item.getString("base_url"));
 				output.setApiName(item.getString("api_name"));
-				if (StringUtils.isNotBlank(item.getString("query_params"))) {
-					output.setParams(Arrays.asList(item.getString("query_params").split(",")));
-				}
 				output.setCreatedTime(new Date(item.getLongValue("created_time")));
 				output.setServiceType(item.getIntValue("service_type"));
 				output.setUpdatedTime(new Date(item.getLongValue("updated_time")));
+				if (StringUtils.isNotBlank(item.getString("query_params"))) {
+					if (output.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+						output.setKeyCalcRule(item.getString("query_params"));
+					}
+					else {
+						output.setParams(Arrays.asList(item.getString("query_params").split(",")));
+					}
+				}
 				list.add(output);
 			}
 			return PagingOutput.of(data.getInteger("total"), list);
