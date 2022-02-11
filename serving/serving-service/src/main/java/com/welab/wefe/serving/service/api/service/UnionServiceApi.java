@@ -50,6 +50,7 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 		private String baseUrl;
 		private String apiName;
 		private List<String> params;
+		private String keyCalcRule;// 求交主键
 		private int serviceType; // 服务类型
 		private Date createdTime;// 创建时间
 		private Date updatedTime;// 更新时间
@@ -132,6 +133,14 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 
 		public void setUpdatedTime(Date updatedTime) {
 			this.updatedTime = updatedTime;
+		}
+
+		public String getKeyCalcRule() {
+			return keyCalcRule;
+		}
+
+		public void setKeyCalcRule(String keyCalcRule) {
+			this.keyCalcRule = keyCalcRule;
 		}
 	}
 
