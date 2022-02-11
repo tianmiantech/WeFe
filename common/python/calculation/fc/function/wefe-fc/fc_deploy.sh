@@ -34,7 +34,7 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload /data/environment/.s/python nas:///mnt/auto/python -r -o --debug
+      s nas upload /data/environment/.s/python nas:///mnt/auto/ -r -o --debug
       rm -rf .s/
     fi
 
