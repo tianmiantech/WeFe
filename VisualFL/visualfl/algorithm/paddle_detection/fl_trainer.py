@@ -38,7 +38,6 @@ from visualfl.utils.consts import TaskStatus
 from visualfl.utils.tools import *
 from visualfl.algorithm.paddle_detection._merge_config import merger_algorithm_config
 
-
 @click.command()
 @click.option("--job-id", type=str, required=True)
 @click.option("--task-id", type=str, required=True)
@@ -114,6 +113,7 @@ def fl_trainer(
 ):
     import numpy as np
     import paddle.fluid as fluid
+    from visualfl.utils import data_loader
 
     from ppdet.data import create_reader
     from ppdet.utils import checkpoint
@@ -161,6 +161,10 @@ def fl_trainer(
         with open(algorithm_config) as f:
             algorithm_config_json = json.load(f)
 
+        download_url = algorithm_config_json.get("download_url")
+        data_name = algorithm_config_json.get("data_name")
+
+        data_dir = data_loader.job_download(download_url, job_id, data_name),
         cfg = merger_algorithm_config(algorithm_config_json)
         check_config(cfg)
         check_version()

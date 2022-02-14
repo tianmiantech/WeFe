@@ -7,7 +7,7 @@ from paddle import fluid
 
 from visualfl.utils.logger import Logger
 from visualfl.protobuf import scheduler_pb2_grpc, scheduler_pb2
-from paddle_fl.paddle_fl.core.master.fl_job import FLJobBase
+from paddle_fl.core.master.fl_job import FLJobBase
 
 
 class TrainerSchedulerAgent(Logger):

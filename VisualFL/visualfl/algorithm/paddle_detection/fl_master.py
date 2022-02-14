@@ -23,8 +23,8 @@ from paddle import fluid
 from visualfl.algorithm.paddle_detection._empty_optimizer import (
     EmptyOptimizer,
 )
-from paddle_fl.paddle_fl.core.master.job_generator import JobGenerator
-from paddle_fl.paddle_fl.core.strategy.fl_strategy_base import (
+from paddle_fl.core.master.job_generator import JobGenerator
+from paddle_fl.core.strategy.fl_strategy_base import (
     FedAvgStrategy,
 )
 from ppdet.core.workspace import load_config, create

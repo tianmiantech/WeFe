@@ -30,8 +30,7 @@ import os
 import click
 import paddle
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
-from visualfl.algorithm.paddle_clas import data_loader
-from visualfl.db.task_dao import TaskDao
+from visualfl.utils import data_loader
 from visualfl.utils.tools import *
 from visualfl.utils.consts import TaskStatus
 
@@ -141,8 +140,6 @@ def fl_trainer(
         download_url = algorithm_config_dict.get("download_url")
         data_name = algorithm_config_dict.get("data_name")
 
-
-
         logging.debug(f"training program begin")
         trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
         logging.debug(f"job program loading")
@@ -172,7 +169,7 @@ def fl_trainer(
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
 
-        data_dir = data_loader.download(download_url,'', data_name),
+        data_dir = data_loader.job_download(download_url, job_id, data_name),
         reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(

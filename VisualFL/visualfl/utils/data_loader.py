@@ -236,12 +236,11 @@ def download(url, module_name, save_name=None):
                     f.write(data)
                     log_index += 1
                     if log_index % log_interval == 0:
-                        sys.stderr.write(".")
+                        sys.stderr.write("../algorithm/paddle_clas")
                     sys.stdout.flush()
     sys.stderr.write("\nDownload finished\n")
     sys.stdout.flush()
 
-    un_zip(filename,dirname)
     return filename
 
 def extract(tar_file, target_path):
@@ -269,14 +268,19 @@ def un_zip(file_name,target_path):
     except Exception as e:
         print(e)
 
+def job_download(url, job_id, data_name):
+    data_file = download(url, "", f"{job_id}.zip")
+    target_data_dir = os.path.join(get_data_dir(), data_name)
+    un_zip(data_file, get_data_dir())
 
-if __name__ == '__main__':
-    # train()
-    url = "https://xbd-dev.wolaidai.com/board-service-03//image_data_set/download?data_set_id=f7b62e3ace574b67824e8bcd42326ba7&job_id=c3e086211d2f4a288314073f3878323a"
-    data_file = download(url,"","c3e086211d2f4a288314073f3878323a.zip")
-    # dirname = os.path.join(get_data_dir(), "fruit1")
-    # data_file = "/Users/tracy.zhang/Wefe/VisualFL/data/data_flowers/c3e086211d2f4a288314073f3878323a.zip"
-    # un_zip(data_file,dirname)
-    os.rename(os.path.join(get_data_dir(), "c3e086211d2f4a288314073f3878323a"), os.path.join(get_data_dir(), "fruit1"))
+    if os.path.exists(target_data_dir):
+        shutil.rmtree(target_data_dir)
+
+    os.rename(os.path.join(get_data_dir(), job_id),
+              target_data_dir)
+
+    # os.remove(data_file)
+
+    return target_data_dir
 
 
