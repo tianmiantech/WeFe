@@ -1,6 +1,6 @@
 <template>
 
-    <el-card class="page" shadow="never">
+    <el-card v-loading="loading" class="page" shadow="never">
 
         <h2 class="title">编辑服务</h2>
 
@@ -99,6 +99,7 @@ export default {
         };
 
         return {
+            loading: false,
             clientService: {
                 serviceId: '',
                 clientId: '',
@@ -144,16 +145,19 @@ export default {
             mapGetters(['userInfo']),
     }
     ,
-    created() {
+    async created() {
 
+        this.loading = true;
         if (this.$route.query.clientId && this.$route.query.serviceId) {
             this.getClientById(this.$route.query.clientId)
             this.getServiceById(this.$route.query.serviceId)
             this.getFeeConfig(this.$route.query.serviceId, this.$route.query.clientId)
         }
 
-        this.getServices()
-        this.getClients()
+        await this.getServices()
+        await this.getClients()
+
+        this.loading = false;
 
 
     },
