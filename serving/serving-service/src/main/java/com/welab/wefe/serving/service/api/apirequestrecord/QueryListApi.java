@@ -27,6 +27,7 @@ import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author ivenn.zheng
@@ -51,6 +52,28 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<A
 
         @Check(name = "client_id")
         private String clientId;
+
+        @Check(name = "start_time")
+        private Long startTime;
+
+        @Check(name = "end time")
+        private Long endTime;
+
+        public Long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(Long startTime) {
+            this.startTime = startTime;
+        }
+
+        public Long getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(Long endTime) {
+            this.endTime = endTime;
+        }
 
         public String getServiceId() {
             return serviceId;
