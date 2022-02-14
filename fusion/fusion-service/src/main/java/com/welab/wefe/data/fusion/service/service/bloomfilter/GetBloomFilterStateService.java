@@ -23,7 +23,7 @@ import com.welab.wefe.data.fusion.service.api.bloomfilter.GetBloomFilterStateApi
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;

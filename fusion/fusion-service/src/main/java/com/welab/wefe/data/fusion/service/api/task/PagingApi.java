@@ -24,6 +24,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.dto.base.PagingInput;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
+import com.welab.wefe.data.fusion.service.enums.RoleType;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,9 @@ public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<TaskOut
         @Check(name = "任务状态")
         private TaskStatus status;
 
+        @Check(name = "role")
+        private RoleType myRole;
+
         //region
 
 
@@ -68,6 +72,13 @@ public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<TaskOut
             this.status = status;
         }
 
-        //endregion
+        public RoleType getMyRole() {
+            return myRole;
+        }
+
+        public void setMyRole(RoleType myRole) {
+            this.myRole = myRole;
+        }
+//endregion
     }
 }

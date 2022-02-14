@@ -5,11 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
-<<<<<<< HEAD
  * http://www.apache.org/licenses/LICENSE-2.0
-=======
- *     http://www.apache.org/licenses/LICENSE-2.0
->>>>>>> refs/heads/release-v2.4.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,7 +66,7 @@ public enum StatusCode {
 
     FILE_DOES_NOT_EXIST(10038, "文件不存在，fileId: (%s)"),
     INVALID_PARAMETER(10039, "参数非法 (%s)"),
-    MISSING_DATA(10039, "缺失数据 (%s)"),
+    MISSING_DATA(10040, "缺失数据 (%s)"),
     /**
      * Database related error status code
      */
