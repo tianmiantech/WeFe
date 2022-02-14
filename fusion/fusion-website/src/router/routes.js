@@ -21,18 +21,40 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
+            title:          '主页',
+            requiresLogout: false,
+            asmenu:         true,
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}index`,
+                name: 'index',
+                meta: {
+                    title:  '主页',
+                    icon:   'el-icon-monitor',
+                    active: `${prefixPath}index`,
+                },
+                component: () => import('../views/index/dataPanel.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}`,
+        meta: {
             title: '资源中心',
-            icon:  'el-icon-monitor',
+            icon:  'el-icon-office-building',
             index: 0,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
-                path: `${prefixPath}`,
+                path: `${prefixPath}data-set-list`,
                 name: 'data-set-list',
                 meta: {
-                    title: '数据集',
-                    index: '0-0',
+                    title:  '数据集',
+                    index:  '0-0',
+                    active: `${prefixPath}data-set-list`,
                 },
                 component: () => import('@views/index/data-set-list.vue'),
             },

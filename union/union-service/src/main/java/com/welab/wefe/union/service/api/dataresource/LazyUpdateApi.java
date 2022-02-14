@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset.image;
+package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSetLabeledCount;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetLabeledCountMongoReop;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceLazyUpdateModel;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceLazyUpdateModelMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -33,19 +33,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "image_data_set/update_labeled_count", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
-public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Input, AbstractApiOutput> {
+@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
+public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiOutput> {
     @Autowired
     private ImageDataSetMongoReop imageDataSetMongoReop;
 
     @Autowired
-    private ImageDataSetLabeledCountMongoReop imageDataSetLabeledCountMongoReop;
+    private DataResourceLazyUpdateModelMongoReop dataResourceLazyUpdateModelMongoReop;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataSetId());
+        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
         if (imageDataSet == null) {
-            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataSetId());
+            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataResourceId());
         }
 
         if ("1".equals(imageDataSet.getLabelCompleted())) {
@@ -57,18 +57,21 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
         return success();
     }
 
-    private void saveImageDataSetLabeledCount(Input input){
-        ImageDataSetLabeledCount imageDataSetLabeledCount = new ImageDataSetLabeledCount();
-        imageDataSetLabeledCount.setDataResourceId(input.getDataSetId());
-        imageDataSetLabeledCount.setLabeledCount(input.getLabeledCount());
-        imageDataSetLabeledCount.setTotalDataCount(input.getTotalDataCount());
-        imageDataSetLabeledCount.setLabelList(input.getLabelList());
-        imageDataSetLabeledCountMongoReop.save(imageDataSetLabeledCount);
+    private void saveImageDataSetLabeledCount(Input input) {
+        DataResourceLazyUpdateModel dataResourceLazyUpdateModel = dataResourceLazyUpdateModelMongoReop.findByDataResourceId(input.getDataResourceId());
+        if (dataResourceLazyUpdateModel == null) {
+            dataResourceLazyUpdateModel = new DataResourceLazyUpdateModel();
+        }
+        dataResourceLazyUpdateModel.setDataResourceId(input.getDataResourceId());
+        dataResourceLazyUpdateModel.setLabeledCount(input.getLabeledCount());
+        dataResourceLazyUpdateModel.setTotalDataCount(input.getTotalDataCount());
+        dataResourceLazyUpdateModel.setLabelList(input.getLabelList());
+        dataResourceLazyUpdateModelMongoReop.save(dataResourceLazyUpdateModel);
     }
 
     public static class Input extends BaseInput {
         @Check(require = true)
-        private String dataSetId;
+        private String dataResourceId;
         @Check(require = true)
         private String labelList;
         @Check(require = true)
@@ -76,12 +79,12 @@ public class UpdateLabeledCountApi extends AbstractApi<UpdateLabeledCountApi.Inp
         @Check(require = true)
         private int labeledCount;
 
-        public String getDataSetId() {
-            return dataSetId;
+        public String getDataResourceId() {
+            return dataResourceId;
         }
 
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
+        public void setDataResourceId(String dataResourceId) {
+            this.dataResourceId = dataResourceId;
         }
 
 

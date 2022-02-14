@@ -129,6 +129,7 @@ CREATE TABLE `task` (
     `description` varchar(1024) DEFAULT NULL COMMENT '描述',
     `is_trace` tinyint(1) NOT NULL DEFAULT '0',
     `trace_column` varchar(255) DEFAULT NULL,
+    `my_role` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 

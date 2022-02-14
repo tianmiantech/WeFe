@@ -18,10 +18,7 @@ package com.welab.wefe.data.fusion.service.dto.entity;
 
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
-import com.welab.wefe.data.fusion.service.enums.AlgorithmType;
-import com.welab.wefe.data.fusion.service.enums.DataResourceType;
-import com.welab.wefe.data.fusion.service.enums.PSIActuatorRole;
-import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.enums.*;
 
 import java.util.List;
 
@@ -96,6 +93,11 @@ public class TaskOutput extends AbstractOutputModel{
      * partners
      */
     private List<PartnerOutputModel> partnerList;
+
+    /**
+     * my_role
+     */
+    private RoleType myRole;
 
     public String getBusinessId() {
         return businessId;
@@ -265,5 +267,13 @@ public class TaskOutput extends AbstractOutputModel{
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public RoleType getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(RoleType myRole) {
+        this.myRole = myRole;
     }
 }

@@ -1,6 +1,6 @@
 <template>
 
-    <el-card class="page" shadow="never">
+    <el-card v-loading="loading" class="page" shadow="never">
 
         <h2 class="title">编辑客户</h2>
 
@@ -99,6 +99,7 @@ export default {
         };
 
         return {
+            loading: false,
             client: {
                 id: '',
                 name: '',
@@ -138,19 +139,20 @@ export default {
     computed: {
         ...mapGetters(['userInfo']),
     },
-    created() {
+    async created() {
+
+        this.loading = true
         if (this.$route.query.id) {
             this.clientId = this.$route.query.id
-            this.getClientById(this.$route.query.id)
+            await this.getClientById(this.$route.query.id)
         }
         this.client.status = this.$route.query.status
-
+        this.loading = false
     },
     methods: {
 
 
         onSubmit() {
-            console.log(this.userInfo.nickname, 111111111, 2222)
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
                     const {code, message} = await this.$http.post({

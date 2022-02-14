@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.database.repository.base;
+package com.welab.wefe.data.fusion.service.database.repository;
 
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 /**

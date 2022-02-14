@@ -33,6 +33,7 @@ import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.PartnerOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.TaskOverviewOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.*;
@@ -130,6 +131,7 @@ public class TaskService extends AbstractService {
         task.setDescription(input.getDescription());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());
+        task.setMyRole(RoleType.promoter);
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -348,6 +350,7 @@ public class TaskService extends AbstractService {
         model.setPsiActuatorRole(input.getPsiActuatorRole());
         model.setAlgorithm(input.getAlgorithm());
         model.setDescription(input.getDescription());
+        model.setMyRole(RoleType.provider);
 
         taskRepository.save(model);
     }
@@ -456,5 +459,20 @@ public class TaskService extends AbstractService {
         taskRepository.deleteById(id);
     }
 
+    /**
+     * task overview
+     */
+    public TaskOverviewOutput overview() throws StatusCodeWithException {
+        Long allCount = taskRepository.count();
 
+        Long promoterCount = taskRepository.count("myRole", RoleType.promoter, TaskMySqlModel.class);
+
+        Long providerCount = taskRepository.count("myRole", RoleType.provider, TaskMySqlModel.class);
+
+        Long pendingCount = taskRepository.count("status", TaskStatus.Pending, TaskMySqlModel.class);
+
+        Long runningCount = taskRepository.count("status", TaskStatus.Running, TaskMySqlModel.class);
+
+        return TaskOverviewOutput.of(allCount, promoterCount, providerCount, pendingCount, runningCount);
+    }
 }
