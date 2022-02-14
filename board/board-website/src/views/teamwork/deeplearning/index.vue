@@ -1,14 +1,16 @@
 <template>
     <el-card class="page_layer" v-loading="vData.startLoading">
         <el-alert
-            v-if="!vData.isInResult"
+            v-if="vData.isInResult"
             :title="vData.jobInfo.status"
-            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status"
+            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
             description="点击查看任务详情"
             show-icon
             class="fixed_alert"
-            @click.prevent="methods.jumpToTaskDetail"
         >
+            <slot>
+                <p @click.stop="methods.jumpToTaskDetail">点击查看任务详情</p>
+            </slot>
         </el-alert>
         <div class="deep_flow">
             <div class="left_content">
@@ -382,10 +384,11 @@
             const router = useRouter();
             const rawDataSetListRef = ref();
             const vData = reactive({
-                loading: false,
-                active:  0,
-                flow_id: route.query.flow_id,
-                form:    {
+                loading:    false,
+                active:     0,
+                flow_id:    route.query.flow_id,
+                project_id: route.query.project_id,
+                form:       {
                     flow_name: '',
                     flow_desc: '',
                 },
@@ -530,7 +533,6 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
-                            methods.getMemberList();
                             methods.getJobDetail();
                             if(!data.graph) {
                                 methods.createNode();
@@ -558,10 +560,11 @@
                         if (code === 0 && data) {
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
+                            vData.isInResult = data.job.status;
                         }});
                 },
                 jumpToTaskDetail() {
-                    vData.isInResult = true;
+                    vData.isInResult = false;
                     vData.active = 2;
                     vData.activeName = 'result';
                     vData.showDLResult = true;
@@ -750,14 +753,14 @@
                     const { code, data } = await $http.get({
                         url:    '/project/member/list',
                         params: {
-                            projectId: vData.flowInfo.project_id,
+                            projectId: vData.project_id,
                         },
                     });
 
                     nextTick(() => {
                         if(code === 0) {
                             if(data.list.length) {
-                                vData.member_list = data.list.forEach(row => {
+                                data.list.forEach(row => {
                                     row.$data_set_list = [];
                                     if(!row.exited) {
                                         if (row.member_role === 'promoter') {
@@ -1053,6 +1056,7 @@
 
             onBeforeMount(() => {
                 methods.getFlowInfo();
+                methods.getMemberList();
                 $bus.$on('history-backward', () => {
                     router.push({
                         name:  'project-detail',

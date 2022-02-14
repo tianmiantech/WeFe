@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected BloomFilterContractService bloomFilterContractService;
+    @Autowired
     protected BloomFilterMongoReop bloomFilterMongoReop;
 
     protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
@@ -44,10 +45,11 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         BloomFilter bloomFilter = bloomFilterMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (dataResource == null) {
             if (bloomFilter == null) {
                 bloomFilterContractService.add(new BloomFilter(input.getDataResourceId(), input.getHashFunction()));
+                dataResourceContractService.add(bloomFilterMapper.transferPutInputToDataResource(input));
             } else {
                 dataResourceContractService.add(bloomFilterMapper.transferPutInputToDataResource(input));
             }

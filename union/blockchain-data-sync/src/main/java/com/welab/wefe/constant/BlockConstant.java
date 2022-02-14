@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.welab.wefe.constant;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -27,7 +27,7 @@ public class BlockConstant {
     /**
      * The latest block height corresponding to the group
      */
-    public static final Map<Integer, Long> GROUP_CURRENT_BLOCK_NUMBER_MAP = new HashMap<>();
+    public static final Map<Integer, Long> GROUP_CURRENT_BLOCK_NUMBER_MAP = new ConcurrentHashMap<>();
 
     /**
      * Get the latest block height of the current group

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -199,6 +199,17 @@ public class JObject extends JSONObject implements Serializable {
         }
 
         return new ArrayList<>();
+    }
+
+    public <T> List<T> getJSONList(String key, Class<T> clazz) {
+        JSONArray jsonArray = getJSONArray(key);
+        if(jsonArray != null) {
+            return jsonArray.stream()
+                    .map(item -> JSON.parseObject(JSON.toJSONString(item), clazz))
+                    .collect(Collectors.toList());
+        }
+
+        return null;
     }
 
     //region end: get value by JSONPath

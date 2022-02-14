@@ -31,6 +31,19 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item label="角色">
+                <el-select
+                    v-model="search.my_role"
+                    clearable
+                >
+                    <el-option
+                        v-for="item in myRoleList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.text"
+                    />
+                </el-select>
+            </el-form-item>
 
             <el-button
                 type="primary"
@@ -356,19 +369,17 @@
                  search: {
                    business_id: '',
                    status:      '',
+                   my_role:     '',
                  },
 
                 statusList: [{
-                    name:  '待处理',
+                    name:  '等待合作方审核',
                     value: 'Pending',
                 }, {
-                    name:  '等待运行',
+                    name:  '等待我方审核',
                     value: 'Await',
                 }, {
-                    name:  '就绪',
-                    value: 'Ready',
-                }, {
-                    name:  '对齐中',
+                    name:  '正在对齐中',
                     value: 'Running',
                 }, {
                     name:  '任务中断',
@@ -393,8 +404,7 @@
                 },
                 dataDialog: false,
                 jsonData:   '',
-
-                 task: {
+                 task:       {
                    editor:             false,
                    id:                 '',
                    business_id:        '',
@@ -406,8 +416,6 @@
                    row_count:          '',
                    fusion_count:       '',
                 },
-
-
                 // dataResource
                 dataResource: {
                     visible:     false,
@@ -417,18 +425,29 @@
                     type:        '',
                     description: '',
                 },
-
-
                 dataSetList:       [],
                 bloomFilterList:   [],
                 partnerList:       [],
                 psi_actuator_role: '',
+                myRoleList:        [
+                    {
+                        text:  '我发起的',
+                        value: 'promoter',
+                    },
+                    {
+                        text:  '我协同的',
+                        value: 'provider',
+                    },
+                ],
             };
         },
         async created() {
-
+            if (this.$route.query.type === 'my_role') {
+                this.search.my_role = this.$route.query.value;
+            } else {
+                this.search.status = this.$route.query.value;
+            }
             await this.getStatus();
-
             await this.getDataSet();
             await this.getBloomFilter();
             await this.getPartner();

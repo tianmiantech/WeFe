@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,11 +39,12 @@ public class MongodbTable {
         public static final String MEMBER_FILE_INFO = "MemberFileInfo";
         public static final String UNION_NODE_CONFIG = "UnionNodeConfig";
         public static final String IMAGE_DATASET = "ImageDataSet";
-        public static final String IMAGE_DATASET_LABELEDCOUNT = "ImageDataSetLabeledCount";
-        public static final String IMAGE_DATA_SET_DEFAULT_TAG = "ImageDataSetDefaultTag";
+        public static final String DATA_RESOURCE_LAZY_UPDATE_MODEL = "DataResourceLazyUpdateModel";
         public static final String DATA_RESOURCE = "DataResource";
         public static final String TABLE_DATASET = "TableDataSet";
         public static final String BLOOM_FILTER = "BloomFilter";
+        public static final String MEMBER_SERVICE = "MemberService";
+        public static final String DATA_RESOURCE_DEFAULT_TAG = "DataResourceDefaultTag";
     }
 
     public static final class Sms {

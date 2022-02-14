@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,10 +48,11 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (dataResource == null) {
             if (imageDataSet == null) {
                 imageDataSetContractService.add(imageDataSetMapper.transferPutInputToImageDataSet(input));
+                dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
             } else {
                 dataResourceContractService.add(imageDataSetMapper.transferPutInputToDataResource(input));
             }

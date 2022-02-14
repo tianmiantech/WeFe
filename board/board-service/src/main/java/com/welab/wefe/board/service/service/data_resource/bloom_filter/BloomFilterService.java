@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -262,13 +262,13 @@ public class BloomFilterService extends DataResourceService {
         if (promoters.size() == 1) {
             promoter = allMemberList.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter).findFirst()
                     .orElse(null);
-            promoters = null;
+//            promoters = null;
         } else if (promoters.size() > 1) {
             promoter = allMemberList.stream()
                     .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
                     .findFirst().orElse(null);
-            String creator = promoter.getMemberId();
-            promoters = promoters.stream().filter(p -> !p.getMemberId().equals(creator)).collect(Collectors.toList());
+//            String creator = promoter.getMemberId();
+//            promoters = promoters.stream().filter(p -> !p.getMemberId().equals(creator)).collect(Collectors.toList());
         }
 
         List<ProjectDetailMemberOutputModel> providers = allMemberList.stream()

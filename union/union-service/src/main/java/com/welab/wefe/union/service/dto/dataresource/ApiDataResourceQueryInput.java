@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,11 @@
 
 package com.welab.wefe.union.service.dto.dataresource;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.union.service.dto.base.PageInput;
+
+import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -29,9 +30,8 @@ public class ApiDataResourceQueryInput extends PageInput {
     protected String memberName;
     protected String name;
     protected String tag;
-    @Check(require = true)
-    protected String curMemberId;
-    protected DataResourceType dataResourceType;
+    protected String memberId;
+    private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
 
@@ -67,22 +67,21 @@ public class ApiDataResourceQueryInput extends PageInput {
         this.tag = tag;
     }
 
-    public String getCurMemberId() {
-        return curMemberId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setCurMemberId(String curMemberId) {
-        this.curMemberId = curMemberId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
-    public DataResourceType getDataResourceType() {
+    public List<DataResourceType> getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(DataResourceType dataResourceType) {
+    public void setDataResourceType(List<DataResourceType> dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
-
 
     public DeepLearningJobType getForJobType() {
         return forJobType;

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,11 @@
 package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
-import com.welab.wefe.common.data.mongodb.repo.AbstractDataSetDefaultTagMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetDefaultTagMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.TableDataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
 import com.welab.wefe.manager.service.dto.tag.ApiDataSetDefaultTagQueryOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +35,14 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  */
 @Api(path = "default_tag/query", name = "default_tag_query")
-public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
+public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired
-    protected TableDataSetDefaultTagMongoRepo tableDataSetDefaultTagMongoRepo;
-
-    @Autowired
-    protected ImageDataSetDefaultTagMongoRepo imageDataSetDefaultTagMongoRepo;
+    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
 
     @Override
-    protected ApiResult<JObject> handle(QueryAllApi.Input input) {
-        List<DataSetDefaultTag> dataSetDefaultTagList = getMongoRepo(input).findAll(DataSetDefaultTag.class);
+    protected ApiResult<JObject> handle(BaseInput input) {
+        List<DataSetDefaultTag> dataSetDefaultTagList = dataSetDefaultTagMongoRepo.findAll();
         List<ApiDataSetDefaultTagQueryOutput> list = dataSetDefaultTagList
                 .stream().map(x -> {
                     ApiDataSetDefaultTagQueryOutput apiDataSetDefaultTagQueryOutput = new ApiDataSetDefaultTagQueryOutput();
@@ -61,26 +55,5 @@ public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
 
         return success(JObject.create("list", JObject.toJSON(list)));
     }
-
-    public AbstractDataSetDefaultTagMongoRepo getMongoRepo(QueryAllApi.Input input) {
-        if (DataResourceType.ImageDataSet.name().equals(input.getDataSetType())) {
-            return imageDataSetDefaultTagMongoRepo;
-        }
-        return tableDataSetDefaultTagMongoRepo;
-    }
-
-    public static class Input extends BaseInput {
-        private String dataSetType;
-
-
-        public String getDataSetType() {
-            return dataSetType;
-        }
-
-        public void setDataSetType(String dataSetType) {
-            this.dataSetType = dataSetType;
-        }
-    }
-
 
 }

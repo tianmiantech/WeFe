@@ -8,14 +8,14 @@
             inline
         >
             <el-form-item
-                label="数据集ID:"
+                label="ID:"
                 label-width="80px"
             >
                 <el-input v-model="search.id" />
             </el-form-item>
 
             <el-form-item
-                label="数据集:"
+                label="名称:"
                 label-width="100px"
             >
                 <el-input v-model="search.name" />
@@ -61,16 +61,29 @@
             </el-table-column>
 
             <el-table-column
-                label="数据量"
+                label="行数"
                 prop="row_count"
                 width="100px"
             />
             <el-table-column
-                label="描述"
-                prop="description"
-                width="360px"
-            />
-
+                label="字段信息"
+                prop="rows"
+            >
+                <template
+                    v-if="scope.row.rows"
+                    slot-scope="scope"
+                >
+                    <el-tag
+                        v-for="item in scope.row.rows.split(',')"
+                        :key="item"
+                        :type="item"
+                        effect="plain"
+                        style="margin-left : 5px"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="使用次数"
                 prop="used_count"

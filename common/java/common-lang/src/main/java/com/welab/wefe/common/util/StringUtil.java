@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -153,7 +153,10 @@ public class StringUtil extends StringUtils {
         StringBuilder result = new StringBuilder(str.length());
         for (char c : str.toCharArray()) {
             if (Character.isUpperCase(c)) {
-                result.append("_").append(Character.toLowerCase(c));
+                if (c != str.charAt(0)) {
+                    result.append("_");
+                }
+                result.append(Character.toLowerCase(c));
             } else {
                 result.append(c);
             }

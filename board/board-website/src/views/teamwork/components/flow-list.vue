@@ -37,7 +37,7 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
@@ -84,7 +84,7 @@
                 <template v-slot="scope">
                     <router-link
                         class="link mr10"
-                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id }}"
+                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
                     >
                         查看
                     </router-link>
