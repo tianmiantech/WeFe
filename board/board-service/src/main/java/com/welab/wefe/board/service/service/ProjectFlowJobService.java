@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,29 +16,15 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
-import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
-import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
-import com.welab.wefe.board.service.api.project.job.StopJobApi;
-import com.welab.wefe.board.service.component.Components;
-import com.welab.wefe.board.service.component.DataIOComponent;
-import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.base.AbstractComponent;
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.database.repository.*;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
-import com.welab.wefe.board.service.dto.kernel.*;
-import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
-import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.board.service.model.FlowGraph;
-import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.*;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -46,8 +32,56 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
+import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
+import com.welab.wefe.board.service.api.project.job.StopJobApi;
+import com.welab.wefe.board.service.component.Components;
+import com.welab.wefe.board.service.component.DataIOComponent;
+import com.welab.wefe.board.service.component.OotComponent;
+import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.database.repository.JobMemberRepository;
+import com.welab.wefe.board.service.database.repository.JobRepository;
+import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
+import com.welab.wefe.board.service.database.repository.TaskRepository;
+import com.welab.wefe.board.service.database.repository.TaskResultRepository;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
+import com.welab.wefe.board.service.dto.kernel.Member;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Project;
+import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
+import com.welab.wefe.board.service.exception.FlowNodeException;
+import com.welab.wefe.board.service.model.FlowGraph;
+import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.FlowActionType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobStatus;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 
 /**
  * @author winter.zou
@@ -73,13 +107,11 @@ public class ProjectFlowJobService extends AbstractService {
     @Autowired
     private ProjectFlowRepository projectFlowRepo;
     @Autowired
-    private Config config;
-    @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
     @Autowired
     private ProjectService projectService;
     @Autowired
-    private DataSetService dataSetService;
+    private DataResourceService dataResourceService;
     @Autowired
     private ProjectFlowService projectFlowService;
     @Autowired
@@ -88,13 +120,14 @@ public class ProjectFlowJobService extends AbstractService {
     private ProjectDataSetService projectDataSetService;
     @Autowired
     private ServiceCheckService serviceCheckService;
+    @Autowired
+    private TableDataSetService tableDataSetService;
+
 
     public static final int MIX_FLOW_PROMOTER_NUM = 2;
 
     /**
      * start flow
-     *
-     * @return jobId
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized String startFlow(StartFlowApi.Input input) throws StatusCodeWithException {
@@ -115,8 +148,10 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         JobMySqlModel lastJob = jobRepo.findLastByFlowId(flow.getFlowId(), project.getMyRole().name());
-        if (lastJob != null && !lastJob.getStatus().finished()) {
-            throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+        if (project.getProjectType() == ProjectType.MachineLearning) {
+            if (lastJob != null && !lastJob.getStatus().finished()) {
+                throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+            }
         }
 
         JobArbiterInfo jobArbiterInfo = calcArbiterInfo(flow, input, project);
@@ -157,13 +192,24 @@ public class ProjectFlowJobService extends AbstractService {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
             // create task
-            createJobTasks(graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
+            createJobTasks(project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
 
         }
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.run_job);
+
+        JObject params =
+                project.getProjectType() == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
+        flowActionQueueService.notifyFlow(
+                input,
+                input.getJobId(),
+                FlowActionType.run_job,
+                params
+        );
 
         //update flow
         projectFlowService.updateFlowStatus(flow.getFlowId(), ProjectFlowStatus.running);
@@ -174,13 +220,19 @@ public class ProjectFlowJobService extends AbstractService {
 
     public boolean isCreator(ProjectFlowMySqlModel flow, ProjectMySqlModel project) {
         return JobMemberRole.promoter == project.getMyRole()
-                && CacheObjects.isCurrentMember(flow.getCreatedBy());
+                && CacheObjects.isCurrentMemberAccount(flow.getCreatedBy());
     }
 
     public JobArbiterInfo calcArbiterInfo(ProjectFlowMySqlModel flow, StartFlowApi.Input input,
                                           ProjectMySqlModel project) {
         JobArbiterInfo info = new JobArbiterInfo();
         info.setHasArbiter(false);
+
+        // 深度学习没有 arbiter 角色
+        if (project.getProjectType() == ProjectType.DeepLearning) {
+            return info;
+        }
+
         if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
             if (project.getMyRole() == JobMemberRole.promoter) {
                 info.setHasArbiter(true);
@@ -198,13 +250,20 @@ public class ProjectFlowJobService extends AbstractService {
      * Check the effectiveness of the task before starting the task.
      */
     private void checkBeforeStartFlow(FlowGraph graph, ProjectMySqlModel project, boolean isOotMode) throws StatusCodeWithException {
+
         if (CollectionUtils.isEmpty(graph.getStartNodes())) {
             throw new StatusCodeWithException("流程中没有起始节点，无法执行该流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        if (graph.getStartNodes().stream().noneMatch(x -> (x.getComponentType() == ComponentType.DataIO
-                || x.getComponentType() == ComponentType.Oot))) {
-            throw new StatusCodeWithException("起始节点必须包含 " + ComponentType.DataIO.getLabel() + "，否则无法执行流程。", StatusCode.PARAMETER_VALUE_INVALID);
+        boolean hasDataSet = graph.getStartNodes()
+                .stream()
+                .anyMatch(x ->
+                        x.getComponentType() == ComponentType.DataIO
+                                || x.getComponentType() == ComponentType.Oot
+                                || x.getComponentType() == ComponentType.ImageDataIO
+                );
+        if (!hasDataSet) {
+            throw new StatusCodeWithException("流程起点必须包含数据集加载，否则无法执行流程。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (isOotMode) {
@@ -215,15 +274,13 @@ public class ProjectFlowJobService extends AbstractService {
 
         // Check whether the services of each member are available
         for (JobMemberMySqlModel member : graph.getMembers()) {
-            ServiceStatusCheckApi.Output status = serviceCheckService.checkMemberServiceStatus(new ServiceStatusCheckApi.Input(member.getMemberId()));
-            MemberServiceStatusOutput errorService = status.getStatus().values().stream().filter(x -> !x.isSuccess()).findFirst().orElse(null);
-            if (errorService != null) {
-                throw new StatusCodeWithException("成员 "
-                        + CacheObjects.getMemberName(member.getMemberId())
-                        + " 的 " + errorService.getService().name() + " 服务不可用："
-                        + errorService.getMessage(),
-
-                        StatusCode.REMOTE_SERVICE_ERROR
+            MemberAvailableCheckOutput status = serviceCheckService.getMemberAvailableInfo(member.getMemberId());
+            if (!status.available) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(
+                        "成员 "
+                                + CacheObjects.getMemberName(member.getMemberId())
+                                + " 的 " + status.errorServiceType.name() + " 服务不可用："
+                                + status.message
                 );
             }
         }
@@ -244,14 +301,8 @@ public class ProjectFlowJobService extends AbstractService {
             if (CacheObjects.getMemberId().equals(member.getMemberId())) {
                 ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(project.getProjectId(), member.getDataSetId(), member.getJobRole());
 
-
                 if (projectDataSet == null) {
-                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已删除。", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-
-                DataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
-                if (dataSet == null) {
-                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除。", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException("成员【" + memberName + " - " + member.getJobRole().name() + "】的数据集 " + member.getDataSetId() + " 不存在，可能已删除或移除了授权。", StatusCode.PARAMETER_VALUE_INVALID);
                 }
 
             }
@@ -266,8 +317,8 @@ public class ProjectFlowJobService extends AbstractService {
                     if (projectDataSet.getSourceType() != null) {
                         continue;
                     } else {
-                        DataSetOutputModel dataSet = dataSetService.findDataSetFromLocalOrUnion(member.getMemberId(), member.getDataSetId());
-                        if (dataSet == null) {
+                        DataResourceOutputModel resource = dataResourceService.findDataResourceFromLocalOrUnion(projectDataSet);
+                        if (resource == null) {
                             throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 不存在，可能已被删除或不可见。", StatusCode.PARAMETER_VALUE_INVALID);
                         }
                     }
@@ -327,13 +378,17 @@ public class ProjectFlowJobService extends AbstractService {
         if (jobs.isEmpty()) {
             throw new StatusCodeWithException("未找到相应的任务！", StatusCode.ILLEGAL_REQUEST);
         }
-
-        JobMySqlModel job = jobs.get(0);
-
-        if (job.getStatus().onStoping() || job.getStatus().finished()) {
+        int finishedJobCount = 0;
+        for (JobMySqlModel job : jobs) {
+            if (job.getStatus().onStoping() || job.getStatus().finished()) {
+                finishedJobCount++;
+            }
+        }
+        // all finished
+        if (finishedJobCount == jobs.size()) {
             return;
         }
-
+        JobMySqlModel job = jobs.get(0);
         ProjectMySqlModel project = projectService.findByProjectId(job.getProjectId());
 
         if (!input.fromGateway() && JobMemberRole.promoter != project.getMyRole()) {
@@ -377,7 +432,7 @@ public class ProjectFlowJobService extends AbstractService {
 
     }
 
-    private List<TaskMySqlModel> createJobTasks(FlowGraph graph, boolean useCache, String endNodeId,
+    private List<TaskMySqlModel> createJobTasks(ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
                                                 FederatedLearningType federatedLearningType) throws StatusCodeWithException {
 
         List<FlowGraphNode> startNodes = graph.getStartNodes();
@@ -457,7 +512,7 @@ public class ProjectFlowJobService extends AbstractService {
                         tasks.addAll(subTasks);
                     }
                 } else {
-                    TaskMySqlModel task = component.buildTask(graph, tasks, kernelJob, node);
+                    TaskMySqlModel task = component.buildTask(project, graph, tasks, kernelJob, node);
                     if (task != null) {
                         tasks.add(task);
                     }
@@ -465,7 +520,8 @@ public class ProjectFlowJobService extends AbstractService {
             } catch (FlowNodeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new FlowNodeException(node, e.getMessage());
+                super.log(e);
+                throw new FlowNodeException(node, e.getClass() + " " + e.getMessage());
             }
         }
 
@@ -504,7 +560,7 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         for (String dataSetId : dataSetIds) {
-            dataSetService.usageCountInJobIncrement(dataSetId);
+            dataResourceService.usageCountInJobIncrement(dataSetId);
         }
     }
 
@@ -531,10 +587,10 @@ public class ProjectFlowJobService extends AbstractService {
         project.setProjectId(job.getProjectId());
 
         Env env = new Env();
-        env.setBackend(config.getBackend());
-        env.setDbType(config.getDbType());
-        env.setWorkMode(config.getWorkMode());
-        env.setName(config.getEnvName());
+        env.setBackend(super.config.getBackend());
+        env.setDbType(super.config.getDbType());
+        env.setWorkMode(super.config.getWorkMode());
+        env.setName(super.config.getEnvName());
 
         List<JobDataSet> dataSets = listJobDataSets(job, nodes);
 
@@ -608,10 +664,8 @@ public class ProjectFlowJobService extends AbstractService {
             int count = Integer.parseInt(oldTask.getTaskId().split("_")[oldTask.getTaskId().split("_").length - 1]);
             // copy task
             if (copyTask) {
-
                 newTask = new TaskMySqlModel();
                 BeanUtils.copyProperties(oldTask, newTask);
-
                 newTask.setId(new TaskMySqlModel().getId());
                 newTask.setRole(newJob.getMyRole());
                 newTask.setJobId(newJob.getJobId());
@@ -620,24 +674,34 @@ public class ProjectFlowJobService extends AbstractService {
                 newTask.setTaskId(node.createTaskId(newJob, count));
                 newTask.setParentTaskIdList(node.createParentTaskIds(newJob, count));
                 taskRepository.save(newTask);
-            }
+                
+                List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+				// copy task_result
+				for (TaskResultMySqlModel oldResult : oldResults) {
 
-            List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-            // copy task_result
-            for (TaskResultMySqlModel oldResult : oldResults) {
+					TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+					BeanUtils.copyProperties(oldResult, newResult);
 
-                TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-                BeanUtils.copyProperties(oldResult, newResult);
+					newResult.setId(new TaskResultMySqlModel().getId());
+					newResult.setRole(newJob.getMyRole());
+					newResult.setJobId(newJob.getJobId());
+					newResult.setTaskId(node.createTaskId(newJob, count));
+					taskResultRepository.save(newResult);
+				}
 
-                newResult.setId(new TaskResultMySqlModel().getId());
-                newResult.setRole(newJob.getMyRole());
-                newResult.setJobId(newJob.getJobId());
-                newResult.setTaskId(node.createTaskId(newJob, count));
-                taskResultRepository.save(newResult);
+				TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+				if (dataSetModel != null) {
+					TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+					BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+					newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+					newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+					newDataSetModel.setDerivedFrom(node.getComponentType());
+					tableDataSetService.save(newDataSetModel);
+				}
             }
-            if (newTask != null) {
-                newTasks.add(newTask);
-            }
+			if (newTask != null) {
+				newTasks.add(newTask);
+			}
         }
 
         return newTasks;
@@ -675,23 +739,32 @@ public class ProjectFlowJobService extends AbstractService {
             newTask.setParentTaskIdList(node.createParentTaskIds(newJob));
 
             taskRepository.save(newTask);
+            
+            List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+            // copy task_result
+            for (TaskResultMySqlModel oldResult : oldResults) {
+
+                TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+                BeanUtils.copyProperties(oldResult, newResult);
+
+                newResult.setId(new TaskResultMySqlModel().getId());
+                newResult.setRole(newJob.getMyRole());
+                newResult.setJobId(newJob.getJobId());
+                newResult.setTaskId(node.createTaskId(newJob));
+
+                taskResultRepository.save(newResult);
+            }
+            
+            TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+			if (dataSetModel != null) {
+				TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+				BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+				newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+				newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+				newDataSetModel.setDerivedFrom(node.getComponentType());
+				tableDataSetService.save(newDataSetModel);
+			}
         }
-
-        List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-        // copy task_result
-        for (TaskResultMySqlModel oldResult : oldResults) {
-
-            TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-            BeanUtils.copyProperties(oldResult, newResult);
-
-            newResult.setId(new TaskResultMySqlModel().getId());
-            newResult.setRole(newJob.getMyRole());
-            newResult.setJobId(newJob.getJobId());
-            newResult.setTaskId(node.createTaskId(newJob));
-
-            taskResultRepository.save(newResult);
-        }
-
         return newTask;
     }
 
@@ -707,33 +780,39 @@ public class ProjectFlowJobService extends AbstractService {
 
         String promoterId = null;
         for (ProjectFlowNodeMySqlModel node : nodes) {
-            List<DataIOComponent.DataSetItem> dataSetItemList = null;
-            if (node.getComponentType().equals(ComponentType.Oot)) {
-                if (isOotMode) {
-                    OotComponent.Params params = (OotComponent.Params) Components
-                            .get(node.getComponentType())
-                            .deserializationParam(null, node.getParams());
-                    // oot model
-                    dataSetItemList = StringUtil.isNotEmpty(params.getJobId()) ? params.getDataSetList() : dataSetItemList;
-                }
-            } else {
-                DataIOComponent.Params params = (DataIOComponent.Params) Components
-                        .get(node.getComponentType())
-                        .deserializationParam(null, node.getParams());
-                dataSetItemList = params.getDataSetList();
+            List<? extends AbstractDataSetItem> dataSetItemList = null;
+
+            AbstractDataIOParam params = (AbstractDataIOParam) Components
+                    .get(node.getComponentType())
+                    .deserializationParam(null, node.getParams());
+
+            switch (node.getComponentType()) {
+                case DataIO:
+                case ImageDataIO:
+                    dataSetItemList = params.getDataSetList();
+                    break;
+                case Oot:
+                    OotComponent.Params ootParams = (OotComponent.Params) params;
+                    dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
+                            ? params.getDataSetList()
+                            : dataSetItemList;
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
             }
 
             if (CollectionUtils.isEmpty(dataSetItemList)) {
                 continue;
             }
 
-            for (DataIOComponent.DataSetItem item : dataSetItemList) {
-                boolean existMember = jobMembers.stream().anyMatch(x ->
-                        x.getMemberId().equals(item.getMemberId())
-                                && x.getJobRole().equals(item.getMemberRole())
-                );
+            for (AbstractDataSetItem item : dataSetItemList) {
+                boolean memberExisted = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getMemberId().equals(item.getMemberId())
+                                        && x.getJobRole().equals(item.getMemberRole())
+                        );
 
-                if (existMember) {
+                if (memberExisted) {
                     continue;
                 }
 
@@ -820,9 +899,9 @@ public class ProjectFlowJobService extends AbstractService {
                 member.memberRole = item.getMemberRole();
                 member.dataSetId = item.getDataSetId();
 
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
+                TableDataSetOutputModel dataSetInfo = tableDataSetService.findDataSetFromLocalOrUnion(member.memberId, member.dataSetId);
                 if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
+                    member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
                 }
 

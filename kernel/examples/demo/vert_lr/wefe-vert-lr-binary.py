@@ -48,8 +48,8 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     promoter_data_table = param.get("promoter_data_table")
     provider_data_table = param.get("provider_data_table")
 
-    promoter_train_data = {"name": promoter_data_table, "namespace": namespace}
-    provider_train_data = {"name": provider_data_table, "namespace": namespace}
+    promoter_train_data = {"name": promoter_data_table, "namespace": namespace, "data_set_id": ""}
+    provider_train_data = {"name": provider_data_table, "namespace": namespace, "data_set_id": ""}
 
     handler_upload = Handler().set_roles(promoter=promoter, provider=provider)
     handler_upload.add_upload_data(file=os.path.join(data_base, data_promoter),
@@ -60,7 +60,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
                                    table_name=provider_data_table,
                                    namespace=namespace,
                                    head=1, partition=1)
-    handler_upload.upload(work_mode=work_mode, backend=backend)
+    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     # initialize handler
     handler = Handler(job_id="job_vertlr_" + str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode,

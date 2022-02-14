@@ -55,7 +55,6 @@
                             <el-input
                                 v-model="form.phone"
                                 placeholder="手机号"
-                                id="username"
                                 maxlength="11"
                                 type="tel"
                                 clearable
@@ -68,7 +67,6 @@
                             <el-input
                                 v-model="form.password"
                                 type="password"
-                                id="password"
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
@@ -106,12 +104,6 @@
                             保持登录
                         </el-checkbox> -->
                         <div class="sign-action">
-                            <!-- <router-link
-                            :to="{name: 'find-password'}"
-                            class="mr20"
-                        >
-                            忘记密码
-                        </router-link> -->
                             <el-button
                                 type="primary"
                                 class="login-btn"
@@ -123,6 +115,12 @@
                             </el-button>
                         </div>
                         <h4 class="text-r f14 mt20">
+                            <router-link
+                                :to="{name: 'find-password'}"
+                                class="mr20 float-left"
+                            >
+                                忘记密码?
+                            </router-link>
                             还没有账号?
                             <router-link :to="{ name: 'register', query: { redirect: $route.query.redirect } }">
                                 立即注册
@@ -232,17 +230,15 @@
                             });
 
                             if(res.code === 0) {
-                                data.member_id = res.data.member_id;
-                                data.member_logo = res.data.member_logo;
-                                data.member_name = res.data.member_name;
-                                data.member_email = res.data.member_email;
-                                this.$store.commit('UPDATE_USERINFO', data);
+                                const info = Object.assign(data, res.data);
+
+                                this.$store.commit('UPDATE_USERINFO', info);
                                 this.$router.replace({
                                     name: 'index',
                                 });
                             } else {
                                 this.$store.commit('SYSTEM_INITED', false);
-                                this.$store.commit('UPDATE_USERINFO', {});
+                                this.$store.commit('UPDATE_USERINFO', null);
                                 this.$message.error('请重试');
                             }
                         } else {
@@ -287,12 +283,18 @@
         }
 
         .el-carousel__item {
-            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             padding: 0 60px;
             text-align: center;
             background: #333;
             align-items: center;
             display: flex;
+            color: #fff;
             h3{margin-bottom: 20px;}
         }
 

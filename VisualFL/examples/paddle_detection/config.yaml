@@ -1,0 +1,27 @@
+job_id: job_detection0001
+task_id: job_detection0001
+job_type: paddle_fl
+role: promoter
+member_id: master1
+callback_url: https://www.xxx.com
+env:
+  worker_num: 2
+  local_worker_num: 2
+  local_trainer_indexs: [0,1]
+  device: cpu
+  use_vdl: true
+  server_endpoint: 127.0.0.1:12000
+  aggregator_endpoint: 127.0.0.1:12003
+  aggregator_assignee: worker2
+data_set:
+  download_url: http://x.x
+algorithm_config:
+  program: paddle_detection
+  max_iter: 1000
+  inner_step: 10
+  architecture: yolov3
+  num_classes:  3
+  base_lr: 0.01
+  batch_size: 1
+  need_shuffle: True
+  image_shape: [3, 608, 608]

@@ -1,34 +1,36 @@
 <template>
     <el-table
         v-loading="loading"
-        :data="uploadList"
+        :data="list"
         stripe
         border
     >
         <template #empty>
             <EmptyData />
         </template>
-        <el-table-column label="名称 / Id">
+        <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
-                <span>{{ scope.row.name }}</span>
+                <span>{{ scope.row.data_resource_name }}</span>
                 <br>
-                <span class="p-id">{{ scope.row.id }}</span>
+                <p class="p-id">{{ scope.row.id }}</p>
             </template>
         </el-table-column>
-        <el-table-column
-            label="样本量"
-            prop="row_count"
-        >
+        <el-table-column label="数据资源类型" min-width="120">
             <template v-slot="scope">
-                {{ scope.row.row_count }}
+                {{ sourceTypeMap[scope.row.data_resource_type] }}
             </template>
         </el-table-column>
-        <el-table-column label="总上传行数" prop="total_row_count"></el-table-column>
-        <el-table-column label="已处理数据行数" prop="added_row_count"></el-table-column>
-        <el-table-column label="主键重复条数" prop="repeat_id_row_count"></el-table-column>
+        <el-table-column label="上传进度">
+            <template v-slot="scope">
+                {{ scope.row.progress_ratio }}%
+                <p>{{ scope.row.status === 'completed' ? '已完成' : scope.row.status === 'failed' ? '已失败' : '正在上传' }}</p>
+            </template>
+        </el-table-column>
+        <el-table-column label="上传样本总量" prop="total_data_count"></el-table-column>
+        <el-table-column label="已处理样本量" prop="completed_data_count"></el-table-column>
+        <el-table-column label="无效数据量" prop="invalid_data_count"></el-table-column>
         <el-table-column
-            label="上传者"
-            prop="creator_nickname"
+            label="上传时间"
             min-width="140"
         >
             <template v-slot="scope">
@@ -37,27 +39,15 @@
                 {{ dateFormat(scope.row.created_time) }}
             </template>
         </el-table-column>
-        <el-table-column
-            label="上传进度"
-            prop="progress"
-        >
+        <el-table-column label="耗时">
             <template v-slot="scope">
-                {{ scope.row.progress }}%
-            </template>
-        </el-table-column>
-        <el-table-column
-            label="耗时"
-            prop="estimate_time"
-        >
-            <template v-slot="scope">
-                {{ timeFormat(scope.row.estimate_time / 1000) }}
+                {{ timeFormat(scope.row.estimate_remaining_time / 1000) }}
             </template>
         </el-table-column>
         <el-table-column
             label="错误信息"
             prop="error_message"
-        >
-        </el-table-column>
+        />
     </el-table>
     <div
         v-if="pagination.total"
@@ -82,31 +72,31 @@
         mixins: [table],
         props:  {
             tableLoading: Boolean,
-            sourceType:   String,
-            searchField:  {
-                type:    Object,
-                default: _ => {},
-            },
-            uploadList: Array, // table data
         },
         data() {
             return {
-                getListApi:    '/data_set_task/query',
+                getListApi: '/data_resource/upload_task/query',
+                search:     {
+                    requestFromRefresh: true,
+                },
                 defaultSearch: false,
                 watchRoute:    false,
+                turnPageRoute: false,
                 pagination:    {
                     page_index: 1,
                     page_size:  20,
                     total:      0,
                 },
+                sourceTypeMap: {
+                    BloomFilter:  '布隆过滤器',
+                    ImageDataSet: 'ImageDataSet',
+                    TableDataSet: 'TableDataSet',
+                },
             };
         },
         methods: {
-            async getDataList(opt) {
-                this.search = this.searchField;
-                this.pagination.page_index = +this.$route.query.page_index || 1;
-                this.pagination.page_size = +this.$route.query.page_size || 20;
-                await this.getList(opt);
+            getDataList(opt) {
+                this.getList(opt);
             },
         },
     };

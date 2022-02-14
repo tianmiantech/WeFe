@@ -21,18 +21,18 @@ psutil==5.7.2
 tablestore==5.1.0
 aliyun-python-sdk-core
 aliyun-python-sdk-fnf
+aliyun-python-sdk-cms
 aliyun-fc2
 aliyun-python-sdk-sts==3.0.2
 flask~=1.1.2
 werkzeug~=1.0.1
 oss2==2.14.0
 scikit-learn==0.19.2
-tensorflow>=2.4.1
+tensorflow==2.4.1
 torch
 torchvision
 coverage==4.5.2
 pandas==1.1.5
 pytorch-lightning
-
 # 用于获取网络接口相关信息 https://pypi.org/project/netifaces/
 netifaces==0.11.0

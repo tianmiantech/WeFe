@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,10 +22,11 @@ import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.board.service.util.ModelMapper;
-import com.welab.wefe.common.enums.FederatedLearningType;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -198,7 +199,7 @@ public abstract class BaseFlowGraph {
                 .orElse(null);
     }
 
-    public List<FlowGraphNode> getAllJobSteps() {
+    public List<FlowGraphNode> getAllJobSteps() throws StatusCodeWithException {
         return getJobSteps(null);
     }
 
@@ -215,14 +216,22 @@ public abstract class BaseFlowGraph {
      *
      * @param endNodeId Specify the end node, if it is null, it will execute to the last node.
      */
-    public List<FlowGraphNode> getJobSteps(String endNodeId) {
+    public List<FlowGraphNode> getJobSteps(String endNodeId) throws StatusCodeWithException {
 
         if (endNodeId != null) {
-
             FlowGraphNode endNode = getNode(endNodeId);
+
+            if (endNode == null) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("错误的 end node id：" + endNodeId);
+            }
+
+            if (endNode.getPosition() == null) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("无法执行到此处");
+            }
+
             return jobSteps
                     .stream()
-                    .filter(x -> endNode != null && endNode.getPosition() <= endNode.getPosition())
+                    .filter(x -> x.getPosition() <= endNode.getPosition())
                     .collect(Collectors.toList());
 
         } else {

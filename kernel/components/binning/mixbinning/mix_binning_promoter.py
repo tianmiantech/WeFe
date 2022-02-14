@@ -23,7 +23,7 @@ from kernel.components.binning.vertfeaturebinning.base_feature_binning import Ba
 from kernel.security import PaillierEncrypt
 from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.transfer.variables.transfer_class.mix_feature_binning_transfer_variable import MixBinningTransferVariable
-from kernel.utils import consts
+from kernel.utils import consts, data_util
 
 LOGGER = log_utils.get_logger()
 
@@ -42,7 +42,8 @@ class MixBinningPromoter(BaseVertFeatureBinning):
 
     def fit(self, data_instances):
         LOGGER.debug('promote binning start')
-        self._abnormal_detection(data_instances)
+        header = data_util.get_header(data_instances)
+        self.model_param.set_bin_index(header)
         self._setup_bin_inner_param(data_instances, self.model_param)
         self.binning_obj.set_bin_inner_param(self.bin_inner_param)
         self.binning_obj.set_transfer_variable(self.transfer_variable)

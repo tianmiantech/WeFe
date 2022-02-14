@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.Launcher;
@@ -31,6 +30,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -70,13 +71,16 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "业务层面的项目ID", hiddenForFrontEnd = true)
+        @Check(name = "业务层面的项目ID", donotShow = true)
         private String projectId;
-        @Check(name = "所有成员列表", hiddenForFrontEnd = true)
+        @Check(name = "所有成员列表", donotShow = true)
         private List<ProjectMemberInput> members;
 
         @Check(name = "项目名称", require = true)
         private String name;
+
+        @Check(name = "项目类型", require = true)
+        private ProjectType projectType;
 
         @Check(name = "项目描述", require = true)
         private String desc;
@@ -93,14 +97,13 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
         @Check(name = "角色")
         private JobMemberRole role;
 
-
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
 
             // Project name cannot be repeated
             if (!super.fromGateway()) {
-                List<ProjectMySqlModel> allByName = Launcher.CONTEXT.getBean(ProjectRepository.class).findAllByName(name);
+                List<ProjectMySqlModel> allByName = Launcher.getBean(ProjectRepository.class).findAllByName(name);
                 if (!allByName.isEmpty()) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException(
                             "这个项目名称已经被用过了哟~ 再想一个吧~"
@@ -198,6 +201,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
         public void setRole(JobMemberRole role) {
             this.role = role;
+        }
+
+        public ProjectType getProjectType() {
+            return projectType;
+        }
+
+        public void setProjectType(ProjectType projectType) {
+            this.projectType = projectType;
         }
 
         //endregion

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,6 @@ import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.PartnerOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
-import com.welab.wefe.data.fusion.service.dto.entity.TaskOverviewOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.*;
@@ -109,7 +108,7 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
         //If a task is being executed, add it after the task is completed
-        if (TaskManager.size() > 0) {
+        if (ActuatorManager.size() > 0) {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
         }
 
@@ -196,7 +195,7 @@ public class TaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
-        if (TaskManager.size() > 0) {
+        if (ActuatorManager.size() > 0) {
             throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
         }
 
@@ -254,7 +253,7 @@ public class TaskService extends AbstractService {
         //Add fieldinfo
         fieldInfoService.saveAll(task.getBusinessId(), input.getFieldInfoList());
 
-        task.setStatus(TaskStatus.Await);
+        task.setStatus(TaskStatus.Ready);
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
         task.setRowCount(dataSet.getRowCount());
@@ -286,7 +285,7 @@ public class TaskService extends AbstractService {
         task.setUpdatedTime(new Date());
         taskRepository.save(task);
 
-        if (TaskManager.get(task.getBusinessId()) != null) {
+        if (ActuatorManager.get(task.getBusinessId()) != null) {
             return;
         }
 
@@ -314,7 +313,7 @@ public class TaskService extends AbstractService {
                 )
         );
 
-        TaskManager.set(server);
+        //ActuatorManager.set(server);
 
         server.run();
 
@@ -323,7 +322,7 @@ public class TaskService extends AbstractService {
                 partner.getBaseUrl(),
                 task.getBusinessId(),
                 CallbackType.running,
-                TaskManager.ip(),
+                ActuatorManager.ip(),
                 CacheObjects.getOpenSocketPort()
         );
     }
@@ -360,7 +359,6 @@ public class TaskService extends AbstractService {
         Specification<TaskMySqlModel> where = Where.create()
                 .equal("businessId", input.getBusinessId())
                 .equal("status", input.getStatus())
-                .equal("myRole", input.getMyRole())
                 .build(TaskMySqlModel.class);
 
         PagingOutput<TaskMySqlModel> page = taskRepository.paging(where, input);

@@ -69,7 +69,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
             const { appContext } = getCurrentInstance();
@@ -94,20 +93,20 @@
                     };
                 },
                 showResult(data) {
-                    if (data.status) {
+                    if (data[0].status) {
                         vData.commonResultData = {
-                            task: data,
+                            task: data[0],
                         };
 
-                        if(data.result && data.result) {
-                            const { validate } = data.result;
+                        if(data[0].result) {
+                            const { validate } = data[0].result;
 
                             vData.validate = {
                                 auc: validate.data.auc.value,
                                 ks:  validate.data.ks.value,
                             };
                             vData.hasResult = true;
-                            methods.getTopNData(data);
+                            methods.getTopNData(data[0]);
                         } else {
                             vData.hasResult = false;
                         }

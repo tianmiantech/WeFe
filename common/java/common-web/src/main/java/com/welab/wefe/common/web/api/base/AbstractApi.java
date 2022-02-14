@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,17 +19,22 @@ package com.welab.wefe.common.web.api.base;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.enums.ContentType;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -51,13 +56,8 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
 
     /**
      * Concrete implementation of API
-     *
-     * @param input
-     * @return ApiResult<Out>
-     * @throws StatusCodeWithException
-     * @throws IOException
      */
-    protected abstract ApiResult<Out> handle(In input) throws StatusCodeWithException, IOException;
+    protected abstract ApiResult<Out> handle(In input) throws Exception;
 
     public ApiResult<Out> execute(String method, JSONObject requestParams) {
         return execute(method, requestParams, null, null);
@@ -93,6 +93,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
             In apiInput = requestParams.toJavaObject(apiInputClass);
             apiInput.method = method.toUpperCase();
             apiInput.request = request;
+            apiInput.rawRequestParams = requestParams;
             // The parameter checking
             apiInput.checkAndStandardize();
 
@@ -199,6 +200,10 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         return result;
     }
 
+    protected ApiResult<Out> fail(Exception e) {
+        return fail(-1, e.getClass().getSimpleName() + " " + e.getMessage(), null);
+    }
+
     protected ApiResult<Out> fail(String message) {
         return fail(-1, message, null);
     }
@@ -219,6 +224,29 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         return response;
     }
 
+    protected ApiResult<ResponseEntity<?>> file(File file) throws StatusCodeWithException {
+        if (!file.exists()) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不存在：" + file.getAbsolutePath());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "public, max-age=3600");
+        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+        headers.add("Last-Modified", file.lastModified() + "");
+        headers.add("ETag", String.valueOf(file.lastModified()));
+
+        ResponseEntity<FileSystemResource> response = ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType(ContentType.of(file)))
+                .body(new FileSystemResource(file));
+
+        ApiResult<ResponseEntity<?>> result = new ApiResult<>();
+        result.data = response;
+        return result;
+    }
+
     protected ApiResult<Out> success(Out data) {
         ApiResult<Out> response = new ApiResult<>();
         response.data = data;
@@ -226,18 +254,20 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
     }
 
     protected ApiResult<Out> success() {
-        return success(null);
+        ApiResult<Out> response = new ApiResult<>();
+        response.data = null;
+        return response;
     }
 
     /**
      * Wrap the union API return result as the board API return result.
      */
-    protected ApiResult<JSONObject> unionApiResultToBoardApiResult(JSONObject json) {
+    protected ApiResult<Object> unionApiResultToBoardApiResult(JSONObject json) {
 
-        ApiResult<JSONObject> result = new ApiResult<>();
+        ApiResult<Object> result = new ApiResult<>();
         result.code = json.getInteger("code");
         result.message = json.getString("message");
-        result.data = json.getJSONObject("data");
+        result.data = json.get("data");
 
         return result;
     }

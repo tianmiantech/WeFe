@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,10 +17,13 @@
 package com.welab.wefe.board.service.component;
 
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
+import com.welab.wefe.board.service.component.deep_learning.PaddleClassifyComponent;
+import com.welab.wefe.board.service.component.deep_learning.PaddleDetectionComponent;
 import com.welab.wefe.board.service.component.feature.*;
 import com.welab.wefe.board.service.component.modeling.*;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,10 +71,38 @@ public class Components {
     private MixStatisticComponent mixStatisticComponent;
     @Autowired
     private OotComponent ootComponent;
+    @Autowired
+    private FeatureTransformComponent featureTransformComponent;
+    @Autowired
+    private HorzOneHotComponent horzOneHotComponent;
+    @Autowired
+    private VertFilterComponent vertFilterComponent;
+    @Autowired
+    private VertOneHotComponent vertOneHotComponent;
+    @Autowired
+    private VertPCAComponent vertPCAComponent;
+    @Autowired
+    private HorzFeatureBinningComponent horzFeatureBinningComponent;
+    @Autowired
+    private HorzStatisticComponent horzStatisticComponent;
+    @Autowired
+    private VertNNComponent vertNNComponent;
+    @Autowired
+    private HorzNNComponent horzNNComponent;
+    @Autowired
+    private MixBinningComponent mixBinningComponent;
 
     public static AbstractComponent<?> getDataIOComponent() {
         return get(ComponentType.DataIO);
     }
+
+    @Autowired
+    private ImageDataIOComponent imageDataIOComponent;
+    @Autowired
+    private PaddleClassifyComponent paddleClassifyComponent;
+    @Autowired
+    private PaddleDetectionComponent paddleDetectionComponent;
+
 
     public static AbstractComponent<?> get(ComponentType componentType) {
 
@@ -81,43 +112,69 @@ public class Components {
             case HorzXGBoostValidationDataSetLoader:
             case VertXGBoostValidationDataSetLoader:
             case DataIO:
-                return Launcher.CONTEXT.getBean(Components.class).dataIOComponent;
+                return Launcher.getBean(Components.class).dataIOComponent;
             case Intersection:
-                return Launcher.CONTEXT.getBean(Components.class).intersectionComponent;
+                return Launcher.getBean(Components.class).intersectionComponent;
             case Evaluation:
-                return Launcher.CONTEXT.getBean(Components.class).evaluationComponent;
+                return Launcher.getBean(Components.class).evaluationComponent;
             case HorzLR:
-                return Launcher.CONTEXT.getBean(Components.class).horzLRComponent;
+                return Launcher.getBean(Components.class).horzLRComponent;
             case VertLR:
-                return Launcher.CONTEXT.getBean(Components.class).vertLRComponent;
+                return Launcher.getBean(Components.class).vertLRComponent;
             case Binning:
-                return Launcher.CONTEXT.getBean(Components.class).binningComponent;
+                return Launcher.getBean(Components.class).binningComponent;
             case HorzSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).horzSecureBoostComponent;
+                return Launcher.getBean(Components.class).horzSecureBoostComponent;
             case VertSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).vertSecureBoostComponent;
+                return Launcher.getBean(Components.class).vertSecureBoostComponent;
             case FeatureSelection:
-                return Launcher.CONTEXT.getBean(Components.class).featureSelectionComponent;
+                return Launcher.getBean(Components.class).featureSelectionComponent;
             case Segment:
-                return Launcher.CONTEXT.getBean(Components.class).segmentComponent;
+                return Launcher.getBean(Components.class).segmentComponent;
             case FeatureStatistic:
-                return Launcher.CONTEXT.getBean(Components.class).featureStatisticsComponent;
+                return Launcher.getBean(Components.class).featureStatisticsComponent;
             case FeatureCalculation:
-                return Launcher.CONTEXT.getBean(Components.class).featureCalculationComponent;
+                return Launcher.getBean(Components.class).featureCalculationComponent;
             case FillMissingValue:
-                return Launcher.CONTEXT.getBean(Components.class).fillMissingValueComponent;
+                return Launcher.getBean(Components.class).fillMissingValueComponent;
             case FeatureStandardized:
-                return Launcher.CONTEXT.getBean(Components.class).featureStandardizedComponent;
+                return Launcher.getBean(Components.class).featureStandardizedComponent;
             case VertPearson:
-                return Launcher.CONTEXT.getBean(Components.class).vertPearsonComponent;
+                return Launcher.getBean(Components.class).vertPearsonComponent;
             case MixLR:
-                return Launcher.CONTEXT.getBean(Components.class).mixLrComponent;
+                return Launcher.getBean(Components.class).mixLrComponent;
             case MixSecureBoost:
-                return Launcher.CONTEXT.getBean(Components.class).mixSecureBoostComponent;
+                return Launcher.getBean(Components.class).mixSecureBoostComponent;
             case MixStatistic:
-                return Launcher.CONTEXT.getBean(Components.class).mixStatisticComponent;
+                return Launcher.getBean(Components.class).mixStatisticComponent;
             case Oot:
                 return Launcher.CONTEXT.getBean(Components.class).ootComponent;
+            case VertFilter:
+                return Launcher.CONTEXT.getBean(Components.class).vertFilterComponent;
+            case FeatureTransform:
+                return Launcher.CONTEXT.getBean(Components.class).featureTransformComponent;
+            case HorzOneHot:
+                return Launcher.CONTEXT.getBean(Components.class).horzOneHotComponent;
+            case VertOneHot:
+                return Launcher.getBean(Components.class).vertOneHotComponent;
+            case VertPCA:
+                return Launcher.getBean(Components.class).vertPCAComponent;
+            case HorzFeatureBinning:
+                return Launcher.getBean(Components.class).horzFeatureBinningComponent;
+            case HorzStatistic:
+                return Launcher.getBean(Components.class).horzStatisticComponent;
+            case HorzNN:
+                return Launcher.getBean(Components.class).horzNNComponent;
+            case VertNN:
+                return Launcher.getBean(Components.class).vertNNComponent;
+            case MixBinning:
+                return Launcher.getBean(Components.class).mixBinningComponent;
+            case ImageDataIO:
+                return Launcher.getBean(Components.class).imageDataIOComponent;
+            case PaddleClassify:
+                return Launcher.getBean(Components.class).paddleClassifyComponent;
+            case PaddleDetection:
+                return Launcher.getBean(Components.class).paddleDetectionComponent;
             default:
                 return null;
         }
@@ -128,6 +185,10 @@ public class Components {
                 || type == ComponentType.HorzSecureBoost
                 || type == ComponentType.MixLR
                 || type == ComponentType.MixSecureBoost
-                || type == ComponentType.MixStatistic;
+                || type == ComponentType.MixStatistic
+                || type == ComponentType.HorzStatistic
+                || type == ComponentType.HorzFeatureBinning
+                || type == ComponentType.HorzNN
+                || type == ComponentType.MixBinning;
     }
 }

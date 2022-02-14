@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,31 +18,36 @@ package com.welab.wefe.board.service.component.base;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.component.base.io.*;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
-import com.welab.wefe.board.service.dto.kernel.KernelJob;
-import com.welab.wefe.board.service.dto.kernel.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.Member;
-import com.welab.wefe.board.service.dto.kernel.TaskConfig;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.board.service.util.ModelMapper;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +57,6 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -83,7 +87,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             ComponentType.HorzSecureBoost,
             ComponentType.VertSecureBoost,
             ComponentType.MixLR,
-            ComponentType.MixSecureBoost
+            ComponentType.MixSecureBoost,
+            ComponentType.HorzNN,
+            ComponentType.VertNN
     );
 
 
@@ -93,6 +99,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     protected TaskResultService taskResultService;
     @Autowired
     protected TaskRepository taskRepository;
+    @Autowired
+    protected GlobalConfigService globalConfigService;
 
     /**
      * create mix flow task
@@ -101,7 +109,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -139,9 +147,11 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             task.setFlowId(graph.getJob().getFlowId());
             task.setFlowNodeId(node.getNodeId());
             task.setTaskType(taskType());
+            // special
             node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()) + "_" + count);
             task.setName(node.getTaskName());
 
+            // special
             if (parentNode != null) {
                 parentNode
                         .setTaskName(FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId())
@@ -153,15 +163,13 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             if (graph.getJob().getMyRole() == JobMemberRole.provider) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost) {
-                    JSONObject p = taskParam.getJSONObject("params");
-                    p.put("random_cipher_seed", randomCipherSeed);
-                    taskParam.put("params", p);
+                    taskParam.put("random_cipher_seed", randomCipherSeed);
                 }
             }
             taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
-            taskConfig.setParams(taskParam.getJSONObject("params"));
-            taskConfig.setInput(getInputs(graph, node));
+            taskConfig.setParams(taskParam);
+            taskConfig.setInput(generateInput(graph, node, count));
             taskConfig.setOutput(getOutputs(graph, node));
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
@@ -174,8 +182,49 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskRepository.save(task);
             subTasks.add(task);
             count++;
+
+            // rollback
+            node.setTaskName(FlowGraphNode.createTaskName(node.getComponentType(), node.getNodeId()));
+            if (parentNode != null) {
+                parentNode.setTaskName(
+                        FlowGraphNode.createTaskName(parentNode.getComponentType(), parentNode.getNodeId()));
+            }
         }
         return subTasks;
+    }
+
+    private Map<String, Object> generateInput(FlowGraph graph, FlowGraphNode node, int count) throws FlowNodeException {
+        Map<String, Object> inputs = getInputs(graph, node);
+        try {
+
+            JSONObject json = JSON.parseObject(JSON.toJSONString(inputs));
+            JSONObject data = json.getJSONObject("data");
+            Set<Map.Entry<String, Object>> entrySet = data.entrySet();
+
+            for (Map.Entry<String, Object> entry : entrySet) {
+                List<String> dataSetList = data.getObject(entry.getKey(), TypeReference.LIST_STRING);
+                String end = "_" + count;
+                List<String> newDataSet = new ArrayList<>();
+                for (String s : dataSetList) {
+                    if (s.endsWith(end)) {
+                        newDataSet.add(s);
+                    } else {
+                        newDataSet.add(s + end);
+                    }
+                }
+
+                if (!newDataSet.isEmpty()) {
+                    data.put(entry.getKey(), newDataSet);
+                }
+            }
+            if (!data.isEmpty()) {
+                json.put("data", data);
+                inputs = json.getInnerMap();
+            }
+        } catch (Exception e) {
+            LOG.warn("parse inputs error, json = " + JSON.toJSONString(inputs), e);
+        }
+        return inputs;
     }
 
     private int getCount(List<TaskMySqlModel> preTasks, int parentDeep, int currentCount) {
@@ -195,7 +244,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws StatusCodeWithException {
+    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -225,17 +274,21 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         task.setTaskType(taskType());
         task.setName(node.getTaskName());
 
-        TaskConfig taskConfig = new TaskConfig();
-        taskConfig.setJob(jobInfo);
-        taskConfig.setModule(taskType());
-        taskConfig.setParams(taskParam.getJSONObject("params"));
-        taskConfig.setInput(getInputs(graph, node));
-        taskConfig.setOutput(getOutputs(graph, node));
-        taskConfig.setTask(getTaskMembers(graph, node));
+        if (project.getProjectType() == ProjectType.MachineLearning) {
+            TaskConfig taskConfig = new TaskConfig();
+            taskConfig.setJob(jobInfo);
+            taskConfig.setModule(taskType());
+            taskConfig.setParams(taskParam);
+            taskConfig.setInput(getInputs(graph, node));
+            taskConfig.setOutput(getOutputs(graph, node));
+            taskConfig.setTask(getTaskMembers(graph, node));
 
-        task.setTaskConf(
-                JSON.toJSONString(taskConfig)
-        );
+            task.setTaskConf(
+                    JSON.toJSONString(taskConfig)
+            );
+        } else if (project.getProjectType() == ProjectType.DeepLearning) {
+            task.setTaskConf(taskParam.toJSONString());
+        }
 
         task.setRole(graph.getJob().getMyRole());
         task.setStatus(TaskStatus.wait_run);
@@ -282,7 +335,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    public TaskResultOutputModel getTaskResult(String taskId, String type) {
+    public TaskResultOutputModel getTaskResult(String taskId, String type) throws StatusCodeWithException {
         TaskResultMySqlModel result = getResult(taskId, type);
         if (result == null) {
             return null;
@@ -444,7 +497,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .findFirst().orElse(null);
                 if (promoter != null) {
@@ -461,7 +515,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             // need arbiter
             if (node.getComponentType() == ComponentType.MixLR
                     || node.getComponentType() == ComponentType.MixSecureBoost
-                    || node.getComponentType() == ComponentType.MixStatistic) {
+                    || node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -484,7 +539,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 KernelTask task = new KernelTask();
                 task.setMembers(members);
                 kernelTasks.add(task);
-            } else if (node.getComponentType() == ComponentType.MixStatistic) {
+            } else if (node.getComponentType() == ComponentType.MixStatistic
+                    || node.getComponentType() == ComponentType.MixBinning) {
                 KernelTask task = new KernelTask();
                 task.setMembers(allMembers);
                 kernelTasks.add(task);
@@ -505,7 +561,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             for (Member promoter : promoters) {
                 if (node.getComponentType() == ComponentType.MixLR
                         || node.getComponentType() == ComponentType.MixSecureBoost
-                        || node.getComponentType() == ComponentType.MixStatistic) {
+                        || node.getComponentType() == ComponentType.MixStatistic
+                        || node.getComponentType() == ComponentType.MixBinning) {
                     KernelTask task = new KernelTask();
                     task.setMembers(allMembers);
                     task.setMixPromoterMemberId(promoter.getMemberId());
@@ -562,8 +619,9 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             member.setMemberName(CacheObjects.getMemberName(x.getMemberId()));
             member.setMemberRole(x.getMemberRole());
             members.add(member);
-            // Horizontal modeling component, and the current member is a promoter, need to increase arbiter.
-            if (node.getComponentType() == ComponentType.HorzLR || node.getComponentType() == ComponentType.HorzSecureBoost) {
+            // Horizontal modeling component, and the current member is a promoter, need to
+            // increase arbiter.
+            if (Components.needArbiterTask(node.getComponentType())) {
                 if (x.getMemberRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())) {
                     Member arbiterMember = new Member();
                     arbiterMember.setMemberId(x.getMemberId());
@@ -577,8 +635,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         Member promoter = graph.getMembers().stream().map(x -> new Member(x))
                 .filter(s -> s.getMemberRole() == JobMemberRole.promoter).findFirst().orElse(null);
 
-        if (node.getComponentType() == ComponentType.HorzLR
-                || node.getComponentType() == ComponentType.HorzSecureBoost) {
+        if (Components.needArbiterTask(node.getComponentType())) {
             if (graph.getJob().getMyRole() == JobMemberRole.provider && promoter != null) {
                 Member arbiterMember = new Member();
                 arbiterMember.setMemberId(promoter.getMemberId());
@@ -623,13 +680,13 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
             if (x.getComponentType() == ComponentType.DataIO) {
                 DataIOComponent.Params dataIOParams = (DataIOComponent.Params) x.getParamsModel();
-                DataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
+                TableDataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
 
                 // If it is not a derived data set, it must have been misaligned.
-                if (myDataSet != null && myDataSet.getSourceType() != null) {
+                if (myDataSet != null && myDataSet.isDerivedResource()) {
 
                     // If the derived data set comes from alignment
-                    if (myDataSet.getSourceType() == ComponentType.Intersection) {
+                    if (myDataSet.getDerivedFrom() == ComponentType.Intersection) {
                         return true;
                     }
 
@@ -661,7 +718,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Assemble the input parameters of the task according to the component configuration
      */
-    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws FlowNodeException;
+    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws Exception;
 
     public abstract ComponentType taskType();
 
@@ -673,7 +730,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Show the specified execution result
      */
-    protected abstract TaskResultMySqlModel getResult(String taskId, String type);
+    protected abstract TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException;
 
     /**
      * Declare the input parameter type

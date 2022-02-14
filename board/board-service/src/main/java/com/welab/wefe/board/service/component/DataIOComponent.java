@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,11 +19,13 @@ package com.welab.wefe.board.service.component;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -31,15 +33,14 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.service.DataSetService;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskResultType;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ import java.util.stream.Collectors;
 public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Override
     public ComponentType taskType() {
@@ -94,8 +95,8 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         DataSetItem promoterProjectDataSet = params.getDataSetList().stream().filter(x -> x.memberId.equals(promoter.getMemberId())).findFirst().orElse(null);
-        DataSetMysqlModel promoterDataSet = dataSetService.findOne(promoterProjectDataSet.dataSetId);
-        if (!promoterDataSet.getContainsY()) {
+        TableDataSetMysqlModel promoterDataSet = tableDataSetService.findOneById(promoterProjectDataSet.dataSetId);
+        if (!promoterDataSet.isContainsY()) {
             throw new FlowNodeException(node, "promoter 的数据集必须包含 y 值");
         }
 
@@ -105,7 +106,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 continue;
             }
 
-            DataSetMysqlModel one = dataSetService.findOne(dataSet.getDataSetId());
+            TableDataSetMysqlModel one = tableDataSetService.findOneById(dataSet.getDataSetId());
             if (one == null) {
                 throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
             }
@@ -144,8 +145,6 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         // Create the input parameters of the components in the kernel according to the component parameter settings in the interface
-        JSONObject taskParam = new JSONObject();
-
         DataSetItem myDataSetConfig = params.getDataSetList()
                 .stream()
                 .filter(x -> x.getMemberId().equals(CacheObjects.getMemberId()) && x.getMemberRole() == graph.getJob().getMyRole())
@@ -156,28 +155,25 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "请保存自己的数据集信息。");
         }
 
-        DataSetMysqlModel myDataSet = dataSetService.findOne(myDataSetConfig.dataSetId);
+        TableDataSetMysqlModel myDataSet = tableDataSetService.findOneById(myDataSetConfig.dataSetId);
         if (myDataSet == null) {
             throw new FlowNodeException(node, "找不到自己的数据集。");
         }
 
-        JObject dataIoParam = JObject
+        JObject output = JObject
                 .create()
-                .append("with_label", myDataSet.getContainsY())
+                .append("data_set_id", myDataSet.getId())
+                .append("with_label", myDataSet.isContainsY())
                 .append("label_name", "y")
-                .append("namespace", myDataSet.getNamespace())
-                .append("name", myDataSet.getTableName())
+                .append("namespace", myDataSet.getStorageNamespace())
+                .append("name", myDataSet.getStorageResourceName())
                 .append("need_features", myDataSetConfig.features);
 
-        // DataIOParam
-        taskParam.put("params", dataIoParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
-
         return taskResultService.listAllResult(taskId);
     }
 
@@ -226,7 +222,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             return new ArrayList<>();
         }
 
-        DataSetMysqlModel myDataSet = params.getMyDataSet();
+        TableDataSetMysqlModel myDataSet = params.getMyDataSet();
         if (myDataSet == null) {
             throw new FlowNodeException(node, CacheObjects.getMemberName() + " 的数据集已被删除，不能加载已删除的数据集。");
         }
@@ -234,13 +230,12 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataSetItem> dataSetList;
+    public static class Params extends AbstractDataIOParam<DataSetItem> {
 
         /**
          * Find my data set object information from the configuration list
          */
-        public DataSetMysqlModel getMyDataSet() {
+        public TableDataSetMysqlModel getMyDataSet() {
 
             DataSetItem myDataSetConfig = getMyDataSetConfig();
 
@@ -248,10 +243,10 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 return null;
             }
 
-            DataSetMysqlModel myDataSet = Launcher
+            TableDataSetMysqlModel myDataSet = Launcher
                     .CONTEXT
-                    .getBean(DataSetService.class)
-                    .findOne(myDataSetConfig.getDataSetId());
+                    .getBean(TableDataSetService.class)
+                    .findOneById(myDataSetConfig.getDataSetId());
 
             return myDataSet;
         }
@@ -268,55 +263,13 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
 
-        //region getter/setter
-
-        public List<DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
-
-        //endregion
-
     }
 
-    public static class DataSetItem extends AbstractCheckModel {
-        @Check(name = "成员Id", require = true)
-        private String memberId;
-        @Check(name = "成员角色", require = true)
-        private JobMemberRole memberRole;
-        @Check(name = "数据集 Id", require = true)
-        private String dataSetId;
+    public static class DataSetItem extends AbstractDataSetItem {
         @Check(name = "选择的特征列")
         private List<String> features;
 
         //region getter/setter
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public JobMemberRole getMemberRole() {
-            return memberRole;
-        }
-
-        public void setMemberRole(JobMemberRole memberRole) {
-            this.memberRole = memberRole;
-        }
-
-        public String getDataSetId() {
-            return dataSetId;
-        }
-
-        public void setDataSetId(String dataSetId) {
-            this.dataSetId = dataSetId;
-        }
 
         public List<String> getFeatures() {
             return features;

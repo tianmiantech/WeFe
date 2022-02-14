@@ -1,11 +1,11 @@
 <template>
     <CommonHelp>
         <template #intro>
-            纵向联邦XGBoost建模，输出模型参数，预测结果数据集。
+            纵向联邦XGBoost建模，输出模型参数，预测结果数据资源。
         </template>
         <template #params>
             <ol>
-                <li>同态加密算法：paillier、IterativeAffine</li>
+                <li>同态加密算法：paillier</li>
                 <li>最大树数量</li>
                 <li>树的最大深度</li>
                 <li>最大桶（箱）数量：直方图算法中指定每个特征最大分箱数量</li>
@@ -27,7 +27,7 @@
         <template #output>
             <ol>
                 <li>模型参数 （包含特征重要性，并且只存在于有y的一方）</li>
-                <li>预测结果数据集 (无y标签的一方没有预测结果数据集)</li>
+                <li>预测结果数据资源 (无y标签的一方没有预测结果数据资源)</li>
             </ol>
         </template>
         <template #error-tip />

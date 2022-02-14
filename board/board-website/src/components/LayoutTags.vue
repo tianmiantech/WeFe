@@ -77,7 +77,7 @@
                 },
                 // set tags
                 setTags(route) {
-                    if(route.meta.requiresLogout) return; // not remember for login/register
+                    if(route.meta.requiresLogout || route.meta.notshowattag) return; // not remember for login/register
 
                     const tagIndex = tagsList.value.findIndex(item => item.name === route.name);
                     const result = {

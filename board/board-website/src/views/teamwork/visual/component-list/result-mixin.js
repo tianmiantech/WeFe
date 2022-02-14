@@ -20,7 +20,6 @@ export default () => {
             isCreator:      Boolean,
             currentObj:     Object,
         },
-        emits: ['update-task'],
         mixin({ props, methods, vData, context }) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
@@ -60,6 +59,7 @@ export default () => {
                         jobId:      props.jobId,
                         flowId:     props.flowId,
                         flowNodeId: props.flowNodeId,
+                        ...vData.expandparams,
                     };
 
                     if (methods.initParams) {
@@ -77,10 +77,9 @@ export default () => {
 
                     nextTick(() => {
                         if (code === 0) {
-                            if (data) {
-                                if (data.status) {
-                                    vData.commonResultData.task = data;
-                                    context.emit('update-task', data);
+                            if (Array.isArray(data)) {
+                                if (data[0].status) {
+                                    vData.commonResultData.task = data[0];
                                 }
                                 methods.showResult(data);
 
@@ -90,13 +89,18 @@ export default () => {
                                         methods.readData();
                                     }, 3000);
                                 }
+                            } else {
+                                if (data.status) {
+                                    vData.commonResultData.task = data;
+                                }
+                                methods.showResult(data);
                             }
                         }
                     });
                 },
                 showResult(data) {
-                    if (data.result) {
-                        vData.result = data.result.result;
+                    if (data[0].result) {
+                        vData.result = data[0].result;
                     }
                 },
             };

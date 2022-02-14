@@ -28,6 +28,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import numpy as np
 
 from common.python.common.exception.custom_exception import DataSetEmptyError, FeatureEmptyError
 from kernel.utils import data_util
@@ -47,3 +48,16 @@ def empty_feature_detection(data_instances):
         table_name = data_instances.get_name()
         namespace = data_instances.get_namespace()
         raise FeatureEmptyError(namespace=namespace, name=table_name)
+
+
+def empty_value_detection(value):
+    if value is None:
+        return True
+    if isinstance(value, str):
+        value = value.strip().lower()
+        if value in ['', 'null', 'na', 'n/a']:
+            return True
+    else:
+        if np.isnan(value):
+            return True
+    return False

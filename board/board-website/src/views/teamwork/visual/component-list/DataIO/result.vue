@@ -20,7 +20,7 @@
                         </el-form-item>
                     </el-form>
                 </el-collapse-item>
-                <el-collapse-item title="我方数据集预览" name="2">
+                <el-collapse-item title="我方数据资源预览" name="2">
                     <el-table
                         :data="vData.datasetList"
                         border
@@ -55,7 +55,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;

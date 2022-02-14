@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/flow/node/update
+POST http://localhost:8080/board-service/project/flow/node/update
 Content-Type: application/json
 
 
@@ -16,12 +16,12 @@ Content-Type: application/json
 
 ### 自动创建
 
-GET {{baseUrl}}/project/flow/node/update?nodeId=16088878120465932&componentType=FeatureStatistic&flow_id=a9632fcc436f4400bba1726532475f7b
+GET http://localhost:8080/board-service/project/flow/node/update?nodeId=16088878120465932&componentType=FeatureStatistic&flow_id=a9632fcc436f4400bba1726532475f7b
 
 
 ### debug
 
-POST {{baseUrl}}/project/flow/node/update
+POST http://localhost:8080/board-service/project/flow/node/update
 Content-Type: application/json
 
 

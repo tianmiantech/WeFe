@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,28 +19,28 @@ package com.welab.wefe.board.service.component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskConfigApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
+import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.dto.kernel.Env;
-import com.welab.wefe.board.service.dto.kernel.KernelJob;
-import com.welab.wefe.board.service.dto.kernel.TaskConfig;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.*;
-import com.welab.wefe.common.enums.*;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,11 +65,17 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
             ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot);
+    /**
+     * List of temporarily unsupported components
+     */
+    private final static List<ComponentType> TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.MixLR,
+            ComponentType.MixSecureBoost, ComponentType.HorzNN, ComponentType.VertNN);
+
     @Autowired
     private Config config;
 
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -87,7 +93,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             return;
         }
         if (FederatedLearningType.mix.equals(graph.getFederatedLearningType())) {
-            throw new FlowNodeException(node, "[打分验证]组件暂时不支持混合联邦");
+            throw new FlowNodeException(node, "【打分验证】组件暂时不支持混合联邦");
         }
 
         DataIOComponent.DataSetItem myDataSetConfig = getMyDataSetConfig(graph, params);
@@ -95,27 +101,29 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
         }
 
-        DataSetMysqlModel dataSetMysqlModel = dataSetService.findOne(myDataSetConfig.getDataSetId());
-        if (null == dataSetMysqlModel) {
+        TableDataSetMysqlModel TableDataSetMysqlModel = tableDataSetService.findOneById(myDataSetConfig.getDataSetId());
+        if (null == TableDataSetMysqlModel) {
             throw new FlowNodeException(node, "成员[" + CacheObjects.getMemberName() + "]选择的数据集信息不存在。");
         }
 
         // All characteristic columns of the dataset I selected
-        List<String> myFeatureNameList = Arrays.asList(dataSetMysqlModel.getFeatureNameList().split(","));
+        List<String> myFeatureNameList = Arrays.asList(TableDataSetMysqlModel.getFeatureNameList().split(","));
 
+        List<TaskMySqlModel> taskMySqlModelList = preTasks;
         // Dataio task component
         TaskMySqlModel dataIoTaskMysqlModel = null;
         // If the jobid is not empty, it means an OOT process (a process containing only two components of [start] and [OOT]).
         // This jobid means the jobid of the old process
         if (isOotMode(params)) {
             if (graph.allNodes.size() > 1) {
-                throw new FlowNodeException(node, "只允许只有[打分验证]组件。");
+                throw new FlowNodeException(node, "只允许只有【打分验证】组件。");
             }
             // Find the dataio task from the task list
             dataIoTaskMysqlModel = taskService.findDataIoTask(params.jobId, graph.getJob().getMyRole());
             if (null == dataIoTaskMysqlModel) {
                 throw new FlowNodeException(node, "未找到原流程中的[选择数据集]节点信息。");
             }
+            taskMySqlModelList = taskService.listByJobId(params.jobId, graph.getJob().getMyRole());
 
         } else {
             // Find modeling node
@@ -123,7 +131,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             // Find evaluation node
             FlowGraphNode evaluationNode = graph.findOneNodeFromParent(node, ComponentType.Evaluation);
             if (null == evaluationNode && null == modelingNode) {
-                throw new FlowNodeException(node, "在[打分验证]节点前必须有建模行为或评估行为");
+                throw new FlowNodeException(node, "在【打分验证】节点前必须有建模行为或评估行为");
             }
 
             dataIoTaskMysqlModel = findDataIoTask(preTasks);
@@ -140,6 +148,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // Check the correctness of the feature column of the provider member selected by the OOT component on the promoter side.
         // Because the front end should be prompted directly on the initiator side, check it on the promoter side）
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            checkUnsupportedComponent(node, taskMySqlModelList);
             checkSelectedFeatures(graph, node, params, myDataSetConfig);
             checkSelectedMembersValid(graph, node, params);
         }
@@ -157,14 +166,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
         DataIOComponent.DataSetItem myDataSetConfig = getMyDataSetConfig(graph, params);
         boolean isSelectedMyself = (null != myDataSetConfig);
-        DataSetMysqlModel myDataSet = null;
+        TableDataSetMysqlModel myDataSet = null;
         if (FederatedLearningType.vertical.equals(graph.getFederatedLearningType()) || isOotMode) {
             if (!isSelectedMyself) {
                 throw new FlowNodeException(node, "请保存成员[" + CacheObjects.getMemberName() + "]的数据集信息。");
             }
         }
         if (isSelectedMyself) {
-            myDataSet = dataSetService.findOne(myDataSetConfig.getDataSetId());
+            myDataSet = tableDataSetService.findOneById(myDataSetConfig.getDataSetId());
             if (myDataSet == null) {
                 throw new FlowNodeException(node, "找不到成员[" + CacheObjects.getMemberName() + "]的数据集。");
             }
@@ -220,10 +229,10 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             JObject taskConfigObj = JObject.create(JObject.toJSONString(taskConfig));
             // If it is a dataio component, replace it with a new dataset
             if (DATA_IO_COMPONENT_TYPE_LIST.contains(taskType)) {
-                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.getContainsY() : false)
+                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.isContainsY() : false)
                         .append("label_name", "y")
-                        .append("namespace", isSelectedMyself ? myDataSet.getNamespace() : taskConfigObj.getStringByPath("params.namespace"))
-                        .append("name", isSelectedMyself ? myDataSet.getTableName() : taskConfigObj.getStringByPath("params.name"))
+                        .append("namespace", isSelectedMyself ? myDataSet.getStorageNamespace() : taskConfigObj.getStringByPath("params.namespace"))
+                        .append("name", isSelectedMyself ? myDataSet.getStorageResourceName() : taskConfigObj.getStringByPath("params.name"))
                         .append("need_features", JObject.parseArray(taskConfigObj.getStringByPath("params.need_features")).toJavaList(String.class));
                 taskConfigObj.put("params", newDataIoParam);
             } else if (MODEL_COMPONENT_TYPE_LIST.contains(taskType)) {
@@ -245,14 +254,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
 
         // Create input parameters for OOT components
-        JObject ootParam = JObject.create(newDataIoParam)
+        JObject output = JObject.create(newDataIoParam)
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap);
 
         // OotParam
-        return JObject.create().append("params", ootParam);
+        return output;
     }
 
     @Override
@@ -373,11 +382,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 input.setJobId(params.jobId);
                 input.setRole(jobMemberRole);
                 try {
-                    ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(memberId, JobMemberRole.promoter, input, QueryDataIoTaskConfigApi.class);
-                    if (0 != apiResult.code) {
-                        throw new FlowNodeException(node, "获取成员[" + memberName + "]的原入模特征列失败,原因：" + apiResult.message);
-                    }
-                    JObject data = JObject.create(apiResult.data);
+
+                    JObject data = gatewayService.callOtherMemberBoard(
+                            memberId,
+                            JobMemberRole.promoter,
+                            QueryDataIoTaskConfigApi.class,
+                            input,
+                            JObject.class
+                    );
                     if (null == data || data.isEmpty()) {
                         throw new FlowNodeException(node, "获取成员[" + memberName + "]的原入模特征列为空。");
                     }
@@ -439,7 +451,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             if (null == jobMySqlModel) {
                 throw new FlowNodeException(node, "找不到原流程任务信息");
             }
-            ListApi.Input input = new ListApi.Input();
+            ListInProjectApi.Input input = new ListInProjectApi.Input();
             input.setProjectId(jobMySqlModel.getProjectId());
             input.setOotJobId(params.jobId);
             try {
@@ -454,6 +466,23 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 }
             } catch (StatusCodeWithException e) {
                 throw new FlowNodeException(node, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check for unsupported components
+     */
+    private void checkUnsupportedComponent(FlowGraphNode node, List<TaskMySqlModel> taskMySqlModelList) throws FlowNodeException {
+        if (CollectionUtils.isEmpty(taskMySqlModelList)) {
+            throw new FlowNodeException(node, "未找任何节点任务信息。");
+        }
+
+        for (TaskMySqlModel taskMySqlModel : taskMySqlModelList) {
+            for (ComponentType componentType : TEMP_UNSUPPORTED_COMPONENT_TYPE_LIST) {
+                if (componentType.equals(taskMySqlModel.getTaskType())) {
+                    throw new FlowNodeException(node, "暂时不支持组件【" + componentType.getLabel() + "】");
+                }
             }
         }
     }
@@ -535,7 +564,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private TaskMySqlModel createEvaluationTaskMySqlModel(FlowGraph graph, FlowGraphNode node, TaskMySqlModel dataIoTask, OotComponent.Params ootParams) throws FlowNodeException {
         if (StringUtil.isEmpty(ootParams.getEvalType()) || null == ootParams.posLabel) {
-            throw new FlowNodeException(node, "请填写 打分验证 节点的评估类别或正标签类型字段。");
+            throw new FlowNodeException(node, "请填写【打分验证】节点的评估类别或正标签类型字段。");
         }
         TaskMySqlModel evaluationTaskMySqlModel = new TaskMySqlModel();
         String evaluationTaskId = dataIoTask.getTaskId();
@@ -646,8 +675,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return StringUtil.isNotEmpty(params.getJobId());
     }
 
-    public static class Params extends AbstractCheckModel {
-        private List<DataIOComponent.DataSetItem> dataSetList;
+    public static class Params extends AbstractDataIOParam<DataIOComponent.DataSetItem> {
         /**
          * Specify jobid to create OOT component (used in OOT mode)
          */
@@ -664,14 +692,6 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
          * Positive label type (if there is no evaluation component in the original process, this parameter should be filled in the OOT component input parameter)
          */
         private Integer posLabel;
-
-        public List<DataIOComponent.DataSetItem> getDataSetList() {
-            return dataSetList;
-        }
-
-        public void setDataSetList(List<DataIOComponent.DataSetItem> dataSetList) {
-            this.dataSetList = dataSetList;
-        }
 
         public String getJobId() {
             return jobId;

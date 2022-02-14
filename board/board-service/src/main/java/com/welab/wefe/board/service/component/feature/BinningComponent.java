@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,20 @@
  */
 
 package com.welab.wefe.board.service.component.feature;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -30,19 +44,12 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 
 /**
  * @author lonnie
@@ -52,6 +59,11 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+
+        FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
+        if (intersectionNode == null) {
+            throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
+        }
 
         if (CollectionUtils.isEmpty(params.getMembers())) {
             throw new FlowNodeException(node, "请添加分箱策略");
@@ -85,8 +97,6 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
         // Reassemble front-end parameters
         JObject transformParam = JObject.create()
                 .append("transform_cols", -1)
@@ -109,6 +119,8 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
             // Integrate the features of the same binning strategy in the same member
             Map<String, List<String>> featureBinningMap = new HashMap<>();
+
+            Map<String, List<Float>> featurePoints = new HashMap<>();
             for (Feature feature : features) {
 
                 if (featureBinningMap.containsKey(feature.method.name() + "," + feature.count)) {
@@ -118,16 +130,37 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                     featureList.add(feature.name);
                     featureBinningMap.put(feature.method.name() + "," + feature.count, featureList);
                 }
+
+                if (feature.method == BinningMethod.custom) {
+                    String points = feature.getPoints();
+                    if (!StringUtils.isBlank(points)) {
+                        List<Float> pointList = new LinkedList<>();
+                        if (points.startsWith("[") && points.endsWith("]")) {
+                            points = points.substring(1, points.length() - 1);
+                        }
+                        String pointArr[] = points.split(",|，");
+                        for (String p : pointArr) {
+                            pointList.add(Float.parseFloat(p));
+                        }
+                        featurePoints.put(feature.name, pointList);
+                    }
+                }
+
             }
 
             // Build the array of modes required by the kernel
             for (Map.Entry<String, List<String>> entry : featureBinningMap.entrySet()) {
                 String[] strArr = entry.getKey().split(",");
 
-                JObject memberObj = JObject.create()
-                        .append("role", member.memberRole)
-                        .append("member_id", member.memberId)
-                        .append("bin_feature_names", entry.getValue());
+                JObject memberObj = JObject.create().append("role", member.memberRole)
+                        .append("member_id", member.memberId).append("bin_feature_names", entry.getValue());
+                if (BinningMethod.custom.name().equals(strArr[0])) {
+                    Map<String, List<Float>> featurePointsTmp = new HashMap<>();
+                    for (String s : entry.getValue()) {
+                        featurePointsTmp.put(s, featurePoints.get(s));
+                    }
+                    memberObj.append("feature_split_points", featurePointsTmp);
+                }
 
                 if (modesObj.size() < 1) {
                     // Build the first mode node
@@ -186,9 +219,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 .append("optimal_binning_param", optimalBinningParam)
                 .append("modes", modesObj);
 
-        taskParam.put("params", binningParam);
-
-        return taskParam;
+        return binningParam;
     }
 
     @Override
@@ -235,15 +266,30 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 List<JObject> providerResults = modelParam.getJSONList("providerResults");
+                Map<String, JObject> biningResultMap = new HashMap<>();
                 if (CollectionUtils.isNotEmpty(providerResults)) {
-
                     for (JObject providerResult : providerResults) {
                         String memberName = CacheObjects.getMemberName(providerResult.getString("memberId"));
-                        providerResult.append("member_name", memberName)
-                                .append("member_id", providerResult.getString("memberId"))
-                                .append("member_role", providerResult.getString("role"));
+                        String key = memberName + "_" + providerResult.getString("memberId") + "_"
+                                + providerResult.getString("role");
+                        if (biningResultMap.containsKey(key)) {
+                            // merge
+                            JObject result = biningResultMap.get(key);
+                            JObject temp = result.getJObject("binningResult");
+                            temp.putAll(providerResult.getJObject("binningResult"));
+                            result.put("binningResult", temp);
+                            biningResultMap.put(key, result);
+                        } else {
+                            // add
+                            providerResult.append("member_name", memberName)
+                                    .append("member_id", providerResult.getString("memberId"))
+                                    .append("member_role", providerResult.getString("role"));
+                            biningResultMap.put(key, providerResult);
+                        }
 
-                        resultList.add(providerResult);
+                    }
+                    for (Map.Entry<String, JObject> entry : biningResultMap.entrySet()) {
+                        resultList.add(entry.getValue());
                     }
                 }
 
@@ -287,7 +333,9 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         /**
          * Bangla
          */
-        optimal
+        optimal,
+
+        custom
     }
 
     public static class Params extends AbstractCheckModel {
@@ -356,6 +404,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         private BinningMethod method;
         @Check(require = true)
         private int count;
+        private String points;
 
         //region getter/setter
 
@@ -383,7 +432,13 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
             this.count = count;
         }
 
+        public String getPoints() {
+            return points;
+        }
 
+        public void setPoints(String points) {
+            this.points = points;
+        }
         //endregion
     }
 

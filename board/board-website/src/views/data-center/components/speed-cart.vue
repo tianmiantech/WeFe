@@ -4,7 +4,9 @@
         class="card-count el-card"
         @click="changeDrawer"
     >
-        <i class="el-icon-files" />
+        <el-icon>
+            <elicon-files />
+        </el-icon>
         <span v-if="count" class="num">{{ count }}</span>
     </div>
 
@@ -17,20 +19,32 @@
     >
         <template #title>
             <h4>
-                快捷创建项目
+                <strong>快捷创建项目</strong>
                 <el-tooltip
                     class="item"
                     effect="light"
                     placement="bottom"
                 >
                     <template #content>
-                        <p>1, 添加数据集到此处可快速创建项目</p>
+                        <p>1, 添加资源到此处可快速创建项目</p>
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
-                    <i class="el-icon-s-opportunity"></i>
+
+                    <el-icon class="el-icon-opportunity">
+                        <elicon-opportunity />
+                    </el-icon>
                 </el-tooltip>
             </h4>
         </template>
+
+        <el-form class="flex-form">
+            <el-form-item label="项目名称:" label-width="74px">
+                <el-input v-model.trim="vData.name" clearable />
+            </el-form-item>
+            <el-form-item label="项目简介:" label-width="74px">
+                <el-input v-model.trim="vData.desc" clearable />
+            </el-form-item>
+        </el-form>
 
         <div class="member-wrapper">
             <div class="member-list f14">
@@ -59,20 +73,21 @@
                                 <p class="p-id f12">{{ dataset.id }}</p>
                             </el-form-item>
                             <el-form-item>
-                                <span class="f12 mr10">是否含 Y:</span>
-                                <i
-                                    v-if="dataset.contains_y "
-                                    class="el-icon-check"
-                                />
-                                <i
-                                    v-else
-                                    class="el-icon-close"
-                                />
+                                <span class="f12 mr10">数据资源类型:</span>
+                                <span class="p-id f12 under-line">{{ dataset.data_resource_type }}</span>
                             </el-form-item>
-                            <i
-                                class="el-icon-circle-close"
-                                @click="removeDataSet(index, dataset)"
-                            />
+                            <el-form-item>
+                                <span class="f12 mr10">是否含 Y:</span>
+                                <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                    <elicon-check />
+                                </el-icon>
+                                <el-icon v-else class="el-icon-close">
+                                    <elicon-close />
+                                </el-icon>
+                            </el-form-item>
+                            <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                                <elicon-circle-close />
+                            </el-icon>
                         </el-form>
                     </li>
                 </ul>
@@ -100,20 +115,21 @@
                                     <p class="p-id f12">{{ dataset.id }}</p>
                                 </el-form-item>
                                 <el-form-item>
-                                    <span class="f12 mr10">是否含 Y:</span>
-                                    <i
-                                        v-if="dataset.contains_y "
-                                        class="el-icon-check"
-                                    />
-                                    <i
-                                        v-else
-                                        class="el-icon-close"
-                                    />
+                                    <span class="f12 mr10">数据资源类型:</span>
+                                    <span class="p-id f12">{{ dataset.data_resource_type }}</span>
                                 </el-form-item>
-                                <i
-                                    class="el-icon-circle-close"
-                                    @click="removeDataSet(index, dataset)"
-                                />
+                                <el-form-item>
+                                    <span class="f12 mr10">是否含 Y:</span>
+                                    <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                        <elicon-check />
+                                    </el-icon>
+                                    <el-icon v-else class="el-icon-close">
+                                        <elicon-close />
+                                    </el-icon>
+                                </el-form-item>
+                                <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                                    <elicon-circle-close />
+                                </el-icon>
                             </el-form>
                         </li>
                     </ul>
@@ -125,7 +141,10 @@
                 :disabled="promoterDataSetList.length === 0 &&  providerList.length === 0"
                 @click="create"
             >
-                创建 <i class="el-icon-right"></i>
+                创建
+                <el-icon>
+                    <elicon-right />
+                </el-icon>
             </el-button>
         </div>
     </el-drawer>
@@ -134,6 +153,7 @@
 <script>
     import {
         ref,
+        reactive,
         getCurrentInstance,
         computed,
         nextTick,
@@ -149,13 +169,15 @@
             let loading = ref(false);
             const router = useRouter();
             const store = useStore();
-            const userInfo = computed(() => store.state.base.userInfo);
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $message } = appContext.config.globalProperties;
+            const userInfo = computed(() => store.state.base.userInfo);
             const promoterDataSetList = ref([]);
             const providerList = ref([]);
             const providerListMap = ref({});
             const cartList = ref(props.list);
+            const allDataSetList = ref([]);
+            const projectType = ref();
             const drawer = ref(false);
             const count = ref(0);
             const methods = {
@@ -175,22 +197,39 @@
                     }
                 },
             };
+            const vData = reactive({
+                name: '',
+                desc: '',
+            });
+            const initDesc = () => {
+                const timestamp = methods.dateFormat();
+                const time = methods.dateFormat(true);
+
+                vData.name = `快捷项目-${timestamp}`;
+                vData.desc = `创建自快捷项目, 创建时间: ${time}`;
+            };
             const changeDrawer = () => {
                 drawer.value = !drawer.value;
+
+                if(!vData.name) {
+                    initDesc();
+                }
             };
 
             const addDataSet = (item) => {
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
-                    data_set_id: item.id,
+                    data_set_id: item.id ? item.id : item.data_resource_id,
+                    id:          item.id ? item.id : item.data_resource_id,
                     ...item,
                 };
 
                 if(item.member_id === userInfo.value.member_id) {
-                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id);
+                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_resource_id);
 
                     if(index < 0) {
                         promoterDataSetList.value.push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -202,6 +241,7 @@
 
                     if(index < 0) {
                         providerListMap.value[item.member_id].push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -227,14 +267,25 @@
                     }
                 }
                 count.value--;
+                allDataSetList.value.forEach((i, idx) => {
+                    if (i.data_set_id === item.data_set_id) {
+                        allDataSetList.value.splice(idx, 1);
+                    }
+                });
             };
             const create = async () => {
                 if(loading.value) return;
                 loading = true;
 
-                const list = [];
+                // 判断是否为同一格式的数据资源 ImageDataSet / TableDataSet
+                if (!isAllEqual(allDataSetList.value)) {
+                    $message.error('项目中的数据资源必须为同一类型的数据');
+                    return;
+                } else {
+                    projectType.value = allDataSetList.value[0].data_resource_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_resource_type === 'TableDataSet' ? 'MachineLearning' : '';
+                }
 
-                providerList.value.forEach(item => {
+                const list = providerList.value.map(item => {
                     const provider = {
                         member_id:   item.member_id,
                         dataSetList: [],
@@ -244,8 +295,9 @@
                         provider.dataSetList.push(dataset);
                     });
 
-                    list.push(provider);
+                    return provider;
                 });
+
 
                 const timestamp = methods.dateFormat();
                 const time = methods.dateFormat(true);
@@ -254,6 +306,7 @@
                     data: {
                         name:                `快捷项目-${timestamp}`,
                         desc:                `创建自快捷项目, 创建时间: ${time}`,
+                        projectType:         projectType.value,
                         promoterDataSetList: promoterDataSetList.value,
                         providerList:        list,
                     },
@@ -272,7 +325,18 @@
                 });
             };
 
+            const isAllEqual = (arr) => {
+                if (arr.length > 0) {
+                    return !arr.some(function(value, index) {
+                        return value.data_resource_type !== arr[0].data_resource_type;
+                    });
+                } else {
+                    return true;
+                }
+            };
+
             return {
+                vData,
                 cartList,
                 drawer,
                 create,
@@ -284,6 +348,8 @@
                 removeDataSet,
                 loading,
                 count,
+                isAllEqual,
+                projectType,
             };
         },
     };
@@ -327,10 +393,10 @@
             color:#fff;
         }
     }
-    .el-icon-s-opportunity{color:$--color-warning;}
+    .el-icon-opportunity{color:$--color-warning;}
     .member-wrapper{
-        height:100%;
-        padding: 20px 20px 70px;
+        height:calc(100vh - 160px);
+        padding: 0 0 70px;
         position: relative;
         .el-button{
             position: absolute;
@@ -369,6 +435,9 @@
             font-size: 18px;
             color:$--color-danger;
             cursor: pointer;
+        }
+        .under-line {
+            text-decoration: underline;
         }
     }
     .data-link{word-break: break-all;}

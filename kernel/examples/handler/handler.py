@@ -74,7 +74,6 @@ class Handler(object):
         self.project_id = '001'
         self.model_id = "examples_0001"
         self.model_version = "1"
-        self.db_type = DBTypes.LMDB
         self._create_time = time.asctime(time.localtime(time.time()))
         self._initiator = None
         self._roles = {}
@@ -333,6 +332,7 @@ class Handler(object):
                     if 'input' not in component:
                         task_config['params']['namespace'] = task_config['params']['table']['namespace']
                         task_config['params']['name'] = task_config['params']['table']['name']
+                        task_config['params']['data_set_id'] = task_config['params']['table'].get('data_set_id')
                         task_config['input'] = {"data": {}}
                     else:
                         task_config['input'] = component['input']

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,19 +17,20 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.project.member.AddApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.database.entity.job.*;
+import com.welab.wefe.board.service.database.repository.ProjectMemberAuditRepository;
 import com.welab.wefe.board.service.database.repository.ProjectMemberRepository;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,8 @@ public class ProjectMemberService {
     private JobService jobService;
     @Autowired
     private JobMemberService jobMemberService;
+    @Autowired
+    private ProjectMemberAuditRepository projectMemberAuditRepository;
 
     /**
      * Add members to an existing project
@@ -97,11 +100,15 @@ public class ProjectMemberService {
             } else if (role.equals(JobMemberRole.promoter)) {
                 addPromoterMember(input, item);
             }
+            // 由于该成员可能是之前审核不过然后重新添加的，所以需要将这个成员的历史审核记录都清除掉。
+            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), item.getMemberId());
         }
         members = findListByProjectId(input.getProjectId());
         if (!checkMembers(members)) {
             throw new StatusCodeWithException("改变项目类型时不允许有重复成员存在。", StatusCode.PARAMETER_VALUE_INVALID);
         }
+
+
         /**
          * Notify other members that there are new members waiting to join
          */
@@ -170,7 +177,7 @@ public class ProjectMemberService {
         // and the historical data set status is unavailable. At this time,
         // the review status of the member’s data set needs to be updated.
         List<ProjectDataSetMySqlModel> dataSets = projectDataSetService.findDataSetList(input.getProjectId(),
-                item.getMemberId());
+                item.getMemberId(), item.getMemberRole());
         AuditStatus finalAuditStatus = auditStatus;
         dataSets.forEach(dataSet -> projectDataSetService.update(dataSet, x -> {
             x.setAuditStatus(finalAuditStatus);
@@ -232,7 +239,7 @@ public class ProjectMemberService {
         // and the historical data set status is unavailable. At this time,
         // the review status of the member’s data set needs to be updated.
         List<ProjectDataSetMySqlModel> dataSets = projectDataSetService.findDataSetList(input.getProjectId(),
-                item.getMemberId());
+                item.getMemberId(), item.getMemberRole());
         AuditStatus finalAuditStatus = auditStatus;
         dataSets.forEach(dataSet -> projectDataSetService.update(dataSet, x -> {
             x.setAuditStatus(finalAuditStatus);
@@ -339,7 +346,7 @@ public class ProjectMemberService {
 
     }
 
-    public List<ProjectMemberMySqlModel> findList(ListApi.Input input) throws StatusCodeWithException {
+    public List<ProjectMemberMySqlModel> findList(ListInProjectApi.Input input) throws StatusCodeWithException {
         List<ProjectMemberMySqlModel> projectMemberMySqlModelList = findListByProjectId(input.getProjectId());
         if (StringUtil.isEmpty(input.getOotJobId())) {
             return projectMemberMySqlModelList;
@@ -379,5 +386,19 @@ public class ProjectMemberService {
         return resultList;
     }
 
+    /**
+     * Get the list of official providers in the project
+     */
+    public List<ProjectMemberMySqlModel> listFormalProjectProviders(String projectId) {
+        Specification<ProjectMemberMySqlModel> where = Where
+                .create()
+                .equal("projectId", projectId)
+                .equal("auditStatus", AuditStatus.agree)
+                .equal("exited", false)
+                .equal("memberRole", JobMemberRole.provider)
+                .build(ProjectMemberMySqlModel.class);
+
+        return projectMemberRepo.findAll(where);
+    }
 
 }

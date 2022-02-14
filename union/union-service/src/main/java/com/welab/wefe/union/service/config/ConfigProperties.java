@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,64 +25,59 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigProperties {
 
-    /**
-     * toml configuration file path
-     */
-    @Value("${block.chain.toml.file.path}")
-    private String blockChainTomlFilePath;
+    @Value("${aliyun.access.key.id:xxx}")
+    private String aliyunAccessKeyId;
 
-    @Value("${block.chain.union.member.contract.name}")
-    private String blockChainUnionMemberContractName;
-    @Value("${block.chain.union.data.set.contract.name}")
-    private String blockChainUnionDataSetContractName;
-    @Value("${block.chain.union.data.set.member.permission.contract.name}")
-    private String blockChainUnionDataSetMemberPermissionContractName;
+    @Value("${aliyun.access.key.secret:xxx}")
+    private String aliyunAccessKeySecret;
 
+    @Value("${sms.aliyun.sign.name:xxx}")
+    private String smsAliyunSignName;
 
-    /**
-     * The group ID to which the union business belongs
-     */
-    @Value("${block.chain.union.group.id}")
-    private String blockChainUnionGroupId;
+    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
+    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
 
-    public String getBlockChainTomlFilePath() {
-        return blockChainTomlFilePath;
+    @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
+    private String smsAliyunMemberRegisterVerificationCodeTemplateCode;
+
+    public String getAliyunAccessKeyId() {
+        return aliyunAccessKeyId;
     }
 
-    public void setBlockChainTomlFilePath(String blockChainTomlFilePath) {
-        this.blockChainTomlFilePath = blockChainTomlFilePath;
+    public void setAliyunAccessKeyId(String aliyunAccessKeyId) {
+        this.aliyunAccessKeyId = aliyunAccessKeyId;
     }
 
-    public String getBlockChainUnionMemberContractName() {
-        return blockChainUnionMemberContractName;
+    public String getAliyunAccessKeySecret() {
+        return aliyunAccessKeySecret;
     }
 
-    public void setBlockChainUnionMemberContractName(String blockChainUnionMemberContractName) {
-        this.blockChainUnionMemberContractName = blockChainUnionMemberContractName;
+    public void setAliyunAccessKeySecret(String aliyunAccessKeySecret) {
+        this.aliyunAccessKeySecret = aliyunAccessKeySecret;
     }
 
-    public String getBlockChainUnionGroupId() {
-        return blockChainUnionGroupId;
+    public String getSmsAliyunSignName() {
+        return smsAliyunSignName;
     }
 
-    public void setBlockChainUnionGroupId(String blockChainUnionGroupId) {
-        this.blockChainUnionGroupId = blockChainUnionGroupId;
+    public void setSmsAliyunSignName(String smsAliyunSignName) {
+        this.smsAliyunSignName = smsAliyunSignName;
     }
 
-    public String getBlockChainUnionDataSetContractName() {
-        return blockChainUnionDataSetContractName;
+    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
+        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
     }
 
-    public void setBlockChainUnionDataSetContractName(String blockChainUnionDataSetContractName) {
-        this.blockChainUnionDataSetContractName = blockChainUnionDataSetContractName;
+    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
+        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
     }
 
-    public String getBlockChainUnionDataSetMemberPermissionContractName() {
-        return blockChainUnionDataSetMemberPermissionContractName;
+    public String getSmsAliyunMemberRegisterVerificationCodeTemplateCode() {
+        return smsAliyunMemberRegisterVerificationCodeTemplateCode;
     }
 
-    public void setBlockChainUnionDataSetMemberPermissionContractName(String blockChainUnionDataSetMemberPermissionContractName) {
-        this.blockChainUnionDataSetMemberPermissionContractName = blockChainUnionDataSetMemberPermissionContractName;
+    public void setSmsAliyunMemberRegisterVerificationCodeTemplateCode(String smsAliyunMemberRegisterVerificationCodeTemplateCode) {
+        this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
     }
 
 }

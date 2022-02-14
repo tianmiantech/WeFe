@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,19 +21,19 @@ import com.welab.wefe.board.service.api.project.flow.QueryDataIoTaskFeaturesApi;
 import com.welab.wefe.board.service.api.project.job.task.DetailApi;
 import com.welab.wefe.board.service.component.OotComponent;
 import com.welab.wefe.board.service.database.entity.job.*;
+import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.DataIoTaskFeatureInfoOutputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.OrderBy;
-import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +76,8 @@ public class TaskService {
 
     @Autowired
     private ProjectFlowNodeService projectFlowNodeService;
+    @Autowired
+    private JobRepository jobRepository;
 
     /**
      * Query all execution records of a node
@@ -94,19 +96,47 @@ public class TaskService {
                 );
     }
 
-    public TaskMySqlModel findOne(DetailApi.Input input) {
+
+    public TaskMySqlModel findOne(DetailApi.Input input) throws StatusCodeWithException {
         if (StringUtil.isNotEmpty(input.getTaskId())) {
             return findOne(input.getTaskId());
         } else {
 
-            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+            String jobId = input.getJobId();
+            ProjectMySqlModel project;
+            if (StringUtil.isEmpty(jobId)) {
+                if (StringUtil.isEmpty(input.getFlowNodeId())) {
+                    StatusCode
+                            .PARAMETER_VALUE_INVALID
+                            .throwException("job_id 不传的时候 flow_id 必须要指定");
+                }
+
+                // 通过 flow_id 获取最后一个 job
+                ProjectFlowMySqlModel flow = projectFlowService.findOne(input.getFlowNodeId());
+                project = projectService.findByProjectId(flow.getProjectId());
+                JobMySqlModel job = jobRepository.findLastByFlowId(input.getFlowId(), project.getMyRole().name());
+                if (job == null) {
+                    return null;
+                }
+                jobId = job.getJobId();
+            } else {
+                project = projectService.findProjectByJobId(input.getJobId());
+            }
 
             if (project == null) {
                 return null;
             }
 
-            return taskRepo.findOne(input.getJobId(), input.getFlowNodeId(), project.getMyRole().name());
+            return taskRepo.findOne(jobId, input.getFlowNodeId(), project.getMyRole().name());
         }
+    }
+    
+    public List<TaskMySqlModel> findAll(DetailApi.Input input) {
+        ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+        if (project == null) {
+            return null;
+        }
+        return findAll(input.getJobId(), input.getFlowNodeId(), project.getMyRole());
     }
 
     public TaskMySqlModel findOne(String taskId) {
@@ -335,11 +365,15 @@ public class TaskService {
                     }
                 } else if (JobMemberRole.provider.equals(jobMemberMySqlModel.getJobRole())) {
                     // The provider needs to send a request to the other party to obtain
-                    ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(jobMemberMySqlModel.getMemberId(), JobMemberRole.promoter, queryTaskConfigInput, QueryDataIoTaskConfigApi.class);
-                    if (0 != apiResult.code) {
-                        throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征失败,原因：" + apiResult.message, StatusCode.SYSTEM_ERROR);
-                    }
-                    JObject data = JObject.create(apiResult.data);
+                    Object result = gatewayService.callOtherMemberBoard(
+                            jobMemberMySqlModel.getMemberId(),
+                            JobMemberRole.promoter,
+                            QueryDataIoTaskConfigApi.class,
+                            queryTaskConfigInput,
+                            Object.class
+                    );
+
+                    JObject data = JObject.create(result);
                     if (null == data || data.isEmpty()) {
                         throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征为空。", StatusCode.DATA_NOT_FOUND);
                     }

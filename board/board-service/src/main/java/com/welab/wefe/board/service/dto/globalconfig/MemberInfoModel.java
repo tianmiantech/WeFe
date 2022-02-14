@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,58 +16,35 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
-/**
- * @author Zane
- */
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
 public class MemberInfoModel {
 
-    /**
-     * 联邦成员 Id;
-     * 全局唯一，默认为uuid。
-     */
+    @Check(name = "联邦成员 Id", desc = "全局唯一，默认为uuid。")
     private String memberId;
-    /**
-     * 联邦成员名称
-     */
+    @Check(name = "联邦成员名称")
     private String memberName;
-    /**
-     * 联邦成员邮箱
-     */
+    @Check(name = "联邦成员邮箱")
     private String memberEmail;
-    /**
-     * 联邦成员电话
-     */
+    @Check(name = "联邦成员电话")
     private String memberMobile;
-    /**
-     * 联邦成员网关访问地址
-     */
+    @Check(name = "联邦成员网关访问地址")
     private String memberGatewayUri;
-    /**
-     * 是否允许对外公开数据集基础信息
-     */
+    @Check(name = "是否允许对外公开数据集基础信息")
     private Boolean memberAllowPublicDataSet;
 
-    /**
-     * 私钥
-     */
+    @Check(name = "私钥")
     private String rsaPrivateKey;
-    /**
-     * 公钥
-     */
+    @Check(name = "公钥")
     private String rsaPublicKey;
 
-    /**
-     * 成员头像
-     */
+    @Check(name = "成员头像")
     private String memberLogo;
 
-    /**
-     * 成员隐身状态
-     */
+    @Check(name = "成员隐身状态")
     private Boolean memberHidden;
 
     //region getter/setter

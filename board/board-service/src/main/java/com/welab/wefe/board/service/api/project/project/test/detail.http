@@ -1,7 +1,8 @@
 ###
-POST {{baseUrl}}/project/detail
+POST http://localhost:8080/board-service/project/detail
 Content-Type: application/json
+token: {{token}}
 
 {
-  "projectId": "fd1d4a0df470442bb7ffea1c81846385"
+  "projectId": "5e770161a0e94d42b5f47c9c660c47cc"
 }

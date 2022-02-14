@@ -51,7 +51,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>

@@ -44,7 +44,7 @@ class PaillierTensor(object):
         if ori_data is not None:
             self._ori_data = ori_data
             self._partitions = partitions
-            self._obj = session.parallelize(ori_data, include_key=False, partition=partitions)
+            self._obj = session.parallelize(ori_data, include_key=False, partition=partitions,need_send=True)
         else:
             self._ori_data = None
             self._partitions = tb_obj._partitions
@@ -54,27 +54,27 @@ class PaillierTensor(object):
 
     def __add__(self, other):
         if isinstance(other, PaillierTensor):
-            return PaillierTensor(tb_obj=self._obj.join(other._obj, lambda v1, v2: v1 + v2))
+            return PaillierTensor(tb_obj=self._obj.join(other._obj, lambda v1, v2: v1 + v2,need_send=True))
         else:
-            return PaillierTensor(tb_obj=self._obj.mapValues(lambda v: v + other))
+            return PaillierTensor(tb_obj=self._obj.mapValues(lambda v: v + other,need_send=True))
 
     def __radd__(self, other):
         return self.__add__(other)
 
     def __sub__(self, other):
         if isinstance(other, PaillierTensor):
-            return PaillierTensor(tb_obj=self._obj.join(other._obj, lambda v1, v2: v1 - v2))
+            return PaillierTensor(tb_obj=self._obj.join(other._obj, lambda v1, v2: v1 - v2,need_send=True))
         else:
-            return PaillierTensor(tb_obj=self._obj.mapValues(lambda v: v - other))
+            return PaillierTensor(tb_obj=self._obj.mapValues(lambda v: v - other,need_send=True))
 
     def __rsub__(self, other):
         return self.__sub__(other)
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: val * other))
+            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: val * other,need_send=True))
         elif isinstance(other, np.ndarray):
-            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: np.matmul(val, other)))
+            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: np.matmul(val, other),need_send=True))
 
         try:
             _other = other.numpy()
@@ -154,11 +154,11 @@ class PaillierTensor(object):
     #         return PaillierTensor(tb_obj=self._obj.mapValues(lambda x: x.sum(axis=axis-1)))
 
     def reduce_sum(self):
-        return self._obj.reduce(lambda t1, t2: t1 + t2)
+        return self._obj.reduce(lambda t1, t2: t1 + t2,need_send=True)
 
     def map_ndarray_product(self, other):
         if isinstance(other, np.ndarray):
-            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: val * other))
+            return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: val * other,need_send=True))
         else:
             raise ValueError('only support numpy array')
 
@@ -179,13 +179,13 @@ class PaillierTensor(object):
         return PaillierTensor(tb_obj=encrypt_tool.encrypt(self._obj))
 
     def decrypt(self, decrypt_tool):
-        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: decrypt_tool.recursive_decrypt(val)))
+        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: decrypt_tool.recursive_decrypt(val),need_send=True))
 
     def encode(self, encoder):
-        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: encoder.encode(val)))
+        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: encoder.encode(val),need_send=True))
 
     def decode(self, decoder):
-        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: decoder.decode(val)))
+        return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: decoder.decode(val),need_send=True))
 
     @staticmethod
     def _vector_mul(kv_iters):
@@ -212,7 +212,7 @@ class PaillierTensor(object):
 
         func = self._vector_mul
         ret_mat = self._obj.join(other.get_obj(), lambda vec1, vec2: (vec1, vec2)).applyPartitions(func).reduce(
-            lambda mat1, mat2: mat1 + mat2)
+            lambda mat1, mat2: mat1 + mat2,need_send=True)
 
         return ret_mat
 
@@ -248,4 +248,4 @@ class PaillierTensor(object):
             return PaillierTensor(tb_obj=self._obj.mapValues(lambda val: np.squeeze(val, axis=axis - 1)))
 
     def select_columns(self, select_table):
-        return PaillierTensor(tb_obj=self._obj.join(select_table, lambda v1, v2: v1[v2]))
+        return PaillierTensor(tb_obj=self._obj.join(select_table, lambda v1, v2: v1[v2],need_send=True))

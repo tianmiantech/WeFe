@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.api.storage;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
+import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -39,26 +39,26 @@ import java.util.List;
 /**
  * @author Zane
  */
-@Api(path = "storage/data_set/preview", name = "View data sets in storage")
+@Api(path = "storage/table_data_set/preview", name = "View data sets in storage")
 public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, PreviewDataSetApi.Output> {
 
     @Autowired
     DataSetStorageService dataSetStorageService;
     @Autowired
-    DataSetRepository dataSetRepository;
+    TableDataSetRepository dataSetRepository;
     @Autowired
     private GlobalConfigService globalConfigService;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        DataSetMysqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
+        TableDataSetMysqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
         if (model == null) {
             return success();
         }
         List<String> columns = StringUtil.splitWithoutEmptyItem(model.getColumnNameList(), ",");
         List<List<String>> rows;
-        if (model.getSourceType() == null) {
-            rows = dataSetStorageService.previewDataSet(model.getNamespace(), model.getTableName(), 100);
+        if (!model.isDerivedResource()) {
+            rows = dataSetStorageService.previewDataSet(model.getStorageNamespace(), model.getStorageResourceName(), 100);
         } else {
             rows = getRowsFromFlow(model);
         }
@@ -82,8 +82,13 @@ public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, Prev
     /**
      * View the data of the derived data set from flow service
      */
-    private List<List<String>> getRowsFromFlow(DataSetMysqlModel model) throws StatusCodeWithException {
-        String url = globalConfigService.getFlowConfig().intranetBaseUri + String.format("/data_set/view?table_name=%s&table_namespace=%s", model.getTableName(), model.getNamespace());
+    private List<List<String>> getRowsFromFlow(TableDataSetMysqlModel model) throws StatusCodeWithException {
+        String url = globalConfigService.getFlowConfig().intranetBaseUri
+                + String.format(
+                "/data_set/view?table_name=%s&table_namespace=%s",
+                model.getStorageResourceName(),
+                model.getStorageNamespace()
+        );
 
         HttpResponse response = HttpRequest
                 .create(url)

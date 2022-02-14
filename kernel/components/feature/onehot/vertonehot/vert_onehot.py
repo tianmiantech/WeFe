@@ -46,5 +46,4 @@ class VertOneHotEncoder(OneHotEncoder):
         super(VertOneHotEncoder, self)._init_model(params)
 
     def fit(self, data_instances):
-        abnormal_detection.empty_table_detection(data_instances)
         return super(VertOneHotEncoder, self).fit(data_instances)

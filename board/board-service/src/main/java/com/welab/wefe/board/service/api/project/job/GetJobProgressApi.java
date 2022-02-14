@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.api.project.job;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.gateway.GetMemberJobProgressApi;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobProgressOutput;
@@ -65,15 +64,12 @@ public class GetJobProgressApi extends AbstractApi<GetJobProgressApi.Input, List
             else {
 
                 try {
-                    ApiResult<?> apiResult = gatewayService.callOtherMemberBoard(
+                    progress = gatewayService.callOtherMemberBoard(
                             member.getMemberId(),
                             GetMemberJobProgressApi.class,
-                            new GetMemberJobProgressApi.Input(input.jobId, member.getJobRole())
+                            new GetMemberJobProgressApi.Input(input.jobId, member.getJobRole()),
+                            JobProgressOutput.class
                     );
-
-                    if (apiResult.data != null) {
-                        progress = ((JSONObject) apiResult.data).toJavaObject(JobProgressOutput.class);
-                    }
                 } catch (Exception e) {
                     progress = JobProgressOutput.fail(member, e);
                 }

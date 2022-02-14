@@ -288,6 +288,9 @@
                                 <el-input
                                     v-model="model_sql_config.password"
                                     show-password
+                                    @paste.native.prevent
+                                    @copy.native.prevent
+                                    @contextmenu.native.prevent
                                 />
                             </el-form-item>
                             <el-form-item
@@ -623,15 +626,7 @@
             },
             async testApi () {
 
-                const lines =JSON.stringify(this.api.feature_data);
-
-                // let lines = this.api.feature_data.split("\n");
-                // let map = {};
-                // for(let i in lines){
-                //     let line = lines[i];
-                //     let index = line.indexOf("=");
-                //     map[line.substr(0,index)] = line.substr(index+1);
-                // }
+              const lines =JSON.parse(this.api.feature_data);
 
               const { code,data } = await this.$http.post({
                   url:  'predict/debug',
