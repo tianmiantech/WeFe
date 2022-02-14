@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -101,7 +101,8 @@ public class MemberFileInfoContractService extends AbstractContractService {
         list.add(memberFileInfo.getFileSize());
         list.add(memberFileInfo.getMemberId());
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getBlockchainNodeId()));
-        list.add(StringUtil.isEmptyToBlank(memberFileInfo.getPurpose()));
+        list.add(memberFileInfo.getRurpose());
+        list.add(memberFileInfo.getFilePublicLevel());
         list.add(StringUtil.isEmptyToBlank(memberFileInfo.getDescribe()));
         list.add(memberFileInfo.getEnable());
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.welab.wefe.parser;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.BlockchainDataSyncApp;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
@@ -24,7 +26,6 @@ import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.constant.EventConstant;
 import com.welab.wefe.exception.BusinessException;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * DataSetContract Event information interpreter
@@ -41,6 +42,7 @@ public class DataSetContractEventParser extends AbstractParser {
         extJSON = StringUtils.isNotEmpty(extJsonStr) ? JSONObject.parseObject(extJsonStr, DataSetExtJSON.class) : new DataSetExtJSON();
         switch (eventBO.getEventName().toUpperCase()) {
             case EventConstant.DataSetEvent.INSERT_EVENT:
+                extJSON.setEnable(true);
             case EventConstant.DataSetEvent.UPDATE_EVENT:
                 parseInsertAndUpdateEvent();
                 break;

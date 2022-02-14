@@ -415,7 +415,7 @@
                 .label_info {
                     padding: 0 10px;
                     .label_info_list {
-                        height: calc(100vh - 490px);
+                        height: calc(100vh - 460px);
                         overflow-y: auto;
                     }
                     .label_item {

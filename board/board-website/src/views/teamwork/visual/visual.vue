@@ -148,7 +148,6 @@
             :job-id="vData.job_id"
             :project-id="vData.project_id"
             :old-learning-type="vData.learningType"
-            :project-type="vData.project_type"
             @getComponents="methods.getComponents"
             @updateFlowInfo="methods.updateFlowInfo"
             @resetGraphState="methods.resetGraphState"
@@ -283,7 +282,6 @@
                     /* dataset cache */
                     dataSource:    [],
                 },
-                project_type: 'MachineLearning',
             });
 
             let resizeObserver,
@@ -379,7 +377,6 @@
                             vData.paramsEmptynodes = data.params_is_null_flow_nodes || [];
                             vData.oot_model_flow_node_id = data.oot_model_flow_node_id;
                             vData.oot_job_id = data.oot_job_id;
-                            vData.project_type = data.project.project_type;
 
                             let continually = true;
 

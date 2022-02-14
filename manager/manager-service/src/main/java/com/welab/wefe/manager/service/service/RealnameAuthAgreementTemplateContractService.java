@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -103,9 +103,11 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
         list.add(realnameAuthAgreementTemplate.getTemplateFileId());
         list.add(realnameAuthAgreementTemplate.getTemplateFileSign());
         list.add(realnameAuthAgreementTemplate.getFileName());
+        list.add(realnameAuthAgreementTemplate.getBlockchainNodeId());
         list.add(realnameAuthAgreementTemplate.getEnable());
-        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
-        list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
+        list.add(realnameAuthAgreementTemplate.getVersion());
+        list.add(realnameAuthAgreementTemplate.getCreatedTime());
+        list.add(realnameAuthAgreementTemplate.getUpdatedTime());
         return list;
     }
 

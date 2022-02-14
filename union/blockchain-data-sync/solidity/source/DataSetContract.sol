@@ -77,7 +77,7 @@ contract DataSetContract{
     function update(string[] params, string ext_json) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(params[0])) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,params,ext_json);
             return ret_code;
         }
@@ -123,6 +123,11 @@ contract DataSetContract{
 
     function deleteByDataSetId(string id) public returns (int) {
         int256 ret_code = 0;
+        if (!isExist(id)) {
+            ret_code = -3;
+            emit deleteByDataSetIdEvent(ret_code,id);
+            return ret_code;
+        }
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("id", id);

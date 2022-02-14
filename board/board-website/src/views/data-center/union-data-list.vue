@@ -60,9 +60,9 @@
                 >
                     <el-option
                         v-for="item in vData.sourceTypeList"
-                        :key="item.label"
-                        :value="item.value"
+                        :key="item.value"
                         :label="item.label"
+                        :value="item.value"
                     />
                 </el-select>
             </el-form-item>

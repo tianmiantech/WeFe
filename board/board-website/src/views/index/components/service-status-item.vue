@@ -5,9 +5,7 @@
                 <el-row
                     :class="status.available ? 'tip tip-success' : 'tip tip-error' "
                 >
-                    <el-col
-                        :span="20"
-                    >
+                    <el-col :span="20">
                         <p class="item-name">
                             <i
                                 v-if="status.available"

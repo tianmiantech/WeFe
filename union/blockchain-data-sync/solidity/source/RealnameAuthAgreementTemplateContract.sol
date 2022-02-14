@@ -6,7 +6,7 @@ import "./Table.sol";
 
 contract RealnameAuthAgreementTemplateContract{
     string constant TABLE_NAME = "realname_auth_agreement_template";
-    string constant FIX_ID = "fix_id_007";
+    string constant FIX_ID = "realname_auth_agreement_template";
 
 
     TableFactory tableFactory;
@@ -19,7 +19,7 @@ contract RealnameAuthAgreementTemplateContract{
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
-        tableFactory.createTable(TABLE_NAME, "fix_id", "template_file_id,template_file_sign,file_name,enable,created_time,updated_time,ext_json");
+        tableFactory.createTable(TABLE_NAME, "fix_id", "template_file_id,template_file_sign,file_name,blockchain_node_id,enable,version,created_time,updated_time,ext_json");
     }
 
 
@@ -39,9 +39,11 @@ contract RealnameAuthAgreementTemplateContract{
         entry.set("template_file_id", params[0]);
         entry.set("template_file_sign", params[1]);
         entry.set("file_name", params[2]);
-        entry.set("enable", params[3]);
-        entry.set("created_time", params[4]);
-        entry.set("updated_time", params[5]);
+        entry.set("blockchain_node_id", params[3]);
+        entry.set("enable", params[4]);
+        entry.set("version", params[5]);
+        entry.set("created_time", params[6]);
+        entry.set("updated_time", params[7]);
         entry.set("ext_json", ext_json);
 
 
@@ -156,7 +158,11 @@ contract RealnameAuthAgreementTemplateContract{
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("file_name")));
             dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("blockchain_node_id")));
+            dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("enable")));
+            dataStr = strConcat(dataStr, "|");
+            dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("version")));
             dataStr = strConcat(dataStr, "|");
             dataStr = strConcat(dataStr, strEmptyToSpace(entry.getString("created_time")));
             dataStr = strConcat(dataStr, "|");

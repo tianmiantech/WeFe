@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,6 +42,16 @@ public class BloomFilterMysqlModel extends DataResourceMysqlModel {
      */
     @Column(name = "rsa_d")
     private String rsaD;
+    /**
+     * 密钥p
+     */
+    @Column(name = "rsa_p")
+    private String rsaP;
+    /**
+     * 密钥q
+     */
+    @Column(name = "rsa_q")
+    private String rsaQ;
     /**
      * 数据源id
      */
@@ -134,6 +144,21 @@ public class BloomFilterMysqlModel extends DataResourceMysqlModel {
         this.sqlScript = sqlScript;
     }
 
+    public String getRsaP() {
+        return rsaP;
+    }
+
+    public void setRsaP(String rsaP) {
+        this.rsaP = rsaP;
+    }
+
+    public String getRsaQ() {
+        return rsaQ;
+    }
+
+    public void setRsaQ(String rsaQ) {
+        this.rsaQ = rsaQ;
+    }
 
     // endregion
 }

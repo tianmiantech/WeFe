@@ -7,7 +7,7 @@ package com.welab.wefe.board.service.fusion.actuator.psi;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,8 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class ServerActuator extends AbstractPsiServerActuator {
-    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, Long dataCount) {
-        super(businessId, bloomFilters, n, e, d, dataCount);
+    public ServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
+        super(businessId, bloomFilters, n, e, d, p, q, dataCount);
     }
 
     @Override

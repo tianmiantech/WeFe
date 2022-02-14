@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,9 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -54,6 +56,9 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             member.setGatewayUri(input.getGatewayUri());
             member.setLastActivityTime(System.currentTimeMillis());
             member.setLogo(input.getLogo());
+            MemberExtJSON extJSON = new MemberExtJSON();
+
+            member.setExtJson(JSON.toJSONString(extJSON));
 
             memberContractService.add(member);
         } catch (StatusCodeWithException e) {

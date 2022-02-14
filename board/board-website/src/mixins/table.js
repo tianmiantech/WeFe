@@ -181,7 +181,8 @@ export default (function () {
                     this.$router.push({
                         query: {
                             ...this.search,
-                            page_size: val,
+                            page_index: this.pagination.page_index,
+                            page_size:  val,
                         },
                     });
                 } else {
