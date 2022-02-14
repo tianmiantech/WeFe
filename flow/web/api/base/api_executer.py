@@ -19,6 +19,7 @@ from flow.utils.bean_util import BeanUtil
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
+from common.python.utils.log_utils import schedule_logger
 
 
 class ApiExecutor:
@@ -32,10 +33,8 @@ class ApiExecutor:
 
         # Create api input object
         api_params = ApiExecutor.build_api_params(request)
-
         # Create api and input instance
         api, input = ApiExecutor.create_api_instance(request)
-
         if api is None:
             return BaseApiOutput.fail(-1, '未找到 api：' + request.path)
 
@@ -108,7 +107,6 @@ class ApiExecutor:
 
         get_params = request.args
         post_params = request.get_json()
-
         all_params = get_params.to_dict()
 
         if post_params is not None:

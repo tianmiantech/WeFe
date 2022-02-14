@@ -23,12 +23,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 /**
  * @author yuxin.zhang
  **/
-@Document(collection = MongodbTable.Union.IMAGE_DATASET_LABELEDCOUNT)
-public class ImageDataSetLabeledCount extends AbstractNormalMongoModel {
+@Document(collection = MongodbTable.Union.DATA_RESOURCE_LAZY_UPDATE_MODEL)
+public class DataResourceLazyUpdateModel extends AbstractNormalMongoModel {
     private String dataResourceId;
     private String labelList;
     private int totalDataCount;
     private int labeledCount;
+    private boolean labelCompleted;
+
+    private int usageCountInJob;
+    private int usageCountInFlow;
+    private int usageCountInProject;
+    private int usageCountInMember;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -60,5 +66,46 @@ public class ImageDataSetLabeledCount extends AbstractNormalMongoModel {
 
     public void setLabeledCount(int labeledCount) {
         this.labeledCount = labeledCount;
+    }
+
+
+    public int getUsageCountInJob() {
+        return usageCountInJob;
+    }
+
+    public void setUsageCountInJob(int usageCountInJob) {
+        this.usageCountInJob = usageCountInJob;
+    }
+
+    public int getUsageCountInFlow() {
+        return usageCountInFlow;
+    }
+
+    public void setUsageCountInFlow(int usageCountInFlow) {
+        this.usageCountInFlow = usageCountInFlow;
+    }
+
+    public int getUsageCountInProject() {
+        return usageCountInProject;
+    }
+
+    public void setUsageCountInProject(int usageCountInProject) {
+        this.usageCountInProject = usageCountInProject;
+    }
+
+    public int getUsageCountInMember() {
+        return usageCountInMember;
+    }
+
+    public void setUsageCountInMember(int usageCountInMember) {
+        this.usageCountInMember = usageCountInMember;
+    }
+
+    public boolean isLabelCompleted() {
+        return labelCompleted;
+    }
+
+    public void setLabelCompleted(boolean labelCompleted) {
+        this.labelCompleted = labelCompleted;
     }
 }

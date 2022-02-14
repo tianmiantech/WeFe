@@ -17,6 +17,8 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -25,13 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * @author yuxin.zhang
  **/
-public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRepo {
+@Repository
+public class DataResourceDefaultTagMongoRepo extends AbstractMongoRepo {
 
     @Autowired
     protected MongoTemplate mongoUnionTemplate;
@@ -42,10 +46,8 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
     }
 
 
-    protected abstract String getTableName();
-
-    public <T> List<T> findAll(Class<T> t) {
-        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), t);
+    public List<DataResourceDefaultTag> findByDataResourceType(String dataResourceType) {
+        return mongoUnionTemplate.find(new QueryBuilder().notRemoved().append("dataResourceType", dataResourceType).build(), DataResourceDefaultTag.class);
     }
 
     public boolean deleteByTagId(String tagId) {
@@ -54,7 +56,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataResourceDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -68,7 +70,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
                 .append("extJson", extJson)
                 .append("updatedTime", updatedTime)
                 .build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, DataResourceDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -78,7 +80,7 @@ public abstract class AbstractDataSetDefaultTagMongoRepo extends AbstractMongoRe
         }
         Query query = new QueryBuilder().append("tagId", tagId).build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, getTableName());
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataResourceDefaultTag.class);
         return updateResult.wasAcknowledged();
     }
 }
