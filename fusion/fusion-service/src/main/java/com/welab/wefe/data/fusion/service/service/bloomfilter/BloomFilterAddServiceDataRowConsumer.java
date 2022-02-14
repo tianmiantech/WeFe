@@ -21,7 +21,7 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetStorageHelper;
