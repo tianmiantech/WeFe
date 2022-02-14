@@ -15,8 +15,8 @@ export default _ => {
     const TAGSLIST = `${baseUrl}_tagsList`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
-    userInfo = localStorage.getItem(USERINFO),
-    tagsList = localStorage.getItem(TAGSLIST);
+        userInfo = localStorage.getItem(USERINFO),
+        tagsList = localStorage.getItem(TAGSLIST);
 
     keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
     userInfo = userInfo ? JSON.parse(userInfo) : {};
