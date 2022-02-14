@@ -124,7 +124,13 @@
         methods: {
             show(checkedIds) {
                 this.visible = true;
-                this.search.service_type = +this.serviceType === 6 ? 1 : 2;
+                const type = +this.serviceType;
+
+                if(type === 6) {
+                    this.search.service_type = 1;
+                } else if(type === 5) {
+                    this.search.service_type = 2;
+                }
                 this.checkedIds = checkedIds;
                 this.checkedRows = [];
                 this.getList();
