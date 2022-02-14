@@ -13,17 +13,17 @@
 # limitations under the License.
 
 
-from common.python.db.db_models import DB, DataSet
+from common.python.db.db_models import DB, TableDataSet
 
 
-class DataSetDao(object):
+class TableDataSetDao(object):
 
     @staticmethod
     def get(*query, **filters):
         with DB.connection_context():
-            return DataSet.get_or_none(*query, **filters)
+            return TableDataSet.get_or_none(*query, **filters)
 
     @staticmethod
-    def save(model: DataSet, force_insert=False):
+    def save(model: TableDataSet, force_insert=False):
         with DB.connection_context():
             model.save(force_insert=force_insert)

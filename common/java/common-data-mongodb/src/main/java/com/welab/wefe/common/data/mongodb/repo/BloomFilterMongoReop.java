@@ -25,8 +25,10 @@ import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
 import com.welab.wefe.common.data.mongodb.util.AddFieldsOperation;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.JObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -80,8 +82,10 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
         mongoUnionTemplate.save(bloomFilter);
     }
 
-
-    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String curMemeberId) {
+    /**
+     * Query the BloomFilter visible to the current member
+     */
+    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
                 from(MongodbTable.Union.BLOOM_FILTER).
                 localField("data_resource_id").
@@ -96,56 +100,11 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
 
 
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("enable", "1")
-                .append("member_id", curMemeberId)
-                .append("data_resource_id", dataResourceId)
-                .getCriteria();
-
-
-        AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
-
-        UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindBloomFilter = Aggregation.unwind("bloom_filter");
-        Map<String, Object> addfieldsMap = new HashMap<>();
-        addfieldsMap.put("member_name", "$member.name");
-
-        AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwind,
-                unwindBloomFilter,
-                addFieldsOperation
-        );
-
-        DataResourceQueryOutput result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getUniqueMappedResult();
-        return result;
-    }
-
-    /**
-     * Query the BloomFilter visible to the current member
-     */
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
-        LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
-                from(MongodbTable.Union.BLOOM_FILTER).
-                localField("data_resource_id").
-                foreignField("data_resource_id").
-                as("extra_data");
-
-        LookupOperation lookupToMember = LookupOperation.newLookup().
-                from(MongodbTable.Union.MEMBER).
-                localField("member_id").
-                foreignField("member_id").
-                as("member");
-
-
-        Criteria dataResouceCriteria = new QueryBuilder()
+                .notRemoved()
                 .append("enable", "1")
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())
-                .append("member_id", dataResourceQueryInput.getCurMemberId())
+                .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
                 .getCriteria();
 
@@ -160,46 +119,53 @@ public class BloomFilterMongoReop extends AbstractDataSetMongoRepo {
         AggregationOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
 
         Criteria memberCriteria = new QueryBuilder()
-                .like("name", dataResourceQueryInput.getMemberName())
+                .like("member_name", dataResourceQueryInput.getMemberName())
                 .getCriteria();
 
         AggregationOperation memberMatch = Aggregation.match(memberCriteria);
         UnwindOperation unwind = Aggregation.unwind("member");
-        UnwindOperation unwindExtraData = Aggregation.unwind("extra_data");
+        UnwindOperation unwindExtraData = Aggregation.unwind("bloom_filter");
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
 
         AddFieldsOperation addFieldsOperation = new AddFieldsOperation(addfieldsMap);
 
-        Aggregation aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
-                lookupToDataImageDataSet,
-                lookupToMember,
-                unwind,
-                unwindExtraData,
-                addFieldsOperation
-        );
-        int total = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataSetQueryOutput.class).getMappedResults().size();
+
 
         SkipOperation skipOperation = Aggregation.skip((long) dataResourceQueryInput.getPageIndex() * dataResourceQueryInput.getPageSize());
         LimitOperation limitOperation = Aggregation.limit(dataResourceQueryInput.getPageSize());
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Order.desc("updated_time")));
 
-        aggregation = Aggregation.newAggregation(
-                dataResourceMatch,
-                memberMatch,
+        CountOperation countOperation = Aggregation.count().as("count");
+        FacetOperation facetOperation = Aggregation.facet(
                 lookupToDataImageDataSet,
                 lookupToMember,
                 unwind,
                 unwindExtraData,
+                addFieldsOperation,
+                dataResourceMatch,
+                memberMatch,
                 skipOperation,
                 limitOperation,
-                addFieldsOperation
-        );
+                sortOperation
+        ).as("data").and(
+                lookupToDataImageDataSet,
+                lookupToMember,
+                unwind,
+                unwindExtraData,
+                dataResourceMatch,
+                memberMatch,
+                countOperation
+        ).as("total");
 
-        List<DataResourceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, DataResourceQueryOutput.class).getMappedResults();
-
-        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), (long) total, dataResourceQueryInput.getPageSize(), result);
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
+        JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
+        Long total = 0L;
+        List<DataResourceQueryOutput> list = result.getJSONList("data",DataResourceQueryOutput.class);
+        if(list != null && !list.isEmpty()){
+            total = result.getJSONList("total",JObject.class).get(0).getLongValue("count");
+        }
+        return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
 
 

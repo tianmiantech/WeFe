@@ -75,7 +75,7 @@ contract DataResourceContract{
     function update(string data_resource_id,string[] params,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(data_resource_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,data_resource_id,params,updated_time);
             return ret_code;
         }
@@ -166,6 +166,10 @@ contract DataResourceContract{
 
     function deleteByDataResourceId(string data_resource_id) public returns (int) {
         int256 ret_code = 0;
+        if (!isExist(data_resource_id)) {
+            emit deleteByDataResourceIdEvent(ret_code,data_resource_id);
+            return ret_code;
+        }
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("data_resource_id", data_resource_id);

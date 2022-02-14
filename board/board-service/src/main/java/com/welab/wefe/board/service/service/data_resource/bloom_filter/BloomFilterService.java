@@ -262,13 +262,13 @@ public class BloomFilterService extends DataResourceService {
         if (promoters.size() == 1) {
             promoter = allMemberList.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter).findFirst()
                     .orElse(null);
-            promoters = null;
+//            promoters = null;
         } else if (promoters.size() > 1) {
             promoter = allMemberList.stream()
                     .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
                     .findFirst().orElse(null);
-            String creator = promoter.getMemberId();
-            promoters = promoters.stream().filter(p -> !p.getMemberId().equals(creator)).collect(Collectors.toList());
+//            String creator = promoter.getMemberId();
+//            promoters = promoters.stream().filter(p -> !p.getMemberId().equals(creator)).collect(Collectors.toList());
         }
 
         List<ProjectDetailMemberOutputModel> providers = allMemberList.stream()

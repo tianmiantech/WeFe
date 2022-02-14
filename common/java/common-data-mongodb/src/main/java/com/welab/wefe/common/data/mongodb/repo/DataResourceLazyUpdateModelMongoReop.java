@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSetLabeledCount;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceLazyUpdateModel;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Repository
-public class ImageDataSetLabeledCountMongoReop extends AbstractMongoRepo {
+public class DataResourceLazyUpdateModelMongoReop extends AbstractMongoRepo {
 
     @Autowired
     protected MongoTemplate mongoUnionTemplate;
@@ -42,17 +42,17 @@ public class ImageDataSetLabeledCountMongoReop extends AbstractMongoRepo {
     }
 
 
-    public ImageDataSetLabeledCount findById(String dataSetId) {
-        if (StringUtils.isEmpty(dataSetId)) {
+    public DataResourceLazyUpdateModel findByDataResourceId(String dataResourceId) {
+        if (StringUtils.isEmpty(dataResourceId)) {
             return null;
         }
-        Query query = new QueryBuilder().append("dataSetId", dataSetId).notRemoved().build();
-        return mongoUnionTemplate.findOne(query, ImageDataSetLabeledCount.class);
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        return mongoUnionTemplate.findOne(query, DataResourceLazyUpdateModel.class);
     }
 
-    public List<ImageDataSetLabeledCount> findAll() {
-        Query query = new QueryBuilder().notRemoved().sort("updateTime").build();
-        return mongoUnionTemplate.find(query, ImageDataSetLabeledCount.class);
+    public List<DataResourceLazyUpdateModel> findAll() {
+        Query query = new QueryBuilder().sort("updateTime").build();
+        return mongoUnionTemplate.find(query, DataResourceLazyUpdateModel.class);
     }
 
 }
