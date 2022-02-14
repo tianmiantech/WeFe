@@ -66,6 +66,25 @@ public class MysqlStorage extends AbstractStorage {
 
     }
 
+    @Override
+    public void dropTable(String dbName, String tbName) throws Exception {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = getConnection();
+            String sql = String.format("DROP TABLE %s ", tbName);
+
+            LOG.info("执行创建表sql语句:" + sql);
+            statement = conn.prepareStatement(sql);
+            statement.execute();
+        } catch (Exception e) {
+            LOG.error("创建表失败:" + e.getMessage());
+        } finally {
+            close(statement, conn);
+        }
+
+    }
+
 
     @Override
     public void insert(String dbName, String tbName, Map<String, Object> data) throws Exception {

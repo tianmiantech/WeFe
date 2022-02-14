@@ -37,6 +37,15 @@ public abstract class Storage {
     public abstract void createTable(String dbName, String tbName, List<String> rows) throws Exception;
 
     /**
+     * dropTable
+     * @param dbName
+     * @param tbName
+     * @throws Exception
+     */
+    public abstract void dropTable(String dbName, String tbName) throws Exception;
+
+
+    /**
      * Insert data
      * @param dbName
      * @param tbName
