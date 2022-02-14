@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.parser;
 
 import com.alibaba.fastjson.JSONObject;
@@ -40,9 +56,11 @@ public class RealnameAuthAgreementTemplateContractEventParser extends AbstractPa
         realnameAuthAgreementTemplate.setTemplateFileId(StringUtil.strTrim2(params.getString(0)));
         realnameAuthAgreementTemplate.setTemplateFileSign(StringUtil.strTrim2(params.getString(1)));
         realnameAuthAgreementTemplate.setFileName(StringUtil.strTrim2(params.getString(2)));
-        realnameAuthAgreementTemplate.setEnable(StringUtil.strTrim2(params.getString(3)));
-        realnameAuthAgreementTemplate.setCreatedTime(StringUtil.strTrim2(params.getString(4)));
-        realnameAuthAgreementTemplate.setUpdatedTime(StringUtil.strTrim2(params.getString(5)));
+        realnameAuthAgreementTemplate.setBlockchainNodeId(StringUtil.strTrim2(params.getString(3)));
+        realnameAuthAgreementTemplate.setEnable(StringUtil.strTrim2(params.getString(4)));
+        realnameAuthAgreementTemplate.setVersion(StringUtil.strTrim2(params.getString(5)));
+        realnameAuthAgreementTemplate.setCreatedTime(StringUtil.strTrim2(params.getString(6)));
+        realnameAuthAgreementTemplate.setUpdatedTime(StringUtil.strTrim2(params.getString(7)));
         realnameAuthAgreementTemplate.setExtJson(extJSON);
 
         mongoRepo.save(realnameAuthAgreementTemplate);

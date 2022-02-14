@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -71,13 +71,14 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
      * @return 资源Id
      */
     public DataResourceAddOutputModel add(AbstractDataResourceUpdateInputModel input) throws StatusCodeWithException {
-        DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(input);
+        DataResourceType dataResourceType = getDataResourceType();
+        DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(dataResourceType, input);
 
         DataResourceMysqlModel model = new ModelMapper().map(input, getMysqlModelClass());
         model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
-        model.setDataResourceType(getDataResourceType());
+        model.setDataResourceType(dataResourceType);
         model.setTags(dataResourceService.standardizeTags(input.getTags()));
         dataResourceService.handlePublicMemberList(model);
         checkAndSetStorageLocation(model);

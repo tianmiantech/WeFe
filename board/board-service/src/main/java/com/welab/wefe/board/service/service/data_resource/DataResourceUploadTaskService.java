@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourceUploadStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -52,13 +53,14 @@ public class DataResourceUploadTaskService extends AbstractService {
     /**
      * 创建一个新的上传任务
      */
-    public DataResourceUploadTaskMysqlModel newTask(AbstractDataResourceUpdateInputModel input) {
+    public DataResourceUploadTaskMysqlModel newTask(DataResourceType dataResourceType, AbstractDataResourceUpdateInputModel input) {
 
         DataResourceUploadTaskMysqlModel task = new DataResourceUploadTaskMysqlModel();
         task.setDataResourceName(input.getName());
         task.setProgressRatio(0);
         task.setDataResourceId(new DataResourceMysqlModel().getId());
         task.setStatus(DataResourceUploadStatus.uploading);
+        task.setDataResourceType(dataResourceType);
         dataResourceUploadTaskRepository.save(task);
         return task;
     }

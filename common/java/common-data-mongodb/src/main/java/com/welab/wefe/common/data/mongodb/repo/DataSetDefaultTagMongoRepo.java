@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.MemberAuthType;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
@@ -44,9 +45,13 @@ public class DataSetDefaultTagMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
-
     public List<DataSetDefaultTag> findAll() {
         return mongoUnionTemplate.find(new QueryBuilder().notRemoved().build(), DataSetDefaultTag.class);
+    }
+
+    public boolean exists(String tagName) {
+        Query query = new QueryBuilder().append("tagName", tagName).notRemoved().build();
+        return mongoUnionTemplate.exists(query, DataSetDefaultTag.class);
     }
 
     public boolean deleteByTagId(String tagId) {

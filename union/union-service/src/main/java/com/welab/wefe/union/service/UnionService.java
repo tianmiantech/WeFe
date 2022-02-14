@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SM2Util;
-import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -44,8 +44,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author Jervis
@@ -106,11 +104,11 @@ public class UnionService implements ApplicationContextAware {
         MemberMongoReop memberMongoReop = CONTEXT.getBean(MemberMongoReop.class);
         Member member = memberMongoReop.findMemberId(signedApiInput.getMemberId());
         if (member == null) {
-            throw new StatusCodeWithException("Invalid member_id: " + signedApiInput.getMemberId(), StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException("成员不存在", StatusCode.INVALID_MEMBER);
         }
 
         if ("1".equals(member.getFreezed())) {
-            throw new StatusCodeWithException("Member has been freezed member_id: " + signedApiInput.getMemberId(), StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException("该成员已被冻结，请联系管理员", StatusCode.INVALID_MEMBER);
         }
 
         // Due to performance issues, put it in the cache and then update it asynchronously
@@ -118,14 +116,16 @@ public class UnionService implements ApplicationContextAware {
         MemberActivityCache.getInstance().add(member);
 
         String publicKey = member.getPublicKey();
-        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), member.getSecretKeyType());
-        if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
-        }
 
-        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes("UTF-8"), RSAUtil.getPublicKey(publicKey), signedApiInput.getSign());
+        if (!verified) {
+            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+        }
         params.put("cur_member_id", signedApiInput.getMemberId());
+        params.remove("member_id");
+        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
     }
+
 
     /**
      * SM2 Signature verify
@@ -138,7 +138,7 @@ public class UnionService implements ApplicationContextAware {
             throw new StatusCodeWithException("UnionNode not registered blockchainNodeId: " + signedApiInput.getCurrentBlockchainNodeId(), StatusCode.INVALID_MEMBER);
         }
 
-        if ("1".equals(unionNode.getEnable())) {
+        if ("0".equals(unionNode.getEnable())) {
             throw new StatusCodeWithException("UnionNode has been disabled nodeId: " + unionNode.getNodeId(), StatusCode.INVALID_MEMBER);
         }
 
@@ -147,10 +147,10 @@ public class UnionService implements ApplicationContextAware {
 
         boolean verified = SM2Util.verify(signedApiInput.getData().getBytes("UTF-8"), SM2Util.getPublicKey(publicKey), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
-
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }
+
 }
