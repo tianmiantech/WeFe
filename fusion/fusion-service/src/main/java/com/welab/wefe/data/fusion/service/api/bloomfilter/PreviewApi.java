@@ -74,13 +74,22 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             String rows = bloomFilterMySqlModel.getRows();
             List<String> rowsList = Arrays.asList(rows.split(","));
 
-            String sql = bloomFilterMySqlModel.getStatement();
-            // Test whether SQL can be queried normally
-            boolean result = dataSourceService.testSqlQuery(bloomFilterMySqlModel.getDataSourceId(), sql);
-            if (result) {
-                output = readFromDB(bloomFilterMySqlModel.getDataSourceId(), sql, rowsList);
+            if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)) {
+                String sql = bloomFilterMySqlModel.getStatement();
+                // Test whether SQL can be queried normally
+                boolean result = dataSourceService.testSqlQuery(bloomFilterMySqlModel.getDataSourceId(), sql);
+                if (result) {
+                    output = readFromDB(bloomFilterMySqlModel.getDataSourceId(), sql, rowsList);
+                }
+            }else if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
+                File file = dataSourceService.getDataSetFile(bloomFilterMySqlModel.getDataResourceSource(), bloomFilterMySqlModel.getSourcePath());
+                try {
+                    output = readFile(file);
+                } catch (IOException e) {
+                    LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                }
             }
-
         } else if (DataResourceSource.Sql.equals(dataResourceSource)) {
 //            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.id);
 //            String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();

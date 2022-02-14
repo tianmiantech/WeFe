@@ -24,8 +24,11 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.database.repository.DataSourceRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.DataSourceOverviewOutput;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +54,12 @@ public class DataSourceService extends AbstractService {
 
     @Value("${file.upload.dir}")
     private String fileUploadDir;
+
+    @Autowired
+    DataSetRepository dataSetRepository;
+
+    @Autowired
+    BloomFilterRepository bloomFilterRepository;
 
 
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
@@ -199,6 +208,12 @@ public class DataSourceService extends AbstractService {
         }
 
         return file;
+    }
+
+    public DataSourceOverviewOutput overview() {
+        Long dataSetCount = dataSetRepository.count();
+        Long bloomFilterCount = bloomFilterRepository.count();
+        return DataSourceOverviewOutput.of(dataSetCount, bloomFilterCount);
     }
 
 }
