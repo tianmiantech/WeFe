@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDataResourceListApi;
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
+import com.welab.wefe.board.service.base.file_system.UploadFile;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -42,6 +43,7 @@ import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +101,7 @@ public class BloomFilterService extends DataResourceService {
         File file = null;
         switch (method) {
             case HttpUpload:
-                file = new File(config.getFileUploadDir(), filename);
+                file = UploadFile.getFilePath(DataResourceType.BloomFilter, filename).toFile();
                 break;
             case LocalFile:
                 file = new File(filename);
@@ -280,9 +282,9 @@ public class BloomFilterService extends DataResourceService {
             output.setDataSetList(promoter.getDataResourceList());
         }
 
-        if (input.getRole().equals("provider")){
-            for (ProjectDetailMemberOutputModel provider : providers){
-                if (input.getProjectId().equals(provider.getProjectId()) && input.getMemberId().equals(provider.getMemberId())){
+        if (input.getRole().equals("provider")) {
+            for (ProjectDetailMemberOutputModel provider : providers) {
+                if (input.getProjectId().equals(provider.getProjectId()) && input.getMemberId().equals(provider.getMemberId())) {
                     output.setDataSetList(provider.getDataResourceList());
                 }
             }

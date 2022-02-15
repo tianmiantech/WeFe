@@ -19,7 +19,7 @@ package com.welab.wefe.common.wefe.enums;
  * @author zane
  * @date 2021/11/10
  */
-public enum DataSetStorageType {
+public enum DataResourceStorageType {
     /**
      * local file system
      */

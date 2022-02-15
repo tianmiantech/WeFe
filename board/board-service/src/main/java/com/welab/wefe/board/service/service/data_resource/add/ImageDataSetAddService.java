@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.service.data_resource.add;
 
+import com.welab.wefe.board.service.base.file_system.UploadFile;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -60,8 +61,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         ImageDataSetAddInputModel input = (ImageDataSetAddInputModel) in;
         ImageDataSetMysqlModel model = (ImageDataSetMysqlModel) m;
 
-        File inputFile = new File(config.getFileUploadDir(), input.getFilename());
-
+        File inputFile = UploadFile.getFilePath(DataResourceType.ImageDataSet, input.getFilename()).toFile();
         LOG.info("{} 获取到图片数据集文件：{}", m.getId(), inputFile.getAbsolutePath());
 
         DecompressionResult fileDecompressionResult = null;
