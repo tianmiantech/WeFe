@@ -191,7 +191,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setCreatedBy(input);
                 dataSet.setMemberId(dataSetInput.getMemberId());
                 dataSet.setMemberRole(dataSetInput.getMemberRole());
-                dataSet.setDataSetId(dataSetInput.getDataResourceId());
+                dataSet.setDataSetId(dataSetInput.getDataSetId());
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
@@ -481,7 +481,7 @@ public class ProjectService extends AbstractService {
             }
 
             // Determine whether the data set exists
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataResourceId(), item.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataSetId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSet.setAuditStatus(auditStatus);
             } else {
