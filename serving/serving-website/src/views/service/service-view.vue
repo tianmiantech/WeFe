@@ -75,7 +75,7 @@
             </el-form-item>
 
             <template v-if="form.service_type">
-                <template v-if="form.service_type === 4">
+                <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
                     <el-divider />
                     <p class="mb10">服务配置：</p>
                     <el-form-item
@@ -84,15 +84,16 @@
                         class="service-list"
                     >
                         <p>
-                            服务: {{ item.name }}
+                            <strong>服务:</strong> {{ item.name }}
                             <i
                                 class="icons el-icon-delete color-danger"
                                 @click="service_config.splice(index, 1)"
                             />
                         </p>
-                        <p>成员: {{ item.supplier_name }}</p>
-                        <p>URL: {{ item.base_url }}{{ item.api_name }}</p>
-                        <p>Param:</p>
+                        <p><strong>成员:</strong> {{ item.supplier_name }}</p>
+                        <p><strong>URL:</strong> {{ item.base_url }}{{ item.api_name }}</p>
+                        <p v-if="item.key_calc_rule"><strong>求交主键:</strong> {{ item.key_calc_rule }}</p>
+                        <p v-if="item.params && item.params.length"><strong>Param:</strong></p>
                         <p
                             v-for="each in item.params"
                             :key="each"
@@ -110,7 +111,7 @@
                         </el-button>
                     </el-form-item>
                 </template>
-                <template v-if="form.service_type !== 2">
+                <template v-if="form.service_type !== 2 && form.service_type !== 5">
                     <el-divider />
                     <p class="mb10">查询参数配置：</p>
                     <el-form-item
@@ -141,7 +142,7 @@
                     </el-form-item>
                 </template>
 
-                <template v-if="form.service_type !== 4">
+                <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6">
                     <el-divider />
                     <p class="mb10">SQL 配置：</p>
                     <el-form-item label="数据源:">
@@ -192,14 +193,6 @@
                             </el-button>
                             <p v-if="form.stringResult">结果: {{ form.stringResult }}</p>
                         </el-form-item>
-                        <!-- <el-form-item>
-                            <el-button
-                                :disabled="!form.stringResult"
-                                @click="testConnection"
-                            >
-                                连接测试
-                            </el-button>
-                        </el-form-item> -->
                     </template>
 
                     <el-form-item
@@ -285,7 +278,7 @@
 
                         <div
                             v-if="form.service_type !== 3"
-                            class="mt5"
+                            class="mt5 mb20"
                         >
                             <el-button
                                 size="small"
@@ -298,7 +291,7 @@
                 </template>
             </template>
             <el-button
-                class="mt30"
+                class="mt10"
                 type="primary"
                 size="medium"
                 @click="save"
@@ -445,6 +438,7 @@
 
         <ServiceConfigs
             ref="serviceConfigs"
+            :service-type="`${form.service_type}`"
             @confirm-checked-rows="addServiceRow"
         />
     </el-card>
@@ -621,7 +615,7 @@
                                     ...x,
                                     supplier_id:   x.member_id,
                                     supplier_name: x.member_name,
-                                    params:        x.params.split(','),
+                                    params:        x.params ? x.params.split(',') : [],
                                     base_url:      x.url,
                                 };
                             });
@@ -634,7 +628,9 @@
             serviceTypeChange() {
                 this.form.data_source.table = '';
                 this.form.data_source.return_fields = [];
-                this.getDataResources();
+                if(this.form.service_type <= 3) {
+                    this.getDataResources();
+                }
             },
             add_params(){
                 this.form.paramsArr.push({
@@ -886,33 +882,37 @@
                                 field: x.field.join(','),
                             };
                         }),
+                        key_calc_rule: this.form.stringResult,
                     };
                 } else {
-                    const params = [];
+                    if(type !== 5) {
+                        const params = [];
 
-                    for(const i in this.form.paramsArr){
-                        const x = this.form.paramsArr[i];
+                        for(const i in this.form.paramsArr){
+                            const x = this.form.paramsArr[i];
 
-                        if(!x.value) {
-                            return this.$message.error('请将查询字段填写完整!');
-                        } else {
-                            params.push(x.value);
+                            if(!x.value) {
+                                return this.$message.error('请将查询字段填写完整!');
+                            } else {
+                                params.push(x.value);
+                            }
                         }
+
+                        $params.query_params = params;
                     }
 
-                    $params.query_params = params;
-
-                    if(type === 4) {
+                    if(type === 4 || type === 5 || type === 6) {
                         $params.service_config = this.service_config.map(x => {
                             return {
-                                id:          x.id,
-                                name:        x.name,
-                                member_id:   x.supplier_id,
-                                member_name: x.supplier_name,
-                                url:         x.base_url + x.api_name,
-                                base_url:	   x.base_url,
-                                api_name:	   x.api_name,
-                                params:      x.params.join(','),
+                                id:            x.id,
+                                name:          x.name,
+                                member_id:     x.supplier_id,
+                                member_name:   x.supplier_name,
+                                url:           x.base_url + x.api_name,
+                                base_url:	     x.base_url,
+                                api_name:	     x.api_name,
+                                params:        x.params ? x.params.join(',') : '',
+                                key_calc_rule: x.key_calc_rule,
                             };
                         });
                         $params.operator = operator;
