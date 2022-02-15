@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.TreeSet;
 
 /**
@@ -74,7 +73,7 @@ public class ImageDataSetService extends DataResourceService {
                 .stream()
                 .filter(x -> StringUtil.isNotEmpty(x))
                 .forEach(x ->
-                        labelSet.addAll(Arrays.asList(x.split(",")))
+                        labelSet.addAll(StringUtil.splitWithoutEmptyItem(x, ","))
                 );
 
         dataSet.setLabelList(StringUtil.joinByComma(labelSet));

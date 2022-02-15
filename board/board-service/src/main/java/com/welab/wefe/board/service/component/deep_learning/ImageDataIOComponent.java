@@ -38,6 +38,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -80,20 +81,29 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         }
 
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            String labelList = null;
             // 检查数据集的有效性
-            for (DataSetItem dataSet : params.getDataSetList()) {
+            for (DataSetItem dataSetItem : params.getDataSetList()) {
 
                 ImageDataSetOutputModel one = null;
                 try {
-                    one = imageDataSetService.findDataSetFromLocalOrUnion(dataSet.memberId, dataSet.dataSetId);
+                    one = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
                 } catch (StatusCodeWithException e) {
                     throw new FlowNodeException(node, e.getMessage());
                 }
                 if (one == null) {
-                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
+                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSetItem.memberId) + " 的数据集 " + dataSetItem.getDataSetId() + " 不存在，请检查是否已删除。");
                 }
                 if (one.getLabeledCount() == 0) {
-                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集【" + one.getName() + "】已标注的样本量为 0，无法使用。");
+                    throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSetItem.memberId) + " 的数据集【" + one.getName() + "】已标注的样本量为 0，无法使用。");
+                }
+                // 检查各成员的数据集的标签列表是否一致
+                if (labelList == null) {
+                    labelList = StringUtil.join(one.getLabelSet(), ",");
+                } else {
+                    if (!labelList.equals(StringUtil.join(one.getLabelSet(), ","))) {
+                        throw new FlowNodeException(node, "各成员提供的数据集标签列表不一致，无法创建任务。");
+                    }
                 }
             }
         }
