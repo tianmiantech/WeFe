@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class RefreshMemberBlacklistCacheScheduler {
     private final Logger LOG = LoggerFactory.getLogger(RefreshMemberBlacklistCacheScheduler.class);
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/30 * * * * ?")
     public void execute() {
         LOG.info("Start refreshing member blacklist cache....................");
         if (!MemberBlacklistCache.getInstance().refreshCache()) {

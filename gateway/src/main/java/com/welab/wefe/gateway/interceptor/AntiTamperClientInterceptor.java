@@ -17,7 +17,7 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.SignUtil;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberCache;
@@ -109,7 +109,7 @@ public class AntiTamperClientInterceptor implements ClientInterceptor {
 
         try {
             return JObject.create()
-                    .append(GrpcConstant.SIGN_KEY_SIGN, SignUtil.sign(signParamStr, memberEntity.getPrivateKey(), memberEntity.getSecretKeyType()))
+                    .append(GrpcConstant.SIGN_KEY_SIGN, RSAUtil.sign(signParamStr, memberEntity.getPrivateKey(), "UTF-8"))
                     .append(GrpcConstant.SIGN_KEY_DATA, signParamStr).toString();
         } catch (Exception e) {
             LOG.error("Failed to generate signature for message MD5：", e);

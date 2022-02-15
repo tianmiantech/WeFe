@@ -30,10 +30,9 @@ import numpy as np
 from google.protobuf import json_format
 
 from common.python.utils import log_utils
-from kernel.base.params.init_model_param import InitParam
-from kernel.base.sparse_vector import SparseVector
 from kernel.components.lr.lr_model_weight import LRModelWeights as LogisticRegressionWeights
 from kernel.components.lr.one_vs_rest import one_vs_rest_factory
+from kernel.components.lr.param import InitParam
 from kernel.model_base import ModelBase
 from kernel.model_selection import start_cross_validation
 from kernel.optimizer.convergence import converge_func_factory
@@ -81,7 +80,6 @@ class BaseLRModel(ModelBase):
 
         self.validation_strategy = None
         self.is_serving_model = True
-        self.need_call_back_loss = True
 
     def _init_model(self, params):
         self.model_param = params
@@ -188,6 +186,7 @@ class BaseLRModel(ModelBase):
     #     param_protobuf_obj = lr_model_param_pb2.LRModelParam(**rs)
     #     json_result = json_format.MessageToJson(param_protobuf_obj)
     #     print(json_result)
+
     def load_model(self, model_dict):
         LOGGER.debug("Start Loading model")
 
@@ -269,14 +268,6 @@ class BaseLRModel(ModelBase):
             return self.header
         return data_instances.schema.get("header")
 
-    def get_weight_intercept_dict(self, header):
-        weight_dict = {}
-        for idx, header_name in enumerate(header):
-            coef_i = self.model_weights.coef_[idx]
-            weight_dict[header_name] = coef_i
-        intercept_ = self.model_weights.intercept_
-        return weight_dict, intercept_
-
     @property
     def fit_intercept(self):
         return self.init_param_obj.fit_intercept
@@ -338,28 +329,3 @@ class BaseLRModel(ModelBase):
             return
         self.schema = data_instance.schema
         self.header = self.schema.get('header')
-
-    def check_abnormal_values(self, data_instances):
-
-        if data_instances is None:
-            return
-
-        def _check_overflow(data_iter):
-            for _, instant in data_iter:
-                features = instant.features
-                if isinstance(features, SparseVector):
-                    sparse_data = features.get_all_data()
-                    for k, v in sparse_data:
-                        if np.abs(v) > consts.OVERFLOW_THRESHOLD:
-                            return True
-                else:
-                    if np.max(np.abs(features)) > consts.OVERFLOW_THRESHOLD:
-                        return True
-            return False
-
-        check_status = data_instances.applyPartitions(_check_overflow)
-        is_overflow = check_status.reduce(lambda a, b: a or b)
-        if is_overflow:
-            raise OverflowError("The value range of features is too large for GLM, please have "
-                                "a check for input data")
-        LOGGER.info("Check for abnormal value passed")

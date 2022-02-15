@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
@@ -36,7 +36,7 @@ public class BloomFilterDataResourceListOutputModel extends AbstractOutputModel 
     @Check(name = "我方成员ID")
     private String memberId;
 
-    private List<ProjectDataResourceOutputModel> dataSetList;
+    private List<ProjectDataSetOutputModel> dataSetList;
 
     public String getProjectId() {
         return projectId;
@@ -62,11 +62,11 @@ public class BloomFilterDataResourceListOutputModel extends AbstractOutputModel 
         this.memberId = memberId;
     }
 
-    public List<ProjectDataResourceOutputModel> getDataSetList() {
+    public List<ProjectDataSetOutputModel> getDataSetList() {
         return dataSetList;
     }
 
-    public void setDataSetList(List<ProjectDataResourceOutputModel> dataSetList) {
+    public void setDataSetList(List<ProjectDataSetOutputModel> dataSetList) {
         this.dataSetList = dataSetList;
     }
 }

@@ -16,13 +16,8 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
-
-import java.util.List;
-import java.util.TreeSet;
 
 /**
  * @author zane
@@ -39,20 +34,6 @@ public class ImageDataSetOutputModel extends DataResourceOutputModel {
     private boolean labelCompleted;
     @Check(name = "数据集大小")
     private Long filesSize;
-
-    @JSONField(serialize = false)
-    public TreeSet<String> getLabelSet() {
-        TreeSet<String> labelSet = new TreeSet<>();
-        if (StringUtil.isEmpty(labelList)) {
-            return labelSet;
-        }
-
-        List<String> list = StringUtil.splitWithoutEmptyItem(labelList, ",");
-        for (String label : list) {
-            labelSet.add(label);
-        }
-        return labelSet;
-    }
 
     // region getter/setter
 

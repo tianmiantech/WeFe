@@ -27,8 +27,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
-import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
-import org.apache.hadoop.hbase.util.BloomFilter;
 
 import java.io.IOException;
 
@@ -69,10 +67,5 @@ public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorM
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
         }
-    }
-
-    public static void main(String[] args) {
-        BloomFilters bf = new BloomFilters(0.01,1000000);
-        System.out.println(bf.size());
     }
 }
