@@ -93,7 +93,7 @@
                         <p><strong>成员:</strong> {{ item.supplier_name }}</p>
                         <p><strong>URL:</strong> {{ item.base_url }}{{ item.api_name }}</p>
                         <p v-if="item.key_calc_rule"><strong>求交主键:</strong> {{ item.key_calc_rule }}</p>
-                        <p v-if="item.params"><strong>Param:</strong></p>
+                        <p v-if="item.params && item.params.length"><strong>Param:</strong></p>
                         <p
                             v-for="each in item.params"
                             :key="each"
@@ -904,14 +904,15 @@
                     if(type === 4 || type === 5 || type === 6) {
                         $params.service_config = this.service_config.map(x => {
                             return {
-                                id:          x.id,
-                                name:        x.name,
-                                member_id:   x.supplier_id,
-                                member_name: x.supplier_name,
-                                url:         x.base_url + x.api_name,
-                                base_url:	   x.base_url,
-                                api_name:	   x.api_name,
-                                params:      x.params ? x.params.join(',') : '',
+                                id:            x.id,
+                                name:          x.name,
+                                member_id:     x.supplier_id,
+                                member_name:   x.supplier_name,
+                                url:           x.base_url + x.api_name,
+                                base_url:	     x.base_url,
+                                api_name:	     x.api_name,
+                                params:        x.params ? x.params.join(',') : '',
+                                key_calc_rule: x.key_calc_rule,
                             };
                         });
                         $params.operator = operator;
