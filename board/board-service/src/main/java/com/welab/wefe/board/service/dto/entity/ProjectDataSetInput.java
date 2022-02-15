@@ -32,7 +32,7 @@ public class ProjectDataSetInput extends AbstractCheckModel {
     private JobMemberRole memberRole;
 
     @Check(name = "数据集 Id", require = true)
-    private String dataSetId;
+    private String dataResourceId;
 
     @Check(name = "数据集类型", require = true)
     private DataResourceType dataResourceType;
@@ -57,12 +57,12 @@ public class ProjectDataSetInput extends AbstractCheckModel {
         this.memberId = memberId;
     }
 
-    public String getDataSetId() {
-        return dataSetId;
+    public String getDataResourceId() {
+        return dataResourceId;
     }
 
-    public void setDataSetId(String dataSetId) {
-        this.dataSetId = dataSetId;
+    public void setDataResourceId(String dataResourceId) {
+        this.dataResourceId = dataResourceId;
     }
 
     public DataResourceType getDataResourceType() {

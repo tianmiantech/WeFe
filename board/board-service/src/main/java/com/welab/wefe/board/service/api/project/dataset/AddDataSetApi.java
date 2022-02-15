@@ -50,7 +50,7 @@ public class AddDataSetApi extends AbstractNoneOutputApi<AddDataSetApi.Input> {
         private String projectId;
 
         @Check(name = "数据集列表", require = true)
-        private List<ProjectDataSetInput> dataSetList;
+        private List<ProjectDataSetInput> dataResourceList;
 
         // region getter/setter
 
@@ -62,12 +62,12 @@ public class AddDataSetApi extends AbstractNoneOutputApi<AddDataSetApi.Input> {
             this.projectId = projectId;
         }
 
-        public List<ProjectDataSetInput> getDataSetList() {
-            return dataSetList;
+        public List<ProjectDataSetInput> getDataResourceList() {
+            return dataResourceList;
         }
 
-        public void setDataSetList(List<ProjectDataSetInput> dataSetList) {
-            this.dataSetList = dataSetList;
+        public void setDataResourceList(List<ProjectDataSetInput> dataResourceList) {
+            this.dataResourceList = dataResourceList;
         }
 
 

@@ -191,7 +191,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setCreatedBy(input);
                 dataSet.setMemberId(dataSetInput.getMemberId());
                 dataSet.setMemberRole(dataSetInput.getMemberRole());
-                dataSet.setDataSetId(dataSetInput.getDataSetId());
+                dataSet.setDataSetId(dataSetInput.getDataResourceId());
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
@@ -456,11 +456,11 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        if (CollectionUtils.isEmpty(input.getDataSetList())) {
+        if (CollectionUtils.isEmpty(input.getDataResourceList())) {
             throw new StatusCodeWithException("数据集不能为空", StatusCode.ILLEGAL_REQUEST);
         }
 
-        for (ProjectDataSetInput item : input.getDataSetList()) {
+        for (ProjectDataSetInput item : input.getDataResourceList()) {
             // Determine whether the member exists
             ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), item.getMemberId(), item.getMemberRole());
             if (member == null) {
@@ -481,7 +481,7 @@ public class ProjectService extends AbstractService {
             }
 
             // Determine whether the data set exists
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataSetId(), item.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataResourceId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSet.setAuditStatus(auditStatus);
             } else {
