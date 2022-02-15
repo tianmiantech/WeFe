@@ -6,15 +6,9 @@ export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
 
-if [ $SPARK_MODE = "STANDALONE" ]
-then
+if [ $SPARK_MODE = "STANDALONE" ];then
   source ./spark_cluster.sh
-  echo '当前为集群部署'
-else
-  echo '非集群模式'
 fi
-
-
 
 export PWD=$(pwd)
 
@@ -90,6 +84,9 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
+    if [ ${ACCELERATION,,} = "gpu" ];then
+      cp -f ./config.properties wefe_python_gpu_service/resources/mount/
+    fi
 }
 
 init(){

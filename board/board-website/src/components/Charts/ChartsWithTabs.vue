@@ -121,7 +121,8 @@
                 }, 200);
 
                 if (code === 0 && data) {
-                    const { result, component_type } = data;
+                    const $data = Array.isArray(data) ? data[0] : data;
+                    const { result, component_type } = $data;
 
                     this.componentType = component_type;
 
@@ -139,10 +140,10 @@
                             });
                         }
 
-                        if(data.component_type === 'Evaluation' || data.component_type === 'Oot') {
-                            this.renderRoc(data);
+                        if(component_type === 'Evaluation' || component_type === 'Oot') {
+                            this.renderRoc($data);
                         } else {
-                            const { train_loss } = data.result;
+                            const { train_loss } = result;
 
                             this.charts[this.tabName].config.legend = ['loss'];
                             this.charts[this.tabName].config.series = [train_loss.data.map((value, index) => {
@@ -187,8 +188,8 @@
 
                 if (res.length === 1) {
                     // for one chart
-                    if (res[0].code === 0 && res[0].data && res[0].data.result) {
-                        const { result } = res[0].data;
+                    if (res[0].code === 0 && res[0].data) {
+                        const { result } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
 
                         if(tabName === 'roc') {
                             // render roc with ks

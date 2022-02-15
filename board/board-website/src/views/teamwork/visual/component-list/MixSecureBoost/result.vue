@@ -3,7 +3,7 @@
         v-loading="vData.loading"
         class="result"
     >
-        <template v-if="vData.result || vData.commonResultData.task">
+        <template v-if="vData.commonResultData.task">
             <el-collapse
                 v-model="activeName"
                 @change="methods.collapseChanged"
@@ -31,44 +31,23 @@
                         </el-row>
                     </template>
                 </el-collapse-item>
-                <template v-if="vData.result">
-                    <el-collapse-item
-                        title="特征权重"
-                        name="2"
+                <el-collapse-item
+                    v-if="vData.results.length"
+                    title="任务跟踪指标（LOSS）"
+                    name="2"
+                >
+                    <template
+                        v-for="(result, index) in vData.results"
+                        :key="index"
                     >
-                        <el-table
-                            :data="vData.loss.weight"
-                            style="max-width:355px;"
-                            max-height="600px"
-                            stripe
-                            border
-                        >
-                            <el-table-column
-                                prop="number"
-                                label="序号"
-                                width="60"
-                            />
-                            <el-table-column
-                                prop="name"
-                                label="列名"
-                                width="140"
-                            />
-                            <el-table-column
-                                prop="height"
-                                label="权重"
-                            />
-                        </el-table>
-                    </el-collapse-item>
-                    <el-collapse-item
-                        title="任务跟踪指标（LOSS）"
-                        name="3"
-                    >
+                        <p class="mb10"><strong>{{ result.title }} :</strong></p>
                         <LineChart
-                            v-if="vData.loss.show"
-                            :config="vData.loss"
+                            v-if="result.loss.show"
+                            :config="result.loss"
                         />
-                    </el-collapse-item>
-                </template>
+                        <el-divider v-if="index === 0"></el-divider>
+                    </template>
+                </el-collapse-item>
             </el-collapse>
         </template>
 
@@ -98,47 +77,50 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const activeName = ref('1');
 
             let vData = reactive({
-                result:      null,
-                resultTypes: ['vert_secureboost'],
-                loss:        {
-                    show:        false,
-                    loading:     true,
-                    xAxis:       [],
-                    series:      [[]],
-                    iters:       0,
-                    isConverged: null,
-                    weight:      [],
-                },
+                results:             [],
                 pollingOnJobRunning: true,
             });
 
             let methods = {
-                showResult(data) {
-                    if(data.result && data.result.model_param) {
-                        vData.result = true;
-                        const { losses, isConverged, lossHistory, weight } = data.result.model_param;
+                showResult(list) {
+                    vData.results = list.map(data => {
+                        const result = {
+                            title: data.members.map(m => `${m.member_name} (${m.member_role})`).join(' & '),
+                            loss:  {
+                                show:        false,
+                                loading:     true,
+                                xAxis:       [],
+                                series:      [[]],
+                                iters:       0,
+                                isConverged: null,
+                            },
+                        };
 
-                        losses.forEach((item, index) => {
-                            vData.loss.xAxis.push(index);
-                            vData.loss.series[0].push(item);
-                        });
-                        vData.loss.isConverged = isConverged;
-                        vData.loss.lossHistory = lossHistory;
-                        vData.loss.iters = losses.length;
-                        vData.loss.weight = weight || [];
-                        vData.loss.loading = false;
-                    } else {
-                        vData.result = false;
-                    }
+                        if(data.result && data.result.model_param) {
+                            const { losses, isConverged, lossHistory } = data.result.model_param;
+
+                            losses.forEach((item, index) => {
+                                result.loss.xAxis.push(index);
+                                result.loss.series[0].push(item);
+                            });
+                            result.loss.isConverged = isConverged;
+                            result.loss.lossHistory = lossHistory;
+                            result.loss.iters = losses.length;
+                            result.loss.loading = false;
+                        }
+
+                        return result;
+                    });
                 },
                 collapseChanged(val) {
-                    if(val.includes('3')){
-                        vData.loss.show = true;
+                    if(val.includes('2')){
+                        vData.results.forEach(result => {
+                            result.loss.show = true;
+                        });
                     }
                 },
             };

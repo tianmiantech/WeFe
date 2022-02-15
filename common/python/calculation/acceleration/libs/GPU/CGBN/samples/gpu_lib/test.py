@@ -47,7 +47,7 @@ def binary_array_to_pyint(value):
 
 P = 689843881293174137
 Q = 119723423039056370
-M = 149072998358992680
+M = 1490729983589926801
 
 
 def generate_big_number():

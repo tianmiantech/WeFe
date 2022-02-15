@@ -25,18 +25,18 @@ def _hash(value):
     return hashlib.sha256(bytes(str(value), encoding='utf-8')).hexdigest()
 
 
-def _generate_batch_data_iter(data_instance, r, p, is_hash):
+def _generate_batch_data_iter(data_instance, r, p, is_hash, bits):
     batch_data = []
     index = 0
     for k, v in data_instance.collect():
         batch_data.append(k)
         index += 1
         if index == BATCH_SIZE:
-            yield batch_data, r, p, is_hash
+            yield batch_data, r, p, is_hash, bits
             index = 0
             batch_data = []
     if index > 0:
-        yield batch_data, r, p, is_hash
+        yield batch_data, r, p, is_hash, bits
 
 
 def _each_batch_encrypt(data_tuple):
@@ -45,27 +45,29 @@ def _each_batch_encrypt(data_tuple):
     r = data_tuple[1]
     p = data_tuple[2]
     is_hash = data_tuple[3]
+    bits = data_tuple[4]
 
     if is_hash:
         cal_data = [(int(_hash(k), 16), r, p) for k in data]
     else:
         cal_data = [(k, r, p) for k in data]
 
-    gpu_result = aclr_client.powm_base(cal_data)
+    gpu_result = aclr_client.powm_base(cal_data, bits)
     return [(gpu_result[i], data[i]) for i in range(len(cal_data))]
 
 
-def _dh_encrypt_id(data_instance, r, p, is_hash):
+def _dh_encrypt_id(data_instance, r, p, is_hash, bits):
     import multiprocessing
     process_count = multiprocessing.cpu_count()
     with multiprocessing.Pool(processes=process_count) as pool:
-        result_iter = pool.imap_unordered(_each_batch_encrypt, _generate_batch_data_iter(data_instance, r, p, is_hash))
+        result_iter = pool.imap_unordered(_each_batch_encrypt,
+                                          _generate_batch_data_iter(data_instance, r, p, is_hash, bits))
         for item_result in result_iter:
             for item in item_result:
                 yield item
 
 
-def dh_encrypt_id(data_instance, r, p, is_hash):
-    return session.parallelize(data=_dh_encrypt_id(data_instance, r, p, is_hash),
+def dh_encrypt_id(data_instance, r, p, is_hash, bits):
+    return session.parallelize(data=_dh_encrypt_id(data_instance, r, p, is_hash, bits),
                                include_key=True,
                                partition=data_instance.get_partitions())

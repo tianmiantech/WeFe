@@ -55,21 +55,22 @@ class MixStatisticProvider(MixStatisticBase):
                 LOGGER.info(
                     f'magnitude_name={magnitude_name}, merge_result={merge_result}')
 
-                max_magnitudes = []
-                for local_statistic_result in all_data_instance_statistics:
-                    max_magnitudes.append(
-                        self.transform_result(local_statistic_result.get('max'), self.col_names))
-                max_result = np.asarray(max_magnitudes).max(axis=0)
-                merge_magnitude_result['max'] = max_result.tolist()
-                LOGGER.info(f'max_result, merge_result={max_result}')
+            max_magnitudes = []
+            for local_statistic_result in all_data_instance_statistics:
+                max_magnitudes.append(
+                    self.transform_result(local_statistic_result.get('max'), self.col_names))
+            max_result = np.asarray(max_magnitudes).max(axis=0)
+            merge_magnitude_result['max'] = max_result.tolist()
+            LOGGER.info(f'max_result, merge_result={max_result}')
 
-                min_magnitudes = []
-                for local_statistic_result in all_data_instance_statistics:
-                    min_magnitudes.append(
-                        self.transform_result(local_statistic_result.get('min'), self.col_names))
-                min_result = np.asarray(min_magnitudes).min(axis=0)
-                merge_magnitude_result['min'] = min_result.tolist()
-                LOGGER.info(f'max_result, merge_result={min_result}')
+            min_magnitudes = []
+            for local_statistic_result in all_data_instance_statistics:
+                min_magnitudes.append(
+                    self.transform_result(local_statistic_result.get('min'), self.col_names))
+            min_result = np.asarray(min_magnitudes).min(axis=0)
+            merge_magnitude_result['min'] = min_result.tolist()
+            LOGGER.info(f'min_result, merge_result={min_result}')
+
             for provider_inner_id in self.provider_other_inner_id:
                 suffix = (self.provider_inner_id, provider_inner_id)
                 self.transfer_variable.provider_merge_statistic_magnitude.remote(merge_magnitude_result, suffix=suffix,

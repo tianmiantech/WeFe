@@ -20,6 +20,8 @@
             </el-select>
             <el-button
                 size="mini"
+                class="ml10"
+                style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog"
             >
@@ -148,7 +150,7 @@
                     nextTick(_ => {
                         vData.loading = false;
                         if (code === 0) {
-                            if(data.params) {
+                            if(data.params && data.params.members) {
                                 const { method, members } = data.params;
 
                                 vData.columnListType = method;

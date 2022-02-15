@@ -64,7 +64,7 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ derived.typeObj[scope.row.source_type] }}
+                    {{ scope.row.source_type_cn }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -92,9 +92,9 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    特征：{{ scope.row.feature_count }}
+                    特征量：{{ scope.row.feature_count }}
                     <br>
-                    行数：{{ scope.row.row_count }}
+                    样本量：{{ scope.row.row_count }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -103,6 +103,14 @@
             >
                 <template v-slot="scope">
                     {{ scope.row.usage_count_in_job }}
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="创建时间"
+                min-width="140"
+            >
+                <template v-slot="scope">
+                    {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column label="查看任务">
@@ -158,15 +166,18 @@
                         label: '特征筛选',
                         value: 'FeatureSelection',
                     }, {
+                        label: '特征标准化',
+                        value: 'FeatureStandardized',
+                    }, {
+                        label: '分箱并编码',
+                        value: 'HorzFeatureBinning',
+                    }, {
                         label: '缺失值填充',
                         value: 'FillMissingValue',
+                    }, {
+                        label: '混合分箱',
+                        value: 'MixBinning',
                     }],
-                    typeObj: {
-                        Intersection:     '样本对齐',
-                        FeatureSelection: '特征筛选',
-                        Binning:          '分箱',
-                        FillMissingValue: '缺失值填充',
-                    },
                     list:       [],
                     total:      0,
                     page_index: 1,

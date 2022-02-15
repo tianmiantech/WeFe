@@ -183,7 +183,6 @@
              -->
             <el-button
                 v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
-                plain
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
@@ -229,9 +228,9 @@
 
                 <el-table-column label="数据量">
                     <template v-slot="scope">
-                        特征：{{ scope.row.feature_count }}
+                        特征量：{{ scope.row.feature_count }}
                         <br>
-                        行数：{{ scope.row.row_count }}
+                        样本量：{{ scope.row.row_count }}
                     </template>
                 </el-table-column>
 
@@ -265,7 +264,9 @@
                                 content="被拒绝的数据集需要移除后再进行添加！"
                                 placement="top"
                             >
-                                <i class="el-icon-info"></i>
+                                <el-icon>
+                                    <elicon-info-filled />
+                                </el-icon>
                             </el-tooltip>
                         </template>
                     </template>
@@ -311,7 +312,9 @@
                                 class="dataset-preview"
                                 @click="methods.showDataSetPreview(scope.row)"
                             >
-                                <i class="el-icon-view" />
+                                <el-icon>
+                                    <elicon-view />
+                                </el-icon>
                             </el-button>
                         </el-tooltip>
                         <!--
@@ -323,7 +326,7 @@
                             circle
                             type="danger"
                             class="mr10"
-                            icon="el-icon-delete"
+                            icon="elicon-delete"
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
                         <template v-if="scope.row.deleted">
@@ -479,7 +482,14 @@
                     }
                     // vData.cooperAuthDialog.show = true;
                     vData.cooperAuthDialog.flag = flag;
-                    methods.cooperAuthConfirm();
+
+                    $confirm(`确定${ flag ? '同意' : '拒绝' }协作方参与合作吗'`, '提示', {
+                        type: 'warning',
+                    }).then(action => {
+                        if(action === 'confirm') {
+                            methods.cooperAuthConfirm();
+                        }
+                    });
                 },
 
                 async cooperAuthConfirm() {
@@ -518,7 +528,7 @@
                             return $message.error('请先等待他人同意授权加入合作!');
                         }
                     }
-                    const result = flag ? $prompt('确定同意协作方使用数据集进行流程训练吗', '提示', {
+                    const result = flag ? $confirm('确定同意协作方使用数据集进行流程训练吗', '提示', {
                         type:        'warning',
                         customClass: 'audit_dialog',
                     }) : $prompt('拒绝协作方在此项目中使用此数据集:\n 原因:', '提示', {
@@ -530,7 +540,7 @@
                     });
 
                     result.then(async ({ action, value }) => {
-                        if(action === 'confirm') {
+                        if(flag || action === 'confirm') {
                             const { code } = await $http.post({
                                 url:  '/project/data_set/audit',
                                 data: {

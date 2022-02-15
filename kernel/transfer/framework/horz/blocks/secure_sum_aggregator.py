@@ -28,11 +28,14 @@
 
 import functools
 
+import numpy as np
+
 from common.python.utils import log_utils
 from kernel.transfer.framework.horz.blocks import secure_aggregator
 from kernel.transfer.framework.horz.blocks.aggregator import AggregatorTransVar
 from kernel.transfer.framework.horz.blocks.random_padding_cipher import RandomPaddingCipherTransVar
 from kernel.transfer.framework.horz.blocks.secure_aggregator import SecureAggregatorTransVar
+from kernel.transfer.framework.weights import Weights
 from kernel.utils import consts
 
 LOGGER = log_utils.get_logger()
@@ -88,14 +91,20 @@ def model_add(model, other):
 
 @functools.singledispatch
 def model_max(model, other):
-    import numpy as np
-    return np.maximum(np.array(model.unboxed), np.array(other.unboxed))
+    if isinstance(model, Weights):
+        model = model.unboxed
+    if isinstance(other, Weights):
+        other = other.unboxed
+    return np.maximum(np.array(model), np.array(other))
 
 
 @functools.singledispatch
 def model_min(model, other):
-    import numpy as np
-    return np.minimum(np.array(model.unboxed), np.array(other.unboxed))
+    if isinstance(model, Weights):
+        model = model.unboxed
+    if isinstance(other, Weights):
+        other = other.unboxed
+    return np.minimum(np.array(model), np.array(other))
 
 
 @functools.singledispatch

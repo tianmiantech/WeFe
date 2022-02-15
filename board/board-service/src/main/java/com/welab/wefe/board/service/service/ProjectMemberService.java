@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.project.member.AddApi;
 import com.welab.wefe.board.service.api.project.member.ListApi;
 import com.welab.wefe.board.service.database.entity.job.*;
+import com.welab.wefe.board.service.database.repository.ProjectMemberAuditRepository;
 import com.welab.wefe.board.service.database.repository.ProjectMemberRepository;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
 import com.welab.wefe.common.StatusCode;
@@ -66,6 +67,8 @@ public class ProjectMemberService {
     private JobService jobService;
     @Autowired
     private JobMemberService jobMemberService;
+    @Autowired
+    private ProjectMemberAuditRepository projectMemberAuditRepository;
 
     /**
      * Add members to an existing project
@@ -97,11 +100,15 @@ public class ProjectMemberService {
             } else if (role.equals(JobMemberRole.promoter)) {
                 addPromoterMember(input, item);
             }
+            // 由于该成员可能是之前审核不过然后重新添加的，所以需要将这个成员的历史审核记录都清除掉。
+            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), item.getMemberId());
         }
         members = findListByProjectId(input.getProjectId());
         if (!checkMembers(members)) {
             throw new StatusCodeWithException("改变项目类型时不允许有重复成员存在。", StatusCode.PARAMETER_VALUE_INVALID);
         }
+
+
         /**
          * Notify other members that there are new members waiting to join
          */

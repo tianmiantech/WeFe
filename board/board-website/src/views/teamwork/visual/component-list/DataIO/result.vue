@@ -55,7 +55,6 @@
         props: {
             ...mixin.props,
         },
-        emits: [...mixin.emits],
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;

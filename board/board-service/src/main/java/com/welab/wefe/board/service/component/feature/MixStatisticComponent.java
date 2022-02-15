@@ -43,7 +43,7 @@ import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
 
 /**
- * @author zane.luo
+ * @author Winter
  */
 @Service
 public class MixStatisticComponent extends AbstractComponent<MixStatisticComponent.Params> {

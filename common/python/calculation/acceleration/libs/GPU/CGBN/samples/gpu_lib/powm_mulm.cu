@@ -26,6 +26,8 @@ IN THE SOFTWARE.
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
+#include <chrono>
 #include <cuda.h>
 #include <gmp.h>
 #include <cuda_runtime.h>
@@ -427,10 +429,18 @@ public:
   //   return instances;
   // }
 
+    __host__ static std::time_t getTimeStamp()
+    {
+        std::chrono::time_point<std::chrono::system_clock,std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());//获取当前时间点
+        std::time_t timestamp =  tp.time_since_epoch().count(); //计算距离1970-1-1,00:00的时间长度
+        return timestamp;
+    }
+
+
   __host__ static instance_t *to_instances(std::vector<tuple<py::bytes, py::bytes, py::bytes>> arrs, uint32_t bits, uint32_t instance_count)
   {
     instance_t *instances = (instance_t *)malloc(sizeof(instance_t) * instance_count);
-
+    // cout << "copy start currentTime =  " << getTimeStamp() << endl;
     for (int index = 0; index < instance_count; index++)
     {
       char *x, *p, *modulus;
@@ -443,8 +453,8 @@ public:
       memcpy(&(instances[index].x._limbs), x, len);
       memcpy(&(instances[index].power._limbs), p, len);
       memcpy(&(instances[index].modulus._limbs), modulus, len);
-
     }
+    // cout << "copy end currentTime =  " << getTimeStamp() << endl;
     return instances;
   }
 
@@ -457,9 +467,9 @@ public:
       char *x, *p, *modulus;
 
       Py_ssize_t len;
-      PyBytes_AsStringAndSize(arrs[index], &x, &len);
-      PyBytes_AsStringAndSize(p_byte, &p, &len);
-      PyBytes_AsStringAndSize(m_byte, &modulus, &len);
+      PyBytes_AsStringAndSize(arrs[index].ptr(), &x, &len);
+      PyBytes_AsStringAndSize(p_byte.ptr(), &p, &len);
+      PyBytes_AsStringAndSize(m_byte.ptr(), &modulus, &len);
 
       memcpy(&(instances[index].x._limbs), x, len);
       memcpy(&(instances[index].power._limbs), p, len);
@@ -581,8 +591,11 @@ std::vector<py::bytes> powm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
 
 //   printf("Copying instances to the GPU ...\n");
   CUDA_CHECK(cudaSetDevice(0));
+
+  // cout << "copy to gpu start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
   CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t) * instance_count));
   CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t) * instance_count, cudaMemcpyHostToDevice));
+  // cout << "copy to gpu end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
 
   // create a cgbn_error_report for CGBN to report back errors
   CUDA_CHECK(cgbn_error_report_alloc(&report));
@@ -598,7 +611,9 @@ std::vector<py::bytes> powm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
 
   // copy the instances back from gpuMemory
 //   printf("Copying results back to CPU ...\n");
+    // cout << "back to host start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
   CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t) * instance_count, cudaMemcpyDeviceToHost));
+    // cout << "back to host end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
 
   // printf("Verifying the results ...\n");
   // powm_odd_t<params>::verify_results(instances, instance_count);
@@ -783,6 +798,8 @@ PYBIND11_MODULE(gpu_lib, m) {
     m.def("mulm_2048", &mulm<8, 2048, 5>, py::return_value_policy::reference);
     m.def("mulm_1024", &mulm<8, 1024, 5>, py::return_value_policy::reference);
 
+    m.def("powm_1024", &powm<8, 1024, 5>, py::return_value_policy::reference);
     m.def("powm_2048", &powm<8, 2048, 5>, py::return_value_policy::reference);
+    m.def("powm_1024_2", &powm_2<8, 1024, 5>, py::return_value_policy::reference);
     m.def("powm_2048_2", &powm_2<8, 2048, 5>, py::return_value_policy::reference);
 }

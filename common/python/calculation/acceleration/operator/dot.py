@@ -14,6 +14,7 @@
 import datetime
 
 import math
+
 import numpy as np
 import multiprocessing
 from scipy.sparse import csr_matrix
@@ -25,9 +26,10 @@ from kernel.base.instance import Instance
 from kernel.security.paillier import PaillierEncryptedNumber
 
 BATCH_SIZE = 20000
+MIN_ADD_BATCH_SIZE = 1000
 
 
-def table_dot(it):
+def table_dot(it, bits):
     """
     table dot
 
@@ -65,7 +67,7 @@ def table_dot(it):
             batch_y.append(y)
             current_batch_count = current_batch_count + len(x) * len(y)
             if current_batch_count >= BATCH_SIZE:
-                batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y)
+                batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y, bits)
 
                 for item_batch in batch_result:
                     if ret is None:
@@ -76,7 +78,7 @@ def table_dot(it):
                 batch_x, batch_y, current_batch_count = [], [], 0
 
     if batch_x:
-        batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y)
+        batch_result = _gpu_tensordot_with_paillier_4batch(batch_x, batch_y, bits)
 
         for item_batch in batch_result:
             if ret is None:
@@ -87,7 +89,7 @@ def table_dot(it):
     return ret
 
 
-def dot(value, w):
+def dot(value, w, bits):
     """
 
     dot
@@ -98,9 +100,11 @@ def dot(value, w):
     ----------
     value
     w
+    bits: 1024 or 2048
 
     Returns
     -------
+
 
     """
     if isinstance(value, Instance):
@@ -125,13 +129,14 @@ def dot(value, w):
         else:
             # GPU acceleration is used here, w is ciphertext, X is plaintext
             process_count = multiprocessing.cpu_count()
+            process_count = int(process_count / 2) or 1
             pool = multiprocessing.Pool(processes=process_count)
             each_size = math.ceil(len(X) / process_count)
             process_list = []
             for i in range(process_count):
                 x = X[i * each_size:(i + 1) * each_size]
                 if len(x) > 0:
-                    process_list.append(pool.apply_async(_gpu_dot_4_batch, args=(x, w)))
+                    process_list.append(pool.apply_async(_gpu_dot_4_batch, args=(x, w, bits)))
             pool.close()
             pool.join()
 
@@ -146,25 +151,26 @@ def dot(value, w):
 
     return res
 
-def _gpu_dot_4_batch(X, w):
+
+def _gpu_dot_4_batch(X, w, bits):
     res = []
     batch_w = []
     batch_x = []
 
     # Record the length of each x,
     # in order to restore the calculation result of the corresponding number according to the length
-    x_length_to_restore = []
+    x_shape_to_restore = []
     batch_result = []
     result_array = []
 
     for x in X:
-        x_length_to_restore.append(len(x))
+        x_shape_to_restore.append(len(x))
         for j in range(len(x)):
             batch_w.append(w[j])
             batch_x.append(x[j])
             if len(batch_w) >= BATCH_SIZE:
                 # submit to gpu calc
-                batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
+                batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
                 batch_w = []
                 batch_x = []
                 # _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
@@ -172,12 +178,14 @@ def _gpu_dot_4_batch(X, w):
 
     # submit residue to gpu
     if len(batch_w) > 0:
-        batch_result.extend(_gpu_powm_batch(batch_w, batch_x))
-    _restore_batch_result_2_array(x_length_to_restore, batch_result, result_array)
+        batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
+    _restore_batch_result_2_array(x_shape_to_restore, batch_result, result_array)
 
-    print(f'start:{datetime.datetime.now()}')
-    _result_array_reduce_add(result_array)
-    print(f'end:{datetime.datetime.now()}')
+    import uuid,os
+    uid =  f'{os.getpid()}-{uuid.uuid1()}'
+    print(f'reduce_add start:{datetime.datetime.now()},{uid}')
+    _result_array_reduce_add(result_array, bits)
+    print(f'reduce_add end_1:{datetime.datetime.now()},{uid}')
 
     # Submit the remaining batches that are not enough to use CPU calculation and return the result
     for item_result_array in result_array:
@@ -186,8 +194,10 @@ def _gpu_dot_4_batch(X, w):
             item_result += item
         res.append(item_result)
 
+    print(f'reduce_add end_2:{datetime.datetime.now()},{uid}')
     return res
     # return np.array(res)
+
 
 def _restore_batch_result_2_array(x_length_to_restore: list, batch_result: list, result_array: list):
     """
@@ -255,7 +265,47 @@ def _dot_list_to_restore(x_length_to_restore: list, res: list, batch_result: lis
             break
 
 
-def _result_array_reduce_add(result_array: list):
+def _to_align_exponent(to_align_exponent_list, bits):
+    param_4_gpu = [] # to call powm
+    param_4_local = [] #(PaillierEncryptNumber, exponent, is_left)
+
+    to_restore_index = []
+
+    for i in range(len(to_align_exponent_list)):
+        item_pair = to_align_exponent_list[i]
+        left = item_pair[0]
+        right = item_pair[1]
+
+        if left.exponent < right.exponent:
+            param = left.gpu_increase_exponent_before(right.exponent)
+            param_4_gpu.append(param[0])
+            param_4_local.append((left,param[1], True))
+            to_restore_index.append(i)
+        elif left.exponent > right.exponent:
+            param = right.gpu_increase_exponent_before(left.exponent)
+            param_4_gpu.append(param[0])
+            param_4_local.append((right, param[1],False))
+            to_restore_index.append(i)
+
+    aclr_client = RuntimeInstance.get_alcr_ins()
+    result = aclr_client.powm(param_4_gpu, param_4_local, bits,
+                     lambda item_local, ciphertext: item_local[0].gpu_increase_exponent_after(ciphertext,
+                                                                                              item_local[1],
+                                                                                              False))
+    for i in range(len(to_restore_index)):
+        is_left  = param_4_local[i][2]
+        src_list_index = to_restore_index[i]
+        item_pair = to_align_exponent_list[src_list_index]
+        if is_left:
+            item_pair = (result[i], item_pair[1])
+        else:
+            item_pair = (item_pair[0], result[i])
+        to_align_exponent_list[src_list_index] = item_pair
+
+    return to_align_exponent_list
+
+
+def _result_array_reduce_add(result_array: list, bits):
     """
     PaillierEncryptedNumber result add
 
@@ -276,7 +326,7 @@ def _result_array_reduce_add(result_array: list):
             vaild_pair_cnt += len(item_array) // 2
 
         # Determine whether the conditions for batch submission are met
-        if vaild_pair_cnt >= BATCH_SIZE:
+        if vaild_pair_cnt >= MIN_ADD_BATCH_SIZE:
 
             # Store the Modular multiplication parameters that need to be provided to the gpu operation
             param_4_gpu = []
@@ -288,6 +338,8 @@ def _result_array_reduce_add(result_array: list):
             to_restore_size = []
             current_batch_size = 0
 
+            to_align_exponent_list = []
+
             for item_array in result_array:
                 item_array_length = len(item_array)
                 item_submit_count = 0
@@ -297,9 +349,11 @@ def _result_array_reduce_add(result_array: list):
                 for i in range(0, item_array_length, 2):
                     if i == item_array_length - 1:
                         break
-                    param = item_array[i].gpu_add_before(item_array[i + 1])
-                    param_4_gpu.append(param[0])
-                    param_4_local.append((item_array[i], param[1]))
+
+                    to_align_exponent_list.append((item_array[i], item_array[i + 1]))
+                    # param = item_array[i].gpu_add_before(item_array[i + 1])
+                    # param_4_gpu.append(param[0])
+                    # param_4_local.append((item_array[i], param[1]))
                     item_submit_count += 1
                     current_batch_size += 1
                     if current_batch_size == BATCH_SIZE:
@@ -307,8 +361,15 @@ def _result_array_reduce_add(result_array: list):
 
                 to_restore_size.append(item_submit_count)
 
+            # first align exponent
+            _to_align_exponent(to_align_exponent_list, bits)
+            for item in to_align_exponent_list:
+                param = item[0].gpu_add_before(item[1])
+                param_4_gpu.append(param[0])
+                param_4_local.append((item[0], param[1]))
+
             aclr_client = RuntimeInstance.get_alcr_ins()
-            gpu_result = aclr_client.mulm(param_4_gpu, param_4_local)
+            gpu_result = aclr_client.mulm(param_4_gpu, param_4_local, bits)
 
             for idx in range(len(to_restore_size)):
                 each_pair_size = to_restore_size[idx]
@@ -342,7 +403,7 @@ def _one_dimension_dot(X, w):
     return res
 
 
-def _gpu_powm_batch(w_batch: list, x_batch: list):
+def _gpu_powm_batch(w_batch: list, x_batch: list, bits):
     """
     Do batch modular exponentiation operations on wx
 
@@ -366,12 +427,12 @@ def _gpu_powm_batch(w_batch: list, x_batch: list):
             param_4_local.append((w_batch[i], param[1]))
 
         aclr_client = RuntimeInstance.get_alcr_ins()
-        return aclr_client.powm(param_4_gpu, param_4_local)
+        return aclr_client.powm(param_4_gpu, param_4_local, bits)
     else:
         raise NotSupportTypeError(w=first_w)
 
 
-def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list):
+def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list, bits):
     """
     Batch submission of homomorphic multiplication operations
 
@@ -415,7 +476,7 @@ def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list):
 
         # Submit to GPU calculation
         if len(batch_param_4_gpu) > 0:
-            result.extend(aclr_client.powm(batch_param_4_gpu, batch_param_4_local))
+            result.extend(aclr_client.powm(batch_param_4_gpu, batch_param_4_local, bits))
 
             while len(batch_data_shape) > 0:
                 item_shape = batch_data_shape[0]
@@ -432,12 +493,5 @@ def _gpu_tensordot_with_paillier_4batch(x_batch: list, y_batch: list):
             yield np.tensordot(x_batch[i], y_batch[i], [[], []])
 
 
-def test_range():
-    a = [1, 2, 3, 4, 5, 6, 7]
-    for i in range(0, len(a), 2):
-        print(i)
-        # print(a[i])
-
-
 if __name__ == '__main__':
-    test_range()
+    pass

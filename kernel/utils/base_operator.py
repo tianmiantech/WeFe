@@ -96,31 +96,27 @@ def dot(value, w):
         return result
 
 
-def test_dot():
-    # value = [[1, 2, 3], [4, 5, 6]]
-    # w = [1, 2, 3]
-    # public_key, private_key = PaillierKeypair.generate_keypair(n_length=1024)
-    # w = [public_key.encrypt(1), public_key.encrypt(2), public_key.encrypt(3)]
-    # result = dot(value, w)
-    # print(private_key.decrypt(result[0]), private_key.decrypt(result[1]))
-
-    # cpu：129 gpu:63
-    x_length = 100000
-    value = []
-    for i in range(30):
-        value.append([j for j in range(x_length)])
+def dot_test():
+    from kernel.security.paillier import PaillierKeypair
     public_key, private_key = PaillierKeypair.generate_keypair(n_length=1024)
-    encrypt_test = public_key.encrypt(1)
-    w = [encrypt_test for i in range(x_length)]
+    feature_count = 20
+    row_count = 50000
+    value = np.random.random_sample((feature_count, row_count))
+    w = np.random.uniform(-1, 1, row_count)
+    w = list(map(lambda x: public_key.encrypt(x), w))
 
     start = time.time()
-    result = dot(value, w)
-    print(len(result))
-    print(f"consume:{time.time() - start}")
+    result = gpu_dot(value, w)
+    print(f'gpu dot:{time.time()-start}')
 
+    start=time.time()
+    # result = cpu_dot(value, w)
+    print(f'cpu dot:{time.time()-start}')
+
+    # print(result)
 
 if __name__ == '__main__':
-    test_dot()
+    dot_test()
     # value = [[1, 2, 3], [4, 5, 6]]
     # w = [1, 2, 3]
     # print(dot(value, w))

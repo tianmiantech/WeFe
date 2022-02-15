@@ -73,51 +73,36 @@
             type="border-card"
             @tab-click="tabChange"
         >
-            <template
-                v-for="tab in vData.unionTabs"
-                :key="tab.name"
-            >
-                <el-tab-pane
-                    v-if="tab.name === 'uploadUnions'"
-                    :name="tab.name"
-                    :label="tab.label"
-                >
-                    <template #label>
-                        <el-badge
-                            :max="99"
-                            :value="tab.count"
-                            :hidden="tab.count < 1"
-                            type="danger"
-                        >
-                            {{ tab.label }}
-                        </el-badge>
-                    </template>
-                    <UploadingList
-                        ref="uploadUnions"
-                        key="uploadUnions"
-                        :table-loading="vData.loading"
-                        :search-field="vData.search"
-                        :upload-list="vData.uploadList"
-                    />
-                </el-tab-pane>
-                <el-tab-pane
-                    v-else
-                    :name="tab.name"
-                    :label="tab.label"
-                >
-                    <template #label>
-                        <el-badge v-if="tab.label">
-                            {{ tab.label }}
-                        </el-badge>
-                    </template>
-                    <List
-                        ref="allUnions"
-                        key="allUnions"
-                        :table-loading="vData.loading"
-                        :search-field="vData.search"
-                    />
-                </el-tab-pane>
-            </template>
+            <el-tab-pane name="allUnions">
+                <template #label>
+                    <el-badge>全部数据集</el-badge>
+                </template>
+                <AllDataList
+                    ref="allUnions"
+                    key="allUnions"
+                    :table-loading="vData.loading"
+                    :search-field="vData.search"
+                />
+            </el-tab-pane>
+            <el-tab-pane name="uploadUnions">
+                <template #label>
+                    <el-badge
+                        :max="99"
+                        :value="vData.unionTabsCount"
+                        :hidden="vData.unionTabsCount < 1"
+                        type="danger"
+                    >
+                        上传中的数据集
+                    </el-badge>
+                </template>
+                <UploadingList
+                    ref="uploadUnions"
+                    key="uploadUnions"
+                    :table-loading="vData.loading"
+                    :search-field="vData.search"
+                    :upload-list="vData.uploadList"
+                />
+            </el-tab-pane>
         </el-tabs>
     </el-card>
 </template>
@@ -132,12 +117,12 @@
         getCurrentInstance,
     } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import List from './components/list';
     import UploadingList from './components/uploading-list';
+    import AllDataList from './components/all-data-list';
 
     export default {
         components: {
-            List,
+            AllDataList,
             UploadingList,
         },
         setup() {
@@ -163,20 +148,9 @@
                     visible: false,
                     list:    [],
                 },
-                activeTab: 'allUnions',
-                unionTabs: [
-                    {
-                        name:  'allUnions',
-                        label: '全部数据集',
-                        count: 0,
-                    },
-                    {
-                        name:  'uploadUnions',
-                        label: '上传中的数据集',
-                        count: 0,
-                    },
-                ],
-                uploadList: [], // uploading list
+                activeTab:      'allUnions',
+                unionTabsCount: 0,
+                uploadList:     [], // uploading list
             });
             const methods = {
                 async getUploadList() {
@@ -194,7 +168,7 @@
                         if (code === 0) {
                             const $data = vData;
 
-                            $data.unionTabs[1].count = data.total;
+                            $data.unionTabsCount = data.total;
                             $data.uploadList = data.list;
                             $ref.pagination.total = data.total;
                             $ref.loading = false;
@@ -303,7 +277,7 @@
             const searchList = (opt = {}) => {
                 const refInstance = vData.activeTab === 'uploadUnions' ? uploadUnions : allUnions;
 
-                refInstance.value.getDataList(opt);
+                refInstance && refInstance.value.getDataList(opt);
             };
 
             onMounted(async () => {

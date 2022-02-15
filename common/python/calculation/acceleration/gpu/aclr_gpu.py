@@ -20,6 +20,7 @@ import gpu_lib
 from common.python.calculation.acceleration.abc.aclr_abc import ACLR_ABC
 from common.python.calculation.acceleration.utils.aclr_utils import to_bytes
 from common.python.common.exception.custom_exception import GPUCalcError
+from common.python.calculation.acceleration.utils.aclr_consts import SupportBits
 from common.python.utils import log_utils
 
 LOGGER = log_utils.get_logger()
@@ -33,7 +34,7 @@ class ACLR_GPU(ACLR_ABC):
     def __init__(self, check_gpu_result=False):
         self.check_gpu_result = check_gpu_result
 
-    def powm(self, batch_param_4_gpu: list, batch_param_4_local: list):
+    def powm(self, batch_param_4_gpu: list, batch_param_4_local: list, bits, after_func=None):
         """
         Large-number modular exponentiation in bulk
 
@@ -52,14 +53,17 @@ class ACLR_GPU(ACLR_ABC):
 
         batch_param = []
         for item in batch_param_4_gpu:
-            batch_param.append((to_bytes(item[0]), to_bytes(item[1]), to_bytes(item[2])))
+            batch_param.append((to_bytes(item[0],bits), to_bytes(item[1],bits), to_bytes(item[2],bits)))
 
         total_result = []
         start = time.time()
 
         if batch_param:
-            gpu_result = gpu_lib.powm_2048(batch_param, len(batch_param))
-            LOGGER.debug(f"gpu powm_2048 cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
+            if SupportBits.BITS_1024==bits:
+                gpu_result = gpu_lib.powm_1024(batch_param, len(batch_param))
+            elif SupportBits.BITS_2048==bits:
+                gpu_result = gpu_lib.powm_2048(batch_param, len(batch_param))
+            LOGGER.debug(f"gpu powm_{bits} cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
 
             for i in range(len(gpu_result)):
                 # return paillier instance
@@ -68,13 +72,17 @@ class ACLR_GPU(ACLR_ABC):
                 if self.check_gpu_result:
                     cpu_result = gmpy2.powmod(batch_param_4_gpu[i][0], batch_param_4_gpu[i][1], batch_param_4_gpu[i][2])
                     if cpu_result != biginteger:
-                        raise GPUCalcError(calc='powm_2048', param=batch_param_4_gpu[i],
+                        raise GPUCalcError(calc=f'powm_{bits}', param=batch_param_4_gpu[i],
                                            result=(biginteger, cpu_result))
-                total_result.append(batch_param_4_local[i][0].gpu_mul_after(biginteger, batch_param_4_local[i][1]))
+                if after_func:
+                    total_result.append(after_func(batch_param_4_local[i], biginteger))
+                else:
+                    total_result.append(batch_param_4_local[i][0].gpu_mul_after(biginteger, batch_param_4_local[i][1],
+                                                                                new_instance=True))
 
         return total_result
 
-    def mulm(self, batch_param_4_gpu: list, batch_param_4_local: list):
+    def mulm(self, batch_param_4_gpu: list, batch_param_4_local: list, bits):
         """
         Large-number modular exponentiation in bulk
 
@@ -91,44 +99,52 @@ class ACLR_GPU(ACLR_ABC):
         """
         batch_param = []
         for item in batch_param_4_gpu:
-            batch_param.append((to_bytes(item[0]), to_bytes(item[1]), to_bytes(item[2])))
+            batch_param.append((to_bytes(item[0],bits), to_bytes(item[1],bits), to_bytes(item[2],bits)))
 
         total_result = []
         start = time.time()
 
         if batch_param:
-            gpu_result = gpu_lib.mulm_2048(batch_param, len(batch_param))
-            LOGGER.debug(f"gpu mulm_2048 cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
+            if SupportBits.BITS_1024==bits:
+                gpu_result = gpu_lib.mulm_1024(batch_param, len(batch_param))
+            elif SupportBits.BITS_2048==bits:
+                gpu_result = gpu_lib.mulm_2048(batch_param, len(batch_param))
+
+            LOGGER.debug(f"gpu mulm_{bits} cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
             for i in range(len(gpu_result)):
 
                 biginteger = int.from_bytes(gpu_result[i], "little")
                 if self.check_gpu_result:
                     cpu_result = int(batch_param_4_gpu[i][0] * batch_param_4_gpu[i][1] % batch_param_4_gpu[i][2])
                     if cpu_result != biginteger:
-                        raise GPUCalcError(calc='mulm_2048', param=batch_param_4_gpu[i],
+                        raise GPUCalcError(calc=f'mulm_{bits}', param=batch_param_4_gpu[i],
                                            result=(biginteger, cpu_result))
-                total_result.append(batch_param_4_local[i][0].gpu_add_after(biginteger, batch_param_4_local[i][1]))
+                total_result.append(
+                    batch_param_4_local[i][0].gpu_add_after(biginteger, batch_param_4_local[i][1], new_instance=True))
 
         return total_result
 
-    def powm_base(self, batch_param_4_gpu: list):
+    def powm_base(self, batch_param_4_gpu: list, bits):
         batch_param = []
         for item in batch_param_4_gpu:
-            batch_param.append((to_bytes(item[0]), to_bytes(item[1]), to_bytes(item[2])))
+            batch_param.append((to_bytes(item[0], bits), to_bytes(item[1], bits), to_bytes(item[2], bits)))
 
         total_result = []
         start = time.time()
 
         if batch_param:
-            gpu_result = gpu_lib.powm_2048(batch_param, len(batch_param))
-            LOGGER.debug(f"gpu powm_2048 cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
+            if SupportBits.BITS_1024==bits:
+                gpu_result = gpu_lib.powm_1024(batch_param, len(batch_param))
+            elif SupportBits.BITS_2048==bits:
+                gpu_result = gpu_lib.powm_2048(batch_param, len(batch_param))
+            LOGGER.debug(f"gpu powm_{bits} cal complete,batch_size{len(batch_param)}, time:{time.time() - start}")
             for i in range(len(gpu_result)):
                 biginteger = int.from_bytes(gpu_result[i], "little")
 
                 if self.check_gpu_result:
                     cpu_result = gmpy2.powmod(batch_param_4_gpu[i][0], batch_param_4_gpu[i][1], batch_param_4_gpu[i][2])
                     if cpu_result != biginteger:
-                        raise GPUCalcError(calc='powm_2048', param=batch_param_4_gpu[i],
+                        raise GPUCalcError(calc=f'powm_{bits}', param=batch_param_4_gpu[i],
                                            result=(biginteger, cpu_result))
 
                 total_result.append(biginteger)
