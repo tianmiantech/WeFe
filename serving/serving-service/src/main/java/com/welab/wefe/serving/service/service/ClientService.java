@@ -157,6 +157,11 @@ public class ClientService {
         ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
         return model;
     }
+    
+    public ClientMysqlModel queryByClientName(String name) {
+    	 ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
+         return model;
+    }
 
     public QueryClientApi.Output queryById(String id) {
         ClientMysqlModel model = clientRepository.findOne("id", id, ClientMysqlModel.class);
