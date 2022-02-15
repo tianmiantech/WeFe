@@ -78,9 +78,8 @@
         data() {
             return {
                 search: {
+                    name: '',
                     // id: '',
-                    name:               '',
-                    requestFromRefresh: true,
                 },
                 defaultSearch: true,
                 getListApi:    '/union/member/query',

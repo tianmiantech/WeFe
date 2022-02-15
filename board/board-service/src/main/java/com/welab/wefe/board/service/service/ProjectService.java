@@ -31,7 +31,7 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutput
 import com.welab.wefe.board.service.dto.entity.project.ProjectMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
@@ -191,7 +191,7 @@ public class ProjectService extends AbstractService {
                 dataSet.setCreatedBy(input);
                 dataSet.setMemberId(dataSetInput.getMemberId());
                 dataSet.setMemberRole(dataSetInput.getMemberRole());
-                dataSet.setDataSetId(dataSetInput.getDataSetId());
+                dataSet.setDataSetId(dataSetInput.getDataResourceId());
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
@@ -275,12 +275,12 @@ public class ProjectService extends AbstractService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
+        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
 
 
         // Populate the member's data set list
         allMemberList.forEach(member ->
-                member.setDataSetList(
+                member.setDataResourceList(
                         allDataSetList
                                 .stream()
                                 .filter(dataSet ->
@@ -456,11 +456,11 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        if (CollectionUtils.isEmpty(input.getDataSetList())) {
+        if (CollectionUtils.isEmpty(input.getDataResourceList())) {
             throw new StatusCodeWithException("数据集不能为空", StatusCode.ILLEGAL_REQUEST);
         }
 
-        for (ProjectDataSetInput item : input.getDataSetList()) {
+        for (ProjectDataSetInput item : input.getDataResourceList()) {
             // Determine whether the member exists
             ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), item.getMemberId(), item.getMemberRole());
             if (member == null) {
@@ -481,7 +481,7 @@ public class ProjectService extends AbstractService {
             }
 
             // Determine whether the data set exists
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataSetId(), item.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.getProjectId(), item.getDataResourceId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSet.setAuditStatus(auditStatus);
             } else {
