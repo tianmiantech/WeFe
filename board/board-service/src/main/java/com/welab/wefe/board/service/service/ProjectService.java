@@ -280,7 +280,7 @@ public class ProjectService extends AbstractService {
 
         // Populate the member's data set list
         allMemberList.forEach(member ->
-                member.setDataSetList(
+                member.setDataResourceList(
                         allDataSetList
                                 .stream()
                                 .filter(dataSet ->

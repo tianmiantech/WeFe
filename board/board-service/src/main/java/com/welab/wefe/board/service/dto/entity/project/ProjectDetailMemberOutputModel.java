@@ -24,16 +24,16 @@ import java.util.List;
  * @author zane.luo
  */
 public class ProjectDetailMemberOutputModel extends ProjectMemberOutputModel {
-    private List<ProjectDataResourceOutputModel> dataSetList;
+    private List<ProjectDataResourceOutputModel> dataResourceList;
 
     //region getter/setter
 
-    public List<ProjectDataResourceOutputModel> getDataSetList() {
-        return dataSetList;
+    public List<ProjectDataResourceOutputModel> getDataResourceList() {
+        return dataResourceList;
     }
 
-    public void setDataSetList(List<ProjectDataResourceOutputModel> dataSetList) {
-        this.dataSetList = dataSetList;
+    public void setDataResourceList(List<ProjectDataResourceOutputModel> dataResourceList) {
+        this.dataResourceList = dataResourceList;
     }
 
 

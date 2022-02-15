@@ -244,7 +244,7 @@ public class BloomFilterService extends DataResourceService {
 
         // Populate the member's data set list
         allMemberList.forEach(member ->
-                member.setDataSetList(
+                member.setDataResourceList(
                         allDataSetList
                                 .stream()
                                 .filter(dataSet ->
@@ -277,13 +277,13 @@ public class BloomFilterService extends DataResourceService {
         BloomFilterDataResourceListOutputModel output = ModelMapper.map(project, BloomFilterDataResourceListOutputModel.class);
 
         if (input.getRole().equals("promoter") && input.getMemberId().equals(promoter.getMemberId()) && input.getProjectId().equals(promoter.getProjectId())) {
-            output.setDataSetList(promoter.getDataSetList());
+            output.setDataSetList(promoter.getDataResourceList());
         }
 
         if (input.getRole().equals("provider")){
             for (ProjectDetailMemberOutputModel provider : providers){
                 if (input.getProjectId().equals(provider.getProjectId()) && input.getMemberId().equals(provider.getMemberId())){
-                    output.setDataSetList(provider.getDataSetList());
+                    output.setDataSetList(provider.getDataResourceList());
                 }
             }
         }
