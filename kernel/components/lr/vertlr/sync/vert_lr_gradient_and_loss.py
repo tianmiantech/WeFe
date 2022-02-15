@@ -30,7 +30,6 @@
 # limitations under the License.
 
 
-
 import functools
 import random
 
@@ -140,6 +139,7 @@ def compute_gradient(data_instances, fore_gradient, fit_intercept):
     if check_aclr_support():
         gradient_partition = f(feat_join_grad.collect())
     else:
+        # gradient_partition = feat_join_grad.mapReducePartitions(mapfuc=f, reducefuc=lambda x, y: x + y)
         gradient_partition = feat_join_grad.mapPartitions(f)
         gradient_partition = gradient_partition.reduce(lambda x, y: x + y)
 

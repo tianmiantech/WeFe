@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from common.python.calculation.acceleration.operator import dot as operator_dot
+from common.python.calculation.acceleration.operator import dot as operator_dot
 import logging
 
-from common.python.calculation.acceleration.operator import dot_gpu as operator_dot
+from common.python.calculation.acceleration.operator import dot_gpu as operator_dot_gpu
 from common.python.calculation.acceleration.operator import encrypt
 
 
@@ -51,21 +51,23 @@ def dot(value, w):
     -------
 
     """
-    import time
-    start = time.time()
-    result = operator_dot.DotGPU(value, w)
-    logging.debug(f'耗时：{time.time() - start}')
+    # import time
+    # start = time.time()
+    # result = operator_dot_gpu.DotGPU(value, w)
+    # print(f'耗时：{time.time() - start}')
 
-    return result
+    return operator_dot_gpu.DotGPU(value, w)
 
 
-def dh_encrypt_id(data_instance, r, p, is_hash=False):
+def dh_encrypt_id(data_instance, r, p, is_hash=False, bits=2048):
     """
     encrypt id for dh
     :param data_instance:
     :param r:
     :param p:
     :param is_hash:
+    :param bits:
     :return:
+
     """
-    return encrypt.dh_encrypt_id(data_instance, r, p, is_hash)
+    return encrypt.dh_encrypt_id(data_instance, r, p, is_hash, bits=bits)
