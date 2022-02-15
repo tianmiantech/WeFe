@@ -72,10 +72,10 @@ class Provider(batch_info_sync.Provider):
         self.batch_data_insts = []
         self.batch_nums = None
 
-    def register_batch_generator(self, transfer_variables, has_arbiter=None):
+    def register_batch_generator(self, transfer_variables):
         self._register_batch_data_index_transfer(transfer_variables.batch_info, transfer_variables.batch_data_index)
 
-    def initialize_batch_generator(self, data_instances, suffix=tuple(), **kwargs):
+    def initialize_batch_generator(self, data_instances, suffix=tuple()):
         batch_info = self.sync_batch_info(suffix)
         self.batch_nums = batch_info.get('batch_num')
         for batch_index in range(self.batch_nums):

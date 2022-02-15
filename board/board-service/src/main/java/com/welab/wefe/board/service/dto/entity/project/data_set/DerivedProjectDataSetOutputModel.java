@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author zane.luo
  */
-public class DerivedProjectDataSetOutputModel extends ProjectDataResourceOutputModel {
+public class DerivedProjectDataSetOutputModel extends ProjectDataSetOutputModel {
 
     private List<JobMemberWithDataSetOutputModel> members;
 

@@ -32,7 +32,7 @@ public class RefreshMemberCacheScheduler {
     private final Logger LOG = LoggerFactory.getLogger(RefreshMemberCacheScheduler.class);
 
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/20 * * * * ?")
     public void execute() {
         LOG.info("Start refresh member cache......");
         if (!MemberCache.getInstance().refreshCache()) {

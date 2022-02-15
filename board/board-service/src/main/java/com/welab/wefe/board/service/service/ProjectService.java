@@ -31,7 +31,7 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutput
 import com.welab.wefe.board.service.dto.entity.project.ProjectMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
@@ -275,12 +275,12 @@ public class ProjectService extends AbstractService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
+        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
 
 
         // Populate the member's data set list
         allMemberList.forEach(member ->
-                member.setDataResourceList(
+                member.setDataSetList(
                         allDataSetList
                                 .stream()
                                 .filter(dataSet ->

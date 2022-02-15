@@ -27,7 +27,7 @@ import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSet
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.DerivedProjectDataSetOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.JobMemberWithDataSetOutputModel;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
@@ -85,7 +85,7 @@ public class ProjectDataSetService extends AbstractService {
         List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getDerivedFromJobId(), false), JobMemberWithDataSetOutputModel.class);
 
         DerivedProjectDataSetOutputModel output = ModelMapper.map(projectDataSet, DerivedProjectDataSetOutputModel.class);
-        output.setDataResource(ModelMapper.map(dataSet, TableDataSetOutputModel.class));
+        output.setDataSet(ModelMapper.map(dataSet, TableDataSetOutputModel.class));
         output.setMembers(members);
 
         return output;
@@ -150,7 +150,7 @@ public class ProjectDataSetService extends AbstractService {
                         // Take your own feature list directly
                         TableDataSetOutputModel tableDataSet = null;
                         if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
-                            tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataResource();
+                            tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataSet();
                         }
                         // Others’ feature list should be checked remotely
                         else {
@@ -161,7 +161,7 @@ public class ProjectDataSetService extends AbstractService {
                                         new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
                                         DerivedProjectDataSetOutputModel.class
                                 );
-                                tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataResource();
+                                tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataSet();
                             } catch (Exception e) {
                                 super.log(e);
                             }
@@ -185,7 +185,7 @@ public class ProjectDataSetService extends AbstractService {
     @Autowired
     private JobMemberService jobMemberService;
 
-    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
         return listRawDataSet(projectId, dataResourceType, memberId, memberRole, containsY, null);
     }
 
@@ -194,7 +194,7 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
+    public List<ProjectDataSetOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
@@ -208,32 +208,28 @@ public class ProjectDataSetService extends AbstractService {
 
         List<ProjectDataSetMySqlModel> list = projectDataSetRepo.findAll(where);
 
-        List<ProjectDataResourceOutputModel> output = list
+        List<ProjectDataSetOutputModel> output = list
                 .parallelStream()
                 .map(x -> {
 
                     try {
-                        ProjectDataResourceOutputModel projectDataResource = ModelMapper.map(x, ProjectDataResourceOutputModel.class);
-                        DataResourceOutputModel dataResource = null;
+                        ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
+                        DataResourceOutputModel dataSet = null;
                         if (x.getDataResourceType() == DataResourceType.TableDataSet) {
-                            dataResource = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                            dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         } else if (x.getDataResourceType() == DataResourceType.ImageDataSet) {
-                            dataResource = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                            dataSet = imageDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         } else if (x.getDataResourceType() == DataResourceType.BloomFilter) {
-                            dataResource = bloomFilterService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
+                            dataSet = bloomFilterService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
                         }
                         // 如果这里没有拿到数据集信息，说明数据集已经被删除或者不可见。
-                        if (dataResource == null) {
-                            dataResource = new DataResourceOutputModel();
-                            String name = CacheObjects.getMemberId().equals(projectDataResource.getMemberId())
-                                    ? "资源已被删除"
-                                    : "资源已被删除或不可见";
-                            dataResource.setName(name);
-                            dataResource.setId(projectDataResource.getDataSetId());
-                            dataResource.setDeleted(true);
+                        if (dataSet == null) {
+                            dataSet = new DataResourceOutputModel();
+                            dataSet.setId(projectDataSet.getDataSetId());
+                            dataSet.setDeleted(true);
                         }
-                        projectDataResource.setDataResource(dataResource);
-                        return projectDataResource;
+                        projectDataSet.setDataSet(dataSet);
+                        return projectDataSet;
                     } catch (StatusCodeWithException e) {
                         super.log(e);
                         return null;
@@ -241,13 +237,13 @@ public class ProjectDataSetService extends AbstractService {
 
                 })
                 .filter(x -> {
-                    if (containsY != null && (x.getDataResource() instanceof TableDataSetOutputModel)) {
-                        return containsY.equals(((TableDataSetOutputModel) x.getDataResource()).isContainsY());
+                    if (containsY != null && (x.getDataSet() instanceof TableDataSetOutputModel)) {
+                        return containsY.equals(((TableDataSetOutputModel) x.getDataSet()).isContainsY());
                     }
                     return true;
                 }).filter(x -> {
-                    if (forJobType != null && (x.getDataResource() instanceof ImageDataSetOutputModel)) {
-                        return forJobType.equals(((ImageDataSetOutputModel) x.getDataResource()).getForJobType());
+                    if (forJobType != null && (x.getDataSet() instanceof ImageDataSetOutputModel)) {
+                        return forJobType.equals(((ImageDataSetOutputModel) x.getDataSet()).getForJobType());
                     }
                     return true;
                 })
@@ -277,7 +273,7 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataResourceOutputModel> list(String projectId, DataResourceType dataResourceType, String memberId) {
+    public List<ProjectDataSetOutputModel> list(String projectId, DataResourceType dataResourceType, String memberId) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
@@ -288,13 +284,13 @@ public class ProjectDataSetService extends AbstractService {
 
         List<ProjectDataSetMySqlModel> list = projectDataSetRepo.findAll(where);
 
-        List<ProjectDataResourceOutputModel> output = list
+        List<ProjectDataSetOutputModel> output = list
                 .parallelStream()
                 .map(x -> {
-                    ProjectDataResourceOutputModel projectDataSet = ModelMapper.map(x, ProjectDataResourceOutputModel.class);
+                    ProjectDataSetOutputModel projectDataSet = ModelMapper.map(x, ProjectDataSetOutputModel.class);
                     try {
                         TableDataSetOutputModel dataSet = tableDataSetService.findDataSetFromLocalOrUnion(x.getMemberId(), x.getDataSetId());
-                        projectDataSet.setDataResource(dataSet);
+                        projectDataSet.setDataSet(dataSet);
                     } catch (StatusCodeWithException e) {
                         super.log(e);
                     }

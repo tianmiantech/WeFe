@@ -386,9 +386,9 @@ const baseRoutes = [
     {
         path: `${prefixPath}global`,
         meta: {
-            title:         '全局设置',
-            icon:          'setting',
-            globalTooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
+            title:   '全局设置',
+            icon:    'setting',
+            tooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员信息”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -398,7 +398,6 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     title:           '成员设置',
-                    globalTooltip:   '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
                 },
                 component: () => import('../views/system-config/member-view'),
             },

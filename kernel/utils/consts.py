@@ -34,15 +34,11 @@ L1_PENALTY = 'L1'
 L2_PENALTY = 'L2'
 
 FLOAT_ZERO = 1e-8
-OVERFLOW_THRESHOLD = 1e8
 
 PARAM_MAXDEPTH = 5
 MAX_CLASSNUM = 1000
 MIN_BATCH_SIZE = 10
 SPARSE_VECTOR = "SparseVector"
-
-SSHE_LR = "sshe-lr"
-LR = "lr"
 
 VERT = "vert"
 HORZ = "horz"

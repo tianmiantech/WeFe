@@ -16,7 +16,6 @@
 
 package com.welab.wefe.common.data.mongodb.entity.union;
 
-import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractBlockChainBusinessModel;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
@@ -39,7 +38,6 @@ public class Member extends AbstractBlockChainBusinessModel {
     private String gatewayUri;
     private String logo;
     private String lastActivityTime;
-    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
 
     private MemberExtJSON extJson = new MemberExtJSON();
@@ -149,13 +147,5 @@ public class Member extends AbstractBlockChainBusinessModel {
 
     public void setExtJson(MemberExtJSON extJson) {
         this.extJson = extJson;
-    }
-
-    public SecretKeyType getSecretKeyType() {
-        return secretKeyType;
-    }
-
-    public void setSecretKeyType(SecretKeyType secretKeyType) {
-        this.secretKeyType = secretKeyType;
     }
 }

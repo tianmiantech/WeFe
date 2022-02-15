@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
@@ -86,8 +85,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
                 .put("logo", model.getMemberLogo())
-                .put("hidden", model.getMemberHidden())
-                .put("secret_key_type", model.getSecretKeyType().name());
+                .put("hidden", model.getMemberHidden());
 
         request("member/add", params, false);
     }
@@ -137,8 +135,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("public_key", model.getRsaPublicKey())
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
-                .put("hidden", model.getMemberHidden())
-                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa : model.getSecretKeyType().name());
+                .put("hidden", model.getMemberHidden());
 
         request("member/update_exclude_logo", params);
     }

@@ -27,14 +27,7 @@ import java.nio.file.*;
 public class FileUtil {
 
     public static boolean isImage(File file) {
-        if (file.isDirectory()) {
-            return false;
-        }
-        return isImage(file.getName());
-    }
-
-    public static boolean isImage(String filename) {
-        switch (getFileSuffix(filename).toLowerCase()) {
+        switch (getFileSuffix(file).toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "png":
@@ -65,18 +58,14 @@ public class FileUtil {
         }
     }
 
+    /**
+     * get file suffix
+     */
     public static String getFileSuffix(File file) {
         if (file.isDirectory()) {
             return null;
         }
-        return getFileSuffix(file.getName());
-    }
-
-    /**
-     * get file suffix
-     */
-    public static String getFileSuffix(String filename) {
-        return StringUtil.substringAfterLast(filename, ".");
+        return StringUtil.substringAfterLast(file.getName(), ".");
     }
 
     /**

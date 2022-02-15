@@ -67,7 +67,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
 
             LOG.info("登记IP到白名单完成.");
             // Notify the gateway to update the IP whitelist cache
-            // gatewayService.refreshIpWhiteListCache();
+            gatewayService.refreshIpWhiteListCache();
         } catch (Exception e) {
             LOG.error("IP地址登记到白名单异常：", e);
         }

@@ -174,8 +174,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
             task.setRole(graph.getJob().getMyRole());
-            // ImageDataIO 组件不用执行，直接设置为成功。
-            task.setStatus(taskType() == ComponentType.ImageDataIO ? TaskStatus.success : TaskStatus.wait_run);
+            task.setStatus(TaskStatus.wait_run);
             task.setTaskId(node.createTaskId(graph.getJob(), count));
             task.setParentTaskIdList(
                     node.createParentTaskIds(graph.getJob(), getCount(preTasks, node.getDeep() - 1, count)));
@@ -292,8 +291,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         }
 
         task.setRole(graph.getJob().getMyRole());
-        // ImageDataIO 组件不用执行，直接设置为成功。
-        task.setStatus(taskType() == ComponentType.ImageDataIO ? TaskStatus.success : TaskStatus.wait_run);
+        task.setStatus(TaskStatus.wait_run);
         task.setTaskId(node.createTaskId(graph.getJob()));
         task.setParentTaskIdList(node.createParentTaskIds(graph.getJob()));
         task.setProjectId(node.getProjectId());

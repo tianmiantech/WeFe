@@ -30,7 +30,6 @@ public class MemberExtJSON {
     private String auditComment;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
-    private String secretKeyType;
 
 
     public int getRealNameAuthStatus() {
@@ -89,13 +88,5 @@ public class MemberExtJSON {
 
     public void setReporter(String reporter) {
         this.reporter = reporter;
-    }
-
-    public String getSecretKeyType() {
-        return secretKeyType;
-    }
-
-    public void setSecretKeyType(String secretKeyType) {
-        this.secretKeyType = secretKeyType;
     }
 }

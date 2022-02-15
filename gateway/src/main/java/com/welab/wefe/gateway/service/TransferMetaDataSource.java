@@ -37,7 +37,10 @@ import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyClientInterceptor
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
 import com.welab.wefe.gateway.util.GrpcUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
-import io.grpc.*;
+import io.grpc.Channel;
+import io.grpc.ClientInterceptors;
+import io.grpc.ManagedChannel;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -235,9 +238,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         StreamObserver<GatewayMetaProto.TransferMeta> requestStreamObserver = null;
         boolean isCompleted = false;
         try {
-            //originalChannel = GrpcUtil.getManagedChannel(block.getDst().getEndpoint());
-            BasicMetaProto.Endpoint endpoint = block.getDst().getEndpoint();
-            originalChannel =  ManagedChannelBuilder.forTarget(endpoint.getIp() + ":" + endpoint.getPort()).disableRetry().usePlaintext().build();
+            originalChannel = GrpcUtil.getManagedChannel(block.getDst().getEndpoint());
             // Set client interceptor
             Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
             NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
@@ -320,9 +321,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             boolean isCompleted = false;
             try {
                 transferMeta = transferMeta.toBuilder().setTransferStatus(GatewayMetaProto.TransferStatus.COMPLETE).build();
-                //originalChannel = GrpcUtil.getManagedChannel(transferMeta.getDst().getEndpoint());
-                BasicMetaProto.Endpoint endpoint = transferMeta.getDst().getEndpoint();
-                originalChannel =  ManagedChannelBuilder.forTarget(endpoint.getIp() + ":" + endpoint.getPort()).disableRetry().usePlaintext().build();
+                originalChannel = GrpcUtil.getManagedChannel(transferMeta.getDst().getEndpoint());
                 // Set client interceptor
                 Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
                 NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
