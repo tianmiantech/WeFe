@@ -5,7 +5,9 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
-source ./spark_cluster.sh
+if [ $SPARK_MODE = "STANDALONE" ];then
+  source ./spark_cluster.sh
+fi
 
 export PWD=$(pwd)
 
@@ -81,7 +83,9 @@ send_wefe_config(){
     cp -f ./config.properties wefe_board_service/resources/mount/
     cp -f ./config.properties wefe_gateway_service/resources/mount/
     cp -f ./config.properties wefe_python_service/resources/mount/
-    cp -f ./config.properties wefe_python_gpu_service/resources/mount/
+    if [ ${ACCELERATION,,} = "gpu" ];then
+      cp -f ./config.properties wefe_python_gpu_service/resources/mount/
+    fi
 }
 
 init(){

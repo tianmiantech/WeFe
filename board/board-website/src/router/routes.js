@@ -310,17 +310,6 @@ const baseRoutes = [
                 component: () => import('../views/system-config/member-view'),
             },
             {
-                path: `${prefixPath}enterprise-certification`,
-                name: 'enterprise-certification',
-                meta: {
-                    hidden:          true,
-                    loginAndRefresh: true,
-                    active:          `${prefixPath}member-view`,
-                    title:           '企业认证',
-                },
-                component: () => import('../views/system-config/enterprise-certification'),
-            },
-            {
                 path: `${prefixPath}blacklist`,
                 name: 'blacklist',
                 meta: {

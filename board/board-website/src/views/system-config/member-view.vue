@@ -105,54 +105,6 @@
                     >
                         <p class="mb10">名片预览：</p>
                         <MemberCard />
-
-                        <div v-if="enterpriseAuth !== ''" class="mt40">
-                            <el-form-item label="企业认证：">
-                                <p
-                                    v-if="enterpriseAuth === -1"
-                                    class="color-danger"
-                                >
-                                    <el-icon class="mr5">
-                                        <elicon-circle-check />
-                                    </el-icon>
-                                    已拒绝 (原因: {{ audit_comment }})
-                                </p>
-                                <span
-                                    v-if="enterpriseAuth === 0"
-                                    class="el-link el-link--danger"
-                                >
-                                    <el-icon class="mr5">
-                                        <elicon-circle-check />
-                                    </el-icon>
-                                    未认证
-                                </span>
-                                <span
-                                    v-if="enterpriseAuth === 1"
-                                    class="el-link el-link--danger"
-                                >
-                                    <el-icon class="mr5">
-                                        <elicon-circle-check />
-                                    </el-icon>
-                                    审核中
-                                </span>
-                                <span
-                                    v-if="enterpriseAuth === 2"
-                                    class="el-link el-link--success"
-                                >
-                                    <el-icon class="mr5">
-                                        <elicon-circle-check />
-                                    </el-icon>
-                                    已认证
-                                </span>
-                                <router-link
-                                    v-if="userInfo.super_admin_role && enterpriseAuth !== 1"
-                                    :to="{ name: 'enterprise-certification' }"
-                                    class="f12 ml20"
-                                >
-                                    {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
-                                </router-link>
-                            </el-form-item>
-                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -225,15 +177,13 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                enterpriseAuth: '',
-                audit_comment:  '',
+                audit_comment: '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -274,15 +224,6 @@
                 }
 
                 this.loading = false;
-            },
-
-            async getAuthStatus() {
-                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
-
-                if(code === 0) {
-                    this.enterpriseAuth = data.real_name_auth_status;
-                    this.audit_comment = data.audit_comment;
-                }
             },
 
             // upload avatar
