@@ -57,7 +57,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
      * @throws StatusCodeWithException
      * @throws IOException
      */
-    protected abstract ApiResult<Out> handle(In input) throws StatusCodeWithException, IOException;
+    protected abstract ApiResult<Out> handle(In input) throws Exception;
 
     public ApiResult<Out> execute(String method, JSONObject requestParams) {
         return execute(method, requestParams, null, null);

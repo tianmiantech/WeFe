@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,8 @@ package com.welab.wefe.common.util;
 import com.welab.wefe.common.constant.Constant;
 import com.welab.wefe.common.constant.ZipType;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -33,7 +34,7 @@ import java.nio.charset.Charset;
  * @author andy.zhang
  */
 public class Base64Util {
-    private static final Logger LOG = Logger.getLogger(Base64Util.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Base64Util.class);
 
 
     /**
@@ -62,7 +63,7 @@ public class Base64Util {
         try {
             bytes = content.getBytes(charsetName);
         } catch (UnsupportedEncodingException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
 
         if (!StringUtil.isEmpty(zipType)) {

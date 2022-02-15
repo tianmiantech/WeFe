@@ -45,7 +45,8 @@ class HorzOneHotParam(BaseParam):
     def check(self):
         pass
 
-    def __init__(self, transform_col_indexes=-1, transform_col_names=None, need_run=True, need_alignment=True):
+    def __init__(self, transform_col_indexes=-1, transform_col_names=None, need_run=True, need_alignment=True,
+                 save_dataset=True):
         super(HorzOneHotParam, self).__init__()
         if transform_col_names is None:
             transform_col_names = []
@@ -53,3 +54,4 @@ class HorzOneHotParam(BaseParam):
         self.transform_col_names = transform_col_names
         self.need_run = need_run
         self.need_alignment = need_alignment
+        self.save_dataset = save_dataset

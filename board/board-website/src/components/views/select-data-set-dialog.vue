@@ -69,6 +69,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import DataSetList from './data-set-list';
 
     export default {
@@ -107,6 +108,9 @@
                 hideRelateSourceTab: false,
                 isShow:              false,
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         watch: {
             show: {
@@ -148,7 +152,7 @@
                 });
             },
 
-            async loadDataList({
+            loadDataList({
                 memberId,
                 jobRole,
                 resetPagination,
@@ -167,15 +171,8 @@
                     this.memberId = memberId;
                 }
 
-                const { code, data } = await this.$http.get({
-                    url: '/member/detail',
-                });
-
-                if(code === 0) {
-                    this.myMemberId = data.member_id;
-
-                    this.searchList({ resetPagination, $data_set });
-                }
+                this.myMemberId = this.userInfo.member_id;
+                this.searchList({ resetPagination, $data_set });
             },
 
             searchList(opt = {}) {
@@ -202,9 +199,11 @@
                     }
                 }
 
-                const $ref = this.$refs['raw'];
+                this.$nextTick(_ => {
+                    const $ref = this.$refs['raw'];
 
-                $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                    $ref.getDataList({ url, is_my_data_set: this.memberId === this.myMemberId, ...opt });
+                });
             },
 
             selectDataSet(item) {

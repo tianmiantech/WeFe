@@ -11,6 +11,22 @@
                 <el-form-item label="项目名称">
                     <el-input v-model="search.name" clearable />
                 </el-form-item>
+                <el-form-item label="项目类型">
+                    <el-select
+                        v-model="search.project_type"
+                        style="width: 176px;"
+                        clearable
+                    >
+                        <el-option
+                            label="MachineLearning"
+                            value="MachineLearning"
+                        />
+                        <el-option
+                            label="DeepLearning"
+                            value="DeepLearning"
+                        />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="参与方">
                     <el-autocomplete
                         v-model="search.member_name"
@@ -143,6 +159,7 @@
                     start_create_time: '',
                     end_create_time:   '',
                     my_role:           '',
+                    project_type:      '',
                 },
                 searchRequest: {},
                 projectStatus: [{
@@ -187,6 +204,8 @@
                         this.search[key] = val[key] || '';
                         this.searchRequest[key] = val[key] || '';
                     }
+                    this.search.closed = val.closed || 'false';
+                    this.search.searchRequest = val.closed || 'false';
                     this.getProjectList();
                 },
                 deep: true,
@@ -200,6 +219,8 @@
                 this.search[key] = query[key] || '';
                 this.searchRequest[key] = query[key] || '';
             }
+            this.search.closed = query.closed || 'false';
+            this.search.searchRequest = query.closed || 'false';
             this.$nextTick(() => {
                 this.$router.replace({
                     query: {
@@ -263,7 +284,12 @@
                 this.getProjectStatistic();
                 this.search.my_role = this.filter[this.activeTab];
                 this.searchRequest.member_name = '';
-                this.$refs[this.activeTab][0].searchList({ to: false, resetPagination: false });
+
+                //! compatible for instance
+                const $ref = this.$refs[this.activeTab];
+                const instance = Array.isArray($ref) ? $ref[0]: $ref;
+
+                instance.searchList({ to: false, resetPagination: false });
             },
             timeChange(value) {
                 if(value) {

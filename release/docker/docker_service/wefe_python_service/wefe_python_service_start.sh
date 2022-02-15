@@ -14,7 +14,7 @@ worker_ui_port=$5
 # 定义函数：docker-compose配置初始化
 # *****************
 spark_cluster_config(){
-    echo "当前type:$identity_type"
+    # echo "type:$identity_type"
     case $identity_type in
       master)
         cp -f resources/template/docker-compose-master.yml.template resources/docker-compose.yml
@@ -45,7 +45,7 @@ spark_cluster_config(){
         cp -f resources/template/docker-compose-gpu.yml.template resources/docker-compose.yml
         ;;
       *)
-        echo '非集群模式'
+        # echo '非集群模式'
         ;;
       esac
 }

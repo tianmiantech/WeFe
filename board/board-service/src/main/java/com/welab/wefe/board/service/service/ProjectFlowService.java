@@ -105,9 +105,10 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
-        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id())) {
-            throw new StatusCodeWithException("非法操作", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+		if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+			throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+		}
+		
         flow.setDeleted(true);
         flow.setUpdatedBy(input);
         projectFlowRepo.save(flow);
