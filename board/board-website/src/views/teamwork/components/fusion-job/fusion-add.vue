@@ -38,7 +38,7 @@
 
                 <div class="el-card p20">
                     <h4 class="f14 mt10">发起方:
-                        <el-button type="primary" size="mini">
+                        <el-button type="primary" size="small">
                             添加数据资源
                         </el-button>
                     </h4>
