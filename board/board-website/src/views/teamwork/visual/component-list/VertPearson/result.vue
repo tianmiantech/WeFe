@@ -22,7 +22,7 @@
                 <template v-if="myRole === 'promoter' && vData.promoterConfig.totalColumnCount">
                     <el-collapse-item title="皮尔逊热力图" name="2">
                         <el-button
-                            size="mini"
+                            size="small"
                             :disabled="vData.promoterConfig.totalColumnCount === 0"
                             @click="methods.showColumnListDialog('promoter')"
                         >
@@ -40,7 +40,7 @@
                     <template v-if="vData.localConfig.totalColumnCount">
                         <el-collapse-item title="本地热力图" name="3">
                             <el-button
-                                size="mini"
+                                size="small"
                                 :disabled="vData.localConfig.totalColumnCount === 0"
                                 @click="methods.showColumnListDialog('local')"
                             >
@@ -57,7 +57,7 @@
                     <template v-if="vData.providerConfig.totalColumnCount">
                         <el-collapse-item title="联合热力图" name="4">
                             <el-button
-                                size="mini"
+                                size="small"
                                 :disabled="vData.providerConfig.totalColumnCount === 0"
                                 @click="methods.showColumnListDialog('provider')"
                             >

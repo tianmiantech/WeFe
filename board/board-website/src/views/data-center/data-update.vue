@@ -43,7 +43,7 @@
                         <el-button
                             v-else
                             class="button-new-tag ml10"
-                            size="mini"
+                            size="small"
                             type="success"
                             @click="showInputTag"
                         >
@@ -73,7 +73,6 @@
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="Public"
                             >
@@ -86,7 +85,6 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
-                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.public_level"
                                 label="PublicWithMemberList"
                             >
@@ -96,7 +94,7 @@
                         <el-form-item>
                             <div v-if="form.public_level === 'PublicWithMemberList'">
                                 <el-button
-                                    size="mini"
+                                    size="small"
                                     class="mr10"
                                     @click="showSelectMemberDialog"
                                 >
@@ -137,7 +135,7 @@
                         <el-select
                             v-model="dataTypeFillVal"
                             class="float-right"
-                            size="mini"
+                            size="small"
                             clearable
                             style="width: 140px;"
                             placeholder="数据类型缺失填充"

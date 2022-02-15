@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="label-modal-delete">
-            <el-button plain size="mini" @click="methods.deleteCalloutBox">删除标注框</el-button>
+            <el-button plain size="small" @click="methods.deleteCalloutBox">删除标注框</el-button>
         </div>
     </div>
 </template>

@@ -27,7 +27,7 @@
                     <el-input-number
                         v-model="vData.form.training_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                     />
                 </div>
 
@@ -36,7 +36,7 @@
                     <el-input-number
                         v-model="vData.form.verification_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                         @change="methods.onDataSetVerificationRatioChange"
                     />
                 </div>

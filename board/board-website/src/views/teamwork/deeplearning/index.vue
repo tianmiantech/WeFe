@@ -182,7 +182,7 @@
                                                     <el-input-number
                                                         v-model="vData.dataCutForm.training_ratio"
                                                         style="width:100px"
-                                                        size="mini"
+                                                        size="small"
                                                     />
                                                 </div>
 
@@ -191,7 +191,7 @@
                                                     <el-input-number
                                                         v-model="vData.dataCutForm.verification_ratio"
                                                         style="width:100px"
-                                                        size="mini"
+                                                        size="small"
                                                         @change="methods.onDataSetVerificationRatioChange"
                                                     />
                                                 </div>
