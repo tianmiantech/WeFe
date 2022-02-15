@@ -389,16 +389,6 @@ public class ServiceService {
 				return res;
 			}
 			
-			ClientMysqlModel currentClient = clientService.queryByClientName(CacheObjects.getMemberId());
-			if (currentClient == null) {
-				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-				res.append("message",
-						"invalid request: url = " + serviceUrl + ", customerName = " + CacheObjects.getMemberId());
-				long duration = System.currentTimeMillis() - start;
-				log(service, client, duration, clientIp, res.getIntValue("code"));
-				return res;
-			}
-			
 			ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
 					client.getId());
 			if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
@@ -417,6 +407,19 @@ public class ServiceService {
 				return res;
 			}
 			int serviceType = service.getServiceType();
+			ClientMysqlModel currentClient = clientService.queryByClientName(CacheObjects.getMemberId());
+			if (serviceType == ServiceTypeEnum.MULTI_SA.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()
+					|| serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+				if (currentClient == null) {
+					res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
+					res.append("message",
+							"invalid request: url = " + serviceUrl + ", not found currentClient, customerName = " + CacheObjects.getMemberId());
+					long duration = System.currentTimeMillis() - start;
+					log(service, client, duration, clientIp, res.getIntValue("code"));
+					return res;
+				}
+			}
+			
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, service);
