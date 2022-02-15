@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
-import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDataResourceListApi;
+import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -31,7 +31,7 @@ import com.welab.wefe.board.service.database.repository.data_resource.BloomFilte
 import com.welab.wefe.board.service.dto.entity.BloomFilterDataResourceListOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.BloomFilterUpdateInputModel;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -239,7 +239,7 @@ public class BloomFilterService extends DataResourceService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(input.getProjectId(), null, null, null, null);
+        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(input.getProjectId(), null, null, null, null);
 
 
         // Populate the member's data set list
