@@ -51,7 +51,12 @@ def dot(value, w):
     -------
 
     """
-    return operator_dot.dot(value, w)
+    import time
+    start = time.time()
+    result = operator_dot.DotGPU(value, w)
+    logging.debug(f'耗时：{time.time() - start}')
+
+    return result
 
 
 def dh_encrypt_id(data_instance, r, p, is_hash=False):
