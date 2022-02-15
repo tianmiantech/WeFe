@@ -385,7 +385,7 @@ public class ServiceService {
 			if (clientServiceMysqlModel == null || client == null || client.getStatus() != 1
 					|| clientServiceMysqlModel.getStatus() != 1) {
 				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-				res.append("message", "invalid request: url = " + serviceUrl);
+				res.append("message", "invalid request: url = " + serviceUrl + ", customerId=" + input.getCustomerId());
 				long duration = System.currentTimeMillis() - start;
 				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;

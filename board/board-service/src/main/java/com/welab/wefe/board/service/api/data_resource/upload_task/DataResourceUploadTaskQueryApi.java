@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.api.data_resource.upload_task;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
+import com.welab.wefe.board.service.dto.entity.DataResourceTaskOutputModel;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,13 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author zane.luo
  */
 @Api(path = "data_resource/upload_task/query", name = "query data set upload task list")
-public class DataResourceUploadTaskQueryApi extends AbstractApi<DataResourceUploadTaskQueryApi.Input, PagingOutput<DataSetTaskOutputModel>> {
+public class DataResourceUploadTaskQueryApi extends AbstractApi<DataResourceUploadTaskQueryApi.Input, PagingOutput<DataResourceTaskOutputModel>> {
 
     @Autowired
     private DataResourceUploadTaskService dataResourceUploadTaskService;
 
     @Override
-    protected ApiResult<PagingOutput<DataSetTaskOutputModel>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<PagingOutput<DataResourceTaskOutputModel>> handle(Input input) throws StatusCodeWithException {
         return success(dataResourceUploadTaskService.query(input));
     }
 

@@ -171,6 +171,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
 
         // update data set upload task info
         DataResourceUploadTaskMysqlModel uploadProgress = dataResourceUploadTaskService.findByDataResourceId(model.getId());
+        dataResourceUploadTaskService.update(uploadProgress, x -> x.setDataResourceType(model.getDataResourceType()));
         dataResourceUploadTaskService.update(uploadProgress, x -> x.setTotalDataCount(bloomfilterReader.getTotalDataRowCount()));
 
         // get bloom_filter headers

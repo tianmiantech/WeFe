@@ -77,14 +77,14 @@
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const vData = reactive({
-                activeName: route.query.unlabeled_count !== '0' ? 'unlabeled' : '',
+                activeName: 'unlabeled',
                 sampleId:   route.query.id,
                 forJobType: route.query.for_job_type,
                 search:     {
                     page_index: route.query.page_index || 1,
                     page_size:  route.query.page_size || 20,
                     label:      '',
-                    labeled:    route.query.unlabeled_count !== '0' ? false : '',
+                    labeled:    false,
                     total:      1,
                 },
                 tabsList: [
@@ -244,7 +244,6 @@
                 tabChange(val) {
                     const label_type = val.props.name === 'labeled' ? true : val.props.name === 'unlabeled' ? false : '';
 
-                    if (label_type === vData.search.labeled) return;
                     vData.search.labeled = label_type;
                     vData.search.page_index = 1;
                     vData.sampleList = [];

@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -126,7 +125,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
                 .stream()
                 .filter(x -> x.isLabeled())
                 .forEach(x ->
-                        labelSet.addAll(Arrays.asList(x.getLabelList().split(",")))
+                        labelSet.addAll(x.getLabelSet())
                 );
         dataSet.setLabelList(
                 StringUtil.joinByComma(labelSet)
