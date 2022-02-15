@@ -1,6 +1,8 @@
 POST http://localhost:8080/board-service/project/derived_data_set/query
 Content-Type: application/json
+token: {{token}}
 
 {
-  "projectId": "f6920e302e724da78f488883dfde5bd5"
+  "projectId": "2dfa6474490f45bd8066553b3ca6a0ef",
+  "data_resource_type": "TableDataSet"
 }

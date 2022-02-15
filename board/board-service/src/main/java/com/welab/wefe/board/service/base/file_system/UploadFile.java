@@ -49,6 +49,10 @@ public class UploadFile {
         return WeFeFileSystem.getRootDir().resolve(childDir);
     }
 
+    public static Path getFilePath(UseType type, String filename) {
+        return getBaseDir(type).resolve(filename);
+    }
+
     /**
      * 获取资源上传完成后的完整路径
      */
@@ -71,5 +75,11 @@ public class UploadFile {
                 return WeFeFileSystem.getRootDir();
         }
 
+    }
+
+    public static class CallDeepLearningModel {
+        public static Path getFilePath(String filename) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(filename);
+        }
     }
 }
