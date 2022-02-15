@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,11 +52,29 @@ public class OnlineDemoScheduledService {
     private GlobalConfigRepository globalConfigRepository;
 
     /**
+     * 临时清理数据
+     */
+    private void temporaryClean() {
+        String commonWhere = "where project_id not in ('0a509f5004c54534b81a1cb7a1b2a0d5','7b7666c87387414db32a572236e583ee')";
+        delete(
+                JobMySqlModel.class,
+                commonWhere
+        );
+        delete(
+                ProjectMySqlModel.class,
+                commonWhere
+        );
+    }
+
+    /**
      * 清理体验者产生的过多无效数据
      */
     @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
     //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void clean() {
+        if (true) {
+            return;
+        }
         if (!config.isOnlineDemo()) {
             return;
         }
