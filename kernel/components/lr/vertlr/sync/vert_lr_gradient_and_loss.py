@@ -103,7 +103,7 @@ def __compute_partition_gradient(data, fit_intercept=True, is_sparse=False):
         for key, value in data:
             feature.append(value[0])
             fore_gradient.append(value[1])
-        feature = np.array(feature)
+        feature = np.array(feature, dtype=float)
         fore_gradient = np.array(fore_gradient)
         if feature.shape[0] <= 0:
             return 0

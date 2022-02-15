@@ -89,7 +89,11 @@ def dot(value, w):
     if isinstance(w[0], PaillierEncryptedNumber) and check_aclr_support():
         return gpu_dot(value, w)
     else:
-        return cpu_dot(value, w)
+        import time
+        start = time.time()
+        result = cpu_dot(value, w)
+        print(f'耗时：{time.time() - start}')
+        return result
 
 
 def test_dot():

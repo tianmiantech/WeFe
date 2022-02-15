@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from common.python.calculation.acceleration.operator import dot as operator_dot
+# from common.python.calculation.acceleration.operator import dot as operator_dot
+import logging
+
+from common.python.calculation.acceleration.operator import dot_gpu as operator_dot
 from common.python.calculation.acceleration.operator import encrypt
 
 
