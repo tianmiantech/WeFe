@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
@@ -89,5 +90,11 @@ public class BloomFilterService {
         }
 
         bloomFilterRepository.deleteById(input.getId());
+        String src = model.getSrc();
+        File file = new File(src);
+        if(file.exists()) {
+            file.delete();
+            System.out.println("删除成功");
+        }
     }
 }

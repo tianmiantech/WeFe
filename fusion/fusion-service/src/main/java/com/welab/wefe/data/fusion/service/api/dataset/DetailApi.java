@@ -76,7 +76,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Data not available");
         }
 
-        String tbName = "data_fusion_" + input.getId();
+        String tbName = "data_fusion_" + dataSetMySqlModel.getId();
         String sql = "Select * from " + tbName;
         try {
             output = readFromDB(sql);
