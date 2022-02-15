@@ -85,7 +85,7 @@
                         添加数据资源
                     </el-button>
                     <template v-else>
-                        <el-table :data="[{}]" size="mini" border>
+                        <el-table :data="[{}]" size="small" border>
                             <el-table-column label="资源名称:" min-width="210">
                                 <template v-slot="scope">
                                     <i style="display:none;">{{ scope.row }}</i>
@@ -155,7 +155,7 @@
                     <el-table
                         v-else
                         :data="[{}]"
-                        size="mini"
+                        size="small"
                         border
                     >
                         <el-table-column label="资源名称:" min-width="210">

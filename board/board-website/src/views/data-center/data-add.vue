@@ -102,7 +102,7 @@
                         <el-form-item>
                             <div v-if="form.publicLevel === 'PublicWithMemberList'">
                                 <el-button
-                                    size="mini"
+                                    size="small"
                                     @click="showSelectMemberDialog"
                                 >
                                     选择可见成员
@@ -277,7 +277,7 @@
                         <el-select
                             v-model="dataTypeFillVal"
                             class="float-right"
-                            size="mini"
+                            size="small"
                             clearable
                             style="width: 140px;"
                             placeholder="数据类型缺失填充"

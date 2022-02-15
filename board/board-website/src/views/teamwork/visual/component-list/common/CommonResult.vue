@@ -4,7 +4,7 @@
             v-if="showHistory"
             class="history-btn"
             type="text"
-            size="mini"
+            size="small"
             @click="checkHistory"
         >执行历史</el-button>
 
