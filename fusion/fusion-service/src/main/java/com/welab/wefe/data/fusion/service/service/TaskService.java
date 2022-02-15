@@ -362,6 +362,7 @@ public class TaskService extends AbstractService {
         Specification<TaskMySqlModel> where = Where.create()
                 .equal("businessId", input.getBusinessId())
                 .equal("status", input.getStatus())
+                .equal("my_role", input.getMyRole())
                 .build(TaskMySqlModel.class);
 
         PagingOutput<TaskMySqlModel> page = taskRepository.paging(where, input);
