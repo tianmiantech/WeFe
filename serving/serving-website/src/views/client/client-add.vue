@@ -7,7 +7,7 @@
         <el-form :model="client" label-width="90px" :rules="rules" ref="client">
             <el-form-item label="客户名称" prop="name">
                 <el-input v-model="client.name"
-                          :maxlength="30"
+                          :maxlength="32"
                           :minlength="4"
                           show-word-limit
                 ></el-input>
