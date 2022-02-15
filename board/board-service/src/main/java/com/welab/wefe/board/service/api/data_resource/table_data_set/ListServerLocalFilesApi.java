@@ -16,8 +16,8 @@
 
 package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -50,11 +50,8 @@ public class ListServerLocalFilesApi extends AbstractApi<NoneApiInput, ListServe
     @Override
     protected ApiResult<Output> handle(NoneApiInput input) throws StatusCodeWithException {
         List<String> files = new ArrayList<>();
-        File file = new File(config.getFileUploadDir());
+        File file = WeFeFileSystem.getRootDir().toFile();
         LOG.info("file.exists(): " + file.exists());
-        if (!file.exists() || !file.isDirectory()) {
-            throw new StatusCodeWithException(StatusCode.DIRECTORY_NOT_FOUND, config.getFileUploadDir());
-        }
 
         File[] tempList = file.listFiles();
         for (File fileObj : tempList) {

@@ -16,11 +16,12 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.board.service.constant.Config;
+
+import com.welab.wefe.board.service.base.file_system.UploadFile;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
 import java.io.File;
@@ -37,9 +38,10 @@ public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
-        String fileUploadDir = Launcher.getBean(Config.class).getFileUploadDir();
 
-        if (!new File(fileUploadDir, filename).exists()) {
+        File file = UploadFile.getFilePath(DataResourceType.ImageDataSet, filename).toFile();
+
+        if (!file.exists()) {
             StatusCode
                     .FILE_IO_ERROR
                     .throwException("未找到文件：" + filename + "，请重试刷新页面后重新上传。");

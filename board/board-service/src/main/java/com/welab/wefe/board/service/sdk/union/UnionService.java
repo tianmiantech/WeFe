@@ -168,6 +168,8 @@ public class UnionService extends AbstractUnionService {
             data.remove("extra_data");
         }
 
+        data.put("id", data.get("data_resource_id"));
+
         OUT output = data.toJavaObject(outputClass);
 
         CACHE_MAP.put(key, output);
