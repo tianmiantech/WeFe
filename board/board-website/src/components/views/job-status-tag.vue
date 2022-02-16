@@ -1,6 +1,6 @@
 <template>
     <el-tag
-        size="mini"
+        size="small"
         :type="style.type"
         :title="style.title"
         :effect="style.effect"

@@ -16,12 +16,11 @@
 
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -75,12 +74,11 @@ public class TableDataSetAddInputModel extends TableDataSetUpdateInputModel {
 
         // 如果是指定服务器上的本地文件，则必须指定配置文件配置的目录下的文件。
         if (DataSetAddMethod.LocalFile.equals(dataSetAddMethod)) {
-            Config config = Launcher.CONTEXT.getBean(Config.class);
-
-            if (!filename.startsWith(config.getFileUploadDir())) {
+            String rootDir = WeFeFileSystem.getRootDir().toAbsolutePath().toString();
+            if (!filename.startsWith(rootDir)) {
                 StatusCode
                         .PARAMETER_VALUE_INVALID
-                        .throwException("您指定的文件路径必须以 " + config.getFileUploadDir() + " 开头，请手动将数据集文件拷贝到该目录后重试。");
+                        .throwException("您指定的文件路径必须以 " + rootDir + " 开头，请手动将数据集文件拷贝到该目录后重试。");
             }
         }
 

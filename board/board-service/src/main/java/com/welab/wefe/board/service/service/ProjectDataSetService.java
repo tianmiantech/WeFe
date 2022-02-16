@@ -42,6 +42,7 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -129,17 +130,13 @@ public class ProjectDataSetService extends AbstractService {
      * tips：衍生数据集目前只有 TableDataSet 类型
      */
     private DerivedProjectDataSetOutputModel buildDerivedProjectDataSetOutputModel(ProjectDataSetMySqlModel projectDataSet) {
-        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
-
-        JObject json = JObject.create();
-        if (dataSet != null) {
-            json.putAll(JObject.create(dataSet));
-        }
-        json.putAll(JObject.create(projectDataSet));
+        DerivedProjectDataSetOutputModel derivedDataSet = new DerivedProjectDataSetOutputModel();
+        BeanUtils.copyProperties(projectDataSet, derivedDataSet);
 
         // Create a derived dataset object
-        DerivedProjectDataSetOutputModel derivedDataSet = json.toJavaObject(DerivedProjectDataSetOutputModel.class);
+        TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
         if (dataSet != null) {
+            derivedDataSet.setDataResource(JObject.create(dataSet).toJavaObject(TableDataSetOutputModel.class));
             // Query the feature list from each member
             List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
             List<JobMemberWithDataSetOutputModel> output = jobMembers

@@ -1,5 +1,5 @@
 // icons
-import * as elIcons from '@element-plus/icons';
+import * as elIcons from '@element-plus/icons-vue';
 
 // components
 import {

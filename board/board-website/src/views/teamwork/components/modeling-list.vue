@@ -160,7 +160,7 @@
                             <template v-if="scope.row.serving_model">
                                 <el-button
                                     type="primary"
-                                    size="mini"
+                                    size="small"
                                     class="mb5"
                                     @click="syncModel($event, scope.row)"
                                 >
@@ -169,7 +169,7 @@
                                 <el-button
                                     v-if="scope.row.component_type === 'HorzSecureBoost' || scope.row.component_type === 'HorzLR'"
                                     type="success"
-                                    size="mini"
+                                    size="small"
                                     class="mb5"
                                     @click="selectLanguage = true;selectedRow = scope.row;"
                                 >
@@ -178,7 +178,7 @@
                             </template>
                             <el-button
                                 v-if="scope.row.role === 'promoter' && scope.row.component_type !== 'HorzNN' && scope.row.component_type !== 'VertNN'"
-                                size="mini"
+                                size="small"
                                 @click="addOotFlew($event, scope.row)"
                             >打分验证</el-button>
                         </template>
