@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,16 @@
 
 package com.welab.wefe.common.data.mysql;
 
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
+import org.hibernate.query.criteria.internal.CriteriaQueryImpl;
 import org.hibernate.query.criteria.internal.OrderImpl;
+import org.hibernate.query.criteria.internal.ParameterRegistry;
+import org.hibernate.query.criteria.internal.compile.RenderingContext;
+import org.hibernate.query.criteria.internal.expression.ExpressionImpl;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +55,23 @@ public class Where {
         if (StringUtil.isNotEmpty(value)) {
             where.add(new Item("contains", name, value));
         }
+        return this;
+    }
+
+    /**
+     * group by
+     * @param names
+     * @return
+     */
+    public Where groupBy(List<String> names) {
+        /**
+         * if value is null, then skip
+         */
+        if (null == names || names.size() == 0) {
+            return this;
+        }
+        where.add(new Item("groupBy", null, names));
+
         return this;
     }
 
@@ -243,7 +263,7 @@ public class Where {
      * @param name
      * @param value
      */
-    public Where in(String name, List<Object> value) {
+    public Where in(String name, List<?> value) {
         return in(name, value, true);
     }
 
@@ -254,7 +274,7 @@ public class Where {
      * @param value
      * @param skipWhenValueEmpty Whether to skip the generation of this clause if value is null
      */
-    public Where in(String name, List<Object> value, boolean skipWhenValueEmpty) {
+    public Where in(String name, List<?> value, boolean skipWhenValueEmpty) {
 
         if (skipWhenValueEmpty && (value == null || value.isEmpty())) {
             return this;
@@ -290,6 +310,13 @@ public class Where {
                 switch (item.operator) {
                     case "contains":
                         list.add(cb.like(root.get(item.name), "%" + item.value + "%"));
+                        break;
+                    case "groupBy":
+                        List<Expression<?>> pathList = new ArrayList<>();
+                        for (String  var: (List<String>)item.value) {
+                            pathList.add(root.get(var));
+                        }
+                        query.groupBy(pathList);
                         break;
                     case "equal":
                         if (item.value == null) {

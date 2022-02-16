@@ -1,0 +1,10 @@
+PaddleFL:
+  jobs:
+    - name: paddle_fl
+      schema: ../schema/paddle_fl.json
+      loader: visualfl.paddle_fl.job:PaddleFLJob
+  tasks:
+    - name: fl_trainer
+      loader: visualfl.paddle_fl.tasks.trainer:FLTrainer
+    - name: fl_aggregator
+      loader: visualfl.paddle_fl.tasks.aggregator:FLAggregator

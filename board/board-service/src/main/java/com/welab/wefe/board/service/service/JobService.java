@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,19 +21,17 @@ import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.JobStatus;
-import com.welab.wefe.common.enums.TaskStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobStatus;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -53,10 +51,6 @@ public class JobService extends AbstractService {
     TaskRepository taskRepo;
     @Autowired
     JobMemberRepository jobMemberRepo;
-    @Autowired
-    DataSetRepository dataSetRepository;
-    @Autowired
-    UnionService unionService;
     @Autowired
     JobMemberService jobMemberService;
     @Autowired
@@ -199,7 +193,7 @@ public class JobService extends AbstractService {
                 .stream()
                 .filter(x -> x.getParamsVersion() >= lastJobCreateTime)
                 .forEach(x -> x.setHasCacheResult(false));
-        
+
         List<FlowGraphNode> nodes = graph.getAllJobSteps();
         Collections.sort(nodes, new Comparator<FlowGraphNode>() {
             @Override

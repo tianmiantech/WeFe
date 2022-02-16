@@ -1,43 +1,49 @@
 ###
-POST {{baseUrl}}/project/add
+POST http://localhost:8080/board-service/project/add
 Content-Type: application/json
-
+token: {{token}}
 
 {
-  "name": "重构项目",
-  "desc": "重构项目",
-  "dataSetList": [
+  "name": "添加datatype",
+  "desc": "bug重现",
+  "projectType": "MachineLearning",
+  "promoterDataSetList": [
     {
-      "member_id": "269330b21e1342b48124303e55c75ce0",
-      "data_set_keys": ",bbb,",
-      "data_set_name": "kkk-b",
-      "member_name": "弟依偎零三",
       "member_role": "promoter",
-      "data_set_id": "a4b9810d7cb34f6997381482e48c17a2",
-      "contains_y": true
-    },
-    {
-      "member_id": "682d087e965a4c5d8a2807a772a571c1",
-      "data_set_keys": ",test,",
-      "data_set_name": "wingo-noy",
-      "data_set_column_num": "20",
-      "member_name": "弟依偎零四",
-      "member_role": "provider",
-      "data_set_rows": "568",
-      "data_set_id": "d9ea082b855141378ed257111a1a07e4",
-      "contains_y": false
+      "member_id": "290007c2a71d470ba00f486b18875d31",
+      "data_set_id": "8a675a8f7a2e48f6bcbaece3cdfca3d6",
+      "data_set_type": "TableDataSet"
     }
   ],
-  "memberList": [
+  "providerList": [
     {
-      "member_id": "269330b21e1342b48124303e55c75ce0",
-      "member_role": "promoter",
-      "member_name": "弟依偎零三"
+      "member_id": "d0f47307804844898ecfc65b875abe87",
+      "dataSetList": [
+        {
+          "member_role": "provider",
+          "member_id": "d0f47307804844898ecfc65b875abe87",
+          "data_set_id": "c81ad8dbe793410db43594bfc36afb11",
+          "data_set_type": "TableDataSet"
+        }
+      ]
     },
     {
-      "member_id": "682d087e965a4c5d8a2807a772a571c1",
-      "member_role": "provider",
-      "member_name": "弟依偎零四"
+      "member_id": "8896e74890a5459386287ec817e8b4f3",
+      "dataSetList": [
+        {
+          "member_role": "provider",
+          "member_id": "8896e74890a5459386287ec817e8b4f3",
+          "data_set_id": "eea81ef35a9e45bbb18cad5c251b8280",
+          "data_set_type": "TableDataSet"
+        },
+        {
+          "member_role": "provider",
+          "member_id": "8896e74890a5459386287ec817e8b4f3",
+          "data_set_id": "8c7e7065785844fcaf2cbcda4d44fba8",
+          "data_set_type": "TableDataSet"
+        }
+      ]
     }
-  ]
+  ],
+  "promoterList": []
 }

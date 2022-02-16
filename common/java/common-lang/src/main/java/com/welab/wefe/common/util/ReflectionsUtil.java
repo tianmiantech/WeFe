@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,6 +54,44 @@ public class ReflectionsUtil {
                         .scan()
         ) {
             return scanResult.getClassesWithAnnotation(annotation.getName()).loadClasses();
+        }
+    }
+
+    /**
+     * 获取指定接口的实现类
+     */
+    public static <T> List<Class<?>> getClassesImplementing(Class<T> clazz) {
+        try (
+                ScanResult scanResult = new ClassGraph()
+                        .enableAllInfo()
+                        .scan()
+        ) {
+            return scanResult.getClassesImplementing(clazz.getName())
+                    .loadClasses();
+        }
+    }
+
+    /**
+     * 获取指定类型的实现类
+     */
+    public static <T> List<Class<?>> getClassesExtending(Class<T> clazz) {
+        try (
+                ScanResult scanResult = new ClassGraph()
+                        .enableClassInfo()
+                        .scan()
+        ) {
+            return scanResult
+                    .getSubclasses(clazz.getName())
+                    .filter(x -> !x.isAbstract() && !x.isInterface())
+                    .loadClasses();
+
+//                    .getAllClasses()
+//                    .filter(x -> !x.isAbstract() && !x.isStatic() && !x.isInterface())
+//                    .filter(x -> {
+//                        Class<?> aClass = x.loadClass(clazz, true);
+//                        return aClass != null && clazz.isAssignableFrom(aClass);
+//                    })
+//                    .loadClasses();
         }
     }
 }

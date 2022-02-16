@@ -288,6 +288,9 @@
                                 <el-input
                                     v-model="model_sql_config.password"
                                     show-password
+                                    @paste.native.prevent
+                                    @copy.native.prevent
+                                    @contextmenu.native.prevent
                                 />
                             </el-form-item>
                             <el-form-item

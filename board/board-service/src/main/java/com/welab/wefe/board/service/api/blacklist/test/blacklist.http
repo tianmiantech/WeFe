@@ -1,5 +1,5 @@
 ### 查询全部数据集
-POST {{baseUrl}}/blacklist/list
+POST http://localhost:8080/board-service/blacklist/list
 Content-Type: application/json
 token:9a90763c-1313-41c8-b2a2-b93d0dd66d93
 
@@ -15,13 +15,15 @@ client.test("Request executed successfully", function() {
 
 ###
 
-POST {{baseUrl}}/blacklist/add
+POST http://localhost:8080/board-service/blacklist/add
 Content-Type: application/json
 token:4c1d7dcf-89ee-44e4-8649-91f1055062b5
 
 {
-  "memberIds":["123"],
-  "remark":"test"
+  "memberIds": [
+    "123"
+  ],
+  "remark": "test"
 }
 
 ###

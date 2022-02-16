@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@
 package com.welab.wefe.data.fusion.service.api.dataset;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.ColumnDataType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.ListUtil;
@@ -26,13 +25,14 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ColumnDataType;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetColumnOutputModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
-import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
+import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
@@ -82,12 +82,22 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             List<String> rows_list = Arrays.asList(rows.split(","));
 
             if (isStoraged) {
-                String tbName = "data_fusion_" + dataSetMySqlModel.getId();
-//                String sql = "Select * from " + tbName;
-                try {
-                    output = readFromDB(input.sql);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if(dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)){
+                    String tbName = "data_fusion_" + dataSetMySqlModel.getId();
+                    //                String sql = "Select * from " + tbName;
+                    try {
+                        output = readFromDB(input.sql);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else if (dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
+                    File file = dataSetService.getDataSetFile(dataSetMySqlModel.getDataResourceSource(), dataSetMySqlModel.getSourcePath());
+                    try {
+                        output = readFile(file);
+                    } catch (IOException e) {
+                        LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                        throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                    }
                 }
             }
 

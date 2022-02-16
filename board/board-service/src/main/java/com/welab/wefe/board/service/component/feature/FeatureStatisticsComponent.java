@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,17 +27,17 @@ import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.MemberModel;
-import com.welab.wefe.board.service.dto.kernel.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.Member;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -87,11 +87,8 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
         // Need to use dataIO data set
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
-        TaskMySqlModel dataIOTask = findTaskFromPretasks(preTasks, dataIONode);
 
         if (dataIONode == null) {
             throw new FlowNodeException(node, "请添加DataIO策略!");
@@ -105,15 +102,10 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
             }
         }
 
-        JObject featureStatisticsParam = JObject.create();
-        featureStatisticsParam.append("percentage_list", percentileList);
-
-        // Local non-local federation for local testing
-        featureStatisticsParam.put("work_mode", params.workMode);
-
-        taskParam.put("params", featureStatisticsParam);
-
-        return taskParam;
+        JObject output = JObject.create()
+                .append("percentage_list", percentileList)
+                .append("work_mode", params.workMode);
+        return output;
     }
 
     @Override

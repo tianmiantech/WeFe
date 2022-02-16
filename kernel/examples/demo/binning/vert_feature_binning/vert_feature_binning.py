@@ -58,7 +58,7 @@ def main(config="../../config.yaml", param="./config.yaml", namespace="wefe_data
                                    table_name=provider_data_table,
                                    namespace=namespace,
                                    head=1, partition=1)
-    handler_upload.upload(work_mode=work_mode, backend=backend)
+    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     # initialize handler
     job_id = "job_" + time.strftime("%Y%m%d%H%M%S")

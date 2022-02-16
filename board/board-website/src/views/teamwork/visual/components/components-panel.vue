@@ -134,6 +134,7 @@
                                                 :learning-type="learningType"
                                                 :ootModelFlowNodeId="ootModelFlowNodeId"
                                                 :ootJobId="ootJobId"
+                                                :project-type="projectType"
                                             >
                                             </component>
                                         </template>
@@ -170,6 +171,7 @@
                                         :my-role="myRole"
                                         :flow-id="flowId"
                                         :job-id="jobId"
+                                        :project-type="projectType"
                                     />
                                 </el-scrollbar>
                             </el-tab-pane>
@@ -217,6 +219,7 @@
             myRole:             String,
             isCreator:          Boolean,
             projectId:          String,
+            projectType:        String,
             flowId:             String,
             jobId:              String,
             oldLearningType:    String,
@@ -321,7 +324,9 @@
                             // switched
                             if(lastNodeId !== id) {
                                 // call readData
-                                const ref = this.$refs[this.componentType];
+                                let ref = this.$refs[this.componentType];
+
+                                ref = Array.isArray(ref) ? ref[0]: ref;
 
                                 if(ref) {
                                     let readData;

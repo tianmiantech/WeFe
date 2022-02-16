@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,8 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * 聊天详情输出对象
  *
@@ -23,35 +25,21 @@ package com.welab.wefe.board.service.dto.entity;
  **/
 public class MemberChatOutputModel extends AbstractOutputModel {
 
-    /**
-     * 发送方的账号id
-     */
+    @Check(name = "发送方的账号id")
     private String fromAccountId;
-    /**
-     * 发送方成员ID
-     */
+    @Check(name = "发送方成员ID")
     private String fromMemberId;
 
-    /**
-     * 接收方的账号id
-     */
+    @Check(name = "接收方的账号id")
     private String toAccountId;
-    /**
-     * 发送方成员名称
-     */
+    @Check(name = "发送方成员名称")
     private String toMemberId;
 
-    /**
-     * 聊天内容
-     */
+    @Check(name = "聊天内容")
     private String content;
-    /**
-     * 状态：（0：已读、1：未读、2、发送成功、3、发送失败）
-     */
+    @Check(name = "状态：（0：已读、1：未读、2、发送成功、3、发送失败）")
     private Integer status;
-    /**
-     * 消息ID
-     */
+    @Check(name = "消息ID")
     private String messageId;
 
     public String getFromAccountId() {

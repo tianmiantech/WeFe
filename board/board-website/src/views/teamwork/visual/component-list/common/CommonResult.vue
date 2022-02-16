@@ -1,9 +1,10 @@
 <template>
     <el-form class="flex-form">
         <el-button
+            v-if="showHistory"
             class="history-btn"
             type="text"
-            size="mini"
+            size="small"
             @click="checkHistory"
         >执行历史</el-button>
 
@@ -55,6 +56,10 @@
             result:         Object,
             currentObj:     Object,
             jobDetail:      Object,
+            showHistory:    {
+                type:    Boolean,
+                default: true,
+            },
         },
         emits: ['show-node-history'],
         setup(props) {

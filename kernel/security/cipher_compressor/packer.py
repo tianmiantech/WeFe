@@ -1,13 +1,40 @@
-import functools
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from kernel.security import EncryptModeCalculator
-from kernel.security.cipher_compressor.compressor import get_homo_encryption_max_int
+# Copyright 2019 The FATE Authors. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import functools
+from kernel.security.cipher_compressor.compressor import get_horz_encryption_max_int
+from kernel.security.encrypt_mode import EncryptModeCalculator
 from kernel.security.cipher_compressor.compressor import PackingCipherTensor
 from kernel.security.cipher_compressor.compressor import CipherPackage
+from kernel.security.encrypt import IterativeAffineEncrypt
 from kernel.transfer.variables.transfer_class.cipher_compressor_transfer_variable \
     import CipherCompressorTransferVariable
 from kernel.utils import consts
-
 from common.python.utils import log_utils
 
 LOGGER = log_utils.get_logger()
@@ -35,7 +62,7 @@ class PromoterIntegerPacker(object):
         self._pack_num_bit = [i.bit_length() for i in pack_num_range]
         self.calculator = encrypt_mode_calculator
 
-        max_pos_int, _ = get_homo_encryption_max_int(self.calculator.encrypter)
+        max_pos_int, _ = get_horz_encryption_max_int(self.calculator.encrypter)
         self._max_int = max_pos_int
         self._max_bit = self._max_int.bit_length() - 1  # reserve 1 bit, in case overflow
 
@@ -69,6 +96,8 @@ class PromoterIntegerPacker(object):
                                                                                           compress_parameter))
 
     def cipher_compress_suggest(self):
+        if type(self.calculator.encrypter) == IterativeAffineEncrypt:  # iterativeAffine not support cipher compress
+            return 1, 1
         compressible = self._bit_assignment[-1]
         total_bit_count = sum(compressible)
         compress_num = self._max_bit // total_bit_count
@@ -101,7 +130,7 @@ class PromoterIntegerPacker(object):
 
         rs_list = []
         for bit_assign in reversed(bit_assign_list[1:]):
-            mask_int = (2 ** bit_assign) - 1
+            mask_int = (2**bit_assign) - 1
             unpack_int = integer & mask_int
             rs_list.append(unpack_int)
             integer = integer >> bit_assign
@@ -127,6 +156,7 @@ class PromoterIntegerPacker(object):
 
         final_rs = []
         for l_ in decrypted_result_list:
+
             rs_list = self.unpack_an_int_list(l_, post_func)
             final_rs.append(rs_list)
 
@@ -165,3 +195,4 @@ class PromoterIntegerPacker(object):
         unpack_table = de_table.mapValues(self.unpack_result)
 
         return unpack_table
+

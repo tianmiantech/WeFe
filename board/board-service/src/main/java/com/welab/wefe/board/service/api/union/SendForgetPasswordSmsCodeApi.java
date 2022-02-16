@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,7 @@
 
 package com.welab.wefe.board.service.api.union;
 
-import com.welab.wefe.board.service.sdk.UnionService;
-import com.welab.wefe.common.enums.SmsBusinessType;
+import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -25,6 +24,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.NoneApiOutput;
+import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;

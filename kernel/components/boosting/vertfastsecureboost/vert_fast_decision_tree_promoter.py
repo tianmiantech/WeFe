@@ -87,12 +87,12 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
         return self.provider_member_idlist.index(provider_id)
 
     def compute_best_splits_with_node_plan2(self, tree_action, target_provider_idx, node_map: dict,
-                                            dep: int, batch_idx: int, mode=consts.MIX_TREE):
+                                            dep: int, batch_idx: int, mode=consts.SKIP_TREE):
 
         LOGGER.debug('node plan2 at dep {} is {}'.format(dep, (tree_action, target_provider_idx)))
 
         # In layered mode, promoter hist computation does not start from root node, so need to disable hist-sub
-        hist_sub = True if mode == consts.MIX_TREE else False
+        hist_sub = True if mode == consts.SKIP_TREE else False
 
         if tree_action == plan.tree_actions['promoter_only']:
             node_dispatch = self.get_computing_node_dispatch()
@@ -113,21 +113,17 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
             split_info_table = self.transfer_inst.encrypted_splitinfo_provider.get(idx=target_provider_idx,
                                                                                    suffix=(dep, batch_idx))
 
-            if self.run_cipher_compressing:
-                self.cipher_decompressor.renew_decompressor(node_map)
-            cipher_decompressor = self.cipher_decompressor if self.run_cipher_compressing else None
             provider_split_info = self.splitter.find_provider_best_split_info(split_info_table,
-                                                                              self.get_provider_sitename(
-                                                                                  target_provider_idx),
+                                                                              self.get_provider_sitename(target_provider_idx),
                                                                               self.encrypter,
-                                                                              cipher_decompressor=cipher_decompressor)
+                                                                              gh_packer=self.packer,)
 
             split_info_list = [None for i in range(len(provider_split_info))]
             for key in provider_split_info:
                 split_info_list[node_map[key]] = provider_split_info[key]
 
             # MIX mode and Layered mode difference:
-            if mode == consts.MIX_TREE:
+            if mode == consts.SKIP_TREE:
                 for split_info in split_info_list:
                     split_info.sum_grad, split_info.sum_hess, split_info.gain = self.encrypt(split_info.sum_grad), \
                                                                                 self.encrypt(split_info.sum_hess), \
@@ -143,7 +139,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
                                                                         idx=target_provider_idx,
                                                                         role=consts.PROVIDER)
 
-            if mode == consts.MIX_TREE:
+            if mode == consts.SKIP_TREE:
                 return []
             elif mode == consts.LAYERED_TREE:
 
@@ -164,7 +160,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
     """
 
     def compute_best_splits_with_node_plan(self, tree_action, target_provider_idx, node_map: dict, dep: int,
-                                           batch_idx: int, mode=consts.MIX_TREE):
+                                           batch_idx: int, mode=consts.SKIP_TREE):
 
         LOGGER.debug('node plan at dep {} is {}'.format(dep, (tree_action, target_provider_idx)))
 
@@ -198,7 +194,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
     Tree update
     """
 
-    def assign_instances_to_new_node_with_node_plan(self, dep, tree_action, mode=consts.MIX_TREE, ):
+    def assign_instances_to_new_node_with_node_plan(self, dep, tree_action, mode=consts.SKIP_TREE, ):
 
         LOGGER.info("redispatch node of depth {}".format(dep))
         dispatch_node_method = functools.partial(self.dispatch_node,
@@ -219,10 +215,11 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
 
         dispatch_promoter_result = dispatch_promoter_result.subtractByKey(dispatch_to_provider_result)
         leaf = dispatch_promoter_result.filter(lambda key, value: isinstance(value, tuple) is False)
-        if self.predict_weights is None:
-            self.predict_weights = leaf
+
+        if self.sample_leaf_pos is None:
+            self.sample_leaf_pos = leaf
         else:
-            self.predict_weights = self.predict_weights.union(leaf)
+            self.sample_leaf_pos = self.sample_leaf_pos.union(leaf)
 
         dispatch_promoter_result = dispatch_promoter_result.subtractByKey(leaf)
 
@@ -256,7 +253,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
 
         self.initialize_node_plan()
 
-        self.process_and_sync_grad_and_hess()
+        self.init_packer_and_sync_gh()
 
         root_node = self.initialize_root_node()
         self.tree_node_queue = [root_node]
@@ -304,19 +301,28 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
         self.convert_bin_to_real()
         self.round_leaf_val()
         self.sync_tree()
+        self.sample_weights_post_process()
 
     """
     Mix Mode
     """
 
-    def mix_mode_fit(self):
 
-        LOGGER.info('running mix mode')
+    def sync_en_g_sum_h_sum(self):
+        root_sum_grad, root_sum_hess = self.get_grad_hess_sum(self.grad_and_hess)
+        en_g, en_h = self.encrypt(root_sum_grad), self.encrypt(root_sum_hess)
+        self.transfer_inst.encrypted_grad_and_hess.remote(idx=self.provider_id_to_idx(self.target_provider_id),
+                                                          obj=[en_g, en_h], suffix='ghsum', role=consts.PROVIDER)
+
+    def skip_mode_fit(self):
+
+        LOGGER.info('running skip mode')
 
         self.initialize_node_plan()
 
         if self.tree_type != plan.tree_type_dict['promoter_feat_only']:
-            self.process_and_sync_grad_and_hess(idx=self.provider_id_to_idx(self.target_provider_id))
+            self.init_packer_and_sync_gh(idx=self.provider_id_to_idx(self.target_provider_id))
+            self.sync_en_g_sum_h_sum()
         else:
             root_node = self.initialize_root_node()
             self.tree_node_queue = [root_node]
@@ -349,12 +355,12 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
                                                                               node_map=self.get_node_map(
                                                                                   self.cur_split_nodes),
                                                                               dep=dep, batch_idx=batch_idx,
-                                                                              mode=consts.MIX_TREE)
+                                                                              mode=consts.SKIP_TREE)
                 else:
                     cur_splitinfos = self.compute_best_splits_with_node_plan(tree_action, provider_idx, node_map=
                     self.get_node_map(self.cur_split_nodes),
                                                                              dep=dep, batch_idx=batch_idx,
-                                                                             mode=consts.MIX_TREE)
+                                                                             mode=consts.SKIP_TREE)
                 split_info.extend(cur_splitinfos)
 
             if self.tree_type == plan.tree_type_dict['promoter_feat_only']:
@@ -365,24 +371,25 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
             target_idx = self.provider_id_to_idx(self.get_node_plan(0)[1])  # get provider id
             leaves = self.sync_provider_leaf_nodes(target_idx)  # get leaves node from provider
             self.tree_ = self.handle_leaf_nodes(leaves)  # decrypt node info
-            sample_pos = self.sync_sample_leaf_pos(idx=target_idx)  # get final sample leaf id from provider
+            self.sample_leaf_pos = self.sync_sample_leaf_pos(idx=target_idx)  # get final sample leaf id from provider
 
             # checking sample number
-            assert sample_pos.count() == self.data_bin.count(), 'numbers of sample positions failed to match, ' \
+            assert self.sample_leaf_pos.count() == self.data_bin.count(), 'numbers of sample positions failed to match, ' \
                                                                 'sample leaf pos number:{}, instance number {}'. \
-                format(sample_pos.count(), self.data_bin.count())
+                format(self.sample_leaf_pos.count(), self.data_bin.count())
 
-            self.predict_weights = self.extract_sample_weights_from_node(sample_pos)  # extract leaf weights
+            # self.predict_weights = self.extract_sample_weights_from_node(sample_pos)  # extract leaf weights
         else:
             if self.tree_node_queue:
                 self.assign_instance_to_leaves_and_update_weights()  # promoter local updates
             self.convert_bin_to_real()  # convert bin id to real value features
 
         self.round_leaf_val()
+        self.sample_weights_post_process()
 
-    def mix_mode_predict(self, data_inst):
+    def skip_mode_predict(self, data_inst):
 
-        LOGGER.info("running mix mode predict")
+        LOGGER.info("running skip mode predict")
 
         if self.use_promoter_feat_when_predict:
             LOGGER.debug('predicting using promoter local tree')
@@ -428,18 +435,6 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
     Mix Functions
     """
 
-    @staticmethod
-    def get_node_weights(node_id, tree_nodes):
-        return tree_nodes[node_id].weight
-
-    def extract_sample_weights_from_node(self, sample_leaf_pos):
-        """
-        Given a dtable contains leaf positions of samples, return leaf weights
-        """
-        func = functools.partial(self.get_node_weights, tree_nodes=self.tree_)
-        sample_weights = sample_leaf_pos.mapValues(func)
-        return sample_weights
-
     def handle_leaf_nodes(self, nodes):
         """
         decrypte hess and grad and return tree node list that only contains leaves
@@ -468,7 +463,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
         if self.tree_type == plan.tree_type_dict['provider_feat_only'] or \
                 self.tree_type == plan.tree_type_dict['promoter_feat_only']:
 
-            self.mix_mode_fit()
+            self.skip_mode_fit()
 
         elif self.tree_type == plan.tree_type_dict['layered_tree']:
 
@@ -480,7 +475,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
         LOGGER.info("start to predict!")
         if self.tree_type == plan.tree_type_dict['promoter_feat_only'] or \
                 self.tree_type == plan.tree_type_dict['provider_feat_only']:
-            predict_res = self.mix_mode_predict(data_inst)
+            predict_res = self.skip_mode_predict(data_inst)
             LOGGER.debug('input result count {} , out count {}'.format(data_inst.count(), predict_res.count()))
             return predict_res
         else:

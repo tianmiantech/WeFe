@@ -43,10 +43,11 @@ from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.common.consts import TransferAction
 from common.python.common.exception.custom_exception import GatewayWhiteListError, GatewayConnectError
+from common.python.p_session.base_impl.db_runtime import DBRuntime
 from common.python.protobuf.pyproto import gateway_meta_pb2, basic_meta_pb2, gateway_service_pb2_grpc, storage_basic_pb2
 from common.python.protobuf.pyproto.gateway_meta_pb2 import TransferMeta
 # noinspection PyProtectedMember
-from common.python.storage.impl.dsource import _DSource, DBRuntime
+from common.python.p_session.base_impl.data_source import _DSource
 from common.python.utils import conf_utils
 from common.python.utils.clean import Rubbish
 from common.python.utils.core_utils import serialize, deserialize

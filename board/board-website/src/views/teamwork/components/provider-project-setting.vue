@@ -18,7 +18,7 @@
                 class="pt10 pb10"
                 style="color: #ea5169;"
             >
-                注意：退出后，您已授权的数据集会收回授权。
+                注意：退出后，您已授权的数据资源会收回授权。
             </p>
             <el-button
                 type="danger"

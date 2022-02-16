@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,12 +27,12 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -64,16 +64,14 @@ class SegmentComponent extends AbstractComponent<SegmentComponent.Params> {
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
         // Reassemble front-end parameters
-        JObject segmentParam = JObject.create();
+        JObject output = JObject.create();
 
         FederatedLearningType federatedLearningType = graph.getJob().getFederatedLearningType();
         if (federatedLearningType == FederatedLearningType.vertical) {
-            segmentParam.append("mode", "vert");
+            output.append("mode", "vert");
         } else if (federatedLearningType == FederatedLearningType.horizontal) {
-            segmentParam.append("mode", "horz");
+            output.append("mode", "horz");
         }
 
         // Take with_label from the task parameter of the dataIO component
@@ -85,17 +83,15 @@ class SegmentComponent extends AbstractComponent<SegmentComponent.Params> {
         }
 
         JObject taskConfig = JObject.create(dataIOTask.getTaskConf());
-        boolean withLabel = taskConfig.getJObject("params").getBooleanValue("with_label");
+        boolean withLabel = taskConfig.getBooleanValue("with_label");
 
-        segmentParam.append("random_num", params.getSplitDataRandomNum())
+        output.append("random_num", params.getSplitDataRandomNum())
                 .append("train_ratio", params.getTrainingRatio() / (params.getTrainingRatio() + params.getVerificationRatio()))
                 .append("with_label", withLabel)
                 .append("label_name", "y")
                 .append("label_type", "int");
 
-        taskParam.put("params", segmentParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override

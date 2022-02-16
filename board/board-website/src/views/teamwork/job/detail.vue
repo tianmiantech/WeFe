@@ -108,7 +108,7 @@
                                     任务信息: {{ scope.row.task.message.substr(0, 300) }}...
                                     <el-button
                                         type="primary"
-                                        size="mini"
+                                        size="small"
                                         @click="checkErrorDetail(scope.row.task.message)"
                                     >查看更多</el-button>
                                 </template>
