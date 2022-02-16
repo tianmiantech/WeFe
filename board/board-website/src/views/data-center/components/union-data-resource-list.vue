@@ -44,7 +44,7 @@
                 <router-link :to="{ name: 'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
-                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                     bf
                 </el-tag>
                 <br>

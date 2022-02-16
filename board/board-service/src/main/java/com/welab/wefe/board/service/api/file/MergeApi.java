@@ -17,15 +17,15 @@
 package com.welab.wefe.board.service.api.file;
 
 import com.welab.wefe.board.service.api.file.security.FileSecurityChecker;
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.base.file_system.UploadFile;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,19 +38,20 @@ import java.util.UUID;
 @Api(path = "file/merge", name = "Merge the chunks after the file is uploaded")
 public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
-    @Autowired
-    private Config config;
-
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
 
         String mergedFileName = UUID.randomUUID() + "-" + input.filename;
 
-        File dir = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier);
+        File dir = UploadFile.getBaseDir(input.uploadFileUseType)
+                .resolve(input.uniqueIdentifier)
+                .toFile();
 
         File[] parts = dir.listFiles();
 
-        File mergedFile = new File(config.getFileUploadDir() + File.separator + mergedFileName);
+        File mergedFile = UploadFile.getBaseDir(input.uploadFileUseType)
+                .resolve(mergedFileName)
+                .toFile();
 
         if (mergedFile.exists()) {
             return success(new Output(mergedFileName));
@@ -58,7 +59,10 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         try {
             for (int i = 1; i <= parts.length; i++) {
-                File part = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier, i + ".part");
+                File part = UploadFile.getBaseDir(input.uploadFileUseType)
+                        .resolve(input.uniqueIdentifier)
+                        .resolve(i + ".part")
+                        .toFile();
 
                 // append chunk to the target file
                 FileOutputStream stream = new FileOutputStream(mergedFile, true);
@@ -98,6 +102,8 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
     public static class Input extends AbstractApiInput {
         private String filename;
         private String uniqueIdentifier;
+        @Check(name = "文件用途", require = true)
+        private UploadFile.UseType uploadFileUseType;
 
         public String getFilename() {
             return filename;
@@ -113,6 +119,14 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         public void setUniqueIdentifier(String uniqueIdentifier) {
             this.uniqueIdentifier = uniqueIdentifier;
+        }
+
+        public UploadFile.UseType getUploadFileUseType() {
+            return uploadFileUseType;
+        }
+
+        public void setUploadFileUseType(UploadFile.UseType uploadFileUseType) {
+            this.uploadFileUseType = uploadFileUseType;
         }
     }
 }

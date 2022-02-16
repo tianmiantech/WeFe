@@ -21,7 +21,7 @@
             </el-tag>
         </div>
         <el-button
-            size="mini"
+            size="small"
             type="warning"
             class="tags-close-box"
             @click="closeOthers"

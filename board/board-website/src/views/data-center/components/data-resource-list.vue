@@ -25,7 +25,7 @@
                 <router-link :to="{ name: 'data-view', query: { id: scope.row.id, type: dataResourceTypeMap[scope.row.data_resource_type].type }}">
                     {{ scope.row.name }}
                 </router-link>
-                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                     bf
                 </el-tag>
                 <br>
