@@ -17,7 +17,7 @@ package com.welab.wefe.board.service.api.model.deep_learning;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -40,7 +40,7 @@ import java.io.File;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "/model/deep_learning/call/start", name = "调用深度学习模型")
+@Api(path = "model/deep_learning/call/start", name = "调用深度学习模型")
 public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, StartCallModelApi.Output> {
 
     @Autowired
@@ -49,11 +49,11 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
     @Override
     protected ApiResult<Output> handle(StartCallModelApi.Input input) throws Exception {
         // zip 文件解压到以 taskId 命名的文件夹中
-        String distDir = UploadFile.CallDeepLearningModel
+        String distDir = WeFeFileSystem.CallDeepLearningModel
                 .getZipFileUnzipDir(input.taskId)
                 .toAbsolutePath()
                 .toString();
-        File zipFile = UploadFile.CallDeepLearningModel.getZipFile(input.taskId);
+        File zipFile = WeFeFileSystem.CallDeepLearningModel.getZipFile(input.taskId);
         DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
 
         // 安全起见，把非图片文件删除掉。
@@ -111,7 +111,7 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
             }
 
-            UploadFile.CallDeepLearningModel.renameZipFile(filename, taskId);
+            WeFeFileSystem.CallDeepLearningModel.renameZipFile(filename, taskId);
 
         }
     }

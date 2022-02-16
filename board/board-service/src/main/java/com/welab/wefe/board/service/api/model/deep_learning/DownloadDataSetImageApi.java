@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.board.service.api.model.deep_learning;
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,12 +30,12 @@ import java.io.File;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "/model/deep_learning/call/download/image", name = "下载需要批量推理的zip文件")
+@Api(path = "model/deep_learning/call/download/image", name = "下载需要批量推理的zip文件")
 public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi.Input, ResponseEntity<?>> {
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
-        File file = UploadFile.CallDeepLearningModel
+        File file = WeFeFileSystem.CallDeepLearningModel
                 .getZipFileUnzipDir(input.taskId)
                 .resolve(input.filename)
                 .toFile();

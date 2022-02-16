@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
@@ -76,7 +76,7 @@ public class TableDataSetService extends DataResourceService {
         File file = null;
         switch (method) {
             case HttpUpload:
-                file = UploadFile.getFilePath(DataResourceType.TableDataSet, filename).toFile();
+                file = WeFeFileSystem.getFilePath(DataResourceType.TableDataSet, filename).toFile();
                 break;
             case LocalFile:
                 file = new File(filename);

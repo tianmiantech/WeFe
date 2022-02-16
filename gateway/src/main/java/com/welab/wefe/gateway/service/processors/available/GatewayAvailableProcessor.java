@@ -52,9 +52,12 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
         if (isCheckSelf(transferMeta)) {
             ServiceAvailableCheckOutput result = checkpointManager.checkAll();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
+        } else {
+            ServiceAvailableCheckOutput result = new ServiceAvailableCheckOutput();
+            result.available = false;
+            result.message = "非法会话来源，您无权访问此 gateway 服务，请检您的 gateway 内网地址是否正确。";
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         }
-
-        return super.remoteProcess(transferMeta);
     }
 
     @Override

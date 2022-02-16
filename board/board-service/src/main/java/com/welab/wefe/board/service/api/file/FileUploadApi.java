@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.file;
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -67,7 +67,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             chunkNumber = 0;
         }
 
-        File outFile = UploadFile.getBaseDir(input.uploadFileUseType)
+        File outFile = WeFeFileSystem.getBaseDir(input.uploadFileUseType)
                 .resolve(input.getIdentifier())
                 .resolve(chunkNumber + ".part")
                 .toFile();
@@ -93,7 +93,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             chunkNumber = 0;
         }
 
-        Path outputDir = UploadFile.getBaseDir(input.uploadFileUseType).resolve(input.getIdentifier());
+        Path outputDir = WeFeFileSystem.getBaseDir(input.uploadFileUseType).resolve(input.getIdentifier());
         FileUtil.createDir(outputDir.toString());
         LOG.info("创建目录 " + outputDir.toFile().exists() + " ：" + outputDir);
 
@@ -147,7 +147,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
         @Check(name = "文件类型")
         private String type;
         @Check(name = "文件用途", require = true)
-        private UploadFile.UseType uploadFileUseType;
+        private WeFeFileSystem.UseType uploadFileUseType;
 
         //region getter/setter
 
@@ -231,11 +231,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             this.type = type;
         }
 
-        public UploadFile.UseType getFileUseType() {
+        public WeFeFileSystem.UseType getFileUseType() {
             return uploadFileUseType;
         }
 
-        public void setFileUseType(UploadFile.UseType uploadFileUseType) {
+        public void setFileUseType(WeFeFileSystem.UseType uploadFileUseType) {
             this.uploadFileUseType = uploadFileUseType;
         }
 
