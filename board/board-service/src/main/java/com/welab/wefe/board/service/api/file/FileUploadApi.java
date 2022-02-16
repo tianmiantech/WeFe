@@ -231,14 +231,14 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             this.type = type;
         }
 
-        public WeFeFileSystem.UseType getFileUseType() {
+        public WeFeFileSystem.UseType getUploadFileUseType() {
             return uploadFileUseType;
         }
 
-        public void setFileUseType(WeFeFileSystem.UseType uploadFileUseType) {
+        public void setUploadFileUseType(WeFeFileSystem.UseType uploadFileUseType) {
             this.uploadFileUseType = uploadFileUseType;
         }
 
-        //endregion
+//endregion
     }
 }
