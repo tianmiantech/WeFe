@@ -93,7 +93,8 @@ cd $WORKSPACE/$BOARD_WEBSITE_RELATIVE_PATH
 echo 'PACK BOARD-WEBSITE'
 rm -rf $WORKSPACE/board/board-website/dist
 source ~/bash_profile
-nvm use 16.13.0
+#nvm use 16.13.0
+nvm use 14.15.0
 #npm install > /dev/null
 npm install
 # board/board-website/dist
