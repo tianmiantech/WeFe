@@ -6,9 +6,6 @@
         <el-form>
             <el-row :gutter="100">
                 <el-col :span="12">
-                    <!-- <el-divider content-position="center">
-                        基础信息
-                    </el-divider> -->
                     <div class="step-wrap pb30">
                         <span class="step">1</span>
                         <h3 class="mb20">校验任务</h3>
@@ -27,15 +24,9 @@
                             >
                                 {{ task.description }}
                             </el-form-item>
-                            <!-- <el-form-item
-                                label="合作方："
-                                label-width="180px"
-                            >
-                                {{ task.partner_name }}
-                            </el-form-item> -->
 
                             <el-form-item
-                                v-if="task.psi_actuator_role=='server'"
+                                v-if="task.psi_actuator_role === 'server'"
                                 label="对方数据量："
                                 label-width="100px"
                             >
@@ -104,7 +95,6 @@
                                 </template>
                             </el-form-item>
 
-
                             <el-form-item
                                 label="对齐样本："
                                 label-width="100px"
@@ -135,7 +125,6 @@
                                         </div>
                                     </template>
                                 </el-table-column>
-
 
                                 <el-table-column
                                     label="列数"
@@ -534,8 +523,8 @@
                    partner_list:       '',
                    is_trace:           false,
                    trace_column:       '',
-                   bloom_filter_list:[],
-                   data_set_list:[]
+                   bloom_filter_list:  [],
+                   data_set_list:      [],
                 },
 
 

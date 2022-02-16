@@ -3,226 +3,307 @@
         class="page"
         shadow="never"
     >
-        <el-form :model="form">
-            <el-row :gutter="40">
-                <el-col :span="10">
-                    <el-form-item
-                        prop="name"
-                        label="数据集名称："
-                        :rules="[
-                            { required: true, message: '数据集名称必填!' }
-                        ]"
-                    >
-                        <el-input
-                            v-model="form.name"
-                            size="large"
-                            maxlength="30"
-                            minlength="4"
-                            show-word-limit
-                        />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+        <el-form
+            class="page-form"
+            :model="form"
+        >
+            <el-form-item
+                prop="name"
+                label="数据集名称："
+                :rules="[{ required: true, message: '数据集名称必填!' }]"
+            >
+                <el-input
+                    v-model="form.name"
+                    size="large"
+                    maxlength="30"
+                    minlength="4"
+                    show-word-limit
+                />
+            </el-form-item>
 
-            <el-row :gutter="40">
-                <el-col :span="14">
-                    <el-form-item
-                        label="简介："
-                        style="width:100%;"
-                    >
-                        <el-input
-                            v-model="form.description"
-                            placeholder="简介, 描述"
-                            type="textarea"
-                            clearable
-                            rows="4"
-                        />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+            <el-form-item label="简介：">
+                <el-input
+                    v-model="form.description"
+                    placeholder="简介, 描述"
+                    maxlength="500"
+                    type="textarea"
+                    clearable
+                    rows="4"
+                />
+            </el-form-item>
 
             <div class="add-title">选择文件</div>
-            <!--            <el-divider/>-->
-            <el-row :gutter="40">
-                <el-col :span="14">
-                    <fieldset style="min-height:230px; background-color:#fff;">
-                        <legend>上传方式</legend>
-                        <el-form-item>
-                            <el-radio
-                                v-model="form.dataResourceSource"
-                                label="Sql"
-                            >
-                                数据库
-                            </el-radio>
+            <fieldset style="min-height:230px;">
+                <legend>上传方式</legend>
+                <el-form-item>
+                    <el-radio
+                        v-model="form.dataResourceSource"
+                        label="UploadFile"
+                    >
+                        上传数据集文件
+                    </el-radio>
+                    <el-radio
+                        v-model="form.dataResourceSource"
+                        label="Sql"
+                    >
+                        数据库
+                    </el-radio>
+                    <el-radio
+                        v-model="form.dataResourceSource"
+                        label="LocalFile"
+                    >
+                        服务器本地文件
+                    </el-radio>
 
-                            <el-radio
-                                v-model="form.dataResourceSource"
-                                label="UploadFile"
+                    <div v-if="form.dataResourceSource === 'Sql'">
+                        <el-form-item
+                            label="数据源:"
+                            label-width="60px"
+                        >
+                            <el-select
+                                v-model="search.database_name"
+                                filterable
+                                clearable
                             >
-                                上传数据集文件
-                            </el-radio>
-                            <el-radio
-                                v-model="form.dataResourceSource"
-                                label="LocalFile"
-                            >
-                                服务器本地文件
-                            </el-radio>
+                                <el-option
+                                    v-for="(data, index) in data_source_list"
+                                    :key="index"
+                                    :label="data.name"
+                                    :value="data.id"
+                                    @click.native="getDataSourceId(data.id)"
+                                />
+                            </el-select>
 
-                            <div v-if="form.dataResourceSource === 'Sql'">
-                                <el-form-item
-                                    label="数据源:"
-                                    label-width="60px"
+                            <el-button
+                                type="primary"
+                                @click="dataSource.show = true;"
+                            >
+                                新增数据源
+                            </el-button>
+
+                            <el-form-item label="查询语句">
+                                <el-input
+                                    v-model="form.sql"
+                                    type="textarea"
+                                    placeholder="select * from table where hello = 'world'"
+                                />
+                                <el-button
+                                    class="mt10"
+                                    @click="previewDataSet"
                                 >
-                                    <el-select
-                                        v-model="search.database_name"
-                                        filterable
-                                        clearable
-                                    >
-                                        <el-option
-                                            v-for="(data, index) in data_source_list"
-                                            :key="index"
-                                            :label="data.name"
-                                            :value="data.id"
-                                            @click.native="getDataSourceId(data.id)"
-                                        />
-                                    </el-select>
-
-                                    <router-link :to="{name: 'data-source-view'}">
-                                        <el-button type="primary">
-                                            新增数据源
-                                        </el-button>
-                                    </router-link>
-
-                                    <el-form-item label="查询语句">
-                                        <el-input
-                                            type="textarea"
-                                            v-model="form.sql"
-                                            placeholder="select * from table where hello = 'world'"
-                                        />
-                                        <el-button class="mt10" @click="previewDataSet">
-                                            查询测试
-                                        </el-button>
-                                    </el-form-item>
-                                </el-form-item>
-                            </div>
+                                    查询测试
+                                </el-button>
+                            </el-form-item>
                         </el-form-item>
-                        <div v-if="form.dataResourceSource === 'LocalFile'">
-                            <el-input
-                                v-model="local_filename"
-                                placeholder="文件在服务器上的绝对路径"
-                                @keydown.enter.native="previewDataSet"
-                                @keydown.tab.native="previewDataSet"
-                            />
+                    </div>
+                </el-form-item>
+                <div v-if="form.dataResourceSource === 'LocalFile'">
+                    <el-input
+                        v-model="local_filename"
+                        placeholder="文件在服务器上的绝对路径"
+                        @keydown.enter.native="previewDataSet"
+                        @keydown.tab.native="previewDataSet"
+                        @blur="previewDataSet"
+                    />
 
-                            <div class="el-upload__tip">
-                                <ul class="data-set-upload-tip">
-                                    <li>主键字段必须是第一列，并且会被自动 hash</li>
-                                    <li>
-                                        主键重复的数据会被自动去重，仅保留第一条
-                                    </li>
-                                    <li>y 值列的列名必须为 y</li>
-                                    <li>
-                                        csv 文件请使用 utf-8 编码格式
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="el-upload__tip">
+                        <ul class="data-set-upload-tip">
+                            <li>主键字段必须是第一列，并且会被自动 hash</li>
+                            <li>
+                                主键重复的数据会被自动去重，仅保留第一条
+                            </li>
+                            <li>y 值列的列名必须为 y</li>
+                            <li>
+                                csv 文件请使用 utf-8 编码格式
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-                        <uploader
-                            v-if="form.dataResourceSource === 'UploadFile'"
-                            :options="file_upload_options"
-                            @file-complete="fileUploadComplete"
-                            @file-removed="fileRemoved"
-                            @file-added="fileAdded"
+                <uploader
+                    v-if="form.dataResourceSource === 'UploadFile'"
+                    :options="file_upload_options"
+                    @file-complete="fileUploadComplete"
+                    @file-removed="fileRemoved"
+                    @file-added="fileAdded"
+                >
+                    <uploader-unsupport />
+                    <uploader-drop v-if="file_upload_options.files.length === 0">
+                        <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>
+                        或
+                        <uploader-btn
+                            :attrs="file_upload_attrs"
+                            :single="true"
                         >
-                            <uploader-unsupport />
-                            <uploader-drop v-if="file_upload_options.files.length === 0">
-                                <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>
-                                或
-                                <uploader-btn
-                                    :attrs="file_upload_attrs"
-                                    :single="true"
-                                >
-                                    点击上传
-                                </uploader-btn>
-                                <uploader-list :file-list="file_upload_options.files.length" />
-                            </uploader-drop>
+                            点击上传
+                        </uploader-btn>
+                        <uploader-list :file-list="file_upload_options.files.length" />
+                    </uploader-drop>
 
-                            <div class="el-upload__tip">
-                                <ul class="data-set-upload-tip">
-                                    <li>注意</li>
-                                    <li>
-                                        主键重复的数据会被自动去重，仅保留第一条
-                                    </li>
-                                    <li>y 值列的列名必须为 y</li>
-                                    <li>
-                                        csv 文件请使用 utf-8 编码格式
-                                    </li>
-                                </ul>
-                            </div>
-                            <uploader-list />
-                        </uploader>
-                    </fieldset>
-                </el-col>
-            </el-row>
-            <el-row
-                v-if="metadata_pagination.list.length > 0"
-                :gutter="40"
+                    <div class="el-upload__tip">
+                        <ul class="data-set-upload-tip">
+                            <li>注意</li>
+                            <li>
+                                主键重复的数据会被自动去重，仅保留第一条
+                            </li>
+                            <li>y 值列的列名必须为 y</li>
+                            <li>
+                                csv 文件请使用 utf-8 编码格式
+                            </li>
+                        </ul>
+                    </div>
+                    <uploader-list />
+                </uploader>
+            </fieldset>
+
+            <div class="add-title mt20">字段信息</div>
+            <el-alert
+                type="info"
+                description="* 请勾选需要上传的对齐字段信息 * 对齐标识字段建议限制5个以内 * 可包含样本的日期字段信息"
+            />
+            <el-table
+                class="preview-table"
+                :data="metadata_pagination.list"
+                :select-on-indeterminate="false"
+                @selection-change="handleSelectionChange"
             >
-                <el-col :span="10">
-                    <div class="add-title">字段信息</div>
-                    <el-table
-                        :data="metadata_pagination.list"
-                        :select-on-indeterminate="false"
-                        class="preview-table"
-                        @selection-change="handleSelectionChange"
-                    >
-                        <el-table-column
-                            type="selection"
-                            width="45"
-                        />
-                        <el-table-column
-                            prop="name"
-                            label="名称"
-                        />
-                        <el-table-column
-                            label="数据类型"
-                        >
-                            <template slot-scope="scope">
-                                {{ scope.row.data_type }}
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-col>
-            </el-row>
-            <el-row
-                :gutter="100"
-                class="m20"
+                <el-table-column
+                    type="selection"
+                    width="45"
+                />
+                <el-table-column
+                    prop="name"
+                    label="名称"
+                />
+                <el-table-column
+                    label="数据类型"
+                >
+                    <template slot-scope="scope">
+                        {{ scope.row.data_type }}
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <el-button
+                size="large"
+                type="primary"
+                class="save-btn mt20"
+                :disabled="(!isuploadok || !row_list.length) && form.dataResourceSource==='UploadFile'"
+                :loading="addLoading"
+                @click="add"
             >
-                <el-col :span="12">
-                    <br>
-                    <el-button
-                        class="save-btn mt20"
-                        type="primary"
-                        size="large"
-                        :disabled="(!isuploadok || !row_list.length) && form.dataResourceSource==='UploadFile'"
-                        :loading="addLoading"
-                        @click="add"
-                    >
-                        生成
-                    </el-button>
-                </el-col>
-            </el-row>
+                生成
+            </el-button>
         </el-form>
+
         <progressBar
             ref="progressRef"
             :process-data="processData"
         />
+
+        <el-dialog
+            :visible.sync="dataSource.show"
+            :close-on-click-modal="false"
+            title="添加数据源"
+            destroy-on-close
+            width="450px"
+        >
+            <el-form
+                v-loading="dataSource.loading"
+                label-width="130px"
+                class="flex-form"
+            >
+                <el-form-item
+                    label="数据源名称"
+                    required
+                >
+                    <el-input
+                        v-model="dataSource.name"
+                        placeholder="dataset-sql"
+                    />
+                </el-form-item>
+                <el-form-item label="数据库类型">
+                    <el-select v-model="dataSource.databaseType">
+                        <el-option
+                            v-for="item in dataSource.databaseTypes"
+                            :key="item"
+                            :value="item"
+                            :label="item"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item
+                    label="IP"
+                    required
+                >
+                    <el-input
+                        v-model="dataSource.host"
+                        placeholder="192.168.10.1"
+                        clearable
+                    />
+                </el-form-item>
+                <el-form-item
+                    label="端口"
+                    required
+                >
+                    <el-input
+                        v-model="dataSource.port"
+                        placeholder="3306"
+                        clearable
+                    />
+                </el-form-item>
+                <el-form-item
+                    label="库名"
+                    required
+                >
+                    <el-input
+                        v-model="dataSource.databaseName"
+                        placeholder="test"
+                        clearable
+                    />
+                </el-form-item>
+                <el-form-item label="数据库用户名">
+                    <el-input
+                        v-model="dataSource.userName"
+                        autocomplete="new-password"
+                        placeholder="admin"
+                        clearable
+                    />
+                </el-form-item>
+                <el-form-item label="数据库密码">
+                    <el-input
+                        v-model="dataSource.password"
+                        autocomplete="new-password"
+                        placeholder="password"
+                        type="password"
+                        clearable
+                    >
+                        <template v-slot:append>
+                            <el-button
+                                class="ml10"
+                                @click="pingTest"
+                            >
+                                连接测试
+                            </el-button>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button
+                        type="primary"
+                        @click="addDatabaseType"
+                    >
+                        保存
+                    </el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </el-card>
 </template>
 
 <script>
 import progressBar from '../components/progressBar';
+
 export default {
     components: {
         progressBar,
@@ -295,6 +376,22 @@ export default {
                 tag:           '',
                 source_type:   '',
             },
+
+            dataSource: {
+                loading:        false,
+                show:           false,
+                name:           '',
+                host:           '',
+                port:           '',
+                databaseName:   '',
+                userName:       '',
+                password:       '',
+                databaseType:   'MySql',
+                databaseTypes:  ['MySql', 'Hive', 'Impala'],
+                dataSourceList: [],
+                dataset:        [],
+            },
+
             data_source_list: [],
             data_source_id:   '',
             row_list:         [],
@@ -317,15 +414,80 @@ export default {
                     this.file_upload_options.files = [];
                 }
             },
-            deep: true,
+            deep: false,
+        },
+        'dataSource.show': {
+            handler(val) {
+                if (!val) {
+                    this.dataSource.name = '';
+                    this.dataSource.host = '';
+                    this.dataSource.port = '';
+                    this.dataSource.databaseName = '';
+                    this.dataSource.userName = '';
+                    this.dataSource.password = '';
+                    this.dataSource.dataset = [];
+                }
+            },
+            deep: false,
         },
     },
-    async created() {
-
-        await this.getUploaders();
+    created() {
+        this.getDataSources();
     },
-
     methods: {
+        async getDataSources() {
+            const { code, data } = await this.$http.get('/data_source/query');
+
+            if (code === 0) {
+                this.data_source_list = data.list;
+            }
+        },
+        // test db connect
+        async pingTest() {
+            this.dataSource.loading = true;
+            const { code } = await this.$http.post({
+                url:  '/data_source/test_db_connect',
+                data: {
+                    databaseType: this.dataSource.databaseType,
+                    databaseName: this.dataSource.databaseName,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
+                },
+            });
+
+            this.dataSource.loading = false;
+            if(code === 0) {
+                this.$message.success('数据库连接成功!');
+            }
+        },
+
+        // add data source
+        async addDatabaseType() {
+            this.dataSource.loading = true;
+            const { code } = await this.$http.post({
+                url:  '/data_source/add',
+                data: {
+                    databaseType: this.dataSource.databaseType,
+                    databaseName: this.dataSource.databaseName,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
+                },
+            });
+
+            this.dataSource.loading = false;
+            if(code === 0) {
+                this.dataSource.show = false;
+                this.$message.success('添加成功!');
+                this.getDataSources();
+            }
+        },
+
         handleSelectionChange(val) {
             this.row_list = [];
             val.forEach(item => {
@@ -512,9 +674,9 @@ export default {
             } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
                 this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
-            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) { 
-                this.$message.error('请选择字段信息！'); 
-                return; 
+            } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
+                this.$message.error('请选择字段信息！');
+                return;
             }
 
             const ids = [];
@@ -608,37 +770,14 @@ export default {
 
             cb(this.options_tags);
         },
-
-
-        async getUploaders() {
-            const { code, data } = await this.$http.get('/data_source/query');
-
-            if (code === 0) {
-                this.data_source_list = data.list;
-            }
-        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
-    .page {
-        overflow: visible;
-    }
+    .page {overflow: visible;}
 
-    .el-pagination {
-        overflow: auto;
-    }
-
-    .deduplication-tips {
-        font-size: 14px;
-
-        p:first-child {
-            font-weight: bold;
-            color: red;
-            padding: 8px 0 5px 0;
-        }
-    }
+    .page-form{max-width: 600px;}
 
     .c-grid {
         border: 1px solid #EBEEF5;
@@ -774,13 +913,4 @@ export default {
             margin-right: 4px;
         }
     }
-</style>
-<style lang="scss">
-// .preview-table {
-//     .el-table__header-wrapper {
-//         .el-checkbox{
-//             display: none;
-//         }
-//     }
-// }
 </style>

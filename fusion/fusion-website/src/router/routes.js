@@ -28,12 +28,12 @@ const baseRoutes = [
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
-                path: `${prefixPath}index`,
+                path: `${prefixPath}`,
                 name: 'index',
                 meta: {
                     title:  '主页',
                     icon:   'el-icon-monitor',
-                    active: `${prefixPath}index`,
+                    active: `${prefixPath}`,
                 },
                 component: () => import('../views/index/dataPanel.vue'),
             },
@@ -44,7 +44,6 @@ const baseRoutes = [
         meta: {
             title: '资源中心',
             icon:  'el-icon-office-building',
-            index: 0,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -140,7 +139,6 @@ const baseRoutes = [
         meta: {
             title: '任务中心',
             icon:  'el-icon-s-order',
-            index: 1,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -204,7 +202,6 @@ const baseRoutes = [
         meta: {
             title: '合作中心',
             icon:  'el-icon-user-solid',
-            index: 2,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -224,7 +221,6 @@ const baseRoutes = [
         meta: {
             title: '全局设置',
             icon:  'el-icon-setting',
-            index: 3,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [

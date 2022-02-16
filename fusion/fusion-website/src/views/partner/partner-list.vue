@@ -4,18 +4,18 @@
         shadow="never"
     >
         <el-form inline>
-            <el-form-item
-                label="合作方id:"
-                label-width="100px"
-            >
-                <el-input v-model="search.partner_id" />
+            <el-form-item label="合作方id:">
+                <el-input
+                    v-model="search.partner_id"
+                    clearable
+                />
             </el-form-item>
 
-            <el-form-item
-                label="合作方名称:"
-                label-width="100px"
-            >
-                <el-input v-model="search.name" />
+            <el-form-item label="合作方名称:">
+                <el-input
+                    v-model="search.name"
+                    clearable
+                />
             </el-form-item>
 
             <el-form-item>
@@ -27,6 +27,7 @@
                 </el-button>
 
                 <el-button
+                    class="ml20"
                     @click="
                         partner.editor=true,
                         partner.id='',
@@ -55,22 +56,22 @@
             <el-table-column
                 prop="partner_id"
                 label="id"
-                width="240px"
+                min-width="200px"
             />
             <el-table-column
                 label="合作方"
                 prop="name"
-                width="200px"
+                min-width="140px"
             />
 
             <el-table-column
                 label="调用域名"
                 prop="base_url"
-                width="360px"
+                min-width="260px"
             />
             <el-table-column
                 label="操作"
-                width="160px"
+                width="160"
             >
                 <template slot-scope="scope">
                     <el-button
@@ -87,7 +88,7 @@
                     </el-button>
 
                     <el-button
-                        type="button"
+                        type="danger"
                         @click="deletePartner(scope.row.id)"
                     >
                         删除
@@ -116,14 +117,22 @@
             title="添加合作方"
             width="600px"
         >
-            <div class="el-alert el-alert--info is-light">
-                <div class="el-alert__content">
-                    <div class="el-alert__title">
-                        <p>合作方id：合作方的全局配置的id，需对方提供</p>
-                        <p>合作方： 填写合作方名称</p>
-                        <p>调用域名：合作方融合系统的调用域名，需对方提供</p>
-                        公钥： 合作方的rsa公钥，需对方提供
-                    </div>
+            <div class="el-alert--info is-light f12">
+                <div>
+                    <span class="el-form-item__label">合作方ID：</span>
+                    <span class="el-form-item__content">合作方的fusion系统成员ID信息，需对方提供</span>
+                </div>
+                <div>
+                    <span class="el-form-item__label">合作方名称：</span>
+                    <span class="el-form-item__content">填写合作方名称</span>
+                </div>
+                <div>
+                    <span class="el-form-item__label">调用地址（域名/IP）：</span>
+                    <span class="el-form-item__content">合作方fusion融合系统的外网地址</span>
+                </div>
+                <div>
+                    <span class="el-form-item__label">合作方公钥：</span>
+                    <span class="el-form-item__content">合作方融合系统的成员公钥</span>
                 </div>
             </div>
             <el-form class="mt20">
@@ -166,7 +175,7 @@
                 <el-button
                     type="primary"
                     :disabled="!partner.name || !partner.partner_id || !partner.rsa_public_key"
-                    @click="partner.id ? editPartner() : addPartner()"
+                    @click="partner.id ? editPartner : addPartner"
                 >确定</el-button>
             </span>
         </el-dialog>
