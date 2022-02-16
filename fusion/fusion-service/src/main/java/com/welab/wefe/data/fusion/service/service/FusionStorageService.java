@@ -62,6 +62,14 @@ public class FusionStorageService {
         }
     }
 
+    public void dropTable(String dbName, String tbName) {
+        try {
+            getStorage().dropTable(dbName, tbName);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
     /**
      * Insert single data
      *
