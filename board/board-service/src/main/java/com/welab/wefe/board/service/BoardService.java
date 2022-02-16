@@ -70,7 +70,7 @@ public class BoardService implements ApplicationContextAware {
                 .instance()
                 .apiPackageClass(BoardService.class)
                 // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,
