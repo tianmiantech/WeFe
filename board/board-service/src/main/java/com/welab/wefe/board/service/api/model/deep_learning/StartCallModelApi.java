@@ -56,6 +56,13 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
         File zipFile = UploadFile.CallDeepLearningModel.getZipFile(input.taskId);
         DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
 
+        // 安全起见，把非图片文件删除掉。
+        for (File file : result.files) {
+            if (!FileUtil.isImage(file)) {
+                file.delete();
+            }
+        }
+
         // 调用飞桨开始推理
         TaskMySqlModel task = taskService.findOne(input.taskId);
 
