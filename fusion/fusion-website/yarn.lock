@@ -1950,10 +1950,10 @@ check-types@^8.0.3:
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-8.0.3.tgz#3356cca19c889544f2d7a95ed49ce508a0ecf552"
   integrity sha512-YpeKZngUmG65rLudJ4taU7VLkOCTMhNl/u4ctNC56LQS/zJTyNH0Lrtwm1tfTsbLlwvlfsA2d1c8vCf/Kh2KwQ==
 
-cheetah-grid@^0.23.0-alpha.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/cheetah-grid/-/cheetah-grid-0.23.0.tgz#49a8f7d1cb35d123fe4d40be5f34aac2f411c746"
-  integrity sha512-OXiNUlanp8Xn4AKZIGwGgP75y0j7o3UN6veDfaHUGHvMx0Ul+O/9rXEj0V9IAM2IwhAcKDzUZV9KpgMi6w+74Q==
+cheetah-grid@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/cheetah-grid/-/cheetah-grid-1.6.1.tgz#a0403078df7c064e3af8dad59f6fb6a285778b68"
+  integrity sha512-EqXcNviT1q5w9t1aa6gIzB81OULlXo5Nnlb6Drnza8Lu0bQE0HDcLMbczVmIdCTRj6a6hJydl9dy9/+ii7GgJg==
 
 "chokidar@>=2.0.0 <4.0.0", chokidar@^3.4.1:
   version "3.5.2"
@@ -7698,12 +7698,12 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vue-cheetah-grid@0.23.0-beta.1:
-  version "0.23.0-beta.1"
-  resolved "https://registry.yarnpkg.com/vue-cheetah-grid/-/vue-cheetah-grid-0.23.0-beta.1.tgz#31499d74f2def96b64012b5bffe41aeca9d5b717"
-  integrity sha512-6WpjnS1DuUG2XbPXlIovMOzkHemr9eKupEXQe27rEF5kv18rwUfw1rIbpdp+DKbvYuKhfaA4EzMHlkdSq7s99g==
+vue-cheetah-grid@^1.1.5:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/vue-cheetah-grid/-/vue-cheetah-grid-1.6.1.tgz#e42e9e1dea964b01a3b3c443ce56908544a235c3"
+  integrity sha512-+Ca08rmR6XxxNg47o3+02GCVBguHno+ThNsLVnYGt82Y9ERfSKeKDrLm6GrQIbr+V64n6oXPnStyMFCUko0s6A==
   dependencies:
-    cheetah-grid "^0.23.0-alpha.0"
+    cheetah-grid "^1.6.1"
 
 vue-eslint-parser@^7.0.0:
   version "7.11.0"

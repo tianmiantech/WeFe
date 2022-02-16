@@ -48,6 +48,17 @@ public class DataStorageService extends AbstractService {
         storageService.createTable(DB_NAME, tableName, rows);
     }
 
+    /**
+     * Drop table
+     */
+    public void dropTable(String tableName) {
+        if (!tableName.contains("data_fusion_")){
+            return;
+        }
+
+        storageService.dropTable(DB_NAME, tableName);
+    }
+
 
     /**
      * Insert a piece of data

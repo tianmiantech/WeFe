@@ -7,10 +7,7 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="业务Id:"
-                label-width="100px"
-            >
+            <el-form-item label="业务Id:">
                 <el-input
                     v-model="search.business_id"
                     clearable
@@ -41,34 +38,32 @@
                 width="240px"
             >
                 <template slot-scope="scope">
+                    <strong>{{ scope.row.name }}</strong>
                     <p class="id">{{ scope.row.business_id }}</p>
-                    {{ scope.row.name }}
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="合作方"
                 prop="partner_name"
-                width="240px"
+                width="140px"
             />
             <el-table-column
                 label="状态"
                 width="85px"
             >
                 <template slot-scope="scope">
-                    <TaskStatusTag
-                        :status="scope.row.status"
-                    />
+                    <TaskStatusTag :status="scope.row.status" />
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="数据资源"
-                width="360px"
+                width="260px"
             >
                 <template slot-scope="scope">
+                    <strong>{{ scope.row.data_resource_name }}</strong>
                     <p class="id">{{ scope.row.data_resource_id }}</p>
-                    {{ scope.row.data_resource_name }}
                 </template>
             </el-table-column>
 
@@ -95,7 +90,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -104,7 +99,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -113,12 +108,10 @@
 
             <el-table-column
                 label="操作"
-                width="92px"
+                width="100px"
             >
                 <template slot-scope="scope">
-                    <router-link
-                        :to="{name: 'task-pending-view', query: { id: scope.row.id }}"
-                    >
+                    <router-link :to="{name: 'task-pending-view', query: { id: scope.row.id }}">
                         <el-button
                             size="small"
                             type="primary"
@@ -144,92 +137,35 @@
                 @size-change="pageSizeChange"
             />
         </div>
-
-        <!--  <el-dialog
-                      :title="策略"
-                      :visible.sync="dataDialog"
-                  >
-                  <json-view :data="jsonData"/>
-           </el-dialog> -->
     </el-card>
 </template>
 
 <script>
     import table from '@src/mixins/table.js';
-    // import jsonView from 'vue-json-views';
     import TaskStatusTag from '@src/components/views/task-status-tag';
 
 
     export default {
-        // components: {
-        //             jsonView,
-        //         },
         components: {
             TaskStatusTag,
         },
         mixins: [table],
         data() {
             return {
-                 search: {
+                search: {
                    id:     '',
                    status: 'Pending',
-                 },
-                 headers: {
-                     token: localStorage.getItem('token') || '',
-                 },
-                getListApi:     '/task/paging',
-                userList:       [],
-                taskStatusList: [],
-                viewDataDialog: {
-                    visible: false,
-                    list:    [],
                 },
-                dataDialog: false,
-                jsonData:   '',
-
-                 task: {
-                   editor:             false,
-                   id:                 '',
-                   business_id:        '',
-                   partner_id:         '',
-                   partner_name:       '',
-                   name:               '',
-                   data_resource_id:   '',
-                   data_resource_name: '',
-                   data_resource_type: '',
-                   data_count:         '',
-                   row_count:          '',
-                   fusion_count:       '',
+                headers: {
+                    token: localStorage.getItem('token') || '',
                 },
+                getListApi: '/task/paging',
             };
         },
-        async created() {
-
-            await this.getStatus();
-
+        created() {
             this.getList();
         },
         methods: {
-
-            async getStatus() {
-                const { code, data } = await this.$http.get('/task/status',{
-                     },
-                );
-
-                if(code === 0) {
-                    this.taskStatusList = data;
-               //     this.search.status = this.taskStatusList[0]
-                }
-            },
-
-            showStrategys (string) {
-                this.dataDialog = true;
-                setTimeout(() => {
-                    this.jsonData = string;
-                });
-            },
-
-
             dateFormatter(timeStamp) {
                 let time = '';
                 // const now = Date.now();
@@ -256,14 +192,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
-        }
-    }
-</style>
