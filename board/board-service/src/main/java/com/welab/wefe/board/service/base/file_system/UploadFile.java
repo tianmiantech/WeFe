@@ -15,9 +15,13 @@
  */
 package com.welab.wefe.board.service.base.file_system;
 
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 
+import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -78,8 +82,39 @@ public class UploadFile {
     }
 
     public static class CallDeepLearningModel {
-        public static Path getFilePath(String filename) {
-            return getBaseDir(UseType.CallDeepLearningModel).resolve(filename);
+        public static File getZipFile(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
+        }
+
+        public static Path getZipFileUnzipDir(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
+        }
+
+        /**
+         * 将上传的文件重命名为以 taskId 命名的文件
+         *
+         * @param filename 原始文件名
+         */
+        public static File renameZipFile(String filename, String taskId) throws StatusCodeWithException {
+            File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
+            File renamedFile = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
+
+            if (!rawFile.exists()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + filename);
+            }
+
+            String suffix = FileUtil.getFileSuffix(filename);
+            if (!"zip".equalsIgnoreCase(suffix)) {
+                FileUtil.deleteFileOrDir(rawFile);
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
+            }
+
+            // 重命名之前新文件先删除之前重命名的文件
+            if (renamedFile.exists()) {
+                rawFile.renameTo(renamedFile);
+            }
+
+            return renamedFile;
         }
     }
 }

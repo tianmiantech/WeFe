@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.api.project.modeling.deep_learning;
+package com.welab.wefe.board.service.api.model.deep_learning;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.board.service.base.file_system.UploadFile;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.file.decompression.SuperDecompressor;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -40,36 +40,52 @@ import java.io.File;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "project/modeling/deep_learning/call", name = "调用深度学习模型")
-public class CallDeepLearningModelApi extends AbstractApi<CallDeepLearningModelApi.Input, CallDeepLearningModelApi.Output> {
+@Api(path = "/model/deep_learning/call/start", name = "调用深度学习模型")
+public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, StartCallModelApi.Output> {
 
     @Autowired
     private TaskService taskService;
 
     @Override
-    protected ApiResult<Output> handle(CallDeepLearningModelApi.Input input) throws Exception {
+    protected ApiResult<Output> handle(StartCallModelApi.Input input) throws Exception {
+        // zip 文件解压到以 taskId 命名的文件夹中
+        String distDir = UploadFile.CallDeepLearningModel
+                .getZipFileUnzipDir(input.taskId)
+                .toAbsolutePath()
+                .toString();
+        File zipFile = UploadFile.CallDeepLearningModel.getZipFile(input.taskId);
+        DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
 
+        // 调用飞桨开始推理
         TaskMySqlModel task = taskService.findOne(input.taskId);
 
         JObject dataSetInfo = JObject.create();
-        dataSetInfo.put("download_url", buildZipDownloadUrl(input.filename));
+        dataSetInfo.put("download_url", buildZipDownloadUrl(input.taskId));
         dataSetInfo.put("name", input.filename);
 
         JSONObject json = JSON.parseObject(task.getTaskConf());
         json.put("data_set", dataSetInfo);
 
-        return null;
+        return success(new Output(result.files.size()));
     }
 
-    private String buildZipDownloadUrl(String filename) {
+    private String buildZipDownloadUrl(String taskId) {
+        Api annotation = DownloadDataSetZipApi.class.getAnnotation(Api.class);
+
         return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
-                + filename;
+                + "/"
+                + annotation.path()
+                + "?taskId=" + taskId;
     }
 
-
     public static class Output {
+        public int fileCount;
+
+        public Output(int fileCount) {
+            this.fileCount = fileCount;
+        }
     }
 
     public static class Input extends AbstractApiInput {
@@ -79,11 +95,6 @@ public class CallDeepLearningModelApi extends AbstractApi<CallDeepLearningModelA
         @Check(require = true, messageOnEmpty = "请指定数据集文件")
         public String filename;
 
-        @JSONField(serialize = false)
-        public File getFile() {
-            return UploadFile.CallDeepLearningModel.getFilePath(filename).toFile();
-        }
-
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
@@ -91,13 +102,9 @@ public class CallDeepLearningModelApi extends AbstractApi<CallDeepLearningModelA
             // 如果是单张图片，要打包为 zip。
             if (FileUtil.isImage(filename)) {
 
-            } else {
-                String suffix = FileUtil.getFileSuffix(filename);
-                if (!"zip".equalsIgnoreCase(suffix)) {
-                    FileUtil.deleteFileOrDir(getFile());
-                    StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
-                }
             }
+
+            UploadFile.CallDeepLearningModel.renameZipFile(filename, taskId);
 
         }
     }
