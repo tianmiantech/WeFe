@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-import os
+import os,sys
 import asyncio
 import enum
 import json
@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Optional, MutableMapping, List
 import attr
 import grpc
+from pathlib import Path
 from aiohttp import web
 from visualfl import extensions
 from visualfl.paddle_fl.abs.job import Job
@@ -22,7 +23,8 @@ from visualfl.utils.exception import VisualFLExtensionException
 from visualfl.utils.logger import Logger
 from visualfl.utils.tools import *
 from visualfl.utils.consts import TaskStatus
-
+from visualfl.utils import data_loader
+from visualfl import __logs_dir__
 
 class _JobStatus(enum.Enum):
     """
@@ -31,6 +33,7 @@ class _JobStatus(enum.Enum):
 
     NOTFOUND = "not_found"
     APPLYING = "applying"
+    INFERING = "infering"
     WAITING = "waiting"
     PROPOSAL = "proposal"
     RUNNING = "running"
@@ -52,6 +55,7 @@ class _SharedStatus(object):
         self.cluster_task_queue: asyncio.Queue[job_pb2.Task] = asyncio.Queue()
         self.job_queue: asyncio.Queue[Job] = asyncio.Queue()
         self.apply_queue: asyncio.Queue[Job] = asyncio.Queue()
+        self.infer_queue: asyncio.Queue[Job] = asyncio.Queue()
         self.job_counter = 0
 
     def generate_job_id(self):
@@ -133,6 +137,7 @@ class RESTService(Logger):
         route_table.post("/apply")(self._restful_apply)
         route_table.post("/submit")(self._restful_submit)
         route_table.post("/query")(self._restful_query)
+        route_table.post("/infer")(self._restful_infer)
         return route_table
 
     def web_response(self,code,message,job_id=None):
@@ -225,7 +230,7 @@ class RESTService(Logger):
 
     async def _restful_apply(self, request: web.Request) -> web.Response:
         """
-        handle query request
+        handle apply request
 
         Args:
             request:
@@ -274,6 +279,65 @@ class RESTService(Logger):
 
         self.shared_status.job_status[job_id] = _JobStatus.APPLYING
         await self.shared_status.apply_queue.put(job)
+
+        return self.web_response(200, "success", job_id)
+
+    async def _restful_infer(self, request: web.Request) -> web.Response:
+        """
+        handle query request
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        try:
+            data = await request.json()
+            self.debug(f"restful infer request data: {data}")
+        except json.JSONDecodeError as e:
+            return self.web_response(400, str(e))
+
+        try:
+            job_id = data["job_id"]
+            task_id = data["task_id"]
+            role = data["role"]
+            member_id = data["member_id"]
+            job_type = data["job_type"]
+            config = data["env"]
+            callback_url = data["callback_url"]
+            data_set = data["data_set"]
+            download_url = data_set["download_url"]
+            data_name = data_set["name"]
+            config["download_url"] = download_url
+            config["data_name"] = data_name
+            algorithm_config = data.get("algorithm_config")
+            cur_step = TaskDao(task_id).get_task_progress()
+            input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
+            output_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/output/{data_name}")
+            infer_dir = data_loader.job_download(download_url, job_id, input_dir, data_name),
+            config["cur_step"] = cur_step
+            config["infer_dir"] = infer_dir
+            config["output_dir"] = output_dir
+
+        except Exception:
+            return self.web_response(400, traceback.format_exc(),job_id)
+
+        try:
+            loader = extensions.get_job_class(job_type)
+            if loader is None:
+                raise VisualFLExtensionException(f"job type {job_type} not supported")
+            from visualfl.paddle_fl.job import PaddleFLJob
+            job = loader.load(
+                job_id=job_id, task_id=task_id, role=role, member_id=member_id, config=config,
+                algorithm_config=algorithm_config, callback_url=callback_url,is_infer=True
+            )
+
+        except Exception:
+            return self.web_response(400, traceback.format_exc(),job_id)
+
+        self.shared_status.job_status[job_id] = _JobStatus.INFERING
+        await self.shared_status.infer_queue.put(job)
 
         return self.web_response(200, "success", job_id)
 
@@ -400,6 +464,25 @@ class Master(Logger):
         r = requests.post(job._callback_url,json=json_data)
         self.debug(f"callback {job._callback_url} result: {r.text}")
 
+    async def _infer_job_handler(self):
+        """
+        handle infer jobs.
+        """
+        async def _co_handler(job: Job):
+
+            try:
+
+                    await job.infer()
+                    # self.callback(job)
+
+            except Exception as e:
+                self.exception(f"job infer failed: {e}")
+
+
+        while True:
+            infer_job = await self.shared_status.infer_queue.get()
+            asyncio.create_task(_co_handler(infer_job))
+
 
     async def _apply_job_handler(self):
         """
@@ -521,6 +604,9 @@ class Master(Logger):
 
         #get job from job_queue and send task to cluster by put it into a task queue
         asyncio.create_task(self._submitted_job_handler())
+
+        # get job from infer_queue
+        asyncio.create_task(self._infer_job_handler())
 
     async def stop(self):
         """

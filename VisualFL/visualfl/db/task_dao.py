@@ -86,7 +86,8 @@ class TaskDao(Logger):
         try:
             with DB.connection_context():
                 models = TaskResult.select().where(
-                    TaskResult.task_id == self._task_id
+                    TaskResult.task_id == self._task_id,
+                    TaskResult.type == type
                 )
 
                 tasks = Task.select().where(
@@ -287,6 +288,28 @@ class TaskDao(Logger):
         except Exception as e:
             self.exception(e)
             logging.error(f"add task {self._task_id} progress error as {e} ")
+
+    def get_task_progress(self):
+        """
+
+        get task progress
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        with DB.connection_context():
+            model = TaskProgress.select().where(
+                TaskProgress.task_id == self._task_id,
+            ).get()
+            if model.progress is not None:
+                return model.progress
+            else:
+                return None
+
 
     def finish_task_progress(self):
         """

@@ -110,7 +110,7 @@ def fl_trainer(
 ):
     import numpy as np
     import paddle.fluid as fluid
-
+    from visualfl import get_data_dir
     from ppdet.utils import checkpoint
 
     logging.basicConfig(
@@ -169,7 +169,7 @@ def fl_trainer(
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
 
-        data_dir = data_loader.job_download(download_url, job_id, data_name),
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir,data_name),
         reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(

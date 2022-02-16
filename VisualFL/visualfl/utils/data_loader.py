@@ -194,8 +194,7 @@ def valid(data_dir=DATA_DIR,mapper=test_mapper, buffered_size=1024, use_xmap=Tru
         buffered_size, use_xmap)
 
 
-def download(url, module_name, save_name=None):
-    dirname = os.path.join(get_data_dir(), module_name)
+def download(url, dirname, save_name=None):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
@@ -268,15 +267,15 @@ def un_zip(file_name,target_path):
     except Exception as e:
         print(e)
 
-def job_download(url, job_id, data_name):
-    data_file = download(url, "", f"{job_id}.zip")
-    target_data_dir = os.path.join(get_data_dir(), data_name)
-    un_zip(data_file, get_data_dir())
+def job_download(url, job_id,base_dir, data_name):
+    data_file = download(url, base_dir, f"{job_id}.zip")
+    target_data_dir = os.path.join(base_dir, data_name)
+    un_zip(data_file, base_dir)
 
     if os.path.exists(target_data_dir):
         shutil.rmtree(target_data_dir)
 
-    os.rename(os.path.join(get_data_dir(), job_id),
+    os.rename(os.path.join(base_dir, job_id),
               target_data_dir)
 
     # os.remove(data_file)

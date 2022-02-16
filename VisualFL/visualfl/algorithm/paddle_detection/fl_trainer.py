@@ -164,7 +164,7 @@ def fl_trainer(
         download_url = algorithm_config_json.get("download_url")
         data_name = algorithm_config_json.get("data_name")
 
-        data_dir = data_loader.job_download(download_url, job_id, data_name),
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir, data_name),
         cfg = merger_algorithm_config(algorithm_config_json)
         check_config(cfg)
         check_version()

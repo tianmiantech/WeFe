@@ -1,16 +1,17 @@
 
 
 import json
+import os.path
 import sys
 from pathlib import Path
 from typing import List
 
-from visualfl import __logs_dir__
 from visualfl.paddle_fl.abs.job import Job
 from visualfl.paddle_fl.executor import ProcessExecutor
 from visualfl.protobuf import job_pb2, cluster_pb2
 from visualfl.utils.exception import VisualFLJobCompileException
 from visualfl.protobuf import fl_job_pb2
+from visualfl import __basedir__,__logs_dir__
 JOB_TYPE = "paddle_fl"
 
 
@@ -18,9 +19,12 @@ class PaddleFLJob(Job):
     job_type = JOB_TYPE
 
     @classmethod
-    def load(cls, job_id,task_id, role, member_id, config, algorithm_config,callback_url=None) -> "PaddleFLJob":
+    def load(cls, job_id,task_id, role, member_id, config, algorithm_config,callback_url=None,is_infer=False,) -> "PaddleFLJob":
         job =  PaddleFLJob(job_id=job_id,task_id=task_id,role=role,member_id=member_id)
-        job._init_fl_job(config,algorithm_config,callback_url)
+        if is_infer:
+            job._init_infer_job(config,algorithm_config,callback_url)
+        else:
+            job._init_fl_job(config,algorithm_config,callback_url)
         return job
 
     def __init__(self,job_id,task_id,role,member_id):
@@ -42,6 +46,25 @@ class PaddleFLJob(Job):
         self._aggregator_assignee = config.get("aggregator_assignee",None)
         self._callback_url = callback_url
 
+    def _init_infer_job(self, config, algorithm_config, callback_url=None):
+        self._local_trainer_indexs = config["local_trainer_indexs"]
+        self._program = algorithm_config["program"]
+        self._config_string = json.dumps(config)
+        self._algorithm_config = json.dumps(algorithm_config)
+        self._callback_url = callback_url
+        self._use_gpu = True if config["device"].lower() == 'gpu' else False
+        self._output_dir = config["output_dir"]
+        self._infer_dir = config["infer_dir"]
+        cur_step = config["cur_step"]
+        self._weights = Path(__logs_dir__).joinpath(
+                f"jobs/{self.job_id}/train_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}.pdparams")
+        architecture = algorithm_config["architecture"]
+        if self._program == "paddle_detection":
+            program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
+            default_config_name = 'default_algorithm_config.yml'
+            self._algorithm_config = os.path.join(program_full_path, "configs", architecture.lower(),
+                                                    default_config_name)
+
     @property
     def resource_required(self):
         return cluster_pb2.TaskResourceRequire.REQ(num_endpoints=2)
@@ -55,6 +78,10 @@ class PaddleFLJob(Job):
     @property
     def compile_path(self):
         return Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/master")
+
+    @property
+    def infer_path(self):
+        return Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/infer")
 
     async def compile(self):
         executor = ProcessExecutor(self.compile_path)
@@ -75,6 +102,25 @@ class PaddleFLJob(Job):
         returncode,pid = await executor.execute(cmd)
         if returncode != 0:
             raise VisualFLJobCompileException("compile error")
+
+    async def infer(self):
+        executor = ProcessExecutor(self.infer_path)
+        executable = sys.executable
+        cmd = " ".join(
+            [
+                f"{executable} -m visualfl.algorithm.{self._program}.infer",
+                f"--job_id {self.job_id}",
+                f"--task_id {self._web_task_id}",
+                f"-o use_gpu={self._use_gpu} weights={self._weights}",
+                f"--infer_dir {self._infer_dir}",
+                f"--output_dir {self._output_dir}",
+                f"-c {self._algorithm_config}",
+                f">{executor.stdout} 2>{executor.stderr}",
+            ]
+        )
+        returncode, pid = await executor.execute(cmd)
+        if returncode != 0:
+            raise VisualFLJobCompileException("infer error")
 
     def generate_trainer_tasks(self) -> List[job_pb2.Task]:
         tasks = []

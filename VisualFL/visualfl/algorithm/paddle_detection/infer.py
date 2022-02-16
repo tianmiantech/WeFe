@@ -27,7 +27,6 @@ import numpy as np
 import six
 from PIL import Image, ImageOps
 
-import paddle
 from paddle import fluid
 
 from ppdet.core.workspace import load_config, merge_config, create
@@ -37,8 +36,8 @@ from ppdet.utils.cli import ArgsParser
 from ppdet.utils.check import check_gpu, check_version, check_config, enable_static_mode
 from ppdet.utils.visualizer import visualize_results
 import ppdet.utils.checkpoint as checkpoint
-
 from ppdet.data.reader import create_reader
+from visualfl.db.task_dao import TaskDao
 
 import logging
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
@@ -100,10 +99,12 @@ def main():
 
     main_arch = cfg.architecture
 
-    dataset = cfg.TestReader['dataset']
+    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, "PaddleDetection", type="infer")
 
+    dataset = cfg.TestReader['dataset']
     test_images = get_test_images(FLAGS.infer_dir, FLAGS.infer_img)
     dataset.set_images(test_images)
+    dataset.anno_path = os.path.join(FLAGS.infer_dir,"label_list.txt")
 
     place = fluid.CUDAPlace(0) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -147,7 +148,7 @@ def main():
     if cfg.metric == "WIDERFACE":
         from ppdet.utils.widerface_eval_utils import bbox2out, lmk2out, get_category_info
 
-    anno_file = dataset.get_anno()
+    anno_file = dataset.anno_path
     with_background = dataset.with_background
     use_default_label = dataset.use_default_label
 
@@ -201,6 +202,8 @@ def main():
             lmk_results = lmk2out([res], is_bbox_normalized)
 
         # visualize result
+        infer_results = {}
+        data = []
         im_ids = res['im_id'][0]
         for im_id in im_ids:
             image_path = imid2path[int(im_id)]
@@ -232,11 +235,26 @@ def main():
             save_name = get_save_image_name(FLAGS.output_dir, image_path)
             logger.info("Detection bbox results save in {}".format(save_name))
             image.save(save_name, quality=95)
+            # xmin, ymin, w, h
+            for bbox in bbox_results:
+                category_id = bbox["category_id"]
+                bbox["category_name"] = catid2name[category_id]
+            bbox_dict ={"image":os.path.basename(image_path),"bbox_results":bbox_results}
+            data.append(bbox_dict)
+            infer_results["result"] = data
+            infer_results["status"] = "finish"
+        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_results,"PaddleDetection",type="infer")
+
 
 
 if __name__ == '__main__':
     enable_static_mode()
     parser = ArgsParser()
+    parser.add_argument(
+        "--task_id",
+        type=str,
+        default=None,
+        help="Directory for images to perform inference on.")
     parser.add_argument(
         "--infer_dir",
         type=str,
