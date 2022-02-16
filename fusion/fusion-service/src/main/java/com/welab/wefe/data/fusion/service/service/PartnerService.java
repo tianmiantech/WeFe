@@ -77,7 +77,7 @@ public class PartnerService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, input.getId());
         }
 
-        if (existByPartnerIdNotEqId(input.getPartnerId(), input.getId())) {
+        if (existByPartnerIdNotEqId(input.getMemberId(), input.getId())) {
             LOG.error("partnerId已存在");
             throw new StatusCodeWithException("该合作伙伴已存在，请检查后提交！", StatusCode.DATA_EXISTED);
         }
