@@ -30,8 +30,8 @@
 # limitations under the License.
 
 
-import functools
 import copy
+import functools
 import operator
 
 import numpy as np
@@ -39,10 +39,10 @@ import numpy as np
 from common.python.utils import log_utils
 from kernel.components.binning.core.bucket_binning import BucketBinning
 from kernel.components.binning.core.custom_binning import CustomBinning
-from kernel.components.binning.core.optimal_binning.optimal_binning import OptimalBinning
+from kernel.components.binning.core.iv_calculator import IvCalculator
 from kernel.components.binning.core.quantile_binning import QuantileBinning
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
-from kernel.security.cipher_compressor.compressor import CipherCompressorProvider, PackingCipherTensor
+from kernel.security.cipher_compressor.compressor import PackingCipherTensor
 from kernel.utils import consts
 
 LOGGER = log_utils.get_logger()
@@ -52,7 +52,10 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
 
     def __init__(self):
         super(VertFeatureBinningProvider, self).__init__()
-        self.compressor = CipherCompressorProvider()
+        self.compressor = None
+        self.iv_calculator = IvCalculator(self.model_param.adjustment_factor,
+                                          role=self.role,
+                                          party_id=self.component_properties.local_member_id)
 
     def fit(self, data_instances):
         self._abnormal_detection(data_instances)
@@ -131,7 +134,7 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
         model_param.category_indexs = []
         model_param.bin_indexes = []
         send_result = {
-            "encrypted_bin_sum": encrypted_bin_sum,
+            "encrypted_bin_sum": encrypted_bin_sum.collect(),
             "category_names": self.bin_inner_param.encode_col_name_list(self.bin_inner_param.category_names),
             "model_param": model_param
             # "bin_method": self.model_param.method,
@@ -144,6 +147,7 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             #     "min_bin_pct": self.model_param.optimal_binning_param.min_bin_pct
             # }
         }
+        LOGGER.debug(f"send_reuslt:{send_result}")
         LOGGER.debug("Send bin_info.category_names: {}, bin_info.bin_method: {}".format(send_result['category_names'],
                                                                                         send_result['model_param']))
 

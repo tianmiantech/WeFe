@@ -1,4 +1,6 @@
 import functools
+
+from kernel.security import EncryptModeCalculator
 from kernel.security.cipher_compressor.compressor import get_homo_encryption_max_int
 from kernel.security.cipher_compressor.compressor import PackingCipherTensor
 from kernel.security.cipher_compressor.compressor import CipherPackage

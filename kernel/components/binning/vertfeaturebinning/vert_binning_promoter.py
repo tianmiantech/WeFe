@@ -37,6 +37,7 @@ from common.python.utils import log_utils
 from kernel.base import statics
 from kernel.components.binning.core.bucket_binning import BucketBinning
 from kernel.components.binning.core.custom_binning import CustomBinning
+from kernel.components.binning.core.iv_calculator import IvCalculator
 from kernel.components.binning.core.optimal_binning.optimal_binning import OptimalBinning
 from kernel.components.binning.core.quantile_binning import QuantileBinning
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
@@ -54,26 +55,29 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
     def __init__(self):
         super(VertFeatureBinningPromoter, self).__init__()
+        self.labels = None
         self._packer: PromoterIntegerPacker = None
+        self.iv_calculator = IvCalculator(self.model_param.adjustment_factor,
+                                          role=self.role,
+                                          party_id=self.component_properties.local_member_id)
 
     def fit(self, data_instances):
         LOGGER.info("Start feature binning fit and transform")
         self._abnormal_detection(data_instances)
 
-        schema = data_instances.schema
-        data_instances = data_instances.mapValues(self.load_data)
-        data_instances.schema = schema
-
         label_counts_dict = data_util.get_label_count(data_instances)
-        if len(label_counts_dict) < 2:
-            raise ValueError("Iv calculation support binary-data only in this version.")
+        modes = self.model_param.modes
+        binning_methods = self.parse_binning_method(modes)
+        if len(label_counts_dict) > 2:
+            if consts.OPTIMAL in binning_methods:
+                raise ValueError("Have not supported optimal binning in multi-class data yet")
 
         self.labels = list(label_counts_dict.keys())
         label_counts = [label_counts_dict[k] for k in self.labels]
-        label_table = data_util.convert_label(data_instances, self.labels)
+        label_table = IvCalculator.convert_label(data_instances, self.labels)
+        LOGGER.debug(f'label_tabel={label_table.first()}')
 
-        modes = self.model_param.modes
-        self.caculate_promoter_iv(modes, label_table, data_instances)
+        self.caculate_promoter_iv(modes, label_table, label_counts, data_instances)
 
         if self.model_param.local_only:
             LOGGER.info("This is a local only binning fit")
@@ -114,6 +118,13 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         self.transform(data_instances)
         LOGGER.debug("Finish feature binning fit and transform,data_output,{}".format(self.data_output))
         return self.data_output
+
+    @staticmethod
+    def parse_binning_method(modes):
+        methods = []
+        for mode in modes:
+            methods.append(mode.get('method'))
+        return methods
 
     @staticmethod
     def encrypt(x, cipher):
@@ -164,7 +175,7 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                            f" non_event_total: {non_event_total}")
         return event_total, non_event_total
 
-    def caculate_promoter_iv(self, modes, label_table, data_instances):
+    def caculate_promoter_iv(self, modes, label_table, label_counts, data_instances):
         all_bin_col_indexs = []
         all_bin_col_names = []
         for mode in modes:
@@ -188,11 +199,7 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                         self.binning_obj = CustomBinning(self.model_param)
                         self.binning_obj.params.feature_split_points = self.model_param.feature_split_points
                     elif self.model_param.method == consts.OPTIMAL:
-                        if self.role == consts.PROVIDER:
-                            self.model_param.bin_num = self.model_param.optimal_binning_param.init_bin_nums
-                            self.binning_obj = QuantileBinning(self.model_param)
-                        else:
-                            self.binning_obj = OptimalBinning(self.model_param)
+                        self.binning_obj = OptimalBinning(self.model_param)
 
                     LOGGER.debug(
                         "in _init_model, role: {}, local_member_id: {}".format(self.role, self.component_properties))
@@ -201,7 +208,14 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                     self.binning_obj.params.method = self.model_param.method
                     self._setup_bin_inner_param(data_instances, self.model_param)
                     self.binning_obj.fit_split_points(data_instances)
-                    self.binning_obj.cal_local_iv(data_instances, label_table=label_table)
+                    LOGGER.debug(f"data_instances={data_instances}")
+                    self.binning_obj.bin_results = self.iv_calculator.cal_local_iv(data_instances=data_instances,
+                                                                                   split_points=self.binning_obj.split_points,
+                                                                                   labels=self.labels,
+                                                                                   label_counts=label_counts,
+                                                                                   bin_cols_map=self.bin_inner_param.get_need_cal_iv_cols_map(),
+                                                                                   label_table=label_table)
+                    # self.binning_obj.cal_local_iv(data_instances, label_table=label_table)
                     LOGGER.debug("After cal_local_iv data_instances: {}".format(data_instances))
                     # print(self.binning_obj)
                     # LOGGER.debug("encrypted_bin_sums: {}".format(encrypted_bin_sums))
@@ -226,7 +240,6 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         encrypted_bin_infos_list = self.transfer_variable.encrypted_bin_sum.get(idx=-1)
 
         return self.caculate_provider_iv(data_instances, encrypted_bin_infos_list, cipher)
-
 
     def caculate_provider_iv(self, data_instances, encrypted_bin_infos_list, cipher):
         all_provider_result_list = []

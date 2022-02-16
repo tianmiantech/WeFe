@@ -1694,9 +1694,9 @@
  },
  "CipherCompressorTransferVariable": {
   "compress_para": {
-   "src": "provider",
+   "src": "promoter",
    "dst": [
-    "promoter"
+    "provider"
    ]
   }
  },

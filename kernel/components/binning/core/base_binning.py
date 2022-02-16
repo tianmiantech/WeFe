@@ -30,7 +30,6 @@
 # limitations under the License.
 
 
-
 import functools
 import math
 
@@ -139,6 +138,47 @@ class Binning(object):
             data_instances = self.convert_feature_to_woe(data_instances)
 
         return data_instances
+
+    @staticmethod
+    def get_data_bin_v2(data_instances, split_points, bin_cols_map):
+        """
+        Apply the binning method
+
+        Parameters
+        ----------
+        data_instances : Table
+            The input data
+
+        split_points : dict.
+            Each value represent for the split points for a feature. The element in each row represent for
+            the corresponding split point.
+            e.g.
+            split_points = {'x1': [0.1, 0.2, 0.3, 0.4 ...],    # The first feature
+                            'x2': [1, 2, 3, 4, ...],           # The second feature
+                            ...]                         # Other features
+
+        Returns
+        -------
+        data_bin_table : Table.
+
+            Each element represent for the corresponding bin number this feature belongs to.
+            e.g. it could be:
+            [{'x1': 1, 'x2': 5, 'x3': 2}
+            ...
+             ]
+        """
+        # self._init_cols(data_instances)
+        LOGGER.debug(f"get_data_bin-----data_instances={data_instances}")
+        is_sparse = data_util.is_sparse_data(data_instances)
+        header = data_instances.schema.get('header')
+
+        f = functools.partial(Binning.bin_data,
+                              split_points=split_points,
+                              cols_dict=bin_cols_map,
+                              header=header,
+                              is_sparse=is_sparse)
+        data_bin_dict = data_instances.mapValues(f)
+        return data_bin_dict
 
     def get_data_bin(self, data_instances, split_points=None):
         """
@@ -298,6 +338,24 @@ class Binning(object):
         sparse_vector = SparseVector(indice, sparse_value, data_shape)
         instances.features = sparse_vector
         return instances
+
+    @staticmethod
+    def get_sparse_bin_v2(transform_cols_idx, split_points_dict, header):
+        """
+        Get which bins the 0 located at for each column.
+
+        Returns
+        -------
+        Dict of sparse bin num
+            {0: 2, 1: 3, 2:5 ... }
+        """
+        result = {}
+        for col_idx in transform_cols_idx:
+            col_name = header[col_idx]
+            split_points = split_points_dict[col_name]
+            sparse_bin_num = Binning.get_bin_num(0, split_points)
+            result[col_idx] = sparse_bin_num
+        return result
 
     def get_sparse_bin(self, transform_cols_idx, split_points_dict):
         """
