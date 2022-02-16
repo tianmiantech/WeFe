@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author lonnie
  */
 @Component
-@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
+@PropertySource(value = {"application.properties"}, encoding = "utf-8")
 @ConfigurationProperties
 public class Config {
 
