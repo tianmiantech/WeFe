@@ -196,7 +196,7 @@ export default {
         onSubmit() {
             this.$refs.client.validate(async (valid) => {
                 if (valid) {
-                    const { code  } = await this.$http.post({
+                    const { code } = await this.$http.post({
                         url:  '/client/save',
                         data: {
                             id:        this.client.id,

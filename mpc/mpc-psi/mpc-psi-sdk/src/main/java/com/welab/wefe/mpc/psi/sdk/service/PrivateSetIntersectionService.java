@@ -28,7 +28,7 @@ import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 public class PrivateSetIntersectionService extends AbstractHttpTransferVariable {
 
 	public QueryPrivateSetIntersectionResponse handle(CommunicationConfig config, QueryPrivateSetIntersectionRequest request) {
-		return query(request, "", config, QueryPrivateSetIntersectionResponse.class);
+		return query(request, config.getApiName(), config, QueryPrivateSetIntersectionResponse.class);
 	}
 
 }
