@@ -401,7 +401,7 @@ public class TaskService extends AbstractService {
     }
 
     private void setName(TaskOutput model) throws StatusCodeWithException {
-        model.setPartnerName(CacheObjects.getPartnerName(model.getPartnerId()));
+        model.setPartnerMemberName(CacheObjects.getPartnerName(model.getPartnerMemberId()));
 
         if (DataResourceType.BloomFilter.equals(model.getDataResourceType())) {
             model.setDataResourceName(CacheObjects.getBloomFilterName(model.getDataResourceId()));
@@ -444,7 +444,7 @@ public class TaskService extends AbstractService {
      * @throws StatusCodeWithException
      */
     private void setPartnerList(TaskOutput model) throws StatusCodeWithException {
-        PartnerOutputModel partner = ModelMapper.map(partnerService.findByPartnerId(model.getPartnerId()),
+        PartnerOutputModel partner = ModelMapper.map(partnerService.findByPartnerId(model.getPartnerMemberId()),
                 PartnerOutputModel.class);
 
         model.setPartnerList(Arrays.asList(partner));
