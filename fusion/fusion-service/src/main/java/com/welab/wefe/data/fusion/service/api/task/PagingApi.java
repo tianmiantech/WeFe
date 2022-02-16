@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/paging", name = "任务列表", desc = "任务列表", login = true)
+@Api(path = "task/paging", name = "任务列表", desc = "任务列表")
 public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<TaskOutput>> {
     @Autowired
     TaskService taskService;
