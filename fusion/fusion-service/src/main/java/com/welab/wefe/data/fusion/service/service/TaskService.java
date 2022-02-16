@@ -315,7 +315,7 @@ public class TaskService extends AbstractService {
                 )
         );
 
-        //ActuatorManager.set(server);
+        ActuatorManager.set(server);
 
         server.run();
 

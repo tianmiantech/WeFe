@@ -68,12 +68,12 @@ public class CallbackService {
                 break;
             case falsify:
                 //Alignment data check invalid, shut down task
-                AbstractActuator job = ActuatorManager.get(input.getBusinessId());
+                AbstractTask job = ActuatorManager.get(input.getBusinessId());
                 job.finish();
                 break;
             case success:
                 //Mission completed. Destroy task
-                AbstractActuator successTask = ActuatorManager.get(input.getBusinessId());
+                AbstractTask successTask = ActuatorManager.get(input.getBusinessId());
                 successTask.finish();
 
                 break;
@@ -125,7 +125,7 @@ public class CallbackService {
 //                        task.getTraceColumn()
 //                );
 
-//        ActuatorManager.set(client);
+        ActuatorManager.set(client);
 
         client.run();
     }

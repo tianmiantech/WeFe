@@ -50,7 +50,7 @@ public class AppService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(AppService.class)
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.rsaVerify()) {
                         rsaVerify(params);
