@@ -94,7 +94,8 @@ echo 'PACK BOARD-WEBSITE'
 rm -rf $WORKSPACE/board/board-website/dist
 source ~/bash_profile
 nvm use 16.13.0
-npm install > /dev/null
+#npm install > /dev/null
+npm install
 # board/board-website/dist
 npm run build -- prod=board-website
 sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/board-service", prefixPath: "/board-website/"};</script>' dist/board-website/index.html
