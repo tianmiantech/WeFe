@@ -123,7 +123,7 @@ public class TaskService extends AbstractService {
         task.setBusinessId(businessId);
         task.setName(input.getName());
         task.setDataResourceId(input.getDataResourceId());
-        task.setPartnerId(input.getPartnerId());
+        task.setPartnerMemberId(input.getPartnerMemberId());
         task.setAlgorithm(input.getAlgorithm());
         task.setStatus(TaskStatus.Await);
         task.setDataResourceType(input.getDataResourceType());
@@ -171,7 +171,7 @@ public class TaskService extends AbstractService {
         task.setName(input.getName());
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
-        task.setPartnerId(input.getPartnerId());
+        task.setPartnerMemberId(input.getPartnerMemberId());
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -207,7 +207,7 @@ public class TaskService extends AbstractService {
         }
 
         //Find partner information
-        PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerId());
+        PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
             throw new StatusCodeWithException("No partner was found", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -343,7 +343,7 @@ public class TaskService extends AbstractService {
         //Add tasks
         TaskMySqlModel model = new TaskMySqlModel();
         model.setBusinessId(input.getBusinessId());
-        model.setPartnerId(input.getPartnerId());
+        model.setPartnerMemberId(input.getPartnerMemberId());
         model.setName(input.getName());
         model.setStatus(TaskStatus.Pending);
         model.setDataCount(input.getDataCount());
@@ -362,7 +362,7 @@ public class TaskService extends AbstractService {
         Specification<TaskMySqlModel> where = Where.create()
                 .equal("businessId", input.getBusinessId())
                 .equal("status", input.getStatus())
-                .equal("my_role", input.getMyRole())
+                .equal("myRole", input.getMyRole())
                 .build(TaskMySqlModel.class);
 
         PagingOutput<TaskMySqlModel> page = taskRepository.paging(where, input);

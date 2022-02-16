@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.api.task;
+package com.welab.wefe.data.fusion.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -22,33 +22,52 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
-import com.welab.wefe.data.fusion.service.service.TaskService;
+import com.welab.wefe.common.web.dto.NoneApiOutput;
+import com.welab.wefe.data.fusion.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/detail", name = "任务列表", desc = "任务列表")
-public class DetailApi extends AbstractApi<DetailApi.Input, TaskOutput> {
+@Api(path = "account/update_password", name = "change password")
+public class UpdatePasswordApi extends AbstractApi<UpdatePasswordApi.Input, NoneApiOutput> {
     @Autowired
-    TaskService taskService;
+    private AccountService accountService;
 
     @Override
-    protected ApiResult<TaskOutput> handle(DetailApi.Input input) throws StatusCodeWithException {
-        return success(taskService.detail(input.id));
+    protected ApiResult<NoneApiOutput> handle(Input input) throws StatusCodeWithException {
+        accountService.updatePassword(input.oldPassword, input.newPassword);
+
+        return success();
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "指定操作的taskId", require = true)
-        private String id;
 
-        public String getId() {
-            return id;
+        @Check(require = true)
+        private String oldPassword;
+
+        @Check(require = true)
+        private String newPassword;
+
+        //region getter/setter
+
+        public String getOldPassword() {
+            return oldPassword;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
         }
+
+        public String getNewPassword() {
+            return newPassword;
+        }
+
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
+        }
+
+
+        //endregion
     }
 }

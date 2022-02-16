@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author jacky.jiang
  */
-@Api(path = "partner/add", name = "添加合作伙伴", desc = "添加合作伙伴", login = false)
+@Api(path = "partner/add", name = "添加合作伙伴", desc = "添加合作伙伴")
 public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
     @Autowired
@@ -42,36 +42,33 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "合作伙伴Id", require = true)
-        String partnerId;
+        @Check(name = "联邦成员ID", require = true)
+        String memberId;
 
-        @Check(name = "合作伙伴名称", require = true)
-        String name;
+        @Check(name = "联邦成员名称", require = true)
+        String memberName;
 
-        @Check(name = "合作伙伴公钥", require = true)
+        @Check(name = "联帮成员fusion系统公钥", require = true)
         String rsaPublicKey;
 
         @Check(name = "请求路径", require = true)
         String baseUrl;
 
-        @Check(name = "我方开放地址", require = true)
-        int openSocketPort;
 
-
-        public String getName() {
-            return name;
+        public String getMemberName() {
+            return memberName;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
         }
 
-        public String getPartnerId() {
-            return partnerId;
+        public String getMemberId() {
+            return memberId;
         }
 
-        public void setPartnerId(String partnerId) {
-            this.partnerId = partnerId;
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
         }
 
         public String getRsaPublicKey() {
@@ -88,14 +85,6 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
-        }
-
-        public int getOpenSocketPort() {
-            return openSocketPort;
-        }
-
-        public void setOpenSocketPort(int openSocketPort) {
-            this.openSocketPort = openSocketPort;
         }
     }
 }

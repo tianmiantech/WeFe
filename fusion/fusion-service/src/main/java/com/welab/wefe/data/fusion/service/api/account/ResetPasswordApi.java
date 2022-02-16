@@ -14,33 +14,43 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.api.task;
+package com.welab.wefe.data.fusion.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.Base64Util;
+import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.dto.entity.TaskOutput;
-import com.welab.wefe.data.fusion.service.service.TaskService;
+import com.welab.wefe.data.fusion.service.service.AccountService;
+import org.bouncycastle.crypto.digests.MD5Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Base64;
+
 /**
- * @author hunter.zhao
+ * @author lonnie
  */
-@Api(path = "task/detail", name = "任务列表", desc = "任务列表")
-public class DetailApi extends AbstractApi<DetailApi.Input, TaskOutput> {
+@Api(path = "account/reset/password", name = "reset account password")
+public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String> {
+
     @Autowired
-    TaskService taskService;
+    private AccountService accountService;
 
     @Override
-    protected ApiResult<TaskOutput> handle(DetailApi.Input input) throws StatusCodeWithException {
-        return success(taskService.detail(input.id));
+    protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
+        return success(accountService.resetPassword(input));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Md5.of("15914412296"+"7o859908"+"15914412296"+"159"+ "7o859908".substring("7o859908".length() - 3)));;
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "指定操作的taskId", require = true)
+
+        @Check(name = "用户唯一标识", require = true)
         private String id;
 
         public String getId() {
@@ -51,4 +61,5 @@ public class DetailApi extends AbstractApi<DetailApi.Input, TaskOutput> {
             this.id = id;
         }
     }
+
 }

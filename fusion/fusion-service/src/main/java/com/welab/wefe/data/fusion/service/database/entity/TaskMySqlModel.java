@@ -38,7 +38,7 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
 
     String error;
 
-    String partnerId;
+    String partnerMemberId;
 
     String dataResourceId;
 
@@ -121,12 +121,12 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
+    public String getPartnerMemberId() {
+        return partnerMemberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setPartnerMemberId(String partnerMemberId) {
+        this.partnerMemberId = partnerMemberId;
     }
 
     public String getDataResourceId() {

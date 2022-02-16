@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author jacky.jiang
  */
-@Api(path = "partner/update", name = "添加合作伙伴", desc = "添加合作伙伴", login = false)
+@Api(path = "partner/update", name = "添加合作伙伴", desc = "添加合作伙伴")
 public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
     @Autowired

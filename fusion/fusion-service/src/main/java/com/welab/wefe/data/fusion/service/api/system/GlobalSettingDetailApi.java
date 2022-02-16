@@ -21,23 +21,22 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.data.fusion.service.database.repository.GlobalSettingRepository;
+import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.MemberInfoModel;
+import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
 @Api(path = "system/global_setting/detail", name = "获取 全局设置 详情")
-public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDetailApi.Output> {
+public class GlobalSettingDetailApi extends AbstractNoneInputApi<MemberInfoModel> {
 
     @Autowired
-    GlobalSettingRepository repo;
+    GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<Output> handle() throws StatusCodeWithException {
-        GlobalSettingDetailApi.Output output = ModelMapper.map(repo.singleton(), Output.class);
-        return success(output);
+    protected ApiResult<MemberInfoModel> handle() throws StatusCodeWithException {
+        return success(globalConfigService.getMemberInfo());
     }
 
 

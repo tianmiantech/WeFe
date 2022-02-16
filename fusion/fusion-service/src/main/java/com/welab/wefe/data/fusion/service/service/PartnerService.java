@@ -43,21 +43,21 @@ public class PartnerService extends AbstractService {
     PartnerRepository partnerRepository;
 
 
-    public PartnerMySqlModel findByPartnerId(String partnerId) {
-        return partnerRepository.findOne("partnerId", partnerId, PartnerMySqlModel.class);
+    public PartnerMySqlModel findByPartnerId(String memberId) {
+        return partnerRepository.findOne("memberId", memberId, PartnerMySqlModel.class);
     }
 
 
-    public boolean existByPartnerIdNotEqId(String partnerId, String id) {
+    public boolean existByPartnerIdNotEqId(String memberId, String id) {
         Specification<PartnerMySqlModel> where = Where.create()
-                .equal("partnerId", partnerId)
+                .equal("memberId", memberId)
                 .notEqual("id", id)
                 .build(PartnerMySqlModel.class);
         return partnerRepository.count(where) > 0;
     }
 
     public void add(AddApi.Input input) throws StatusCodeWithException {
-        if (findByPartnerId(input.getPartnerId()) != null) {
+        if (findByPartnerId(input.getMemberId()) != null) {
             LOG.error("该合作伙伴已存在，请检查后提交！");
             throw new StatusCodeWithException("该合作伙伴已存在，请检查后提交！", StatusCode.DATA_EXISTED);
 
@@ -93,8 +93,8 @@ public class PartnerService extends AbstractService {
      */
     public PagingOutput<PartnerMySqlModel> paging(PagingApi.Input input) {
         Specification<PartnerMySqlModel> where = Where.create()
-                .equal("partnerId", input.getPartnerId())
-                .equal("name", input.getName())
+                .equal("memberId", input.getMemberId())
+                .equal("memberName", input.getMemberName())
                 .build(PartnerMySqlModel.class);
 
 
@@ -106,8 +106,7 @@ public class PartnerService extends AbstractService {
     }
 
 
-
     public List<PartnerMySqlModel> list() {
-       return  partnerRepository.findAll();
+        return partnerRepository.findAll();
     }
 }
