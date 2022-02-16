@@ -29,18 +29,12 @@ import com.welab.wefe.common.wefe.enums.ColumnDataType;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetColumnOutputModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
-import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
-import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
-import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;

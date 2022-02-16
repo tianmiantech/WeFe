@@ -28,7 +28,7 @@ import java.util.Date;
 /**
  * @author zane.luo
  */
-public class ProjectDataSetOutputModel extends AbstractOutputModel {
+public class ProjectDataResourceOutputModel extends AbstractOutputModel {
 
     @Check(name = "项目 Id 项目主键")
     private String projectId;
@@ -44,12 +44,10 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
     private String auditComment;
     @Check(name = "状态更新时间")
     private Date statusUpdatedTime;
-    @Check(name = "数据集是否已删除")
-    private boolean deleted;
     @Check(name = "数据集类型")
     private DataResourceType dataResourceType;
     @Check(name = "数据集详情")
-    private DataResourceOutputModel dataSet;
+    private DataResourceOutputModel dataResource;
 
     //region getter/setter
 
@@ -60,14 +58,6 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
 
     public void setMemberRole(JobMemberRole memberRole) {
         this.memberRole = memberRole;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 
     public String getAuditComment() {
@@ -118,12 +108,12 @@ public class ProjectDataSetOutputModel extends AbstractOutputModel {
         this.statusUpdatedTime = statusUpdatedTime;
     }
 
-    public DataResourceOutputModel getDataSet() {
-        return dataSet;
+    public DataResourceOutputModel getDataResource() {
+        return dataResource;
     }
 
-    public void setDataSet(DataResourceOutputModel dataSet) {
-        this.dataSet = dataSet;
+    public void setDataResource(DataResourceOutputModel dataResource) {
+        this.dataResource = dataResource;
     }
 
     public DataResourceType getDataResourceType() {
