@@ -27,7 +27,11 @@
             </el-row>
         </div>
         <div class="bottom_side">
-            <el-tabs type="border-card">
+            <el-tabs
+                v-loading="loading"
+                type="border-card"
+                @tab-click="tabChange"
+            >
                 <el-tab-pane label="数据信息">
                     <el-table
                         :data="previewDataInfo"
@@ -46,11 +50,11 @@
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
-                <el-tab-pane label="数据预览">
-                    <div
-                        v-loading="loading"
-                        style="min-height: 200px;"
-                    >
+                <el-tab-pane
+                    label="数据预览"
+                    name="preview"
+                >
+                    <div style="min-height: 200px;">
                         <c-grid
                             v-if="!loading"
                             :theme="gridTheme"
@@ -135,12 +139,18 @@ export default {
                     const rows = data.raw_data_list;
 
                     if(length >= 15) length = 15;
-                    
+
                     this.resize(length);
                     this.table_data.rows = rows;
                     this.table_data.header = data.header;
                 }
             }
+        },
+        tabChange() {
+            this.loading = true;
+            setTimeout(_ => {
+                this.loading = false;
+            }, 200);
         },
         resize(length) {
             this.gridHeight = 41 * (length + 1) + 1;

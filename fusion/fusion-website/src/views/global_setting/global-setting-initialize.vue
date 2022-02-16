@@ -14,7 +14,7 @@
             >
                 <el-form-item
                     label="联邦成员id："
-                    required="true"
+                    required
                 >
                     <el-input
                         v-model.trim="form.member_id"
@@ -25,7 +25,7 @@
 
                 <el-form-item
                     label="联邦成员名称："
-                    required="true"
+                    required
                 >
                     <el-input
                         v-model.trim="form.member_name"
@@ -36,7 +36,7 @@
                 </el-form-item>
                 <el-form-item
                     label="私钥："
-                    required="true"
+                    required
                 >
                     <el-input
                         v-model.trim="form.rsa_private_key"
@@ -47,7 +47,7 @@
                 </el-form-item>
                 <el-form-item
                     label="公钥："
-                    required="true"
+                    required
                 >
                     <el-input
                         v-model.trim="form.rsa_public_key"
