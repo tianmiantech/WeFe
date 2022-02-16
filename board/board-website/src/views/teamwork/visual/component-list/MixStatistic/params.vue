@@ -14,7 +14,7 @@
                 <div class="el-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
-                        size="mini"
+                        size="small"
                         @click="methods.checkColumns(member, $index)"
                     >
                         选择特征（{{ member.features.length }}/{{ member.columns }}）
@@ -87,7 +87,7 @@
                     </el-checkbox>
                     <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         class="ml10"
                         @click="methods.revertCheck"
                     >

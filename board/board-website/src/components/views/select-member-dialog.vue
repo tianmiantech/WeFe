@@ -8,7 +8,7 @@
     >
         <el-form
             inline
-            size="mini"
+            size="small"
             @submit.prevent
         >
             <el-form-item
@@ -133,9 +133,8 @@
                 show:       false,
                 getListApi: '/union/member/query',
                 search:     {
-                    id:                 '',
-                    name:               '',
-                    requestFromRefresh: true,
+                    id:   '',
+                    name: '',
                 },
                 mutipleMembers:  [],
                 watchRoute:      false,

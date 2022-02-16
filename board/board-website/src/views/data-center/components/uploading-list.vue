@@ -75,10 +75,8 @@
         },
         data() {
             return {
-                getListApi: '/data_resource/upload_task/query',
-                search:     {
-                    requestFromRefresh: true,
-                },
+                getListApi:    '/data_resource/upload_task/query',
+                search:        {},
                 defaultSearch: false,
                 watchRoute:    false,
                 turnPageRoute: false,

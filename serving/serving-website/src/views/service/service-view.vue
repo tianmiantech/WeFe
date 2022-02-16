@@ -916,6 +916,10 @@
                             };
                         });
                         $params.operator = operator;
+
+                        if($params.service_config.length === 0) {
+                            return this.$message.error('请选择服务配置');
+                        }
                     } else {
                         // 1 || 3
                         let return_fields = [];

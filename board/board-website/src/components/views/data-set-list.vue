@@ -17,7 +17,7 @@
                         :to="{ name: 'data-add-transition' }"
                         target="_blank"
                     >
-                        <el-button style="display:block;" type="primary" size="mini">
+                        <el-button style="display:block;" type="primary" size="small">
                             上传数据资源
                             <el-icon>
                                 <elicon-arrow-right />
@@ -173,6 +173,7 @@
                     <slot name="operation">
                         <div class="cell-reverse">
                             <el-tooltip
+                                v-if="is_my_data_set"
                                 content="预览数据"
                                 placement="top"
                             >
