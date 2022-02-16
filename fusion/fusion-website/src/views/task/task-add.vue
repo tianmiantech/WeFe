@@ -396,8 +396,8 @@
                                 >
                                     <template slot-scope="scope">
                                         <div>
-                                            {{ scope.row.partner_name }}
-                                            <p class="id">{{ scope.row.partner_id }}</p>
+                                            {{ scope.row.partner_member_name }}
+                                            <p class="id">{{ scope.row.partner_member_id }}</p>
                                         </div>
                                     </template>
                                 </el-table-column>
@@ -484,21 +484,21 @@
 
                 // task
                 task: {
-                   editor:             false,
-                   id:                 '',
-                   business_id:        '',
-                   partner_id:         '',
-                   partner_name:       '',
-                   name:               '',
-                   data_resource_id:   '',
-                   data_resource_name: '',
-                   data_resource_type: 'DataSet',
-                   row_count:          '',
-                   created_time:       '',
-                   psi_actuator_role:  '',
-                   description:        '',
-                   is_trace:           false,
-                   trace_column:       '',
+                   editor:              false,
+                   id:                  '',
+                   business_id:         '',
+                   partner_member_id:   '',
+                   partner_member_name: '',
+                   name:                '',
+                   data_resource_id:    '',
+                   data_resource_name:  '',
+                   data_resource_type:  'DataSet',
+                   row_count:           '',
+                   created_time:        '',
+                   psi_actuator_role:   '',
+                   description:         '',
+                   is_trace:            false,
+                   trace_column:        '',
                 },
 
                 column: {
@@ -551,15 +551,6 @@
 
                 field_info_display: false,
                 keyRes:             '',
-
-                // fieldInfoList: [
-                //     {
-                //         columns:     '',
-                //         option:      '',
-                //         frist_index: '',
-                //         end_index:   '',
-                //     },
-                // ],
             };
         },
         methods: {
@@ -611,7 +602,7 @@
                     url:  '/task/add',
                     data: {
                         name:               this.task.name,
-                        partner_id:         this.task.partner_id,
+                        partner_member_id:  this.task.partner_member_id,
                         data_resource_id:   this.task.data_resource_id,
                         data_resource_type: this.task.data_resource_type,
                         field_info_list:    this.fieldInfoList,
@@ -682,13 +673,13 @@
             },
 
             selectPartner(item) {
-                this.task.partner_id=item.partner_id;
-                this.task.partner_name=item.name;
+                this.task.partner_member_id=item.partner_member_id;
+                this.task.partner_member_name=item.name;
 
                 const partner = {
-                    partner_id:   item.partner_id,
-                    partner_name: item.name,
-                    base_url:     item.base_url,
+                    partner_member_id:   item.partner_member_id,
+                    partner_member_name: item.name,
+                    base_url:            item.base_url,
                 };
 
                 this.partnerList = [];

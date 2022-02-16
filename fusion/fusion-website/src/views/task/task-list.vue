@@ -81,7 +81,7 @@
 
             <el-table-column
                 label="合作方"
-                prop="partner_name"
+                prop="partner_member_name"
                 width="200px"
             />
 
