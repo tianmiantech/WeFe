@@ -399,7 +399,7 @@
                                 label-width="100px"
                                 required
                             >
-                                {{ task.partner_name }}
+                                {{ task.partner_member_name }}
                             </el-form-item> -->
 
 
@@ -415,8 +415,8 @@
                                 >
                                     <template slot-scope="scope">
                                         <div>
-                                            {{ scope.row.partner_name }}
-                                            <p class="id">{{ scope.row.partner_id }}</p>
+                                            {{ scope.row.partner_member_name }}
+                                            <p class="id">{{ scope.row.partner_member_id }}</p>
                                         </div>
                                     </template>
                                 </el-table-column>
@@ -508,23 +508,23 @@
 
                 // task
                 task: {
-                   editor:             false,
-                   id:                 '',
-                   business_id:        '',
-                   partner_id:         '',
-                   partner_name:       '',
-                   name:               '',
-                   data_resource_id:   '',
-                   data_resource_name: '',
-                   data_resource_type: '',
-                   created_time:       '',
-                   psi_actuator_role:  '',
-                   description:        '',
-                   partner_list:       '',
-                   is_trace:           false,
-                   trace_column:       '',
-                   bloom_filter_list:  [],
-                   data_set_list:      [],
+                   editor:              false,
+                   id:                  '',
+                   business_id:         '',
+                   partner_member_id:   '',
+                   partner_member_name: '',
+                   name:                '',
+                   data_resource_id:    '',
+                   data_resource_name:  '',
+                   data_resource_type:  '',
+                   created_time:        '',
+                   psi_actuator_role:   '',
+                   description:         '',
+                   partner_list:        '',
+                   is_trace:            false,
+                   trace_column:        '',
+                   bloom_filter_list:   [],
+                   data_set_list:       [],
                 },
 
 
