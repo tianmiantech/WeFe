@@ -64,7 +64,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             // If you are not a super administrator, you will be prompted that you cannot log in.
             else {
                 AccountMysqlModel superAdmin = accountService.findSuperAdmin();
-                return fail("The system has not been initialized, please contact " + superAdmin.getNickname() + " Initialize the system.");
+                return fail("系统尚未初始化, 请联系管理员 " + superAdmin.getNickname() + " 初始化系统.");
             }
         }
 

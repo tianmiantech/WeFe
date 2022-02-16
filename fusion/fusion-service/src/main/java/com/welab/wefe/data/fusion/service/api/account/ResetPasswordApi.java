@@ -44,10 +44,6 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String
         return success(accountService.resetPassword(input));
     }
 
-    public static void main(String[] args) {
-        System.out.println(Md5.of("15914412296"+"7o859908"+"15914412296"+"159"+ "7o859908".substring("7o859908".length() - 3)));;
-    }
-
     public static class Input extends AbstractApiInput {
 
         @Check(name = "用户唯一标识", require = true)

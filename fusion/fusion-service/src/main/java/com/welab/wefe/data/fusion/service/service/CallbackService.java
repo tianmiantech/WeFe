@@ -78,7 +78,7 @@ public class CallbackService {
 
                 break;
             default:
-                throw new RuntimeException("Unexpected enumeration：" + input.getType());
+                throw new RuntimeException("意料之外的枚举值：" + input.getType());
         }
     }
 
@@ -95,7 +95,7 @@ public class CallbackService {
 
         TaskMySqlModel task = taskService.findByBusinessId(businessId);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
         }
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);

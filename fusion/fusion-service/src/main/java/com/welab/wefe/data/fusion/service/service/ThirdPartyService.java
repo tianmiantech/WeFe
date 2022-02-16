@@ -67,7 +67,7 @@ public class ThirdPartyService {
         //Find Partner information
         PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
-            throw new StatusCodeWithException("No partner information was found", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("未查找到对应的合作方信息", StatusCode.DATA_NOT_FOUND);
         }
 
         request(partner.getBaseUrl(), "task/receive", params);

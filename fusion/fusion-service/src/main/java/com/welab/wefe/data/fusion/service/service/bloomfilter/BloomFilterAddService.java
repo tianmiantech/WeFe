@@ -120,7 +120,7 @@ public class BloomFilterAddService extends AbstractService {
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
             }
         }
 
