@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.service.data_resource.add;
 
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -73,7 +73,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         BloomFilterAddInputModel input = (BloomFilterAddInputModel) in;
         BloomFilterMysqlModel model = (BloomFilterMysqlModel) m;
 
-        String sourceFilePath = UploadFile.getFilePath(DataResourceType.BloomFilter, input.getFilename())
+        String sourceFilePath = WeFeFileSystem.getFilePath(DataResourceType.BloomFilter, input.getFilename())
                 .toAbsolutePath()
                 .toString();
 

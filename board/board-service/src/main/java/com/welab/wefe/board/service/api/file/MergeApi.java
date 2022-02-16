@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.api.file;
 
 import com.welab.wefe.board.service.api.file.security.FileSecurityChecker;
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -43,13 +43,13 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         String mergedFileName = UUID.randomUUID() + "-" + input.filename;
 
-        File dir = UploadFile.getBaseDir(input.uploadFileUseType)
+        File dir = WeFeFileSystem.getBaseDir(input.uploadFileUseType)
                 .resolve(input.uniqueIdentifier)
                 .toFile();
 
         File[] parts = dir.listFiles();
 
-        File mergedFile = UploadFile.getBaseDir(input.uploadFileUseType)
+        File mergedFile = WeFeFileSystem.getBaseDir(input.uploadFileUseType)
                 .resolve(mergedFileName)
                 .toFile();
 
@@ -59,7 +59,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         try {
             for (int i = 1; i <= parts.length; i++) {
-                File part = UploadFile.getBaseDir(input.uploadFileUseType)
+                File part = WeFeFileSystem.getBaseDir(input.uploadFileUseType)
                         .resolve(input.uniqueIdentifier)
                         .resolve(i + ".part")
                         .toFile();
@@ -103,7 +103,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
         private String filename;
         private String uniqueIdentifier;
         @Check(name = "文件用途", require = true)
-        private UploadFile.UseType uploadFileUseType;
+        private WeFeFileSystem.UseType uploadFileUseType;
 
         public String getFilename() {
             return filename;
@@ -121,11 +121,11 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
             this.uniqueIdentifier = uniqueIdentifier;
         }
 
-        public UploadFile.UseType getUploadFileUseType() {
+        public WeFeFileSystem.UseType getUploadFileUseType() {
             return uploadFileUseType;
         }
 
-        public void setUploadFileUseType(UploadFile.UseType uploadFileUseType) {
+        public void setUploadFileUseType(WeFeFileSystem.UseType uploadFileUseType) {
             this.uploadFileUseType = uploadFileUseType;
         }
     }

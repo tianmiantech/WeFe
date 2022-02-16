@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.component.deep_learning;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetDownloadApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
@@ -39,6 +40,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -96,11 +98,13 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
     }
 
     private String buildDataSetDownloadUrl(String dataSetId, String jobId) {
+        Api annotation = ImageDataSetDownloadApi.class.getAnnotation(Api.class);
         return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
-                + "/image_data_set/download?"
-                + "data_set_id=" + dataSetId
+                + "/"
+                + annotation.path()
+                + "?data_set_id=" + dataSetId
                 + "&job_id=" + jobId;
 
     }

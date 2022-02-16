@@ -16,13 +16,20 @@
 package com.welab.wefe.board.service.base.file_system;
 
 import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
+ * 统一管理所有的文件，合理分配各种文件的目录，及时清理不需要的过期文件。
+ *
  * @author zane
  * @date 2022/2/15
  */
@@ -38,5 +45,131 @@ public class WeFeFileSystem {
 
     public static Path getRootDir() {
         return ROOT_DIR;
+    }
+
+    /**
+     * 文件用途
+     */
+    public enum UseType {
+        /**
+         * 添加数据资源
+         */
+        AddTableDataSet,
+        AddImageDataSet,
+        AddBloomFilter,
+        /**
+         * 调用深度学习模型
+         */
+        CallDeepLearningModel,
+        /**
+         * 下载深度学习模型
+         */
+        DownloadDeepLearningModel
+    }
+
+    /**
+     * 获取文件上传路径
+     */
+    public static Path getBaseDir(UseType type) {
+        String childDir = StringUtil.stringToUnderLineLowerCase(type.name());
+        return WeFeFileSystem.getRootDir().resolve(childDir);
+    }
+
+    public static Path getFilePath(UseType type, String filename) {
+        return getBaseDir(type).resolve(filename);
+    }
+
+    /**
+     * 获取资源上传完成后的完整路径
+     */
+    public static Path getFilePath(DataResourceType dataResourceType, String filename) {
+        return getFileDir(dataResourceType).resolve(filename);
+    }
+
+    /**
+     * 获取资源上传完成后的所在目录
+     */
+    public static Path getFileDir(DataResourceType dataResourceType) {
+        switch (dataResourceType) {
+            case TableDataSet:
+                return getBaseDir(UseType.AddTableDataSet);
+            case ImageDataSet:
+                return getBaseDir(UseType.AddImageDataSet);
+            case BloomFilter:
+                return getBaseDir(UseType.AddBloomFilter);
+            default:
+                return WeFeFileSystem.getRootDir();
+        }
+
+    }
+
+    public static class DownloadDeepLearningModel {
+        /**
+         * 获取下载中的模型文件
+         */
+        public static File getDownloadingModelFile(String taskId) {
+            return getBaseDir(UseType.DownloadDeepLearningModel).resolve(taskId + ".downloading").toFile();
+        }
+
+        /**
+         * 当模型下载完毕后，执行此操作。
+         */
+        public static File modelFileDownloadCompleted(String taskId) {
+            File downloadingModelFile = getDownloadingModelFile(taskId);
+            File modelFile = getModelFile(taskId);
+
+            downloadingModelFile.renameTo(modelFile);
+            return modelFile;
+        }
+
+        /**
+         * 获取下载完毕的模型文件
+         */
+        public static File getModelFile(String taskId) {
+            return getBaseDir(UseType.DownloadDeepLearningModel).resolve(taskId + ".model").toFile();
+        }
+    }
+
+    public static class CallDeepLearningModel {
+        /**
+         * 包含图片的zip文件
+         */
+        public static File getZipFile(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
+        }
+
+        /**
+         * zip 文件解压目录
+         */
+        public static Path getZipFileUnzipDir(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
+        }
+
+        /**
+         * 将上传的文件重命名为以 taskId 命名的文件
+         *
+         * @param filename 原始文件名
+         */
+        public static File renameZipFile(String filename, String taskId) throws StatusCodeWithException {
+            File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
+            File renamedFile = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
+
+            if (!rawFile.exists()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + filename);
+            }
+
+            String suffix = FileUtil.getFileSuffix(filename);
+            if (!"zip".equalsIgnoreCase(suffix)) {
+                FileUtil.deleteFileOrDir(rawFile);
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
+            }
+
+            // 重命名之前新文件先删除之前重命名的文件
+            if (renamedFile.exists()) {
+                rawFile.renameTo(renamedFile);
+            }
+
+            return renamedFile;
+        }
     }
 }
