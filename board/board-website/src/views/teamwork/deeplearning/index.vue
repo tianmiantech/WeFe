@@ -104,20 +104,21 @@
                                                 label-width="130px"
                                             >
                                                 <el-form-item label="数据资源名称：">
-                                                    {{ row.data_set.name }}
-                                                    <i
+                                                    {{ row.data_resource.name }}
+                                                    <el-icon 
                                                         v-if="!vData.disabled"
-                                                        title="移除"
-                                                        class="el-icon-circle-close f20 ml10"
+                                                        class="el-icon-circle-close f16 ml10"
                                                         @click="methods.removeDataSet(index)"
-                                                    />
+                                                    >
+                                                        <elicon-circle-close />
+                                                    </el-icon>
                                                 </el-form-item>
                                                 <el-form-item label="数据资源id："> {{ row.data_set_id }} </el-form-item>
-                                                <el-form-item v-if="row.data_set.description" label="数据资源简介：">
-                                                    {{ row.data_set.description }}
+                                                <el-form-item v-if="row.data_resource.description" label="数据资源简介：">
+                                                    {{ row.data_resource.description }}
                                                 </el-form-item>
                                                 <el-form-item label="关键词：">
-                                                    <template v-for="item in row.data_set.tags.split(',')" :key="item">
+                                                    <template v-for="item in row.data_resource.tags.split(',')" :key="item">
                                                         <el-tag
                                                             v-show="item"
                                                             class="mr10"
@@ -127,14 +128,14 @@
                                                     </template>
                                                 </el-form-item>
                                                 <el-form-item label="数据总量/已标注：">
-                                                    {{ row.data_set.total_data_count }} / {{ row.data_set.labeled_count }}
+                                                    {{ row.data_resource.total_data_count }} / {{ row.data_resource.labeled_count }}
                                                 </el-form-item>
                                                 <el-form-item label="样本分类：">
-                                                    {{row.data_set.for_job_type === 'classify' ? '图像分类' : row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                                    {{row.data_resource.for_job_type === 'classify' ? '图像分类' : row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
                                                 </el-form-item>
-                                                <el-form-item v-if="row.data_set.label_list" label="标注标签：">
-                                                    <template v-if="!vData.isAllLabel && row.data_set.label_list.split(',').length>9">
-                                                        <template v-for="item in row.data_set.label_list_part" :key="item">
+                                                <el-form-item v-if="row.data_resource.label_list" label="标注标签：">
+                                                    <template v-if="!vData.isAllLabel && row.data_resource.label_list.split(',').length>9">
+                                                        <template v-for="item in row.data_resource.label_list_part" :key="item">
                                                             <el-tag
                                                                 v-show="item"
                                                                 class="mr10"
@@ -144,7 +145,7 @@
                                                         </template>
                                                     </template>
                                                     <template v-else>
-                                                        <template v-for="item in row.data_set.label_list.split(',')" :key="item">
+                                                        <template v-for="item in row.data_resource.label_list.split(',')" :key="item">
                                                             <el-tag
                                                                 v-show="item"
                                                                 class="mr10"
@@ -153,7 +154,7 @@
                                                             </el-tag>
                                                         </template>
                                                     </template>
-                                                    <span v-if="row.data_set.label_list.split(',').length>9" @click="vData.isAllLabel = !vData.isAllLabel" class="check_tips">
+                                                    <span v-if="row.data_resource.label_list.split(',').length>9" @click="vData.isAllLabel = !vData.isAllLabel" class="check_tips">
                                                         {{ vData.isAllLabel ? '收起' : '查看全部' }}
                                                         <el-icon v-if="!vData.isAllLabel">
                                                             <elicon-arrow-down />
@@ -309,10 +310,10 @@
                                         />
                                     </el-form-item>
                                     <el-form-item label="图片通道数：" required>
-                                        <el-input
-                                            type="number"
-                                            v-model="vData.image_shape.aisle"
-                                        />
+                                        <el-radio-group v-model="vData.image_shape.aisle">
+                                            <el-radio :label="3">彩色（3）</el-radio>
+                                            <el-radio :label="1">黑白（1）</el-radio>
+                                        </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="图片宽度：" required>
                                         <el-input
@@ -348,17 +349,18 @@
 
                     </div>
                 </div>
-                <div class="operation_btn">
+                <div class="operations_btn">
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
-                    <el-button v-show="vData.active !== 2" type="primary" @click="methods.next">下一步</el-button>
+                    <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
+                    <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
                     <el-button v-show="vData.active === 2 && vData.jobInfo.status !== 'running'" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
                 <el-steps direction="vertical" :active="vData.active" align-center>
-                    <el-step title="基本设置" />
-                    <el-step title="数据输入与处理" />
-                    <el-step title="调整流程参数" />
+                    <el-step title="基本设置" @click="methods.changeSteps(0)" />
+                    <el-step title="数据输入与处理" @click="methods.changeSteps(1)" />
+                    <el-step title="调整流程参数" @click="methods.changeSteps(2)" />
                 </el-steps>
             </div>
         </div>
@@ -402,8 +404,10 @@
                     image_shape:  [],
                     batch_size:   128,
                 },
-                image_shape: {},
-                flowInfo:    {
+                image_shape: {
+                    aisle: 3,
+                },
+                flowInfo: {
                     project_id: '',
                 },
                 promoterList:      [],
@@ -517,6 +521,7 @@
                 isAllLabel:        false,
                 activeName:        'param',
                 isInResult:        false,
+                stopNext:          false,
             });
             const methods = {
                 async getFlowInfo() {
@@ -666,7 +671,6 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
-                    methods.submitFormData();
                 },
                 async submitFormData($event) {
                     const btnState = {};
@@ -804,16 +808,17 @@
                     });
                 },
                 selectDataSet(item) {
+                    vData.stopNext = false;
                     vData.showSelectDataSet = false;
                     const currentMember = vData.member_list[vData.memberIndex];
                     const dataset_list = currentMember.$data_set_list[0];
-                    const label_list = item.data_set.label_list.split(',');
+                    const label_list = item.data_resource.label_list.split(',');
                     const label_list_part = [];
 
                     for (let i=0; i<9; i++) {
                         label_list_part.push(label_list[i]);
                     }
-                    item.data_set.label_list_part = label_list_part;
+                    item.data_resource.label_list_part = label_list_part;
                     const dataset = {
                         ...item,
                     };
@@ -830,6 +835,20 @@
                     }
                     currentMember.$data_set_list = [];
                     currentMember.$data_set_list.push(dataset);
+                    if (vData.member_list[0].$data_set_list.length && vData.member_list[1].$data_set_list.length) {
+                        const isEqual = vData.member_list[0].$data_set_list[0] && vData.member_list[1].$data_set_list[0] && methods.scalarArrayEquals(vData.member_list[0].$data_set_list[0].data_resource.label_list.split(','), vData.member_list[1].$data_set_list[0].data_resource.label_list.split(','));
+
+                        if (isEqual) {
+                            methods.saveImageDataIOInfo();
+                            methods.submitFormData();
+                        } else {
+                            $message.error('请确保成员数据资源标注标签统一！');
+                            vData.stopNext = true;
+                        }
+                    }
+                },
+                scalarArrayEquals(array1,array2) {
+                    return array1.length === array2.length && array1.every(function(v,i) { return v === array2[i];});
                 },
                 dataSetSearch() {
                     const { allList, name, contains_y, data_set_id } = vData.rawSearch;
@@ -911,13 +930,13 @@
 
                                 if(~datasetIndex) {
                                     const item = data_set_list[datasetIndex];
-                                    const label_list = item.data_set.label_list.split(',');
+                                    const label_list = item.data_resource.label_list.split(',');
                                     const label_list_part = [];
 
                                     for (let i=0; i<9; i++) {
                                         label_list_part.push(label_list[i]);
                                     }
-                                    item.data_set.label_list_part = label_list_part;
+                                    item.data_resource.label_list_part = label_list_part;
                                     member.$data_set_list.push({
                                         ...item,
                                     });
@@ -955,7 +974,7 @@
                             vData.deepLearnParams.program = data.component_type === 'PaddleDetection' ? 'paddle_detection' : data.component_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
-                                    vData.image_shape.aisle = params.image_shape[0] || 0;
+                                    vData.image_shape.aisle = params.image_shape[0] || 3;
                                     vData.image_shape.width = params.image_shape[1] || 0;
                                     vData.image_shape.height = params.image_shape[2] || 0;
                                 }
@@ -999,7 +1018,7 @@
                     }
                     vData.formImageDataIO.flowId = vData.flow_id;
                     vData.formImageDataIO.nodeId = vData.flowInfo.graph ? vData.flowInfo.graph.nodes[1].id : vData.graphNodes.graph.nodes[1].id;
-                    vData.deepLearnParams.image_shape[0] = Number(vData.image_shape.aisle) || 0;
+                    vData.deepLearnParams.image_shape[0] = Number(vData.image_shape.aisle) || 3;
                     vData.deepLearnParams.image_shape[1] = Number(vData.image_shape.width) || 0;
                     vData.deepLearnParams.image_shape[2] = Number(vData.image_shape.height) || 0;
                     const params = {
@@ -1009,6 +1028,7 @@
                         params:        vData.deepLearnParams,
                     };
 
+                    // return;
                     vData.startLoading = true;
                     const { code } = await $http.post({
                         url:  '/project/flow/node/update',
@@ -1150,7 +1170,7 @@
                     cursor: pointer;
                     color: $--color-danger;
                     position: relative;
-                    top: 4px;
+                    top: 2px;
                 }
             }
         }
@@ -1184,6 +1204,13 @@
         }
         :deep(.el-step__head.is-finish) {
             border-color: #5088fc;
+        }
+    }
+    .operations_btn {
+        .stop_next_tips {
+            font-size: 12px;
+            color: $--color-danger;
+            padding-left: 6px;
         }
     }
 }
