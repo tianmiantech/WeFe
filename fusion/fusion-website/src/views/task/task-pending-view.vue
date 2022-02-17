@@ -242,8 +242,11 @@
                             label-width="100px"
                             required
                         >
-                            <el-button @click="addFieldInfo">
-                                + 添加主键 ({{ fieldInfoList.length }}/5)
+                            <el-button
+                                :disabled="fieldInfoList.length > 4"
+                                @click="addFieldInfo"
+                            >
+                                + 添加主键
                             </el-button>
                         </el-form-item>
 

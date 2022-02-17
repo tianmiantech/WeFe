@@ -219,12 +219,13 @@
                     <ul class="members mb30">
                         <li class="mt20">
                             <el-form-item
-                                v-if="task.data_resource_type =='DataSet' && dataSetList.length>0"
+                                v-if="task.data_resource_type === 'DataSet' && dataSetList.length"
                                 label="设置主键："
                                 label-width="100px"
                                 required
                             >
                                 <el-button
+                                    :disabled="fieldInfoList.length > 4"
                                     @click="addFieldInfo"
                                 >
                                     +  添加主键
