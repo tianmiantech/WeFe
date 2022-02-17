@@ -922,7 +922,7 @@
                         }
                     } else {
                         // 1 || 3
-                        let return_fields = [];
+                        const return_fields = [];
 
                         if(type === 1) {
                             this.form.data_source.return_fields.forEach(x => {
@@ -933,7 +933,11 @@
                                 }
                             });
                         } else {
-                            return_fields = [this.form.data_source.return_fields];
+                            const item = this.data_fields.find(y => y.name === this.form.data_source.return_fields);
+
+                            if(item) {
+                                return_fields.push(item);
+                            }
                         }
 
                         for(const i in obj.condition_fields) {
