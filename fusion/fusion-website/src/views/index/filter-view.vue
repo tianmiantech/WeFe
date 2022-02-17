@@ -106,6 +106,7 @@
                         placeholder="文件在服务器上的绝对路径"
                         @keydown.enter.native="previewDataSet"
                         @keydown.tab.native="previewDataSet"
+                        @blur="previewDataSet"
                     />
 
                     <div class="el-upload__tip">
@@ -155,11 +156,7 @@
                 </uploader>
             </fieldset>
 
-            <el-form
-                v-if="form.dataResourceSource === 'UploadFile'"
-                :gutter="120"
-                class="m20"
-            >
+            <el-form class="m20">
                 <el-form-item
                     v-if="metadata_pagination.list.length > 0"
                     label="设置主键："
@@ -170,7 +167,7 @@
                         :disabled="fieldInfoList.length > 4"
                         @click="addFieldInfo"
                     >
-                        + 添加 ({{ fieldInfoList.length }}/5)
+                        + 添加
                     </el-button>
                 </el-form-item>
 
@@ -349,6 +346,7 @@
 
 <script>
 import progressBar from '../components/progressBar';
+
 export default {
     components: {
         progressBar,
@@ -820,7 +818,6 @@ export default {
 
             this.fieldInfoList.push(fieldInfo);
         },
-
 
         removeFieldInfo($index) {
             this.fieldInfoList.splice($index, 1);
