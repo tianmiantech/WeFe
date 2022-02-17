@@ -15,7 +15,7 @@ CREATE TABLE `data_resource`
     `updated_by`              varchar(32) COMMENT '更新人',
     `updated_time`            datetime(6) COMMENT '更新时间',
     `name`                    varchar(256)  NOT NULL COMMENT '资源名称',
-    `data_resource_type`      varchar(32)   NOT NULL COMMENT '资源类型',
+    `data_resource_type`      varchar(32)   NOT NULL default 'TableDataSet' COMMENT '资源类型',
     `description`             varchar(3072) COMMENT '描述',
     `tags`                    varchar(128) COMMENT '标签',
     `storage_type`            varchar(32) COMMENT '存储类型',
