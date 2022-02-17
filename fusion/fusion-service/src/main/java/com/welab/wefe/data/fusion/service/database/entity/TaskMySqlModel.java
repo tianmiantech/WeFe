@@ -16,10 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
-import com.welab.wefe.data.fusion.service.enums.AlgorithmType;
-import com.welab.wefe.data.fusion.service.enums.DataResourceType;
-import com.welab.wefe.data.fusion.service.enums.PSIActuatorRole;
-import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.enums.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,7 +38,7 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
 
     String error;
 
-    String partnerId;
+    String partnerMemberId;
 
     String dataResourceId;
 
@@ -87,6 +84,11 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
     public String description;
 
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "my_role")
+    public RoleType myRole;
+
+
     public String getBusinessId() {
         return businessId;
     }
@@ -119,12 +121,12 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
+    public String getPartnerMemberId() {
+        return partnerMemberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setPartnerMemberId(String partnerMemberId) {
+        this.partnerMemberId = partnerMemberId;
     }
 
     public String getDataResourceId() {
@@ -213,5 +215,13 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public RoleType getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(RoleType myRole) {
+        this.myRole = myRole;
     }
 }

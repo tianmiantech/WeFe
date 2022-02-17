@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -26,7 +27,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
@@ -120,7 +121,7 @@ public class BloomFilterAddService extends AbstractService {
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
             }
         }
 
@@ -129,7 +130,7 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.save(model);
 
         AddApi.BloomfilterAddOutput output = new AddApi.BloomfilterAddOutput();
-        output.setDataSourceId(model.getDataSourceId());
+        output.setDataSourceId(model.getId());
         return output;
     }
 
@@ -176,7 +177,19 @@ public class BloomFilterAddService extends AbstractService {
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, file, rowsCount, processCount, rows, src);
         // Read all rows of data
-        dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, processCount);
+
+        int finalProcessCount = processCount;
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
+            } catch (StatusCodeWithException e) {
+
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
+
 
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
 

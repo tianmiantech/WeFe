@@ -23,9 +23,9 @@ import javax.persistence.Entity;
  */
 @Entity(name = "partner")
 public class PartnerMySqlModel extends AbstractBaseMySqlModel {
-    String partnerId;
+    String memberId;
 
-    String name;
+    String memberName;
 
     String rsaPublicKey;
 
@@ -33,20 +33,21 @@ public class PartnerMySqlModel extends AbstractBaseMySqlModel {
 
 //    int openSocketPort;
 
-    public String getPartnerId() {
-        return partnerId;
+
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
-    public String getName() {
-        return name;
+    public String getMemberName() {
+        return memberName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 
     public String getRsaPublicKey() {

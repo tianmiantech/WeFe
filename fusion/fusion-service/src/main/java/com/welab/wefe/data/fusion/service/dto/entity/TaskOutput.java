@@ -18,10 +18,7 @@ package com.welab.wefe.data.fusion.service.dto.entity;
 
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
-import com.welab.wefe.data.fusion.service.enums.AlgorithmType;
-import com.welab.wefe.data.fusion.service.enums.DataResourceType;
-import com.welab.wefe.data.fusion.service.enums.PSIActuatorRole;
-import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.enums.*;
 
 import java.util.List;
 
@@ -38,9 +35,9 @@ public class TaskOutput extends AbstractOutputModel{
 
     String error;
 
-    String partnerId;
+    String partnerMemberId;
 
-    String partnerName;
+    String partnerMemberName;
 
     String dataResourceId;
 
@@ -97,6 +94,11 @@ public class TaskOutput extends AbstractOutputModel{
      */
     private List<PartnerOutputModel> partnerList;
 
+    /**
+     * my_role
+     */
+    private RoleType myRole;
+
     public String getBusinessId() {
         return businessId;
     }
@@ -129,20 +131,20 @@ public class TaskOutput extends AbstractOutputModel{
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
+    public String getPartnerMemberId() {
+        return partnerMemberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setPartnerMemberId(String partnerMemberId) {
+        this.partnerMemberId = partnerMemberId;
     }
 
-    public String getPartnerName() {
-        return partnerName;
+    public String getPartnerMemberName() {
+        return partnerMemberName;
     }
 
-    public void setPartnerName(String partnerName) {
-        this.partnerName = partnerName;
+    public void setPartnerMemberName(String partnerMemberName) {
+        this.partnerMemberName = partnerMemberName;
     }
 
     public String getDataResourceId() {
@@ -265,5 +267,13 @@ public class TaskOutput extends AbstractOutputModel{
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public RoleType getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(RoleType myRole) {
+        this.myRole = myRole;
     }
 }

@@ -154,13 +154,21 @@ public class DataSetAddService extends AbstractService {
         List<String> headers = dataSetReader.getHeader(rows);
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
-
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);
 
-        dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+            } catch (StatusCodeWithException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
 
         // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+//        dataRowConsumer.waitForFinishAndClose();
 
         model.setStoraged(true);
 

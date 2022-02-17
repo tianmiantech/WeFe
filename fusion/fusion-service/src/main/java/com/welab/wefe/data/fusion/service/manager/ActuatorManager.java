@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.manager;
 
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +37,13 @@ public class ActuatorManager {
     /**
      * taskId : task
      */
-    private static final ConcurrentHashMap<String, AbstractActuator> ACTUATORS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AbstractTask> ACTUATORS = new ConcurrentHashMap<>();
 
-    public static AbstractActuator get(String businessId) {
+    public static AbstractTask get(String businessId) {
         return ACTUATORS.get(businessId);
     }
 
-    public static void set(AbstractActuator task) {
+    public static void set(AbstractTask task) {
 
         String businessId = task.getBusinessId();
         if (ACTUATORS.containsKey(businessId)) {
@@ -76,7 +77,7 @@ public class ActuatorManager {
     }
 
     public static JObject getTaskInfo(String businessId) {
-        AbstractActuator actuator = ACTUATORS.get(businessId);
+        AbstractTask actuator = ACTUATORS.get(businessId);
         if (actuator == null) {
             return null;
         }

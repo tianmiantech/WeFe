@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @author jacky.jiang
  */
-@Api(path = "data_set/get_headers", name = "添加数据集", desc = "获取特征字段", login = false)
+@Api(path = "data_set/get_headers", name = "添加数据集", desc = "获取特征字段")
 public class GetHeadersApi extends AbstractApi<GetHeadersApi.Input, GetHeadersApi.Output> {
 
     @Autowired

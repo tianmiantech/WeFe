@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="数据集ID:"
-                label-width="80px"
-            >
+            <el-form-item label="ID:">
                 <el-input v-model="search.id" />
             </el-form-item>
 
-            <el-form-item
-                label="数据集:"
-                label-width="100px"
-            >
+            <el-form-item label="名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
@@ -28,9 +22,7 @@
                 查询
             </el-button>
 
-            <router-link
-                :to="{name: 'data-set-view'}"
-            >
+            <router-link :to="{name: 'data-set-view'}">
                 <el-button>
                     新增
                 </el-button>
@@ -53,24 +45,37 @@
             >
                 <template slot-scope="scope">
                     <router-link :to="{name: 'data-set-detail', query: {id: scope.row.id, name: scope.row.name }}">
-                        {{ scope.row.id }}
+                        {{ scope.row.name }}
                     </router-link>
                     <br>
-                    {{ scope.row.name }}
+                    {{ scope.row.id }}
                 </template>
             </el-table-column>
 
             <el-table-column
-                label="数据量"
+                label="行数"
                 prop="row_count"
                 width="100px"
             />
             <el-table-column
-                label="描述"
-                prop="description"
-                width="360px"
-            />
-
+                label="字段信息"
+                prop="rows"
+            >
+                <template
+                    v-if="scope.row.rows"
+                    slot-scope="scope"
+                >
+                    <el-tag
+                        v-for="item in scope.row.rows.split(',')"
+                        :key="item"
+                        :type="item"
+                        effect="plain"
+                        style="margin-left : 5px"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="使用次数"
                 prop="used_count"
@@ -79,7 +84,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -88,7 +93,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -111,7 +116,6 @@
             </el-table-column>
         </el-table>
 
-
         <div
             v-if="pagination.total"
             class="mt20 text-r"
@@ -126,13 +130,6 @@
                 @size-change="pageSizeChange"
             />
         </div>
-
-        <!--  <el-dialog
-                      :title="策略"
-                      :visible.sync="dataDialog"
-                  >
-                  <json-view :data="jsonData"/>
-           </el-dialog> -->
 
         <el-dialog
             :visible.sync="dataSet.editor"
@@ -170,7 +167,7 @@
                 <el-button
                     type="primary"
                     :disabled="!dataSet.name || !dataSet.partner_id || !dataSet.data_resource_id"
-                    @click="dataSet.id?editTask():addTask()"
+                    @click="dataSet.id ? editTask: addTask"
                 >确定</el-button>
             </span>
         </el-dialog>
@@ -264,7 +261,7 @@
 
                     if (code === 0) {
                         this.$message('删除成功!');
-                        await this.getTableList();
+                        this.getTableList();
                     }
                 });
 
@@ -272,14 +269,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
-        }
-    }
-</style>

@@ -6,9 +6,6 @@
         <el-form>
             <el-row :gutter="100">
                 <el-col :span="12">
-                    <!-- <el-divider content-position="center">
-                        基础信息
-                    </el-divider> -->
                     <div class="step-wrap pb30">
                         <span class="step">1</span>
                         <h3 class="mb20">校验任务</h3>
@@ -27,15 +24,9 @@
                             >
                                 {{ task.description }}
                             </el-form-item>
-                            <!-- <el-form-item
-                                label="合作方："
-                                label-width="180px"
-                            >
-                                {{ task.partner_name }}
-                            </el-form-item> -->
 
                             <el-form-item
-                                v-if="task.psi_actuator_role=='server'"
+                                v-if="task.psi_actuator_role === 'server'"
                                 label="对方数据量："
                                 label-width="100px"
                             >
@@ -104,7 +95,6 @@
                                 </template>
                             </el-form-item>
 
-
                             <el-form-item
                                 label="对齐样本："
                                 label-width="100px"
@@ -135,7 +125,6 @@
                                         </div>
                                     </template>
                                 </el-table-column>
-
 
                                 <el-table-column
                                     label="列数"
@@ -410,7 +399,7 @@
                                 label-width="100px"
                                 required
                             >
-                                {{ task.partner_name }}
+                                {{ task.partner_member_name }}
                             </el-form-item> -->
 
 
@@ -426,8 +415,8 @@
                                 >
                                     <template slot-scope="scope">
                                         <div>
-                                            {{ scope.row.partner_name }}
-                                            <p class="id">{{ scope.row.partner_id }}</p>
+                                            {{ scope.row.partner_member_name }}
+                                            <p class="id">{{ scope.row.partner_member_id }}</p>
                                         </div>
                                     </template>
                                 </el-table-column>
@@ -519,23 +508,23 @@
 
                 // task
                 task: {
-                   editor:             false,
-                   id:                 '',
-                   business_id:        '',
-                   partner_id:         '',
-                   partner_name:       '',
-                   name:               '',
-                   data_resource_id:   '',
-                   data_resource_name: '',
-                   data_resource_type: '',
-                   created_time:       '',
-                   psi_actuator_role:  '',
-                   description:        '',
-                   partner_list:       '',
-                   is_trace:           false,
-                   trace_column:       '',
-                   bloom_filter_list:[],
-                   data_set_list:[]
+                   editor:              false,
+                   id:                  '',
+                   business_id:         '',
+                   partner_member_id:   '',
+                   partner_member_name: '',
+                   name:                '',
+                   data_resource_id:    '',
+                   data_resource_name:  '',
+                   data_resource_type:  '',
+                   created_time:        '',
+                   psi_actuator_role:   '',
+                   description:         '',
+                   partner_list:        '',
+                   is_trace:            false,
+                   trace_column:        '',
+                   bloom_filter_list:   [],
+                   data_set_list:       [],
                 },
 
 

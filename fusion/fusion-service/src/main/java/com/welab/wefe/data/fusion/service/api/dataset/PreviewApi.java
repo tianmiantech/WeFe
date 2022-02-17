@@ -82,12 +82,22 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             List<String> rows_list = Arrays.asList(rows.split(","));
 
             if (isStoraged) {
-                String tbName = "data_fusion_" + dataSetMySqlModel.getId();
-//                String sql = "Select * from " + tbName;
-                try {
-                    output = readFromDB(input.sql);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if(dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)){
+                    String tbName = "data_fusion_" + dataSetMySqlModel.getId();
+                    //                String sql = "Select * from " + tbName;
+                    try {
+                        output = readFromDB(input.sql);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else if (dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
+                    File file = dataSetService.getDataSetFile(dataSetMySqlModel.getDataResourceSource(), dataSetMySqlModel.getSourcePath());
+                    try {
+                        output = readFile(file);
+                    } catch (IOException e) {
+                        LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                        throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                    }
                 }
             }
 

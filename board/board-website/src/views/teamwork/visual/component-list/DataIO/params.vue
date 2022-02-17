@@ -87,7 +87,7 @@
                     </template>
                     <el-form-item label="选择特征：">
                         <el-button
-                            size="mini"
+                            size="small"
                             @click="methods.checkColumns(row, index)"
                         >
                             {{ row.$column_name_list.length }} / {{ row.feature_count }}
@@ -154,7 +154,7 @@
                     </el-checkbox>
                     <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         class="ml10 revert-check-btn"
                         @click="methods.revertCheck"
                     >

@@ -21,7 +21,7 @@
 
         <el-form-item>
             <el-button
-                size="mini"
+                size="small"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog"
             >

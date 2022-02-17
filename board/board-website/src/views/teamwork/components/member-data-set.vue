@@ -214,7 +214,7 @@
                             }">
                                 {{ scope.row.data_resource.name }}
                             </router-link>
-                            <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                            <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                                 bf
                             </el-tag>
                             <p class="p-id pt5">{{ scope.row.data_set_id }}</p>

@@ -64,7 +64,7 @@
             />
             <el-table-column
                 label="创建时间"
-                max-width="160px"
+                min-width="160px"
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
