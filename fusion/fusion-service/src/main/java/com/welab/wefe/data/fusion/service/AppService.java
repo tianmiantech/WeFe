@@ -77,16 +77,16 @@ public class AppService implements ApplicationContextAware {
          * Searching for signature Information
          */
         PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
-        PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("partner_id"));
+        PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("member_id"));
 
         if (partner == null) {
-            throw new StatusCodeWithException("invalid partner_id：" + params.getString("partner_id"), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("成员校验失败 member_id：" + params.getString("member_id"), StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
         boolean verified = RSAUtil.verify(params.getString("data").getBytes(), RSAUtil.getPublicKey(partner.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("错误的签名！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         params.putAll(params.getJSONObject("data"));
