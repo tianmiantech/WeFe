@@ -343,6 +343,7 @@
                                     :my-role="vData.flowInfo.project.my_role"
                                     type="loss"
                                     :autoReadResult="true"
+                                    :member-job-detail-list="vData.memberJobDetailList"
                                 />
                             </el-tab-pane>
                         </el-tabs>
@@ -508,20 +509,21 @@
                     training_ratio:     70,
                     verification_ratio: 30,
                 },
-                prevActive:        0,
-                graphNodes:        {},
-                startLoading:      false,
-                jobInfo:           {},
-                taskInfo:          [],
-                deepLearnNodeId:   '',
-                imageDataIONodeId: '',
-                showDataIOResult:  false,
-                showDLResult:      false,
-                flowType:          route.query.training_type || 'PaddleDetection',
-                isAllLabel:        false,
-                activeName:        'param',
-                isInResult:        false,
-                stopNext:          false,
+                prevActive:          0,
+                graphNodes:          {},
+                startLoading:        false,
+                jobInfo:             {},
+                taskInfo:            [],
+                deepLearnNodeId:     '',
+                imageDataIONodeId:   '',
+                showDataIOResult:    false,
+                showDLResult:        false,
+                flowType:            route.query.training_type || 'PaddleDetection',
+                isAllLabel:          false,
+                activeName:          'param',
+                isInResult:          false,
+                stopNext:            false,
+                memberJobDetailList: [],
             });
             const methods = {
                 async getFlowInfo() {
@@ -566,7 +568,24 @@
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
                             vData.isInResult = data.job.status;
-                        }});
+                            methods.getJobMemberDetail();
+                        }
+                    });
+                },
+                async getJobMemberDetail() {
+                    const { code, data } = await $http.get({
+                        url:    '/flow/job/get_progress',
+                        params: {
+                            requestFromRefresh: true,
+                            jobId:              vData.jobInfo.job_id,
+                        },
+                    });
+
+                    nextTick(()=>{
+                        if (code === 0 && data) {
+                            vData.memberJobDetailList = data;
+                        }
+                    });
                 },
                 jumpToTaskDetail() {
                     vData.isInResult = false;
