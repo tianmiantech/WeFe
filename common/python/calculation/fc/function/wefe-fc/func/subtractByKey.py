@@ -14,6 +14,7 @@
 
 import json
 from comm import dataUtil
+from comm.stat import Stat
 
 
 def handler(event, context):
@@ -46,21 +47,22 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
-    # get the source,others,destination fcStorage
-    source_fcs_dict, others_fcs_dict, dest_fcs = dataUtil.get_fc_storages_has_other(evt, context)
-    # get data
+    stat = Stat()
+
     partition = evt['partition']
-    # do subtractByKey
-    result = []
-    # get others keys
-    others_keys = others_fcs_dict.keys()
-    # self subtractByKey other
-    count = 0
-    for source_k, source_v in source_fcs_dict.items():
-        count += 1
-        if source_k not in others_keys:
-            result.append((source_k, source_v))
-    # put result to destination fcStorage
-    if len(result) > 0:
-        dest_fcs.put_all(result)
-    return dataUtil.fc_result(count=count, partition=partition)
+    source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+    other_fcs = dataUtil.get_other_fc_storage(evt)
+
+    # get data
+    source_k_v = source_fcs.collect(partition=partition)
+    others_keys = set(dataUtil.get_data_from_fcs(other_fcs, partition, only_key=True))
+
+    dest_fcs.put_all(_do_subtract_by_key(source_k_v, others_keys, stat))
+    return dataUtil.fc_result(count=stat.count, partition=partition)
+
+
+def _do_subtract_by_key(source_k_v, others_keys: set, stat: Stat):
+    for k, v in source_k_v:
+        stat.incr()
+        if k not in others_keys:
+            yield k, v

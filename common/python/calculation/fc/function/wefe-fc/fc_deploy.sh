@@ -34,7 +34,8 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload /data/environment/.s/python nas:///mnt/auto/python -r -o --debug
+      s nas upload /data/environment/.s/python nas:///mnt/auto/ -r -o --debug
+      rm -rf .s/
     fi
 
   fi
@@ -44,7 +45,7 @@ nas_upload(){
 
   # create env dir
   mkdir -p $nas_env/pythonCode
-  s nas upload ./$nas_env nas:///mnt/auto/$nas_env  -r -o --debug
+  s nas upload ./$nas_env nas:///mnt/auto/  -r -o --debug
   rm -rf $nas_env
 
   # cp common, kernel to build dir
