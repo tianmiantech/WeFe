@@ -16,12 +16,14 @@
 
 package com.welab.wefe.manager.service.dto.base;
 
+import com.welab.wefe.common.web.dto.AbstractApiInput;
+
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class PageInput extends BaseInput{
+public class PageInput extends AbstractApiInput {
     private int pageIndex = 0;
     private int pageSize = 20;
 

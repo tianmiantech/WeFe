@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 import "./Table.sol";
 
 
-contract DataSetDefaultTagContract{
+contract DataResourceDefaultTagContract{
     string constant TABLE_NAME = "data_resource_default_tag";
     string constant FIX_ID = "data_resource_default_tag";
 
