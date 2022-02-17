@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.api.system;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.StandardFieldType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -28,29 +29,68 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "system/initialize", name = "更新系统配置")
+@Api(path = "system/initialize", name = "initialize system")
 public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
     @Autowired
-    private GlobalSettingService globalSettingService;
+    GlobalSettingService globalSettingService;
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         globalSettingService.initialize(input);
         return success();
     }
 
+
     public static class Input extends AbstractApiInput {
-        @Check(name = "名称")
-        String partnerName;
+        @Check(
+                name = "联邦成员名称",
+                require = true,
+                messageOnEmpty = "请输入成员名称",
+                regex = "^[\\u4e00-\\u9fa5（）0-9a-zA-Z ]{3,12}$",
+                messageOnInvalid = "成员名称仅支持中文、英文与数字，且长度为 3 - 12。"
+        )
+        private String memberName;
 
+        @Check(name = "邮箱", type = StandardFieldType.Email)
+        private String memberEmail;
 
-        public String getPartnerName() {
-            return partnerName;
+        @Check(
+                name = "电话",
+                regex = "[0-9\\-\\+]{6,18}",
+                messageOnInvalid = "请输入正确的联系电话"
+        )
+        private String memberMobile;
+
+        //region getter/setter
+
+        public String getMemberName() {
+            return memberName;
         }
 
-        public void setPartnerName(String partnerName) {
-            this.partnerName = partnerName;
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
         }
+
+        public String getMemberEmail() {
+            return memberEmail;
+        }
+
+        public void setMemberEmail(String memberEmail) {
+            this.memberEmail = memberEmail;
+        }
+
+        public String getMemberMobile() {
+            return memberMobile;
+        }
+
+        public void setMemberMobile(String memberMobile) {
+            this.memberMobile = memberMobile;
+        }
+
+
+        //endregion
     }
+
+
 }

@@ -178,14 +178,14 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
             ImageDataSetService imageDataSetService = Launcher.getBean(ImageDataSetService.class);
 
             for (ImageDataIOComponent.DataSetItem dataSetItem : dataSetList) {
-                dataSetItem.dataSet = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
+                dataSetItem.dataResource = imageDataSetService.findDataSetFromLocalOrUnion(dataSetItem.memberId, dataSetItem.dataSetId);
             }
         }
     }
 
     public static class DataSetItem extends AbstractDataSetItem {
         @Check(desc = "非入参，而是当此对象作为返回值时输出的字段。")
-        public ImageDataSetOutputModel dataSet;
+        public ImageDataSetOutputModel dataResource;
     }
 
 

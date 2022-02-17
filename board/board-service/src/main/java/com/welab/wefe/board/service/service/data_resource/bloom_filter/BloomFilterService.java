@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDataResourceListApi;
 import com.welab.wefe.board.service.api.data_resource.bloom_filter.BloomFilterDeleteApi;
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
@@ -101,7 +101,7 @@ public class BloomFilterService extends DataResourceService {
         File file = null;
         switch (method) {
             case HttpUpload:
-                file = UploadFile.getFilePath(DataResourceType.BloomFilter, filename).toFile();
+                file = WeFeFileSystem.getFilePath(DataResourceType.BloomFilter, filename).toFile();
                 break;
             case LocalFile:
                 file = new File(filename);

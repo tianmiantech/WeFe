@@ -318,6 +318,10 @@ public class JdbcManager {
         long readLineCount = 0;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 10";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
@@ -350,7 +354,7 @@ public class JdbcManager {
     /**
      * 获取查询数据的总记录数
      */
-    public long count(Connection conn, String sql) {
+    public long count(Connection conn, String sql) throws Exception{
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
@@ -364,6 +368,7 @@ public class JdbcManager {
             }
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
+            throw e;
         } finally {
             close(ps, rs);
         }
@@ -384,6 +389,10 @@ public class JdbcManager {
         ResultSet rs = null;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 1";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();

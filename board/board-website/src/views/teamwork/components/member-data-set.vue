@@ -202,7 +202,7 @@
                     width="260"
                 >
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set">
+                        <template v-if="scope.row.data_resource">
                             <span v-if="scope.row.audit_status === 'auditing'" class="color-danger mr10">(待审核)</span>
                             <router-link :to="{
                                 name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view',
@@ -212,7 +212,7 @@
                                     data_resource_type: scope.row.data_resource_type,
                                 }
                             }">
-                                {{ scope.row.data_set.name }}
+                                {{ scope.row.data_resource.name }}
                             </router-link>
                             <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                                 bf
@@ -229,8 +229,8 @@
                 </el-table-column>
                 <el-table-column label="关键词">
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set && scope.row.data_set.tags">
-                            <template v-for="(item, index) in scope.row.data_set.tags.split(',')">
+                        <template v-if="scope.row.data_resource && scope.row.data_resource.tags">
+                            <template v-for="(item, index) in scope.row.data_resource.tags.split(',')">
                                 <el-tag
                                     v-if="item"
                                     :key="index"
@@ -246,14 +246,14 @@
                 <el-table-column v-if="form.project_type === 'MachineLearning'" label="数据量" min-width="150">
                     <template v-slot="scope">
                         <p v-if="scope.row.data_resource_type === 'BloomFilter'">
-                            样本量：{{ scope.row.data_set.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count }}
                             <br>
-                            主键组合方式: {{ scope.row.data_set.hash_function }}
+                            主键组合方式: {{ scope.row.data_resource.hash_function }}
                         </p>
                         <template v-else>
-                            特征量：{{ scope.row.data_set.feature_count }}
+                            特征量：{{ scope.row.data_resource.feature_count }}
                             <br>
-                            样本量：{{ scope.row.data_set.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count }}
                         </template>
                     </template>
                 </el-table-column>
@@ -265,8 +265,8 @@
                     width="100"
                 >
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set">
-                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        <template v-if="scope.row.data_resource">
+                            {{scope.row.data_resource.for_job_type === 'classify' ? '图像分类' : scope.row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
                         </template>
                     </template>
                 </el-table-column>
@@ -277,7 +277,7 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set ? scope.row.data_set.total_data_count : 0 }}
+                        {{ scope.row.data_resource ? scope.row.data_resource.total_data_count : 0 }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -287,8 +287,8 @@
                     width="100"
                 >
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set">
-                            {{scope.row.data_set ? scope.row.data_set.labeled_count   : scope.row.labeled_count}}
+                        <template v-if="scope.row.data_resource">
+                            {{scope.row.data_resource ? scope.row.data_resource.labeled_count   : scope.row.labeled_count}}
                         </template>
                     </template>
                 </el-table-column>
@@ -299,8 +299,8 @@
                     width="100"
                 >
                     <template v-slot="scope">
-                        <template v-if="scope.row.data_set">
-                            {{scope.row.data_set.label_completed ? '已完成' : '标注中'}}
+                        <template v-if="scope.row.data_resource">
+                            {{scope.row.data_resource.label_completed ? '已完成' : '标注中'}}
                         </template>
                     </template>
                 </el-table-column>
@@ -310,13 +310,13 @@
                     width="80"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set ? scope.row.data_set.usage_count_in_job : 0 }}
+                        {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                     </template>
                 </el-table-column>
 
                 <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
                     <template v-slot="scope">
-                        {{ scope.row.data_set && scope.row.data_set.contains_y ? '是' : '否' }}
+                        {{ scope.row.data_resource && scope.row.data_resource.contains_y ? '是' : '否' }}
                     </template>
                 </el-table-column>
 
@@ -526,9 +526,9 @@
                     vData.dataSetPreviewDialog = true;
                     nextTick(() =>{
                         if (props.form.project_type === 'MachineLearning') {
-                            DataSetPreviewRef.value.loadData(item.data_set_id);
+                            DataSetPreviewRef.value.loadData(item.data_resource_id);
                         } else if (props.form.project_type === 'DeepLearning') {
-                            PreviewImageListRef.value.methods.getSampleList(item.data_set_id);
+                            PreviewImageListRef.value.methods.getSampleList(item.data_resource_id);
                         }
                     });
                 },
@@ -553,7 +553,7 @@
                     vData.dataSets.list = $data_set.map(row => {
                         return {
                             ...row,
-                            data_set_id: row.id,
+                            data_resource_id: row.id,
                         };
                     });
                     ref.loadDataList({ memberId, $data_set, projectType: props.form.project_type });
@@ -665,8 +665,8 @@
                         const { code } = await $http.post({
                             url:  '/project/data_resource/add',
                             data: {
-                                project_id:  props.form.project_id,
-                                dataSetList: vData.batchDataSetList,
+                                project_id:       props.form.project_id,
+                                dataResourceList: vData.batchDataSetList,
                             },
                         });
 
@@ -681,7 +681,7 @@
                     const { role, index } = vData.dataSets;
                     const row = role === 'promoter_creator' ? props.promoter : role === 'promoter' ? props.form.promoterList[index] : props.form.memberList[index];
                     const list = row.$data_set;
-                    const has = list.find(row => row.data_set_id === item.data_set_id || row.data_set_id === item.id);
+                    const has = list.find(row => row.data_resource_id === item.data_resource_id || row.data_resource_id === item.id);
 
                     if(!has) {
                         const { code } = await $http.post({
@@ -692,7 +692,7 @@
                                     {
                                         member_role:        row.member_role,
                                         member_id:          row.member_id,
-                                        data_set_id:        item.data_resource_id,
+                                        data_resource_id:   item.data_resource_id,
                                         data_resource_type: item.data_resource_type,
                                     },
                                 ],

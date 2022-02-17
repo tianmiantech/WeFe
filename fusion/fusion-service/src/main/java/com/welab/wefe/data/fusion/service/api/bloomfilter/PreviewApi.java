@@ -61,7 +61,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     private BloomFilterService bloomFilterService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         DataResourceSource dataResourceSource = input.getDataResourceSource();
         Output output = new Output();
 
@@ -273,7 +273,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         }
     }
 
-    private Output readFromDB(String dataSourceId, String sql, List<String> rowsList) throws StatusCodeWithException {
+    private Output readFromDB(String dataSourceId, String sql, List<String> rowsList) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Inferred data type", StatusCode.DATA_NOT_FOUND);
@@ -284,7 +284,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+        //long rowCountFromDB = jdbcManager.count(conn, sql);
 
         // Gets the data set column header
         Output output = new Output();
@@ -309,7 +309,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     }
 
 
-    private Output readFromSourceDB(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromSourceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
@@ -320,7 +320,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+//        long rowCountFromDB = jdbcManager.count(conn, sql);
 
 
         // Gets the data set column header

@@ -505,9 +505,7 @@
                         }
                     });
                     context.emit('save-label', labe_list, props.currentImage.item.id);
-                    vData.stage.find('Transformer').destroy();
-                    vData.stage.find('Rect').destroy();
-                    vData.stage.find('Text').destroy();
+                    delete vData.stage;
                 },
                 // set keycode
                 async handleEvent(e) {

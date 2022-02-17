@@ -68,17 +68,17 @@ public class CallbackService {
                 break;
             case falsify:
                 //Alignment data check invalid, shut down task
-                AbstractActuator job = ActuatorManager.get(input.getBusinessId());
+                AbstractTask job = ActuatorManager.get(input.getBusinessId());
                 job.finish();
                 break;
             case success:
                 //Mission completed. Destroy task
-                AbstractActuator successTask = ActuatorManager.get(input.getBusinessId());
+                AbstractTask successTask = ActuatorManager.get(input.getBusinessId());
                 successTask.finish();
 
                 break;
             default:
-                throw new RuntimeException("Unexpected enumeration：" + input.getType());
+                throw new RuntimeException("意料之外的枚举值：" + input.getType());
         }
     }
 
@@ -95,7 +95,7 @@ public class CallbackService {
 
         TaskMySqlModel task = taskService.findByBusinessId(businessId);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
         }
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);
@@ -125,7 +125,7 @@ public class CallbackService {
 //                        task.getTraceColumn()
 //                );
 
-//        ActuatorManager.set(client);
+        ActuatorManager.set(client);
 
         client.run();
     }

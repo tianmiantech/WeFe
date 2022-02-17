@@ -11,7 +11,7 @@ CREATE TABLE `bloom_filter` (
     `updated_time` datetime DEFAULT NULL,
     `data_source_id` varchar(32) DEFAULT NULL,
     `source_path` varchar(255) DEFAULT NULL COMMENT '数据源地址',
-    `description` varchar(32) DEFAULT NULL,
+    `description` varchar(3072) DEFAULT NULL,
     `data_resource_source` varchar(32) DEFAULT NULL,
     `row_count` int(255) DEFAULT NULL,
     `used_count` int(255) DEFAULT NULL,

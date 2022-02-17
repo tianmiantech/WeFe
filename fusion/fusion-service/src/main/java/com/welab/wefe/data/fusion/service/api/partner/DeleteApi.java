@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "partner/delete", name = "删除合作方", desc = "删除合作方", login = true)
+@Api(path = "partner/delete", name = "删除合作方", desc = "删除合作方")
 public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
     @Autowired
     PartnerService partnerService;
