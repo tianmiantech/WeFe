@@ -284,7 +284,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+        //long rowCountFromDB = jdbcManager.count(conn, sql);
 
         // Gets the data set column header
         Output output = new Output();
@@ -320,7 +320,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+//        long rowCountFromDB = jdbcManager.count(conn, sql);
 
 
         // Gets the data set column header

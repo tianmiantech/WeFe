@@ -318,6 +318,10 @@ public class JdbcManager {
         long readLineCount = 0;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 10";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
@@ -384,6 +388,10 @@ public class JdbcManager {
         ResultSet rs = null;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 1";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
