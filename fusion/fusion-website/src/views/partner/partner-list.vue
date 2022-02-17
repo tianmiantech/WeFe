@@ -173,9 +173,10 @@
             <span slot="footer">
                 <el-button @click="partner.editor=false">取消</el-button>
                 <el-button
+                    v-loading="loading"
                     type="primary"
                     :disabled="!partner.member_name || !partner.member_id || !partner.rsa_public_key"
-                    @click="partner.id ? editPartner(): addPartner()"
+                    @click="partner.id ? editPartner($event): addPartner($event)"
                 >确定</el-button>
             </span>
         </el-dialog>
@@ -189,7 +190,8 @@
         mixins: [table],
         data() {
             return {
-                search: {
+                loading: false,
+                search:  {
                     member_id:   '',
                     member_name: '',
                 },
@@ -212,6 +214,7 @@
         },
         methods: {
             async addPartner () {
+                this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/partner/add',
                     data: {
@@ -222,6 +225,7 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.partner.editor = false;
                     this.$message('新增成功!');
@@ -229,8 +233,8 @@
                 }
             },
 
-
             async editPartner () {
+                this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/partner/update',
                     data: {
@@ -242,6 +246,7 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.partner.editor = false;
                     this.$message('更新成功!');

@@ -98,10 +98,12 @@ export default {
             });
         },
 
-        async loadDataList() {
-            const ref = this.$refs['PartnerList'];
+        loadDataList() {
+            this.$nextTick(() => {
+                const ref = this.$refs['PartnerList'];
 
-            ref.getDataList();
+                ref.getDataList();
+            });
         },
 
         selectPartner(item) {
