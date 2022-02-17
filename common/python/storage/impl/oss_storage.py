@@ -15,6 +15,7 @@
 import itertools
 import multiprocessing
 import os
+import time
 import uuid
 from collections.abc import Iterable
 
@@ -435,7 +436,57 @@ def get_object_data_4poolmap(param_list):
 
 PROCESS_POOL = None
 
+
+def seri_test():
+    v = 2141923074518923759127598120735901273590127350175981273591273591273592173592173591027359127521975912735013125
+    partition_data = [(i, v) for i in range(5000)]
+    import pickle
+    start = time.time()
+    # test 1
+    intermediate_data = intermediate_data_pb2.IntermediateData()
+
+    # test1
+    # intermediate_data.dataFlag = 1
+    # for k, v in partition_data:
+    #     k_bytes, v_bytes = OssStorage.kv_to_bytes(k=k, v=v)
+    #     item_data = intermediate_data.intermediateData.add()
+    #     item_data.key = k_bytes
+    #     item_data.value = v_bytes
+    #
+    # object_val = intermediate_data.SerializeToString()
+    #
+    # # 全量读取
+    # read_data = intermediate_data_pb2.IntermediateData()
+    # read_data.ParseFromString(object_val)
+    # result = []
+    # for item_data in intermediate_data.intermediateData:
+    #     result.append((deserialize(item_data.key), deserialize(item_data.value)))
+    #
+    # print(len(result))
+    # print(result[0])
+
+    # test2
+    intermediate_data.dataFlag = 2
+    batch_seri_data = intermediate_data.serializationData
+    batch_seri_data.value = pickle.dumps(partition_data, protocol=2)
+    object_val = intermediate_data.SerializeToString()
+
+    with open("intermediate_data", "wb") as fp:
+        fp.write(object_val)
+
+    # 全量读取
+    read_data = intermediate_data_pb2.IntermediateData()
+    read_data.ParseFromString(object_val)
+    seri_data = read_data.serializationData
+    result = deserialize(seri_data.value)
+    print(len(result))
+    print(result[0])
+
+    print(time.time() - start, len(object_val))
+
+
 if __name__ == '__main__':
-    oss_ins = OssStorage("test", "20220125", partitions=10)
-    # oss_ins.put("k", "v")
-    print(list(oss_ins.collect()))
+    seri_test()
+    # oss_ins = OssStorage("test", "20220125", partitions=10)
+    # # oss_ins.put("k", "v")
+    # print(list(oss_ins.collect()))
