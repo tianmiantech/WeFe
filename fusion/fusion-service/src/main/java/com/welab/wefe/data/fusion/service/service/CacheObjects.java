@@ -23,6 +23,7 @@ import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.FusionConfigModel;
 import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.MemberInfoModel;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
@@ -79,7 +80,7 @@ public class CacheObjects {
 
     public static Integer getOpenSocketPort() {
         if (OPEN_SOCKET_PORT == null) {
-            refreshMemberInfo();
+            refreshFusionConfig();
         }
         return OPEN_SOCKET_PORT;
     }
@@ -267,6 +268,22 @@ public class CacheObjects {
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
         MEMBER_NAME = model.getMemberName();
     }
+
+
+    /**
+     * Reload member information
+     */
+    public static synchronized void refreshFusionConfig() {
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
+        FusionConfigModel model = service.getFusionConfig();
+
+        if (model == null) {
+            return;
+        }
+
+        OPEN_SOCKET_PORT = model.openSocketPort;
+    }
+
 
     /**
      * Reload account list

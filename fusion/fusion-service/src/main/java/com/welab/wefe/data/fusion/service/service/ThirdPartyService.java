@@ -147,7 +147,7 @@ public class ThirdPartyService {
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("合作方响应失败(" + code + ")：" + response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException("合作方响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
         }
         return json;
     }
