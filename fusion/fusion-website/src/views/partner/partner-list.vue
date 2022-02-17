@@ -54,8 +54,8 @@
                 width="45px"
             />
             <el-table-column
-                prop="member_id"
                 label="id"
+                prop="member_id"
                 min-width="200px"
             />
             <el-table-column
@@ -82,7 +82,8 @@
                             partner.member_id=scope.row.member_id,
                             partner.member_name=scope.row.member_name,
                             partner.rsa_public_key=scope.row.rsa_public_key,
-                            partner.base_url=scope.row.base_url"
+                            partner.base_url=scope.row.base_url
+                        "
                     >
                         编辑
                     </el-button>

@@ -1,8 +1,8 @@
 <template>
     <el-card
         v-loading="loading"
-        class="page"
         shadow="never"
+        class="page"
     >
         <el-form :model="form">
             <el-row :gutter="30">
@@ -392,9 +392,13 @@
 
             async getData() {
                 this.loading = true;
-                const url = this.addType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail';
+                const map = {
+                    BloomFilter: '/bloom_filter/detail',
+                    img:         '/image_data_set/detail',
+                    csv:         '/table_data_set/detail',
+                };
                 const { code, data } = await this.$http.get({
-                    url: `${url}?id=` + this.id,
+                    url: `${map[this.addType]}?id=` + this.id,
                 });
 
                 if (code === 0) {
