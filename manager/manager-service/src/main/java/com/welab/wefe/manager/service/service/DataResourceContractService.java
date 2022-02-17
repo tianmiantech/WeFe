@@ -29,7 +29,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,8 +38,7 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
-public abstract class DataResourceContractService extends AbstractContractService {
+public class DataResourceContractService extends AbstractContractService {
 
     @Autowired
     private DataResourceContract dataResourceContract;
@@ -61,17 +59,18 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to add DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
 
     public void update(DataResource dataResource) throws StatusCodeWithException {
         try {
+            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
             TransactionReceipt transactionReceipt = dataResourceContract.update(
                     dataResource.getDataResourceId(),
                     generateUpdateParams(dataResource),
-                    dataResource.getUpdatedTime()
+                    updatedTime
             );
 
             // Get receipt result
@@ -82,30 +81,24 @@ public abstract class DataResourceContractService extends AbstractContractServic
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
     }
 
-
-    public void enable(String dataResourceId, String enable) throws StatusCodeWithException {
+    public void delete(String dataResourceId) throws StatusCodeWithException {
         try {
-            String updatedTime = DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date());
-            TransactionReceipt transactionReceipt = dataResourceContract.updateEnable(
-                    dataResourceId,
-                    enable,
-                    updatedTime
-            );
+            TransactionReceipt transactionReceipt = dataResourceContract.deleteByDataResourceId(dataResourceId);
 
             // Get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_UPDATEENABLE, transactionReceipt);
+                    .decodeReceiptWithValues(DataResourceContract.ABI, DataResourceContract.FUNC_DELETEBYDATARESOURCEID, transactionReceipt);
 
             transactionIsSuccess(transactionResponse);
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to enable data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 

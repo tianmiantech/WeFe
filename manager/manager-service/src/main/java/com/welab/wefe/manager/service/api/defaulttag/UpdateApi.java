@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/update", name = "default_tag_update")
+@Api(path = "data_resource/default_tag/update", name = "default_tag_update")
 public class UpdateApi extends AbstractApi<DataSetDefaultTagUpdateInput, AbstractApiOutput> {
 
     @Autowired

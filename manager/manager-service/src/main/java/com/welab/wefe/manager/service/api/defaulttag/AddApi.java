@@ -18,6 +18,7 @@ package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -32,20 +33,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Jervis
  * @date 2020-05-22
  **/
-@Api(path = "default_tag/add", name = "default_tag_add")
+@Api(path = "data_resource/default_tag/add", name = "default_tag_add")
 public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOutput> {
 
     @Autowired
     private DatSetDefaultTagContractService datSetDefaultTagContractService;
 
     @Autowired
-    private DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(DatSetDefaultTagAddInput input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
         try {
-            boolean isExist = dataSetDefaultTagMongoRepo.exists(input.getTagName());
+            boolean isExist = dataResourceDefaultTagMongoRepo.exists(input.getTagName());
             if (isExist) {
                 throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
             }

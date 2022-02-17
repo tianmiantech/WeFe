@@ -55,7 +55,6 @@ public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     public static class Input extends BaseInput {
         @Check(require = true)
         private String serviceId;
-        @Check(require = true)
         private String memberId;
         private String name;
         @Check(require = true)

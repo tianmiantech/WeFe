@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service.dto.tag;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
 
 /**
@@ -27,6 +28,16 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
 public class DatSetDefaultTagAddInput extends BaseInput {
     @Check(require = true)
     private String tagName;
+    @Check(require = true)
+    private DataResourceType dataResourceType;
+
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
+    }
+
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
+    }
 
     public String getTagName() {
         return tagName;

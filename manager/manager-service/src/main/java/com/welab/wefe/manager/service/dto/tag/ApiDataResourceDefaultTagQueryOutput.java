@@ -23,11 +23,10 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJ
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class ApiDataSetDefaultTagQueryOutput {
+public class ApiDataResourceDefaultTagQueryOutput {
     private String id;
     private String tagName;
     private int status;
-    private DataSetDefaultTagExtJSON extJson;
 
 
     public String getId() {
@@ -46,14 +45,6 @@ public class ApiDataSetDefaultTagQueryOutput {
         this.tagName = tagName;
     }
 
-
-    public DataSetDefaultTagExtJSON getExtJson() {
-        return extJson;
-    }
-
-    public void setExtJson(DataSetDefaultTagExtJSON extJson) {
-        this.extJson = extJson;
-    }
 
     public int getStatus() {
         return status;

@@ -45,6 +45,10 @@ public class DataResourceDefaultTagMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
+    public boolean exists(String tagName) {
+        Query query = new QueryBuilder().append("tagName", tagName).notRemoved().build();
+        return mongoUnionTemplate.exists(query, DataResourceDefaultTag.class);
+    }
 
     public List<DataResourceDefaultTag> findByDataResourceType(String dataResourceType) {
         return mongoUnionTemplate.find(new QueryBuilder().notRemoved().append("dataResourceType", dataResourceType).build(), DataResourceDefaultTag.class);
