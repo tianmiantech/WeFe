@@ -916,7 +916,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/table_data_set/preview',
+                    url: this.addDataType === 'BloomFilter' ? '/bloom_filter/preview': '/table_data_set/preview',
                     params,
                 });
 
