@@ -43,7 +43,7 @@
                 min-width="220"
             >
                 <template v-slot="scope">
-                    {{ isFlow ? scope.row.data_set.name : scope.row.name }}
+                    {{ isFlow ? scope.row.data_resource.name : scope.row.name }}
                     <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
                 </template>
             </el-table-column>
@@ -95,8 +95,8 @@
                 min-width="120"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.tags || scope.row.data_set.tags">
-                        <template v-for="(item, index) in isFlow ? scope.row.data_set.tags.split(',') : scope.row.tags.split(',')" :key="index">
+                    <template v-if="scope.row.tags || scope.row.data_resource.tags">
+                        <template v-for="(item, index) in isFlow ? scope.row.data_resource.tags.split(',') : scope.row.tags.split(',')" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
@@ -114,27 +114,27 @@
             >
                 <template v-slot="scope">
                     <p v-if="projectType === 'DeepLearning'">
-                        样本量/已标注：{{ isFlow ? scope.row.data_set.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_set.labeled_count : scope.row.labeled_count}}
+                        样本量/已标注：{{ isFlow ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_resource.labeled_count : scope.row.labeled_count}}
                         <br>
-                        标注进度：{{ ((scope.row.data_set ? scope.row.data_set.labeled_count : scope.row.labeled_count) / (scope.row.data_set ? scope.row.data_set.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
+                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
                         <br>
                         样本分类：
-                        <template v-if="scope.row.data_set">
-                            {{scope.row.data_set.for_job_type === 'classify' ? '图像分类' : scope.row.data_set.for_job_type === 'detection' ? '目标检测' : '-'}}
+                        <template v-if="scope.row.data_resource">
+                            {{scope.row.data_resource.for_job_type === 'classify' ? '图像分类' : scope.row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
                         </template>
                         <template v-else>
                             {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
                         </template>
                     </p>
                     <p v-else>
-                        特征量：{{ scope.row.feature_count }}
+                        特征量：{{ scope.row.data_resource ? scope.row.data_resource.feature_count : scope.row.feature_count }}
                         <br>
-                        样本量：{{ scope.row.total_data_count }}
-                        <template v-if="scope.row.contains_y && scope.row.y_positive_sample_count">
+                        样本量：{{ scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}
+                        <template v-if="scope.row.data_resource ? scope.row.data_resource.contains_y && scope.row.data_resource.y_positive_sample_count : scope.row.contains_y && scope.row.y_positive_sample_count">
                             <br>
-                            正例样本数量：{{ scope.row.y_positive_sample_count }}
+                            正例样本数量：{{ scope.row.data_resource ? scope.row.data_resource.y_positive_sample_count : scope.row.y_positive_sample_count }}
                             <br>
-                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                            正例样本比例：{{((scope.row.data_resource ? scope.row.data_resource.y_positive_sample_ratio : scope.row.y_positive_sample_ratio) * 100).toFixed(1)}}%
                         </template>
                     </p>
                 </template>
@@ -146,7 +146,7 @@
                 min-width="110"
             >
                 <template v-slot="scope">
-                    {{scope.row.data_set.usage_count_in_job}}
+                    {{scope.row.data_resource.usage_count_in_job}}
                 </template>
             </el-table-column>
             <el-table-column
@@ -317,9 +317,9 @@
                 this.dataSetPreviewDialog = true;
                 this.$nextTick(() =>{
                     if (this.projectType === 'MachineLearning') {
-                        this.$refs['DataSetPreview'].loadData(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                        this.$refs['DataSetPreview'].loadData(item.data_resource && item.data_resource.id ? item.data_resource.id : item.id);
                     } else if (this.projectType === 'DeepLearning') {
-                        this.$refs.PreviewImageList.methods.getSampleList(item.data_set && item.data_set.id ? item.data_set.id : item.id);
+                        this.$refs.PreviewImageList.methods.getSampleList(item.data_resource && item.data_resource.id ? item.data_resource.id : item.id);
                     }
                 });
             },

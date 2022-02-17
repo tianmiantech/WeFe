@@ -67,7 +67,7 @@ public class DataSetAddService extends AbstractService {
     @Value("${file.filter.dir}")
     private String filterDir;
 
-    public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
         if (input.getRows().size() > 5 ) {
             throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -154,13 +154,21 @@ public class DataSetAddService extends AbstractService {
         List<String> headers = dataSetReader.getHeader(rows);
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
-
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);
 
-        dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+            } catch (StatusCodeWithException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
 
         // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+//        dataRowConsumer.waitForFinishAndClose();
 
         model.setStoraged(true);
 
@@ -174,7 +182,7 @@ public class DataSetAddService extends AbstractService {
     /**
      * Read data from the specified database according to SQL and save to mysql
      */
-    private int readAndSaveFromDB(DataSetMySqlModel model, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException {
+    private int readAndSaveFromDB(DataSetMySqlModel model, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("Start parsing the data set：" + model.getId());
 

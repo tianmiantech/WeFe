@@ -105,7 +105,7 @@
                     },
                 ],
                 sampleList:           [],
-                currentImage:         {},
+                currentImage:         { idx: 0 },
                 timer:                null,
                 timer2:               null,
                 count_by_label:       [],
@@ -115,6 +115,7 @@
                 newLabel:             '',
                 pageLoading:          false,
                 pageSamplelength:     0, // 当前页图片数量
+                isSaved:              false,
             });
 
             const methods = {
@@ -181,9 +182,17 @@
                                 item.img_src = url;
                                 item.$isselected = false;
                             }
+
+                            
                             vData.sampleList.push(item);
-                            vData.sampleList[0].$isselected = true;
-                            vData.currentImage = { item: vData.sampleList[0], idx: 0 };
+                            vData.sampleList[vData.currentImage.idx].$isselected = true;
+                            vData.currentImage = { item: vData.sampleList[vData.currentImage.idx], idx: vData.currentImage.idx };
+                            if (vData.isSaved) {
+                                vData.sampleList[vData.currentImage.idx].$isselected = false;
+                                vData.sampleList[vData.currentImage.idx+1].$isselected = true;
+                                vData.currentImage = { item: vData.sampleList[vData.currentImage.idx+1], idx: vData.currentImage.idx+1 };
+                                vData.isSaved = false;
+                            }
                             nextTick(_=> {
                                 // When the last picture is obtained, call the interface to update the current label information
                                 if (idx === vData.search.page_size - 1 && vData.pageSamplelength === vData.search.page_size) {
@@ -296,16 +305,19 @@
                     nextTick(_ => {
                         if(code === 0) {
                             $message.success('保存成功');
+                            vData.isSaved = true;
                             // 标注下一张
                             // 判断是否为最后一张
                             if (vData.sampleList.length - 1 !== vData.currentImage.idx) {
+                                // save current label --Notes
                                 // vData.sampleList[vData.currentImage.idx].label_info = params.label_info;
-                                vData.sampleList[vData.currentImage.idx].$isselected = false;
-                                vData.sampleList[vData.currentImage.idx+1].$isselected = true;
-                                vData.currentImage = { item: vData.sampleList[vData.currentImage.idx+1], idx: vData.currentImage.idx+1 };
+                                // vData.sampleList[vData.currentImage.idx].$isselected = false;
+                                // vData.sampleList[vData.currentImage.idx+1].$isselected = true;
+                                // vData.currentImage = { item: vData.sampleList[vData.currentImage.idx+1], idx: vData.currentImage.idx+1 };
                                 nextTick(_=> {
                                     labelSystemRef.value.methods.createStage();
                                     methods.getSampleInfo();
+                                    methods.getSampleList();
                                 });
                             } else {
                                 // 本页最后一张，获取第二页数据

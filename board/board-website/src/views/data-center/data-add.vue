@@ -737,6 +737,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
+            this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -984,8 +986,9 @@
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -1008,8 +1011,9 @@
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {

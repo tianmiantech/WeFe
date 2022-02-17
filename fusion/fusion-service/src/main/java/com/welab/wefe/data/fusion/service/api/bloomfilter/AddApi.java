@@ -42,7 +42,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
     private BloomFilterAddService filterAddService;
 
     @Override
-    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws Exception {
         return success(filterAddService.addFilter(input));
     }
 

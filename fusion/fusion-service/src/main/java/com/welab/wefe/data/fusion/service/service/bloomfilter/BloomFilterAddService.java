@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -79,7 +80,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -120,7 +121,7 @@ public class BloomFilterAddService extends AbstractService {
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
             }
         }
 
@@ -176,7 +177,19 @@ public class BloomFilterAddService extends AbstractService {
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, file, rowsCount, processCount, rows, src);
         // Read all rows of data
-        dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, processCount);
+
+        int finalProcessCount = processCount;
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
+            } catch (StatusCodeWithException e) {
+
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
+
 
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
 
@@ -210,7 +223,7 @@ public class BloomFilterAddService extends AbstractService {
      * @param sql
      * @throws StatusCodeWithException
      */
-    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException, IOException {
+    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws Exception {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
