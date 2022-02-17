@@ -92,7 +92,7 @@ public class DataSourceService extends AbstractService {
         params.put("databaseName", input.getDatabaseName());
         params.put("host", input.getHost());
         params.put("port", input.getPort());
-        params.put("userName", input.getName());
+        params.put("userName", input.getUserName());
         params.put("password", input.getPassword());
         params.put("updatedBy", CurrentAccount.id());
         params.put("updatedTime", new Date());

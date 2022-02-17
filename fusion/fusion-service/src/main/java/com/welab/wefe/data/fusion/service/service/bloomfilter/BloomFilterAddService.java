@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -80,7 +80,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -223,7 +223,7 @@ public class BloomFilterAddService extends AbstractService {
      * @param sql
      * @throws StatusCodeWithException
      */
-    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException, IOException {
+    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws Exception {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
