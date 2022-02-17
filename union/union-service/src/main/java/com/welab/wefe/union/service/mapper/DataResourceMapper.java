@@ -41,7 +41,7 @@ public interface DataResourceMapper {
 
 
     @Mappings({
-            @Mapping(source = "memberId", target = "curMemberId")
+            @Mapping(source = "curMemberId", target = "memberId")
     })
     DataResource transferPutInputToDataResource(DataResourcePutInput input);
 }
