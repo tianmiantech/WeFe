@@ -231,35 +231,6 @@
                         prop="base_url"
                         min-width="200px"
                     />
-
-
-                    <el-table-column
-                        v-if="task.data_resource_type == 'BloomFilter'"
-                        label="开放给对方端口"
-                        min-width="154px"
-                    >
-                        <template slot-scope="scope">
-                            <el-tag
-                                class="mr10"
-                            >
-                                {{ scope.row.open_socket_port }}
-                            </el-tag>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column
-                        v-if="task.data_resource_type == 'DataSet'"
-                        label="IP端口"
-                        min-width="154px"
-                    >
-                        <template slot-scope="scope">
-                            <el-tag
-                                class="mr10"
-                            >
-                                {{ scope.row.socket_ip }}:{{ scope.row.socket_port }}
-                            </el-tag>
-                        </template>
-                    </el-table-column>
                 </el-table>
             </el-form>
         </el-card>

@@ -232,15 +232,12 @@
                                 </el-button>
                             </el-form-item>
 
-                            <el-form-item
+                            <div
                                 v-for="(item, index) in fieldInfoList"
                                 :key="index"
-                                label-width="15px"
+                                class="mb10"
                             >
-                                <i
-                                    class="id"
-                                    style="margin-left : 5px"
-                                >
+                                <div class="inlineblock f12 mb10 pl30">
                                     字段：
                                     <el-select
                                         v-model="item.column_arr"
@@ -255,12 +252,9 @@
                                             :label="value"
                                         />
                                     </el-select>
-                                </i>
+                                </div>
 
-                                <i
-                                    class="id"
-                                    style="margin-left : 5px"
-                                >
+                                <div class="inlineblock f12 mb10 pl5">
                                     处理方式：
                                     <el-select
                                         v-model="item.options"
@@ -274,74 +268,47 @@
                                             :label="options.name"
                                         />
                                     </el-select>
-                                </i>
-
-
-                                <i
-                                    v-if="item.options=='SUBSTRING'"
-                                    style="margin-left : 5px"
-                                >
-
-                                    <el-input
-                                        v-model="item.frist_index"
-                                        style="max-width:50px;"
-                                        oninput="value=value.replace(/[^\d]/g,'')"
+                                    <i
+                                        v-if="fieldInfoList.length"
+                                        class="el-icon-remove-outline f16"
+                                        @click="removeFieldInfo({$index: index })"
                                     />
-                                    ~
-                                    <el-input
-                                        v-model="item.end_index"
-                                        style="max-width:50px;"
-                                        oninput="value=value.replace(/[^\d]/g,'')"
-                                    />
-                                </i>
-                                <i
-                                    v-if="fieldInfoList.length > 0"
-                                    style="margin-left : 5px"
-                                    class="icon-operator el-icon-remove-outline"
-                                    @click="removeFieldInfo({$index: index })"
-                                />
-                            </el-form-item>
+                                </div>
+                            </div>
 
-
-                            <el-form-item
-                                v-if="keyRes"
-                                :key="index"
-                                label-width="15px"
-                            >
+                            <div v-if="keyRes">
                                 <el-alert
                                     :closable="false"
+                                    class="inlineblock"
                                     type="success"
                                 >
                                     主键生成规则:   {{ keyRes }}
                                 </el-alert>
-                            </el-form-item>
+                            </div>
                         </li>
                     </ul>
 
                     <el-form-item
-                        v-if="task.data_resource_type =='DataSet' && dataSetList.length>0"
+                        v-if="task.data_resource_type === 'DataSet' && dataSetList.length"
                         label-width="100px"
                         label="是否追溯："
                         required
                     >
-                        <div>
-                            <el-radio-group v-model="task.is_trace">
-                                <el-radio
-                                    :label="true"
-                                    @change="task.trace_column=''"
-                                >
-                                    是
-                                </el-radio>
-                                <el-radio
-                                    :label="false"
-                                    @change="task.trace_column=''"
-                                >
-                                    否
-                                </el-radio>
-                            </el-radio-group>
-                        </div>
+                        <el-radio-group v-model="task.is_trace">
+                            <el-radio
+                                :label="true"
+                                @change="task.trace_column=''"
+                            >
+                                是
+                            </el-radio>
+                            <el-radio
+                                :label="false"
+                                @change="task.trace_column=''"
+                            >
+                                否
+                            </el-radio>
+                        </el-radio-group>
                     </el-form-item>
-
 
                     <el-form-item
                         v-if="task.is_trace"
@@ -376,46 +343,43 @@
                         required
                     >
                         <el-button
-                            @click="addPartner()"
+                            @click="addPartner"
                         >
                             + 选择合作伙伴
                         </el-button>
                     </el-form-item>
 
-
                     <el-table
-                        v-if="partnerList.length>0"
+                        v-if="partnerList.length"
                         :data="partnerList"
                         stripe
                         border
                     >
                         <el-table-column
                             label="合作伙伴 / Id"
-                            width="250"
+                            width="200"
                         >
                             <template slot-scope="scope">
-                                <div>
-                                    {{ scope.row.partner_member_name }}
-                                    <p class="id">{{ scope.row.partner_member_id }}</p>
-                                </div>
+                                <strong>{{ scope.row.partner_member_name }}</strong>
+                                <p class="id">{{ scope.row.partner_member_id }}</p>
                             </template>
                         </el-table-column>
 
                         <el-table-column
                             label="调用域名"
                             prop="base_url"
-                            min-width="200px"
+                            min-width="200"
                         />
 
                         <el-table-column
                             label="操作"
-                            min-width="55px"
+                            min-width="130"
                         >
                             <el-button
                                 type="success"
                                 @click="check"
                             >
-                                check
+                                服务连通性测试
                             </el-button>
                         </el-table-column>
                     </el-table>
@@ -515,12 +479,10 @@
                 optionsList: [{
                     name:  'md5',
                     value: 'MD5',
-                }, {
+                },
+                {
                     name:  'sha',
                     value: 'SHA1',
-                }, {
-                    name:  '截取',
-                    value: 'SUBSTRING',
                 },
                 {
                     name:  '不处理',
@@ -663,17 +625,16 @@
             },
 
             selectPartner(item) {
-                this.task.partner_member_id=item.partner_member_id;
-                this.task.partner_member_name=item.name;
+                this.task.partner_member_id = item.member_id;
+                this.task.partner_member_name = item.memner_name;
 
                 const partner = {
-                    partner_member_id:   item.partner_member_id,
-                    partner_member_name: item.name,
+                    partner_member_id:   item.member_id,
+                    partner_member_name: item.memner_name,
                     base_url:            item.base_url,
                 };
 
-                this.partnerList = [];
-                this.partnerList.push(partner);
+                this.partnerList = [partner];
             },
 
             async addFieldInfo () {
@@ -730,7 +691,7 @@
                 const { code } = await this.$http.get('/partner/check');
 
                 if (code === 0) {
-                    this.$message('校验成功!');
+                    this.$message.success('服务连接正常');
                 }
             },
         },
@@ -740,6 +701,21 @@
 <style lang="scss" scoped>
     .save-btn {width: 100px;}
     .page{padding-left: 60px;}
+
+    .el-input, .el-textarea{max-width: 500px;}
+
+    .el-icon-remove-outline{
+        color:#ff5757;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    .el-alert{width:auto;}
+    .el-select{
+        ::v-deep .el-tag__close.el-icon-close{
+            background:#fff;
+            &:hover{background:#28c2d7;}
+        }
+    }
     .step-wrap{
         position: relative;
         margin-top: 20px;
@@ -776,19 +752,5 @@
         ::v-deep .el-form-item__label{
             font-weight: bold;
         }
-    }
-    .service-online{
-        color: $color-success;
-        cursor: pointer;
-    }
-    .service-offline{
-        color: $color-danger;
-        cursor: pointer;
-    }
-    .el-icon-remove-outline{
-        color: $color-danger;
-        margin-left: 10px;
-        font-size:14px;
-        cursor: pointer;
     }
 </style>
