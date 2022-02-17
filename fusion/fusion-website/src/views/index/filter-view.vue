@@ -835,10 +835,9 @@ export default {
             ref.loadDataList();
         },
 
+        keyFormater() {
 
-            keyFormater() {
-
-                let res = '';
+            let res = '';
 
             if(this.fieldInfoList.length===0){
                 this.keyRes = res;
@@ -851,13 +850,12 @@ export default {
                 return;
             }
 
-
-                this.fieldInfoList.forEach((item, index) => {
-                    if(item.options === 'NONE'){
+            this.fieldInfoList.forEach((item, index) => {
+                if(item.options === 'NONE'){
                     res = res + `${res?' + ': ''}${item.column_arr.join(' + ')}`;
-                    }else{
+                } else {
                     res = res + `${res?' + ': ''}${item.options}(${item.column_arr.join(' + ')})`;
-                    }
+                }
             });
             res = `Id = ${res}`;
             this.keyRes = res;
