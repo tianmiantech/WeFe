@@ -49,6 +49,7 @@ public class PutApi extends AbstractApi<PutApi.Input, DataSetOutput> {
         DataSet dataSet = new DataSet();
         BeanUtils.copyProperties(input, dataSet);
         dataSet.setContainsY(input.containsY ? 1 : 0);
+        dataSet.setMemberId(input.curMemberId);
 
         String publicMemberList = input.publicMemberList;
 

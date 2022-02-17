@@ -22,7 +22,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
+import com.welab.wefe.union.service.mapper.DataResourceMapper;
 import com.welab.wefe.union.service.service.DataResourceContractService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -35,6 +37,7 @@ public abstract class AbstractDatResourcePutApi<In extends AbstractApiInput, Out
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
 
+    protected DataResourceMapper dataResourceMapper = Mappers.getMapper(DataResourceMapper.class);
 
     protected void updateDataResource(DataResource dataResource, DataResourcePutInput input) throws StatusCodeWithException {
         dataResource.setName(input.getName());
