@@ -342,7 +342,7 @@ public class TaskService extends AbstractService {
         //Add tasks
         TaskMySqlModel model = new TaskMySqlModel();
         model.setBusinessId(input.getBusinessId());
-        model.setPartnerMemberId(input.getPartnerMemberId());
+        model.setPartnerMemberId(input.getMemberId());
         model.setName(input.getName());
         model.setStatus(TaskStatus.Pending);
         model.setDataCount(input.getDataCount());

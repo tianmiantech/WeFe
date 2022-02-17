@@ -187,6 +187,9 @@ public class CacheObjects {
         return MEMBER_ID;
     }
 
+
+
+
     /**
      * 判断指定的 member_id 是属于当前本地成员
      */
@@ -279,5 +282,24 @@ public class CacheObjects {
             ACCOUNT_ID_LIST.add(item.getId());
         }
     }
+
+
+//    /**
+//     * Reload member information
+//     */
+//    public static synchronized void refreshMemberInfo() {
+//        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
+//        MemberInfoModel model = service.getMemberInfo();
+//
+//        if (model == null) {
+//            return;
+//        }
+//
+//        MEMBER_ID = model.getMemberId();
+//        RSA_PUBLIC_KEY = model.getRsaPublicKey();
+//        RSA_PRIVATE_KEY = model.getRsaPrivateKey();
+//        MEMBER_NAME = model.getMemberName();
+//    }
+
 
 }

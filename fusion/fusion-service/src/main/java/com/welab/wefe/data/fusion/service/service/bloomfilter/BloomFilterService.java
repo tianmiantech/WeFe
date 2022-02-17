@@ -16,8 +16,13 @@
 
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.DeleteApi;
+import com.welab.wefe.data.fusion.service.api.bloomfilter.DetailApi;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
@@ -91,10 +96,29 @@ public class BloomFilterService {
 
         bloomFilterRepository.deleteById(input.getId());
         String src = model.getSrc();
+        if(StringUtil.isEmpty(src)){
+            return;
+        }
+
         File file = new File(src);
         if(file.exists()) {
             file.delete();
             System.out.println("删除成功");
         }
+    }
+
+
+    /**
+     * Delete filter
+     *
+     * @param input
+     */
+    public BloomfilterOutputModel detail(DetailApi.Input input) throws StatusCodeWithException {
+        BloomFilterMySqlModel model = bloomFilterRepository.findById(input.getId()).orElse(null);
+        if (model == null) {
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+        }
+
+        return ModelMapper.map(model,BloomfilterOutputModel.class);
     }
 }
