@@ -44,10 +44,6 @@ public class BloomFilterColumnInputModel extends AbstractCheckModel {
         if (getDataType() == null) {
             throw new StatusCodeWithException("请给字段【" + getName() + "】设置数据类型", StatusCode.PARAMETER_VALUE_INVALID);
         }
-
-        if (getDataType() == ColumnDataType.String || getDataType() == ColumnDataType.Enum) {
-            throw new StatusCodeWithException("目前暂不支持 String/Enum 数据类型，如有需要，请将该特征进行编码后使用。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
     }
 
     //region getter/setter
