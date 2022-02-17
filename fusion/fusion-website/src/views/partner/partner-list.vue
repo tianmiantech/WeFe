@@ -6,14 +6,14 @@
         <el-form inline>
             <el-form-item label="合作方id:">
                 <el-input
-                    v-model="search.partner_id"
+                    v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
 
             <el-form-item label="合作方名称:">
                 <el-input
-                    v-model="search.name"
+                    v-model="search.member_name"
                     clearable
                 />
             </el-form-item>
@@ -31,8 +31,8 @@
                     @click="
                         partner.editor=true,
                         partner.id='',
-                        partner.name='',
-                        partner.partner_id='',
+                        partner.member_name='',
+                        partner.member_id='',
                         partner.rsa_public_key='',
                         partner.base_url=''
                     "
@@ -54,13 +54,13 @@
                 width="45px"
             />
             <el-table-column
-                prop="partner_id"
+                prop="member_id"
                 label="id"
                 min-width="200px"
             />
             <el-table-column
                 label="合作方"
-                prop="name"
+                prop="member_name"
                 min-width="140px"
             />
 
@@ -79,8 +79,8 @@
                         @click="
                             partner.editor=true,
                             partner.id=scope.row.id,
-                            partner.partner_id=scope.row.partner_id,
-                            partner.name=scope.row.name,
+                            partner.member_id=scope.row.member_id,
+                            partner.member_name=scope.row.member_name,
                             partner.rsa_public_key=scope.row.rsa_public_key,
                             partner.base_url=scope.row.base_url"
                     >
@@ -117,10 +117,10 @@
             title="添加合作方"
             width="600px"
         >
-            <div class="el-alert--info is-light f12">
+            <div class="el-alert--info is-light">
                 <div>
                     <span class="el-form-item__label">合作方ID：</span>
-                    <span class="el-form-item__content">合作方的fusion系统成员ID信息，需对方提供</span>
+                    <span class="el-form-item__content">合作方的fusion系统成员ID</span>
                 </div>
                 <div>
                     <span class="el-form-item__label">合作方名称：</span>
@@ -141,14 +141,14 @@
                     label-width="100px"
                     required
                 >
-                    <el-input v-model="partner.partner_id" />
+                    <el-input v-model="partner.member_id" />
                 </el-form-item>
                 <el-form-item
                     label="合作方"
                     label-width="100px"
                     required
                 >
-                    <el-input v-model="partner.name" />
+                    <el-input v-model="partner.member_name" />
                 </el-form-item>
                 <el-form-item
                     label="调用域名"
@@ -174,8 +174,8 @@
                 <el-button @click="partner.editor=false">取消</el-button>
                 <el-button
                     type="primary"
-                    :disabled="!partner.name || !partner.partner_id || !partner.rsa_public_key"
-                    @click="partner.id ? editPartner : addPartner"
+                    :disabled="!partner.member_name || !partner.member_id || !partner.rsa_public_key"
+                    @click="partner.id ? editPartner(): addPartner()"
                 >确定</el-button>
             </span>
         </el-dialog>
@@ -190,27 +190,18 @@
         data() {
             return {
                 search: {
-                    partner_id: '',
-                    name:       '',
+                    member_id:   '',
+                    member_name: '',
                 },
                 headers: {
                     token: localStorage.getItem('token') || '',
                 },
-                getListApi:     '/partner/paging',
-                userList:       [],
-                taskStatusList: [],
-                viewDataDialog: {
-                    visible: false,
-                    list:    [],
-                },
-                dataDialog: false,
-                jsonData:   '',
-
-                partner: {
+                getListApi: '/partner/paging',
+                partner:    {
                     editor:         false,
                     id:             '',
-                    partner_id:     '',
-                    name:           '',
+                    member_id:      '',
+                    member_name:    '',
                     rsa_public_key: '',
                     base_url:       '',
                 },
@@ -220,28 +211,12 @@
             this.getList();
         },
         methods: {
-
-            async getStatus() {
-                const { code, data } = await this.$http.get('/partner/status');
-
-                if(code === 0) {
-                    this.taskStatusList = data;
-                }
-            },
-
-            showStrategys (string) {
-                this.dataDialog = true;
-                setTimeout(() => {
-                    this.jsonData = string;
-                });
-            },
-
             async addPartner () {
                 const { code } = await this.$http.post({
                     url:  '/partner/add',
                     data: {
-                        name:           this.partner.name,
-                        partner_id:     this.partner.partner_id,
+                        member_name:    this.partner.member_name,
+                        member_id:      this.partner.member_id,
                         rsa_public_key: this.partner.rsa_public_key,
                         base_url:       this.partner.base_url,
                     },
@@ -260,12 +235,10 @@
                     url:  '/partner/update',
                     data: {
                         id:             this.partner.id,
-                        name:           this.partner.name,
-                        partner_id:     this.partner.partner_id,
+                        member_name:    this.partner.member_name,
+                        member_id:      this.partner.member_id,
                         rsa_public_key: this.partner.rsa_public_key,
                         base_url:       this.partner.base_url,
-                        socket_ip:      this.partner.socket_ip,
-                        socket_port:    this.partner.socket_port,
                     },
                 });
 
@@ -300,12 +273,15 @@
 </script>
 
 <style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
+    .el-alert--info{
+        padding:10px;
+        .el-form-item__label{
+            width:170px;
+            line-height: 20px;
+            color: #28C2D7;
+        }
+        .el-form-item__content{
+            line-height: 20px;
         }
     }
 </style>

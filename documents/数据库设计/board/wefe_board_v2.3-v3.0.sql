@@ -135,7 +135,7 @@ INSERT INTO data_resource
  `updated_by`,
  `updated_time`,
  `name`,
- `resource_type`,
+ `data_resource_type`,
  `description`,
  `tags`,
  `storage_type`,

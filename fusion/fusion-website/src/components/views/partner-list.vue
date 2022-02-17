@@ -17,13 +17,13 @@
                 width="45px"
             />
             <el-table-column
-                prop="partner_id"
+                prop="member_id"
                 label="id"
                 width="240px"
             />
             <el-table-column
                 label="合作方"
-                prop="name"
+                prop="member_name"
                 width="200px"
             />
 
@@ -125,7 +125,6 @@
 
 
             async getDataList() {
-
                 this.getListApi = '/partner/paging';
                 this.tableLoading = true;
                 this.isIndeterminate = false;

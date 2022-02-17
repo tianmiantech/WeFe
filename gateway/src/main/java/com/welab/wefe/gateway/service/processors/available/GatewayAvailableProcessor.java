@@ -22,6 +22,7 @@ import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -52,9 +53,13 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
         if (isCheckSelf(transferMeta)) {
             ServiceAvailableCheckOutput result = checkpointManager.checkAll();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
+        } else {
+            ServiceAvailableCheckOutput result = new ServiceAvailableCheckOutput();
+            result.available = false;
+            result.message = "非法会话来源，您无权访问此 gateway 服务，请检您的 gateway 内网地址是否正确。";
+            result.errorServiceType = ServiceType.GatewayService;
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         }
-
-        return super.remoteProcess(transferMeta);
     }
 
     @Override

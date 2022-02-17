@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -39,7 +39,7 @@ public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
 
-        File file = UploadFile.getFilePath(DataResourceType.ImageDataSet, filename).toFile();
+        File file = WeFeFileSystem.getFilePath(DataResourceType.ImageDataSet, filename).toFile();
 
         if (!file.exists()) {
             StatusCode
