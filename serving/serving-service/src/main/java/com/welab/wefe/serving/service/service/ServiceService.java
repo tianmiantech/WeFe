@@ -492,8 +492,8 @@ public class ServiceService {
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
 			communicationConfig.setCommercialId(currentClient.getCode());
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
 			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
@@ -591,8 +591,8 @@ public class ServiceService {
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
 			communicationConfig.setCommercialId(currentClient.getCode());
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
 			communicationConfigs.add(communicationConfig);
 		}
 
@@ -614,9 +614,9 @@ public class ServiceService {
 			String base_url = serviceConfig.getString("base_url");
 
 			communicationConfig.setApiName(apiName);
-			communicationConfig.setNeedSign(false);// TODO
+			communicationConfig.setNeedSign(true);// TODO
 			communicationConfig.setCommercialId(currentClient.getCode());
-//			communicationConfig.setSignPrivateKey("");
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
 			communicationConfig.setServerUrl(base_url);
 
 			PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
@@ -650,7 +650,7 @@ public class ServiceService {
 						Arrays.asList(resultfields.split(",")));
 				if (resultMap == null || resultMap.isEmpty()) {
 					resultMap = new HashMap<>();
-					resultMap.put("rand", "thisisrandomstring");
+					resultMap.put("rand", "thisisemptyresult");
 				}
 				String resultStr = JObject.toJSONString(resultMap);
 				LOG.info(id + "\t " + resultStr);
