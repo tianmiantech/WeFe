@@ -21,18 +21,39 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-            title: '资源中心',
-            icon:  'el-icon-monitor',
-            index: 0,
+            title:          '主页',
+            requiresLogout: false,
+            asmenu:         true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
                 path: `${prefixPath}`,
+                name: 'index',
+                meta: {
+                    title:  '主页',
+                    icon:   'el-icon-monitor',
+                    active: `${prefixPath}`,
+                },
+                component: () => import('../views/index/dataPanel.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}`,
+        meta: {
+            title: '资源中心',
+            icon:  'el-icon-office-building',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}data-set-list`,
                 name: 'data-set-list',
                 meta: {
-                    title: '数据集',
-                    index: '0-0',
+                    title:  '数据集',
+                    index:  '0-0',
+                    active: `${prefixPath}data-set-list`,
                 },
                 component: () => import('@views/index/data-set-list.vue'),
             },
@@ -118,7 +139,6 @@ const baseRoutes = [
         meta: {
             title: '任务中心',
             icon:  'el-icon-s-order',
-            index: 1,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -182,7 +202,6 @@ const baseRoutes = [
         meta: {
             title: '合作中心',
             icon:  'el-icon-user-solid',
-            index: 2,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -202,7 +221,6 @@ const baseRoutes = [
         meta: {
             title: '全局设置',
             icon:  'el-icon-setting',
-            index: 3,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [

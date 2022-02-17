@@ -1,20 +1,12 @@
 /*!
  * @author claude
- * date 07/05/2019
  * 用户认证相关
  */
 
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
 function setStorage () {
-    const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage;
+    return localStorage;
 }
 
 /**

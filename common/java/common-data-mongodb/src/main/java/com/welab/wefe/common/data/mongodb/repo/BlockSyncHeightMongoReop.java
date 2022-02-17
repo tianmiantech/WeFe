@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,10 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.BlockSyncHeight;
+import com.welab.wefe.common.data.mongodb.entity.union.BlockSyncHeight;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -27,9 +29,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class BlockSyncHeightMongoReop extends AbstractMongoRepo {
 
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
     public BlockSyncHeight findByGroupId(Integer groupId) {
         Query query = new QueryBuilder().append("groupId", groupId).build();
-        return mongoTemplate.findOne(query, BlockSyncHeight.class);
+        return mongoUnionTemplate.findOne(query, BlockSyncHeight.class);
     }
 
     public void upsert(BlockSyncHeight blockSyncHeight) {
@@ -42,7 +51,7 @@ public class BlockSyncHeightMongoReop extends AbstractMongoRepo {
             blockSyncHeight.setCreateTime(dbRecord.getCreateTime());
         }
         blockSyncHeight.setUpdateTime(System.currentTimeMillis());
-        mongoTemplate.save(blockSyncHeight);
+        mongoUnionTemplate.save(blockSyncHeight);
     }
 
 }

@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,15 +21,15 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
-import com.welab.wefe.data.fusion.service.service.dataset.DataSetStorageHelper;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
-import com.welab.wefe.data.fusion.service.utils.CryptoUtils;
-import com.welab.wefe.data.fusion.service.utils.PSIUtils;
+import com.welab.wefe.data.fusion.service.service.dataset.DataSetStorageHelper;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
-
-import static com.welab.wefe.common.CommonThreadPool.actionThreadCount;
 
 /**
  * @author zane.luo
@@ -177,7 +175,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
      */
     private long rowCount = 0;
 
-    public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, boolean deduplication, File file, int rowCount,int processCount, List<String> headers, String src) {
+    public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, boolean deduplication, File file, int rowCount, int processCount, List<String> headers, String src) {
         this.process = Progress.Ready;
         this.model = model;
         this.dataSetId = model.getId();
@@ -201,18 +199,20 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.processCount = processCount;
         this.checkCount = 0;
         this.CheckData.clear();
+        bloomFilterRepository.updateById(model.getId(), "d", getD().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "n", getN().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "e", getE().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "src", src, BloomFilterMySqlModel.class);
 
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
             this.process = Progress.Running;
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
+            try {
+                generateFilter(model, rows);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
-            CommonThreadPool.run(() -> {
-                try {
-                    generateFilter(model, rows);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
         });
     }
 
@@ -238,19 +238,23 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.processCount = processCount;
         this.checkCount = 0;
         this.CheckData.clear();
+        bloomFilterRepository.updateById(model.getId(), "d", getD().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "n", getN().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "e", getE().toString(), BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "src", src, BloomFilterMySqlModel.class);
 
         batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
             this.process = Progress.Running;
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
 
             // Batch generation filter
-            CommonThreadPool.run(() -> {
-                try {
-                    generateFilter(model, rows);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
+
+            try {
+                generateFilter(model, rows);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
         });
 
     }
@@ -289,7 +293,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
         this.processCount = this.processCount + rows.size();
 
-        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id",model.getId(),BloomFilterMySqlModel.class);
+        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(), BloomFilterMySqlModel.class);
         int count = bloomFilterMySqlModel.getProcessCount();
         if (processCount > count) {
 //            LOG.info("this.processCount=====>"+String.valueOf(this.processCount));
@@ -298,10 +302,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
-            bloomFilterRepository.updateById(model.getId(), "d", getD().toString(), BloomFilterMySqlModel.class);
-            bloomFilterRepository.updateById(model.getId(), "n", getN().toString(), BloomFilterMySqlModel.class);
-            bloomFilterRepository.updateById(model.getId(), "e", getE().toString(), BloomFilterMySqlModel.class);
-            bloomFilterRepository.updateById(model.getId(), "src", src, BloomFilterMySqlModel.class);
+
             bloomFilterRepository.updateById(model.getId(), "rowCount", this.rowCount, BloomFilterMySqlModel.class);
 
             FileOutputStream outputStream = new FileOutputStream(this.src);

@@ -1,0 +1,10 @@
+
+### 下载数据集文件
+POST http://localhost:8080/board-service/image_data_set/download
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_set_id": "5217bd815d0b4612a93aff0c1fac3504",
+  "job_id": "777c3d2841ea4b078b8ed46aef4604c4"
+}

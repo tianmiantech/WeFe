@@ -47,7 +47,7 @@
                             </el-radio>
                             <p class="tips-alert" v-if="form.member_hidden"> ※ 隐身后其他成员从联邦中不能看到关于您的所有信息</p>
                         </el-form-item>
-                        <el-form-item label="是否允许对外公开数据集基础信息：">
+                        <el-form-item label="是否允许对外公开数据资源基础信息：">
                             <el-radio
                                 v-model="form.member_allow_public_data_set"
                                 :label="true"
@@ -62,7 +62,7 @@
                             >
                                 否
                             </el-radio>
-                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据集</p>
+                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据资源</p>
                         </el-form-item>
                         <el-form-item label="邮箱：">
                             <el-input
@@ -107,7 +107,7 @@
                         <MemberCard />
 
                         <div v-if="enterpriseAuth !== ''" class="mt40">
-                            <el-form-item label="企业认证：">
+                            <el-form-item label="企业实名认证：">
                                 <p
                                     v-if="enterpriseAuth === -1"
                                     class="color-danger"
@@ -120,12 +120,15 @@
                                 <span
                                     v-if="enterpriseAuth === 0"
                                     class="el-link el-link--danger"
+                                    style="white-space: nowrap;"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
                                     </el-icon>
                                     未认证
+                                    <p class="ml10 f12">(超级管理员可申请实名认证)</p>
                                 </span>
+
                                 <span
                                     v-if="enterpriseAuth === 1"
                                     class="el-link el-link--danger"

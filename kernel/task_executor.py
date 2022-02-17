@@ -52,7 +52,6 @@ from kernel.tracker.runtime_config import RuntimeConfig
 from kernel.tracker.tracking import Tracking
 from kernel.utils.decorator_utils import load_config, update_task_status_env
 
-
 class TaskExecutor(object):
 
     @staticmethod
@@ -124,7 +123,7 @@ class TaskExecutor(object):
             tracker = Tracking(project_id=project_id, job_id=job_id, role=role, member_id=member_id,
                                model_id=task_id, model_version=job_id,
                                component_name=component_name, module_name=module_name, task_id=task_id)
-            run_class_paths = parameters.get('CodePath').split('/')
+            run_class_paths = parameters.get('CodePath').replace("\\", "/").split('/')
             run_class_package = '.'.join(run_class_paths[:-2]) + '.' + run_class_paths[-2].replace('.py', '')
             run_class_name = run_class_paths[-1]
 
@@ -189,8 +188,7 @@ class TaskExecutor(object):
     @staticmethod
     def get_parameters(role, member_id, module_name, component_name, runtime_conf):
         component_root = os.path.join(file_utils.get_project_base_directory(), 'kernel', 'components')
-        federated_learning_type = runtime_conf["job"]["federated_learning_type"]
-        module_name_dir = TaskExecutor.generate_module_name_dir(module_name, federated_learning_type)
+        module_name_dir = TaskExecutor.generate_module_name_dir(module_name,runtime_conf)
 
         component_full_path = None
         if os.path.exists(os.path.join(component_root, module_name_dir)):
@@ -289,7 +287,7 @@ class TaskExecutor(object):
                     task.save()
 
     @staticmethod
-    def generate_module_name_dir(name, train_type):
+    def generate_module_name_dir(name, runtime_conf):
         """
 
         Generate the real catalog of the component according to the horizontal and vertical properties of the component
@@ -305,6 +303,7 @@ class TaskExecutor(object):
         -------
 
         """
+        train_type = runtime_conf["job"]["federated_learning_type"]
         if name == ComponentName.BINNING:
             if train_type == FederatedLearningType.VERTICAL:
                 return ComponentName.VERT_FEATURE_BINNING.lower()
@@ -315,6 +314,13 @@ class TaskExecutor(object):
                 return ComponentName.VERT_FEATURE_CALCULATION.lower()
             else:
                 raise ValueError("The HorzFeatureCalculation Does't Support Yet.")
+        elif name == ComponentName.VERT_SECURE_BOOST:
+            work_mode = runtime_conf["params"].get("work_mode")
+            if work_mode is None or work_mode == "normal":
+                return name.lower()
+            else:
+                return ComponentName.VERT_FAST_SECURE_BOOST.lower()
+
         else:
             return name.lower()
 

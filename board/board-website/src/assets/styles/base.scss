@@ -1,7 +1,7 @@
 @import "./_variable.scss";
-@import "./_element-ui.scss";
 @import "./_reset.scss";
 @import "./_main.scss";
+@import "./_element-ui.scss";
 @import "./_font.scss";
 
 #app {
@@ -40,7 +40,6 @@
 }
 
 .base-wrapper{
-    min-height: calc(100vh - 80px);
     &>.fade-enter-active,
     &>.fade-leave-active {
         position: absolute;

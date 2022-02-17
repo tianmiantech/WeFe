@@ -34,7 +34,7 @@
                     />
                 </el-select>
                 <el-button
-                    size="mini"
+                    size="small"
                     class="ml10"
                     style="margin-top:2px;"
                     :disabled="item.feature_count === 0 || vData.selectList.length > index + 1"
@@ -52,7 +52,7 @@
                 <div class="mt10">
                     <el-button
                         v-if="item.select_count > 0 && item.feature_count > 1 && vData.selectList.length <= index + 1"
-                        size="mini"
+                        size="small"
                         @click="methods.addPolicy"
                     >
                         + 继续筛选
@@ -226,7 +226,7 @@
 
                             const { data_set_id } = data.members[0];
                             const response = await $http.get({
-                                url:    '/data_set/column/list',
+                                url:    '/table_data_set/column/list',
                                 params: {
                                     data_set_id,
                                 },

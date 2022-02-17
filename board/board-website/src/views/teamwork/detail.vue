@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />
@@ -55,6 +55,10 @@
                         <p class="project-desc-value">
                             <span class="project-desc-key">项目简介：</span>
                             <span class="f14">{{ form.desc }}</span>
+                        </p>
+                        <p class="project-desc-value">
+                            <span class="project-desc-key">项目类型：</span>
+                            <span class="f14">{{ form.project_type }}</span>
                         </p>
                         <p class="project-desc-time f13 ml10">
                             <template v-if="form.isCreator">由 {{ project.creator_nickname }}</template> 创建于 {{ dateFormat(project.created_time) }}
@@ -98,9 +102,12 @@
         <MembersList
             ref="membersListRef"
             :promoter="promoter"
+            :projectType="form.project_type"
             :form="form"
             @deleteDataSetEmit="deleteDataSetEmit"
         />
+
+        <FusionList :form="form" />
 
         <FlowList :form="form" />
 
@@ -114,11 +121,12 @@
         </el-card>
 
         <ModelingList
+            v-if="form.project_type === 'MachineLearning'"
             ref="ModelingList"
             :form="form"
         />
 
-        <DerivedList />
+        <DerivedList v-if="form.project_type === 'MachineLearning'" :project-type="form.project_type" />
 
         <el-dialog
             title="提示"
@@ -153,10 +161,11 @@
     import FlowList from './components/flow-list';
     import DerivedList from './components/derived-list';
     import MembersList from './components/members-list';
+    import FusionList from './components/fusion-job/fusion-list';
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
-    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN';
 
     let timer = null;
 
@@ -165,6 +174,7 @@
             FlowList,
             DerivedList,
             MembersList,
+            FusionList,
             ModelingList,
             PromoterProjectSetting,
             ProviderProjectSetting,
@@ -193,6 +203,7 @@
                     audit_status_from_myself: '',
                     // other member's audit comment
                     audit_status_from_others: '',
+                    project_type:             'MachineLearning',
                 },
                 cooperAuthDialog: {
                     show: false,
@@ -205,8 +216,10 @@
                     $data_set:      [],
                     $error:         '',
                     $serviceStatus: {
-                        all_status_is_success: null,
-                        status:                null,
+                        available:          null,
+                        details:            null,
+                        error_service_type: null,
+                        message:            null,
                     },
                 },
                 promoterService: {},
@@ -301,6 +314,7 @@
                         is_exited,
                         updated_time,
                         exited_time,
+                        project_type,
                     } = data;
                     const promoter_list = data.promoter_list || [];
 
@@ -315,6 +329,7 @@
                     this.project.is_exited = is_exited;
 
                     this.form.name = name;
+                    this.form.project_type = project_type;
                     this.form.is_exited = is_exited;
                     this.form.exited_time = exited_time;
                     this.form.updated_time = updated_time;
@@ -329,7 +344,7 @@
                     this.promoter.member_id = promoter.member_id;
                     this.promoter.member_role = promoter.member_role;
                     this.promoter.member_name = promoter.member_name;
-                    this.promoter.$data_set = promoter.data_set_list;
+                    this.promoter.$data_set = promoter.data_resource_list;
 
                     const members = {};
                     const { providerService, promoterService } = this;
@@ -341,7 +356,7 @@
                         if(!members[key]) {
                             members[key] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[key].push(dataSet);
                         });
@@ -350,8 +365,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: promoterService[member.member_id] ? promoterService[member.member_id].all_status_is_success : null,
-                                status:                promoterService[member.member_id] ? promoterService[member.member_id].status : null,
+                                available: promoterService[member.member_id] ? promoterService[member.member_id].available : null,
+                                details:   promoterService[member.member_id] ? promoterService[member.member_id].details : null,
                             }, // services state
                             $other_audit:   [], // audit comment from others
                             $audit_comment: '', // audit other members
@@ -364,7 +379,7 @@
                         if(!members[midx]) {
                             members[midx] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[midx].push(dataSet);
                         });
@@ -373,8 +388,8 @@
                             ...member,
                             $error:         '',
                             $serviceStatus: {
-                                all_status_is_success: providerService[member.member_id] ? providerService[member.member_id].all_status_is_success : null,
-                                status:                providerService[member.member_id] ? providerService[member.member_id].status : null,
+                                available: providerService[member.member_id] ? providerService[member.member_id].available : null,
+                                details:   providerService[member.member_id] ? providerService[member.member_id].details : null,
                             }, // service state
                             $other_audit:   [], // audit from other members
                             $audit_comment: '', // audit other members
@@ -385,7 +400,7 @@
                     this.otherAudit(opt);
                     callback && callback();
                     // get project/detail first
-                    if(!this.getModelingList) {
+                    if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
                         this.$refs['ModelingList'].getList();
                         this.getModelingList = true;
                     }
@@ -415,7 +430,7 @@
                     .then(async action => {
                         if(action === 'confirm') {
                             const { code } = await this.$http.post({
-                                url:  '/project/data_set/remove',
+                                url:  '/project/data_resource/remove',
                                 data: {
                                     project_id:  this.form.project_id,
                                     data_set_id: row.data_set_id,
@@ -510,15 +525,20 @@
             },
 
             async serviceStatusCheck(role, member_id) {
-                role.$serviceStatus.all_status_is_success = null;
+                role.$serviceStatus.available = null;
                 const { code, data, message } = await this.$http.post({
-                    url:  '/member/service_status_check',
+                    url:  '/member/available',
                     data: {
                         member_id,
                     },
                 });
 
                 if(code === 0) {
+                    const keys = Object.keys(data.details);
+
+                    Object.values(data.details).forEach((key, idx) => {
+                        key.service = keys[idx];
+                    });
                     role.$error = '';
                     role.$serviceStatus = data;
                     // cache service current state

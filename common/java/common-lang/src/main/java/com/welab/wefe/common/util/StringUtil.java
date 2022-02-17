@@ -1,12 +1,12 @@
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author zane.luo
  */
 public class StringUtil extends StringUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
     /**
      * Matching Chinese characters
      */
@@ -46,20 +46,14 @@ public class StringUtil extends StringUtils {
 
     private static final Pattern MATCH_PHONENUMBER = Pattern.compile("^((\\+86)|(86))?1[3456789]\\d{9}$");
 
-
-    public static String removeCharacter(String str) {
-        String empty = "";
-        if (str != null && !empty.equals(str)) {
-            StringBuilder sbuilder = new StringBuilder();
-            for (int i = 0; i < str.length(); i++) {
-                if (Character.isDigit(str.charAt(i))) {
-                    sbuilder.append(str.charAt(i));
-                }
-
-            }
-            return sbuilder.toString();
+    /**
+     * 将列表拼接为用逗号分隔的字符串
+     */
+    public static String joinByComma(final Iterable<?> iterable) {
+        if (iterable == null) {
+            return "";
         }
-        return empty;
+        return join(iterable, ",");
     }
 
 
@@ -159,7 +153,10 @@ public class StringUtil extends StringUtils {
         StringBuilder result = new StringBuilder(str.length());
         for (char c : str.toCharArray()) {
             if (Character.isUpperCase(c)) {
-                result.append("_").append(Character.toLowerCase(c));
+                if (c != str.charAt(0)) {
+                    result.append("_");
+                }
+                result.append(Character.toLowerCase(c));
             } else {
                 result.append(c);
             }
@@ -243,7 +240,7 @@ public class StringUtil extends StringUtils {
 
         // The hump is underlined
         str = camelCaseToUnderLineCase(str);
-
+        str = trim(str, '_');
         return str;
     }
 

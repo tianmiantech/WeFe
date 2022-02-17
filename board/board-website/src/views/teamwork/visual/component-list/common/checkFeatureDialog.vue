@@ -47,7 +47,7 @@
                         </el-checkbox>
                         <el-button
                             type="primary"
-                            size="mini"
+                            size="small"
                             class="ml10 revert-check-btn"
                             @click="methods.revertCheck(item)"
                         >

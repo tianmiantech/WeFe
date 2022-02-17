@@ -20,7 +20,7 @@
             width="450px"
         >
             <h3>移除成员</h3>
-            <p class="mt10 mb10 color-danger">注意：成员被移除后其数据集将变为不可用</p>
+            <p class="mt10 mb10 color-danger">注意：成员被移除后其数据资源将变为不可用</p>
             <el-button
                 type="danger"
                 @click="removeMember"

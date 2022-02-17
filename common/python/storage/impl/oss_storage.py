@@ -88,7 +88,8 @@ class OssStorage(FCStorage):
         -------
 
         """
-        return f'{self._namespace}/{self._name}/{partition}/{uuid.uuid1()}_cnt{file_data_count}'
+        # return f'{self._namespace}/{self._name}/{partition}/{uuid.uuid1()}_cnt{file_data_count}'
+        return self.generate_file_relative_path(self._namespace, self._name, partition, file_data_count)
 
     def _get_partition_by_file_path(self, object_key: str):
         p = int(object_key.split('/')[2])
@@ -261,7 +262,7 @@ class OssStorage(FCStorage):
 
         for item in self.collect(use_serialize=use_serialize, partition=p, dispersal=False):
             if item[0] == k:
-                return item
+                return item[1]
 
     def read_each_object(self, obj_key, only_key=False):
         """

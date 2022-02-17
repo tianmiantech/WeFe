@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        .group-title {
+            border-bottom: 1px solid #999;
+        }
+
+        .api-item {
+            border: 1px solid #333;
+            padding: 8px;
+        }
+
+        .api-name {
+            color: #333;
+            background-color: #999;
+            opacity: 0.5;
+            margin: 0;
+            padding: 15px 15px;
+            margin: -8px;
+        }
+
+        .api-desc {
+            text-indent: 30px;
+        }
+
+        .api-params {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .api-params caption{
+            font-weight: bold;
+            color: blue;
+        }
+
+        .api-params th,
+        .api-params td {
+            border: 1px solid blue;
+            padding: 3px 8px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+<h1>API Documentation</h1>
+<h2 class="group-title">group name</h2>
+<div class="api-item">
+    <h3 class="api-name">api path(name)</h3>
+    <p class="api-desc">api desc</p>
+    <table class="api-params">
+        <caption>入参</caption>
+        <thead>
+        <tr>
+            <th style="width:150px">name</th>
+            <th style="width:200px">type</th>
+            <th style="width:20%">comment</th>
+            <th style="">desc</th>
+            <th style="width:200px">regex</th>
+            <th style="width:50px">require</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>123</td>
+            <td>123</td>
+            <td>123</td>
+            <td>123</td>
+            <td style="text-align: center;">123</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+<script>
+    $(".group-title").click(function(){
+        var group = $(this).attr("value");
+        $(".api-item[value=" + group + "]").toggle();
+    });
+    $(".api-name").click(function(){
+        $(this).parent().find(".api-params").toggle();
+    });
+
+</script>
+</body>
+
+</html>

@@ -21,13 +21,13 @@
         </el-form-item>
 
         <el-form-item label="训练与验证数据比例（%）：">
-            <div style="height: 50px;">
+            <div style="width:100%;height: 50px;">
                 <div class="float-left">
                     <p style="font-weight:bold;color:#4D84F7;" class="mb5">训练:</p>
                     <el-input-number
                         v-model="vData.form.training_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                     />
                 </div>
 
@@ -36,7 +36,7 @@
                     <el-input-number
                         v-model="vData.form.verification_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                         @change="methods.onDataSetVerificationRatioChange"
                     />
                 </div>

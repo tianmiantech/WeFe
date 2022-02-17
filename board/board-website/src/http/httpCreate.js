@@ -91,6 +91,10 @@ httpInstance.interceptors.response.use(
                         ...data.data,
                         message: data.message,
                     });
+                } else if(data.code === 10017) {
+                    window.$app.config.globalProperties.$message.error(data.message);
+                } else if (data.code === -1 || data.code === 10003) {
+                    window.$app.config.globalProperties.$message.error(data.message);
                 } else {
                     window.$app.config.globalProperties.$message.error({
                         message:  data.message || '未知错误!',

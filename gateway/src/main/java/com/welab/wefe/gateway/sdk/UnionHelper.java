@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,12 +37,7 @@ public class UnionHelper {
 
     private final static String RESP_CODE_SUCCESS = "0";
 
-    /**
-     * Query all member addresses
-     */
-    private static String QUERY_ALL_URL;
-
-    private static String BASE_URL;
+    public static String BASE_URL;
 
 
     static {
@@ -50,11 +45,10 @@ public class UnionHelper {
             ConfigProperties configProperties = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
             BASE_URL = configProperties.getWefeUnionBaseUrl();
             BASE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/");
-            QUERY_ALL_URL = BASE_URL + "member/query_all";
+
         } catch (Exception e) {
             LOG.error("Failed to initialize private key：", e);
         }
-
     }
 
 
@@ -71,7 +65,7 @@ public class UnionHelper {
             }
             data.append("includeLogo", false);
             String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
-            HttpResponse httpResponse = HttpRequest.create(QUERY_ALL_URL)
+            HttpResponse httpResponse = HttpRequest.create(BASE_URL + "member/query_all")
                     .appendParameters(generateReqParam(verifyMemberId, data.toString()))
                     .closeLog()
                     .postJson();
@@ -93,23 +87,6 @@ public class UnionHelper {
         } catch (Exception e) {
             LOG.error("Failed to query member information：", e);
             throw e;
-        }
-    }
-
-    /**
-     * Check union survivability
-     */
-    public static void checkAlive() throws Exception {
-        HttpResponse httpResponse = HttpRequest.create(BASE_URL + "union/alive")
-                .closeLog()
-                .postJson();
-        if (!httpResponse.success()) {
-            throw new Exception("union 响应失败，httpCode：" + httpResponse.getCode());
-        }
-        JObject bodyJson = JObject.create(httpResponse.getBodyAsString());
-        String code = bodyJson.getString("code");
-        if (!RESP_CODE_SUCCESS.equals(code)) {
-            throw new Exception("union 响应失败，code：" + code + ", message: " + bodyJson.getString("message"));
         }
     }
 

@@ -13,7 +13,7 @@
 
 <script>
     import MessageList from './components/message-list.vue';
-    import ServiceStatus from './components/service-status.vue';
+    import ServiceStatus from './components/service-available-list.vue';
 
     export default {
         components: {

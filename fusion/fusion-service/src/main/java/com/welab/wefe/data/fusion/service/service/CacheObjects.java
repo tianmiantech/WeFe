@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,14 +18,18 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
-import com.welab.wefe.data.fusion.service.database.entity.GlobalSettingMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.GlobalSettingRepository;
+import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.MemberInfoModel;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
+import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -40,10 +44,10 @@ import java.util.List;
  */
 public class CacheObjects {
 
-    private static String PARTNER_ID;
+    private static String MEMBER_ID;
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
-    private static String PARTNER_NAME;
+    private static String MEMBER_NAME;
     private static Integer OPEN_SOCKET_PORT;
 
     /**
@@ -62,27 +66,16 @@ public class CacheObjects {
      */
     private static LinkedHashMap<String, String> DATA_SET_MAP = new LinkedHashMap<>();
 
+    /**
+     * accountId : nickname
+     */
+    private static final LinkedHashMap<String, String> ACCOUNT_MAP = new LinkedHashMap<>();
 
-    public static final String getPartnerId() {
-        if (PARTNER_ID == null) {
-            refreshMemberInfo();
-        }
-        return PARTNER_ID;
-    }
+    /**
+     * accountIds
+     */
+    private static final List<String> ACCOUNT_ID_LIST = new ArrayList<>();
 
-    public static String getRsaPrivateKey() {
-        if (RSA_PRIVATE_KEY == null) {
-            refreshMemberInfo();
-        }
-        return RSA_PRIVATE_KEY;
-    }
-
-    public static String getRsaPublicKey() {
-        if (RSA_PUBLIC_KEY == null) {
-            refreshMemberInfo();
-        }
-        return RSA_PUBLIC_KEY;
-    }
 
     public static Integer getOpenSocketPort() {
         if (OPEN_SOCKET_PORT == null) {
@@ -91,12 +84,6 @@ public class CacheObjects {
         return OPEN_SOCKET_PORT;
     }
 
-    public static final String getMemberName() {
-        if (PARTNER_NAME == null) {
-            refreshMemberInfo();
-        }
-        return PARTNER_NAME;
-    }
 
     /**
      * @return
@@ -156,32 +143,6 @@ public class CacheObjects {
 
 
     /**
-     * Reload the member information
-     */
-    public static void refreshMemberInfo() {
-        GlobalSettingRepository repo = Launcher.CONTEXT.getBean(GlobalSettingRepository.class);
-        GlobalSettingMySqlModel model = repo.singleton();
-
-        PARTNER_ID = model.getPartnerId();
-        RSA_PUBLIC_KEY = model.getRsaPublicKey();
-        RSA_PRIVATE_KEY = model.getRsaPrivateKey();
-        PARTNER_NAME = model.getPartnerName();
-        OPEN_SOCKET_PORT = model.getOpenSocketPort();
-    }
-
-    /**
-     * Reload partner information
-     */
-    public static void refreshPartnerMap() throws StatusCodeWithException {
-        PartnerService service = Launcher.CONTEXT.getBean(PartnerService.class);
-        PARTNER_MAP.clear();
-
-        List<PartnerMySqlModel> partnerMySqlModels = service.list();
-        partnerMySqlModels
-                .forEach(x -> PARTNER_MAP.put(x.getPartnerId(), x.getName()));
-    }
-
-    /**
      * Reloads the Bloom filter information
      */
     public static void refreshBloomFilterMap() throws StatusCodeWithException {
@@ -203,6 +164,120 @@ public class CacheObjects {
         List<DataSetMySqlModel> dataSetMySqlModels = service.list();
         dataSetMySqlModels
                 .forEach(x -> DATA_SET_MAP.put(x.getId(), x.getName()));
+    }
+
+
+    /**
+     * Reload partner information
+     */
+    public static void refreshPartnerMap() throws StatusCodeWithException {
+        PartnerService service = Launcher.CONTEXT.getBean(PartnerService.class);
+        PARTNER_MAP.clear();
+
+        List<PartnerMySqlModel> partnerMySqlModels = service.list();
+        partnerMySqlModels
+                .forEach(x -> PARTNER_MAP.put(x.getMemberId(), x.getMemberName()));
+    }
+
+
+    public static String getMemberId() {
+        if (MEMBER_ID == null) {
+            refreshMemberInfo();
+        }
+        return MEMBER_ID;
+    }
+
+    /**
+     * 判断指定的 member_id 是属于当前本地成员
+     */
+    public static boolean isCurrentMember(String memberId) {
+        return getMemberId().equals(memberId);
+    }
+
+    public static String getRsaPrivateKey() {
+        if (RSA_PRIVATE_KEY == null) {
+            refreshMemberInfo();
+        }
+        return RSA_PRIVATE_KEY;
+    }
+
+    public static String getRsaPublicKey() {
+        if (RSA_PUBLIC_KEY == null) {
+            refreshMemberInfo();
+        }
+        return RSA_PUBLIC_KEY;
+    }
+
+    public static String getMemberName() {
+        if (MEMBER_NAME == null) {
+            refreshMemberInfo();
+        }
+        return MEMBER_NAME;
+    }
+
+
+    public static List<String> getAccountIdList() {
+        if (ACCOUNT_ID_LIST.isEmpty()) {
+            refreshAccountMap();
+        }
+        return ACCOUNT_ID_LIST;
+    }
+
+    public static LinkedHashMap<String, String> getAccountMap() {
+        if (ACCOUNT_MAP.isEmpty()) {
+            refreshAccountMap();
+        }
+        return ACCOUNT_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static synchronized String getNickname(String accountId) {
+        if (accountId == null) {
+            return null;
+        }
+        return getAccountMap().get(accountId) == null ? getMemberName() : getAccountMap().get(accountId);
+    }
+
+    /**
+     * Determine whether accountId belongs to the current member
+     */
+    public static synchronized boolean isCurrentMemberAccount(String accountId) {
+        return getAccountIdList().contains(accountId);
+    }
+
+
+    /**
+     * Reload member information
+     */
+    public static synchronized void refreshMemberInfo() {
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
+        MemberInfoModel model = service.getMemberInfo();
+
+        if (model == null) {
+            return;
+        }
+
+        MEMBER_ID = model.getMemberId();
+        RSA_PUBLIC_KEY = model.getRsaPublicKey();
+        RSA_PRIVATE_KEY = model.getRsaPrivateKey();
+        MEMBER_NAME = model.getMemberName();
+    }
+
+    /**
+     * Reload account list
+     */
+    public static synchronized void refreshAccountMap() {
+        AccountRepository repo = Launcher.getBean(AccountRepository.class);
+        List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
+
+        ACCOUNT_MAP.clear();
+        ACCOUNT_ID_LIST.clear();
+        for (AccountMysqlModel item : list) {
+            ACCOUNT_MAP.put(item.getId(), item.getNickname());
+            ACCOUNT_ID_LIST.add(item.getId());
+        }
     }
 
 }

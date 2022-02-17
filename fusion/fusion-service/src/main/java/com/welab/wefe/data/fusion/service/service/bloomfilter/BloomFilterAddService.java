@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -26,17 +27,21 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.base.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
-import com.welab.wefe.data.fusion.service.utils.*;
+import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
+import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
+import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -75,7 +80,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -116,7 +121,7 @@ public class BloomFilterAddService extends AbstractService {
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
             }
         }
 
@@ -125,7 +130,7 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.save(model);
 
         AddApi.BloomfilterAddOutput output = new AddApi.BloomfilterAddOutput();
-        output.setDataSourceId(model.getDataSourceId());
+        output.setDataSourceId(model.getId());
         return output;
     }
 
@@ -172,7 +177,19 @@ public class BloomFilterAddService extends AbstractService {
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, file, rowsCount, processCount, rows, src);
         // Read all rows of data
-        dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, processCount);
+
+        int finalProcessCount = processCount;
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
+            } catch (StatusCodeWithException e) {
+
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
+
 
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
 
@@ -206,7 +223,7 @@ public class BloomFilterAddService extends AbstractService {
      * @param sql
      * @throws StatusCodeWithException
      */
-    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException, IOException {
+    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws Exception {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());

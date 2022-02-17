@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,13 @@
 
 package com.welab.wefe.board.service.service.account;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.account.*;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -32,13 +30,16 @@ import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.*;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.BoardUserSource;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
@@ -64,21 +65,18 @@ public class AccountService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
-    @Autowired
-    private UnionService unionService;
-
     /**
      * Paging query account
      */
     public PagingOutput<AccountOutputModel> query(QueryApi.Input input) throws StatusCodeWithException {
 
-        Specification<AccountMySqlModel> where = Where
+        Specification<AccountMysqlModel> where = Where
                 .create()
                 .contains("phoneNumber", input.getPhoneNumber())
                 .equal("auditStatus", input.getAuditStatus())
                 .contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc)
-                .build(AccountMySqlModel.class);
+                .build(AccountMysqlModel.class);
 
         return accountRepository.paging(where, input, AccountOutputModel.class);
     }
@@ -89,7 +87,7 @@ public class AccountService extends AbstractService {
     public void register(AccountInputModel input, BoardUserSource userSource) throws StatusCodeWithException {
 
         // Determine whether the account is registered
-        AccountMySqlModel one = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMySqlModel.class);
+        AccountMysqlModel one = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMysqlModel.class);
         if (one != null) {
             throw new StatusCodeWithException("该手机号已被注册！", StatusCode.DATA_EXISTED);
         }
@@ -100,7 +98,7 @@ public class AccountService extends AbstractService {
         // sha hash
         String password = Sha1.of(input.getPassword() + salt);
 
-        AccountMySqlModel model = new AccountMySqlModel();
+        AccountMysqlModel model = new AccountMysqlModel();
         model.setCreatedBy(CurrentAccount.id());
         model.setPhoneNumber(input.getPhoneNumber());
         model.setNickname(input.getNickname());
@@ -151,10 +149,12 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMySqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMySqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
         // phone number error
         if (model == null) {
-            throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         if (!model.getEnable()) {
@@ -166,14 +166,16 @@ public class AccountService extends AbstractService {
 
             // Log a login failure event
             LoginSecurityPolicy.onLoginFail(phoneNumber);
-            throw new StatusCodeWithException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。", StatusCode.PARAMETER_VALUE_INVALID);
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
         // Check audit status
         if (model.getAuditStatus() != null) {
             switch (model.getAuditStatus()) {
                 case auditing:
-                    AccountMySqlModel superAdmin = findSuperAdmin();
+                    AccountMysqlModel superAdmin = findSuperAdmin();
 
                     throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.getNickname() + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
                 case disagree:
@@ -204,7 +206,7 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
         }
 
-        AccountMySqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
 
         // Check old password
         if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
@@ -221,13 +223,15 @@ public class AccountService extends AbstractService {
         model.setPassword(newPassword);
 
         accountRepository.save(model);
+
+        CurrentAccount.logout(model.getId());
     }
 
 
     /**
      * query all of account
      */
-    public List<AccountMySqlModel> queryAll() {
+    public List<AccountMysqlModel> queryAll() {
         return accountRepository.findAll();
     }
 
@@ -243,12 +247,12 @@ public class AccountService extends AbstractService {
      * The administrator reviews the account
      */
     public void audit(AuditApi.Input input) throws StatusCodeWithException {
-        AccountMySqlModel auditor = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        AccountMysqlModel auditor = accountRepository.findById(CurrentAccount.id()).orElse(null);
         if (!auditor.getAdminRole()) {
             throw new StatusCodeWithException("您不是管理员，无权执行审核操作！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMySqlModel account = accountRepository.findById(input.getAccountId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(input.getAccountId()).orElse(null);
         if (account.getAuditStatus() != AuditStatus.auditing) {
             throw new StatusCodeWithException("该用户已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -263,11 +267,11 @@ public class AccountService extends AbstractService {
     /**
      * Query super administrator
      */
-    public AccountMySqlModel findSuperAdmin() {
-        List<AccountMySqlModel> list = accountRepository.findAll(Where
+    public AccountMysqlModel findSuperAdmin() {
+        List<AccountMysqlModel> list = accountRepository.findAll(Where
                 .create()
                 .equal("superAdminRole", true)
-                .build(AccountMySqlModel.class)
+                .build(AccountMysqlModel.class)
         );
 
         if (list.isEmpty()) {
@@ -282,7 +286,7 @@ public class AccountService extends AbstractService {
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-        AccountMySqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
@@ -323,7 +327,7 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("无法对自己进行此操作。", StatusCode.PERMISSION_DENIED);
         }
 
-        AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
         }
@@ -348,7 +352,7 @@ public class AccountService extends AbstractService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
-        AccountMySqlModel model = accountRepository.findById(input.getId()).orElse(null);
+        AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
@@ -356,6 +360,10 @@ public class AccountService extends AbstractService {
 
         if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (model.getSuperAdminRole()) {
+            throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
         }
 
         String salt = createRandomSalt();
@@ -383,16 +391,13 @@ public class AccountService extends AbstractService {
         if (CacheObjects.getMemberId().equals(input.getMemberId())) {
             pagingOutput = query(input);
         } else {
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, input, QueryApi.class);
-            if (0 == apiResult.code) {
-                if (null == apiResult.data) {
-                    return null;
-                }
-                JObject dataObj = JObject.create(apiResult.data);
-                pagingOutput = JObject.parseObject(dataObj.toJSONString(), pagingOutput.getClass());
-            } else {
-                throw new StatusCodeWithException(apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
+            pagingOutput = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryApi.class,
+                    input,
+                    pagingOutput.getClass()
+            );
         }
 
         List<AccountOutputModel> accountOutputModelList = new ArrayList<>();
@@ -433,11 +438,15 @@ public class AccountService extends AbstractService {
         try {
             JObject data = JObject.create().append("memberId", input.getMemberId())
                     .append("accountId", input.getAccountId());
-            ApiResult<?> apiResult = gatewayService.sendToBoardRedirectApi(input.getMemberId(), JobMemberRole.promoter, data, QueryOnlineApi.class);
-            if (apiResult.code != 0) {
-                throw new StatusCodeWithException("系统异常: " + apiResult.message, StatusCode.SYSTEM_ERROR);
-            }
-            QueryOnlineApi.Output output = JSONObject.toJavaObject(JObject.create(apiResult.data), QueryOnlineApi.Output.class);
+
+            QueryOnlineApi.Output output = gatewayService.callOtherMemberBoard(
+                    input.getMemberId(),
+                    JobMemberRole.promoter,
+                    QueryOnlineApi.class,
+                    data,
+                    QueryOnlineApi.Output.class
+            );
+
             return output.getList();
         } catch (Exception e) {
             throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
@@ -448,7 +457,7 @@ public class AccountService extends AbstractService {
      * Check whether the user with the specified mobile phone number exists
      */
     public boolean exist(String phoneNumber) {
-        AccountMySqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMySqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
         return model != null;
     }
 
@@ -457,7 +466,7 @@ public class AccountService extends AbstractService {
      * Transfer the super administrator status to another account
      */
     @Transactional(rollbackFor = Exception.class)
-    public void changeSuperAdmin(AccountMySqlModel account) throws StatusCodeWithException {
+    public void changeSuperAdmin(AccountMysqlModel account) throws StatusCodeWithException {
         account.setAdminRole(true);
         account.setSuperAdminRole(true);
         account.setUpdatedBy(CurrentAccount.id());
@@ -480,7 +489,7 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("短信验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMySqlModel model = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMySqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);

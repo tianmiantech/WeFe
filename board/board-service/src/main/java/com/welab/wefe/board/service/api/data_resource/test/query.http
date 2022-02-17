@@ -1,0 +1,47 @@
+
+### 查询全部数据集
+POST http://localhost:8080/board-service/data_resource/query
+Content-Type: application/json
+token: {{token}}
+
+{
+}
+
+###
+POST http://localhost:8080/board-service/data_resource/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_resource_type": [
+    "TableDataSet",
+    "ImageDataSet"
+  ]
+}
+
+###
+POST http://localhost:8080/board-service/data_resource/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "data_resource_type": "ImageDataSet"
+}
+
+###
+POST http://localhost:8080/board-service/data_resource/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "id": "",
+  "name": "",
+  "creator": "",
+  "tag": "",
+  "dataResourceType": [],
+  "page_index": 0,
+  "page_size": 20,
+  "containsY": "",
+  "forJobType": ""
+}
+

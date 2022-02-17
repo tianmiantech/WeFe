@@ -63,10 +63,10 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
                                    table_name=provider_data_table,
                                    namespace=namespace,
                                    head=1, partition=1)
-    handler_upload.upload(work_mode=work_mode, backend=backend)
+    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     # init handler
-    handler = Handler(job_id="job_vertsbt_new"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
+    handler = Handler(job_id="job_vertsbt_new_"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
                       fl_type='vertical') \
         .set_initiator(role="promoter", member_id=promoter) \
         .set_roles(promoter=promoter, provider=provider)

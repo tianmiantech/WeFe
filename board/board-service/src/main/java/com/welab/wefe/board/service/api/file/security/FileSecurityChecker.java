@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,13 +47,18 @@ public abstract class FileSecurityChecker {
                 case "csv":
                     new CsvSecurityChecker().doCheck(file);
                     break;
+                case "zip":
+                case "gz":
+                case "tgz":
+                case "7z":
+                    break;
                 default:
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
             }
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            FileUtil.deleteFile(file);
+            FileUtil.deleteFileOrDir(file);
             throw e;
         }
     }

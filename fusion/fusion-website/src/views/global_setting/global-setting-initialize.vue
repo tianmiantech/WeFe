@@ -13,19 +13,8 @@
                 @submit.native.prevent
             >
                 <el-form-item
-                    label="联邦成员id："
-                    required="true"
-                >
-                    <el-input
-                        v-model.trim="form.member_id"
-                        maxlength="40"
-                        clearable
-                    />
-                </el-form-item>
-
-                <el-form-item
                     label="联邦成员名称："
-                    required="true"
+                    required
                 >
                     <el-input
                         v-model.trim="form.member_name"
@@ -34,34 +23,25 @@
                         clearable
                     />
                 </el-form-item>
-                <el-form-item
-                    label="私钥："
-                    required="true"
-                >
+                <el-form-item label="邮箱：">
                     <el-input
-                        v-model.trim="form.rsa_private_key"
-                        type="textarea"
-                        placeholder="请填写borad生成的秘钥，否则无法使用"
+                        v-model.trim="form.member_email"
+                        placeholder="hello@world.com"
+                        maxlength="40"
                         clearable
                     />
                 </el-form-item>
-                <el-form-item
-                    label="公钥："
-                    required="true"
-                >
+                <el-form-item label="联系电话：">
                     <el-input
-                        v-model.trim="form.rsa_public_key"
-                        type="textarea"
-                        placeholder="请填写borad生成的公钥，否则无法使用"
+                        v-model.trim="form.member_mobile"
                         clearable
                     />
                 </el-form-item>
-
                 <el-divider />
                 <el-button
                     round
-                    type="primary"
                     size="middle"
+                    type="primary"
                     class="btn-submit ml10"
                     @click="submit"
                 >
@@ -79,10 +59,9 @@ export default {
     data() {
         return {
             form: {
-                member_id:       '',
-                member_name:     '',
-                rsa_private_key: '',
-                rsa_public_key:  '',
+                member_name:   '',
+                member_email:  '',
+                member_mobile: '',
             },
         };
     },
@@ -98,7 +77,7 @@ export default {
             this.$refs['sign-form'].validate(async valid => {
                 if (valid) {
                     const { code } = await this.$http.post({
-                        url:  '/global_setting/initialize',
+                        url:  '/system/initialize',
                         data: this.form,
                     });
 

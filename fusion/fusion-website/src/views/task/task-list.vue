@@ -7,18 +7,14 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="任务序号:"
-                label-width="80px"
-            >
+            <el-form-item label="任务id:">
                 <el-input
                     v-model="search.business_id"
                     clearable
                 />
             </el-form-item>
 
-
-            <el-form-item label="状态">
+            <el-form-item label="任务状态:">
                 <el-select
                     v-model="search.status"
                     clearable
@@ -28,6 +24,19 @@
                         :key="item.value"
                         :value="item.value"
                         :label="item.name"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="角色:">
+                <el-select
+                    v-model="search.my_role"
+                    clearable
+                >
+                    <el-option
+                        v-for="item in myRoleList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.text"
                     />
                 </el-select>
             </el-form-item>
@@ -41,10 +50,9 @@
 
             <router-link
                 :to="{name: 'task-add'}"
+                class="ml20"
             >
-                <el-button
-                    size="small"
-                >
+                <el-button>
                     新增
                 </el-button>
             </router-link>
@@ -66,50 +74,33 @@
                 width="240px"
             >
                 <template slot-scope="scope">
+                    <strong>{{ scope.row.name }}</strong>
                     <p class="id">{{ scope.row.business_id }}</p>
-                    {{ scope.row.name }}
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="合作方"
-                prop="partner_name"
+                prop="partner_member_name"
                 width="200px"
             />
+
             <el-table-column
                 label="状态"
                 width="85px"
             >
                 <template slot-scope="scope">
-                    <TaskStatusTag
-                        :status="scope.row.status"
-                    />
+                    <TaskStatusTag :status="scope.row.status" />
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="数据资源"
-                width="360px"
+                width="200px"
             >
                 <template slot-scope="scope">
+                    <strong>{{ scope.row.data_resource_name }}</strong>
                     <p class="id">{{ scope.row.data_resource_id }}</p>
-                    {{ scope.row.data_resource_name }}
-                </template>
-            </el-table-column>
-
-
-            <el-table-column
-                v-if="psi_actuator_role=='server'"
-                label="数据量"
-                prop="data_count"
-                width="120px"
-            >
-                <template slot-scope="scope">
-                    我方样本量: {{ scope.row.row_count }} <br>
-                    对方样本量: {{ scope.row.data_count }} <br>
-                    <div v-if="scope.row.status=='Success'">
-                        融合量: {{ scope.row.fusion_count }}
-                    </div>
                 </template>
             </el-table-column>
 
@@ -129,7 +120,7 @@
             <el-table-column
                 label="耗时"
                 prop="spend"
-                width="100px"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     {{ dateFormatter(scope.row.spend) }}
@@ -156,13 +147,11 @@
 
             <el-table-column
                 label="操作"
-                width="140px"
+                width="150px"
                 fixed="right"
             >
                 <template slot-scope="scope">
-                    <router-link
-                        :to="{name: 'task-view', query: { id: scope.row.id }}"
-                    >
+                    <router-link :to="{name: 'task-view', query: { id: scope.row.id }}">
                         <el-button
                             size="small"
                             type="primary"
@@ -172,7 +161,7 @@
                     </router-link>
 
                     <el-button
-                        type="button"
+                        type="danger"
                         @click="deleteTask(scope.row.id)"
                     >
                         删除
@@ -195,150 +184,6 @@
                 @size-change="pageSizeChange"
             />
         </div>
-
-
-        <el-dialog
-            :visible.sync="task.editor"
-            title="添加任务"
-            width="600px"
-        >
-            <el-form>
-                <el-form-item
-                    label="任务名称："
-                    label-width="120px"
-                >
-                    <el-input
-                        v-model="task.name"
-                    />
-                </el-form-item>
-                <el-form-item
-                    label="合作方："
-                    label-width="120px"
-                >
-                    <el-select
-                        v-model="task.partner_id"
-                        clearable
-                    >
-                        <el-option
-                            v-for="(tag, index) in partnerList"
-                            :key="index"
-                            :value="tag.partner_id"
-                            :label="tag.name"
-                        />
-                    </el-select>
-                </el-form-item>
-
-                <el-form-item
-                    label="数据资源："
-                    label-width="120px"
-                >
-                    <el-button
-                        type="primary"
-                        icon="el-icon-edit"
-                        @click="dataResource.visible=true"
-                    >
-                        {{ dataResource.name }}
-                    </el-button>
-                </el-form-item>
-            </el-form>
-            <span slot="footer">
-                <el-button @click="task.editor=false">取消</el-button>
-                <el-button
-                    type="primary"
-                    :disabled="!task.name || !task.partner_id || !task.data_resource_id"
-                    @click="task.id?editTask():addTask()"
-                >确定</el-button>
-            </span>
-        </el-dialog>
-
-
-        <!-- 资源选择 -->
-        <el-dialog
-            :visible.sync="dataResource.visible"
-            title="资源选择"
-            width="70%"
-        >
-            <el-tabs
-                tab-position="top"
-                type="card"
-            >
-                <el-tab-pane label="数据集">
-                    <el-table :data="dataSetList">
-                        <el-table-column
-                            type="index"
-                            label="序号"
-                        />
-                        <el-table-column
-                            label="名称"
-                            prop="name"
-                            width="120"
-                        />
-                        <el-table-column
-                            label="描述"
-                            prop="description"
-                        />
-                        <el-table-column
-                            label="操作"
-                            width="300px"
-                        >
-                            <template slot-scope="scope">
-                                <el-button
-                                    type="primary"
-                                    @click="dataResource.name=scope.row.name,
-                                            dataResource.id=scope.row.id,
-                                            dataResource.description=scope.row.description,
-                                            dataResource.type=scope.row.type,
-                                            task.data_resource_id=scope.row.id,
-                                            task.data_resource_type=scope.row.type,
-                                            task.data_count=scope.row.rows_count,
-                                            dataResource.visible=false"
-                                >
-                                    选择
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-tab-pane>
-                <el-tab-pane
-                    label="过滤器选择"
-                >
-                    <el-table :data="bloomFilterList">
-                        <el-table-column
-                            type="index"
-                            label="序号"
-                        />
-                        <el-table-column
-                            label="名称"
-                            prop="name"
-                            width="120"
-                        />
-                        <el-table-column
-                            label="描述"
-                            prop="description"
-                        />
-                        <el-table-column
-                            label="操作"
-                            width="300px"
-                        >
-                            <template slot-scope="scope">
-                                <el-button
-                                    type="primary"
-                                    @click="dataResource.name=scope.row.name,
-                                            dataResource.id=scope.row.id,
-                                            dataResource.description=scope.row.description,
-                                            dataResource.type=scope.row.type,
-                                            task.data_resource_id=scope.row.id,
-                                            task.data_resource_type=scope.row.type,
-                                            dataResource.visible=false"
-                                >
-                                    选择
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-tab-pane>
-            </el-tabs>
-        </el-dialog>
     </el-card>
 </template>
 
@@ -353,22 +198,20 @@
         mixins: [table],
         data() {
             return {
-                 search: {
+                search: {
                    business_id: '',
                    status:      '',
-                 },
+                   my_role:     '',
+                },
 
                 statusList: [{
-                    name:  '待处理',
+                    name:  '等待合作方审核',
                     value: 'Pending',
                 }, {
-                    name:  '等待运行',
+                    name:  '等待我方审核',
                     value: 'Await',
                 }, {
-                    name:  '就绪',
-                    value: 'Ready',
-                }, {
-                    name:  '对齐中',
+                    name:  '正在对齐中',
                     value: 'Running',
                 }, {
                     name:  '任务中断',
@@ -381,102 +224,34 @@
                     value: 'Success',
                 }],
 
-                 headers: {
-                     token: localStorage.getItem('token') || '',
-                 },
-                getListApi:     '/task/paging',
-                userList:       [],
-                taskStatusList: [],
-                viewDataDialog: {
-                    visible: false,
-                    list:    [],
+                headers: {
+                    token: localStorage.getItem('token') || '',
                 },
-                dataDialog: false,
-                jsonData:   '',
-
-                 task: {
-                   editor:             false,
-                   id:                 '',
-                   business_id:        '',
-                   name:               '',
-                   partner_id:         '',
-                   data_resource_id:   '',
-                   data_resource_type: '',
-                   data_count:         '',
-                   row_count:          '',
-                   fusion_count:       '',
-                },
-
-
-                // dataResource
-                dataResource: {
-                    visible:     false,
-                    editor:      false,
-                    id:          '',
-                    name:        '',
-                    type:        '',
-                    description: '',
-                },
-
-
-                dataSetList:       [],
-                bloomFilterList:   [],
-                partnerList:       [],
-                psi_actuator_role: '',
+                getListApi: '/task/paging',
+                myRoleList: [
+                    {
+                        text:  '我发起的',
+                        value: 'promoter',
+                    },
+                    {
+                        text:  '我协同的',
+                        value: 'provider',
+                    },
+                ],
             };
         },
         async created() {
-
-            await this.getStatus();
-
-            await this.getDataSet();
-            await this.getBloomFilter();
-            await this.getPartner();
+            if (this.$route.query.type === 'my_role') {
+                this.search.my_role = this.$route.query.value;
+            } else {
+                this.search.status = this.$route.query.value;
+            }
 
             this.getList();
         },
         methods: {
 
-            async getStatus() {
-                const { code, data } = await this.$http.get('/task/status',{
-                     },
-                );
-
-                if(code === 0) {
-                    this.taskStatusList = data;
-                }
-            },
-
-            showStrategys (string) {
-                this.dataDialog = true;
-                setTimeout(() => {
-                    this.jsonData = string;
-                });
-            },
-
-
-            async addTask () {
-                const { code } = await this.$http.post({
-                    url:  '/task/add',
-                    data: {
-                        name:               this.task.name,
-                        partner_id:         this.task.partner_id,
-                        data_resource_id:   this.task.data_resource_id,
-                        data_resource_type: this.task.data_resource_type,
-                        data_count:         this.task.data_count,
-                    },
-                });
-
-                    if (code === 0) {
-                        this.task.editor = false;
-                        this.$message('新增成功!');
-                        this.getList();
-                    }
-            },
-
-
             async deleteTask (id) {
-
                 this.$confirm('此操作将永久删除该条目, 是否继续?', '警告', {
                     type: 'warning',
                 }).then(async () => {
@@ -494,44 +269,6 @@
                 });
 
             },
-
-
-            async getDataSet () {
-                const { code, data } = await this.$http.get(
-                       '/data_set/query',{
-                     },
-                );
-
-                if (code === 0) {
-                    this.dataSetList = data.list;
-                }
-            },
-
-
-            async getBloomFilter () {
-                const { code, data } = await this.$http.get(
-                       '/filter/query',{
-                     },
-                );
-
-                if (code === 0) {
-                    this.bloomFilterList = data.list;
-                }
-            },
-
-
-            async getPartner () {
-                const { code, data } = await this.$http.get(
-                       '/partner/paging',{
-                     },
-                );
-
-                if (code === 0) {
-                    this.partnerList = data.list;
-                }
-            },
-
-
             dateFormatter(timeStamp) {
                 let time = '';
                 // const now = Date.now();
@@ -561,14 +298,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
-        }
-    }
-</style>

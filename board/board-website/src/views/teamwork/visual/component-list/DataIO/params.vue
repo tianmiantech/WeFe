@@ -41,7 +41,7 @@
                     class="ml10"
                     @click="methods.checkDataSet(member, index)"
                 >
-                    选择数据集
+                    选择数据资源
                 </el-button>
             </p>
 
@@ -54,7 +54,7 @@
                     :key="row.id"
                     label-width="110px"
                 >
-                    <el-form-item label="数据集名称：">
+                    <el-form-item label="数据资源名称：">
                         {{ row.name }}
                         <el-tag
                             v-if="row.contains_y"
@@ -71,23 +71,23 @@
                             <elicon-circle-close />
                         </el-icon>
                     </el-form-item>
-                    <el-form-item label="数据集id：">
-                        {{ row.data_set_id }}
+                    <el-form-item label="数据资源id：">
+                        {{ row.data_resource_id || row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
-                        {{ row.row_count }} / {{ row.feature_count }}
+                        {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
-                        <el-form-item v-if="row.y_positive_example_count" label="正例样本数量：">
-                            {{ row.y_positive_example_count }}
+                        <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
+                            {{ row.y_positive_sample_count }}
                         </el-form-item>
-                        <el-form-item v-if="row.y_positive_example_ratio" label="正例样本比例：">
-                            {{ (row.y_positive_example_ratio * 100).toFixed(1) }}%
+                        <el-form-item v-if="row.y_positive_sample_ratio" label="正例样本比例：">
+                            {{ (row.y_positive_sample_ratio * 100).toFixed(1) }}%
                         </el-form-item>
                     </template>
                     <el-form-item label="选择特征：">
                         <el-button
-                            size="mini"
+                            size="small"
                             @click="methods.checkColumns(row, index)"
                         >
                             {{ row.$column_name_list.length }} / {{ row.feature_count }}
@@ -154,7 +154,7 @@
                     </el-checkbox>
                     <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         class="ml10 revert-check-btn"
                         @click="methods.revertCheck"
                     >
@@ -203,7 +203,7 @@
 
         <!-- Select the dataset for the specified member -->
         <el-dialog
-            title="选择数据集"
+            title="选择数据资源"
             v-model="vData.showSelectDataSet"
             custom-class="dialog-min-width"
             :close-on-click-modal="false"
@@ -216,7 +216,7 @@
                 @tab-click="methods.dataSetTabChange"
             >
                 <el-tab-pane
-                    label="原始数据集"
+                    label="原始数据资源"
                     name="raw"
                 >
                     <el-form
@@ -271,6 +271,7 @@
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
+                        :project-type="projectType"
                     >
                         <template #data-add>
                             <i />
@@ -279,7 +280,7 @@
                 </el-tab-pane>
                 <el-tab-pane
                     ref="derivedRef"
-                    label="衍生数据集"
+                    label="衍生数据资源"
                     name="derived"
                 >
                     <el-alert
@@ -287,7 +288,7 @@
                         effect="dark"
                         type="success"
                         :closable="false"
-                        title="使用衍生数据集将 自动替换 关联成员已选的数据集"
+                        title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
                     <el-form inline>
                         <el-form-item label="名称">
@@ -313,6 +314,7 @@
                         ref="derivedDataSetListRef"
                         :paramsExclude="['allList', 'list']"
                         :search-field="vData.derivedSearch"
+                        :project-type="projectType"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
                     >
@@ -352,6 +354,7 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+            projectType:  String,
         },
         setup(props, context) {
             const store = useStore();
@@ -365,6 +368,7 @@
             const derivedRef = ref();
             const derivedDataSetListRef = ref();
             const rawDataSetListRef = ref();
+
             const vData = reactive({
                 inited:            false,
                 locker:            false,
@@ -420,7 +424,7 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.source_type ? item.features : item.feature_name_list.split(',');
+                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -531,6 +535,7 @@
                         ref.searchField.member_id = vData.memberId;
                         ref.searchField.member_role = vData.memberRole;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
+                        ref.searchField.data_resource_type = 'TableDataSet';
 
                         ref.getDataList({
                             url:             '/project/raw_data_set/list',
@@ -556,6 +561,7 @@
                     refInstance.searchField.member_id = vData.memberId;
                     refInstance.searchField.member_role = vData.memberRole;
                     refInstance.searchField.contains_y = vData.rawSearch.contains_y;
+                    refInstance.searchField.data_resource_type = 'TableDataSet';
 
                     switch(ref.paneName) {
                     case 'raw':
@@ -576,13 +582,13 @@
                 /* add dataset to list */
                 selectDataSet(item) {
                     vData.showSelectDataSet = false;
-                    if(item.source_type) {
+                    if(item.data_resource.derived_from) {
                         // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
-                                const features = member.feature_name_list.split(',');
+                                const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
@@ -590,9 +596,9 @@
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
                                     data_set_id:       item.data_set_id,
-                                    source_type:       item.source_type,
-                                    row_count:         item.row_count,
-                                    name:              item.name,
+                                    derived_from:      item.data_resource.derived_from,
+                                    row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
+                                    name:              item.data_resource.name,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -621,13 +627,15 @@
                                 member.$data_set_list.push(data_set);
                             }
                         });
-                        $notify({ type: 'success', message: '已自动关联相关数据集', duration: 2000 });
+                        $notify({ type: 'success', message: '已自动关联相关数据资源', duration: 2000 });
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.feature_name_list.split(',');
+                        const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
+
+                        item.data_resource.data_resource_id = item.data_set_id;
                         const dataset = {
-                            ...item,
+                            ...item.data_resource,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -641,7 +649,7 @@
                                     item.$data_set_list = [];
                                 }
                             });
-                            $notify({ type: 'success', message: '已自动关联相关数据集', duration: 1000 });
+                            $notify({ type: 'success', message: '已自动关联相关数据资源', duration: 1000 });
                         }
                         currentMember.$data_set_list = [];
                         currentMember.$data_set_list.push(dataset);
@@ -780,13 +788,13 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_set_id,
+                                data_set_id:       row[0].data_resource_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
-                                source_type:       row[0].source_type,
-                                row_count:         row[0].row_count,
+                                derived_from:      row[0].derived_from,
+                                row_count:         row[0].row_count ? row[0].row_count : row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }

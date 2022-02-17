@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/add", name = "添加对齐任务", desc = "添加对齐任务", login = false)
+@Api(path = "task/add", name = "添加对齐任务", desc = "添加对齐任务")
 public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
     @Autowired
@@ -54,8 +54,8 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "描述", regex = "^.{0,1024}$", messageOnInvalid = "你写的描述太多了~")
         private String description;
 
-        @Check(name = "合作方id", require = true)
-        private String partnerId;
+        @Check(name = "合作方成员id", require = true)
+        private String partnerMemberId;
 
         @Check(name = "数据资源id", require = true)
         private String dataResourceId;
@@ -100,12 +100,12 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
             this.name = name;
         }
 
-        public String getPartnerId() {
-            return partnerId;
+        public String getPartnerMemberId() {
+            return partnerMemberId;
         }
 
-        public void setPartnerId(String partnerId) {
-            this.partnerId = partnerId;
+        public void setPartnerMemberId(String partnerMemberId) {
+            this.partnerMemberId = partnerMemberId;
         }
 
         public String getDataResourceId() {

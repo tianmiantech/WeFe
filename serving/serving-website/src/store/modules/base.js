@@ -2,25 +2,21 @@
 export default _ => {
 
     function setStorage () {
-        let keepAlive = localStorage.getItem(KEEPALIVE);
-
-        keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-        return keepAlive ? localStorage : sessionStorage;
+        return localStorage;
     }
 
     /* 此处加上后台接口地址作为 存储对象的前缀
     * 用于解决在测试环境中多节点使用相同域名造成 localStorage 数据覆盖的问题
     */
     const { baseUrl } = window.api;
-    const { localStorage, sessionStorage } = window;
+    const { localStorage } = window;
     const USERINFO = `${baseUrl}_userInfo`;
     const KEEPALIVE = `${baseUrl}_keepAlive`;
     const TAGSLIST = `${baseUrl}_tagsList`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
-    userInfo = sessionStorage.getItem(USERINFO),
-    tagsList = localStorage.getItem(TAGSLIST);
+        userInfo = localStorage.getItem(USERINFO),
+        tagsList = localStorage.getItem(TAGSLIST);
 
     keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
     userInfo = userInfo ? JSON.parse(userInfo) : {};
