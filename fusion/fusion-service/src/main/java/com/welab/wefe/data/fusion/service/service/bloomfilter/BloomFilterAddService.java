@@ -183,29 +183,17 @@ public class BloomFilterAddService extends AbstractService {
 
         });
 
-
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
-
         //Verify generated filters
-        String id = model.getId();
-        List<Object> CheckData = bloomFilterAddServiceDataRowConsumer.getCheckData();
-        BigInteger N = bloomFilterAddServiceDataRowConsumer.getN();
-        BigInteger e = bloomFilterAddServiceDataRowConsumer.getE();
-        BigInteger d = bloomFilterAddServiceDataRowConsumer.getD();
-        BloomFilters bf = bloomFilterAddServiceDataRowConsumer.getBf();
-        boolean checkFlag = CheckFilter(id, N, e, d, CheckData, bf);
+//        String id = model.getId();
+//        List<Object> CheckData = bloomFilterAddServiceDataRowConsumer.getCheckData();
+//        BigInteger N = bloomFilterAddServiceDataRowConsumer.getN();
+//        BigInteger e = bloomFilterAddServiceDataRowConsumer.getE();
+//        BigInteger d = bloomFilterAddServiceDataRowConsumer.getD();
+//        BloomFilters bf = bloomFilterAddServiceDataRowConsumer.getBf();
+//        boolean checkFlag = CheckFilter(id, N, e, d, CheckData, bf);
 
-        if (checkFlag) {
-            model.setD(bloomFilterAddServiceDataRowConsumer.getD().toString());
-            model.setN(bloomFilterAddServiceDataRowConsumer.getN().toString());
-            model.setE(bloomFilterAddServiceDataRowConsumer.getE().toString());
-            model.setSrc(src);
-            System.out.println("Generating filter：" + bloomFilterAddServiceDataRowConsumer.getBf());
-
-            return rowCount;
-        } else {
-            return 0;
-        }
+        return rowCount;
     }
 
 
@@ -213,14 +201,13 @@ public class BloomFilterAddService extends AbstractService {
      * Read data from the specified database according to SQL and save to mysql
      *
      * @param model
-     * @param sql
      * @throws StatusCodeWithException
      */
     public int readAndSaveFromDB(BloomFilterMySqlModel model, List<String> headers) throws StatusCodeWithException, IOException {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
-        int processCount = bloomFilterMySqlModel.getProcessCount();
+//        int processCount = bloomFilterMySqlModel.getProcessCount();
 
 
         DataSourceMySqlModel dsModel = dataSetService.getDataSourceById(model.getDataSourceId());
