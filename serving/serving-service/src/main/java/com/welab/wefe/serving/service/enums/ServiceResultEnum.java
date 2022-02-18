@@ -2,8 +2,8 @@ package com.welab.wefe.serving.service.enums;
 
 public enum ServiceResultEnum {
 
-	SUCCESS(1, "成功"), NO_DATA(2, "没有数据"), SERVICE_NOT_AVALIABLE(3, "服务不可用"), CUSTOMER_NOT_AUTHORITY(4, "服务未授权"),
-	IP_NOT_AUTHORITY(5, "IP被限制"), SERVICE_FAIL(6, "服务异常");
+	SUCCESS(0, "成功"), SERVICE_FAIL(1, "服务异常"), NO_DATA(2, "没有数据"), SERVICE_NOT_AVALIABLE(3, "服务不可用"),
+	CUSTOMER_NOT_AUTHORITY(4, "服务未授权"), IP_NOT_AUTHORITY(5, "IP被限制");
 
 	private int code;
 	private String message;
@@ -16,8 +16,11 @@ public enum ServiceResultEnum {
 	public static String getValueByCode(int code) {
 		String result = null;
 		switch (code) {
-			case 1:
+			case 0:
 				result = ServiceResultEnum.SUCCESS.message;
+				break;
+			case 1:
+				result = ServiceResultEnum.SERVICE_FAIL.message;
 				break;
 			case 2:
 				result = ServiceResultEnum.NO_DATA.message;
@@ -30,9 +33,6 @@ public enum ServiceResultEnum {
 				break;
 			case 5:
 				result = ServiceResultEnum.IP_NOT_AUTHORITY.message;
-				break;
-			case 6:
-				result = ServiceResultEnum.SERVICE_FAIL.message;
 				break;
 			default:
 				break;
