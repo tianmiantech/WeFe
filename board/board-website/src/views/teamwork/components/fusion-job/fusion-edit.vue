@@ -669,10 +669,10 @@
 
                     fusionDataResourcesRef.value.vData.show = false;
                     vData[role].data_set_id = item.data_set_id;
-                    vData[role].name = item.data_set.name;
-                    vData[role].hash_func = item.data_set.hash_function;
-                    vData[role].columns = item.data_set.feature_name_list || '';
-                    vData[role].total_data_count = item.data_set.total_data_count;
+                    vData[role].name = item.data_resource.name;
+                    vData[role].hash_func = item.data_resource.hash_function;
+                    vData[role].columns = item.data_resource.feature_name_list || '';
+                    vData[role].total_data_count = item.data_resource.total_data_count;
                     vData[role].data_resource_type = item.data_resource_type;
                 },
                 fusionKeyMapsDialog(role) {
