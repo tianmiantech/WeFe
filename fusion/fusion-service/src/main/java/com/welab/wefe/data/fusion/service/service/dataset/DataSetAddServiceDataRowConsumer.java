@@ -21,7 +21,6 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.enums.Progress;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.List;
@@ -33,8 +32,6 @@ import java.util.function.Consumer;
  * @author zane.luo
  */
 public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Object>> {
-    @Autowired
-    private DataSetRepository dataSetRepository;
 
     /**
      * Data set Id
