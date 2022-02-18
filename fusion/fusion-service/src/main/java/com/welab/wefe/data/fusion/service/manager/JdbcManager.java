@@ -360,8 +360,7 @@ public class JdbcManager {
         long totalCount = 0;
 
         try {
-            String s = sql.replace("*", "count(*)");
-            ps = conn.prepareStatement(s);
+            ps = conn.prepareStatement("select count(*) from (" + sql + ") t");
             rs = ps.executeQuery();
             while (rs.next()) {
                 totalCount = rs.getLong(1);
