@@ -88,7 +88,7 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (count > 5) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         BloomFilterMySqlModel model = bloomFilterRepository.findOne("id", input.getId(), BloomFilterMySqlModel.class);
