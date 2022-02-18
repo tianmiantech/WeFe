@@ -42,7 +42,7 @@
                     min-width="220"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set.name }}
+                        {{ scope.row.data_resource.name }}
                         <p class="p-id">{{ scope.row.data_resource_id }}</p>
                     </template>
                 </el-table-column>
@@ -94,19 +94,19 @@
                 >
                     <template v-slot="scope">
                         <p v-if="scope.row.data_resource_type === 'BloomFilter'">
-                            样本量：{{ scope.row.data_set.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count }}
                             <br>
-                            主键组合方式: {{ scope.row.data_set.hash_function }}
+                            主键组合方式: {{ scope.row.data_resource.hash_function }}
                         </p>
                         <template v-else>
-                            特征量：{{ scope.row.data_set.feature_count }}
+                            特征量：{{ scope.row.data_resource.feature_count }}
                             <br>
-                            样本量：{{ scope.row.data_set.total_data_count }}
-                            <template v-if="scope.row.data_set.contains_y && scope.row.data_set.y_positive_sample_count">
+                            样本量：{{ scope.row.data_resource.total_data_count }}
+                            <template v-if="scope.row.data_resource.contains_y && scope.row.data_resource.y_positive_sample_count">
                                 <br>
-                                正例样本数量：{{ scope.row.data_set.y_positive_sample_count }}
+                                正例样本数量：{{ scope.row.data_resource.y_positive_sample_count }}
                                 <br>
-                                正例样本比例：{{(scope.row.data_set.y_positive_sample_ratio * 100).toFixed(1)}}%
+                                正例样本比例：{{(scope.row.data_resource.y_positive_sample_ratio * 100).toFixed(1)}}%
                             </template>
                         </template>
                     </template>

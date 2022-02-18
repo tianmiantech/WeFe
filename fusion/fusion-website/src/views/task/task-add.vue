@@ -524,10 +524,7 @@
             },
 
             async getDataSet () {
-                const { code, data } = await this.$http.get(
-                       '/data_set/query',{
-                     },
-                );
+                const { code, data } = await this.$http.get('/data_set/query');
 
                 if (code === 0) {
                     this.dataSetList = data.list;
@@ -535,17 +532,14 @@
             },
 
             async getBloomFilter () {
-                const { code, data } = await this.$http.get(
-                       '/filter/query',{
-                     },
-                );
+                const { code, data } = await this.$http.get('/filter/query');
 
                 if (code === 0) {
                     this.bloomFilterList = data.list;
                 }
             },
 
-            async addTask () {
+            async addTask (event) {
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns=item.column_arr.join(',');
                 });
@@ -562,6 +556,9 @@
                         description:        this.task.description,
                         is_trace:           this.task.is_trace,
                         trace_column:       this.task.trace_column,
+                    },
+                    btnState: {
+                        target: event,
                     },
                 });
 
@@ -630,7 +627,7 @@
 
                 const partner = {
                     partner_member_id:   item.member_id,
-                    partner_member_name: item.memner_name,
+                    partner_member_name: item.member_name,
                     base_url:            item.base_url,
                 };
 
@@ -688,7 +685,11 @@
             },
 
             async check () {
-                const { code } = await this.$http.get('/partner/check');
+                const { code } = await this.$http.get('/partner/check', {
+                    params: {
+                        memberId: this.partnerList[0].partner_member_id,
+                    },
+                });
 
                 if (code === 0) {
                     this.$message.success('服务连接正常');

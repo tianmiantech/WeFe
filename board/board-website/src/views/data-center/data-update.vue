@@ -241,8 +241,8 @@
     import { mapGetters } from 'vuex';
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
+    import PreviewImageList from './components/preview-image-list';
     import SelectMember from './components/select-member';
-    import PreviewImageList from './components/preview-image-list.vue';
 
     export default {
         components: {
@@ -457,8 +457,13 @@
                 }
 
                 this.loading = true;
+                const map = {
+                    csv:    '/table_data_set/update',
+                    img:    '/image_data_set/update',
+                    filter: '/bloom_filter/update',
+                };
                 const { code } = await this.$http.post({
-                    url:     this.addType === 'csv' ? '/table_data_set/update' : '/image_data_set/update',
+                    url:     map[this.addType],
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,

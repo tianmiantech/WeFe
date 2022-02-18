@@ -87,13 +87,9 @@ httpInstance.interceptors.response.use(
                         },
                     );
                 } else if (data.code === 10017) {
-                    window.$app.$message.error(
-                        data.message,
-                    );
+                    window.$app.$message.error(data.message || '未知错误!');
                 } else if (data.code === -1 || data.code === 10003) {
-                    window.$app.$message.error(
-                        data.message,
-                    );
+                    window.$app.$message.error(data.message || '未知错误!');
                 } else {
                     window.$app.$message.error({ message: data.message || '未知错误!' });
                 }
