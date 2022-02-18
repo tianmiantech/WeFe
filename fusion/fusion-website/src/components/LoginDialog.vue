@@ -49,7 +49,6 @@
                 <el-button
                     type="primary"
                     class="login-btn"
-                    native-type="submit"
                     @click="login"
                 >
                     登 录

@@ -51,7 +51,6 @@
             </el-form-item>
             <el-button
                 type="primary"
-                native-type="submit"
                 @click="getList({ to: true, resetPagination: true })"
             >
                 查询
@@ -220,12 +219,15 @@
         </div>
 
         <el-dialog
-            title="用户审核"
             v-model="dialogAuditAccountVisible"
+            title="用户审核"
             destroy-on-close
             width="500px"
         >
-            <el-form :model="form" inline>
+            <el-form
+                :model="form"
+                inline
+            >
                 <el-form-item
                     label="审核意见："
                     :label-width="formLabelWidth"
@@ -261,9 +263,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="resetPwDialog.visible"
             width="340px"
             title="重置用户密码"
-            v-model="resetPwDialog.visible"
             destroy-on-close
         >
             将重置 <strong class="primary-color">
@@ -285,9 +287,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="resetPwDialog.result"
             width="340px"
             title="新用户密码"
-            v-model="resetPwDialog.result"
             destroy-on-close
         >
             <div style="margin-top:-15px">
@@ -298,9 +300,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="userRoleDialog.visible"
             width="400px"
             title="更改用户权限"
-            v-model="userRoleDialog.visible"
             destroy-on-close
         >
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
@@ -321,9 +323,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="disableUserDialog.visible"
             width="340px"
             :title="disableUserDialog.enable ? '禁止用户登录' : '允许用户登录'"
-            v-model="disableUserDialog.visible"
             destroy-on-close
         >
             将{{ disableUserDialog.enable ? '禁止' : '允许' }} <strong>{{ disableUserDialog.nickname }}</strong> 的
@@ -344,9 +346,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="transformSuperUserDialog.visible"
             width="440px"
             title="超级管理员转移"
-            v-model="transformSuperUserDialog.visible"
             destroy-on-close
         >
             <el-alert
@@ -356,7 +358,7 @@
             />
             <el-form
                 label-width="120px"
-                class="flex-form mt30"
+                class="inline-form mt30"
             >
                 <el-form-item
                     label="选择目标用户"
@@ -366,9 +368,9 @@
                         v-model="transformSuperUserDialog.user"
                         placeholder="输入姓名或者11位手机号搜索"
                         :fetch-suggestions="getUsers"
-                        @select="selectUser"
                         style="width: 260px;"
                         clearable
+                        @select="selectUser"
                         @clear="clearSuggestions"
                     />
                 </el-form-item>

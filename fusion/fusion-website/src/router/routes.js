@@ -20,9 +20,8 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-            title:          '主页',
-            requiresLogout: false,
-            asmenu:         true,
+            title:  '主页',
+            asmenu: true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -50,8 +49,7 @@ const baseRoutes = [
                 path: `${prefixPath}data-set-list`,
                 name: 'data-set-list',
                 meta: {
-                    title:  '数据集',
-                    index:  '0-0',
+                    title:  '我的数据集',
                     active: `${prefixPath}data-set-list`,
                 },
                 component: () => import('@views/index/data-set-list.vue'),
@@ -61,7 +59,6 @@ const baseRoutes = [
                 name: 'filter-list',
                 meta: {
                     title:  '布隆过滤器',
-                    index:  '0-1',
                     active: `${prefixPath}filter-list`,
                 },
                 component: () => import('@views/index/filter-list.vue'),
@@ -70,9 +67,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-set-view`,
                 name: 'data-set-view',
                 meta: {
-                    title:  '新增数据集',
-                    index:  '0-2',
                     hidden: true,
+                    title:  '新增数据集',
                     active: `${prefixPath}data-set-view`,
                 },
                 component: () => import('@views/index/data-set-view.vue'),
@@ -81,9 +77,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-set-detail`,
                 name: 'data-set-detail',
                 meta: {
-                    title:  '数据集详情',
-                    index:  '0-2',
                     hidden: true,
+                    title:  '数据集详情',
                     active: `${prefixPath}data-set-detail`,
                 },
                 component: () => import('@views/index/data-set-detail.vue'),
@@ -92,9 +87,8 @@ const baseRoutes = [
                 path: `${prefixPath}filter-view`,
                 name: 'filter-view',
                 meta: {
-                    title:  '新增过滤器',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '新增过滤器',
                     active: `${prefixPath}filter-view`,
                 },
                 component: () => import('@views/index/filter-view.vue'),
@@ -103,9 +97,8 @@ const baseRoutes = [
                 path: `${prefixPath}filter-data-detail`,
                 name: 'filter-data-detail',
                 meta: {
-                    title:  '过滤器详情',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '过滤器详情',
                     active: `${prefixPath}filter-data-detail`,
                 },
                 component: () => import('@views/index/filter-data-detail.vue'),
@@ -115,7 +108,6 @@ const baseRoutes = [
                 name: 'data-resouce-list',
                 meta: {
                     title:  '数据库配置',
-                    index:  '0-4',
                     active: `${prefixPath}data-souce-list`,
                 },
                 component: () => import('@views/index/data-souce-list.vue'),
@@ -124,9 +116,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-source-view`,
                 name: 'data-source-view',
                 meta: {
-                    title:  '数据库配置详情',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '数据库配置详情',
                     active: `${prefixPath}data-source-view`,
                 },
                 component: () => import('@views/index/data-source-view.vue'),

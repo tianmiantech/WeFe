@@ -28,10 +28,10 @@
                     :rules="phoneRules"
                 >
                     <el-input
+                        id="username"
                         v-model.trim="form.phone"
                         placeholder="手机号"
                         maxlength="11"
-                        id="username"
                         type="tel"
                         clearable
                     />
@@ -122,7 +122,6 @@
                     v-loading="submitting"
                     size="medium"
                     type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
                     round
                     @click="submit"
@@ -291,7 +290,7 @@
                             this.$router.replace({
                                 name: 'login',
                             });
-                            this.$message.success('恭喜, 注册成功. 请登录!');
+                            this.$message.success('注册成功. 请登录!');
                         } else {
                             this.getImgCode();
                         }

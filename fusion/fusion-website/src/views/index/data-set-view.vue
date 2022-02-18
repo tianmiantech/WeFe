@@ -4,7 +4,7 @@
         shadow="never"
     >
         <el-form
-            class="page-form"
+            class="page-form block-form"
             :model="form"
         >
             <el-form-item
@@ -33,7 +33,10 @@
             </el-form-item>
 
             <div class="add-title mb10">选择文件</div>
-            <fieldset style="min-height:230px;">
+            <fieldset
+                class="inline-form"
+                style="min-height:230px;"
+            >
                 <legend>上传方式</legend>
                 <el-form-item>
                     <el-radio
@@ -55,7 +58,10 @@
                         服务器本地文件
                     </el-radio>
 
-                    <div v-if="form.dataResourceSource === 'Sql'">
+                    <div
+                        v-if="form.dataResourceSource === 'Sql'"
+                        class="mt20"
+                    >
                         <el-form-item
                             label="数据源:"
                             label-width="60px"
@@ -159,16 +165,18 @@
             <div class="add-title mt20">字段信息</div>
             <el-alert type="info">
                 <template>
-                    <p>* 请勾选需要上传的对齐字段信息</p>
-                    <p>* 对齐标识字段建议限制5个以内</p>
-                    <p>* 可包含样本的日期字段信息</p>
+                    <div class="f14">
+                        <p>* 请勾选需要上传的对齐字段信息</p>
+                        <p>* 对齐标识字段建议限制 <i style="color:#F85564;">5个以内</i></p>
+                        <p>* 可包含样本的日期字段信息</p>
+                    </div>
                 </template>
             </el-alert>
             <el-table
                 max-height="600px"
                 :data="metadata_pagination.list"
                 :select-on-indeterminate="false"
-                @selection-change="handleSelectionChange"
+                @selection-change="tableSelectionChange"
             >
                 <el-table-column
                     type="selection"
@@ -214,7 +222,7 @@
             <el-form
                 v-loading="dataSource.loading"
                 label-width="130px"
-                class="flex-form"
+                class="inline-form"
             >
                 <el-form-item
                     label="数据源名称"
@@ -491,7 +499,7 @@ export default {
             }
         },
 
-        handleSelectionChange(val) {
+        tableSelectionChange(val) {
             this.row_list = [];
             val.forEach(item => {
                 if (item) {
@@ -499,7 +507,6 @@ export default {
                 }
             });
         },
-
         metadataPageChange(val) {
             const { page_size } = this.metadata_pagination;
 
@@ -666,20 +673,17 @@ export default {
         },
         async add() {
             if (!this.form.name) {
-                this.$message.error('请输入数据集名称！');
-                return;
+                return this.$message.error('请输入数据集名称！');
             } else if (this.form.name.length<4) {
-                this.$message.error('数据集名称不能少于4个字！');
-                return;
+                return this.$message.error('数据集名称不能少于4个字！');
             } else if (!this.row_list.length && this.form.dataResourceSource==='UploadFile') {
-                this.$message.error('请选择字段！');
-                return;
+                return this.$message.error('请选择字段！');
             } else if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
-                this.$message.error('请填写文件在服务器上的绝对路径！');
-                return;
+                return this.$message.error('请填写文件在服务器上的绝对路径！');
             } else if (this.form.dataResourceSource === 'LocalFile' && !this.row_list.length) {
-                this.$message.error('请选择字段信息！');
-                return;
+                return this.$message.error('请选择字段信息！');
+            } else if (this.row_list.length > 5) {
+                return this.$message.error('对齐标识字段建议限制在5个以内！');
             }
 
             const ids = [];
@@ -733,9 +737,8 @@ export default {
                 if (code === 0) {
                     const percentage = data.row_count === 0 ? 0 : Math.round(data.process_count / data.row_count * 100);
 
-                    this.processData = {
-                        percentage,
-                    };
+                    this.processData.percentage = percentage;
+
                     if (data.progress === 'Running') {
                         clearTimeout(this.timer);
                         this.timer = setTimeout(_ => {
