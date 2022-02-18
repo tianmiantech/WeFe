@@ -16,7 +16,6 @@
 const { pathname } = window.location;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
-
 const baseRoutes = [
     {
         path: `${prefixPath}`,
@@ -202,6 +201,35 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}account`,
+        meta: {
+            title: '用户管理',
+            icon:  'el-icon-user',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}account-list`,
+                name: 'account-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/account-list'),
+            },
+            {
+                path: `${prefixPath}account-setting`,
+                name: 'account-setting',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '账户设置',
+                },
+                component: () => import('../views/system-config/account-setting'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}global-setting`,
         meta: {
             title: '全局设置',
@@ -214,12 +242,66 @@ const baseRoutes = [
                 name: 'global-setting-view',
                 meta: {
                     title: '配置信息',
-                    index: '3-0',
                 },
-                component: () =>
-                    import('@views/global_setting/global-setting-view.vue'),
+                component: () => import('@views/global_setting/global-setting-view.vue'),
             },
         ],
+    },
+    {
+        path: `${prefixPath}login`,
+        name: 'login',
+        meta: {
+            title:          '登录',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/login.vue'),
+    },
+    {
+        path: `${prefixPath}register`,
+        name: 'register',
+        meta: {
+            title:          '注册',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/register.vue'),
+    },
+    {
+        path: `${prefixPath}find-password`,
+        name: 'find-password',
+        meta: {
+            title:          '找回密码',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/find-password.vue'),
+    },
+    {
+        path: `${prefixPath}notfound`,
+        name: 'notfound',
+        meta: {
+            requiresAuth: false,
+            hidden:       true,
+        },
+        component: () => import('../views/error/404.vue'),
+    },
+    {
+        path: `${prefixPath}forbidden`,
+        name: 'forbidden',
+        meta: {
+            requiresAuth: false,
+            hidden:       true,
+        },
+        component: () => import('../views/error/403.vue'),
+    },
+    {
+        path: `${prefixPath}init`,
+        name: 'init',
+        meta: {
+            hidden: true,
+        },
+        component: () => import('../views/member/member-initialize'),
     },
     {
         path:     '*',

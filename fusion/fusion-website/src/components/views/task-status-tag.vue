@@ -38,7 +38,7 @@ export default {
             },
             Ready: {
                 type:   '',
-                title:  '就绪',
+                title:  '等待合作方审核',
                 effect: 'light',
             },
             Running: {

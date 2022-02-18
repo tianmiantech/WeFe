@@ -1135,13 +1135,14 @@
                         }
                     }
 
-                    url = 'bloom_filter/add';
+                    url = '/bloom_filter/add';
                     params = {
                         ...this.form,
                         field_info_list,
                         hash_function:        $ref.hash_func,
                         BloomfilterAddMethod: this.form.data_set_add_method,
                     };
+                    delete params.data_set_add_method;
                 } else {
                     url = this.addDataType === 'csv' ? '/table_data_set/add': '/image_data_set/add';
                     params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;

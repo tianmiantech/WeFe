@@ -59,7 +59,7 @@
             />
             <el-table-column
                 fixed="right"
-                label="选择数据集"
+                label="操作"
                 width="140px"
             >
                 <template slot-scope="scope">

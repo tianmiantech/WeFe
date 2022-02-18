@@ -34,22 +34,10 @@
             />
             <el-table-column
                 fixed="right"
-                label="选择数据集"
-                width="140px"
+                label="操作"
+                width="100px"
             >
                 <template slot-scope="scope">
-                    <el-tooltip
-                        content="预览数据"
-                        placement="top"
-                    >
-                        <el-button
-                            circle
-                            type="info"
-                            @click="showDataSetPreview(scope.row)"
-                        >
-                            <i class="el-icon-view" />
-                        </el-button>
-                    </el-tooltip>
                     <el-button
                         type="success"
                         :disabled="scope.row.deleted"
