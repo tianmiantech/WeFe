@@ -109,6 +109,7 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
+            model.setStatement(input.getSql());
             readAndSaveFromDB(model, input.getRows());
             model.setStatement(input.getSql());
         } else {
@@ -232,10 +233,17 @@ public class BloomFilterAddService extends AbstractService {
             outFile.mkdir();
         }
 
-        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model,null);
-        jdbcManager.readWithSelectRow(conn, sql_script, bloomFilterAddServiceDataRowConsumer, headers);
+        String src = filterDir + model.getName();
+        model.setSrc(src);
 
-        bloomFilterAddServiceDataRowConsumer.waitForFinishAndClose();
+        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model,null);
+
+
+        CommonThreadPool.run(() -> {
+            jdbcManager.readWithSelectRow(conn, sql_script, bloomFilterAddServiceDataRowConsumer, headers);
+        });
+
+//        bloomFilterAddServiceDataRowConsumer.waitForFinishAndClose();
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
 
         return rowCount;
