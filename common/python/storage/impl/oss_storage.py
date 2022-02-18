@@ -27,7 +27,7 @@ from common.python.common import consts
 from common.python.protobuf.pyproto import intermediate_data_pb2
 from common.python.storage.fc_storage import FCStorage
 from common.python.utils import log_utils, conf_utils, network_utils
-from common.python.utils.core_utils import deserialize
+from common.python.utils.core_utils import deserialize, serialize
 
 # from multiprocessing import Pool
 
@@ -243,7 +243,7 @@ class OssStorage(FCStorage):
         # use batch serialize data
         intermediate_data.dataFlag = consts.IntermediateDataFlag.BATCH_SERIALIZATION
         batch_serialize_data = intermediate_data.serializationData
-        batch_serialize_data.value = self.kv_to_bytes()
+        batch_serialize_data.value = serialize(partition_data)
 
         object_val = intermediate_data.SerializeToString()
         self._bucket.put_object(object_key, object_val)
