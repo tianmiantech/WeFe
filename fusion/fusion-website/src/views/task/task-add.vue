@@ -539,7 +539,8 @@
                 }
             },
 
-            async addTask (event) {
+            async addTask () {
+                this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns=item.column_arr.join(',');
                 });
@@ -557,13 +558,11 @@
                         is_trace:           this.task.is_trace,
                         trace_column:       this.task.trace_column,
                     },
-                    btnState: {
-                        target: event,
-                    },
                 });
 
+                this.loading = false;
                 if (code === 0) {
-                    this.$message('发起成功!');
+                    this.$message.success('发起成功!');
 
                     this.$router.replace({
                         name: 'task-list',

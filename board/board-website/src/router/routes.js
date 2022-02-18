@@ -21,9 +21,8 @@ const baseRoutes = [
     {
         path: prefixPath,
         meta: {
-            title:          '主页',
-            requiresLogout: false,
-            asmenu:         true,
+            title:  '主页',
+            asmenu: true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [

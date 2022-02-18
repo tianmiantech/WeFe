@@ -18,7 +18,26 @@
                     />
                 </el-tooltip>
             </span>
-            <div class="heading-user">你好</div>
+            <div class="heading-user">
+                你好,
+                <el-dropdown
+                    class="ml5"
+                    @command="handleCommand"
+                >
+                    <span class="el-dropdown-link">
+                        <strong>{{ userInfo.nickname }}</strong>
+                        <i class="el-icon-arrow-down" />
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item command="logout">
+                                <i class="el-icon-switch-button" />
+                                退出
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+            </div>
         </div>
         <layout-tags v-show="tagsList.length" />
     </div>
@@ -26,6 +45,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { baseLogout } from '@src/router/auth';
 import LayoutTags from './LayoutTags.vue';
 
 export default {
@@ -41,15 +61,26 @@ export default {
     computed: {
         ...mapGetters(['userInfo', 'tagsList']),
     },
-    created() {
-        this.$bus.$on('change-layout-header-title', data => {
-            this.headingTitle = data;
-        });
-    },
     methods: {
         collapseAside() {
             this.asideCollapsed = !this.asideCollapsed;
             this.$bus.$emit('collapseChanged', this.asideCollapsed);
+        },
+
+        handleCommand (command) {
+            if (!command) return;
+            const self = this;
+            const policy = {
+                async logout() {
+                    await self.$http.post({
+                        url: '/logout',
+                    });
+
+                    baseLogout();
+                },
+            };
+
+            policy[command]();
         },
 
         checkFullScreen() {
