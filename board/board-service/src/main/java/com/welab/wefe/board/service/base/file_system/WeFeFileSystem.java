@@ -166,8 +166,10 @@ public class WeFeFileSystem {
 
             // 重命名之前新文件先删除之前重命名的文件
             if (renamedFile.exists()) {
-                rawFile.renameTo(renamedFile);
+                renamedFile.delete();
             }
+            
+            rawFile.renameTo(renamedFile);
 
             return renamedFile;
         }
