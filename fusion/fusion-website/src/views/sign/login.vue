@@ -107,7 +107,6 @@
                             <el-button
                                 type="primary"
                                 class="login-btn"
-                                native-type="submit"
                                 size="medium"
                                 @click="submit"
                             >
@@ -135,7 +134,7 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
+    // import { mapGetters } from 'vuex';
     import md5 from 'js-md5';
 
     export default {
@@ -169,7 +168,7 @@
             };
         },
         computed: {
-            ...mapGetters(['keepAlive']),
+            // ...mapGetters(['keepAlive']),
         },
         created() {
             // this.form.keepAlive = this.keepAlive;
@@ -224,23 +223,6 @@
                         } else if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
                             this.$store.commit('SYSTEM_INITED', true);
-
-                            const res = await this.$http.get({
-                                url: '/member/detail',
-                            });
-
-                            if(res.code === 0) {
-                                const info = Object.assign(data, res.data);
-
-                                this.$store.commit('UPDATE_USERINFO', info);
-                                this.$router.replace({
-                                    name: 'index',
-                                });
-                            } else {
-                                this.$store.commit('SYSTEM_INITED', false);
-                                this.$store.commit('UPDATE_USERINFO', null);
-                                this.$message.error('请重试');
-                            }
                         } else {
                             this.getImgCode();
                         }
@@ -259,6 +241,7 @@
         max-width: 1400px;
         padding-bottom: 60px;
         position: relative;
+        min-height: 100vh;
     }
     .copyright{
         position: absolute;
