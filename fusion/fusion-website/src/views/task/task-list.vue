@@ -58,11 +58,11 @@
             <el-table-column
                 type="index"
                 label="编号"
-                width="45px"
+                width="45"
             />
             <el-table-column
                 label="任务"
-                width="240px"
+                width="240"
             >
                 <template slot-scope="scope">
                     <strong>{{ scope.row.name }}</strong>
@@ -73,12 +73,12 @@
             <el-table-column
                 label="合作方"
                 prop="partner_member_name"
-                width="200px"
+                width="200"
             />
 
             <el-table-column
                 label="状态"
-                width="120px"
+                width="120"
             >
                 <template slot-scope="scope">
                     <TaskStatusTag :status="scope.row.status" />
@@ -87,7 +87,7 @@
 
             <el-table-column
                 label="数据资源"
-                width="200px"
+                width="200"
             >
                 <template slot-scope="scope">
                     <strong>{{ scope.row.data_resource_name }}</strong>
@@ -98,7 +98,7 @@
             <el-table-column
                 label="数据量"
                 prop="data_count"
-                width="120px"
+                width="120"
             >
                 <template slot-scope="scope">
                     样本量: {{ scope.row.row_count }} <br>
@@ -138,7 +138,7 @@
 
             <el-table-column
                 label="操作"
-                width="150px"
+                width="150"
                 fixed="right"
             >
                 <template slot-scope="scope">

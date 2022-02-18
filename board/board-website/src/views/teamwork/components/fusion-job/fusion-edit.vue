@@ -64,7 +64,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item v-loading="vData.loading" class="member-list">
+            <div v-loading="vData.loading" class="member-list">
                 融合样本:
                 <span
                     v-if="vData.algorithm === 'RSA_PSI'"
@@ -201,7 +201,7 @@
                         </el-table-column>
                     </el-table>
                 </el-form>
-            </el-form-item>
+            </div>
 
             <el-form-item v-if="vData.status === 'Running' || vData.status === 'Success' || vData.status === 'Failure' || vData.status === 'Interrupt'">
                 <el-table :data="[{}]">

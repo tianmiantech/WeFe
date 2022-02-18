@@ -234,8 +234,7 @@
                 }
             },
 
-            async editPartner () {
-                this.loading = true;
+            async editPartner (event) {
                 const { code } = await this.$http.post({
                     url:  '/partner/update',
                     data: {
@@ -245,9 +244,11 @@
                         rsa_public_key: this.partner.rsa_public_key,
                         base_url:       this.partner.base_url,
                     },
+                    btnState: {
+                        target: event,
+                    },
                 });
 
-                this.loading = false;
                 if (code === 0) {
                     this.partner.editor = false;
                     this.$message('更新成功!');

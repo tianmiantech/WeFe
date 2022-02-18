@@ -1,7 +1,7 @@
 import Element from 'element-ui';
 import TableEmptyData from '../components/TableEmptyData';
 import uploader from 'vue-simple-uploader';
-// import CGrid from 'vue-cheetah-grid';
+import CGrid from 'vue-cheetah-grid';
 
 export default {
     install (Vue) {
@@ -11,6 +11,6 @@ export default {
 
         Vue.component('TableEmptyData', TableEmptyData);
         Vue.use(uploader);
-        // Vue.use(CGrid);
+        Vue.use(CGrid);
     },
 };

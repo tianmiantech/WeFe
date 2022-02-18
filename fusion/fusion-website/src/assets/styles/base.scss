@@ -57,3 +57,13 @@
     }
     ::-webkit-scrollbar-corner{ background: rgba(0,0,0,0.1); }
 }
+
+.block-form{
+    .el-form-item{
+        .el-form-item__label{
+            text-align: left;
+            display: block;
+            float: none;
+        }
+    }
+}
