@@ -354,7 +354,7 @@ public class JdbcManager {
     /**
      * 获取查询数据的总记录数
      */
-    public long count(Connection conn, String sql) throws Exception{
+    public long count(Connection conn, String sql) throws Exception {
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
