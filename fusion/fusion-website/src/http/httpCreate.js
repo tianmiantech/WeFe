@@ -218,15 +218,17 @@ const policy = {
 
         if (!locker) {
             if (btnState.type !== false) {
-                srcElement.classList.add('is-loading');
                 srcElement.setAttribute('locker', +Date.now());
                 // insert loading element
-                const icon = document.createElement('i');
+                const loadingMask = document.createElement('div');
 
-                icon.classList.add('el-icon-loading');
-                srcElement.insertBefore(icon, srcElement.children[0]);
+                loadingMask.classList.add('el-loading-mask');
+                loadingMask.innerHTML = '<div class="el-loading-spinner"><svg viewBox="25 25 50 50" class="circular"><circle cx="50" cy="50" r="20" fill="none" class="path"></circle></svg></div>';
+
+                srcElement.insertBefore(loadingMask, srcElement.children[0]);
                 // add to queue
                 btnQueue[locker] = srcElement;
+                debugger;
             }
         } else {
             // Block duplicate requests

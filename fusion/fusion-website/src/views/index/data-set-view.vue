@@ -4,7 +4,7 @@
         shadow="never"
     >
         <el-form
-            class="page-form"
+            class="page-form block-form"
             :model="form"
         >
             <el-form-item
