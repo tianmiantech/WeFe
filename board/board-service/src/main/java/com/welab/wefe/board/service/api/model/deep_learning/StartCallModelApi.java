@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.file.decompression.SuperDecompressor;
@@ -57,14 +58,22 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
         DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
 
         // 安全起见，把非图片文件删除掉。
+        int imageCount = 0;
         for (File file : result.files) {
-            if (!FileUtil.isImage(file)) {
+            if (FileUtil.isImage(file)) {
+                imageCount++;
+                // 将文件移动到解压目录的根目录，避免zip包内有子文件导致路径不好管理。
+                FileUtil.moveFile(file, distDir);
+            } else {
                 file.delete();
             }
         }
 
         // 调用飞桨开始推理
         TaskMySqlModel task = taskService.findOne(input.taskId);
+        if (task == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("此task不存在:" + input.taskId);
+        }
 
         JObject dataSetInfo = JObject.create();
         dataSetInfo.put("download_url", buildZipDownloadUrl(input.taskId));
@@ -73,7 +82,7 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
         JSONObject json = JSON.parseObject(task.getTaskConf());
         json.put("data_set", dataSetInfo);
 
-        return success(new Output(result.files.size()));
+        return success(new Output(imageCount));
     }
 
     private String buildZipDownloadUrl(String taskId) {

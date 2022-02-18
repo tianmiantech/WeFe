@@ -19,7 +19,10 @@ package com.welab.wefe.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * @author zane.luo
@@ -191,11 +194,17 @@ public class FileUtil {
     }
 
     public static void main(String[] args) throws IOException {
-        Files.write(
-                Paths.get("/Users/zane/data/wefe_file_upload_dir/zane test1.txt"),
-                "text".getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.APPEND,
-                StandardOpenOption.CREATE
-        );
+        String from = "/Users/zane/data/wefe_file_upload_dir/hello.zip";
+        String to = "/Users/zane/data/wefe_file_upload_dir/";
+        moveFile(new File(from), to);
+    }
+
+    public static void moveFile(File file, String distDir) {
+        String fileName = file.getName();
+        File distFile = new File(distDir, fileName);
+        if (distFile.exists()) {
+            distFile.delete();
+        }
+        file.renameTo(distFile);
     }
 }
