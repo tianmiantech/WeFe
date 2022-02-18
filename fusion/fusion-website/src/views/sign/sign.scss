@@ -49,12 +49,6 @@
 .el-checkbox{
     font-weight: normal;
 }
-
-:deep(.el-form-item__label,
-    .el-checkbox__label) {
-        font-size: 13px;
-    }
-
 .sign-action {
     text-align: right;
     font-size: 14px;
