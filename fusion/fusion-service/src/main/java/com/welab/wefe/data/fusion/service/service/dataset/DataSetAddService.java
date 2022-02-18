@@ -95,7 +95,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.TASK_SWITCH = true;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             model.setDataSourceId(input.getDataSourceId());
-            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
+            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
             //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
 
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());

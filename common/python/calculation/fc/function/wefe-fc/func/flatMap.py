@@ -47,11 +47,14 @@ def handler(event, context):
 
     """
     evt = json.loads(event)
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+
     # get data
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
+
     # do flatMap
     func = cloudpickle.loads(bytes.fromhex(evt['func']))
     result = []
@@ -60,7 +63,7 @@ def handler(event, context):
         return func(x[0], x[1])
 
     result = chain.from_iterable(map(_fn, source_k_v))
-    # put result to ots
+    # put result to storage
     dest_fcs.put_all(result)
 
     return dataUtil.fc_result(partition=partition)

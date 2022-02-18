@@ -14,7 +14,7 @@
 
 import json
 from comm import dataUtil
-from comm.dataUtil import TimeConsume
+from comm.stat import Stat
 from common.python.utils import cloudpickle
 
 
@@ -47,31 +47,22 @@ def handler(event, context):
 
     """
     evt = json.loads(event)
-    tc = TimeConsume()
+    stat = Stat()
+    # tc = TimeConsume()
 
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+    func = cloudpickle.loads(bytes.fromhex(evt['func']))
+
     # get data
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
-    tc.end('get data', evt, context)
 
-    # do map
-    func = None
-    func_init = False
-    map_result = []
-    count = 0
+    dest_fcs.put_all(_do_map(source_k_v, func, stat))
+    return dataUtil.fc_result(count=stat.count, partition=partition)
+
+
+def _do_map(source_k_v, func, stat: Stat):
     for k, v in source_k_v:
-        if not func_init:
-            tc.start()
-            func = cloudpickle.loads(bytes.fromhex(evt['func']))
-            func_init = True
-            tc.end('cloudpickle.loads', evt, context)
-        count += 1
-        map_result.append(func(k, v))
-
-    tc.end('mapper:collect_and_map', evt, context)
-    # put result to ots
-    if len(map_result) > 0:
-        dest_fcs.put_all(map_result)
-    return dataUtil.fc_result(count=count, partition=partition)
+        stat.incr()
+        yield func(k, v)

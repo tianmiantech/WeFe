@@ -143,32 +143,29 @@ const baseRoutes = [
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
+                path: `${prefixPath}task-add`,
+                name: 'task-add',
+                meta: {
+                    title:  '发起任务',
+                    active: `${prefixPath}task-add`,
+                },
+                component: () => import('@views/task/task-add.vue'),
+            },
+            {
                 path: `${prefixPath}task-list`,
                 name: 'task-list',
                 meta: {
                     title: '任务列表',
-                    index: '1-0',
+                    tips:  0,
                 },
                 component: () => import('@views/task/task-list.vue'),
-            },
-            {
-                path: `${prefixPath}task-task-list`,
-                name: 'task-pending-list',
-                meta: {
-                    title:  '任务审核',
-                    index:  '1-1',
-                    active: `${prefixPath}task-pending-list`,
-                    tips:   0,
-                },
-                component: () => import('@views/task/task-pending-list.vue'),
             },
             {
                 path: `${prefixPath}task-pending-view`,
                 name: 'task-pending-view',
                 meta: {
-                    title:  '任务详情',
-                    index:  '1-2',
                     hidden: true,
+                    title:  '任务详情',
                     active: `${prefixPath}task-pending-view`,
                 },
                 component: () => import('@views/task/task-pending-view.vue'),
@@ -177,23 +174,11 @@ const baseRoutes = [
                 path: `${prefixPath}task-view`,
                 name: 'task-view',
                 meta: {
-                    title:  '任务详情',
-                    index:  '1-3',
                     hidden: true,
+                    title:  '任务详情',
                     active: `${prefixPath}task-view`,
                 },
                 component: () => import('@views/task/task-view.vue'),
-            },
-            {
-                path: `${prefixPath}task-add`,
-                name: 'task-add',
-                meta: {
-                    title:  '添加任务',
-                    index:  '1-4',
-                    hidden: true,
-                    active: `${prefixPath}task-add`,
-                },
-                component: () => import('@views/task/task-add.vue'),
             },
         ],
     },
@@ -231,7 +216,8 @@ const baseRoutes = [
                     title: '配置信息',
                     index: '3-0',
                 },
-                component: () => import('@views/global_setting/global-setting-view.vue'),
+                component: () =>
+                    import('@views/global_setting/global-setting-view.vue'),
             },
         ],
     },

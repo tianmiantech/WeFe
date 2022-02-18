@@ -28,12 +28,12 @@ export default {
         const map = {
             Pending: {
                 type:   '',
-                title:  '待处理',
+                title:  '待我方审核',
                 effect: 'plain',
             },
             Await: {
                 type:   '',
-                title:  '等待中',
+                title:  '等待合作方审核',
                 effect: 'light',
             },
             Ready: {

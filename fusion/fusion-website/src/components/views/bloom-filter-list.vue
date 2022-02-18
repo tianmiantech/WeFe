@@ -1,27 +1,5 @@
 <template>
     <div class="data-set-list">
-        <div class="flexbox">
-            <!-- <el-alert
-                v-if="containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
-                :closable="false"
-                type="warning"
-            />
-            <slot name="data-add">
-                <div
-                    class="data-add"
-                    :style="containsY != 'true' || containsY !== 'false' ? 'width: 100%;':''"
-                >
-                    <router-link
-                        :to="{ name: 'data-add' }"
-                        target="_blank"
-                    >
-                        添加数据集
-                        <i class="el-icon-right" />
-                    </router-link>
-                </div>
-            </slot> -->
-        </div>
         <el-table
             v-loading="tableLoading"
             max-height="500"
@@ -43,7 +21,6 @@
                     </div>
                 </template>
             </el-table-column>
-
 
             <el-table-column
                 label="列数"

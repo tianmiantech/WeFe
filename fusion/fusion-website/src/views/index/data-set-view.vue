@@ -32,7 +32,7 @@
                 />
             </el-form-item>
 
-            <div class="add-title">选择文件</div>
+            <div class="add-title mb10">选择文件</div>
             <fieldset style="min-height:230px;">
                 <legend>上传方式</legend>
                 <el-form-item>
@@ -68,7 +68,7 @@
                                 <el-option
                                     v-for="(data, index) in data_source_list"
                                     :key="index"
-                                    :label="data.name"
+                                    :label="`${data.name} (${data.database_type})`"
                                     :value="data.id"
                                     @click.native="getDataSourceId(data.id)"
                                 />
@@ -157,12 +157,15 @@
             </fieldset>
 
             <div class="add-title mt20">字段信息</div>
-            <el-alert
-                type="info"
-                description="* 请勾选需要上传的对齐字段信息 * 对齐标识字段建议限制5个以内 * 可包含样本的日期字段信息"
-            />
+            <el-alert type="info">
+                <template>
+                    <p>* 请勾选需要上传的对齐字段信息</p>
+                    <p>* 对齐标识字段建议限制5个以内</p>
+                    <p>* 可包含样本的日期字段信息</p>
+                </template>
+            </el-alert>
             <el-table
-                class="preview-table"
+                max-height="600px"
                 :data="metadata_pagination.list"
                 :select-on-indeterminate="false"
                 @selection-change="handleSelectionChange"
@@ -185,11 +188,11 @@
             </el-table>
 
             <el-button
+                v-loading="addLoading"
                 size="large"
                 type="primary"
                 class="save-btn mt20"
-                :disabled="(!isuploadok || !row_list.length) && form.dataResourceSource==='UploadFile'"
-                :loading="addLoading"
+                :disabled="!row_list.length"
                 @click="add"
             >
                 生成
@@ -709,7 +712,6 @@ export default {
                 if (data.repeat_data_count > 0) {
                     this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                 } else {
-                    this.$message.success('保存成功!');
                     this.getDataSetStatus(data.id);
                 }
 
@@ -740,6 +742,7 @@ export default {
                             this.getDataSetStatus(data_set_id);
                         }, 1000);
                     } else {
+                        this.$message.success('保存成功!');
                         this.$router.push({
                             name: 'data-set-list',
                         });

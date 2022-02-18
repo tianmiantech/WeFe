@@ -17,17 +17,6 @@
                     :disabled="is_update"
                 />
             </el-form-item>
-            <el-form-item
-                :rules="[{required: true, message: '名称必填!'}]"
-                label="默认端口："
-            >
-                <el-input
-                    v-model="form.open_socket_port"
-                    placeholder="8080"
-                    :disabled="true"
-                />
-            </el-form-item>
-
 
             <el-form-item
                 v-if="is_display"
@@ -35,8 +24,8 @@
             >
                 <el-input
                     v-model="form.rsa_private_key"
-                    type="textarea"
                     :disabled="is_update"
+                    type="textarea"
                     autosize
                 />
             </el-form-item>
@@ -76,11 +65,10 @@
                 is_display: false,
                 // model
                 form:       {
-                    partner_id:       '',
-                    partner_name:     '',
-                    open_socket_port: '8080',
-                    rsa_private_key:  '',
-                    rsa_public_key:   '',
+                    partner_id:      '',
+                    partner_name:    '',
+                    rsa_private_key: '',
+                    rsa_public_key:  '',
                 },
 
             };

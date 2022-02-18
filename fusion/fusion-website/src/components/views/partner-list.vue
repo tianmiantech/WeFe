@@ -33,20 +33,6 @@
                 width="360px"
             />
             <el-table-column
-                label="合作方socket地址"
-                width="200px"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.socket_ip }}:{{ scope.row.socket_port }}
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="开放端口"
-                prop="open_socket_port"
-                width="85px"
-            />
-
-            <el-table-column
                 fixed="right"
                 label="选择数据集"
                 width="140px"

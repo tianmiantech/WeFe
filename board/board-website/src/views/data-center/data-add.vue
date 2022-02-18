@@ -902,11 +902,16 @@
 
                 this.form.filename = this.form.data_set_add_method === 'HttpUpload' ? this.http_upload_filename : this.local_filename;
 
+                const { data_set_add_method } = this.form;
                 const params = {
-                    filename:            this.form.filename,
-                    data_set_add_method: this.form.data_set_add_method,
+                    filename: this.form.filename,
                 };
 
+                if(this.addDataType === 'BloomFilter') {
+                    params.bloomfilterAddMethod = data_set_add_method;
+                } else {
+                    params.data_set_add_method = data_set_add_method;
+                }
                 if(this.form.data_set_add_method === 'Database') {
                     params.sql = this.form.sql;
                     this.dataSource.dataSourceList.find(item => {
@@ -916,7 +921,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/table_data_set/preview',
+                    url: this.addDataType === 'BloomFilter' ? '/bloom_filter/preview': '/table_data_set/preview',
                     params,
                 });
 
@@ -1027,7 +1032,7 @@
                 }
             },
 
-            async showSelectMemberDialog() {
+            showSelectMemberDialog() {
                 const ref = this.$refs['SelectMemberDialog'];
 
                 ref.show = true;
