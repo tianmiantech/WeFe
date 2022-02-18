@@ -219,6 +219,7 @@ const policy = {
         if (!locker) {
             if (btnState.type !== false) {
                 srcElement.setAttribute('locker', +Date.now());
+                srcElement.classList.add('is-loading');
                 // insert loading element
                 const loadingMask = document.createElement('div');
 
@@ -228,7 +229,6 @@ const policy = {
                 srcElement.insertBefore(loadingMask, srcElement.children[0]);
                 // add to queue
                 btnQueue[locker] = srcElement;
-                debugger;
             }
         } else {
             // Block duplicate requests
