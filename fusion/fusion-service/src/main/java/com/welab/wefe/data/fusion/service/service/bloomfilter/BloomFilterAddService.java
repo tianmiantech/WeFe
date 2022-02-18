@@ -203,7 +203,7 @@ public class BloomFilterAddService extends AbstractService {
      * @param model
      * @throws StatusCodeWithException
      */
-    public int readAndSaveFromDB(BloomFilterMySqlModel model, List<String> headers) throws StatusCodeWithException, IOException {
+    public int readAndSaveFromDB(BloomFilterMySqlModel model, List<String> headers) throws Exception {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
