@@ -315,13 +315,13 @@
                                             <el-radio :label="1">黑白（1）</el-radio>
                                         </el-radio-group>
                                     </el-form-item>
-                                    <el-form-item label="图片宽度：" required>
+                                    <el-form-item label="图片宽度( px )：" required>
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.width"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片高度" required>
+                                    <el-form-item label="图片高度( px )：" required>
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.height"
@@ -354,7 +354,7 @@
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-button v-show="vData.active === 2 && vData.jobInfo.status !== 'running'" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
@@ -399,7 +399,7 @@
                     program:      route.query.training_type === 'PaddleDetection' ? 'paddle_detection' : route.query.training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
-                    architecture: 'YOLOv3',
+                    architecture: route.query.training_type === 'PaddleDetection' ? 'YOLOv3' : route.query.training_type === 'PaddleClassify' ? 'LeNet' : '',
                     // num_classes:  3,
                     base_lr:      0.00001,
                     image_shape:  [],
