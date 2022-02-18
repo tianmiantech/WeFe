@@ -233,13 +233,19 @@ class OssStorage(FCStorage):
 
         # encapsulated into the protobuf structure
         intermediate_data = intermediate_data_pb2.IntermediateData()
-        for k, v in partition_data:
-            k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
-            item_data = intermediate_data.intermediateData.add()
-            item_data.key = k_bytes
-            item_data.value = v_bytes
-        object_val = intermediate_data.SerializeToString()
 
+        # for k, v in partition_data:
+        #     k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
+        #     item_data = intermediate_data.intermediateData.add()
+        #     item_data.key = k_bytes
+        #     item_data.value = v_bytes
+
+        # use batch serialize data
+        intermediate_data.dataFlag = consts.IntermediateDataFlag.BATCH_SERIALIZATION
+        batch_serialize_data = intermediate_data.serializationData
+        batch_serialize_data.value = self.kv_to_bytes()
+
+        object_val = intermediate_data.SerializeToString()
         self._bucket.put_object(object_key, object_val)
 
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000, debug_info=None):
@@ -284,11 +290,21 @@ class OssStorage(FCStorage):
 
             intermediate_data = intermediate_data_pb2.IntermediateData()
             intermediate_data.ParseFromString(obj)
-            for item_data in intermediate_data.intermediateData:
-                if only_key:
-                    yield deserialize(item_data.key)
-                else:
-                    yield deserialize(item_data.key), deserialize(item_data.value)
+
+            if intermediate_data.dataFlag == consts.IntermediateDataFlag.BATCH_SERIALIZATION:
+                serialization_data = intermediate_data.serializationData
+                result_list = deserialize(serialization_data.value)
+                for k, v in result_list:
+                    if only_key:
+                        yield k
+                    else:
+                        yield k, v
+            else:
+                for item_data in intermediate_data.intermediateData:
+                    if only_key:
+                        yield deserialize(item_data.key)
+                    else:
+                        yield deserialize(item_data.key), deserialize(item_data.value)
 
     def collect(self, min_chunk_size=0, use_serialize=True, partition=None, dispersal=True,
                 debug_info=None, only_key=False) -> list:
