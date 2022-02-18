@@ -57,6 +57,11 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             setFusionConfig(new FusionConfigModel());
         }
 
+        MemberInfoModel memberInfoModel = getMemberInfo();
+        if (memberInfoModel == null) {
+            setMemberInfo(new MemberInfoModel());
+        }
+
         LOG.info("init global config success!");
     }
 
