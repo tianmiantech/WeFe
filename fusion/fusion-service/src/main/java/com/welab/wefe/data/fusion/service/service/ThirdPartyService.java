@@ -111,7 +111,7 @@ public class ThirdPartyService {
         if (partner == null) {
             throw new StatusCodeWithException("未找到对应成员，请检查入参 memberId :" + memberId, StatusCode.PARAMETER_VALUE_INVALID);
         }
-        check(partner.getBaseUrl());
+        request(partner.getBaseUrl());
     }
 
     /**
