@@ -67,3 +67,10 @@
         }
     }
 }
+.inline-form{
+    .el-form-item{
+        .el-form-item__label{
+            float: left;
+        }
+    }
+}

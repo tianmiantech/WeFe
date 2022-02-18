@@ -223,6 +223,9 @@
                         } else if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
                             this.$store.commit('SYSTEM_INITED', true);
+                            this.$router.replace({
+                                name: 'index',
+                            });
                         } else {
                             this.getImgCode();
                         }

@@ -216,7 +216,10 @@
             destroy-on-close
             width="500px"
         >
-            <el-form :model="form" inline>
+            <el-form
+                :model="form"
+                inline
+            >
                 <el-form-item
                     label="审核意见："
                     :label-width="formLabelWidth"
@@ -276,9 +279,9 @@
         </el-dialog>
 
         <el-dialog
+            v-model="resetPwDialog.result"
             width="340px"
             title="新用户密码"
-            v-model="resetPwDialog.result"
             destroy-on-close
         >
             <div style="margin-top:-15px">
@@ -347,7 +350,7 @@
             />
             <el-form
                 label-width="120px"
-                class="flex-form mt30"
+                class="inline-form mt30"
             >
                 <el-form-item
                     label="选择目标用户"
@@ -357,9 +360,9 @@
                         v-model="transformSuperUserDialog.user"
                         placeholder="输入姓名或者11位手机号搜索"
                         :fetch-suggestions="getUsers"
-                        @select="selectUser"
                         style="width: 260px;"
                         clearable
+                        @select="selectUser"
                         @clear="clearSuggestions"
                     />
                 </el-form-item>
@@ -449,7 +452,6 @@ export default {
             this.form.audit_comment = '';
 
             this.dialogAuditAccountVisible = true;
-            console.log(this.dialogAuditAccountVisible)
         },
         async audit($event) {
             const {code} = await this.$http.post({
