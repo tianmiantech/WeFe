@@ -14,43 +14,27 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.api.partner;
+package com.welab.wefe.data.fusion.service.api.thirdparty;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.service.ThirdPartyService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "partner/check", name = "测试服务状态", desc = "测试服务状态")
-public class CheckApi extends AbstractNoneOutputApi<CheckApi.Input> {
+@Api(path = "third_party/remote/check", name = "测试服务状态", desc = "测试服务状态", login = false, rsaVerify = true)
+public class RemoteCheckApi extends AbstractNoneOutputApi<RemoteCheckApi.Input> {
 
-    @Autowired
-    ThirdPartyService thirdPartyService;
 
     @Override
     protected ApiResult handler(Input input) throws StatusCodeWithException {
-        thirdPartyService.check(input.getMemberId());
         return success();
     }
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "联邦成员ID", require = true)
-        String memberId;
-
-        public String getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
     }
 }

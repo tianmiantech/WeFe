@@ -109,9 +109,9 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
         //If a task is being executed, add it after the task is completed
-        if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
-        }
+//        if (ActuatorManager.size() > 0) {
+//            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
+//        }
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -390,7 +390,9 @@ public class TaskService extends AbstractService {
         TaskMySqlModel model = taskRepository.findOne("id", taskId, TaskMySqlModel.class);
 
         TaskOutput output = ModelMapper.map(model, TaskOutput.class);
-
+        if (output == null) {
+            throw new StatusCodeWithException("数据不存在！", DATA_NOT_FOUND);
+        }
         setName(output);
         setDataResouceList(output);
         setPartnerList(output);
@@ -474,4 +476,6 @@ public class TaskService extends AbstractService {
 
         return TaskOverviewOutput.of(allCount, promoterCount, providerCount, pendingCount, runningCount);
     }
+
+
 }

@@ -103,6 +103,29 @@ public class ThirdPartyService {
     }
 
 
+    /**
+     * remote check
+     */
+    public void check(String memberId) throws StatusCodeWithException {
+        PartnerMySqlModel partner = partnerService.findByPartnerId(memberId);
+        if (partner == null) {
+            throw new StatusCodeWithException("未找到对应成员，请检查入参 memberId :" + memberId, StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        check(partner.getBaseUrl());
+    }
+
+    /**
+     * remote check
+     */
+    public void request(String url) throws StatusCodeWithException {
+
+        JObject params = JObject
+                .create();
+
+        request(url, "third_party/remote/check", params);
+    }
+
+
     private JSONObject request(String url, String api, JSONObject params) throws StatusCodeWithException {
         return request(url, api, params, true);
     }
