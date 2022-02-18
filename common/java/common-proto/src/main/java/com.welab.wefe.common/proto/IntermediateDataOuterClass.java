@@ -3,1571 +3,2374 @@
 
 package com.welab.wefe.common.proto;
 
-/**
- * @author hunter.zhao
- */
 public final class IntermediateDataOuterClass {
-    private IntermediateDataOuterClass() {
-    }
+  private IntermediateDataOuterClass() {}
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
+  }
 
-    public static void registerAllExtensions(
-            com.google.protobuf.ExtensionRegistryLite registry) {
-    }
-
-    public static void registerAllExtensions(
-            com.google.protobuf.ExtensionRegistry registry) {
-        registerAllExtensions(
-                (com.google.protobuf.ExtensionRegistryLite) registry);
-    }
-
-    public interface IntermediateDataItemOrBuilder extends
-            // @@protoc_insertion_point(interface_extends:com.welab.wefe.common.protoClass.IntermediateDataItem)
-            com.google.protobuf.MessageOrBuilder {
-
-        /**
-         * <code>bytes key = 1;</code>
-         *
-         * @return The key.
-         */
-        com.google.protobuf.ByteString getKey();
-
-        /**
-         * <code>bytes value = 2;</code>
-         *
-         * @return The value.
-         */
-        com.google.protobuf.ByteString getValue();
-    }
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
+  }
+  public interface IntermediateDataItemOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.welab.wefe.common.proto.IntermediateDataItem)
+      com.google.protobuf.MessageOrBuilder {
 
     /**
-     * Protobuf type {@code com.welab.wefe.common.protoClass.IntermediateDataItem}
+     * <code>bytes key = 1;</code>
+     * @return The key.
      */
-    public static final class IntermediateDataItem extends
-            com.google.protobuf.GeneratedMessageV3 implements
-            // @@protoc_insertion_point(message_implements:com.welab.wefe.common.protoClass.IntermediateDataItem)
-            IntermediateDataItemOrBuilder {
-        private static final long serialVersionUID = 0L;
-
-        // Use IntermediateDataItem.newBuilder() to construct.
-        private IntermediateDataItem(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-            super(builder);
-        }
-
-        private IntermediateDataItem() {
-            key = com.google.protobuf.ByteString.EMPTY;
-            value = com.google.protobuf.ByteString.EMPTY;
-        }
-
-        @Override
-        @SuppressWarnings({"unused"})
-        protected Object newInstance(
-                UnusedPrivateParameter unused) {
-            return new IntermediateDataItem();
-        }
-
-        @Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
-        }
-
-        private IntermediateDataItem(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            this();
-            if (extensionRegistry == null) {
-                throw new NullPointerException();
-            }
-            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-                    com.google.protobuf.UnknownFieldSet.newBuilder();
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        case 10: {
-
-                            key = input.readBytes();
-                            break;
-                        }
-                        case 18: {
-
-                            value = input.readBytes();
-                            break;
-                        }
-                        default: {
-                            if (!parseUnknownField(
-                                    input, unknownFields, extensionRegistry, tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e).setUnfinishedMessage(this);
-            } finally {
-                this.unknownFields = unknownFields.build();
-                makeExtensionsImmutable();
-            }
-        }
-
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR;
-        }
-
-        @Override
-        protected FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_FIELDACCESSORTABLE
-                    .ensureFieldAccessorsInitialized(
-                            IntermediateDataItem.class, Builder.class);
-        }
-
-        public static final int KEY_FIELD_NUMBER = 1;
-        private com.google.protobuf.ByteString key;
-
-        /**
-         * <code>bytes key = 1;</code>
-         *
-         * @return The key.
-         */
-        @Override
-        public com.google.protobuf.ByteString getKey() {
-            return key;
-        }
-
-        public static final int VALUE_FIELD_NUMBER = 2;
-        private com.google.protobuf.ByteString value;
-
-        /**
-         * <code>bytes value = 2;</code>
-         *
-         * @return The value.
-         */
-        @Override
-        public com.google.protobuf.ByteString getValue() {
-            return value;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        @Override
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized == 1) {
-                return true;
-            }
-            if (isInitialized == 0) {
-                return false;
-            }
-
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        @Override
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            if (!key.isEmpty()) {
-                output.writeBytes(1, key);
-            }
-            if (!value.isEmpty()) {
-                output.writeBytes(2, value);
-            }
-            unknownFields.writeTo(output);
-        }
-
-        @Override
-        public int getSerializedSize() {
-            int size = memoizedSize;
-            if (size != -1) {
-                return size;
-            }
-
-            size = 0;
-            if (!key.isEmpty()) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeBytesSize(1, key);
-            }
-            if (!value.isEmpty()) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeBytesSize(2, value);
-            }
-            size += unknownFields.getSerializedSize();
-            memoizedSize = size;
-            return size;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof IntermediateDataItem)) {
-                return super.equals(obj);
-            }
-            IntermediateDataItem other = (IntermediateDataItem) obj;
-
-            if (!getKey()
-                    .equals(other.getKey())) {
-                return false;
-            }
-            if (!getValue()
-                    .equals(other.getValue())) {
-                return false;
-            }
-            if (!unknownFields.equals(other.unknownFields)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            if (memoizedHashCode != 0) {
-                return memoizedHashCode;
-            }
-            int hash = 41;
-            hash = (19 * hash) + getDescriptor().hashCode();
-            hash = (37 * hash) + KEY_FIELD_NUMBER;
-            hash = (53 * hash) + getKey().hashCode();
-            hash = (37 * hash) + VALUE_FIELD_NUMBER;
-            hash = (53 * hash) + getValue().hashCode();
-            hash = (29 * hash) + unknownFields.hashCode();
-            memoizedHashCode = hash;
-            return hash;
-        }
-
-        public static IntermediateDataItem parseFrom(
-                java.nio.ByteBuffer data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                java.nio.ByteBuffer data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateDataItem parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateDataItem parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static IntermediateDataItem parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input);
-        }
-
-        public static IntermediateDataItem parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static IntermediateDataItem parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        @Override
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
-        public static Builder newBuilder() {
-            return DEFAULT_INSTANCE.toBuilder();
-        }
-
-        public static Builder newBuilder(IntermediateDataItem prototype) {
-            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-        }
-
-        @Override
-        public Builder toBuilder() {
-            return this == DEFAULT_INSTANCE
-                    ? new Builder() : new Builder().mergeFrom(this);
-        }
-
-        @Override
-        protected Builder newBuilderForType(
-                BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
-        }
-
-        /**
-         * Protobuf type {@code com.welab.wefe.common.protoClass.IntermediateDataItem}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-                // @@protoc_insertion_point(builder_implements:com.welab.wefe.common.protoClass.IntermediateDataItem)
-                IntermediateDataItemOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR;
-            }
-
-            @Override
-            protected FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_FIELDACCESSORTABLE
-                        .ensureFieldAccessorsInitialized(
-                                IntermediateDataItem.class, Builder.class);
-            }
-
-            // Construct using com.welab.wefe.common.protoClass.IntermediateDataOuterClass.IntermediateDataItem.newBuilder()
-            private Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessageV3
-                        .alwaysUseFieldBuilders) {
-                }
-            }
-
-            @Override
-            public Builder clear() {
-                super.clear();
-                key = com.google.protobuf.ByteString.EMPTY;
-
-                value = com.google.protobuf.ByteString.EMPTY;
-
-                return this;
-            }
-
-            @Override
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR;
-            }
-
-            @Override
-            public IntermediateDataItem getDefaultInstanceForType() {
-                return IntermediateDataItem.getDefaultInstance();
-            }
-
-            @Override
-            public IntermediateDataItem build() {
-                IntermediateDataItem result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            @Override
-            public IntermediateDataItem buildPartial() {
-                IntermediateDataItem result = new IntermediateDataItem(this);
-                result.key = key;
-                result.value = value;
-                onBuilt();
-                return result;
-            }
-
-            @Override
-            public Builder clone() {
-                return super.clone();
-            }
-
-            @Override
-            public Builder setField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return super.setField(field, value);
-            }
-
-            @Override
-            public Builder clearField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field) {
-                return super.clearField(field);
-            }
-
-            @Override
-            public Builder clearOneof(
-                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-                return super.clearOneof(oneof);
-            }
-
-            @Override
-            public Builder setRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    int index, Object value) {
-                return super.setRepeatedField(field, index, value);
-            }
-
-            @Override
-            public Builder addRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return super.addRepeatedField(field, value);
-            }
-
-            @Override
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof IntermediateDataItem) {
-                    return mergeFrom((IntermediateDataItem) other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(IntermediateDataItem other) {
-                if (other == IntermediateDataItem.getDefaultInstance()) {
-                    return this;
-                }
-                if (other.getKey() != com.google.protobuf.ByteString.EMPTY) {
-                    setKey(other.getKey());
-                }
-                if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
-                    setValue(other.getValue());
-                }
-                this.mergeUnknownFields(other.unknownFields);
-                onChanged();
-                return this;
-            }
-
-            @Override
-            public final boolean isInitialized() {
-                return true;
-            }
-
-            @Override
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                IntermediateDataItem parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (IntermediateDataItem) e.getUnfinishedMessage();
-                    throw e.unwrapIOException();
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            private com.google.protobuf.ByteString key = com.google.protobuf.ByteString.EMPTY;
-
-            /**
-             * <code>bytes key = 1;</code>
-             *
-             * @return The key.
-             */
-            @Override
-            public com.google.protobuf.ByteString getKey() {
-                return key;
-            }
-
-            /**
-             * <code>bytes key = 1;</code>
-             *
-             * @param value The key to set.
-             * @return This builder for chaining.
-             */
-            public Builder setKey(com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                key = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>bytes key = 1;</code>
-             *
-             * @return This builder for chaining.
-             */
-            public Builder clearKey() {
-
-                key = getDefaultInstance().getKey();
-                onChanged();
-                return this;
-            }
-
-            private com.google.protobuf.ByteString value = com.google.protobuf.ByteString.EMPTY;
-
-            /**
-             * <code>bytes value = 2;</code>
-             *
-             * @return The value.
-             */
-            @Override
-            public com.google.protobuf.ByteString getValue() {
-                return value;
-            }
-
-            /**
-             * <code>bytes value = 2;</code>
-             *
-             * @param value The value to set.
-             * @return This builder for chaining.
-             */
-            public Builder setValue(com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                this.value = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>bytes value = 2;</code>
-             *
-             * @return This builder for chaining.
-             */
-            public Builder clearValue() {
-
-                value = getDefaultInstance().getValue();
-                onChanged();
-                return this;
-            }
-
-            @Override
-            public final Builder setUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return super.setUnknownFields(unknownFields);
-            }
-
-            @Override
-            public final Builder mergeUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return super.mergeUnknownFields(unknownFields);
-            }
-
-
-            // @@protoc_insertion_point(builder_scope:com.welab.wefe.common.protoClass.IntermediateDataItem)
-        }
-
-        // @@protoc_insertion_point(class_scope:com.welab.wefe.common.protoClass.IntermediateDataItem)
-        private static final IntermediateDataItem DEFAULT_INSTANCE;
-
-        static {
-            DEFAULT_INSTANCE = new IntermediateDataItem();
-        }
-
-        public static IntermediateDataItem getDefaultInstance() {
-            return DEFAULT_INSTANCE;
-        }
-
-        private static final com.google.protobuf.Parser<IntermediateDataItem>
-                PARSER = new com.google.protobuf.AbstractParser<IntermediateDataItem>() {
-            @Override
-            public IntermediateDataItem parsePartialFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws com.google.protobuf.InvalidProtocolBufferException {
-                return new IntermediateDataItem(input, extensionRegistry);
-            }
-        };
-
-        public static com.google.protobuf.Parser<IntermediateDataItem> parser() {
-            return PARSER;
-        }
-
-        @Override
-        public com.google.protobuf.Parser<IntermediateDataItem> getParserForType() {
-            return PARSER;
-        }
-
-        @Override
-        public IntermediateDataItem getDefaultInstanceForType() {
-            return DEFAULT_INSTANCE;
-        }
-
-    }
-
-    public interface IntermediateDataOrBuilder extends
-            // @@protoc_insertion_point(interface_extends:com.welab.wefe.common.protoClass.IntermediateData)
-            com.google.protobuf.MessageOrBuilder {
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        java.util.List<IntermediateDataItem>
-        getIntermediateDataList();
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        IntermediateDataItem getIntermediateData(int index);
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        int getIntermediateDataCount();
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        java.util.List<? extends IntermediateDataItemOrBuilder>
-        getIntermediateDataOrBuilderList();
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
-                int index);
-    }
+    com.google.protobuf.ByteString getKey();
 
     /**
-     * Protobuf type {@code com.welab.wefe.common.protoClass.IntermediateData}
+     * <code>bytes value = 2;</code>
+     * @return The value.
      */
-    public static final class IntermediateData extends
-            com.google.protobuf.GeneratedMessageV3 implements
-            // @@protoc_insertion_point(message_implements:com.welab.wefe.common.protoClass.IntermediateData)
-            IntermediateDataOrBuilder {
-        private static final long serialVersionUID = 0L;
+    com.google.protobuf.ByteString getValue();
+  }
+  /**
+   * Protobuf type {@code com.welab.wefe.common.proto.IntermediateDataItem}
+   */
+  public  static final class IntermediateDataItem extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:com.welab.wefe.common.proto.IntermediateDataItem)
+      IntermediateDataItemOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use IntermediateDataItem.newBuilder() to construct.
+    private IntermediateDataItem(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private IntermediateDataItem() {
+      key_ = com.google.protobuf.ByteString.EMPTY;
+      value_ = com.google.protobuf.ByteString.EMPTY;
+    }
 
-        // Use IntermediateData.newBuilder() to construct.
-        private IntermediateData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-            super(builder);
-        }
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new IntermediateDataItem();
+    }
 
-        private IntermediateData() {
-            intermediateData = java.util.Collections.emptyList();
-        }
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private IntermediateDataItem(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
 
-        @Override
-        @SuppressWarnings({"unused"})
-        protected Object newInstance(
-                UnusedPrivateParameter unused) {
-            return new IntermediateData();
-        }
-
-        @Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
-        }
-
-        private IntermediateData(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            this();
-            if (extensionRegistry == null) {
-                throw new NullPointerException();
+              key_ = input.readBytes();
+              break;
             }
-            int mutableBitField0 = 0;
-            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-                    com.google.protobuf.UnknownFieldSet.newBuilder();
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        case 10: {
-                            if ((mutableBitField0 & 0x00000001) == 0) {
-                                intermediateData = new java.util.ArrayList<>();
-                                mutableBitField0 |= 0x00000001;
-                            }
-                            intermediateData.add(
-                                    input.readMessage(IntermediateDataItem.parser(), extensionRegistry));
-                            break;
-                        }
-                        default: {
-                            if (!parseUnknownField(
-                                    input, unknownFields, extensionRegistry, tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e).setUnfinishedMessage(this);
-            } finally {
-                if (((mutableBitField0 & 0x00000001) != 0)) {
-                    intermediateData = java.util.Collections.unmodifiableList(intermediateData);
-                }
-                this.unknownFields = unknownFields.build();
-                makeExtensionsImmutable();
-            }
-        }
+            case 18: {
 
-        public static final com.google.protobuf.Descriptors.Descriptor
+              value_ = input.readBytes();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-            return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR;
-        }
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor;
+    }
 
-        @Override
-        protected FieldAccessorTable
+    @Override
+    protected FieldAccessorTable
         internalGetFieldAccessorTable() {
-            return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_FIELDACCESSORTABLE
-                    .ensureFieldAccessorsInitialized(
-                            IntermediateData.class, Builder.class);
-        }
-
-        public static final int INTERMEDIATEDATA_FIELD_NUMBER = 1;
-        private java.util.List<IntermediateDataItem> intermediateData;
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        @Override
-        public java.util.List<IntermediateDataItem> getIntermediateDataList() {
-            return intermediateData;
-        }
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        @Override
-        public java.util.List<? extends IntermediateDataItemOrBuilder>
-        getIntermediateDataOrBuilderList() {
-            return intermediateData;
-        }
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        @Override
-        public int getIntermediateDataCount() {
-            return intermediateData.size();
-        }
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        @Override
-        public IntermediateDataItem getIntermediateData(int index) {
-            return intermediateData.get(index);
-        }
-
-        /**
-         * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-         */
-        @Override
-        public IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
-                int index) {
-            return intermediateData.get(index);
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        @Override
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized == 1) {
-                return true;
-            }
-            if (isInitialized == 0) {
-                return false;
-            }
-
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        @Override
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            for (int i = 0; i < intermediateData.size(); i++) {
-                output.writeMessage(1, intermediateData.get(i));
-            }
-            unknownFields.writeTo(output);
-        }
-
-        @Override
-        public int getSerializedSize() {
-            int size = memoizedSize;
-            if (size != -1) {
-                return size;
-            }
-
-            size = 0;
-            for (int i = 0; i < intermediateData.size(); i++) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeMessageSize(1, intermediateData.get(i));
-            }
-            size += unknownFields.getSerializedSize();
-            memoizedSize = size;
-            return size;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof IntermediateData)) {
-                return super.equals(obj);
-            }
-            IntermediateData other = (IntermediateData) obj;
-
-            if (!getIntermediateDataList()
-                    .equals(other.getIntermediateDataList())) {
-                return false;
-            }
-            if (!unknownFields.equals(other.unknownFields)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            if (memoizedHashCode != 0) {
-                return memoizedHashCode;
-            }
-            int hash = 41;
-            hash = (19 * hash) + getDescriptor().hashCode();
-            if (getIntermediateDataCount() > 0) {
-                hash = (37 * hash) + INTERMEDIATEDATA_FIELD_NUMBER;
-                hash = (53 * hash) + getIntermediateDataList().hashCode();
-            }
-            hash = (29 * hash) + unknownFields.hashCode();
-            memoizedHashCode = hash;
-            return hash;
-        }
-
-        public static IntermediateData parseFrom(
-                java.nio.ByteBuffer data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateData parseFrom(
-                java.nio.ByteBuffer data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateData parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateData parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateData parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static IntermediateData parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static IntermediateData parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static IntermediateData parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static IntermediateData parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input);
-        }
-
-        public static IntermediateData parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static IntermediateData parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static IntermediateData parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        @Override
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
-        public static Builder newBuilder() {
-            return DEFAULT_INSTANCE.toBuilder();
-        }
-
-        public static Builder newBuilder(IntermediateData prototype) {
-            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-        }
-
-        @Override
-        public Builder toBuilder() {
-            return this == DEFAULT_INSTANCE
-                    ? new Builder() : new Builder().mergeFrom(this);
-        }
-
-        @Override
-        protected Builder newBuilderForType(
-                BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
-        }
-
-        /**
-         * Protobuf type {@code com.welab.wefe.common.protoClass.IntermediateData}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-                // @@protoc_insertion_point(builder_implements:com.welab.wefe.common.protoClass.IntermediateData)
-                IntermediateDataOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR;
-            }
-
-            @Override
-            protected FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_FIELDACCESSORTABLE
-                        .ensureFieldAccessorsInitialized(
-                                IntermediateData.class, Builder.class);
-            }
-
-            // Construct using com.welab.wefe.common.protoClass.IntermediateDataOuterClass.IntermediateData.newBuilder()
-            public Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessageV3
-                        .alwaysUseFieldBuilders) {
-                    getIntermediateDataFieldBuilder();
-                }
-            }
-
-            @Override
-            public Builder clear() {
-                super.clear();
-                if (intermediateDataBuilder == null) {
-                    intermediateData = java.util.Collections.emptyList();
-                    bitField0 = (bitField0 & ~0x00000001);
-                } else {
-                    intermediateDataBuilder.clear();
-                }
-                return this;
-            }
-
-            @Override
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return IntermediateDataOuterClass.INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR;
-            }
-
-            @Override
-            public IntermediateData getDefaultInstanceForType() {
-                return IntermediateData.getDefaultInstance();
-            }
-
-            @Override
-            public IntermediateData build() {
-                IntermediateData result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            @Override
-            public IntermediateData buildPartial() {
-                IntermediateData result = new IntermediateData(this);
-                int fromBitField0 = bitField0;
-                if (intermediateDataBuilder == null) {
-                    if (((bitField0 & 0x00000001) != 0)) {
-                        intermediateData = java.util.Collections.unmodifiableList(intermediateData);
-                        bitField0 = (bitField0 & ~0x00000001);
-                    }
-                    result.intermediateData = intermediateData;
-                } else {
-                    result.intermediateData = intermediateDataBuilder.build();
-                }
-                onBuilt();
-                return result;
-            }
-
-            @Override
-            public Builder clone() {
-                return super.clone();
-            }
-
-            @Override
-            public Builder setField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return super.setField(field, value);
-            }
-
-            @Override
-            public Builder clearField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field) {
-                return super.clearField(field);
-            }
-
-            @Override
-            public Builder clearOneof(
-                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-                return super.clearOneof(oneof);
-            }
-
-            @Override
-            public Builder setRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    int index, Object value) {
-                return super.setRepeatedField(field, index, value);
-            }
-
-            @Override
-            public Builder addRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return super.addRepeatedField(field, value);
-            }
-
-            @Override
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof IntermediateData) {
-                    return mergeFrom((IntermediateData) other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(IntermediateData other) {
-                if (other == IntermediateData.getDefaultInstance()) {
-                    return this;
-                }
-                if (intermediateDataBuilder == null) {
-                    if (!other.intermediateData.isEmpty()) {
-                        if (intermediateData.isEmpty()) {
-                            intermediateData = other.intermediateData;
-                            bitField0 = (bitField0 & ~0x00000001);
-                        } else {
-                            ensureIntermediateDataIsMutable();
-                            intermediateData.addAll(other.intermediateData);
-                        }
-                        onChanged();
-                    }
-                } else {
-                    if (!other.intermediateData.isEmpty()) {
-                        if (intermediateDataBuilder.isEmpty()) {
-                            intermediateDataBuilder.dispose();
-                            intermediateDataBuilder = null;
-                            intermediateData = other.intermediateData;
-                            bitField0 = (bitField0 & ~0x00000001);
-                            intermediateDataBuilder =
-                                    com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                                            getIntermediateDataFieldBuilder() : null;
-                        } else {
-                            intermediateDataBuilder.addAllMessages(other.intermediateData);
-                        }
-                    }
-                }
-                this.mergeUnknownFields(other.unknownFields);
-                onChanged();
-                return this;
-            }
-
-            @Override
-            public final boolean isInitialized() {
-                return true;
-            }
-
-            @Override
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                IntermediateData parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (IntermediateData) e.getUnfinishedMessage();
-                    throw e.unwrapIOException();
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            private int bitField0;
-
-            private java.util.List<IntermediateDataItem> intermediateData =
-                    java.util.Collections.emptyList();
-
-            private void ensureIntermediateDataIsMutable() {
-                if ((bitField0 & 0x00000001) == 0) {
-                    intermediateData = new java.util.ArrayList<IntermediateDataItem>(intermediateData);
-                    bitField0 |= 0x00000001;
-                }
-            }
-
-            private com.google.protobuf.RepeatedFieldBuilderV3<
-                    IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder> intermediateDataBuilder;
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            @Override
-            public java.util.List<IntermediateDataItem> getIntermediateDataList() {
-                if (intermediateDataBuilder == null) {
-                    return java.util.Collections.unmodifiableList(intermediateData);
-                } else {
-                    return intermediateDataBuilder.getMessageList();
-                }
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            @Override
-            public int getIntermediateDataCount() {
-                if (intermediateDataBuilder == null) {
-                    return intermediateData.size();
-                } else {
-                    return intermediateDataBuilder.getCount();
-                }
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            @Override
-            public IntermediateDataItem getIntermediateData(int index) {
-                if (intermediateDataBuilder == null) {
-                    return intermediateData.get(index);
-                } else {
-                    return intermediateDataBuilder.getMessage(index);
-                }
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder setIntermediateData(
-                    int index, IntermediateDataItem value) {
-                if (intermediateDataBuilder == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.set(index, value);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.setMessage(index, value);
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder setIntermediateData(
-                    int index, IntermediateDataItem.Builder builderForValue) {
-                if (intermediateDataBuilder == null) {
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.set(index, builderForValue.build());
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.setMessage(index, builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder addIntermediateData(IntermediateDataItem value) {
-                if (intermediateDataBuilder == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.add(value);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.addMessage(value);
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder addIntermediateData(
-                    int index, IntermediateDataItem value) {
-                if (intermediateDataBuilder == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.add(index, value);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.addMessage(index, value);
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder addIntermediateData(
-                    IntermediateDataItem.Builder builderForValue) {
-                if (intermediateDataBuilder == null) {
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.add(builderForValue.build());
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.addMessage(builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder addIntermediateData(
-                    int index, IntermediateDataItem.Builder builderForValue) {
-                if (intermediateDataBuilder == null) {
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.add(index, builderForValue.build());
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.addMessage(index, builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder addAllIntermediateData(
-                    Iterable<? extends IntermediateDataItem> values) {
-                if (intermediateDataBuilder == null) {
-                    ensureIntermediateDataIsMutable();
-                    com.google.protobuf.AbstractMessageLite.Builder.addAll(
-                            values, intermediateData);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.addAllMessages(values);
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder clearIntermediateData() {
-                if (intermediateDataBuilder == null) {
-                    intermediateData = java.util.Collections.emptyList();
-                    bitField0 = (bitField0 & ~0x00000001);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.clear();
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public Builder removeIntermediateData(int index) {
-                if (intermediateDataBuilder == null) {
-                    ensureIntermediateDataIsMutable();
-                    intermediateData.remove(index);
-                    onChanged();
-                } else {
-                    intermediateDataBuilder.remove(index);
-                }
-                return this;
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public IntermediateDataItem.Builder getIntermediateDataBuilder(
-                    int index) {
-                return getIntermediateDataFieldBuilder().getBuilder(index);
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            @Override
-            public IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
-                    int index) {
-                if (intermediateDataBuilder == null) {
-                    return intermediateData.get(index);
-                } else {
-                    return intermediateDataBuilder.getMessageOrBuilder(index);
-                }
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            @Override
-            public java.util.List<? extends IntermediateDataItemOrBuilder>
-            getIntermediateDataOrBuilderList() {
-                if (intermediateDataBuilder != null) {
-                    return intermediateDataBuilder.getMessageOrBuilderList();
-                } else {
-                    return java.util.Collections.unmodifiableList(intermediateData);
-                }
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public IntermediateDataItem.Builder addIntermediateDataBuilder() {
-                return getIntermediateDataFieldBuilder().addBuilder(
-                        IntermediateDataItem.getDefaultInstance());
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public IntermediateDataItem.Builder addIntermediateDataBuilder(
-                    int index) {
-                return getIntermediateDataFieldBuilder().addBuilder(
-                        index, IntermediateDataItem.getDefaultInstance());
-            }
-
-            /**
-             * <code>repeated .com.welab.wefe.common.protoClass.IntermediateDataItem intermediateData = 1;</code>
-             */
-            public java.util.List<IntermediateDataItem.Builder>
-            getIntermediateDataBuilderList() {
-                return getIntermediateDataFieldBuilder().getBuilderList();
-            }
-
-            private com.google.protobuf.RepeatedFieldBuilderV3<
-                    IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder>
-            getIntermediateDataFieldBuilder() {
-                if (intermediateDataBuilder == null) {
-                    intermediateDataBuilder = new com.google.protobuf.RepeatedFieldBuilderV3<
-                            IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder>(
-                            intermediateData,
-                            ((bitField0 & 0x00000001) != 0),
-                            getParentForChildren(),
-                            isClean());
-                    intermediateData = null;
-                }
-                return intermediateDataBuilder;
-            }
-
-            @Override
-            public final Builder setUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return super.setUnknownFields(unknownFields);
-            }
-
-            @Override
-            public final Builder mergeUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return super.mergeUnknownFields(unknownFields);
-            }
-
-
-            // @@protoc_insertion_point(builder_scope:com.welab.wefe.common.protoClass.IntermediateData)
-        }
-
-        // @@protoc_insertion_point(class_scope:com.welab.wefe.common.protoClass.IntermediateData)
-        private static final IntermediateData DEFAULT_INSTANCE;
-
-        static {
-            DEFAULT_INSTANCE = new IntermediateData();
-        }
-
-        public static IntermediateData getDefaultInstance() {
-            return DEFAULT_INSTANCE;
-        }
-
-        private static final com.google.protobuf.Parser<IntermediateData>
-                PARSER = new com.google.protobuf.AbstractParser<IntermediateData>() {
-            @Override
-            public IntermediateData parsePartialFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws com.google.protobuf.InvalidProtocolBufferException {
-                return new IntermediateData(input, extensionRegistry);
-            }
-        };
-
-        public static com.google.protobuf.Parser<IntermediateData> parser() {
-            return PARSER;
-        }
-
-        @Override
-        public com.google.protobuf.Parser<IntermediateData> getParserForType() {
-            return PARSER;
-        }
-
-        @Override
-        public IntermediateData getDefaultInstanceForType() {
-            return DEFAULT_INSTANCE;
-        }
-
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateDataItem_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              IntermediateDataItem.class, Builder.class);
     }
 
-    private static final com.google.protobuf.Descriptors.Descriptor
-            INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR;
-    private static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_FIELDACCESSORTABLE;
-    private static final com.google.protobuf.Descriptors.Descriptor
-            INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR;
-    private static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_FIELDACCESSORTABLE;
-
-    public static com.google.protobuf.Descriptors.FileDescriptor
-    getDescriptor() {
-        return descriptor;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString key_;
+    /**
+     * <code>bytes key = 1;</code>
+     * @return The key.
+     */
+    public com.google.protobuf.ByteString getKey() {
+      return key_;
     }
 
-    private static com.google.protobuf.Descriptors.FileDescriptor
-            descriptor;
+    public static final int VALUE_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString value_;
+    /**
+     * <code>bytes value = 2;</code>
+     * @return The value.
+     */
+    public com.google.protobuf.ByteString getValue() {
+      return value_;
+    }
 
+    private byte memoizedIsInitialized = -1;
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!key_.isEmpty()) {
+        output.writeBytes(1, key_);
+      }
+      if (!value_.isEmpty()) {
+        output.writeBytes(2, value_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!key_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, key_);
+      }
+      if (!value_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, value_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof IntermediateDataItem)) {
+        return super.equals(obj);
+      }
+      IntermediateDataItem other = (IntermediateDataItem) obj;
+
+      if (!getKey()
+          .equals(other.getKey())) return false;
+      if (!getValue()
+          .equals(other.getValue())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
+      hash = (37 * hash) + VALUE_FIELD_NUMBER;
+      hash = (53 * hash) + getValue().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static IntermediateDataItem parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateDataItem parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateDataItem parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateDataItem parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateDataItem parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateDataItem parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateDataItem parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static IntermediateDataItem parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static IntermediateDataItem parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static IntermediateDataItem parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static IntermediateDataItem parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static IntermediateDataItem parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(IntermediateDataItem prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+        BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code com.welab.wefe.common.proto.IntermediateDataItem}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.welab.wefe.common.proto.IntermediateDataItem)
+        IntermediateDataItemOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateDataItem_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                IntermediateDataItem.class, Builder.class);
+      }
+
+      // Construct using com.welab.wefe.common.proto.IntermediateDataOuterClass.IntermediateDataItem.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @Override
+      public Builder clear() {
+        super.clear();
+        key_ = com.google.protobuf.ByteString.EMPTY;
+
+        value_ = com.google.protobuf.ByteString.EMPTY;
+
+        return this;
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor;
+      }
+
+      @Override
+      public IntermediateDataItem getDefaultInstanceForType() {
+        return IntermediateDataItem.getDefaultInstance();
+      }
+
+      @Override
+      public IntermediateDataItem build() {
+        IntermediateDataItem result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public IntermediateDataItem buildPartial() {
+        IntermediateDataItem result = new IntermediateDataItem(this);
+        result.key_ = key_;
+        result.value_ = value_;
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.setField(field, value);
+      }
+      @Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof IntermediateDataItem) {
+          return mergeFrom((IntermediateDataItem)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(IntermediateDataItem other) {
+        if (other == IntermediateDataItem.getDefaultInstance()) return this;
+        if (other.getKey() != com.google.protobuf.ByteString.EMPTY) {
+          setKey(other.getKey());
+        }
+        if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
+          setValue(other.getValue());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        IntermediateDataItem parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (IntermediateDataItem) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>bytes key = 1;</code>
+       * @return The key.
+       */
+      public com.google.protobuf.ByteString getKey() {
+        return key_;
+      }
+      /**
+       * <code>bytes key = 1;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bytes key = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>bytes value = 2;</code>
+       * @return The value.
+       */
+      public com.google.protobuf.ByteString getValue() {
+        return value_;
+      }
+      /**
+       * <code>bytes value = 2;</code>
+       * @param value The value to set.
+       * @return This builder for chaining.
+       */
+      public Builder setValue(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bytes value = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearValue() {
+        
+        value_ = getDefaultInstance().getValue();
+        onChanged();
+        return this;
+      }
+      @Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:com.welab.wefe.common.proto.IntermediateDataItem)
+    }
+
+    // @@protoc_insertion_point(class_scope:com.welab.wefe.common.proto.IntermediateDataItem)
+    private static final IntermediateDataItem DEFAULT_INSTANCE;
     static {
-        String[] descriptorData = {
-                "\n\027intermediate-data.proto\022\ncom.welab.wefe.common.protoClass\"2\n" +
-                        "\024IntermediateDataItem\022\013\n\003key\030\001 \001(\014\022\r\n\005va" +
-                        "lue\030\002 \001(\014\"N\n\020IntermediateData\022:\n\020interme" +
-                        "diateData\030\001 \003(\0132 .com.welab.wefe.common.protoClass.Intermediat" +
-                        "eDataItemb\006proto3"
-        };
-        descriptor = com.google.protobuf.Descriptors.FileDescriptor
-                .internalBuildGeneratedFileFrom(descriptorData,
-                        new com.google.protobuf.Descriptors.FileDescriptor[]{
-                        });
-        INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR =
-                getDescriptor().getMessageTypes().get(0);
-        INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_FIELDACCESSORTABLE = new
-                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATAITEM_DESCRIPTOR,
-                new String[]{"Key", "Value",});
-        INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR =
-                getDescriptor().getMessageTypes().get(1);
-        INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_FIELDACCESSORTABLE = new
-                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                INTERNAL_STATIC_PROTOCLASS_INTERMEDIATEDATA_DESCRIPTOR,
-                new String[]{"IntermediateData",});
+      DEFAULT_INSTANCE = new IntermediateDataItem();
     }
 
-    // @@protoc_insertion_point(outer_class_scope)
+    public static IntermediateDataItem getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<IntermediateDataItem>
+        PARSER = new com.google.protobuf.AbstractParser<IntermediateDataItem>() {
+      @Override
+      public IntermediateDataItem parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new IntermediateDataItem(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<IntermediateDataItem> parser() {
+      return PARSER;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<IntermediateDataItem> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public IntermediateDataItem getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface BatchSerializationDataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.welab.wefe.common.proto.BatchSerializationData)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>bytes value = 1;</code>
+     * @return The value.
+     */
+    com.google.protobuf.ByteString getValue();
+  }
+  /**
+   * Protobuf type {@code com.welab.wefe.common.proto.BatchSerializationData}
+   */
+  public  static final class BatchSerializationData extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:com.welab.wefe.common.proto.BatchSerializationData)
+      BatchSerializationDataOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use BatchSerializationData.newBuilder() to construct.
+    private BatchSerializationData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private BatchSerializationData() {
+      value_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new BatchSerializationData();
+    }
+
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private BatchSerializationData(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+
+              value_ = input.readBytes();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor;
+    }
+
+    @Override
+    protected FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_BatchSerializationData_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              BatchSerializationData.class, Builder.class);
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString value_;
+    /**
+     * <code>bytes value = 1;</code>
+     * @return The value.
+     */
+    public com.google.protobuf.ByteString getValue() {
+      return value_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!value_.isEmpty()) {
+        output.writeBytes(1, value_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!value_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, value_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof BatchSerializationData)) {
+        return super.equals(obj);
+      }
+      BatchSerializationData other = (BatchSerializationData) obj;
+
+      if (!getValue()
+          .equals(other.getValue())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + VALUE_FIELD_NUMBER;
+      hash = (53 * hash) + getValue().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static BatchSerializationData parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static BatchSerializationData parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static BatchSerializationData parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static BatchSerializationData parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static BatchSerializationData parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static BatchSerializationData parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static BatchSerializationData parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static BatchSerializationData parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static BatchSerializationData parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static BatchSerializationData parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static BatchSerializationData parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static BatchSerializationData parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(BatchSerializationData prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+        BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code com.welab.wefe.common.proto.BatchSerializationData}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.welab.wefe.common.proto.BatchSerializationData)
+        BatchSerializationDataOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_BatchSerializationData_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                BatchSerializationData.class, Builder.class);
+      }
+
+      // Construct using com.welab.wefe.common.proto.IntermediateDataOuterClass.BatchSerializationData.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @Override
+      public Builder clear() {
+        super.clear();
+        value_ = com.google.protobuf.ByteString.EMPTY;
+
+        return this;
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor;
+      }
+
+      @Override
+      public BatchSerializationData getDefaultInstanceForType() {
+        return BatchSerializationData.getDefaultInstance();
+      }
+
+      @Override
+      public BatchSerializationData build() {
+        BatchSerializationData result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public BatchSerializationData buildPartial() {
+        BatchSerializationData result = new BatchSerializationData(this);
+        result.value_ = value_;
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.setField(field, value);
+      }
+      @Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof BatchSerializationData) {
+          return mergeFrom((BatchSerializationData)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(BatchSerializationData other) {
+        if (other == BatchSerializationData.getDefaultInstance()) return this;
+        if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
+          setValue(other.getValue());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        BatchSerializationData parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (BatchSerializationData) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>bytes value = 1;</code>
+       * @return The value.
+       */
+      public com.google.protobuf.ByteString getValue() {
+        return value_;
+      }
+      /**
+       * <code>bytes value = 1;</code>
+       * @param value The value to set.
+       * @return This builder for chaining.
+       */
+      public Builder setValue(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bytes value = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearValue() {
+        
+        value_ = getDefaultInstance().getValue();
+        onChanged();
+        return this;
+      }
+      @Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:com.welab.wefe.common.proto.BatchSerializationData)
+    }
+
+    // @@protoc_insertion_point(class_scope:com.welab.wefe.common.proto.BatchSerializationData)
+    private static final BatchSerializationData DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new BatchSerializationData();
+    }
+
+    public static BatchSerializationData getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<BatchSerializationData>
+        PARSER = new com.google.protobuf.AbstractParser<BatchSerializationData>() {
+      @Override
+      public BatchSerializationData parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new BatchSerializationData(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<BatchSerializationData> parser() {
+      return PARSER;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<BatchSerializationData> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public BatchSerializationData getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface IntermediateDataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.welab.wefe.common.proto.IntermediateData)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    java.util.List<IntermediateDataItem>
+        getIntermediateDataList();
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    IntermediateDataItem getIntermediateData(int index);
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    int getIntermediateDataCount();
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    java.util.List<? extends IntermediateDataItemOrBuilder>
+        getIntermediateDataOrBuilderList();
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
+        int index);
+
+    /**
+     * <pre>
+     * 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+     * </pre>
+     *
+     * <code>int32 dataFlag = 2;</code>
+     * @return The dataFlag.
+     */
+    int getDataFlag();
+
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     * @return Whether the serializationData field is set.
+     */
+    boolean hasSerializationData();
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     * @return The serializationData.
+     */
+    BatchSerializationData getSerializationData();
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     */
+    BatchSerializationDataOrBuilder getSerializationDataOrBuilder();
+  }
+  /**
+   * Protobuf type {@code com.welab.wefe.common.proto.IntermediateData}
+   */
+  public  static final class IntermediateData extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:com.welab.wefe.common.proto.IntermediateData)
+      IntermediateDataOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use IntermediateData.newBuilder() to construct.
+    private IntermediateData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private IntermediateData() {
+      intermediateData_ = java.util.Collections.emptyList();
+    }
+
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new IntermediateData();
+    }
+
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private IntermediateData(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                intermediateData_ = new java.util.ArrayList<IntermediateDataItem>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              intermediateData_.add(
+                  input.readMessage(IntermediateDataItem.parser(), extensionRegistry));
+              break;
+            }
+            case 16: {
+
+              dataFlag_ = input.readInt32();
+              break;
+            }
+            case 26: {
+              BatchSerializationData.Builder subBuilder = null;
+              if (serializationData_ != null) {
+                subBuilder = serializationData_.toBuilder();
+              }
+              serializationData_ = input.readMessage(BatchSerializationData.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(serializationData_);
+                serializationData_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          intermediateData_ = java.util.Collections.unmodifiableList(intermediateData_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor;
+    }
+
+    @Override
+    protected FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateData_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              IntermediateData.class, Builder.class);
+    }
+
+    public static final int INTERMEDIATEDATA_FIELD_NUMBER = 1;
+    private java.util.List<IntermediateDataItem> intermediateData_;
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    public java.util.List<IntermediateDataItem> getIntermediateDataList() {
+      return intermediateData_;
+    }
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    public java.util.List<? extends IntermediateDataItemOrBuilder>
+        getIntermediateDataOrBuilderList() {
+      return intermediateData_;
+    }
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    public int getIntermediateDataCount() {
+      return intermediateData_.size();
+    }
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    public IntermediateDataItem getIntermediateData(int index) {
+      return intermediateData_.get(index);
+    }
+    /**
+     * <pre>
+     * 多条kv数据集
+     * </pre>
+     *
+     * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+     */
+    public IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
+        int index) {
+      return intermediateData_.get(index);
+    }
+
+    public static final int DATAFLAG_FIELD_NUMBER = 2;
+    private int dataFlag_;
+    /**
+     * <pre>
+     * 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+     * </pre>
+     *
+     * <code>int32 dataFlag = 2;</code>
+     * @return The dataFlag.
+     */
+    public int getDataFlag() {
+      return dataFlag_;
+    }
+
+    public static final int SERIALIZATIONDATA_FIELD_NUMBER = 3;
+    private BatchSerializationData serializationData_;
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     * @return Whether the serializationData field is set.
+     */
+    public boolean hasSerializationData() {
+      return serializationData_ != null;
+    }
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     * @return The serializationData.
+     */
+    public BatchSerializationData getSerializationData() {
+      return serializationData_ == null ? BatchSerializationData.getDefaultInstance() : serializationData_;
+    }
+    /**
+     * <pre>
+     * 整个经过序列化后的数据集
+     * </pre>
+     *
+     * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+     */
+    public BatchSerializationDataOrBuilder getSerializationDataOrBuilder() {
+      return getSerializationData();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < intermediateData_.size(); i++) {
+        output.writeMessage(1, intermediateData_.get(i));
+      }
+      if (dataFlag_ != 0) {
+        output.writeInt32(2, dataFlag_);
+      }
+      if (serializationData_ != null) {
+        output.writeMessage(3, getSerializationData());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < intermediateData_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, intermediateData_.get(i));
+      }
+      if (dataFlag_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, dataFlag_);
+      }
+      if (serializationData_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getSerializationData());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof IntermediateData)) {
+        return super.equals(obj);
+      }
+      IntermediateData other = (IntermediateData) obj;
+
+      if (!getIntermediateDataList()
+          .equals(other.getIntermediateDataList())) return false;
+      if (getDataFlag()
+          != other.getDataFlag()) return false;
+      if (hasSerializationData() != other.hasSerializationData()) return false;
+      if (hasSerializationData()) {
+        if (!getSerializationData()
+            .equals(other.getSerializationData())) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getIntermediateDataCount() > 0) {
+        hash = (37 * hash) + INTERMEDIATEDATA_FIELD_NUMBER;
+        hash = (53 * hash) + getIntermediateDataList().hashCode();
+      }
+      hash = (37 * hash) + DATAFLAG_FIELD_NUMBER;
+      hash = (53 * hash) + getDataFlag();
+      if (hasSerializationData()) {
+        hash = (37 * hash) + SERIALIZATIONDATA_FIELD_NUMBER;
+        hash = (53 * hash) + getSerializationData().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static IntermediateData parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateData parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateData parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateData parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateData parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static IntermediateData parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static IntermediateData parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static IntermediateData parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static IntermediateData parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static IntermediateData parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static IntermediateData parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static IntermediateData parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(IntermediateData prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+        BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code com.welab.wefe.common.proto.IntermediateData}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.welab.wefe.common.proto.IntermediateData)
+        IntermediateDataOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateData_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                IntermediateData.class, Builder.class);
+      }
+
+      // Construct using com.welab.wefe.common.proto.IntermediateDataOuterClass.IntermediateData.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getIntermediateDataFieldBuilder();
+        }
+      }
+      @Override
+      public Builder clear() {
+        super.clear();
+        if (intermediateDataBuilder_ == null) {
+          intermediateData_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          intermediateDataBuilder_.clear();
+        }
+        dataFlag_ = 0;
+
+        if (serializationDataBuilder_ == null) {
+          serializationData_ = null;
+        } else {
+          serializationData_ = null;
+          serializationDataBuilder_ = null;
+        }
+        return this;
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return IntermediateDataOuterClass.internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor;
+      }
+
+      @Override
+      public IntermediateData getDefaultInstanceForType() {
+        return IntermediateData.getDefaultInstance();
+      }
+
+      @Override
+      public IntermediateData build() {
+        IntermediateData result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public IntermediateData buildPartial() {
+        IntermediateData result = new IntermediateData(this);
+        int from_bitField0_ = bitField0_;
+        if (intermediateDataBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            intermediateData_ = java.util.Collections.unmodifiableList(intermediateData_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.intermediateData_ = intermediateData_;
+        } else {
+          result.intermediateData_ = intermediateDataBuilder_.build();
+        }
+        result.dataFlag_ = dataFlag_;
+        if (serializationDataBuilder_ == null) {
+          result.serializationData_ = serializationData_;
+        } else {
+          result.serializationData_ = serializationDataBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.setField(field, value);
+      }
+      @Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof IntermediateData) {
+          return mergeFrom((IntermediateData)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(IntermediateData other) {
+        if (other == IntermediateData.getDefaultInstance()) return this;
+        if (intermediateDataBuilder_ == null) {
+          if (!other.intermediateData_.isEmpty()) {
+            if (intermediateData_.isEmpty()) {
+              intermediateData_ = other.intermediateData_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureIntermediateDataIsMutable();
+              intermediateData_.addAll(other.intermediateData_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.intermediateData_.isEmpty()) {
+            if (intermediateDataBuilder_.isEmpty()) {
+              intermediateDataBuilder_.dispose();
+              intermediateDataBuilder_ = null;
+              intermediateData_ = other.intermediateData_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              intermediateDataBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getIntermediateDataFieldBuilder() : null;
+            } else {
+              intermediateDataBuilder_.addAllMessages(other.intermediateData_);
+            }
+          }
+        }
+        if (other.getDataFlag() != 0) {
+          setDataFlag(other.getDataFlag());
+        }
+        if (other.hasSerializationData()) {
+          mergeSerializationData(other.getSerializationData());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        IntermediateData parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (IntermediateData) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<IntermediateDataItem> intermediateData_ =
+        java.util.Collections.emptyList();
+      private void ensureIntermediateDataIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          intermediateData_ = new java.util.ArrayList<IntermediateDataItem>(intermediateData_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder> intermediateDataBuilder_;
+
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public java.util.List<IntermediateDataItem> getIntermediateDataList() {
+        if (intermediateDataBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(intermediateData_);
+        } else {
+          return intermediateDataBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public int getIntermediateDataCount() {
+        if (intermediateDataBuilder_ == null) {
+          return intermediateData_.size();
+        } else {
+          return intermediateDataBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public IntermediateDataItem getIntermediateData(int index) {
+        if (intermediateDataBuilder_ == null) {
+          return intermediateData_.get(index);
+        } else {
+          return intermediateDataBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder setIntermediateData(
+          int index, IntermediateDataItem value) {
+        if (intermediateDataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureIntermediateDataIsMutable();
+          intermediateData_.set(index, value);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder setIntermediateData(
+          int index, IntermediateDataItem.Builder builderForValue) {
+        if (intermediateDataBuilder_ == null) {
+          ensureIntermediateDataIsMutable();
+          intermediateData_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          intermediateDataBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder addIntermediateData(IntermediateDataItem value) {
+        if (intermediateDataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureIntermediateDataIsMutable();
+          intermediateData_.add(value);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder addIntermediateData(
+          int index, IntermediateDataItem value) {
+        if (intermediateDataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureIntermediateDataIsMutable();
+          intermediateData_.add(index, value);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder addIntermediateData(
+          IntermediateDataItem.Builder builderForValue) {
+        if (intermediateDataBuilder_ == null) {
+          ensureIntermediateDataIsMutable();
+          intermediateData_.add(builderForValue.build());
+          onChanged();
+        } else {
+          intermediateDataBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder addIntermediateData(
+          int index, IntermediateDataItem.Builder builderForValue) {
+        if (intermediateDataBuilder_ == null) {
+          ensureIntermediateDataIsMutable();
+          intermediateData_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          intermediateDataBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder addAllIntermediateData(
+          Iterable<? extends IntermediateDataItem> values) {
+        if (intermediateDataBuilder_ == null) {
+          ensureIntermediateDataIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, intermediateData_);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder clearIntermediateData() {
+        if (intermediateDataBuilder_ == null) {
+          intermediateData_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public Builder removeIntermediateData(int index) {
+        if (intermediateDataBuilder_ == null) {
+          ensureIntermediateDataIsMutable();
+          intermediateData_.remove(index);
+          onChanged();
+        } else {
+          intermediateDataBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public IntermediateDataItem.Builder getIntermediateDataBuilder(
+          int index) {
+        return getIntermediateDataFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public IntermediateDataItemOrBuilder getIntermediateDataOrBuilder(
+          int index) {
+        if (intermediateDataBuilder_ == null) {
+          return intermediateData_.get(index);  } else {
+          return intermediateDataBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public java.util.List<? extends IntermediateDataItemOrBuilder>
+           getIntermediateDataOrBuilderList() {
+        if (intermediateDataBuilder_ != null) {
+          return intermediateDataBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(intermediateData_);
+        }
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public IntermediateDataItem.Builder addIntermediateDataBuilder() {
+        return getIntermediateDataFieldBuilder().addBuilder(
+            IntermediateDataItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public IntermediateDataItem.Builder addIntermediateDataBuilder(
+          int index) {
+        return getIntermediateDataFieldBuilder().addBuilder(
+            index, IntermediateDataItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 多条kv数据集
+       * </pre>
+       *
+       * <code>repeated .com.welab.wefe.common.proto.IntermediateDataItem intermediateData = 1;</code>
+       */
+      public java.util.List<IntermediateDataItem.Builder>
+           getIntermediateDataBuilderList() {
+        return getIntermediateDataFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder>
+          getIntermediateDataFieldBuilder() {
+        if (intermediateDataBuilder_ == null) {
+          intermediateDataBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              IntermediateDataItem, IntermediateDataItem.Builder, IntermediateDataItemOrBuilder>(
+                  intermediateData_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          intermediateData_ = null;
+        }
+        return intermediateDataBuilder_;
+      }
+
+      private int dataFlag_ ;
+      /**
+       * <pre>
+       * 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+       * </pre>
+       *
+       * <code>int32 dataFlag = 2;</code>
+       * @return The dataFlag.
+       */
+      public int getDataFlag() {
+        return dataFlag_;
+      }
+      /**
+       * <pre>
+       * 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+       * </pre>
+       *
+       * <code>int32 dataFlag = 2;</code>
+       * @param value The dataFlag to set.
+       * @return This builder for chaining.
+       */
+      public Builder setDataFlag(int value) {
+        
+        dataFlag_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+       * </pre>
+       *
+       * <code>int32 dataFlag = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearDataFlag() {
+        
+        dataFlag_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private BatchSerializationData serializationData_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          BatchSerializationData, BatchSerializationData.Builder, BatchSerializationDataOrBuilder> serializationDataBuilder_;
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       * @return Whether the serializationData field is set.
+       */
+      public boolean hasSerializationData() {
+        return serializationDataBuilder_ != null || serializationData_ != null;
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       * @return The serializationData.
+       */
+      public BatchSerializationData getSerializationData() {
+        if (serializationDataBuilder_ == null) {
+          return serializationData_ == null ? BatchSerializationData.getDefaultInstance() : serializationData_;
+        } else {
+          return serializationDataBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public Builder setSerializationData(BatchSerializationData value) {
+        if (serializationDataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          serializationData_ = value;
+          onChanged();
+        } else {
+          serializationDataBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public Builder setSerializationData(
+          BatchSerializationData.Builder builderForValue) {
+        if (serializationDataBuilder_ == null) {
+          serializationData_ = builderForValue.build();
+          onChanged();
+        } else {
+          serializationDataBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public Builder mergeSerializationData(BatchSerializationData value) {
+        if (serializationDataBuilder_ == null) {
+          if (serializationData_ != null) {
+            serializationData_ =
+              BatchSerializationData.newBuilder(serializationData_).mergeFrom(value).buildPartial();
+          } else {
+            serializationData_ = value;
+          }
+          onChanged();
+        } else {
+          serializationDataBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public Builder clearSerializationData() {
+        if (serializationDataBuilder_ == null) {
+          serializationData_ = null;
+          onChanged();
+        } else {
+          serializationData_ = null;
+          serializationDataBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public BatchSerializationData.Builder getSerializationDataBuilder() {
+        
+        onChanged();
+        return getSerializationDataFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      public BatchSerializationDataOrBuilder getSerializationDataOrBuilder() {
+        if (serializationDataBuilder_ != null) {
+          return serializationDataBuilder_.getMessageOrBuilder();
+        } else {
+          return serializationData_ == null ?
+              BatchSerializationData.getDefaultInstance() : serializationData_;
+        }
+      }
+      /**
+       * <pre>
+       * 整个经过序列化后的数据集
+       * </pre>
+       *
+       * <code>.com.welab.wefe.common.proto.BatchSerializationData serializationData = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          BatchSerializationData, BatchSerializationData.Builder, BatchSerializationDataOrBuilder>
+          getSerializationDataFieldBuilder() {
+        if (serializationDataBuilder_ == null) {
+          serializationDataBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              BatchSerializationData, BatchSerializationData.Builder, BatchSerializationDataOrBuilder>(
+                  getSerializationData(),
+                  getParentForChildren(),
+                  isClean());
+          serializationData_ = null;
+        }
+        return serializationDataBuilder_;
+      }
+      @Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:com.welab.wefe.common.proto.IntermediateData)
+    }
+
+    // @@protoc_insertion_point(class_scope:com.welab.wefe.common.proto.IntermediateData)
+    private static final IntermediateData DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new IntermediateData();
+    }
+
+    public static IntermediateData getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<IntermediateData>
+        PARSER = new com.google.protobuf.AbstractParser<IntermediateData>() {
+      @Override
+      public IntermediateData parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new IntermediateData(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<IntermediateData> parser() {
+      return PARSER;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<IntermediateData> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public IntermediateData getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_welab_wefe_common_proto_IntermediateDataItem_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_welab_wefe_common_proto_BatchSerializationData_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_welab_wefe_common_proto_IntermediateData_fieldAccessorTable;
+
+  public static com.google.protobuf.Descriptors.FileDescriptor
+      getDescriptor() {
+    return descriptor;
+  }
+  private static  com.google.protobuf.Descriptors.FileDescriptor
+      descriptor;
+  static {
+    String[] descriptorData = {
+      "\n\027intermediate-data.proto\022\033com.welab.wef" +
+      "e.common.proto\"2\n\024IntermediateDataItem\022\013" +
+      "\n\003key\030\001 \001(\014\022\r\n\005value\030\002 \001(\014\"\'\n\026BatchSeria" +
+      "lizationData\022\r\n\005value\030\001 \001(\014\"\301\001\n\020Intermed" +
+      "iateData\022K\n\020intermediateData\030\001 \003(\01321.com" +
+      ".welab.wefe.common.proto.IntermediateDat" +
+      "aItem\022\020\n\010dataFlag\030\002 \001(\005\022N\n\021serialization" +
+      "Data\030\003 \001(\01323.com.welab.wefe.common.proto" +
+      ".BatchSerializationDatab\006proto3"
+    };
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+      .internalBuildGeneratedFileFrom(descriptorData,
+        new com.google.protobuf.Descriptors.FileDescriptor[] {
+        });
+    internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_com_welab_wefe_common_proto_IntermediateDataItem_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_welab_wefe_common_proto_IntermediateDataItem_descriptor,
+        new String[] { "Key", "Value", });
+    internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_com_welab_wefe_common_proto_BatchSerializationData_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_welab_wefe_common_proto_BatchSerializationData_descriptor,
+        new String[] { "Value", });
+    internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_com_welab_wefe_common_proto_IntermediateData_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_welab_wefe_common_proto_IntermediateData_descriptor,
+        new String[] { "IntermediateData", "DataFlag", "SerializationData", });
+  }
+
+  // @@protoc_insertion_point(outer_class_scope)
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -238,7 +238,7 @@ public class FcStorage extends MiddleStorage {
                 byte[] value = item.getV() instanceof byte[] ? (byte[]) item.getV() : pickler.dumps(item.getV());
                 int partition = hashKeyToPartition(key, partitions);
 
-                builderMap.putIfAbsent(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.putIfAbsent(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(1));
                 IntermediateDataOuterClass.IntermediateData.Builder dataItemList = builderMap.get(partition);
 
                 // add one row data
@@ -261,7 +261,7 @@ public class FcStorage extends MiddleStorage {
                     futures.add(future);
                     rowCountMap.put(partition, 0);
                     // reset byte_map
-                    builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                    builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(1));
                     // reset byteSizeMap
                     byteSizeMap.put(partition, 0);
                 } else {
@@ -284,7 +284,7 @@ public class FcStorage extends MiddleStorage {
                 futures.add(future);
                 rowCountMap.put(partition, 0);
                 // reset byte_map
-                builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(1));
                 // reset byte_size
                 byteSizeMap.put(partition, 0);
             }
@@ -306,6 +306,114 @@ public class FcStorage extends MiddleStorage {
         }
 
     }
+
+
+//    private static <K, V> void ossPutAll2(List<DataItemModel<K, V>> list, String bucketName
+//            , String namespace, String name, Integer partitions, OSS ossClient) {
+//
+//        // store data per partition
+//        Map<Integer, IntermediateDataOuterClass.BatchSerializationData.Builder> builderMap = new HashMap<>(50);
+//        // store byte list per partition
+//        Map<Integer, Integer> rowCountMap = new HashMap<>(50);
+//        // store byte size per partition
+//        Map<Integer, Integer> byteSizeMap = new HashMap<>(50);
+//        Pickler pickler = new Pickler();
+//        try {
+//            // take the first piece of data and estimate how much data is stored in each file
+//            DataItemModel<K, V> dataItemModel = list.get(0);
+//            byte[] firstKey = dataItemModel.getK() instanceof byte[] ? (byte[]) dataItemModel.getK() : pickler.dumps(dataItemModel.getK());
+//            byte[] firstValue = dataItemModel.getV() instanceof byte[] ? (byte[]) dataItemModel.getV() : pickler.dumps(dataItemModel.getV());
+//            byte[] firstKeyValueByte = toKeyValueByte(firstKey, firstValue);
+//
+//            // record rows
+////            int uploadLinesCount = OBJECT_FILE_MAX_SIZE / firstKeyValueByte.length;
+////            if (uploadLinesCount <= OBJECT_MIN_DATA_COUNT) {
+////                uploadLinesCount = OBJECT_MIN_DATA_COUNT;
+////            } else if (uploadLinesCount >= OBJECT_MAX_DATA_COUNT) {
+////                uploadLinesCount = OBJECT_MAX_DATA_COUNT;
+////            }
+//            int cupCores = Runtime.getRuntime().availableProcessors();
+//            ExecutorService executor = new ThreadPoolExecutor(cupCores, cupCores * 2,
+//                    0L, TimeUnit.MILLISECONDS,
+//                    new LinkedBlockingQueue<Runnable>(1024),
+//                    new ThreadPoolExecutor.CallerRunsPolicy());
+//
+//            List<Future> futures = new ArrayList<>();
+//            for (DataItemModel<K, V> item : list) {
+//                byte[] key = item.getK() instanceof byte[] ? (byte[]) item.getK() : pickler.dumps(item.getK());
+//                byte[] value = item.getV() instanceof byte[] ? (byte[]) item.getV() : pickler.dumps(item.getV());
+//                int partition = hashKeyToPartition(key, partitions);
+//
+//                builderMap.putIfAbsent(partition, IntermediateDataOuterClass.BatchSerializationData.newBuilder());
+//                IntermediateDataOuterClass.BatchSerializationData.Builder batchData = builderMap.get(partition);
+//
+//                // add one row data
+////                IntermediateDataOuterClass.IntermediateDataItem.Builder dataItem = IntermediateDataOuterClass.IntermediateDataItem.newBuilder();
+//                List<ByteString> byte_k_v = new ArrayList<>();
+//                byte_k_v.add(ByteString.copyFrom(key));
+//                byte_k_v.add(ByteString.copyFrom(value));
+//                batchData.setValue(ByteString.copyFrom(byte_k_v));
+//                byteSizeMap.putIfAbsent(partition, 0);
+//                int partitionNewSize = byteSizeMap.get(partition) + key.length + value.length;
+//                // count rows
+//                rowCountMap.putIfAbsent(partition, 0);
+//                int rowCount = rowCountMap.get(partition) + 1;
+//                // determine whether the upload conditions are met: Less than or equal to 4M，at the same time, 500 < rows count or rows count > 1000
+//                if ((partitionNewSize >= OBJECT_FILE_MAX_SIZE && rowCount >= OBJECT_MIN_DATA_COUNT) || rowCount >= OBJECT_MAX_DATA_COUNT) {
+//                    String getOssFileName = getOssFileName(namespace, name, partition, rowCount);
+//                    log.info("start to upload oss data: " + getOssFileName);
+//                    Future future = executor.submit(() -> {
+//                        ossClient.putObject(bucketName, getOssFileName, new ByteArrayInputStream(dataItemList.build().toByteArray()));
+//                        log.info("data upload succeed：" + getOssFileName);
+//                    });
+//                    futures.add(future);
+//                    rowCountMap.put(partition, 0);
+//                    // reset byte_map
+//                    builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder());
+//                    // reset byteSizeMap
+//                    byteSizeMap.put(partition, 0);
+//                } else {
+//                    rowCountMap.put(partition, rowCount);
+//                    // add byte size of current partition
+//                    byteSizeMap.put(partition, partitionNewSize);
+//                    builderMap.put(partition, dataItemList);
+//                }
+//            }
+//            // upload last data
+//            for (Map.Entry<Integer, IntermediateDataOuterClass.IntermediateData.Builder> byteEntry : builderMap.entrySet()) {
+//                int partition = byteEntry.getKey();
+//                IntermediateDataOuterClass.IntermediateData.Builder keyValue = byteEntry.getValue();
+//                int rowCount = rowCountMap.get(partition);
+//                String getOssFileName = getOssFileName(namespace, name, partition, rowCount);
+//                Future future = executor.submit(() -> {
+//                    ossClient.putObject(bucketName, getOssFileName, new ByteArrayInputStream(keyValue.build().toByteArray()));
+//                    log.info("data upload succeed：" + getOssFileName);
+//                });
+//                futures.add(future);
+//                rowCountMap.put(partition, 0);
+//                // reset byte_map
+//                builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder());
+//                // reset byte_size
+//                byteSizeMap.put(partition, 0);
+//            }
+//            // set maps to null
+//            builderMap = null;
+//            rowCountMap = null;
+//            byteSizeMap = null;
+//            for (Future future : futures) {
+//                try {
+//                    future.get();
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//            executor.shutdown();
+//            ossClient.shutdown();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     /**
      * generate OSS file name
