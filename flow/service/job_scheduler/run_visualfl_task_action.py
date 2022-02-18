@@ -103,11 +103,11 @@ class RunVisualFLTaskAction:
         self.finish_task()
 
     def error_on_task(self, message):
-        self.task.status = TaskStatus.ERROR
-        self.task.start_time = current_datetime()
-        self.task.updated_time = current_datetime()
-        self.task.message = message
-        TaskDao.save(self.task)
+        # self.task.status = TaskStatus.ERROR
+        # self.task.start_time = current_datetime()
+        # self.task.updated_time = current_datetime()
+        # self.task.message = message
+        # TaskDao.save(self.task)
 
         job = JobDao.find_one_by_id(self.job.id)
         job.status = JobStatus.ERROR_ON_RUNNING
@@ -118,10 +118,10 @@ class RunVisualFLTaskAction:
         job.save()
 
     def finish_task(self):
-        self.task.status = TaskStatus.SUCCESS
-        self.task.start_time = current_datetime()
-        self.task.updated_time = current_datetime()
-        TaskDao.save(self.task)
+        # self.task.status = TaskStatus.SUCCESS
+        # self.task.start_time = current_datetime()
+        # self.task.updated_time = current_datetime()
+        # TaskDao.save(self.task)
 
         job = JobDao.find_one_by_id(self.job.id)
         job.status = JobStatus.SUCCESS

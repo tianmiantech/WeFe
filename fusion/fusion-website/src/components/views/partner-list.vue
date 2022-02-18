@@ -33,37 +33,11 @@
                 width="360px"
             />
             <el-table-column
-                label="合作方socket地址"
-                width="200px"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.socket_ip }}:{{ scope.row.socket_port }}
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="开放端口"
-                prop="open_socket_port"
-                width="85px"
-            />
-
-            <el-table-column
                 fixed="right"
-                label="选择数据集"
-                width="140px"
+                label="操作"
+                width="100px"
             >
                 <template slot-scope="scope">
-                    <el-tooltip
-                        content="预览数据"
-                        placement="top"
-                    >
-                        <el-button
-                            circle
-                            type="info"
-                            @click="showDataSetPreview(scope.row)"
-                        >
-                            <i class="el-icon-view" />
-                        </el-button>
-                    </el-tooltip>
                     <el-button
                         type="success"
                         :disabled="scope.row.deleted"

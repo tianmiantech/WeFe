@@ -6,7 +6,7 @@
         </div>
         <div class="top_side">
             <h4>数据集简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
@@ -85,7 +85,8 @@
 export default {
     data() {
         return {
-            currentItem:     {},
+            id:              '',
+            name:            '',
             loading:         false,
             dataInfo:        {},
             previewDataInfo: [],
@@ -101,8 +102,8 @@ export default {
         };
     },
     created() {
-        this.currentItem.id = this.$route.query.id;
-        this.currentItem.name = this.$route.query.name;
+        this.id = this.$route.query.id;
+        this.name = this.$route.query.name;
         this.getDataSetDetail();
         this.getDataSetPreview();
     },
@@ -112,8 +113,8 @@ export default {
             const { code, data } = await this.$http.post({
                 url:  '/data_set/query',
                 data: {
-                    id:   this.currentItem.id,
-                    name: this.currentItem.name,
+                    id:   this.id,
+                    name: this.name,
                 },
             });
 
@@ -127,7 +128,7 @@ export default {
         async getDataSetPreview() {
             const { code, data } = await this.$http.get({
                 url:    '/data_set/preview',
-                params: { id: this.currentItem.id },
+                params: { id: this.id },
             });
 
             if (code === 0) {
@@ -159,7 +160,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
     text-align: center;
     h3 {
@@ -189,8 +190,6 @@ export default {
 .bottom_side {
     margin-top: 20px;
 }
-</style>
-<style lang="scss" scoped>
  .c-grid {
     border: 1px solid #EBEEF5;
     position: relative;

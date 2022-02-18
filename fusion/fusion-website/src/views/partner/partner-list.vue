@@ -54,8 +54,8 @@
                 width="45px"
             />
             <el-table-column
-                prop="member_id"
                 label="id"
+                prop="member_id"
                 min-width="200px"
             />
             <el-table-column
@@ -82,7 +82,8 @@
                             partner.member_id=scope.row.member_id,
                             partner.member_name=scope.row.member_name,
                             partner.rsa_public_key=scope.row.rsa_public_key,
-                            partner.base_url=scope.row.base_url"
+                            partner.base_url=scope.row.base_url
+                        "
                     >
                         编辑
                     </el-button>
@@ -173,9 +174,10 @@
             <span slot="footer">
                 <el-button @click="partner.editor=false">取消</el-button>
                 <el-button
+                    v-loading="loading"
                     type="primary"
                     :disabled="!partner.member_name || !partner.member_id || !partner.rsa_public_key"
-                    @click="partner.id ? editPartner(): addPartner()"
+                    @click="partner.id ? editPartner($event): addPartner($event)"
                 >确定</el-button>
             </span>
         </el-dialog>
@@ -189,7 +191,8 @@
         mixins: [table],
         data() {
             return {
-                search: {
+                loading: false,
+                search:  {
                     member_id:   '',
                     member_name: '',
                 },
@@ -212,6 +215,7 @@
         },
         methods: {
             async addPartner () {
+                this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/partner/add',
                     data: {
@@ -222,6 +226,7 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.partner.editor = false;
                     this.$message('新增成功!');
@@ -229,8 +234,7 @@
                 }
             },
 
-
-            async editPartner () {
+            async editPartner (event) {
                 const { code } = await this.$http.post({
                     url:  '/partner/update',
                     data: {
@@ -239,6 +243,9 @@
                         member_id:      this.partner.member_id,
                         rsa_public_key: this.partner.rsa_public_key,
                         base_url:       this.partner.base_url,
+                    },
+                    btnState: {
+                        target: event,
                     },
                 });
 

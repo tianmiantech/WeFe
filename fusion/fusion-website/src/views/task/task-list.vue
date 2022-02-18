@@ -47,15 +47,6 @@
             >
                 查询
             </el-button>
-
-            <router-link
-                :to="{name: 'task-add'}"
-                class="ml20"
-            >
-                <el-button>
-                    新增
-                </el-button>
-            </router-link>
         </el-form>
 
         <el-table
@@ -67,11 +58,11 @@
             <el-table-column
                 type="index"
                 label="编号"
-                width="45px"
+                width="45"
             />
             <el-table-column
                 label="任务"
-                width="240px"
+                width="240"
             >
                 <template slot-scope="scope">
                     <strong>{{ scope.row.name }}</strong>
@@ -82,12 +73,12 @@
             <el-table-column
                 label="合作方"
                 prop="partner_member_name"
-                width="200px"
+                width="200"
             />
 
             <el-table-column
                 label="状态"
-                width="85px"
+                width="120"
             >
                 <template slot-scope="scope">
                     <TaskStatusTag :status="scope.row.status" />
@@ -96,7 +87,7 @@
 
             <el-table-column
                 label="数据资源"
-                width="200px"
+                width="200"
             >
                 <template slot-scope="scope">
                     <strong>{{ scope.row.data_resource_name }}</strong>
@@ -107,7 +98,7 @@
             <el-table-column
                 label="数据量"
                 prop="data_count"
-                width="120px"
+                width="120"
             >
                 <template slot-scope="scope">
                     样本量: {{ scope.row.row_count }} <br>
@@ -147,16 +138,30 @@
 
             <el-table-column
                 label="操作"
-                width="150px"
+                width="150"
                 fixed="right"
             >
                 <template slot-scope="scope">
-                    <router-link :to="{name: 'task-view', query: { id: scope.row.id }}">
+                    <router-link
+                        v-if="scope.row.status === 'Pending'"
+                        :to="{name: 'task-pending-view', query: { id: scope.row.id }}"
+                    >
+                        <el-button
+                            size="small"
+                            type="success"
+                        >
+                            审核
+                        </el-button>
+                    </router-link>
+                    <router-link
+                        v-else
+                        :to="{name: 'task-view', query: { id: scope.row.id }}"
+                    >
                         <el-button
                             size="small"
                             type="primary"
                         >
-                            查看
+                            详情
                         </el-button>
                     </router-link>
 
@@ -284,13 +289,13 @@
                 };
 
                 if (map.day) {
-                    time = `${map.day}d${map.hours === 0 ? 1 : map.hours}h`;
+                    time = `${map.day}天${map.hours === 0 ? 1 : map.hours}小时`;
                 } else if (map.hours) {
-                    time = `${map.hours}h${map.minutes === 0 ? 1 : map.minutes}min`;
+                    time = `${map.hours}小时${map.minutes === 0 ? 1 : map.minutes}分钟`;
                 } else if (map.minutes) {
-                    time = `${map.minutes}min${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.minutes}分钟${map.range === 0 ? 1 : map.range}秒`;
                 } else if (map.range >= 0) {
-                    time = `${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.range === 0 ? 1 : map.range}秒`;
                 }
 
                 return time;
