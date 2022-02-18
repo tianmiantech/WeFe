@@ -109,7 +109,9 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
      * @return
      */
     public Integer progress() {
-        return actuator.processedCount.intValue() / actuator.dataCount.intValue();
+        return Double.valueOf(
+                actuator.processedCount.doubleValue() / actuator.dataCount.doubleValue() * 100
+        ).intValue();
     }
 
 
