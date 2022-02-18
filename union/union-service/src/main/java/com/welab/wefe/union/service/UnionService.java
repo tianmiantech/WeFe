@@ -122,6 +122,7 @@ public class UnionService implements ApplicationContextAware {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
         params.put("cur_member_id", signedApiInput.getMemberId());
+        params.remove("member_id");
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
     }
 
