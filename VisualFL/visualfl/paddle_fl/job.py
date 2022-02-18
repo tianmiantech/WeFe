@@ -49,20 +49,21 @@ class PaddleFLJob(Job):
     def _init_infer_job(self, config, algorithm_config, callback_url=None):
         self._local_trainer_indexs = config["local_trainer_indexs"]
         self._program = algorithm_config["program"]
-        self._config_string = json.dumps(config)
-        self._algorithm_config = json.dumps(algorithm_config)
+        # self._config_string = json.dumps(config)
+        # self._algorithm_config = json.dumps(algorithm_config)
         self._callback_url = callback_url
         self._use_gpu = True if config["device"].lower() == 'gpu' else False
         self._output_dir = config["output_dir"]
         self._infer_dir = config["infer_dir"]
         cur_step = config["cur_step"]
         self._weights = Path(__logs_dir__).joinpath(
-                f"jobs/{self.job_id}/train_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}.pdparams")
-        architecture = algorithm_config["architecture"]
+                f"jobs/{self.job_id}/train_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}")
+        self._algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/master/algorithm_config.json")
         if self._program == "paddle_detection":
+            architecture = algorithm_config["architecture"]
             program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
             default_config_name = 'default_algorithm_config.yml'
-            self._algorithm_config = os.path.join(program_full_path, "configs", architecture.lower(),
+            self._algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
                                                     default_config_name)
 
     @property
@@ -111,10 +112,11 @@ class PaddleFLJob(Job):
                 f"{executable} -m visualfl.algorithm.{self._program}.infer",
                 f"--job_id {self.job_id}",
                 f"--task_id {self._web_task_id}",
-                f"-o use_gpu={self._use_gpu} weights={self._weights}",
+                f"--use_gpu {self._use_gpu}"
+                f"--weights={self._weights}",
                 f"--infer_dir {self._infer_dir}",
                 f"--output_dir {self._output_dir}",
-                f"-c {self._algorithm_config}",
+                f"-c {self._algorithm_config_path}",
                 f">{executor.stdout} 2>{executor.stderr}",
             ]
         )

@@ -160,15 +160,10 @@ def fl_trainer(
         trainer.start(place)
         logging.debug(f"trainer stared")
 
-
         logging.debug(f"loading data")
         feed_list = trainer.load_feed_list(feeds)
         feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
         logging.debug(f"data loader ready")
-
-        epoch_id = -1
-        step = 0
-        TaskDao(task_id).init_task_progress(max_iter)
 
         data_dir = data_loader.job_download(download_url, job_id, get_data_dir(),data_name)
         labelpath = os.path.join(data_dir,"label_list.txt")
@@ -179,8 +174,18 @@ def fl_trainer(
                 reader=reader,
                 buf_size=1000,
             )
-
         train_loader = paddle.batch(reader=reader, batch_size=batch_size)
+
+        epoch_id = -1
+        step = 0
+        TaskDao(task_id).init_task_progress(max_iter)
+        if resume_checkpoint:
+            try:
+                epoch_id = TaskDao(task_id).get_task_progress()
+                checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
+                logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
+            except Exception as e:
+                logging.error(f"task id {task_id} train error {e}")
 
         if use_vdl:
             from visualdl import LogWriter
@@ -217,6 +222,7 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
+        TaskDao.update_serving_model(TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")

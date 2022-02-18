@@ -128,7 +128,27 @@ class TaskDao(Logger):
         except Exception as e:
             logging.error(f"save task {self._task_id} result error as {e} ")
 
+    def update_serving_model(self,type: str):
+        """
+        Update serving model
+        """
+        try:
+            with DB.connection_context():
+                models = TaskResult.select().where(
+                    TaskResult.task_id == self._task_id,
+                    TaskResult.type == type
+                )
 
+                if models:
+                    model = models[0]
+                else:
+                    return
+
+                model.serving_model = 1
+                model.save()
+                return model
+        except Exception as e:
+            logging.error(f"udate serving model error as {e},with task id : {self._task_id} ")
 
     def calc_progress(self,model: TaskProgress) -> TaskProgress:
         """

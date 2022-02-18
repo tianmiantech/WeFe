@@ -182,11 +182,11 @@ def fl_trainer(
         TaskDao(task_id).init_task_progress(max_iter)
         if resume_checkpoint:
             try:
-                vdl_loss_step = checkpoint.global_step()
-                epoch_id = round(vdl_loss_step / max_iter)
+                epoch_id = TaskDao(task_id).get_task_progress()
+                # vdl_loss_step = checkpoint.global_step()
+                # epoch_id = round(vdl_loss_step / max_iter)
                 checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
                 logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
-                TaskDao(task_id).set_task_progress(epoch_id)
             except Exception as e:
                 logging.error(f"task id {task_id} train error {e}")
         # elif cfg.pretrain_weights and not ignore_params:
@@ -239,6 +239,7 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
+        TaskDao.update_serving_model(TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
 
     except Exception as e:

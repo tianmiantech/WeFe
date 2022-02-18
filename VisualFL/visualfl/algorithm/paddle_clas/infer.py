@@ -14,6 +14,7 @@
 
 import os
 import sys
+import json
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
 sys.path.append(os.path.abspath(os.path.join(__dir__, '../../')))
@@ -22,42 +23,44 @@ import argparse
 import numpy as np
 import paddle
 import paddle.fluid as fluid
-
 from visualfl.algorithm.paddle_clas import models
 import cv_utils as utils
-
+from visualfl.db.task_dao import TaskDao
+from visualfl.utils.consts import ComponentName,TaskResultType
 
 def parse_args():
     def str2bool(v):
         return v.lower() in ("true", "t", "1")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--image_file", type=str)
-    parser.add_argument("-m", "--model", type=str)
-    parser.add_argument("-p", "--pretrained_model", type=str)
+    parser.add_argument("--task_id", type=str,required=True)
+    parser.add_argument("-i", "--infer_dir", type=str)
+    parser.add_argument("-c", "--config", type=str)
+    parser.add_argument("--weights", type=str)
     parser.add_argument("--use_gpu", type=str2bool, default=True)
 
     return parser.parse_args()
 
 
 def create_predictor(args):
-    def create_input():
-        image = fluid.data(
-            name='image', shape=[-1, 3, 224, 224], dtype='float32')
+    with open(args.config) as f:
+        config = json.load(f)
+
+    def create_input(config):
+        image = fluid.layers.data(
+            name='image', shape=config.image_shape, dtype='float32')
         return image
 
-    def create_model(args, model, input, class_dim=1000):
-        if args.model == "GoogLeNet":
+    def create_model(architecture, model, input, class_dim=1000):
+        if architecture == "GoogLeNet":
             out, _, _ = model.net(input=input, class_dim=class_dim)
         else:
             out = model.net(input=input, class_dim=class_dim)
             out = fluid.layers.softmax(out)
         return out
 
-    if "EfficientNet" in args.model:
-        model = models.__dict__[args.model](is_test=True)
-    else:
-        model = models.__dict__[args.model]()
+    architecture = config.architecture
+    model = models.__dict__[architecture]()
 
     place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -66,13 +69,13 @@ def create_predictor(args):
     infer_prog = fluid.Program()
     with fluid.program_guard(infer_prog, startup_prog):
         with fluid.unique_name.guard():
-            image = create_input()
-            out = create_model(args, model, image)
+            image = create_input(config)
+            out = create_model(architecture, model, image,config.num_classes)
             exe.run(startup_prog)
 
     infer_prog = infer_prog.clone(for_test=True)
     fluid.load(
-        program=infer_prog, model_path=args.pretrained_model, executor=exe)
+        program=infer_prog, model_path=args.weights, executor=exe)
 
     return exe, infer_prog, [image.name], [out.name]
 
@@ -129,7 +132,17 @@ def main():
     args = parse_args()
     operators = create_operators()
     exe, program, feed_names, fetch_names = create_predictor(args)
-    image_list = get_image_list(args.image_file)
+    image_list = get_image_list(args.infer_dir)
+    TaskDao(args.task_id).save_task_result({"status": "running"}, ComponentName.CLASSIFY,type=TaskResultType.INFER)
+    task_result = TaskDao(args.task_id).get_task_result(TaskResultType.LABEL)
+    if task_result:
+        label_file = task_result.result
+    cats = []
+    with open(label_file) as f:
+        for line in f.readlines():
+            cats.append(line.strip())
+    infer_result = {}
+    img_probs = []
     for idx, filename in enumerate(image_list):
         data = preprocess(filename, operators)
         data = np.expand_dims(data, axis=0)
@@ -139,9 +152,15 @@ def main():
                           return_numpy=False)
         probs = postprocess(outputs)
         print("current image: {}".format(filename))
+        infer_probs = []
         for idx, prob in probs:
             print("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
-
+            infer_probs.append({"class_id":idx,"class_name":cats[idx],"prob":prob})
+        infer_result = {"image": os.path.basename(filename), "infer_probs": infer_probs}
+        img_probs.append(infer_result)
+    infer_result["result"] = img_probs
+    infer_result["status"] = "finish"
+    TaskDao(task_id=args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY, type=TaskResultType.INFER)
 
 if __name__ == "__main__":
     main()

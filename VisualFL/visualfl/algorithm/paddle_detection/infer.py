@@ -91,7 +91,7 @@ def get_test_images(infer_dir, infer_img):
 def main():
     cfg = load_config(FLAGS.config)
 
-    merge_config(FLAGS.opt)
+    merge_config({"use_gpu":FLAGS.use_gpu,"weights":FLAGS.weights})
     check_config(cfg)
     # check if set use_gpu=True in paddlepaddle cpu version
     check_gpu(cfg.use_gpu)
@@ -205,7 +205,7 @@ def main():
             lmk_results = lmk2out([res], is_bbox_normalized)
 
         # visualize result
-        infer_results = {}
+        infer_result = {}
         data = []
         im_ids = res['im_id'][0]
         for im_id in im_ids:
@@ -244,9 +244,9 @@ def main():
                 bbox["category_name"] = catid2name[category_id]
             bbox_dict ={"image":os.path.basename(image_path),"bbox_results":bbox_results}
             data.append(bbox_dict)
-            infer_results["result"] = data
-            infer_results["status"] = "finish"
-        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_results,ComponentName.DETECTION, type=TaskResultType.INFER)
+        infer_result["result"] = data
+        infer_result["status"] = "finish"
+        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result,ComponentName.DETECTION, type=TaskResultType.INFER)
 
 
 
@@ -274,10 +274,20 @@ if __name__ == '__main__':
         default="output",
         help="Directory for storing the output visualization files.")
     parser.add_argument(
+        "--weights",
+        type=str,
+        default=None,
+        help="weights path")
+    parser.add_argument(
         "--draw_threshold",
         type=float,
         default=0.5,
         help="Threshold to reserve the result for visualization.")
+    parser.add_argument(
+        "--use_gpu",
+        type=bool,
+        default=False,
+        help="whether to use gpu.")
     parser.add_argument(
         "--use_vdl",
         type=bool,
