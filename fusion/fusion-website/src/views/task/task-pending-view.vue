@@ -1,7 +1,8 @@
 <template>
     <el-card
-        class="page"
+        v-loading="loading"
         shadow="never"
+        class="page"
     >
         <el-form>
             <div class="step-wrap pb30">
@@ -68,13 +69,15 @@
                         <template>
                             <el-radio
                                 v-model="task.data_resource_type"
-                                label="DataSet"
                                 :disabled="data_set_display"
-                                @change="task.data_resource_id='',
-                                         task.data_resource_name='',
-                                         task.row_count='',
-                                         fieldInfoList=[],
-                                         dataSetList=[]"
+                                label="DataSet"
+                                @change="
+                                    task.data_resource_id='',
+                                    task.data_resource_name='',
+                                    task.row_count='',
+                                    fieldInfoList=[],
+                                    dataSetList=[]
+                                "
                             >
                                 数据集
                             </el-radio>
@@ -82,11 +85,13 @@
                                 v-model="task.data_resource_type"
                                 :disabled="bloom_filter_display"
                                 label="BloomFilter"
-                                @change="task.data_resource_id='',
-                                         task.data_resource_name='',
-                                         task.row_count='',
-                                         fieldInfoList=[],
-                                         dataSetList=[]"
+                                @change="
+                                    task.data_resource_id='',
+                                    task.data_resource_name='',
+                                    task.row_count='',
+                                    fieldInfoList=[],
+                                    dataSetList=[]
+                                "
                             >
                                 布隆过滤器
                             </el-radio>
@@ -99,18 +104,17 @@
                         required
                     >
                         <el-button
-                            @click="task.data_resource_type =='DataSet'?addDataSet():addBloomFilter()"
+                            @click="task.data_resource_type === 'DataSet' ?addDataSet(): addBloomFilter()"
                         >
                             + 选择对齐样本
                         </el-button>
                     </el-form-item>
 
                     <el-table
-                        v-if="dataSetList.length>0"
+                        v-if="dataSetList.length"
                         :data="dataSetList"
                         stripe
                         border
-                        label-width="15px"
                     >
                         <el-table-column
                             label="名称 / Id"
@@ -153,8 +157,8 @@
                         </el-table-column>
                         <el-table-column
                             fixed="right"
-                            label="操作"
                             width="55px"
+                            label="操作"
                         >
                             <template slot-scope="scope">
                                 <el-tooltip
@@ -173,9 +177,8 @@
                         </el-table-column>
                     </el-table>
 
-
                     <el-table
-                        v-if="bloomFilterList.length>0"
+                        v-if="bloomFilterList.length"
                         :data="bloomFilterList"
                         stripe
                         border
@@ -185,13 +188,10 @@
                             min-width="200"
                         >
                             <template slot-scope="scope">
-                                <div :title="scope.row.description">
-                                    {{ scope.row.name }}
-                                    <p class="id">{{ scope.row.id }}</p>
-                                </div>
+                                <strong>{{ scope.row.name }}</strong>
+                                <p class="id">{{ scope.row.id }}</p>
                             </template>
                         </el-table-column>
-
 
                         <el-table-column
                             label="列数"
@@ -211,33 +211,11 @@
                             prop="used_count"
                             min-width="80"
                         />
-
-
-                        <!-- <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="140px"
-                                >
-                                    <template slot-scope="scope">
-                                        <el-tooltip
-                                            content="预览数据"
-                                            placement="top"
-                                        >
-                                            <el-button
-                                                circle
-                                                type="info"
-                                                @click="showBloomFilterPreview(scope.row)"
-                                            >
-                                                <i class="el-icon-view" />
-                                            </el-button>
-                                        </el-tooltip>
-                                    </template>
-                                </el-table-column> -->
                     </el-table>
 
                     <div class="members mt20">
                         <el-form-item
-                            v-if="task.data_resource_type ==='DataSet' && dataSetList.length"
+                            v-if="task.data_resource_type === 'DataSet' && dataSetList.length"
                             label="设置主键："
                             label-width="100px"
                             required
@@ -308,7 +286,7 @@
                     </div>
 
                     <el-form-item
-                        v-if="task.data_resource_type =='DataSet' && dataSetList.length>0"
+                        v-if="task.data_resource_type === 'DataSet' && dataSetList.length"
                         label-width="100px"
                         label="是否追溯："
                         required
@@ -365,31 +343,29 @@
                     >
                         <el-table-column
                             label="合作伙伴"
-                            width="250"
+                            width="200"
                         >
                             <template slot-scope="scope">
-                                <div>
-                                    {{ scope.row.partner_member_name }}
-                                    <p class="id">{{ scope.row.partner_member_id }}</p>
-                                </div>
+                                <strong>{{ scope.row.member_name }}</strong>
+                                <p class="id">{{ scope.row.member_id }}</p>
                             </template>
                         </el-table-column>
 
                         <el-table-column
                             label="调用域名"
                             prop="base_url"
-                            min-width="200px"
+                            min-width="200"
                         />
 
                         <el-table-column
                             label="操作"
-                            min-width="55px"
+                            min-width="130"
                         >
                             <el-button
                                 type="success"
                                 @click="check"
                             >
-                                check
+                                服务连通性测试
                             </el-button>
                         </el-table-column>
                     </el-table>
@@ -438,6 +414,7 @@
         },
         data() {
             return {
+                loading:              false,
                 bloom_filter_display: false,
                 data_set_display:     false,
 
@@ -462,23 +439,19 @@
                     data_set_list:       [],
                 },
 
-
                 optionsList: [{
                     name:  'md5',
                     value: 'MD5',
-                }, {
+                },
+                {
                     name:  'sha',
                     value: 'SHA1',
-                }, {
-                    name:  '截取',
-                    value: 'SUBSTRING',
                 },
                 {
                     name:  '不处理',
                     value: 'NONE',
                 },
                 ],
-
 
                 // dataResource
                 dataResource: {
@@ -495,7 +468,7 @@
                 dataSetList:     [],
                 bloomFilterList: [],
 
-                 fieldInfo: {
+                fieldInfo: {
                     columns:     '',
                     options:     '',
                     frist_index: '',
@@ -514,6 +487,7 @@
         },
         methods: {
             async getData() {
+                this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/task/detail',
                     params: {
@@ -521,15 +495,18 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.task = data;
-                    if(this.task.psi_actuator_role==='client'){
+                    if(this.task.psi_actuator_role === 'client'){
                        this.bloom_filter_display = true;
-                       this.dataSetList.push(this.task.data_set_list[0]);
+                       this.task.data_resource_type = 'DataSet';
+                       // this.dataSetList.push(this.task.data_set_list[0]);
                     }
-                    if(this.task.psi_actuator_role==='server'){
+                    if(this.task.psi_actuator_role === 'server'){
                        this.data_set_display = true;
-                       this.bloomFilterList.push(this.task.bloom_filter_list[0]);
+                       this.task.data_resource_type = '';
+                       // this.bloomFilterList.push(this.task.bloom_filter_list[0]);
                     }
                 }
             },
@@ -664,7 +641,7 @@
                 const { code } = await this.$http.get('/partner/check');
 
                 if (code === 0) {
-                    this.$message('校验成功!');
+                    this.$message.success('校验成功!');
                 }
             },
         },

@@ -47,15 +47,6 @@
             >
                 查询
             </el-button>
-
-            <router-link
-                :to="{name: 'task-add'}"
-                class="ml20"
-            >
-                <el-button>
-                    新增
-                </el-button>
-            </router-link>
         </el-form>
 
         <el-table
@@ -87,7 +78,7 @@
 
             <el-table-column
                 label="状态"
-                width="85px"
+                width="120px"
             >
                 <template slot-scope="scope">
                     <TaskStatusTag :status="scope.row.status" />
@@ -151,12 +142,26 @@
                 fixed="right"
             >
                 <template slot-scope="scope">
-                    <router-link :to="{name: 'task-view', query: { id: scope.row.id }}">
+                    <router-link
+                        v-if="scope.row.status === 'Pending'"
+                        :to="{name: 'task-pending-view', query: { id: scope.row.id }}"
+                    >
+                        <el-button
+                            size="small"
+                            type="success"
+                        >
+                            审核
+                        </el-button>
+                    </router-link>
+                    <router-link
+                        v-else
+                        :to="{name: 'task-view', query: { id: scope.row.id }}"
+                    >
                         <el-button
                             size="small"
                             type="primary"
                         >
-                            查看
+                            详情
                         </el-button>
                     </router-link>
 
