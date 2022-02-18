@@ -97,7 +97,7 @@
             >
                 <template slot-scope="scope">
                     <el-button
-                        type="button"
+                        type="danger"
                         @click="deleteTask(scope.row.id)"
                     >
                         删除

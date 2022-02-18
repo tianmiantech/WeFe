@@ -2,15 +2,15 @@
     <el-dialog
         :title="title"
         :visible.sync="progressDialog"
-        width="30%"
         :close-on-click-modal="false"
         :show-close="false"
         class="uploading-dialog"
+        width="30%"
         top="25vh"
     >
         <el-progress
             type="circle"
-            :percentage="processData.percentage"
+            :percentage="processData.percentage || 0"
             :color="colorsMethods"
         />
     </el-dialog>

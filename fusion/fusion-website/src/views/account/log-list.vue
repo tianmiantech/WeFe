@@ -8,23 +8,29 @@
             @submit.prevent
         >
             <el-form-item label="操作类型">
-                <el-input v-model="search.action" clearable />
+                <el-input
+                    v-model="search.action"
+                    clearable
+                />
             </el-form-item>
             <el-form-item label="操作人手机号">
-                <el-input v-model="search.operator_phone" maxlength="11" clearable />
+                <el-input
+                    v-model="search.operator_phone"
+                    maxlength="11"
+                    clearable
+                />
             </el-form-item>
             <el-form-item label="起止时间">
                 <DateTimePicker
-                    type="datetimerange"
                     ref="dateTimePicker"
-                    valueFormat="x"
+                    type="datetimerange"
+                    value-format="x"
                     clearable
                     @change="datePickerChange"
                 />
             </el-form-item>
             <el-button
                 type="primary"
-                native-type="submit"
                 @click="getList({ to: true, resetPagination: true })"
             >
                 查询
@@ -32,8 +38,8 @@
         </el-form>
 
         <el-table
-            :data="list"
             v-loading="loading"
+            :data="list"
             class="mt20"
             border
             stripe
@@ -74,7 +80,10 @@
                 prop="log_action"
                 min-width="120"
             />
-            <el-table-column label="时间" width="140px">
+            <el-table-column
+                label="时间"
+                width="140px"
+            >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
                 </template>

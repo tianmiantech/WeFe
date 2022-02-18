@@ -85,7 +85,8 @@
 export default {
     data() {
         return {
-            currentItem:     {},
+            id:              '',
+            name:            '',
             loading:         false,
             dataInfo:        {},
             previewDataInfo: [],
@@ -101,8 +102,8 @@ export default {
         };
     },
     created() {
-        this.currentItem.id = this.$route.query.id;
-        this.currentItem.name = this.$route.query.name;
+        this.id = this.$route.query.id;
+        this.name = this.$route.query.name;
         this.getDataSetDetail();
         this.getDataSetPreview();
     },
@@ -112,8 +113,8 @@ export default {
             const { code, data } = await this.$http.post({
                 url:  '/data_set/query',
                 data: {
-                    id:   this.currentItem.id,
-                    name: this.currentItem.name,
+                    id:   this.id,
+                    name: this.name,
                 },
             });
 
@@ -127,7 +128,7 @@ export default {
         async getDataSetPreview() {
             const { code, data } = await this.$http.get({
                 url:    '/data_set/preview',
-                params: { id: this.currentItem.id },
+                params: { id: this.id },
             });
 
             if (code === 0) {
@@ -159,7 +160,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
     text-align: center;
     h3 {
@@ -189,8 +190,6 @@ export default {
 .bottom_side {
     margin-top: 20px;
 }
-</style>
-<style lang="scss" scoped>
  .c-grid {
     border: 1px solid #EBEEF5;
     position: relative;

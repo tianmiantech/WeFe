@@ -13,7 +13,6 @@
             </el-form-item> -->
             <el-button
                 type="primary"
-                native-type="submit"
                 @click="getList({ resetPagination: true })"
             >
                 搜索

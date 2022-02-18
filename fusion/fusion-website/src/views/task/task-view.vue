@@ -26,7 +26,6 @@
             </el-row>
         </el-card>
 
-
         <el-card
             shadow="never"
             class="mb30"
@@ -273,7 +272,7 @@
                     label="任务进度："
                     label-width="150px"
                 >
-                    <el-progress :percentage="(task_info.progress*100)" />
+                    <el-progress :percentage="task_info.progress || 0" />
                     <p class="id">
                         已处理数据 {{ task_info.processed_count || 0 }} 行,已融合数据 {{ task_info.fusion_count || 0 }} 行,预计还需 {{ dateFormatter(task_info.stimated_spend) }}
                     </p>
