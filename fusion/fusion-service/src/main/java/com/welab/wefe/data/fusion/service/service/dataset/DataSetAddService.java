@@ -207,10 +207,12 @@ public class DataSetAddService extends AbstractService {
 
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, rowsCount, headers);
 
-        jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
+        CommonThreadPool.run(() -> {
+            jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
+        });
 //
 //        // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+//        dataRowConsumer.waitForFinishAndClose();
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
