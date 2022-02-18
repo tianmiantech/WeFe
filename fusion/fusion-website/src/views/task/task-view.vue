@@ -1,5 +1,8 @@
 <template>
-    <div class="page">
+    <div
+        v-loading="loading"
+        class="page"
+    >
         <el-card
             shadow="never"
             class="mb30"
@@ -86,14 +89,6 @@
                         prop="used_count"
                         width="100"
                     />
-
-
-                    <el-table-column
-                        label="本地存储"
-                        prop="storaged"
-                        width="120"
-                    />
-
                     <el-table-column
                         label="创建时间"
                         min-width="150"
@@ -129,8 +124,8 @@
                         min-width="150"
                     >
                         <template slot-scope="scope">
+                            <strong>{{ scope.row.name }}</strong>
                             <p class="id">{{ scope.row.id }}</p>
-                            {{ scope.row.name }}
                         </template>
                     </el-table-column>
 
@@ -138,10 +133,8 @@
                         label="资源类型"
                         min-width="150"
                     >
-                        <el-tag
-                            class="mr10"
-                        >
-                            BloomFilter
+                        <el-tag class="mr10">
+                            布隆过滤器
                         </el-tag>
                     </el-table-column>
 
@@ -161,13 +154,6 @@
                         prop="used_count"
                         width="100"
                     />
-
-                    <el-table-column
-                        label="本地存储"
-                        prop="storaged"
-                        width="120"
-                    />
-
                     <el-table-column
                         label="创建时间"
                         min-width="150"
@@ -196,43 +182,37 @@
             <h3 class="mb10 card-title">
                 合作伙伴
             </h3>
-
-            <el-form
-                class="mb20"
-                inline
+            <el-table
+                :data="task.partner_list"
+                stripe
+                border
             >
-                <el-table
-                    :data="task.partner_list"
-                    stripe
-                    border
+                <el-table-column
+                    type="index"
+                    label="编号"
+                    width="45px"
+                />
+                <el-table-column
+                    label="名称 / ID"
+                    min-width="154px"
                 >
-                    <el-table-column
-                        type="index"
-                        label="编号"
-                        width="45px"
-                    />
-                    <el-table-column
-                        label="名称 / ID"
-                        min-width="154px"
-                    >
-                        <template slot-scope="scope">
-                            <p class="id">{{ scope.row.id }}</p>
-                            {{ scope.row.name }}
-                        </template>
-                    </el-table-column>
+                    <template slot-scope="scope">
+                        <p class="id">{{ scope.row.id }}</p>
+                        {{ scope.row.name }}
+                    </template>
+                </el-table-column>
 
-                    <el-table-column
-                        label="数据量"
-                        prop="rows_count"
-                        width="100px"
-                    />
-                    <el-table-column
-                        label="调用域名"
-                        prop="base_url"
-                        min-width="200px"
-                    />
-                </el-table>
-            </el-form>
+                <el-table-column
+                    label="数据量"
+                    prop="rows_count"
+                    width="100px"
+                />
+                <el-table-column
+                    label="调用域名"
+                    prop="base_url"
+                    min-width="200px"
+                />
+            </el-table>
         </el-card>
 
         <el-card
@@ -275,7 +255,7 @@
                 </el-form-item>
 
                 <el-form-item
-                    v-if="task.status=='Failure' || task.status=='Interrupt'"
+                    v-if="task.status === 'Failure' || task.status === 'Interrupt'"
                     label="任务进度："
                     label-width="150px"
                 >
@@ -289,13 +269,11 @@
                 </el-form-item>
 
                 <el-form-item
-                    v-if="task.status=='Running'"
+                    v-if="task.status === 'Running'"
                     label="任务进度："
                     label-width="150px"
                 >
-                    <el-progress
-                        :percentage="(task_info.progress*100)"
-                    />
+                    <el-progress :percentage="(task_info.progress*100)" />
                     <p class="id">
                         已处理数据 {{ task_info.processed_count }} 行,已融合数据 {{ task_info.fusion_count }} 行,预计还需 {{ dateFormatter(task_info.stimated_spend) }}
                     </p>
@@ -330,10 +308,9 @@
         },
         data() {
             return {
-                form_label_position: 'right',
-
+                loading: false,
                 // task
-                task: {
+                task:    {
                     id:                  '',
                     business_id:         '',
                     partner_member_id:   '',
@@ -384,7 +361,7 @@
            await this.getData();
 
             if(this.task.status === 'Running'){
-                this.timer = setInterval(this.getTaskInfo, 3000);
+                this.timer = setTimeout(this.getTaskInfo, 3000);
             }
         },
 
@@ -395,6 +372,7 @@
 
         methods: {
             async getData() {
+                this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/task/detail',
                     params: {
@@ -402,6 +380,7 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.task = data;
                 }
@@ -442,9 +421,9 @@
 
                 if (code === 0) {
                     this.task_info = data;
+                    this.timer = setTimeout(this.getTaskInfo, 3000);
                 }
             },
-
 
             dateFormatter(timeStamp) {
                 let time = '';

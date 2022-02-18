@@ -49,8 +49,7 @@
                         >
                             + 关键词
                         </el-button>
-                        <br>
-                        <span class="tags-tips">为数据资源设置关键词，方便大家快速了解你 ：）</span>
+                        <span class="tags-tips f12 ml10">为数据资源设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
