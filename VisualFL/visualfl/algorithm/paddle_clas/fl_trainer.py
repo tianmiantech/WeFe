@@ -32,7 +32,7 @@ import paddle
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl.utils import data_loader
 from visualfl.utils.tools import *
-from visualfl.utils.consts import TaskStatus
+from visualfl.utils.consts import TaskStatus,ComponentName,TaskResultType
 
 @click.command()
 @click.option("--job-id", type=str, required=True)
@@ -131,6 +131,7 @@ def fl_trainer(
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
 
+
         with open(algorithm_config) as f:
             algorithm_config_dict = json.load(f)
 
@@ -169,7 +170,9 @@ def fl_trainer(
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
 
-        data_dir = data_loader.job_download(download_url, job_id, get_data_dir,data_name),
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir(),data_name)
+        labelpath = os.path.join(data_dir,"label_list.txt")
+        TaskDao(task_id).save_task_result(labelpath,ComponentName.CLASSIFY,TaskResultType.LABEL)
         reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(
@@ -199,7 +202,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, step)
-                        save_data_to_db(task_id, loss_name,loss_value,step,"PaddleClassify")
+                        save_data_to_db(task_id, loss_name,loss_value,step,ComponentName.CLASSIFY)
                 step += 1
                 logging.debug(f"step: {step}, outs: {outs}")
 

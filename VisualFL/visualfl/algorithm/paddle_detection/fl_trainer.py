@@ -34,7 +34,7 @@ from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl import get_data_dir
 from visualfl.db.task_dao import TaskDao
 from visualdl import LogWriter,LogReader
-from visualfl.utils.consts import TaskStatus
+from visualfl.utils.consts import TaskStatus,ComponentName,TaskResultType
 from visualfl.utils.tools import *
 from visualfl.algorithm.paddle_detection._merge_config import merger_algorithm_config
 
@@ -164,7 +164,9 @@ def fl_trainer(
         download_url = algorithm_config_json.get("download_url")
         data_name = algorithm_config_json.get("data_name")
 
-        data_dir = data_loader.job_download(download_url, job_id, get_data_dir, data_name),
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir, data_name)
+        labelpath = os.path.join(data_dir, "label_list.txt")
+        TaskDao(task_id).save_task_result(labelpath, ComponentName.CLASSIFY, TaskResultType.LABEL)
         cfg = merger_algorithm_config(algorithm_config_json)
         check_config(cfg)
         check_version()
@@ -222,7 +224,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, vdl_loss_step)
-                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,"PaddleDetection")
+                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,ComponentName.DETECTION)
                 vdl_loss_step += 1
                 logging.debug(f"step: {vdl_loss_step}, outs: {outs}")
 

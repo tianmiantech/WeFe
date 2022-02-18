@@ -284,7 +284,7 @@ class RESTService(Logger):
 
     async def _restful_infer(self, request: web.Request) -> web.Response:
         """
-        handle query request
+        handle infer request
 
         Args:
             request:

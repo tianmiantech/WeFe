@@ -38,6 +38,7 @@ from ppdet.utils.visualizer import visualize_results
 import ppdet.utils.checkpoint as checkpoint
 from ppdet.data.reader import create_reader
 from visualfl.db.task_dao import TaskDao
+from visualfl.utils.consts import TaskResultType,ComponentName
 
 import logging
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
@@ -99,12 +100,14 @@ def main():
 
     main_arch = cfg.architecture
 
-    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, "PaddleDetection", type="infer")
+    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, ComponentName.DETECTION, type=TaskResultType.INFER)
 
     dataset = cfg.TestReader['dataset']
     test_images = get_test_images(FLAGS.infer_dir, FLAGS.infer_img)
     dataset.set_images(test_images)
-    dataset.anno_path = os.path.join(FLAGS.infer_dir,"label_list.txt")
+    task_result = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.LABEL)
+    if task_result:
+        dataset.anno_path = task_result.result
 
     place = fluid.CUDAPlace(0) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -243,7 +246,7 @@ def main():
             data.append(bbox_dict)
             infer_results["result"] = data
             infer_results["status"] = "finish"
-        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_results,"PaddleDetection",type="infer")
+        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_results,ComponentName.DETECTION, type=TaskResultType.INFER)
 
 
 

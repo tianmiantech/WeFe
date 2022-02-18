@@ -17,8 +17,7 @@ import os
 from multiprocessing import cpu_count
 import six
 from six.moves import cPickle as pickle
-from paddle.dataset.common import md5file
-
+import logging
 
 __all__ = ['train', 'test', 'valid']
 
@@ -268,17 +267,20 @@ def un_zip(file_name,target_path):
         print(e)
 
 def job_download(url, job_id,base_dir, data_name):
-    data_file = download(url, base_dir, f"{job_id}.zip")
     target_data_dir = os.path.join(base_dir, data_name)
-    un_zip(data_file, base_dir)
+    try:
+        data_file = download(url, base_dir, f"{job_id}.zip")
+        un_zip(data_file, base_dir)
 
-    if os.path.exists(target_data_dir):
-        shutil.rmtree(target_data_dir)
+        if os.path.exists(target_data_dir):
+            shutil.rmtree(target_data_dir)
 
-    os.rename(os.path.join(base_dir, job_id),
-              target_data_dir)
+        os.rename(os.path.join(base_dir, job_id),
+                  target_data_dir)
 
-    # os.remove(data_file)
+        # os.remove(data_file)
+    except Exception as e:
+        logging.error(f"job download with {job_id} error as {e} ")
 
     return target_data_dir
 
