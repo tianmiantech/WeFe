@@ -45,7 +45,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
     /**
      * Maximum execution time of a task
      */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(5 * 60 * 1000);
+    private TimeSpan maxExecuteTimeSpan = new TimeSpan(10 * 60 * 1000);
 
     public AbstractTask(String businessId, T actuator) {
         this.actuator = actuator;

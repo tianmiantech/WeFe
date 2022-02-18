@@ -85,9 +85,9 @@ public class ActuatorManager {
         JObject info = JObject
                 .create()
                 .append("business_id", businessId)
-//                .append("fusion_count", actuator.getFusionCount())
-//                .append("processed_count", actuator.getProcessedCount())
-//                .append("data_count", actuator.getDataCount())
+                .append("fusion_count", actuator.getFusionCount())
+                .append("processed_count", actuator.getProcessedCount())
+                .append("data_count", actuator.getDataCount())
                 .append("spend", actuator.getSpend())
                 .append("stimated_spend", actuator.getEstimatedSpend())
                 .append("progress", actuator.progress());
