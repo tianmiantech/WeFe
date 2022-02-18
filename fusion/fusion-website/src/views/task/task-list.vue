@@ -289,13 +289,13 @@
                 };
 
                 if (map.day) {
-                    time = `${map.day}d${map.hours === 0 ? 1 : map.hours}h`;
+                    time = `${map.day}天${map.hours === 0 ? 1 : map.hours}小时`;
                 } else if (map.hours) {
-                    time = `${map.hours}h${map.minutes === 0 ? 1 : map.minutes}min`;
+                    time = `${map.hours}小时${map.minutes === 0 ? 1 : map.minutes}分钟`;
                 } else if (map.minutes) {
-                    time = `${map.minutes}min${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.minutes}分钟${map.range === 0 ? 1 : map.range}秒`;
                 } else if (map.range >= 0) {
-                    time = `${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.range === 0 ? 1 : map.range}秒`;
                 }
 
                 return time;

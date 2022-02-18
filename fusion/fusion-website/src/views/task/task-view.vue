@@ -197,8 +197,8 @@
                     min-width="154px"
                 >
                     <template slot-scope="scope">
-                        <p class="id">{{ scope.row.id }}</p>
-                        {{ scope.row.name }}
+                        <strong>{{ scope.row.member_name }}</strong>
+                        <p class="id">{{ scope.row.member_id }}</p>
                     </template>
                 </el-table-column>
 
@@ -250,7 +250,7 @@
                         status="success"
                     />
                     <i class="id">
-                        已处理数据 {{ task.processed_count }} 行,已融合数据 {{ task.fusion_count }} 行
+                        已处理数据 {{ task.processed_count || 0 }} 行,已融合数据 {{ task.fusion_count || 0 }} 行
                     </i>
                 </el-form-item>
 
@@ -264,7 +264,7 @@
                         status="exception"
                     />
                     <i class="id">
-                        已处理数据 {{ task.processed_count }} 行,已融合数据 {{ task.fusion_count }} 行
+                        已处理数据 {{ task.processed_count || 0 }} 行,已融合数据 {{ task.fusion_count || 0 }} 行
                     </i>
                 </el-form-item>
 
@@ -275,7 +275,7 @@
                 >
                     <el-progress :percentage="(task_info.progress*100)" />
                     <p class="id">
-                        已处理数据 {{ task_info.processed_count }} 行,已融合数据 {{ task_info.fusion_count }} 行,预计还需 {{ dateFormatter(task_info.stimated_spend) }}
+                        已处理数据 {{ task_info.processed_count || 0 }} 行,已融合数据 {{ task_info.fusion_count || 0 }} 行,预计还需 {{ dateFormatter(task_info.stimated_spend) }}
                     </p>
                 </el-form-item>
 
@@ -440,13 +440,13 @@
                 };
 
                 if (map.day) {
-                    time = `${map.day}d${map.hours === 0 ? 1 : map.hours}h`;
+                    time = `${map.day}天${map.hours === 0 ? 1 : map.hours}小时`;
                 } else if (map.hours) {
-                    time = `${map.hours}h${map.minutes === 0 ? 1 : map.minutes}min`;
+                    time = `${map.hours}小时${map.minutes === 0 ? 1 : map.minutes}分钟`;
                 } else if (map.minutes) {
-                    time = `${map.minutes}min${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.minutes}分钟${map.range === 0 ? 1 : map.range}秒`;
                 } else if (map.range >= 0) {
-                    time = `${map.range === 0 ? 1 : map.range}s`;
+                    time = `${map.range === 0 ? 1 : map.range}秒`;
                 }
 
                 return time;

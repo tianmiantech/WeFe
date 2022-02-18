@@ -379,7 +379,7 @@
             size="medium"
             @click="handleTask"
         >
-            确定
+            审核
         </el-button>
 
         <el-dialog
@@ -499,14 +499,24 @@
                 if (code === 0) {
                     this.task = data;
                     if(this.task.psi_actuator_role === 'client'){
-                       this.bloom_filter_display = true;
-                       this.task.data_resource_type = 'DataSet';
-                       // this.dataSetList.push(this.task.data_set_list[0]);
+                        this.bloom_filter_display = true;
+                        this.task.data_resource_type = 'DataSet';
+
+                        const { data_set_list } = this.task;
+
+                        if(data_set_list && data_set_list.length) {
+                            this.dataSetList.push(data_set_list[0]);
+                        }
                     }
                     if(this.task.psi_actuator_role === 'server'){
-                       this.data_set_display = true;
-                       this.task.data_resource_type = '';
-                       // this.bloomFilterList.push(this.task.bloom_filter_list[0]);
+                        this.data_set_display = true;
+                        this.task.data_resource_type = 'BloomFilter';
+
+                        const { bloom_filter_list } = this.task;
+
+                        if(bloom_filter_list && bloom_filter_list.length) {
+                            this.bloomFilterList.push(bloom_filter_list[0]);
+                        }
                     }
                 }
             },
@@ -516,6 +526,7 @@
             },
 
             async handleTask () {
+                this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns = item.column_arr.join(',');
                 });
@@ -533,6 +544,7 @@
                     },
                 });
 
+                this.loading = false;
                 if (code === 0) {
                     this.task.editor = false;
                     this.$message('处理成功!');
@@ -638,10 +650,14 @@
             },
 
             async check () {
-                const { code } = await this.$http.get('/partner/check');
+                const { code } = await this.$http.get('/partner/check', {
+                    params: {
+                        memberId: this.task.partner_list[0].member_id,
+                    },
+                });
 
                 if (code === 0) {
-                    this.$message.success('校验成功!');
+                    this.$message.success('服务连接正常');
                 }
             },
         },
