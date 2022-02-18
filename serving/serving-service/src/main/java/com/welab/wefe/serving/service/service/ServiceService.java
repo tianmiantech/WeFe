@@ -17,7 +17,6 @@
 package com.welab.wefe.serving.service.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -36,7 +35,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -680,7 +681,7 @@ public class ServiceService {
 		return response;
 	}
 
-	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
+	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
@@ -691,15 +692,21 @@ public class ServiceService {
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		}
 		String sdkZipName = "sdk.zip";
 		String outputPath = basePath + sdkZipName;
@@ -715,6 +722,19 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
+	}
+
+	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {
+		Map<String, Object> valuesMap = new HashMap<>();
+		valuesMap.put("url", model.getUrl());
+		valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
+		valuesMap.put("desc", model.getName());
+		valuesMap.put("method", "POST");
+		String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n" + "# params:\n"
+				+ "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+		StringSubstitutor sub = new StringSubstitutor(valuesMap);
+		String content = sub.replace(templateString);
+		FileUtils.write(readme, content);
 	}
 
 	public ServiceMySqlModel queryById(QueryOneApi.Input input) {
