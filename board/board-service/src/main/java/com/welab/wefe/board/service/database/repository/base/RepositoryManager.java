@@ -40,7 +40,7 @@ public class RepositoryManager {
     public static <T extends BaseRepository> T get(Class<? extends AbstractMySqlModel> mysqlModelClass) {
         if (MAP.isEmpty()) {
             List<Class<?>> list = ReflectionsUtil
-                    .getClassesImplementing(BaseRepository.class)
+                    .getClassesImplementing(BaseRepository.class, "com.welab.wefe")
                     .stream()
                     .filter(x -> x.isInterface())
                     .collect(Collectors.toList());

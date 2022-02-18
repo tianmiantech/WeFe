@@ -40,7 +40,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.DataSetAddOutput> {
     private DataSetAddService dataSetAddService;
 
     @Override
-    protected ApiResult<DataSetAddOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<DataSetAddOutput> handle(Input input) throws Exception {
         return success(dataSetAddService.addDataSet(input));
     }
 

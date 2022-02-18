@@ -80,7 +80,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {

@@ -36,8 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -62,7 +64,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     protected DataSource dataSource;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         Output output = new Output();
 
         DataSetMySqlModel dataSetMySqlModel = dataSetService.findById(input.getId());
@@ -72,11 +74,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         String tbName = "data_fusion_" + dataSetMySqlModel.getId();
         String sql = "Select * from " + tbName;
-        try {
-            output = readFromDB(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+        output = readFromDB(sql);
 
         return success(output);
     }
@@ -156,7 +155,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         }
     }
 
-    private Output readFromDB(String sql) throws StatusCodeWithException, SQLException {
+    private Output readFromDB(String sql) throws Exception {
 
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -201,7 +200,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         return output;
     }
 
-    private Output readFromSoruceDB(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromSoruceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);

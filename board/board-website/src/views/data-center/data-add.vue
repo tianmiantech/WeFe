@@ -737,6 +737,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
+            this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -900,11 +902,16 @@
 
                 this.form.filename = this.form.data_set_add_method === 'HttpUpload' ? this.http_upload_filename : this.local_filename;
 
+                const { data_set_add_method } = this.form;
                 const params = {
-                    filename:            this.form.filename,
-                    data_set_add_method: this.form.data_set_add_method,
+                    filename: this.form.filename,
                 };
 
+                if(this.addDataType === 'BloomFilter') {
+                    params.bloomfilterAddMethod = data_set_add_method;
+                } else {
+                    params.data_set_add_method = data_set_add_method;
+                }
                 if(this.form.data_set_add_method === 'Database') {
                     params.sql = this.form.sql;
                     this.dataSource.dataSourceList.find(item => {
@@ -914,7 +921,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/table_data_set/preview',
+                    url: this.addDataType === 'BloomFilter' ? '/bloom_filter/preview': '/table_data_set/preview',
                     params,
                 });
 
@@ -984,8 +991,9 @@
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -1008,8 +1016,9 @@
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -1023,7 +1032,7 @@
                 }
             },
 
-            async showSelectMemberDialog() {
+            showSelectMemberDialog() {
                 const ref = this.$refs['SelectMemberDialog'];
 
                 ref.show = true;

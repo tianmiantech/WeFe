@@ -68,7 +68,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     protected DataSource dataSource;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         DataResourceSource dataResourceSource = input.getDataResourceSource();
         Output output = new Output();
         if (dataResourceSource == null) {
@@ -241,7 +241,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         }
     }
 
-    private Output readFromDB(String sql) throws StatusCodeWithException, SQLException {
+    private Output readFromDB(String sql) throws Exception {
 
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -286,7 +286,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         return output;
     }
 
-    private Output readFromSoruceDB(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromSoruceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);

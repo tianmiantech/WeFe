@@ -6,7 +6,7 @@
         </div>
         <div class="top_side">
             <h4>数据集简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>

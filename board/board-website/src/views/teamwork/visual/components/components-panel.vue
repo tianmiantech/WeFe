@@ -402,9 +402,10 @@
             saveComponentData($event) {
                 if(this.currentObj.nodeId) {
                     const ref = this.$refs[this.componentType];
+                    const refInstance = Array.isArray(ref) ? ref[0]: ref;
 
-                    if(ref) {
-                        const formData = ref.methods.checkParams();
+                    if(refInstance) {
+                        const formData = refInstance.methods.checkParams();
 
                         if(formData) {
                             this.submitFormData($event, formData.params);

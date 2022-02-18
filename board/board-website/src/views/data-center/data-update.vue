@@ -1,8 +1,8 @@
 <template>
     <el-card
         v-loading="loading"
-        class="page"
         shadow="never"
+        class="page"
     >
         <el-form :model="form">
             <el-row :gutter="30">
@@ -49,8 +49,7 @@
                         >
                             + 关键词
                         </el-button>
-                        <br>
-                        <span class="tags-tips">为数据资源设置关键词，方便大家快速了解你 ：）</span>
+                        <span class="tags-tips f12 ml10">为数据资源设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
@@ -392,9 +391,13 @@
 
             async getData() {
                 this.loading = true;
-                const url = this.addType === 'csv' ? '/table_data_set/detail' : '/image_data_set/detail';
+                const map = {
+                    BloomFilter: '/bloom_filter/detail',
+                    img:         '/image_data_set/detail',
+                    csv:         '/table_data_set/detail',
+                };
                 const { code, data } = await this.$http.get({
-                    url: `${url}?id=` + this.id,
+                    url: `${map[this.addType]}?id=` + this.id,
                 });
 
                 if (code === 0) {
