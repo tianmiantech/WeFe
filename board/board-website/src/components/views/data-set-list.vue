@@ -160,7 +160,7 @@
                 min-width="160"
             >
                 <template v-slot="scope">
-                    {{ scope.row.creator_nickname }}<br>
+                    <!-- {{ scope.row.creator_nickname }}<br> -->
                     {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
