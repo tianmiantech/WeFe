@@ -94,16 +94,21 @@ public class DataResourceUploadTaskService extends AbstractService {
         synchronized (LOCKER) {
             DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
 
-            // Calculate progress
-            int progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
+            int progress = 0;
+            if (totalDataRowCount > 0) {
+                // Calculate progress
+                progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
+            }
 
-            // When the early reading speed is slow, force progress++
-            if (task.getProgressRatio() < 5
-                    && completedDataCount < 10000
-                    && completedDataCount > task.getCompletedDataCount()
-                    && progress <= task.getProgressRatio()
-            ) {
-                progress = task.getProgressRatio() + 1;
+            if (completedDataCount > 0) {
+                // When the early reading speed is slow, force progress++
+                if (task.getProgressRatio() < 5
+                        && completedDataCount < 10000
+                        && completedDataCount > task.getCompletedDataCount()
+                        && progress <= task.getProgressRatio()
+                ) {
+                    progress = task.getProgressRatio() + 1;
+                }
             }
 
             // Avoid dividing by 0
