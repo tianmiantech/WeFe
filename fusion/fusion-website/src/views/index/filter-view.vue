@@ -725,9 +725,21 @@ export default {
 
             this.loading = true;
             this.form.metadata_list = this.metadata_list;
-            this.form.rows = this.dataResource.rows;
+
+
             this.form.data_source_id = this.data_source_id;
             this.form.fieldInfoList = this.fieldInfoList;
+
+            // this.form.rows
+            let temp_row = []
+            for (let i = 0; i < this.fieldInfoList.length; i++) {
+                let col_arr = this.fieldInfoList[i].column_arr
+                for (let j = 0; j < col_arr.length; j++) {
+                    temp_row.push(col_arr[j])
+                }
+            }
+            this.form.rows = Array.from(new Set(temp_row))
+            // console.log(this.form.rows)
 
             if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource === 'UploadFile' || this.form.dataResourceSource === 'LocalFile')) {
                 this.$message.error('请添加主键！');
@@ -752,6 +764,8 @@ export default {
                 } else {
                     this.getDataSetStatus(data.data_source_id);
                 }
+            } else if (code === 10017) {
+                this.dataSource.show = false;
             } else {
                 this.saveLoading = false;
             }
