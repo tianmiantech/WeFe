@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SM2Util;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -44,6 +45,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Jervis
@@ -116,11 +119,11 @@ public class UnionService implements ApplicationContextAware {
         MemberActivityCache.getInstance().add(member);
 
         String publicKey = member.getPublicKey();
-
-        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes("UTF-8"), RSAUtil.getPublicKey(publicKey), signedApiInput.getSign());
+        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), member.getSecretKeyType());
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
+
         params.put("cur_member_id", signedApiInput.getMemberId());
         params.remove("member_id");
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
