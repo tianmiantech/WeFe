@@ -28,6 +28,7 @@ public class MemberExtJSON {
     private String principalName;
     private String authType;
     private String auditComment;
+    private long realNameAuthTime;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
 
@@ -88,5 +89,13 @@ public class MemberExtJSON {
 
     public void setReporter(String reporter) {
         this.reporter = reporter;
+    }
+
+    public long getRealNameAuthTime() {
+        return realNameAuthTime;
+    }
+
+    public void setRealNameAuthTime(long realNameAuthTime) {
+        this.realNameAuthTime = realNameAuthTime;
     }
 }
