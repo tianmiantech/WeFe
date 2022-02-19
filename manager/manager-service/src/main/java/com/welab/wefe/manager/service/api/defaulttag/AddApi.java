@@ -29,7 +29,7 @@ import com.welab.wefe.manager.service.service.DataResourceDefaultTagContractServ
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Jervis
+ * @author yuxin.zhang
  * @date 2020-05-22
  **/
 @Api(path = "data_resource/default_tag/add", name = "default_tag_add")
