@@ -21,11 +21,16 @@ package com.welab.wefe.data.fusion.service.dto.entity.globalconfig;
  */
 public class FusionConfigModel {
     /***
-     * Board service intranet base url
+     * fusion service intranet base url
      */
     public String intranetBaseUri;
     /**
      * 新注册的账号是否需要管理员审核
      */
     public boolean accountNeedAuditWhenRegister = true;
+
+    /***
+     * 开放
+     */
+    public Integer openSocketPort;
 }

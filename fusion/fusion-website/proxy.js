@@ -4,7 +4,7 @@
 
 module.exports = {
     '/api': {
-        target:       'https://xbd-dev.wolaidai.com/data-fusion-service-01',
+        target:       'https://xxx.wolaidai.com/data-fusion-service',
         secure:       false,
         timeout:      1000000,
         changeOrigin: true,

@@ -69,7 +69,7 @@ public class DataSetAddService extends AbstractService {
 
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
         if (input.getRows().size() > 5 ) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("选择字段数量不宜超过5个", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
@@ -95,7 +95,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.TASK_SWITCH = true;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             model.setDataSourceId(input.getDataSourceId());
-            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
+            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
             //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
 
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
@@ -207,10 +207,12 @@ public class DataSetAddService extends AbstractService {
 
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, rowsCount, headers);
 
-        jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
+        CommonThreadPool.run(() -> {
+            jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
+        });
 //
 //        // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+//        dataRowConsumer.waitForFinishAndClose();
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");

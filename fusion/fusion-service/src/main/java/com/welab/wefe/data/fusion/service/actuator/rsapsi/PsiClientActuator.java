@@ -72,7 +72,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 10000;
+    private int shard_size = 1000;
     private int current_index = 0;
 
     public List<String> columnList;

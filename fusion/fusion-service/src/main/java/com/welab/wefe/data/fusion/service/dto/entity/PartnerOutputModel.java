@@ -28,7 +28,7 @@ public class PartnerOutputModel extends AbstractOutputModel{
 
     String baseUrl;
 
-    int openSocketPort;
+    int rowCount;
 
     public String getMemberId() {
         return memberId;
@@ -62,11 +62,11 @@ public class PartnerOutputModel extends AbstractOutputModel{
         this.baseUrl = baseUrl;
     }
 
-    public int getOpenSocketPort() {
-        return openSocketPort;
+    public int getRowCount() {
+        return rowCount;
     }
 
-    public void setOpenSocketPort(int openSocketPort) {
-        this.openSocketPort = openSocketPort;
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
     }
 }

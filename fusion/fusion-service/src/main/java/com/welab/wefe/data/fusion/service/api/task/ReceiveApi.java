@@ -52,7 +52,7 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
         private String name;
 
         @Check(name = "合作方成员id", require = true)
-        private String partnerMemberId;
+        private String memberId;
 
         @Check(name = "数据集的数据量")
         private int dataCount;
@@ -83,12 +83,12 @@ public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
             this.name = name;
         }
 
-        public String getPartnerMemberId() {
-            return partnerMemberId;
+        public String getMemberId() {
+            return memberId;
         }
 
-        public void setPartnerMemberId(String partnerMemberId) {
-            this.partnerMemberId = partnerMemberId;
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
         }
 
         public int getDataCount() {
