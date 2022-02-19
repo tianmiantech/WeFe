@@ -7,3 +7,11 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:8080/board-service/project/modeling/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "projectId": "35ef81d771e24bd09c77a432652061b3",
+  "job_id": "eded9797545a4cfa93faa5e2af3b30fc"
+}

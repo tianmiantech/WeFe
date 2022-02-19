@@ -315,13 +315,13 @@
                                             <el-radio :label="1">黑白（1）</el-radio>
                                         </el-radio-group>
                                     </el-form-item>
-                                    <el-form-item label="图片宽度：" required>
+                                    <el-form-item label="图片宽度( px )：" required>
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.width"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片高度" required>
+                                    <el-form-item label="图片高度( px )：" required>
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.height"
@@ -343,6 +343,7 @@
                                     :my-role="vData.flowInfo.project.my_role"
                                     type="loss"
                                     :autoReadResult="true"
+                                    :member-job-detail-list="vData.memberJobDetailList"
                                 />
                             </el-tab-pane>
                         </el-tabs>
@@ -353,7 +354,7 @@
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-button v-show="vData.active === 2 && vData.jobInfo.status !== 'running'" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
                 </div>
             </div>
             <div class="step_header">
@@ -398,7 +399,7 @@
                     program:      route.query.training_type === 'PaddleDetection' ? 'paddle_detection' : route.query.training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
-                    architecture: 'YOLOv3',
+                    architecture: route.query.training_type === 'PaddleDetection' ? 'YOLOv3' : route.query.training_type === 'PaddleClassify' ? 'LeNet' : '',
                     // num_classes:  3,
                     base_lr:      0.00001,
                     image_shape:  [],
@@ -508,20 +509,21 @@
                     training_ratio:     70,
                     verification_ratio: 30,
                 },
-                prevActive:        0,
-                graphNodes:        {},
-                startLoading:      false,
-                jobInfo:           {},
-                taskInfo:          [],
-                deepLearnNodeId:   '',
-                imageDataIONodeId: '',
-                showDataIOResult:  false,
-                showDLResult:      false,
-                flowType:          route.query.training_type || 'PaddleDetection',
-                isAllLabel:        false,
-                activeName:        'param',
-                isInResult:        false,
-                stopNext:          false,
+                prevActive:          0,
+                graphNodes:          {},
+                startLoading:        false,
+                jobInfo:             {},
+                taskInfo:            [],
+                deepLearnNodeId:     '',
+                imageDataIONodeId:   '',
+                showDataIOResult:    false,
+                showDLResult:        false,
+                flowType:            route.query.training_type || 'PaddleDetection',
+                isAllLabel:          false,
+                activeName:          'param',
+                isInResult:          false,
+                stopNext:            false,
+                memberJobDetailList: [],
             });
             const methods = {
                 async getFlowInfo() {
@@ -566,7 +568,24 @@
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
                             vData.isInResult = data.job.status;
-                        }});
+                            methods.getJobMemberDetail();
+                        }
+                    });
+                },
+                async getJobMemberDetail() {
+                    const { code, data } = await $http.get({
+                        url:    '/flow/job/get_progress',
+                        params: {
+                            requestFromRefresh: true,
+                            jobId:              vData.jobInfo.job_id,
+                        },
+                    });
+
+                    nextTick(()=>{
+                        if (code === 0 && data) {
+                            vData.memberJobDetailList = data;
+                        }
+                    });
                 },
                 jumpToTaskDetail() {
                     vData.isInResult = false;

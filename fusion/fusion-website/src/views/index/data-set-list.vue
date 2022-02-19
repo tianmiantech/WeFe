@@ -22,7 +22,10 @@
                 查询
             </el-button>
 
-            <router-link :to="{name: 'data-set-view'}">
+            <router-link
+                class="ml20"
+                :to="{name: 'data-set-view'}"
+            >
                 <el-button>
                     新增
                 </el-button>
@@ -37,11 +40,11 @@
             <el-table-column
                 type="index"
                 label="编号"
-                width="45px"
+                width="45"
             />
             <el-table-column
                 label="数据集"
-                min-width="154px"
+                min-width="154"
             >
                 <template slot-scope="scope">
                     <router-link :to="{name: 'data-set-detail', query: {id: scope.row.id, name: scope.row.name }}">
@@ -55,7 +58,7 @@
             <el-table-column
                 label="行数"
                 prop="row_count"
-                width="100px"
+                width="100"
             />
             <el-table-column
                 label="字段信息"
@@ -79,12 +82,12 @@
             <el-table-column
                 label="使用次数"
                 prop="used_count"
-                width="100px"
+                width="100"
             />
 
             <el-table-column
                 label="创建时间"
-                min-width="140px"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -93,7 +96,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="140px"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -102,7 +105,7 @@
 
             <el-table-column
                 label="操作"
-                width="100px"
+                width="100"
                 fixed="right"
             >
                 <template slot-scope="scope">
@@ -176,7 +179,6 @@
 
 <script>
     import table from '@src/mixins/table.js';
-    // import jsonView from 'vue-json-views';
 
     export default {
         mixins: [table],

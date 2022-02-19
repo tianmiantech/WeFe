@@ -52,7 +52,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ModelingI
             this.projectId = projectId;
         }
 
-        @Check(name = "项目id", require = true)
+        @Check(name = "项目id")
         private String projectId;
 
         @Check(name = "任务id")

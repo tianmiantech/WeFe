@@ -69,7 +69,7 @@ public class DataSetAddService extends AbstractService {
 
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
         if (input.getRows().size() > 5 ) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("选择字段数量不宜超过5个", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {

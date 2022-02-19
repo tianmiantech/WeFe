@@ -5,8 +5,8 @@
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
+        width="500px"
         title="登录"
-        width="30%"
         center
     >
         <el-form
@@ -49,7 +49,6 @@
                 <el-button
                     type="primary"
                     class="login-btn"
-                    native-type="submit"
                     @click="login"
                 >
                     登 录

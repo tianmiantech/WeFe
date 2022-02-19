@@ -4,7 +4,7 @@
         shadow="never"
     >
         <el-form
-            class="page-form"
+            class="block-form"
             :model="form"
         >
             <el-form-item
@@ -55,7 +55,7 @@
 
                     <div
                         v-if="form.dataResourceSource === 'Sql'"
-                        class="mt10"
+                        class="inline-form mt10"
                     >
                         <el-form-item
                             label="数据源:"
@@ -156,7 +156,7 @@
                 </uploader>
             </fieldset>
 
-            <el-form class="m20">
+            <el-form class="inline-form m20">
                 <el-form-item
                     v-if="metadata_pagination.list.length > 0"
                     label="设置主键："
@@ -253,7 +253,7 @@
                 <el-form
                     v-loading="dataSource.loading"
                     label-width="130px"
-                    class="flex-form"
+                    class="inline-form"
                 >
                     <el-form-item
                         label="数据源名称"
@@ -758,9 +758,7 @@ export default {
                 if (code === 0) {
                     const percentage = data.row_count === 0 ? 0 : Math.round(data.process_count / data.row_count * 100);
 
-                    this.processData = {
-                        percentage,
-                    };
+                    this.processData.percentage = percentage;
                     if (data.progress === 'Running') {
                         clearTimeout(this.timer);
                         this.timer = setTimeout(_ => {

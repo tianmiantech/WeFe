@@ -69,7 +69,7 @@
             const methods = {
                 editLabelStage(scaleX, scaleY) {
                     if (props.currentImage.item) {
-                        if (props.currentImage.item.label_info.labeled) {
+                        if (props.currentImage.item.labeled) {
                             const list = props.currentImage.item.label_info.objects;
 
                             list.forEach(item => {
@@ -505,7 +505,9 @@
                         }
                     });
                     context.emit('save-label', labe_list, props.currentImage.item.id);
-                    delete vData.stage;
+                    vData.stage.find('Transformer').destroy();
+                    vData.stage.find('Rect').destroy();
+                    vData.stage.find('Text').destroy();
                 },
                 // set keycode
                 async handleEvent(e) {
