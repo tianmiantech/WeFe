@@ -144,9 +144,15 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-select.error{
-        :deep(.el-input__inner){
-            border: 1px solid $--color-danger;
+    .el-select{
+        .error{
+            :deep(.el-input__inner){
+                border: 1px solid $--color-danger;
+            }
+        }
+        :deep(.el-tag__close){
+            background: #ddd;
+            &:hover{background:#bbb;}
         }
     }
     .iconfont{
