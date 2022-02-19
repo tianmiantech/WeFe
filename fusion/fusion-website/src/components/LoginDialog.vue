@@ -85,8 +85,9 @@ export default {
     created () {
         this.$bus.$on('show-login-dialog', () => {
             this.show = true;
+            this.getImgCode();
         });
-        //this.getImgCode();
+
     },
     methods: {
         async getImgCode() {
