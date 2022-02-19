@@ -153,6 +153,7 @@ public class DataResourceUploadTaskService extends AbstractService {
             task.setProgressRatio(100);
             task.setUpdatedTime(new Date());
             task.setStatus(DataResourceUploadStatus.completed);
+            task.setErrorMessage("已完成");
             dataResourceUploadTaskRepository.save(task);
         }
     }
