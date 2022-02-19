@@ -447,7 +447,7 @@
                     <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
                     <p class="mb10" v-if="uploadTask.repeat_id_row_count">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
                     <p class="mb10" v-if="uploadTask.invalid_data_count">错误条数：<span>{{uploadTask.invalid_data_count}}</span></p>
-                    <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
+                    <p v-if="uploadTask.error_message" class="mb10"><span class="color-danger">{{uploadTask.error_message}}</span></p>
                     <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据资源上传效率会急剧下降，建议在本地去重后执行上传。</strong>
                 </div>
                 <p class="mt10 mb10">预计剩余时间: {{ timeFormat(uploadTask.estimate_time) }}</p>
@@ -1191,9 +1191,9 @@
                         this.uploadTask.error_message = error_message;
 
                         // error in uploading, stop refreshing the interface
-                        if (data.error_message || repeat_id_row_count) {
+                        if (status === 'failed') {
                             this.isCanClose = true;
-                            if(data.error_message) return;
+                            return;
                         } else {
                             this.isCanClose = false;
                         }
