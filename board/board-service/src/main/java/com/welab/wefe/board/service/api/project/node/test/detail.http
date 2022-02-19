@@ -1,9 +1,10 @@
 POST http://localhost:8080/board-service/project/flow/node/detail
 Content-Type: application/json
+token: {{token}}
 
 {
-  "flow_id": "a9632fcc436f4400bba1726532475f7b",
-  "nodeId": "1608695123123294703624"
+  "flow_id": "27f72edb3e7e4ac698dea3fe238b735d",
+  "nodeId": "16196070742596633"
 }
 
 

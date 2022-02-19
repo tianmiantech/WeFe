@@ -14,43 +14,42 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.api.partner;
+package com.welab.wefe.data.fusion.service.api.bloomfilter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.service.ThirdPartyService;
+import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
+import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "partner/check", name = "测试服务状态", desc = "测试服务状态")
-public class CheckApi extends AbstractNoneOutputApi<CheckApi.Input> {
-
+@Api(path = "filter/detail", name = "过滤器详情", desc = "过滤器详情", login = true)
+public class DetailApi extends AbstractApi<DetailApi.Input, BloomfilterOutputModel> {
     @Autowired
-    ThirdPartyService thirdPartyService;
+    private BloomFilterService bloomFilterService;
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
-        thirdPartyService.check(input.getMemberId());
-        return success();
+    protected ApiResult<BloomfilterOutputModel> handle(Input input) throws Exception {
+        return success(bloomFilterService.detail(input));
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "id", require = true)
+        String id;
 
-        @Check(name = "联邦成员ID", require = true)
-        String memberId;
-
-        public String getMemberId() {
-            return memberId;
+        public String getId() {
+            return id;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setId(String id) {
+            this.id = id;
         }
     }
 }

@@ -12,6 +12,17 @@
                         :jobDetail="jobDetail"
                         :showHistory="false"
                     />
+                    <p>任务详细信息：</p>
+                    <ul>
+                        <li v-for="item in memberJobDetailList" :key="item.member_id">
+                            {{item.member_name}}:
+                            <div style="margin-left: 20px;">
+                                <p :style="{'color': item.job_status === 'success' ? 'green' : '#f00'}">job: {{item.job_status}}</p>
+                                <p :style="{'color': item.task_status === 'success' ? 'green' : '#f00'}">task: {{item.task_status}}</p>
+                                <p>message:  {{item.message}}</p>
+                            </div>
+                        </li>
+                    </ul>
                 </el-collapse-item>
                 <el-collapse-item title="任务跟踪指标" name="2">
                     <el-tabs v-model="vData.expandparams.type" @tab-click="methods.tabChange">
@@ -48,6 +59,7 @@
         },
         props: {
             ...mixin.props,
+            memberJobDetailList: Array,
         },
         setup(props, context) {
             const activeName = ref('1');

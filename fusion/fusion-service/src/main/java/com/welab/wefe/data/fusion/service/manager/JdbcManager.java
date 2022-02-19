@@ -354,14 +354,13 @@ public class JdbcManager {
     /**
      * 获取查询数据的总记录数
      */
-    public long count(Connection conn, String sql) throws Exception{
+    public long count(Connection conn, String sql) throws Exception {
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
 
         try {
-            String s = sql.replace("*", "count(*)");
-            ps = conn.prepareStatement(s);
+            ps = conn.prepareStatement("select count(*) from (" + sql + ") t");
             rs = ps.executeQuery();
             while (rs.next()) {
                 totalCount = rs.getLong(1);

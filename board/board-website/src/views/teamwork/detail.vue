@@ -58,7 +58,7 @@
                         </p>
                         <p class="project-desc-value">
                             <span class="project-desc-key">项目类型：</span>
-                            <span class="f14">{{ form.project_type }}</span>
+                            <span class="f14">{{ form.project_type === 'DeepLearning' ? '视觉处理' : form.project_type === 'MachineLearning' ? '机器学习' : '' }}</span>
                         </p>
                         <p class="project-desc-time f13 ml10">
                             <template v-if="form.isCreator">由 {{ project.creator_nickname }}</template> 创建于 {{ dateFormat(project.created_time) }}

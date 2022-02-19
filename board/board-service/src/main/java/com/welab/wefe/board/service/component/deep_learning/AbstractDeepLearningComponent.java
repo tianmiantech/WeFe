@@ -79,6 +79,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         params.numClasses = labelNames.size();
 
         KernelJob job = new KernelJob();
+        job.projectId = graph.getJob().getProjectId();
         job.jobId = graph.getJob().getJobId();
         job.taskId = node.createTaskId(graph.getJob());
         job.role = graph.getJob().getMyRole();
