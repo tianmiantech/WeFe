@@ -17,6 +17,8 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -65,6 +67,19 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
+
+        // 当全局拒绝暴露时，禁止选择暴露资源。
+        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getMemberInfo();
+        if (publicLevel != DataSetPublicLevel.OnlyMyself) {
+            if (!member.getMemberAllowPublicDataSet()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见");
+            }
+
+            if (member.getMemberHidden()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员已被管理员隐身，隐身状态下不允许资源可见。");
+            }
+        }
+
 
         if (publicLevel == DataSetPublicLevel.PublicWithMemberList && StringUtils.isEmpty(publicMemberList)) {
             throw new StatusCodeWithException("请指定可见成员", StatusCode.PARAMETER_VALUE_INVALID);
