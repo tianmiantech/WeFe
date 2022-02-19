@@ -28,6 +28,9 @@ import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
+import com.welab.wefe.data.fusion.service.service.FieldInfoService;
+import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
+import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -35,17 +38,19 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author hunter.zhao
  */
 @Service
 public class BloomFilterService {
-    LongAdder longAdder = new LongAdder();
 
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
+
+
+    @Autowired
+    private FieldInfoService fieldInfoService;
 
     /**
      * @param bloomFilterId
@@ -96,12 +101,12 @@ public class BloomFilterService {
 
         bloomFilterRepository.deleteById(input.getId());
         String src = model.getSrc();
-        if(StringUtil.isEmpty(src)){
+        if (StringUtil.isEmpty(src)) {
             return;
         }
 
         File file = new File(src);
-        if(file.exists()) {
+        if (file.exists()) {
             file.delete();
             System.out.println("删除成功");
         }
@@ -119,6 +124,12 @@ public class BloomFilterService {
             throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
-        return ModelMapper.map(model,BloomfilterOutputModel.class);
+
+        BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
+
+        List<FieldInfo> fieldInfoList = fieldInfoService.fieldInfoList(input.getId());
+        outputModel.setHashFusion(PrimaryKeyUtils.hashFunction(fieldInfoList));
+
+        return outputModel;
     }
 }
