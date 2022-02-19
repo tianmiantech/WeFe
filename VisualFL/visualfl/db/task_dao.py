@@ -118,6 +118,7 @@ class TaskDao(Logger):
                 model.component_type = component_name
                 model.flow_id = task.flow_id
                 model.flow_node_id = task.flow_node_id
+                model.project_id = task.project_id
 
                 if is_insert:
                     model.id = get_commit_id()
