@@ -19,12 +19,13 @@ package com.welab.wefe.union.service;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -119,7 +120,8 @@ public class UnionService implements ApplicationContextAware {
         MemberActivityCache.getInstance().add(member);
 
         String publicKey = member.getPublicKey();
-        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), member.getSecretKeyType());
+        SecretKeyType secretKeyType = getSecretKeyType(member);
+        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), secretKeyType);
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -156,4 +158,12 @@ public class UnionService implements ApplicationContextAware {
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());
     }
 
+
+    private static SecretKeyType getSecretKeyType(Member member) {
+        MemberExtJSON extJson = member.getExtJson();
+        if(null == extJson || null == extJson.getSecretKeyType()) {
+            return SecretKeyType.rsa;
+        }
+        return extJson.getSecretKeyType();
+    }
 }

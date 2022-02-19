@@ -58,9 +58,9 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             member.setLastActivityTime(System.currentTimeMillis());
             member.setLogo(input.getLogo());
             SecretKeyType secretKeyType = (null == input.secretKeyType ? SecretKeyType.rsa : input.secretKeyType);
-            MemberExtJSON extJSON = new MemberExtJSON();
-            extJSON.setSecretKeyType(secretKeyType);
-            member.setExtJson(JSON.toJSONString(extJSON));
+            MemberExtJSON extJson = new MemberExtJSON();
+            extJson.setSecretKeyType(secretKeyType);
+            member.setExtJson(JSON.toJSONString(extJson));
 
             memberContractService.add(member);
         } catch (StatusCodeWithException e) {
@@ -68,12 +68,6 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
         }
 
         return success();
-    }
-
-    public static void main(String[] args) {
-        MemberExtJSON extJSON = new MemberExtJSON();
-        extJSON.setSecretKeyType(SecretKeyType.rsa);
-        System.out.println(JSON.toJSONString(extJSON));
     }
 
 

@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.dto.MemberInfoModel;
@@ -61,6 +62,12 @@ public class MemberService extends AbstractMemberService {
             member.setId(obj.getString("id"));
             member.setPublicKey(obj.getString("public_key"));
 
+            JSONObject extJsonObj = obj.getJSONObject("ext_json");
+            if (null != extJsonObj && !extJsonObj.isEmpty()) {
+                String secretKeyType = extJsonObj.getString("secret_key_type");
+                member.setSecretKeyType(SecretKeyType.get(secretKeyType));
+            }
+
             resultList.add(member);
         }
         return resultList;
@@ -88,6 +95,7 @@ public class MemberService extends AbstractMemberService {
                 memberEntity.setPort(NumberUtils.toInt(memberGatewayUriArray[1]));
             }
         }
+        memberEntity.setSecretKeyType(memberInfo.getSecretKeyType());
         return memberEntity;
     }
 }

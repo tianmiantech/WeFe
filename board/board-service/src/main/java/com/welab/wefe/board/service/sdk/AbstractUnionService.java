@@ -28,14 +28,12 @@ import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.UrlUtil;
+import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import net.jodah.expiringmap.ExpiringMap;
 import org.apache.http.entity.ContentType;
@@ -85,7 +83,8 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
                 .put("logo", model.getMemberLogo())
-                .put("hidden", model.getMemberHidden());
+                .put("hidden", model.getMemberHidden())
+                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa : model.getSecretKeyType().name());
 
         request("member/add", params, false);
     }
@@ -135,7 +134,8 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("public_key", model.getRsaPublicKey())
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
-                .put("hidden", model.getMemberHidden());
+                .put("hidden", model.getMemberHidden())
+                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa : model.getSecretKeyType().name());
 
         request("member/update_exclude_logo", params);
     }
@@ -269,7 +269,9 @@ public abstract class AbstractUnionService extends AbstractService {
         if (needSign) {
             String sign = null;
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                SecretKeyType secretKeyType = CacheObjects.getSecretKeyType();
+                // sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), secretKeyType);
             } catch (Exception e) {
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
