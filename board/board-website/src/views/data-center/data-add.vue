@@ -394,7 +394,7 @@
 
             <!-- bloom filter -->
             <div v-if="addDataType === 'BloomFilter' && raw_data_list.length" class="mt40">
-                <p class="f16">设置主键 hash 方式 (上传后不可更改)：
+                <p class="f14">设置主键 hash 方式 (上传后不可更改)：
                     <el-tooltip placement="top" effect="light">
                         <template #content>
                             对融合字段的处理方式，如 md5(id)+md5(tel), <p>规则是 id 字段的 md5 加上 tel 字段的 md5 处理</p>
@@ -727,9 +727,9 @@
             this.addDataType = this.$route.query.type || 'csv';
 
             const map = {
-                csv:    'TableDataSet',
-                img:    'ImageDataSet',
-                filter: 'BloomFilter',
+                csv:         'TableDataSet',
+                img:         'ImageDataSet',
+                BloomFilter: 'BloomFilter',
             };
 
             this.search.dataResourceType = map[this.addDataType];
@@ -1111,7 +1111,6 @@
                     return;
                 }
 
-                this.loading = true;
                 this.form.public_member_list = ids.join(',');
                 this.form.metadata_list = this.metadata_list;
 
@@ -1154,6 +1153,7 @@
                     params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 }
 
+                this.loading = true;
                 const { code, data } = await this.$http.post({
                     url,
                     timeout: 1000 * 60 * 24 * 30,
