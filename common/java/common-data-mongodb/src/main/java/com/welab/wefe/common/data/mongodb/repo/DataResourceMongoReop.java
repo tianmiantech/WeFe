@@ -242,7 +242,11 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
         matchOperations.add(dataResourceMatch);
         Criteria memberCriteria = new QueryBuilder()
-                .like("member_name", dataResourceQueryInput.getMemberName())
+                .like("member.name", dataResourceQueryInput.getMemberName())
+                .append("member.hidden", "0")
+                .append("member.freezed", "0")
+                .append("member.lost_contact", "0")
+                .append("member.allow_open_data_set", "1")
                 .getCriteria();
 
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
