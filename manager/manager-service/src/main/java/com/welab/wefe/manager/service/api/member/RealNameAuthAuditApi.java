@@ -39,6 +39,9 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
         MemberExtJSON memberExtJSON = new MemberExtJSON();
         memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
         memberExtJSON.setAuditComment(input.getAuditComment());
+        if(input.getRealNameAuthStatus() == 2) {
+            memberExtJSON.setRealNameAuthTime(System.currentTimeMillis());
+        }
         memberContractService.updateExtJson(input.getId(), memberExtJSON);
         return success();
     }
