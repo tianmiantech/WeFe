@@ -32,6 +32,7 @@
                 />
             </el-form-item>
             <el-button
+                class="mb20"
                 type="primary"
                 @click="searchDeriveData"
             >

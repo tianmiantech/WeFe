@@ -456,7 +456,8 @@ export default {
             saveLoading: false,
             timer:       null,
             processData: {
-                text: '正在存储过滤器...',
+                text:       '正在存储过滤器...',
+                percentage: 0,
             },
         };
     },

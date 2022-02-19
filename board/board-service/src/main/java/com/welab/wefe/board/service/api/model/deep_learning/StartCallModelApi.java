@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.sdk.PaddleVisualService;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -46,6 +47,8 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private PaddleVisualService paddleVisualService;
 
     @Override
     protected ApiResult<Output> handle(StartCallModelApi.Input input) throws Exception {
@@ -82,7 +85,9 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
         JSONObject json = JSON.parseObject(task.getTaskConf());
         json.put("data_set", dataSetInfo);
 
-        return success(new Output(imageCount));
+        JObject response = paddleVisualService.infer(json);
+
+        return success(new Output(imageCount, response));
     }
 
     private String buildZipDownloadUrl(String taskId) {
@@ -98,9 +103,11 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
     public static class Output {
         public int fileCount;
+        public JObject response;
 
-        public Output(int fileCount) {
+        public Output(int fileCount, JObject response) {
             this.fileCount = fileCount;
+            this.response = response;
         }
     }
 

@@ -243,9 +243,9 @@ public class AccountService extends AbstractService {
         }
 
         AccountMysqlModel account = accountRepository.findById(input.getAccountId()).orElse(null);
-        if (account.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("该用户已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+//        if (account.getAuditStatus() != AuditStatus.auditing) {
+//            throw new StatusCodeWithException("该用户已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
+//        }
 
         account.setAuditStatus(input.getAuditStatus());
         account.setAuditComment(CacheObjects.getNickname(CurrentAccount.id()) + "：" + input.getAuditComment());
@@ -275,18 +275,24 @@ public class AccountService extends AbstractService {
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        AccountMysqlModel superAccount = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        AccountMysqlModel updateAccount = accountRepository.findById(input.getId()).orElse(null);
 
-        if (account == null) {
+        if (updateAccount == null || superAccount == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
         }
 
+        if (updateAccount.getId().equals(superAccount.getId())) {
+            // update self account
+            updateAccount = superAccount;
+        }
+
         if (StringUtil.isNotEmpty(input.getNickname())) {
-            account.setNickname(input.getNickname());
+            updateAccount.setNickname(input.getNickname());
         }
 
         if (StringUtil.isNotEmpty(input.getEmail())) {
-            account.setEmail(input.getEmail());
+            updateAccount.setEmail(input.getEmail());
         }
 
         // Set someone else to be an administrator
@@ -294,13 +300,13 @@ public class AccountService extends AbstractService {
             if (!CurrentAccount.isSuperAdmin()) {
                 throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
             }
-            account.setAdminRole(input.getAdminRole());
+            updateAccount.setAdminRole(input.getAdminRole());
         }
 
-        account.setUpdatedBy(CurrentAccount.id());
-        account.setUpdatedTime(new Date());
+        updateAccount.setUpdatedBy(CurrentAccount.id());
+        updateAccount.setUpdatedTime(new Date());
 
-        accountRepository.save(account);
+        accountRepository.save(updateAccount);
     }
 
     /**
@@ -420,6 +426,7 @@ public class AccountService extends AbstractService {
 //    }
 //
 //
+
     /**
      * Transfer the super administrator status to another account
      */

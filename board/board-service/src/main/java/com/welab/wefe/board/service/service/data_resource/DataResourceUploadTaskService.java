@@ -22,7 +22,7 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUp
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceUploadTaskOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.Convert;
@@ -75,24 +75,40 @@ public class DataResourceUploadTaskService extends AbstractService {
     }
 
     /**
+     * 开始计算进度之前，更新message。
+     */
+    public void updateMessageBeforeStart(String dataResourceId, String message) {
+        updateProgress(dataResourceId, 0, 0, 0, message);
+    }
+
+    public void updateProgress(String dataResourceId, long totalDataRowCount, long completedDataCount, long invalidDataCount) {
+        updateProgress(dataResourceId, totalDataRowCount, completedDataCount, invalidDataCount, null);
+    }
+
+    /**
      * Update upload progress
      */
-    public void updateProgress(String dataResourceId, long totalDataRowCount, long completedDataCount, long invalidDataCount) {
+    public void updateProgress(String dataResourceId, long totalDataRowCount, long completedDataCount, long invalidDataCount, String message) {
         // Since storing data sets into storage is a concurrent operation, onerror, updateprogress, complete and other operations may occur simultaneously to update the same task.
         // In order to avoid disordered update sequence, lock operation is required here.
         synchronized (LOCKER) {
             DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
 
-            // Calculate progress
-            int progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
+            int progress = 0;
+            if (totalDataRowCount > 0) {
+                // Calculate progress
+                progress = Convert.toInt(completedDataCount * 100L / totalDataRowCount);
+            }
 
-            // When the early reading speed is slow, force progress++
-            if (task.getProgressRatio() < 5
-                    && completedDataCount < 10000
-                    && completedDataCount > task.getCompletedDataCount()
-                    && progress <= task.getProgressRatio()
-            ) {
-                progress = task.getProgressRatio() + 1;
+            if (completedDataCount > 0) {
+                // When the early reading speed is slow, force progress++
+                if (task.getProgressRatio() < 5
+                        && completedDataCount < 10000
+                        && completedDataCount > task.getCompletedDataCount()
+                        && progress <= task.getProgressRatio()
+                ) {
+                    progress = task.getProgressRatio() + 1;
+                }
             }
 
             // Avoid dividing by 0
@@ -117,6 +133,7 @@ public class DataResourceUploadTaskService extends AbstractService {
             task.setCompletedDataCount(completedDataCount);
             task.setEstimateRemainingTime(estimateTime);
             task.setProgressRatio(progress);
+            task.setErrorMessage(message);
             task.setUpdatedTime(new Date());
 
             dataResourceUploadTaskRepository.save(task);
@@ -136,6 +153,7 @@ public class DataResourceUploadTaskService extends AbstractService {
             task.setProgressRatio(100);
             task.setUpdatedTime(new Date());
             task.setStatus(DataResourceUploadStatus.completed);
+            task.setErrorMessage("已完成");
             dataResourceUploadTaskRepository.save(task);
         }
     }
@@ -154,13 +172,13 @@ public class DataResourceUploadTaskService extends AbstractService {
         dataResourceUploadTaskRepository.save(dataSetTask);
     }
 
-    public PagingOutput<DataSetTaskOutputModel> query(DataResourceUploadTaskQueryApi.Input input) {
+    public PagingOutput<DataResourceUploadTaskOutputModel> query(DataResourceUploadTaskQueryApi.Input input) {
         Specification<DataResourceUploadTaskMysqlModel> where = Where
                 .create()
                 .greaterThan("updatedTime", DateUtil.getDate(System.currentTimeMillis() - TimeSpan.fromMinute(10).toMs()))
                 .build(DataResourceUploadTaskMysqlModel.class);
 
-        return dataResourceUploadTaskRepository.paging(where, input, DataSetTaskOutputModel.class);
+        return dataResourceUploadTaskRepository.paging(where, input, DataResourceUploadTaskOutputModel.class);
     }
 
     /**

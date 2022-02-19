@@ -5,8 +5,8 @@
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
+        width="500px"
         title="登录"
-        width="30%"
         center
     >
         <el-form

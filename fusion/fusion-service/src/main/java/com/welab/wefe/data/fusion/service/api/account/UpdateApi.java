@@ -52,7 +52,19 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
         @Check(name = "管理员权限")
         private Boolean adminRole;
 
+        @Check(name = "用户 id")
+        private String id;
+
         //region getter/setter
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getNickname() {
             return nickname;
