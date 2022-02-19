@@ -28,6 +28,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.fusion.core.enums.AlgorithmType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -78,7 +79,7 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "对方样本量", require = true)
         private Long partnerRowCount;
 
-        @Check(name = "算法",require = true)
+        @Check(name = "算法", require = true)
         private AlgorithmType algorithm;
 
         @Check(name = "主键处理")
@@ -101,6 +102,14 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+
+            if (isTrace && CollectionUtils.isNotEmpty(fieldInfoList)) {
+                for (int i = 0; i < fieldInfoList.size(); i++) {
+                    if (fieldInfoList.get(i).getColumnList().contains(traceColumn)) {
+                        throw new StatusCodeWithException("追溯字段不能为融合主键组成字段", StatusCode.PARAMETER_VALUE_INVALID);
+                    }
+                }
             }
 
         }
