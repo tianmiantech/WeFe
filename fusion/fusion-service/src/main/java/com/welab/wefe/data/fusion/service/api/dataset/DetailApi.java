@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "filter/detail", name = "过滤器详情", desc = "过滤器详情", login = true)
+@Api(path = "data_set/detail", name = "过滤器详情", desc = "过滤器详情", login = true)
 public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> {
     @Autowired
     private DataSetService dataSetService;
