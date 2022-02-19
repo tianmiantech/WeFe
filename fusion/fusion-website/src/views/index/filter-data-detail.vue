@@ -5,8 +5,9 @@
             <p>{{ dataInfo.id }}</p>
         </div>
         <div class="top_side">
-            <h4>数据集简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <h4>过滤器简介</h4>
+            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
+                <span>{{ dataInfo.used_count }}</span> 任务。</p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
@@ -14,7 +15,8 @@
                     v-if="dataInfo.rows"
                     :span="6"
                 >
-                    字段: <el-tag
+                    字段:
+                    <el-tag
                         v-for="item in dataInfo.rows.split(',')"
                         :key="item"
                         :type="item"
@@ -25,6 +27,7 @@
                     </el-tag>
                 </el-col>
             </el-row>
+            <p class="f14">融合主键 hash 方式: {{ dataInfo.hash_fusion }}</p>
         </div>
         <div class="bottom_side">
             <el-tabs
@@ -86,21 +89,22 @@
 export default {
     data() {
         return {
-            id:              '',
-            name:            '',
-            loading:         false,
-            dataInfo:        {},
-            list:            [],
+            id: '',
+            name: '',
+            loading: false,
+            dataInfo: {},
+            list: [],
             previewDataInfo: [],
-            table_data:      {
+            table_data: {
                 header: [],
-                rows:   [],
+                rows: [],
             },
             gridTheme: {
-                color:       '#6C757D',
+                color: '#6C757D',
                 borderColor: '#EBEEF5',
             },
             gridHeight: 0,
+            selectedCol: '',
         };
     },
     created() {
@@ -112,8 +116,8 @@ export default {
 
         async getDataSetDetail() {
             this.loading = true;
-            const { code, data } = await this.$http.post({
-                url:  '/filter/detail',
+            const {code, data} = await this.$http.post({
+                url: '/filter/detail',
                 data: {
                     id: this.id,
                 },
@@ -121,26 +125,27 @@ export default {
 
             if (code === 0) {
                 if (data) {
-                    this.dataInfo = data;
+                    this.selectedCol = data.rows
+                    this.dataInfo = data
                 }
             }
             this.loading = false;
         },
         async getDataSetPreview() {
-            const { code, data } = await this.$http.get({
-                url:    '/filter/preview',
-                params: { id: this.id },
+            const {code, data} = await this.$http.get({
+                url: '/filter/preview',
+                params: {id: this.id, rows: this.selectedCol},
             });
 
             if (code === 0) {
                 if (data && data.header) {
                     this.previewDataInfo = data.metadata_list;
 
-                    let { length } = data.raw_data_list;
+                    let {length} = data.raw_data_list;
 
                     const rows = data.raw_data_list;
 
-                    if(length >= 15) length = 15;
+                    if (length >= 15) length = 15;
 
                     this.resize(length);
                     this.table_data.rows = rows;
@@ -164,34 +169,41 @@ export default {
 <style lang="scss" scoped>
 .header {
     text-align: center;
+
     h3 {
         font-size: 18px;
         margin: 10px 0;
     }
+
     p {
         font-size: 14px;
         color: #777;
     }
 }
+
 .top_side {
     .subtitle {
         font-size: 14px;
         font-weight: bold;
         margin: 10px 0;
     }
+
     .el-row {
         font-size: 14px;
         color: #606266;
         margin-bottom: 20px;
+
         &:last-child {
             margin-bottom: 0;
         }
     }
 }
+
 .bottom_side {
     margin-top: 20px;
 }
- .c-grid {
+
+.c-grid {
     border: 1px solid #EBEEF5;
     position: relative;
     z-index: 1;

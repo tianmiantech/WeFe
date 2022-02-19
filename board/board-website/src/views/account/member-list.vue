@@ -13,6 +13,7 @@
             </el-form-item> -->
             <el-button
                 type="primary"
+                class="inline-block"
                 native-type="submit"
                 @click="getList({ resetPagination: true })"
             >

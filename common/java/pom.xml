@@ -21,6 +21,7 @@
         <module>common-proto</module>
         <module>common-data-mongodb</module>
         <module>common-wefe</module>
+        <module>common-verification-code</module>
     </modules>
 
 </project>

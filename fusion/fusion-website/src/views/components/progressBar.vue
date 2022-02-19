@@ -34,7 +34,9 @@ export default {
         },
     },
     methods: {
-        colorsMethods(percentage) {
+        colorsMethods() {
+            const { percentage } = this.processData;
+
             if (percentage < 30) {
                 return '#909399';
             } else if (percentage < 60) {

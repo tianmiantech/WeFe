@@ -8,14 +8,14 @@
         <template #empty>
             <EmptyData />
         </template>
-        <el-table-column label="名称 / Id" min-width="160">
+        <el-table-column label="名称 / Id" min-width="180">
             <template v-slot="scope">
                 <span>{{ scope.row.data_resource_name }}</span>
                 <br>
                 <p class="p-id">{{ scope.row.id }}</p>
             </template>
         </el-table-column>
-        <el-table-column label="数据资源类型" min-width="120">
+        <el-table-column label="数据资源类型" min-width="100">
             <template v-slot="scope">
                 {{ sourceTypeMap[scope.row.data_resource_type] }}
             </template>
@@ -24,14 +24,15 @@
             <template v-slot="scope">
                 {{ scope.row.progress_ratio }}%
                 <p>{{ scope.row.status === 'completed' ? '已完成' : scope.row.status === 'failed' ? '已失败' : '正在上传' }}</p>
+                <p>{{scope.row.error_message}}</p>
             </template>
         </el-table-column>
-        <el-table-column label="上传样本总量" prop="total_data_count"></el-table-column>
-        <el-table-column label="已处理样本量" prop="completed_data_count"></el-table-column>
-        <el-table-column label="无效数据量" prop="invalid_data_count"></el-table-column>
+        <el-table-column label="上传样本总量" min-width="100" prop="total_data_count"></el-table-column>
+        <el-table-column label="已处理样本量" min-width="100" prop="completed_data_count"></el-table-column>
+        <el-table-column label="无效数据量" min-width="100" prop="invalid_data_count"></el-table-column>
         <el-table-column
             label="上传时间"
-            min-width="140"
+            min-width="120"
         >
             <template v-slot="scope">
                 {{ scope.row.creator_nickname }}
@@ -44,10 +45,6 @@
                 {{ timeFormat(scope.row.estimate_remaining_time / 1000) }}
             </template>
         </el-table-column>
-        <el-table-column
-            label="错误信息"
-            prop="error_message"
-        />
     </el-table>
     <div
         v-if="pagination.total"
