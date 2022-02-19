@@ -94,14 +94,15 @@ public class TaskService extends AbstractService {
         return taskRepository.findOne("businessId", businessId, TaskMySqlModel.class);
     }
 
-    public void updateByBusinessId(String businessId, TaskStatus status, Integer count, long spend) throws StatusCodeWithException {
+    public void updateByBusinessId(String businessId, TaskStatus status, Integer fusionCount, Integer processedCount, long spend) throws StatusCodeWithException {
         TaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
             throw new StatusCodeWithException("任务不存在，检查参数businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
-        model.setFusionCount(count);
+        model.setFusionCount(fusionCount);
+        model.setProcessedCount(processedCount);
         model.setSpend(spend);
         taskRepository.save(model);
     }

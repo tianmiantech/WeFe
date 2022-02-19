@@ -67,14 +67,16 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
+            dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "解压中...");
             fileDecompressionResult = SuperDecompressor.decompression(inputFile, true);
-            dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
+            dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "解压完成，正在解析样本...");
             LOG.info("{} 完成解压，包含文件 {} 个", m.getId(), fileDecompressionResult.files.size());
 
             sampleList = AbstractImageDataSetParser
                     .getParser(input.forJobType)
                     .parseFilesToSamples(model, fileDecompressionResult.files);
             LOG.info("{} 完成样本解析，包含样本 {} 个", m.getId(), sampleList.size());
+            dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 1, 0, "已完成样本解析");
 
             setImageDataSetModel(input, model, sampleList);
             dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
@@ -97,7 +99,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
                         imageDataSetSampleRepository.save(sample);
                         count.incrementAndGet();
                         if (count.get() % 50 == 0) {
-                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
+                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0, "正在保存样本信息...");
                             LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
                         }
                     } catch (Exception e) {

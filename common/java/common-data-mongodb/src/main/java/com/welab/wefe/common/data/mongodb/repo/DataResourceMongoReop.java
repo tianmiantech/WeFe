@@ -94,7 +94,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Query query = new QueryBuilder()
                 .notRemoved()
                 .append("dataResourceId", dataResourceId)
-                .append("curMemberId", curMemberId)
+                .append("memberId", curMemberId)
                 .build();
         return mongoUnionTemplate.findOne(query, DataResource.class);
     }
@@ -234,6 +234,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Criteria or = new Criteria();
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
+                new QueryBuilder().append("member_id", dataResourceQueryInput.getCurMemberId()).getCriteria(),
                 new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
         );
         dataResouceCriteria.andOperator(or);

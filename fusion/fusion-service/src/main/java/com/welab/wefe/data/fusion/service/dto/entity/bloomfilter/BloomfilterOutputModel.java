@@ -99,6 +99,11 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
      */
     private Progress process;
 
+    /**
+     * 主键hash方式
+     */
+    private String hashFusion;
+
     DataResourceType type = DataResourceType.BloomFilter;
 
     public String getName() {
@@ -227,5 +232,13 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
 
     public void setProcess(Progress process) {
         this.process = process;
+    }
+
+    public String getHashFusion() {
+        return hashFusion;
+    }
+
+    public void setHashFusion(String hashFusion) {
+        this.hashFusion = hashFusion;
     }
 }
