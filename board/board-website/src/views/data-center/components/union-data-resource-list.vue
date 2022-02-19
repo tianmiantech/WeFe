@@ -96,7 +96,7 @@
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
                     样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
-                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    标注进度：{{ ((scope.row.labeled_count / scope.row.total_data_count) * 100).toFixed(2) }}%
                     <br>
                     样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>

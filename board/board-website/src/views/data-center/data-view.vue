@@ -75,7 +75,7 @@
                         {{ (dataInfo.files_size / 1024 /1024).toFixed(2) }}M
                     </el-descriptions-item>
                     <el-descriptions-item label="标注进度：">
-                        {{dataInfo.labeled_count}} ({{ (dataInfo.labeled_count / dataInfo.total_data_count).toFixed(2) * 100 }}%)
+                        {{dataInfo.labeled_count}} ({{ ((dataInfo.labeled_count / dataInfo.total_data_count)*100).toFixed(2) }}%)
                         <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
                             去标注 <i class="el-icon-right"></i>
                         </el-button>
