@@ -163,12 +163,7 @@ export default {
             },
         },
         emitEventName: String,
-        dataResourceSource: {
-            'LocalFile': '本地上传',
-            'UploadFile': '服务器文件上传',
-            'Sql': '数据库上传',
 
-        },
         // dataSets:      Array,
     },
     data() {
@@ -176,6 +171,12 @@ export default {
             show_data_set_preview_dialog: false,
 
             tableLoading: false,
+            dataResourceSource: {
+                'LocalFile': '本地上传',
+                'UploadFile': '服务器文件上传',
+                'Sql': '数据库上传',
+
+            },
         };
     },
     async created() {
