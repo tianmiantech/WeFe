@@ -67,12 +67,17 @@ public class TaskOutput extends AbstractOutputModel{
     /**
      * Number of aligned samples
      */
-    public int dataCount;
+    public Integer dataCount;
 
     /**
      * Number of fusion
      */
-    public int fusionCount;
+    public Integer fusionCount;
+
+    /**
+     * Number of processed
+     */
+    public Integer processedCount;
 
     public long spend;
 
@@ -98,6 +103,7 @@ public class TaskOutput extends AbstractOutputModel{
      * my_role
      */
     private RoleType myRole;
+
 
     public String getBusinessId() {
         return businessId;
@@ -171,6 +177,22 @@ public class TaskOutput extends AbstractOutputModel{
         this.dataResourceType = dataResourceType;
     }
 
+    public boolean isTrace() {
+        return isTrace;
+    }
+
+    public void setTrace(boolean trace) {
+        isTrace = trace;
+    }
+
+    public String getTraceColumn() {
+        return traceColumn;
+    }
+
+    public void setTraceColumn(String traceColumn) {
+        this.traceColumn = traceColumn;
+    }
+
     public int getRowCount() {
         return rowCount;
     }
@@ -195,20 +217,28 @@ public class TaskOutput extends AbstractOutputModel{
         this.algorithm = algorithm;
     }
 
-    public int getDataCount() {
+    public Integer getDataCount() {
         return dataCount;
     }
 
-    public void setDataCount(int dataCount) {
+    public void setDataCount(Integer dataCount) {
         this.dataCount = dataCount;
     }
 
-    public int getFusionCount() {
+    public Integer getFusionCount() {
         return fusionCount;
     }
 
-    public void setFusionCount(int fusionCount) {
+    public void setFusionCount(Integer fusionCount) {
         this.fusionCount = fusionCount;
+    }
+
+    public Integer getProcessedCount() {
+        return processedCount;
+    }
+
+    public void setProcessedCount(Integer processedCount) {
+        this.processedCount = processedCount;
     }
 
     public long getSpend() {
@@ -218,8 +248,6 @@ public class TaskOutput extends AbstractOutputModel{
     public void setSpend(long spend) {
         this.spend = spend;
     }
-
-
 
     public String getDescription() {
         return description;
@@ -251,22 +279,6 @@ public class TaskOutput extends AbstractOutputModel{
 
     public void setPartnerList(List<PartnerOutputModel> partnerList) {
         this.partnerList = partnerList;
-    }
-
-    public boolean isTrace() {
-        return isTrace;
-    }
-
-    public void setTrace(boolean trace) {
-        isTrace = trace;
-    }
-
-    public String getTraceColumn() {
-        return traceColumn;
-    }
-
-    public void setTraceColumn(String traceColumn) {
-        this.traceColumn = traceColumn;
     }
 
     public RoleType getMyRole() {
