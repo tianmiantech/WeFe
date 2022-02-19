@@ -27,17 +27,24 @@ from visualfl.algorithm.paddle_clas import models
 import cv_utils as utils
 from visualfl.db.task_dao import TaskDao
 from visualfl.utils.consts import ComponentName,TaskResultType
+import logging
+FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
+logger = logging.getLogger(__name__)
+
 
 def parse_args():
     def str2bool(v):
         return v.lower() in ("true", "t", "1")
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--job_id", type=str, required=False)
     parser.add_argument("--task_id", type=str,required=True)
-    parser.add_argument("-i", "--infer_dir", type=str)
-    parser.add_argument("-c", "--config", type=str)
-    parser.add_argument("--weights", type=str)
-    parser.add_argument("--use_gpu", type=str2bool, default=True)
+    parser.add_argument("-i", "--infer_dir", type=str,required=True)
+    parser.add_argument("-c", "--config", type=str,required=True)
+    parser.add_argument("--weights", type=str,required=True)
+    parser.add_argument("--output_dir", type=str,required=False)
+    parser.add_argument("--use_gpu", type=str2bool, default=False)
 
     return parser.parse_args()
 
@@ -48,7 +55,7 @@ def create_predictor(args):
 
     def create_input(config):
         image = fluid.layers.data(
-            name='image', shape=config.image_shape, dtype='float32')
+            name='image', shape=config.get("image_shape"), dtype='float32')
         return image
 
     def create_model(architecture, model, input, class_dim=1000):
@@ -59,7 +66,7 @@ def create_predictor(args):
             out = fluid.layers.softmax(out)
         return out
 
-    architecture = config.architecture
+    architecture = config.get("architecture")
     model = models.__dict__[architecture]()
 
     place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
@@ -70,7 +77,7 @@ def create_predictor(args):
     with fluid.program_guard(infer_prog, startup_prog):
         with fluid.unique_name.guard():
             image = create_input(config)
-            out = create_model(architecture, model, image,config.num_classes)
+            out = create_model(architecture, model, image,config.get("num_classes"))
             exe.run(startup_prog)
 
     infer_prog = infer_prog.clone(for_test=True)
@@ -135,12 +142,14 @@ def main():
     image_list = get_image_list(args.infer_dir)
     TaskDao(args.task_id).save_task_result({"status": "running"}, ComponentName.CLASSIFY,type=TaskResultType.INFER)
     task_result = TaskDao(args.task_id).get_task_result(TaskResultType.LABEL)
-    if task_result:
-        label_file = task_result.result
+    if not task_result:
+        raise Exception(f"task result is None as task id: {args.task_id}")
+    label_file = task_result.result
     cats = []
     with open(label_file) as f:
         for line in f.readlines():
-            cats.append(line.strip())
+            lines = line.replace('\n','').split(' ')
+            cats.append(' '.join(lines[1:]))
     infer_result = {}
     img_probs = []
     for idx, filename in enumerate(image_list):
@@ -151,13 +160,13 @@ def main():
                           fetch_list=fetch_names,
                           return_numpy=False)
         probs = postprocess(outputs)
-        print("current image: {}".format(filename))
+        logger.debug("current image: {}".format(filename))
         infer_probs = []
         for idx, prob in probs:
-            print("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
+            logger.debug("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
             infer_probs.append({"class_id":idx,"class_name":cats[idx],"prob":prob})
-        infer_result = {"image": os.path.basename(filename), "infer_probs": infer_probs}
-        img_probs.append(infer_result)
+        infer_dict = {"image": os.path.basename(filename), "infer_probs": infer_probs}
+        img_probs.append(infer_dict)
     infer_result["result"] = img_probs
     infer_result["status"] = "finish"
     TaskDao(task_id=args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY, type=TaskResultType.INFER)

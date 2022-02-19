@@ -57,7 +57,7 @@ class PaddleFLJob(Job):
         self._infer_dir = config["infer_dir"]
         cur_step = config["cur_step"]
         self._weights = Path(__logs_dir__).joinpath(
-                f"jobs/{self.job_id}/train_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}")
+                f"jobs/{self.job_id}/trainer_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}")
         self._algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/master/algorithm_config.json")
         if self._program == "paddle_detection":
             architecture = algorithm_config["architecture"]
@@ -112,8 +112,8 @@ class PaddleFLJob(Job):
                 f"{executable} -m visualfl.algorithm.{self._program}.infer",
                 f"--job_id {self.job_id}",
                 f"--task_id {self._web_task_id}",
-                f"--use_gpu {self._use_gpu}"
-                f"--weights={self._weights}",
+                f"--use_gpu {self._use_gpu}",
+                f"--weights {self._weights}",
                 f"--infer_dir {self._infer_dir}",
                 f"--output_dir {self._output_dir}",
                 f"-c {self._algorithm_config_path}",
