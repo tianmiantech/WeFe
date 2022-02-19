@@ -1,11 +1,11 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,19 @@
  */
 
 
-package com.welab.wefe.union.service.service.sms;
+package com.welab.wefe.board.service.service.verificationcode;
 
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.verification.code.AbstractResponse;
 
 /**
+ * Aliyun sms response
+ *
  * @author aaron.li
  * @Date 2021/10/20
  **/
-public class AliyunSmsResponse extends AbstractSmsResponse<SendSmsResponse> {
+public class AliyunSmsResponse extends AbstractResponse<SendSmsResponse> {
     private final static String RESP_STATUS_OK = "OK";
 
     public AliyunSmsResponse(SendSmsResponse data) {
