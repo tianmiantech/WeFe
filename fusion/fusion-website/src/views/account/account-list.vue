@@ -155,6 +155,15 @@
                         >
                             审核
                         </el-button>
+
+                        <el-button
+                            type="success"
+                            v-else-if="scope.row.audit_status === 'disagree'"
+                            @click="allowLogin(scope.row)"
+                        >
+                            允许登录
+                        </el-button>
+
                         <template v-else>
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
@@ -254,6 +263,7 @@
             </template>
         </el-dialog>
 
+
         <el-dialog
             width="340px"
             title="重置用户密码"
@@ -279,7 +289,7 @@
         </el-dialog>
 
         <el-dialog
-            v-model="resetPwDialog.result"
+            :visible.sync="resetPwDialog.result"
             width="340px"
             title="新用户密码"
             destroy-on-close
@@ -394,6 +404,7 @@ export default {
     data() {
         return {
             dialogAuditAccountVisible: false,
+            allowLoginVisible: false,
             formLabelWidth: '100px',
 
             search: {
@@ -445,6 +456,39 @@ export default {
         this.getList();
     },
     methods: {
+
+        async allowLogin(row, $event) {
+
+            this.$alert('是否允许登录？', '警告', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    if (action === 'confirm') {
+                        this.changeAuditStatus(row, $event);
+                        setTimeout(() => {
+                            this.refresh();
+                        }, 1000);
+                    }
+                },
+            });
+        },
+
+        async changeAuditStatus(row, $event) {
+            this.form.audit_status = 'agree'
+            this.form.account_id = row.id
+
+            const {code} = await this.$http.post({
+                url: '/account/audit',
+                data: this.form,
+                btnState: {
+                    target: $event,
+                },
+            });
+
+            if (code === 0) {
+                this.getList()
+            }
+        },
+
         // show audit dialog
         showAuditPanel(row) {
             this.form.account_id = row.id;
