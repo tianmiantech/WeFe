@@ -73,10 +73,10 @@
                     RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源
                 </span>
 
-                <el-form class="el-card p20 flex-form">
+                <el-form class="el-card p20 flex-form mt10">
                     <!-- promoter -->
                     <h4 class="f14">发起方:</h4>
-                    <p>{{ vData.promoter.member_name }} <span style="color:#999;">({{ vData.promoter.member_id }})</span></p>
+                    <p class="f14 mt5 mb5">{{ vData.promoter.member_name }} <span style="color:#999;">({{ vData.promoter.member_id }})</span></p>
                     <el-button
                         v-if="!vData.promoter.data_set_id"
                         type="primary"
@@ -137,7 +137,7 @@
                         v-if="vData.myRole === 'promoter' && vData.providerList.length > 1"
                         v-model="vData.provider.member_id"
                     >
-                        <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.inviter_name" />
+                        <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.member_name" />
                     </el-radio-group>
                     <p v-else>{{ vData.provider.member_name }} <span style="color:#999;">({{ vData.provider.member_id }})</span></p>
 
@@ -281,7 +281,7 @@
 
             <p v-if="vData.status === 'Refuse' && vData.comment" class="color-danger mb10">协作方拒绝原因: {{ vData.comment }}</p>
 
-            <el-form-item>
+            <el-form-item class="mt20">
                 <el-button
                     v-if="!vData.id"
                     type="primary"

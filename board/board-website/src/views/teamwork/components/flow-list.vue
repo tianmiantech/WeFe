@@ -102,7 +102,7 @@
                     >
                         执行记录
                     </router-link>
-                    <el-dropdown v-if="scope.row.is_creator">
+                    <el-dropdown v-if="scope.row.is_creator" size="small">
                         <el-button type="text">
                             更多
                             <el-icon>
@@ -635,6 +635,7 @@
         color: $--color-danger;
     }
     h3{margin: 10px;}
+    .el-dropdown{top: -4px;}
     .model-list{
         display: flex;
         justify-content: center;

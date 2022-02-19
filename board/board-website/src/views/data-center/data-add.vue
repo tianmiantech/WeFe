@@ -1047,6 +1047,11 @@
 
             tagInputConfirm() {
                 const val = this.tagInputValue;
+                const existsed = this.tagList.find(x => x.label === val);
+
+                if(existsed) {
+                    return this.$message.error('标签不能重复!');
+                }
 
                 if (val) {
                     this.tagList.push({
