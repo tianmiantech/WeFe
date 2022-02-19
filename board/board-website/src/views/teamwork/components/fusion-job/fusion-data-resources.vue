@@ -48,7 +48,7 @@
                 </el-table-column>
                 <el-table-column
                     label="授权情况"
-                    min-width="80"
+                    min-width="100"
                 >
                     <template v-slot="scope">
                         <el-tag v-if="scope.row.audit_status === 'agree'">已授权</el-tag>

@@ -248,6 +248,7 @@
         methods: {
             getDataList(opt) {
                 this.search = this.searchField;
+                // string to array
                 if (this.search.dataResourceType && typeof this.search.dataResourceType === 'string') {
                     this.search.dataResourceType = [this.search.dataResourceType];
                 }
