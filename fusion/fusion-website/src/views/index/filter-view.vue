@@ -128,7 +128,7 @@
                     :options="file_upload_options"
                     @file-complete="fileUploadComplete"
                 >
-                    <uploader-unsupport />
+                    <uploader-unsupport/>
                     <uploader-drop>
                         <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>
                         或
@@ -152,7 +152,7 @@
                             </li>
                         </ul>
                     </div>
-                    <uploader-list />
+                    <uploader-list/>
                 </uploader>
             </fieldset>
 
@@ -222,7 +222,7 @@
                         class="inlineblock"
                         type="success"
                     >
-                        主键生成规则:   {{ keyRes }}
+                        主键生成规则: {{ keyRes }}
                     </el-alert>
                 </div>
 
@@ -346,6 +346,7 @@
 
 <script>
 import progressBar from '../components/progressBar';
+import {mapGetters} from "vuex";
 
 export default {
     components: {
@@ -353,110 +354,113 @@ export default {
     },
     data() {
         return {
-            loading:                 false,
+            loading: false,
             // ui status
-            tagInputVisible:         false,
-            tagInputValue:           '',
-            options_tags:            [],
+            tagInputVisible: false,
+            tagInputValue: '',
+            options_tags: [],
             public_member_info_list: [],
             // preview
-            raw_data_list:           [],
-            metadata_list:           [],
-            filter_header:           [],
-            data_type_options:       ['Integer', 'Long', 'Double', 'Enum', 'String'],
+            raw_data_list: [],
+            metadata_list: [],
+            filter_header: [],
+            data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
             // help: https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
-            file_upload_options:     {
+            file_upload_options: {
                 target: window.api.baseUrl + '/file/upload',
 
+                headers: {
+                    token: '',
+                },
                 singleFile: true,
 
-                testChunks:          true,
-                chunkSize:           8 * 1024 * 1024,
+                testChunks: true,
+                chunkSize: 8 * 1024 * 1024,
                 simultaneousUploads: 4,
             },
             file_upload_attrs: {
                 accept: '.csv,.xls,.xlsx',
             },
             http_upload_filename: '',
-            local_filename:       '',
+            local_filename: '',
             // model
-            form:                 {
-                publicLevel:        'Public',
-                name:               '',
-                description:        '',
+            form: {
+                publicLevel: 'Public',
+                name: '',
+                description: '',
                 public_member_list: [],
-                filename:           '',
+                filename: '',
                 dataResourceSource: 'UploadFile',
-                metadata_list:      [],
-                deduplication:      false,
-                row_list:           [],
-                fieldInfoList:      [],
+                metadata_list: [],
+                deduplication: false,
+                row_list: [],
+                fieldInfoList: [],
             },
             metadata_pagination: {
-                list:       [],
-                total:      0,
-                page_size:  20,
+                list: [],
+                total: 0,
+                page_size: 20,
                 page_index: 1,
             },
             gridTheme: {
-                color:       '#6C757D',
+                color: '#6C757D',
                 borderColor: '#EBEEF5',
             },
             data_preview_finished: false,
-            gridHeight:            0,
-            search:                {
+            gridHeight: 0,
+            search: {
                 database_name: '',
-                tag:           '',
-                source_type:   '',
+                tag: '',
+                source_type: '',
             },
             data_source_list: [],
-            data_source_id:   '',
-            row_list:         [],
-            fieldInfoList:    [],
-            optionsList:      [{
-                name:  'md5',
+            data_source_id: '',
+            row_list: [],
+            fieldInfoList: [],
+            optionsList: [{
+                name: 'md5',
                 value: 'MD5',
             },
-            {
-                name:  'sha',
-                value: 'SHA1',
-            },
-            {
-                name:  '不处理',
-                value: 'NONE',
-            }],
+                {
+                    name: 'sha',
+                    value: 'SHA1',
+                },
+                {
+                    name: '不处理',
+                    value: 'NONE',
+                }],
 
             dataSource: {
-                loading:        false,
-                show:           false,
-                name:           '',
-                host:           '',
-                port:           '',
-                databaseName:   '',
-                userName:       '',
-                password:       '',
-                databaseType:   'MySql',
-                databaseTypes:  ['MySql', 'Hive', 'Impala'],
+                loading: false,
+                show: false,
+                name: '',
+                host: '',
+                port: '',
+                databaseName: '',
+                userName: '',
+                password: '',
+                databaseType: 'MySql',
+                databaseTypes: ['MySql', 'Hive', 'Impala'],
                 dataSourceList: [],
-                dataset:        [],
+                dataset: [],
             },
 
             // dataResource
             dataResource: {
-                visible:     false,
-                editor:      false,
-                id:          '',
-                name:        '',
-                type:        '',
+                visible: false,
+                editor: false,
+                id: '',
+                name: '',
+                type: '',
                 description: '',
-                rows:        '',
+                rows: '',
             },
-            keyRes:      '',
-            isuploadok:  false,
+            keyRes: '',
+            isuploadok: false,
             saveLoading: false,
-            timer:       null,
+            timer: null,
             processData: {
-                text:       '正在存储过滤器...',
+                text: '正在存储过滤器...',
                 percentage: 0,
             },
         };
@@ -475,12 +479,18 @@ export default {
         },
     },
     async created() {
+
+        this.file_upload_options.headers.token = this.userInfo.token
         this.getDataSources();
+    },
+
+    computed: {
+        ...mapGetters(['userInfo']),
     },
 
     methods: {
         async getDataSources() {
-            const { code, data } = await this.$http.get('/data_source/query');
+            const {code, data} = await this.$http.get('/data_source/query');
 
             if (code === 0) {
                 this.data_source_list = data.list;
@@ -489,21 +499,21 @@ export default {
         // test db connect
         async pingTest() {
             this.dataSource.loading = true;
-            const { code } = await this.$http.post({
-                url:  '/data_source/test_db_connect',
+            const {code} = await this.$http.post({
+                url: '/data_source/test_db_connect',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName:     this.dataSource.userName,
-                    password:     this.dataSource.password,
-                    name:         this.dataSource.name,
-                    host:         this.dataSource.host,
-                    port:         this.dataSource.port,
+                    userName: this.dataSource.userName,
+                    password: this.dataSource.password,
+                    name: this.dataSource.name,
+                    host: this.dataSource.host,
+                    port: this.dataSource.port,
                 },
             });
 
             this.dataSource.loading = false;
-            if(code === 0) {
+            if (code === 0) {
                 this.$message.success('数据库连接成功!');
             }
         },
@@ -511,21 +521,21 @@ export default {
         // add data source
         async addDatabaseType() {
             this.dataSource.loading = true;
-            const { code } = await this.$http.post({
-                url:  '/data_source/add',
+            const {code} = await this.$http.post({
+                url: '/data_source/add',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName:     this.dataSource.userName,
-                    password:     this.dataSource.password,
-                    name:         this.dataSource.name,
-                    host:         this.dataSource.host,
-                    port:         this.dataSource.port,
+                    userName: this.dataSource.userName,
+                    password: this.dataSource.password,
+                    name: this.dataSource.name,
+                    host: this.dataSource.host,
+                    port: this.dataSource.port,
                 },
             });
 
             this.dataSource.loading = false;
-            if(code === 0) {
+            if (code === 0) {
                 this.dataSource.show = false;
                 this.$message.success('添加成功!');
                 this.getDataSources();
@@ -533,7 +543,7 @@ export default {
         },
 
         metadataPageChange(val) {
-            const { page_size } = this.metadata_pagination;
+            const {page_size} = this.metadata_pagination;
 
             this.metadata_pagination.page_index = val;
             this.metadata_pagination.list = [];
@@ -552,7 +562,7 @@ export default {
             this.metadata_list[row.$index].comment = row.comment;
         },
 
-        getDataSourceId(id){
+        getDataSourceId(id) {
             this.form.data_source_id = id;
             this.data_source_id = id;
         },
@@ -564,10 +574,10 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const { code, data } = await this.$http.get({
-                url:    '/filter/preview',
+            const {code, data} = await this.$http.get({
+                url: '/filter/preview',
                 params: {
-                    filename:           this.form.filename,
+                    filename: this.form.filename,
                     id,
                     dataResourceSource: this.form.dataResourceSource,
                 },
@@ -606,13 +616,13 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const { code, data } = await this.$http.get({
-                url:    '/filter/preview',
+            const {code, data} = await this.$http.get({
+                url: '/filter/preview',
                 params: {
-                    filename:           this.form.filename,
+                    filename: this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
-                    sql:                this.form.sql,
-                    id:                 this.form.data_source_id,
+                    sql: this.form.sql,
+                    id: this.form.data_source_id,
                 },
             });
 
@@ -647,10 +657,10 @@ export default {
             this.loading = true;
             this.data_preview_finished = false;
             const file = arguments[0].file;
-            const { code, data } = await this.$http.get({
-                url:    '/file/merge',
+            const {code, data} = await this.$http.get({
+                url: '/file/merge',
                 params: {
-                    filename:         file.name,
+                    filename: file.name,
                     uniqueIdentifier: arguments[0].uniqueIdentifier,
                 },
             })
@@ -710,30 +720,42 @@ export default {
             }
 
             this.fieldInfoList.forEach((item, index) => {
-                item.columns=item.column_arr.join(',');
+                item.columns = item.column_arr.join(',');
             });
 
             this.loading = true;
             this.form.metadata_list = this.metadata_list;
-            this.form.rows = this.dataResource.rows;
+
+
             this.form.data_source_id = this.data_source_id;
             this.form.fieldInfoList = this.fieldInfoList;
 
-            if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource ==='UploadFile' || this.form.dataResourceSource ==='LocalFile')) {
+            // this.form.rows
+            let temp_row = []
+            for (let i = 0; i < this.fieldInfoList.length; i++) {
+                let col_arr = this.fieldInfoList[i].column_arr
+                for (let j = 0; j < col_arr.length; j++) {
+                    temp_row.push(col_arr[j])
+                }
+            }
+            this.form.rows = Array.from(new Set(temp_row))
+            // console.log(this.form.rows)
+
+            if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource === 'UploadFile' || this.form.dataResourceSource === 'LocalFile')) {
                 this.$message.error('请添加主键！');
                 return;
             }
-            if(this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
+            if (this.form.dataResourceSource === 'LocalFile' && !this.local_filename) {
                 this.$message.error('请填写文件在服务器上的绝对路径！');
                 return;
             }
 
             this.saveLoading = true;
             if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
-            const { code, data } = await this.$http.post({
-                url:     '/filter/add',
+            const {code, data} = await this.$http.post({
+                url: '/filter/add',
                 timeout: 1000 * 60 * 24 * 30,
-                data:    this.form,
+                data: this.form,
             });
 
             if (code === 0) {
@@ -742,6 +764,8 @@ export default {
                 } else {
                     this.getDataSetStatus(data.data_source_id);
                 }
+            } else if (code === 10017) {
+                this.dataSource.show = false;
             } else {
                 this.saveLoading = false;
             }
@@ -751,9 +775,9 @@ export default {
         async getDataSetStatus(data_set_id) {
             this.$refs['progressRef'].showDialog();
             if (data_set_id) {
-                const { code, data } = await this.$http.post({
-                    url:  '/filter/get_state',
-                    data: { bloom_filter_id: data_set_id },
+                const {code, data} = await this.$http.post({
+                    url: '/filter/get_state',
+                    data: {bloom_filter_id: data_set_id},
                 });
 
                 if (code === 0) {
@@ -781,8 +805,8 @@ export default {
         async getDataSetTags(keyword, cb) {
             this.options_tags = [];
             if (keyword) {
-                const { code, data } = await this.$http.post({
-                    url:  '/filter/tags',
+                const {code, data} = await this.$http.post({
+                    url: '/filter/tags',
                     data: {
                         tag: keyword,
                     },
@@ -790,7 +814,7 @@ export default {
 
                 if (code === 0) {
                     for (const key in data) {
-                        this.options_tags.push({ value: key, label: key });
+                        this.options_tags.push({value: key, label: key});
                     }
                 }
             }
@@ -808,11 +832,11 @@ export default {
 
 
             const fieldInfo = {
-                column_arr:  '',
-                columns:     '',
-                options:     '',
+                column_arr: '',
+                columns: '',
+                options: '',
                 frist_index: '',
-                end_index:   '',
+                end_index: '',
             };
 
             this.fieldInfoList.push(fieldInfo);
@@ -835,22 +859,22 @@ export default {
 
             let res = '';
 
-            if(this.fieldInfoList.length===0){
+            if (this.fieldInfoList.length === 0) {
                 this.keyRes = res;
                 return;
             }
 
             const lastItem = this.fieldInfoList[this.fieldInfoList.length - 1];
 
-            if(!lastItem.column_arr.length || !lastItem.options) {
+            if (!lastItem.column_arr.length || !lastItem.options) {
                 return;
             }
 
             this.fieldInfoList.forEach((item, index) => {
-                if(item.options === 'NONE'){
-                    res = res + `${res?' + ': ''}${item.column_arr.join(' + ')}`;
+                if (item.options === 'NONE') {
+                    res = res + `${res ? ' + ' : ''}${item.column_arr.join(' + ')}`;
                 } else {
-                    res = res + `${res?' + ': ''}${item.options}(${item.column_arr.join(' + ')})`;
+                    res = res + `${res ? ' + ' : ''}${item.options}(${item.column_arr.join(' + ')})`;
                 }
             });
             res = `Id = ${res}`;
@@ -861,81 +885,92 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .page {overflow: visible;}
+.page {
+    overflow: visible;
+}
 
-    .el-input, .el-textarea{max-width: 500px;}
+.el-input, .el-textarea {
+    max-width: 500px;
+}
 
-    .el-icon-remove-outline{
-        color:#ff5757;
-        cursor: pointer;
-        margin-left: 10px;
-    }
-    .el-alert{width:auto;}
-    .el-select{
-        ::v-deep .el-tag__close.el-icon-close{
-            background:#fff;
-            &:hover{background:#28c2d7;}
-        }
-    }
+.el-icon-remove-outline {
+    color: #ff5757;
+    cursor: pointer;
+    margin-left: 10px;
+}
 
-    .uploader-file-name {
-        width: auto;
-    }
+.el-alert {
+    width: auto;
+}
 
-    .uploader-file-status {
-        width: 80px;
-        text-indent: 2px;
-    }
-
-    .uploader-file-actions {
-        width: 150px;
-    }
-
-    .uploader-drop {
-        border-radius: 5px;
-    }
-
-    .uploader-btn {
+.el-select {
+    ::v-deep .el-tag__close.el-icon-close {
         background: #fff;
-    }
 
-    .el-icon-upload {
-        line-height: 1;
-        margin: 10px auto 0;
-    }
-
-    .el-upload {
-        position: relative;
-    }
-
-    .el-upload__input {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 10;
-        display: block;
-        cursor: pointer;
-        opacity: 0;
-    }
-
-    .el-upload__tip {
-        font-size: 14px;
-
-        .data-set-upload-tip {
-            text-align: left;
-            margin-top: 8px;
-            color: #ff5757;
-            line-height: 130%;
-        }
-
-        .data-set-upload-tip li {
-            list-style: inside;
+        &:hover {
+            background: #28c2d7;
         }
     }
+}
 
-    .save-btn {
-        width: 100px;
+.uploader-file-name {
+    width: auto;
+}
+
+.uploader-file-status {
+    width: 80px;
+    text-indent: 2px;
+}
+
+.uploader-file-actions {
+    width: 150px;
+}
+
+.uploader-drop {
+    border-radius: 5px;
+}
+
+.uploader-btn {
+    background: #fff;
+}
+
+.el-icon-upload {
+    line-height: 1;
+    margin: 10px auto 0;
+}
+
+.el-upload {
+    position: relative;
+}
+
+.el-upload__input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: block;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.el-upload__tip {
+    font-size: 14px;
+
+    .data-set-upload-tip {
+        text-align: left;
+        margin-top: 8px;
+        color: #ff5757;
+        line-height: 130%;
     }
+
+    .data-set-upload-tip li {
+        list-style: inside;
+    }
+}
+
+.save-btn {
+    width: 100px;
+}
 </style>

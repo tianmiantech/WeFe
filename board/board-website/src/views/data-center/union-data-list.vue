@@ -101,6 +101,7 @@
 
             <el-button
                 type="primary"
+                class="inline-block"
                 native-type="submit"
                 @click="searchList({ to: true, resetPagination: true })"
             >

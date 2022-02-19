@@ -246,6 +246,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .append("member.hidden", "0")
                 .append("member.freezed", "0")
                 .append("member.lost_contact", "0")
+                .append("member.allow_open_data_set", "1")
                 .getCriteria();
 
         MatchOperation memberMatch = Aggregation.match(memberCriteria);

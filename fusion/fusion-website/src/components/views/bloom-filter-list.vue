@@ -40,9 +40,14 @@
 
             <el-table-column
                 label="来源"
-                prop="data_resource_source"
+
                 min-width="120"
-            />
+            >
+
+                <template slot-scope="scope">
+                    <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 label="上传时间"
@@ -136,6 +141,12 @@ export default {
             show_bloom_filter_preview_dialog: false,
 
             tableLoading: false,
+            dataResourceSource: {
+                'LocalFile': '本地上传',
+                'UploadFile': '服务器文件上传',
+                'Sql': '数据库上传',
+
+            },
         };
     },
     async created() {

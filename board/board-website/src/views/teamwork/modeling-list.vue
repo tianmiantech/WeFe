@@ -54,7 +54,7 @@
             <el-tag
                 v-for="item in vData.languages"
                 :key="item"
-                size="medium"
+                size="small"
                 @click="modelExport($event, item)"
             >
                 {{ item }}
