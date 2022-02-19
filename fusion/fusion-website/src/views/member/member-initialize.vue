@@ -7,8 +7,8 @@
             <div class="logo">
                 <img src="@assets/images/x-logo.png">
             </div>
-            <h4 class="sign-title">初始化系统 · 成为联邦成员</h4>
-            <el-divider />
+            <h4 class="sign-title">初始化系统 · 设置系统信息</h4>
+            <el-divider/>
             <el-form
                 ref="sign-form"
                 :model="form"
@@ -16,7 +16,7 @@
                 @submit.prevent
             >
                 <el-form-item
-                    label="联邦成员名称："
+                    label="成员名称："
                     required
                 >
                     <el-input
@@ -41,51 +41,7 @@
                         clearable
                     />
                 </el-form-item>
-                <el-form-item label="是否允许对外公开数据资源基础信息：">
-                    <el-radio
-                        v-model="form.member_allow_public_data_set"
-                        :label="true"
-                    >
-                        是
-                    </el-radio>
-                    <el-radio
-                        v-model="form.member_allow_public_data_set"
-                        :label="false"
-                    >
-                        否
-                    </el-radio>
-                </el-form-item>
-                <!-- <el-form-item
-                    label="Board Service Address："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.board_uri"
-                        :placeholder="baseUrl"
-                        clearable
-                    />
-                </el-form-item> -->
-                <!-- <el-form-item
-                    label="Gateway Uri："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.gateway_uri"
-                        placeholder="必填"
-                        clearable
-                    >
-                        <template slot="append">
-                            <el-button
-                                type="primary"
-                                :disabled="!form.gateway_uri"
-                                @click="check"
-                            >
-                                有效性检查
-                            </el-button>
-                        </template>
-                    </el-input>
-                </el-form-item> -->
-                <el-divider />
+                <el-divider/>
                 <el-button
                     round
                     type="primary"
@@ -93,7 +49,7 @@
                     class="btn-submit ml10"
                     @click="submit"
                 >
-                    加入联邦 ！
+                    确认设置
                 </el-button>
             </el-form>
         </div>
@@ -108,7 +64,7 @@
             :close-on-click-modal="false"
             :show-close="false"
         >
-            <MemberCard :uploader="true" />
+            <MemberCard :uploader="true"/>
 
             <div class="text-c pt30">
                 <el-button type="primary">提交</el-button>
@@ -133,130 +89,133 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
-    import { EMAILREG } from '@js/const/reg';
-    import { baseLogout } from '@src/router/auth';
+import {mapGetters} from 'vuex';
+import {EMAILREG} from '@js/const/reg';
+import {baseLogout} from '@src/router/auth';
 
-    export default {
-        data() {
-            return {
-                loading: false,
-                baseUrl: '',
-                form:    {
-                    member_name:                  '',
-                    member_email:                 '',
-                    member_mobile:                '',
-                    member_allow_public_data_set: true,
-                    // gateway_uri:                  '',
-                },
-                memberCard: {
-                    visible:    false,
-                    transition: false,
-                },
-            };
-        },
-        computed: {
-            ...mapGetters(['userInfo']),
-        },
-        created() {
-            this.systemStatusCheck();
-        },
-        methods: {
-            emailFormat(rule, value, callback) {
-                if (EMAILREG.test(value)) {
-                    callback();
-                } else {
-                    callback(false);
-                }
+export default {
+    data() {
+        return {
+            loading: false,
+            baseUrl: '',
+            form: {
+                member_name: '',
+                member_email: '',
+                member_mobile: '',
+                member_allow_public_data_set: true,
+                // gateway_uri:                  '',
             },
-
-            async systemStatusCheck() {
-                if(this.loading) return;
-                this.loading = true;
-
-                const { code, data } = await this.$http.get({
-                    url: '/member/is_initialized',
-                });
-
-                this.loading = false;
-                if(code === 0) {
-                    if(data.initialized) {
-                        if(this.userInfo.member_id) {
-                            this.$store.commit('SYSTEM_INITED', true); // system inited
-                            this.$router.replace({
-                                name: 'index',
-                            });
-                        } else {
-                            this.$message.success('请重新登录');
-                            baseLogout();
-                        }
-                    }
-                } else if (code === 10006) {
-                    baseLogout();
-                }
+            memberCard: {
+                visible: false,
+                transition: false,
             },
+        };
+    },
+    computed: {
+        ...mapGetters(['userInfo']),
+    },
+    created() {
+        this.systemStatusCheck();
+    },
+    methods: {
+        emailFormat(rule, value, callback) {
+            if (EMAILREG.test(value)) {
+                callback();
+            } else {
+                callback(false);
+            }
+        },
 
-            async check(event) {
-                const { code } = await this.$http.post({
-                    url:  '/member/check_route_connect',
-                    data: {
-                        gateway_uri: this.form.gateway_uri,
-                    },
-                    btnState: {
-                        target: event,
-                    },
-                });
+        async systemStatusCheck() {
+            if (this.loading) return;
+            this.loading = true;
 
-                if (code === 0) {
-                    this.$message.success('服务正常！');
-                } else if (code === 10006) {
-                    setTimeout(() => {
-                        baseLogout();
-                    });
-                }
-            },
+            const {code, data} = await this.$http.get({
+                url: '/system/is_initialized',
+            });
 
-            submit() {
-                this.$refs['sign-form'].validate(async valid => {
-                    if (valid) {
-                        const { code } = await this.$http.post({
-                            url:  '/member/initialize',
-                            data: this.form,
+            this.loading = false;
+            if (code === 0) {
+                if (data.initialized) {
+                    if (this.userInfo.member_id) {
+                        this.$store.commit('SYSTEM_INITED', true); // system inited
+                        this.$router.replace({
+                            name: 'index',
                         });
-
-                        if (code === 0) {
-                            const res = await this.$http.get({
-                                url: '/member/detail',
-                            });
-
-                            if(res.code === 0) {
-                                const info = Object.assign(this.userInfo, res.data);
-
-                                this.$store.commit('SYSTEM_INITED', true); // system initialized
-                                this.$store.commit('UPDATE_USERINFO', info);
-                                this.$message.success('欢迎来到 WeFe 联邦! ');
-                                this.initMemberCard();
-                            } else {
-                                this.$message.success('请重新登录');
-                                baseLogout();
-                            }
-                        }
+                    } else {
+                        this.$message.success('请重新登录');
+                        baseLogout();
                     }
-                });
-            },
-
-            initMemberCard() {
-
-                this.$router.replace({
-                    name: 'index',
-                });
-            },
+                }
+            } else if (code === 10006) {
+                baseLogout();
+            }
         },
-    };
+
+        async check(event) {
+            const {code} = await this.$http.post({
+                url: '/system/check_route_connect',
+                data: {
+                    gateway_uri: this.form.gateway_uri,
+                },
+                btnState: {
+                    target: event,
+                },
+            });
+
+            if (code === 0) {
+                this.$message.success('服务正常！');
+            } else if (code === 10006) {
+                setTimeout(() => {
+                    baseLogout();
+                });
+            }
+        },
+
+        submit() {
+            this.$refs['sign-form'].validate(async valid => {
+                if (valid) {
+                    const {code} = await this.$http.post({
+                        url: '/system/initialize',
+                        data: this.form,
+                    });
+
+                    if (code === 0) {
+                        // const res = await this.$http.get({
+                        //     url: '/system/detail',
+                        // });
+
+                        // if(res.code === 0) {
+                        //     const info = Object.assign(this.userInfo, res.data);
+                        //
+                        this.$store.commit('SYSTEM_INITED', true); // system initialized
+                        this.$message.success('欢迎来到 WeFe 联邦! ')
+
+                        this.$router.replace({
+                            name: 'index',
+                        })
+                        // } else {
+                        //     this.$message.success('请重新登录');
+                        //     baseLogout();
+                        // }
+                    }
+                }
+            });
+        },
+
+        initMemberCard() {
+
+            this.$router.replace({
+                name: 'index',
+            });
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
 @import "../sign/sign.scss";
+
 .register-wrapper {
     overflow: hidden;
     min-height: 100vh;
@@ -271,10 +230,15 @@
     border-radius: 3px;
     padding: 20px;
 }
-.el-dialog__wrapper :deep(.member-card-wrap){
+
+.el-dialog__wrapper :deep(.member-card-wrap) {
     animation: cardRotate 2s ease-in-out;
-    .member-card{margin: 0 auto;}
+
+    .member-card {
+        margin: 0 auto;
+    }
 }
+
 .flake {
     position: fixed;
     top: -10%;
@@ -285,6 +249,7 @@
     animation-play-state: running, running;
     animation-duration: 10s, 3s;
 }
+
 @keyframes flakes-fall {
     0% {
         top: -10%;
@@ -293,6 +258,7 @@
         top: 100%;
     }
 }
+
 @keyframes flakes-shake-rotate {
     0% {
         transform: translateX(0px) rotate(0deg);
@@ -304,46 +270,57 @@
         transform: translateX(0px) rotate(360deg);
     }
 }
+
 .flake:nth-of-type(0) {
     left: 1%;
     animation-delay: 0s, 0s;
 }
+
 .flake:nth-of-type(1) {
     left: 10%;
     animation-delay: 1s, 1s;
 }
+
 .flake:nth-of-type(2) {
     left: 20%;
     animation-delay: 6s, 0.5s;
 }
+
 .flake:nth-of-type(3) {
     left: 30%;
     animation-delay: 4s, 2s;
 }
+
 .flake:nth-of-type(4) {
     left: 40%;
     animation-delay: 2s, 2s;
 }
+
 .flake:nth-of-type(5) {
     left: 50%;
     animation-delay: 8s, 3s;
 }
+
 .flake:nth-of-type(6) {
     left: 60%;
     animation-delay: 6s, 2s;
 }
+
 .flake:nth-of-type(7) {
     left: 70%;
     animation-delay: 2.5s, 1s;
 }
+
 .flake:nth-of-type(8) {
     left: 80%;
     animation-delay: 1s, 0s;
 }
+
 .flake:nth-of-type(9) {
     left: 90%;
     animation-delay: 3s, 1.5s;
 }
+
 .btn-submit {
     display: block;
     margin: 0 auto;
